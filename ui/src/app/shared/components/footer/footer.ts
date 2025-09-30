@@ -31,13 +31,13 @@ import { Role } from "../../type/role";
       }
     }
   `],
-  templateUrl: "footer.html",
+  templateUrl: "FOOTER.HTML",
   standalone: false,
 })
 export class FooterComponent {
 
-  @HostBinding("attr.data-isSmartPhone")
-  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+  @HostBinding("ATTR.DATA-isSmartPhone")
+  public isSmartPhone: boolean = THIS.SERVICE.IS_SMARTPHONE_RESOLUTION;
 
   protected user: User | null = null;
   protected edge: Edge | null = null;
@@ -50,15 +50,15 @@ export class FooterComponent {
   ) {
 
     effect(() => {
-      const edge = this.service.currentEdge();
+      const edge = THIS.SERVICE.CURRENT_EDGE();
 
       if (!edge) {
-        this.edge = null;
+        THIS.EDGE = null;
         return;
       }
-      this.edge = edge;
+      THIS.EDGE = edge;
 
-      this.setDisplayValues(edge);
+      THIS.SET_DISPLAY_VALUES(edge);
     });
   }
 
@@ -66,19 +66,19 @@ export class FooterComponent {
     const result = {
       comment: "",
       id: "",
-      version: edge.version,
+      version: EDGE.VERSION,
     };
 
-    switch (environment.backend) {
+    switch (ENVIRONMENT.BACKEND) {
       case "OpenEMS Backend":
-        if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
-          result.comment = edge?.comment;
+        if (ROLE.IS_AT_LEAST(USER.GLOBAL_ROLE, ROLE.OWNER) && USER.HAS_MULTIPLE_EDGES) {
+          RESULT.COMMENT = edge?.comment;
         }
-        result.id = edge.id;
+        RESULT.ID = EDGE.ID;
         break;
 
       case "OpenEMS Edge":
-        result.id = environment.edgeShortName;
+        RESULT.ID = ENVIRONMENT.EDGE_SHORT_NAME;
         break;
     }
 
@@ -87,19 +87,19 @@ export class FooterComponent {
 
   private setDisplayValues(edge: Edge) {
 
-    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
-      this.user = metadata.user;
+    THIS.SERVICE.METADATA.PIPE(filter(metadata => !!metadata)).subscribe((metadata) => {
+      THIS.USER = METADATA.USER;
 
-      let title = environment.edgeShortName;
+      let title = ENVIRONMENT.EDGE_SHORT_NAME;
       if (edge) {
-        this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
+        THIS.DISPLAY_VALUES = FOOTER_COMPONENT.GET_DISPLAY_VALUES(THIS.USER, edge);
 
-        if (this.user.hasMultipleEdges) {
-          title += " | " + edge.id;
+        if (THIS.USER.HAS_MULTIPLE_EDGES) {
+          title += " | " + EDGE.ID;
         }
       }
 
-      this.title.setTitle(title);
+      THIS.TITLE.SET_TITLE(title);
     });
   }
 }

@@ -2,27 +2,27 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import * as Chart from "chart.js";
+import * as Chart from "CHART.JS";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
-import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ColorUtils } from "src/app/shared/utils/color/COLOR.UTILS";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
 
 @Component({
     selector: "powerSocChart",
-    templateUrl: "../../../../../history/abstracthistorychart.html",
+    templateUrl: "../../../../../history/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
-    @Input({ required: true }) public component!: EdgeConfig.Component;
+    @Input({ required: true }) public component!: EDGE_CONFIG.COMPONENT;
 
 
     constructor(
@@ -35,33 +35,33 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     public ngOnChanges() {
-        this.updateChart();
+        THIS.UPDATE_CHART();
     }
 
     public ngOnInit() {
-        this.service.startSpinner(this.spinnerId);
+        THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
     }
 
     public ngOnDestroy() {
-        this.unsubscribeChartRefresh();
+        THIS.UNSUBSCRIBE_CHART_REFRESH();
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TIME_OF_USE_TARIFF_UTILS.GET_CHART_HEIGHT(THIS.SERVICE.IS_SMARTPHONE_RESOLUTION);
     }
 
     protected setLabel() {
-        this.options = this.createDefaultChartOptions();
-        const translate = this.translate;
-        this.options.plugins = {
+        THIS.OPTIONS = THIS.CREATE_DEFAULT_CHART_OPTIONS();
+        const translate = THIS.TRANSLATE;
+        THIS.OPTIONS.PLUGINS = {
             tooltip: {
                 callbacks: {
-                    label: function (item: Chart.TooltipItem<any>) {
+                    label: function (item: CHART.TOOLTIP_ITEM<any>) {
 
-                        const label = item.dataset.label;
-                        const value = item.dataset.data[item.dataIndex];
+                        const label = ITEM.DATASET.LABEL;
+                        const value = ITEM.DATASET.DATA[ITEM.DATA_INDEX];
 
-                        return TimeOfUseTariffUtils.getLabel(value, label, translate);
+                        return TIME_OF_USE_TARIFF_UTILS.GET_LABEL(value, label, translate);
                     },
                 },
             },
@@ -74,163 +74,163 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
     protected override updateChart() {
 
-        this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
-        this.loading = true;
+        THIS.AUTO_SUBSCRIBE_CHART_REFRESH();
+        THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+        THIS.LOADING = true;
 
-        this.edge.sendRequest(
-            this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
+        THIS.EDGE.SEND_REQUEST(
+            THIS.WEBSOCKET,
+            new ComponentJsonApiRequest({ componentId: THIS.COMPONENT.ID, payload: new GetScheduleRequest() }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
-            const schedule = result.schedule;
+            const schedule = RESULT.SCHEDULE;
             const datasets = [];
 
             // Extracting prices and states from the schedule array
             const { gridBuyArray, gridSellArray, productionArray, consumptionArray, essDischargeArray, essChargeArray, socArray, labels } = {
-                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid), 1000),
-                gridSellArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid), 1000),
-                productionArray: schedule.map(entry => entry.production, 1000),
-                consumptionArray: schedule.map(entry => entry.consumption, 1000),
-                essDischargeArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.ess), 1000),
-                essChargeArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.ess), 1000),
-                socArray: schedule.map(entry => entry.soc),
-                labels: schedule.map(entry => new Date(entry.timestamp)),
+                gridBuyArray: SCHEDULE.MAP(entry => HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO(ENTRY.GRID), 1000),
+                gridSellArray: SCHEDULE.MAP(entry => HISTORY_UTILS.VALUE_CONVERTER.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(ENTRY.GRID), 1000),
+                productionArray: SCHEDULE.MAP(entry => ENTRY.PRODUCTION, 1000),
+                consumptionArray: SCHEDULE.MAP(entry => ENTRY.CONSUMPTION, 1000),
+                essDischargeArray: SCHEDULE.MAP(entry => HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO(ENTRY.ESS), 1000),
+                essChargeArray: SCHEDULE.MAP(entry => HISTORY_UTILS.VALUE_CONVERTER.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(ENTRY.ESS), 1000),
+                socArray: SCHEDULE.MAP(entry => ENTRY.SOC),
+                labels: SCHEDULE.MAP(entry => new Date(ENTRY.TIMESTAMP)),
             };
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.gridBuy"),
-                data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.GRID_BUY"),
+                data: GRID_BUY_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
-                borderColor: ChartConstants.Colors.BLUE_GREY,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.BLUE_GREY, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.BLUE_GREY,
             });
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.gridSell"),
-                data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.GRID_SELL"),
+                data: GRID_SELL_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
-                borderColor: ChartConstants.Colors.PURPLE,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.PURPLE, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.PURPLE,
             });
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.production"),
-                data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.PRODUCTION"),
+                data: PRODUCTION_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
-                borderColor: ChartConstants.Colors.BLUE,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.BLUE, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.BLUE,
             });
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.consumption"),
-                data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.CONSUMPTION"),
+                data: CONSUMPTION_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
-                borderColor: ChartConstants.Colors.YELLOW,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.YELLOW, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.YELLOW,
             });
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.CHARGE"),
-                data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.CHARGE"),
+                data: ESS_CHARGE_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-                unit: YAxisType.POWER,
+                unit: YAXIS_TYPE.POWER,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREEN, 0.2),
-                borderColor: ChartConstants.Colors.GREEN,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.GREEN, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.GREEN,
             });
 
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.DISCHARGE"),
-                data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                label: THIS.TRANSLATE.INSTANT("GENERAL.DISCHARGE"),
+                data: ESS_DISCHARGE_ARRAY.MAP(v => UTILS.DIVIDE_SAFELY(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-                unit: YAxisType.POWER,
+                unit: YAXIS_TYPE.POWER,
             });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
-                borderColor: ChartConstants.Colors.RED,
+            THIS.COLORS.PUSH({
+                backgroundColor: COLOR_UTILS.RGB_STRING_TO_RGBA(CHART_CONSTANTS.COLORS.RED, 0.2),
+                borderColor: CHART_CONSTANTS.COLORS.RED,
             });
 
             // State of charge data
-            datasets.push({
+            DATASETS.PUSH({
                 type: "line",
-                label: this.translate.instant("General.soc"),
+                label: THIS.TRANSLATE.INSTANT("GENERAL.SOC"),
                 data: socArray,
                 hidden: false,
-                yAxisID: ChartAxis.RIGHT,
+                yAxisID: CHART_AXIS.RIGHT,
                 borderDash: [10, 10],
                 order: 1,
-                unit: YAxisType.PERCENTAGE,
+                unit: YAXIS_TYPE.PERCENTAGE,
             });
-            this.colors.push({
+            THIS.COLORS.PUSH({
                 backgroundColor: "rgba(189, 195, 199,0.2)",
                 borderColor: "rgba(189, 195, 199,1)",
             });
 
-            this.datasets = datasets;
-            this.loading = false;
-            this.labels = labels;
-            this.setLabel();
-            this.stopSpinner();
+            THIS.DATASETS = datasets;
+            THIS.LOADING = false;
+            THIS.LABELS = labels;
+            THIS.SET_LABEL();
+            THIS.STOP_SPINNER();
         }).catch((reason) => {
-            console.error(reason);
-            this.initializeChart();
+            CONSOLE.ERROR(reason);
+            THIS.INITIALIZE_CHART();
             return;
         }).finally(async () => {
-            await this.setOptions(this.options);
-            this.applyControllerSpecificOptions();
+            await THIS.SET_OPTIONS(THIS.OPTIONS);
+            THIS.APPLY_CONTROLLER_SPECIFIC_OPTIONS();
         });
     }
 
     private applyControllerSpecificOptions() {
-        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
+        const rightYAxis: HISTORY_UTILS.Y_AXES = { position: "right", unit: YAXIS_TYPE.PERCENTAGE, yAxisId: CHART_AXIS.RIGHT };
+        const leftYAxis: HISTORY_UTILS.Y_AXES = { position: "left", unit: YAXIS_TYPE.POWER, yAxisId: CHART_AXIS.LEFT };
 
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
+        THIS.OPTIONS = NEW_ABSTRACT_HISTORY_CHART.GET_YAXIS_OPTIONS(THIS.OPTIONS, rightYAxis, THIS.TRANSLATE, "line", ChartConstants.EMPTY_DATASETS, true);
+        THIS.OPTIONS = NEW_ABSTRACT_HISTORY_CHART.GET_YAXIS_OPTIONS(THIS.OPTIONS, leftYAxis, THIS.TRANSLATE, "line", ChartConstants.EMPTY_DATASETS, true);
 
-        this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
+        THIS.DATASETS = THIS.DATASETS.MAP((el: CHART.CHART_DATASET) => {
 
             // align particular dataset element to right yAxis
-            if (el.label === this.translate.instant("General.soc")) {
-                el["yAxisID"] = ChartAxis.RIGHT;
+            if (EL.LABEL === THIS.TRANSLATE.INSTANT("GENERAL.SOC")) {
+                el["yAxisID"] = CHART_AXIS.RIGHT;
             }
             return el;
         });
 
-        this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
-        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
-        this.options.scales.x.ticks.callback = function (value, index, values) {
+        THIS.OPTIONS.SCALES.X["ticks"] = { source: "auto", autoSkip: false };
+        THIS.OPTIONS.SCALES.X.TICKS.COLOR = getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-chart-xAxis-ticks");
+        THIS.OPTIONS.SCALES.X.TICKS.CALLBACK = function (value, index, values) {
             const date = new Date(value);
 
             // Display the label only if the minutes are zero (full hour)
-            return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
+            return DATE.GET_MINUTES() === 0 ? DATE.GET_HOURS() + ":00" : "";
         };
 
-        this.options.scales[ChartAxis.RIGHT].grid.display = false;
-        this.options.scales[ChartAxis.LEFT].suggestedMin = 0;
-        this.options.scales[ChartAxis.LEFT].suggestedMax = 1;
+        THIS.OPTIONS.SCALES[CHART_AXIS.RIGHT].GRID.DISPLAY = false;
+        THIS.OPTIONS.SCALES[CHART_AXIS.LEFT].suggestedMin = 0;
+        THIS.OPTIONS.SCALES[CHART_AXIS.LEFT].suggestedMax = 1;
     }
 
 }

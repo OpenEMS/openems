@@ -1,9 +1,9 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center"
         style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title>{{ component.alias }}</ion-title>
+        <ion-title>{{ COMPONENT.ALIAS }}</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
+            <ion-button (click)="MODAL_CTRL.DISMISS()">
                 <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -16,48 +16,48 @@
             <ion-card-content>
                 <ion-row>
                     <ion-col>
-                        <ion-label translate>Edge.History.mon</ion-label>
+                        <ion-label translate>EDGE.HISTORY.MON</ion-label>
                         <ion-checkbox formControlName="monday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.tue</ion-label>
+                        <ion-label translate>EDGE.HISTORY.TUE</ion-label>
                         <ion-checkbox formControlName="tuesday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.wed</ion-label>
+                        <ion-label translate>EDGE.HISTORY.WED</ion-label>
                         <ion-checkbox formControlName="wednesday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.thu</ion-label>
+                        <ion-label translate>EDGE.HISTORY.THU</ion-label>
                         <ion-checkbox formControlName="thursday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.fri</ion-label>
+                        <ion-label translate>EDGE.HISTORY.FRI</ion-label>
                         <ion-checkbox formControlName="friday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.sat</ion-label>
+                        <ion-label translate>EDGE.HISTORY.SAT</ion-label>
                         <ion-checkbox formControlName="saturday">
                         </ion-checkbox>
                     </ion-col>
                     <ion-col>
-                        <ion-label translate>Edge.History.sun</ion-label>
+                        <ion-label translate>EDGE.HISTORY.SUN</ion-label>
                         <ion-checkbox formControlName="sunday">
                         </ion-checkbox>
                     </ion-col>
                 </ion-row>
             </ion-card-content>
-            <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
-                <ng-container *ngIf="component.properties['meter.id'] as meterId">
+            <ion-card-content class="underline" *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
+                <ng-container *ngIf="COMPONENT.PROPERTIES['METER.ID'] as meterId">
                     <table class="full_width">
                         <tr>
                             <td style="width: 65%" translate>
-                                General.measuredValue
+                                GENERAL.MEASURED_VALUE
                             </td>
                             <td style="width: 35%" class="align_right">
                                 <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
@@ -72,7 +72,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingPower
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -86,7 +86,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.rechargePower
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -100,7 +100,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.hysteresisSoC
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.HYSTERESIS_SO_C
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -116,7 +116,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.startDate
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.START_DATE
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -128,7 +128,7 @@
                     </tr>
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.endDate
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.END_DATE
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -144,7 +144,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.startTime</td>
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME</td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
                                 <ion-input class="regularFont" type="text" formControlName="startTime"
@@ -155,7 +155,7 @@
                     </tr>
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.endTime</td>
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.END_TIME</td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
                                 <ion-input class="regularFont" type="text" formControlName="endTime"
@@ -170,7 +170,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.recharge
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -182,7 +182,7 @@
                     </tr>
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.startTimeCharge
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME_CHARGE
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -196,7 +196,7 @@
             </ion-card-content>
         </form>
     </ng-container>
-    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab *ngIf="FORM_GROUP.DIRTY" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button (click)="applyChanges()">
             <ion-icon size="large" name="checkmark-circle-outline">
             </ion-icon>

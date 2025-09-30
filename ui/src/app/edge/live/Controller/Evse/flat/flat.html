@@ -1,9 +1,9 @@
 <ng-container *ngIf="isInitialized">
-    <oe-flat-widget button (click)="presentModal()" [title]="component.alias"
+    <oe-flat-widget button (click)="presentModal()" [title]="COMPONENT.ALIAS"
         [icon]="{name: 'oe-evcs', color: 'normal'}">
 
-        <oe-flat-widget-line [name]="'General.mode'| translate"
-            [channelAddress]="component.id + '/_PropertyMode'"></oe-flat-widget-line>
+        <oe-flat-widget-line [name]="'GENERAL.MODE'| translate"
+            [channelAddress]="COMPONENT.ID + '/_PropertyMode'"></oe-flat-widget-line>
 
     </oe-flat-widget>
 </ng-container>

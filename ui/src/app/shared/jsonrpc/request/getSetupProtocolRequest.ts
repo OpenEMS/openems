@@ -20,7 +20,7 @@ export class GetSetupProtocolRequest extends JsonrpcRequest {
             setupProtocolId: string
         },
     ) {
-        super(GetSetupProtocolRequest.METHOD, params);
+        super(GET_SETUP_PROTOCOL_REQUEST.METHOD, params);
     }
 }
 
@@ -33,6 +33,6 @@ export class GetSetupProtocolDataRequest extends JsonrpcRequest {
             edgeId: string
         },
     ) {
-        super(GetSetupProtocolDataRequest.METHOD, params);
+        super(GET_SETUP_PROTOCOL_DATA_REQUEST.METHOD, params);
     }
 }

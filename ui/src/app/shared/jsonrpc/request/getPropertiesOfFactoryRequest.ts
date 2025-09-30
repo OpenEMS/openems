@@ -26,7 +26,7 @@ export class GetPropertiesOfFactoryRequest extends JsonrpcRequest {
             factoryId: string,
         },
     ) {
-        super(GetPropertiesOfFactoryRequest.METHOD, params);
+        super(GET_PROPERTIES_OF_FACTORY_REQUEST.METHOD, params);
     }
 
 }

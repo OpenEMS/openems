@@ -4,21 +4,21 @@
     <ion-grid style="padding-top: 0;" class="ion-padding-bottom">
       <ion-row class="ion-justify-content-center" style="padding-top: 0; padding-bottom: 0;">
         <ion-col *ngIf="backButton" style="text-align: center;" #myIonCol>
-          <ion-button color="primary" (click)="location.back()">
+          <ion-button color="primary" (click)="LOCATION.BACK()">
             <ion-icon name="arrow-back-outline"></ion-icon>
           </ion-button>
         </ion-col>
-        <ion-col [style.opacity]="areButtonsReadyToShow ? '100': '0'" [size]="backButton ? '6':'12'"
+        <ion-col [STYLE.OPACITY]="areButtonsReadyToShow ? '100': '0'" [size]="backButton ? '6':'12'"
           style="text-align: center; white-space: nowrap;">
           <ion-grid class="ion-no-padding" style="padding-top: 0; padding-bottom: 0;">
             <ion-row style="padding-top: 0; padding-bottom: 0;">
-              <ion-col #buttonCol [size-lg]="popoverButtons.length > 0 ? '11':'12'"
-                [size-md]="popoverButtons.length > 0 ? '8':'4'" [size-sm]="popoverButtons.length > 0 ? '6':'6'">
-                <ion-button style="--border-color:white;" id="{{button.id}}" *ngFor="let button of (buttons)"
-                  (click)="button.callback()" #subnavigationbuttons>
-                  {{button.alias ?? button.id}}
+              <ion-col #buttonCol [size-lg]="POPOVER_BUTTONS.LENGTH > 0 ? '11':'12'"
+                [size-md]="POPOVER_BUTTONS.LENGTH > 0 ? '8':'4'" [size-sm]="POPOVER_BUTTONS.LENGTH > 0 ? '6':'6'">
+                <ion-button style="--border-color:white;" id="{{BUTTON.ID}}" *ngFor="let button of (buttons)"
+                  (click)="BUTTON.CALLBACK()" #subnavigationbuttons>
+                  {{BUTTON.ALIAS ?? BUTTON.ID}}
                 </ion-button>
-                <ion-button *ngIf="popoverButtons.length > 0" (click)="this.showPopover = true;" #popoverButtons>
+                <ion-button *ngIf="POPOVER_BUTTONS.LENGTH > 0" (click)="THIS.SHOW_POPOVER = true;" #popoverButtons>
                   ...
                 </ion-button>
                 <ion-popover [ngClass]="'custom-ion-popover'" dismissOnSelect="true" [isOpen]="showPopover" side="top"
@@ -29,7 +29,7 @@
                         <ng-container *ngFor="let popoverbtn of popoverButtons">
                           <ion-item button color="none" lines="full" (click)="togglePopover(popoverbtn)">
                             <ion-label style="white-space: initial;">
-                              {{popoverbtn.alias ?? popoverbtn.id}}
+                              {{POPOVERBTN.ALIAS ?? POPOVERBTN.ID}}
                             </ion-label>
                           </ion-item>
                         </ng-container>

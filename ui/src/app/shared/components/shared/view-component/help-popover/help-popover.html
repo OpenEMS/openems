@@ -1,7 +1,7 @@
 <ion-button [id]="uuid" lines="none" fill="clear">
     <ion-icon name="help-circle-outline" size="small" color="medium"></ion-icon>
 </ion-button>
-<ion-popover [trigger]="uuid" (didDismiss)="didPopoverDismiss.emit()" side="bottom" alignment="center">
+<ion-popover [trigger]="uuid" (didDismiss)="DID_POPOVER_DISMISS.EMIT()" side="bottom" alignment="center">
     <ng-template>
         <ion-content class="ion-padding" text-nowrap>
             {{helpMsg}}

@@ -7,14 +7,14 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
-              Menu.user
+              MENU.USER
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
             <ion-item lines="inset">
               <ion-label translate>
-                Menu.name
+                MENU.NAME
               </ion-label>
               <ion-label>
                 {{
@@ -26,7 +26,7 @@
             </ion-item>
             <ion-item lines="inset">
               <ion-label translate>
-                Login.title
+                LOGIN.TITLE
               </ion-label>
               <ion-label>
                 {{ user.id }}
@@ -36,17 +36,17 @@
             </ion-item>
             <ion-item lines="inset">
               <ion-label translate>
-                Menu.accessLevel
+                MENU.ACCESS_LEVEL
               </ion-label>
               <ion-label>
-                {{ 'Role.' + user.globalRole | translate }}
+                {{ 'ROLE.' + user.globalRole | translate }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
               </ion-label>
             </ion-item>
             <ion-item lines="none">
               <ion-button (click)="doLogout()" slot="end" style="padding-top: 0.8em">
-                <ion-label translate>Menu.logout</ion-label>
+                <ion-label translate>MENU.LOGOUT</ion-label>
                 <ion-icon name="log-out-outline"></ion-icon>
               </ion-button>
             </ion-item>
@@ -66,10 +66,10 @@
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
               <span translate>
-                Register.Form.contactDetails
+                REGISTER.FORM.CONTACT_DETAILS
               </span>
               <ng-container *ngIf="companyInformationFields.length > 0">
-                (<span translate>Register.Form.PRIVATE</span>)
+                (<span translate>REGISTER.FORM.PRIVATE</span>)
               </ng-container>
             </ion-label>
           </ion-item>
@@ -82,12 +82,12 @@
             <ion-item lines="none">
               <ion-button style="padding-top: 0.3em" slot="start" (click)="enableAndDisableEditMode()"
                 [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{isEditModeDisabled ? ('General.EDIT' | translate) :('General.RESET' |
+                <ion-label>{{isEditModeDisabled ? ('GENERAL.EDIT' | translate) :('GENERAL.RESET' |
                   translate)}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label translate>General.SAVE</ion-label>
+                <ion-label translate>GENERAL.SAVE</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
@@ -99,7 +99,7 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              {{'Register.Form.contactDetails' | translate}} ({{'Register.Form.company' | translate}})
+              {{'REGISTER.FORM.CONTACT_DETAILS' | translate}} ({{'REGISTER.FORM.COMPANY' | translate}})
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -115,19 +115,19 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
-              {{ environment.edgeShortName }} - {{ environment.edgeLongName }} {{"About.ENERGY_MANAGEMENT" | translate}}
+              {{ environment.edgeShortName }} - {{ environment.edgeLongName }} {{"ABOUT.ENERGY_MANAGEMENT" | translate}}
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding" [innerHTML]="'About.DESCRIPTION' | translate"></p>
+            <p class="ion-padding" [innerHTML]="'ABOUT.DESCRIPTION' | translate"></p>
             <ul>
               <li>
-                <a class="ion-link" target="_blank" href="https://openems.io" translate>About.openEMS</a>
+                <a class="ion-link" target="_blank" href="https://openems.io" translate>ABOUT.OPEN_EMS</a>
               </li>
             </ul>
             <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
-              <p class="ion-padding" translate>About.BUILD</p>
+              <p class="ion-padding" translate>ABOUT.BUILD</p>
               <ul>
                 <li>
                   <a class="ion-link" routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role
@@ -135,19 +135,19 @@
                 </li>
               </ul>
             </div>
-            <p class="ion-padding" [innerHTML]="'About.CONTACT' | translate"></p>
+            <p class="ion-padding" [innerHTML]="'ABOUT.CONTACT' | translate"></p>
           </ion-card-content>
         </ion-card>
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
-            <ion-label translate>Menu.generalSettings</ion-label>
+            <ion-label translate>MENU.GENERAL_SETTINGS</ion-label>
           </ion-item>
           <ion-card-content>
             <ion-item lines="none">
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage"
                 interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }"
-                [label]="'About.language' |translate">
+                [label]="'ABOUT.LANGUAGE' |translate">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
                   {{ language.title }}
                 </ion-select-option>

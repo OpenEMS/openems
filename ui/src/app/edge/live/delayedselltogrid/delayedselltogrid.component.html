@@ -2,25 +2,25 @@
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="normal" name="trending-down-outline"></ion-icon>
 
-        <ion-label>{{ component.alias }}</ion-label>
+        <ion-label>{{ COMPONENT.ALIAS }}</ion-label>
     </ion-item>
-    <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+    <ion-card-content class="underline" *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
         <ng-container>
             <table class="full_width">
                 <tr>
                     <td style="width: 65%" translate>
-                        Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit
+                        EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.SELL_TO_GRID_POWER_LIMIT
                     </td>
                     <td style="width: 35%" class="align_right">
-                        {{ (component.properties.sellToGridPowerLimit) | unitvalue:'kW' }}
+                        {{ (COMPONENT.PROPERTIES.SELL_TO_GRID_POWER_LIMIT) | unitvalue:'kW' }}
                     </td>
                 </tr>
                 <tr>
                     <td style="width: 65%" translate>
-                        Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower
+                        EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.CONTINUOUS_SELL_TO_GRID_POWER
                     </td>
                     <td style="width: 35%" class="align_right">
-                        {{ (component.properties.continuousSellToGridPower) | unitvalue:'kW' }}
+                        {{ (COMPONENT.PROPERTIES.CONTINUOUS_SELL_TO_GRID_POWER) | unitvalue:'kW' }}
                     </td>
                 </tr>
             </table>

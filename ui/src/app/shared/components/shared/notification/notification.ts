@@ -18,46 +18,46 @@ export class NotificationComponent implements OnInit, OnChanges {
   constructor(private toastie: ToastController) { }
 
   ngOnInit() {
-    const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);
-    this.hideMessage = note != null ? note === "true" : false;
+    const note = LOCAL_STORAGE.GET_ITEM(NOTIFICATION_COMPONENT.PREFIX + THIS.ID);
+    THIS.HIDE_MESSAGE = note != null ? note === "true" : false;
 
-    this.createToast();
+    THIS.CREATE_TOAST();
   }
 
   ngOnChanges() {
-    this.createToast();
+    THIS.CREATE_TOAST();
   }
 
   /**
    * Creates a toast and hides it, if it has been seen.
    */
   async createToast(): Promise<void> {
-    if (!this.text) {
+    if (!THIS.TEXT) {
       return;
     }
 
-    if (!this.id) {
-      console.error("Id needs to be provided");
+    if (!THIS.ID) {
+      CONSOLE.ERROR("Id needs to be provided");
       return;
     }
 
-    if (this.hideMessage) {
+    if (THIS.HIDE_MESSAGE) {
       return;
     }
 
-    const popover = await this.toastie.create({
+    const popover = await THIS.TOASTIE.CREATE({
       translucent: false,
-      message: this.text,
+      message: THIS.TEXT,
       position: "bottom",
       buttons: [
         { icon: "close-outline", role: "cancel" },
       ],
     });
 
-    popover.present();
+    POPOVER.PRESENT();
 
-    await popover.onDidDismiss().then(() => {
-      localStorage.setItem(NotificationComponent.PREFIX + this.id, "true");
+    await POPOVER.ON_DID_DISMISS().then(() => {
+      LOCAL_STORAGE.SET_ITEM(NOTIFICATION_COMPONENT.PREFIX + THIS.ID, "true");
     });
   }
 }

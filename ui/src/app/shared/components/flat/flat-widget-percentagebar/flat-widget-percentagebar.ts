@@ -3,14 +3,14 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
 
 @Component({
     selector: "oe-flat-widget-percentagebar",
-    templateUrl: "./flat-widget-percentagebar.html",
+    templateUrl: "./flat-widget-PERCENTAGEBAR.HTML",
     standalone: false,
 })
 export class FlatWidgetPercentagebarComponent extends AbstractFlatWidgetLine {
 
     protected get displayPercent(): number | null {
-        return this.displayValue === null
+        return THIS.DISPLAY_VALUE === null
             ? null
-            : Math.round(Number.parseFloat(this.displayValue));
+            : MATH.ROUND(NUMBER.PARSE_FLOAT(THIS.DISPLAY_VALUE));
     }
 }

@@ -21,7 +21,7 @@ export class SubscribeEdgesRequest extends JsonrpcRequest {
             edges: string[]
         },
     ) {
-        super(SubscribeEdgesRequest.METHOD, params);
+        super(SUBSCRIBE_EDGES_REQUEST.METHOD, params);
     }
 
 }

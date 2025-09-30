@@ -2,18 +2,18 @@ import { NgOptimizedImage } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
-import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
-import { ModalModule } from "src/app/shared/components/modal/modal.module";
+import tr from "src/app/edge/live/Controller/Evse/shared/TRANSLATION.JSON";
+import { ModalModule } from "src/app/shared/components/modal/MODAL.MODULE";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
-import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
-import { SharedModule } from "src/app/shared/shared.module";
+import { PipeComponentsModule } from "src/app/shared/pipe/PIPE.MODULE";
+import { SharedModule } from "src/app/shared/SHARED.MODULE";
 import { Language } from "src/app/shared/type/language";
 import { FlatComponent } from "./flat/flat";
-import { SchedulePowerChartComponent } from "./pages/forecast/chart/power.chart";
-import { ScheduleChartComponent } from "./pages/forecast/chart/schedule.chart";
+import { SchedulePowerChartComponent } from "./pages/forecast/chart/POWER.CHART";
+import { ScheduleChartComponent } from "./pages/forecast/chart/SCHEDULE.CHART";
 import { ModalComponent as EvseForecastPageComponent } from "./pages/forecast/forecast";
-import { ChartComponent } from "./pages/history/chart/power.chart";
-import { ChartComponent as StatusChartComponent } from "./pages/history/chart/status.chart";
+import { ChartComponent } from "./pages/history/chart/POWER.CHART";
+import { ChartComponent as StatusChartComponent } from "./pages/history/chart/STATUS.CHART";
 import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/history";
 import { ModalComponent } from "./pages/home";
 import { EvseSettingsComponent } from "./pages/settings/settings";
@@ -46,8 +46,8 @@ import { EvseSettingsComponent } from "./pages/settings/settings";
 export class ControllerEvseSingle {
 
   constructor(private translate: TranslateService) {
-    Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
-      translate.setTranslation(lang, translations, shouldMerge);
+    LANGUAGE.SET_ADDITIONAL_TRANSLATION_FILE(tr, translate).then(({ lang, translations, shouldMerge }) => {
+      TRANSLATE.SET_TRANSLATION(lang, translations, shouldMerge);
     });
   }
 }

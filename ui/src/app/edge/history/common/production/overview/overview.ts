@@ -7,12 +7,12 @@ import { AbstractHistoryChartOverview } from "../../../../../shared/components/c
 import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/shared";
 
 @Component({
-  templateUrl: "./overview.html",
+  templateUrl: "./OVERVIEW.HTML",
   standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
-  protected chargerComponents: EdgeConfig.Component[] = [];
-  protected productionMeterComponents: EdgeConfig.Component[] = [];
+  protected chargerComponents: EDGE_CONFIG.COMPONENT[] = [];
+  protected productionMeterComponents: EDGE_CONFIG.COMPONENT[] = [];
   protected navigationButtons: NavigationOption[] = [];
 
   constructor(
@@ -27,18 +27,18 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
 
   protected override getChannelAddresses(): ChannelAddress[] {
     //  Get Chargers
-    this.chargerComponents =
-      this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-        .filter(component => component.isEnabled);
+    THIS.CHARGER_COMPONENTS =
+      THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER")
+        .filter(component => COMPONENT.IS_ENABLED);
 
     // Get productionMeters
-    this.productionMeterComponents =
-      this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-        .filter(component => component.isEnabled && this.config.isProducer(component));
+    THIS.PRODUCTION_METER_COMPONENTS =
+      THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")
+        .filter(component => COMPONENT.IS_ENABLED && THIS.CONFIG.IS_PRODUCER(component));
 
 
-    this.navigationButtons = [...this.productionMeterComponents, ...this.chargerComponents].map(el => (
-      { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
+    THIS.NAVIGATION_BUTTONS = [...THIS.PRODUCTION_METER_COMPONENTS, ...THIS.CHARGER_COMPONENTS].map(el => (
+      { id: EL.ID, alias: EL.ALIAS, callback: () => { THIS.ROUTER.NAVIGATE(["./" + EL.ID], { relativeTo: THIS.ROUTE }); } }
     ));
     return [];
   }

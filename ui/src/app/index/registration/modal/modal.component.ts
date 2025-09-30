@@ -10,14 +10,14 @@ import { environment } from "src/environments";
 
 @Component({
   selector: "registration-modal",
-  templateUrl: "./modal.component.html",
+  templateUrl: "./MODAL.COMPONENT.HTML",
   standalone: false,
 })
 export class RegistrationModalComponent implements OnInit {
 
   protected formGroup: FormGroup;
   protected activeSegment: string = "installer";
-  protected readonly countries = COUNTRY_OPTIONS(this.translate);
+  protected readonly countries = COUNTRY_OPTIONS(THIS.TRANSLATE);
   protected docsLink: string | null = null;
 
   constructor(
@@ -29,8 +29,8 @@ export class RegistrationModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.formGroup = this.getForm(this.activeSegment);
-    this.docsLink = this.createEvcsDocsLink();
+    THIS.FORM_GROUP = THIS.GET_FORM(THIS.ACTIVE_SEGMENT);
+    THIS.DOCS_LINK = THIS.CREATE_EVCS_DOCS_LINK();
   }
 
   /**
@@ -39,67 +39,67 @@ export class RegistrationModalComponent implements OnInit {
    * @param event to get current value and change the form
    */
   updateRegistrationForm(event: CustomEvent) {
-    this.formGroup = this.getForm(event.detail.value);
+    THIS.FORM_GROUP = THIS.GET_FORM(EVENT.DETAIL.VALUE);
   }
 
   /**
    * Validate the current form and sends the registration request.
    */
   onSubmit() {
-    if (!this.formGroup.valid) {
-      this.service.toast(this.translate.instant("Register.errors.requiredFields"), "danger");
+    if (!THIS.FORM_GROUP.VALID) {
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("REGISTER.ERRORS.REQUIRED_FIELDS"), "danger");
       return;
     }
 
-    const password = this.formGroup.value.password;
-    const confirmPassword = this.formGroup.value.confirmPassword;
+    const password = THIS.FORM_GROUP.VALUE.PASSWORD;
+    const confirmPassword = THIS.FORM_GROUP.VALUE.CONFIRM_PASSWORD;
 
     if (password != confirmPassword) {
-      this.service.toast(this.translate.instant("Register.errors.passwordNotEqual"), "danger");
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("REGISTER.ERRORS.PASSWORD_NOT_EQUAL"), "danger");
       return;
     }
 
-    const email = this.formGroup.value.email;
-    const confirmEmail = this.formGroup.value.confirmEmail;
+    const email = THIS.FORM_GROUP.VALUE.EMAIL;
+    const confirmEmail = THIS.FORM_GROUP.VALUE.CONFIRM_EMAIL;
 
     if (email != confirmEmail) {
-      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), "danger");
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("REGISTER.ERRORS.EMAIL_NOT_EQUAL"), "danger");
       return;
     }
 
     const request = new RegisterUserRequest({
       user: {
-        firstname: this.formGroup.value.firstname,
-        lastname: this.formGroup.value.lastname,
-        phone: this.formGroup.value.phone,
-        email: this.formGroup.value.email,
+        firstname: THIS.FORM_GROUP.VALUE.FIRSTNAME,
+        lastname: THIS.FORM_GROUP.VALUE.LASTNAME,
+        phone: THIS.FORM_GROUP.VALUE.PHONE,
+        email: THIS.FORM_GROUP.VALUE.EMAIL,
         password: password,
         confirmPassword: confirmPassword,
         address: {
-          street: this.formGroup.value.street,
-          zip: this.formGroup.value.zip,
-          city: this.formGroup.value.city,
-          country: this.formGroup.value.country,
+          street: THIS.FORM_GROUP.VALUE.STREET,
+          zip: THIS.FORM_GROUP.VALUE.ZIP,
+          city: THIS.FORM_GROUP.VALUE.CITY,
+          country: THIS.FORM_GROUP.VALUE.COUNTRY,
         },
-        role: this.activeSegment,
+        role: THIS.ACTIVE_SEGMENT,
       },
-      oem: environment.theme,
+      oem: ENVIRONMENT.THEME,
     });
 
-    const companyName = this.formGroup.value.companyName;
+    const companyName = THIS.FORM_GROUP.VALUE.COMPANY_NAME;
     if (companyName) {
-      request.params.user.company = {
+      REQUEST.PARAMS.USER.COMPANY = {
         name: companyName,
       };
     }
 
-    this.websocket.sendRequest(request)
+    THIS.WEBSOCKET.SEND_REQUEST(request)
       .then(() => {
-        this.service.toast(this.translate.instant("Register.success"), "success");
-        this.modalCtrl.dismiss();
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("REGISTER.SUCCESS"), "success");
+        THIS.MODAL_CTRL.DISMISS();
       })
       .catch(reason => {
-        this.service.toast(reason.error.message, "danger");
+        THIS.SERVICE.TOAST(REASON.ERROR.MESSAGE, "danger");
       });
   }
 
@@ -109,44 +109,44 @@ export class RegistrationModalComponent implements OnInit {
    */
   private getForm(role: string): FormGroup {
     if (role === "installer") {
-      return this.formBuilder.group({
-        companyName: new FormControl("", Validators.required),
-        firstname: new FormControl("", Validators.required),
-        lastname: new FormControl("", Validators.required),
-        street: new FormControl("", Validators.required),
-        zip: new FormControl("", Validators.required),
-        city: new FormControl("", Validators.required),
-        country: new FormControl("", Validators.required),
-        phone: new FormControl("", Validators.required),
-        email: new FormControl("", [Validators.required, Validators.email]),
-        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
-        password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+      return THIS.FORM_BUILDER.GROUP({
+        companyName: new FormControl("", VALIDATORS.REQUIRED),
+        firstname: new FormControl("", VALIDATORS.REQUIRED),
+        lastname: new FormControl("", VALIDATORS.REQUIRED),
+        street: new FormControl("", VALIDATORS.REQUIRED),
+        zip: new FormControl("", VALIDATORS.REQUIRED),
+        city: new FormControl("", VALIDATORS.REQUIRED),
+        country: new FormControl("", VALIDATORS.REQUIRED),
+        phone: new FormControl("", VALIDATORS.REQUIRED),
+        email: new FormControl("", [VALIDATORS.REQUIRED, VALIDATORS.EMAIL]),
+        confirmEmail: new FormControl("", [VALIDATORS.REQUIRED, VALIDATORS.EMAIL]),
+        password: new FormControl("", VALIDATORS.REQUIRED),
+        confirmPassword: new FormControl("", VALIDATORS.REQUIRED),
       });
     } else {
-      return this.formBuilder.group({
-        firstname: new FormControl("", Validators.required),
-        lastname: new FormControl("", Validators.required),
-        street: new FormControl("", Validators.required),
-        zip: new FormControl("", Validators.required),
-        city: new FormControl("", Validators.required),
-        country: new FormControl("", Validators.required),
-        phone: new FormControl("", Validators.required),
-        email: new FormControl("", [Validators.required, Validators.email]),
-        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
-        password: new FormControl("", Validators.required),
-        confirmPassword: new FormControl("", Validators.required),
+      return THIS.FORM_BUILDER.GROUP({
+        firstname: new FormControl("", VALIDATORS.REQUIRED),
+        lastname: new FormControl("", VALIDATORS.REQUIRED),
+        street: new FormControl("", VALIDATORS.REQUIRED),
+        zip: new FormControl("", VALIDATORS.REQUIRED),
+        city: new FormControl("", VALIDATORS.REQUIRED),
+        country: new FormControl("", VALIDATORS.REQUIRED),
+        phone: new FormControl("", VALIDATORS.REQUIRED),
+        email: new FormControl("", [VALIDATORS.REQUIRED, VALIDATORS.EMAIL]),
+        confirmEmail: new FormControl("", [VALIDATORS.REQUIRED, VALIDATORS.EMAIL]),
+        password: new FormControl("", VALIDATORS.REQUIRED),
+        confirmPassword: new FormControl("", VALIDATORS.REQUIRED),
       });
     }
   }
 
   private createEvcsDocsLink() {
-    const link = environment.links.DATA_PROTECTION;
+    const link = ENVIRONMENT.LINKS.DATA_PROTECTION;
 
     if (link == null) {
       return null;
     }
-    return link.replace("{language}", this.service.getDocsLang());
+    return LINK.REPLACE("{language}", THIS.SERVICE.GET_DOCS_LANG());
   }
 
 }

@@ -11,12 +11,12 @@ export namespace DateUtils {
    */
   export function maxDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => element === null)) {
+    if (DATES.LENGTH === 0 || DATES.EVERY(element => element === null)) {
       return null;
     }
 
     return new Date(
-      Math.max(...dates.filter(date => !!date).map(Number)),
+      MATH.MAX(...DATES.FILTER(date => !!date).map(Number)),
     );
   }
 
@@ -28,12 +28,12 @@ export namespace DateUtils {
    */
   export function minDate(...dates: Date[]) {
 
-    if (dates.length === 0 || dates.every(element => element === null)) {
+    if (DATES.LENGTH === 0 || DATES.EVERY(element => element === null)) {
       return null;
     }
 
     return new Date(
-      Math.min(...dates.filter(date => !!date).map(Number)),
+      MATH.MIN(...DATES.FILTER(date => !!date).map(Number)),
     );
   }
 
@@ -58,7 +58,7 @@ export namespace DateUtils {
    * @returns a formateted date string
    */
   export function toLocaleDateString(date: Date): string {
-    return date.toLocaleDateString();
+    return DATE.TO_LOCALE_DATE_STRING();
   }
 
   /**
@@ -72,11 +72,11 @@ export namespace DateUtils {
    * @returns a formateted date string
    */
   export function toLocaleTimeString(date: Date): string {
-    return date.toLocaleTimeString();
+    return DATE.TO_LOCALE_TIME_STRING();
   }
 
   export function isFullHour(date: Date) {
-    return date.getMinutes() != 0 ? null : date;
+    return DATE.GET_MINUTES() != 0 ? null : date;
   }
 
   /**
@@ -98,8 +98,8 @@ export namespace DateUtils {
    *
    * @param fromDate The start date of the quarter.
    * @param toDate The end date of the quarter.
-   * @param dateFormat The desired date format string (e.g., "dd.MM.yyyy").
-   * @returns A formatted date range string (e.g., "01.01.2024 - 31.03.2024").
+   * @param dateFormat The desired date format string (E.G., "DD.MM.YYYY").
+   * @returns A formatted date range string (E.G., "01.01.2024 - 31.03.2024").
    */
   export function formatQuarterDateRange(fromDate: Date, toDate: Date, dateFormat: string): string | null {
     if (!fromDate || !toDate) {
@@ -109,7 +109,7 @@ export namespace DateUtils {
   }
 
   /**
-   * Checks if passed date is before a certain date, e.g. "01.08.2024 - 02.08.2024"
+   * Checks if passed date is before a certain date, E.G. "01.08.2024 - 02.08.2024"
    *
    * @param fromDate the date
    * @param toDate the date to compare it to
@@ -121,6 +121,6 @@ export namespace DateUtils {
     if (!fromDate || !toDate) {
       return null;
     }
-    return format(fromDate, translate.instant("General.dateFormat")) + " - " + format(toDate, translate.instant("General.dateFormat"));
+    return format(fromDate, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")) + " - " + format(toDate, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT"));
   }
 }

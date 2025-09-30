@@ -5,8 +5,8 @@ import { BrowserModule } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
-import { PickDateComponent } from "./pickdate.component";
-import { PickDatePopoverComponent } from "./popover/popover.component";
+import { PickDateComponent } from "./PICKDATE.COMPONENT";
+import { PickDatePopoverComponent } from "./popover/POPOVER.COMPONENT";
 
 @NgModule({
   imports: [

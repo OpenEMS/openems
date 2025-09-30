@@ -8,7 +8,7 @@ import { FieldWrapper } from "@ngx-formly/core";
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-label>{{ to.label }}</ion-label>
+                    <ion-label>{{ TO.LABEL }}</ion-label>
                     <ng-template #fieldComponent></ng-template>
                 </ion-col>
             </ion-row>

@@ -1,10 +1,10 @@
 import { Component, effect, EventEmitter, Output } from "@angular/core";
-import { NavigationService } from "../service/navigation.service";
+import { NavigationService } from "../service/NAVIGATION.SERVICE";
 import { NavigationTree } from "../shared";
 
 @Component({
     selector: "oe-navigation-chips",
-    templateUrl: "./chips.html",
+    templateUrl: "./CHIPS.HTML",
     standalone: false,
 })
 export class NavigationChipsComponent {
@@ -17,9 +17,9 @@ export class NavigationChipsComponent {
         protected navigationService: NavigationService,
     ) {
         effect(() => {
-            const currentNode = navigationService.currentNode();
-            this.children = currentNode?.getChildren() ?? [];
-            this.isVisible = this.children.length > 0;
+            const currentNode = NAVIGATION_SERVICE.CURRENT_NODE();
+            THIS.CHILDREN = currentNode?.getChildren() ?? [];
+            THIS.IS_VISIBLE = THIS.CHILDREN.LENGTH > 0;
         });
     }
 
@@ -30,6 +30,6 @@ export class NavigationChipsComponent {
     * @returns
     */
     public async navigateTo(node: NavigationTree): Promise<void> {
-        this.navigate.emit(node);
+        THIS.NAVIGATE.EMIT(node);
     }
 }

@@ -4,11 +4,11 @@ import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
 import { OptionGroupConfig, getTitleFromOptionConfig } from "../option-group-picker/optionGroupPickerConfiguration";
-import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.component";
+import { FormlySafeInputModalComponent } from "./formly-safe-input-MODAL.COMPONENT";
 
 @Component({
     selector: "formly-safe-input-wrapper",
-    templateUrl: "./formly-safe-input.extended.html",
+    templateUrl: "./formly-safe-INPUT.EXTENDED.HTML",
     standalone: false,
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
@@ -24,115 +24,115 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     }
 
     ngOnInit(): void {
-        this.pathToDisplayValue = this.props["pathToDisplayValue"];
-        this.displayType = this.props["displayType"] ?? "string";
+        THIS.PATH_TO_DISPLAY_VALUE = THIS.PROPS["pathToDisplayValue"];
+        THIS.DISPLAY_TYPE = THIS.PROPS["displayType"] ?? "string";
     }
 
     public getValue() {
-        if (this.displayType === "boolean"
-            || this.displayType === "number"
-            || this.displayType === "string") {
-            return this.model[this.pathToDisplayValue];
+        if (THIS.DISPLAY_TYPE === "boolean"
+            || THIS.DISPLAY_TYPE === "number"
+            || THIS.DISPLAY_TYPE === "string") {
+            return THIS.MODEL[THIS.PATH_TO_DISPLAY_VALUE];
         }
 
-        if (this.displayType === "optionGroup") {
-            const value = this.getValueOfOptionGroup();
+        if (THIS.DISPLAY_TYPE === "optionGroup") {
+            const value = THIS.GET_VALUE_OF_OPTION_GROUP();
             if (value) {
                 return value;
             }
         }
 
         // not defined
-        return this.model[this.pathToDisplayValue];
+        return THIS.MODEL[THIS.PATH_TO_DISPLAY_VALUE];
     }
 
     protected onSelectItem() {
-        this.formControl.markAsTouched();
-        this.openModal();
+        THIS.FORM_CONTROL.MARK_AS_TOUCHED();
+        THIS.OPEN_MODAL();
     }
 
     /**
      * Opens the model to select the option.
      */
     private async openModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: FormlySafeInputModalComponent,
             componentProps: {
-                title: this.props.label,
-                fields: this.getFields(),
-                model: structuredClone(this.model),
+                title: THIS.PROPS.LABEL,
+                fields: THIS.GET_FIELDS(),
+                model: structuredClone(THIS.MODEL),
             },
             cssClass: ["auto-height"],
         });
-        modal.onDidDismiss().then(event => {
-            if (!event.data) {
+        MODAL.ON_DID_DISMISS().then(event => {
+            if (!EVENT.DATA) {
                 // nothing selected
                 return;
             }
 
-            const finalModel = { ...this.form.getRawValue(), ...event.data };
+            const finalModel = { ...THIS.FORM.GET_RAW_VALUE(), ...EVENT.DATA };
 
             const changedValues = {};
-            for (const [key, value] of Object.entries(finalModel)) {
-                if (value === this.model[key]) {
+            for (const [key, value] of OBJECT.ENTRIES(finalModel)) {
+                if (value === THIS.MODEL[key]) {
                     continue;
                 }
                 changedValues[key] = value;
             }
 
-            for (const [key, value] of Object.entries(changedValues)) {
-                this.model[key] = value;
+            for (const [key, value] of OBJECT.ENTRIES(changedValues)) {
+                THIS.MODEL[key] = value;
             }
 
             // set values with current form value when the fields are set via fieldGroup
             // to make sure every value gets set accordingly to the object hierarchy
-            if (this.field.fieldGroup) {
-                this.form.setValue(this.form.getRawValue());
+            if (THIS.FIELD.FIELD_GROUP) {
+                THIS.FORM.SET_VALUE(THIS.FORM.GET_RAW_VALUE());
             } else {
                 // only update values which got changed
-                for (const [key, value] of Object.entries(changedValues)) {
-                    const control = this.form.controls[key];
+                for (const [key, value] of OBJECT.ENTRIES(changedValues)) {
+                    const control = THIS.FORM.CONTROLS[key];
                     if (!control) {
                         continue;
                     }
-                    control.setValue(value);
+                    CONTROL.SET_VALUE(value);
                 }
             }
-            this.formControl.markAsDirty();
-            this.changeDetectorRef.detectChanges();
+            THIS.FORM_CONTROL.MARK_AS_DIRTY();
+            THIS.CHANGE_DETECTOR_REF.DETECT_CHANGES();
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     private getValueOfOptionGroup(): string {
-        const field = GetAppAssistant.findField(this.getFields(), this.pathToDisplayValue.split("."));
+        const field = GET_APP_ASSISTANT.FIND_FIELD(THIS.GET_FIELDS(), THIS.PATH_TO_DISPLAY_VALUE.SPLIT("."));
         if (!field) {
             return null;
         }
-        const value = this.model[this.pathToDisplayValue];
-        const options = ((field.templateOptions ?? field.props).options as OptionGroupConfig[]).map(optionGroup => optionGroup.options)
-            .reduce((acc, val) => acc.concat(val), []);
-        if (Array.isArray(value)) {
-            return (value as []).map(e => options.find(option => option.value === e))
-                .map(option => getTitleFromOptionConfig(option, this.field))
+        const value = THIS.MODEL[THIS.PATH_TO_DISPLAY_VALUE];
+        const options = ((FIELD.TEMPLATE_OPTIONS ?? FIELD.PROPS).options as OptionGroupConfig[]).map(optionGroup => OPTION_GROUP.OPTIONS)
+            .reduce((acc, val) => ACC.CONCAT(val), []);
+        if (ARRAY.IS_ARRAY(value)) {
+            return (value as []).map(e => OPTIONS.FIND(option => OPTION.VALUE === e))
+                .map(option => getTitleFromOptionConfig(option, THIS.FIELD))
                 .join(", ");
         } else {
-            const option = options.find(option => option.value === value);
+            const option = OPTIONS.FIND(option => OPTION.VALUE === value);
             if (!option) {
                 return null;
             }
-            return getTitleFromOptionConfig(option, this.field);
+            return getTitleFromOptionConfig(option, THIS.FIELD);
         }
     }
 
 
     private getFields(): FormlyFieldConfig[] {
-        // @Deprecated rather set this#props.fields
-        if (this.field.fieldGroup) {
-            return this.field.fieldGroup;
+        // @Deprecated rather set this#PROPS.FIELDS
+        if (THIS.FIELD.FIELD_GROUP) {
+            return THIS.FIELD.FIELD_GROUP;
         }
-        if (this.props.fields) {
-            return this.props.fields;
+        if (THIS.PROPS.FIELDS) {
+            return THIS.PROPS.FIELDS;
         }
         return [];
     }

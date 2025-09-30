@@ -15,7 +15,7 @@
                   <ion-item lines="none">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
-                      {{'Edge.Config.Log.automaticUpdating' | translate}}
+                      {{'EDGE.CONFIG.LOG.AUTOMATIC_UPDATING' | translate}}
                     </ion-checkbox>
                   </ion-item>
                 </ion-col>
@@ -24,7 +24,7 @@
                     <ion-toggle mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
                       [(ngModel)]="isCondensedOutput">
                     </ion-toggle>
-                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
+                    <ion-label class="ion-text-wrap" translate>EDGE.CONFIG.LOG.CONDENSED_OUTPUT</ion-label>
                   </ion-item>
                 </ion-col>
                 <ion-col>
@@ -32,8 +32,8 @@
                     <ion-select interface="popover" [multiple]="true" label="Level" fill="outline"
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
-                      <ng-container *ngFor="let filter of filters.options">
-                        <ion-select-option [value]="filter.value">{{filter.name}}
+                      <ng-container *ngFor="let filter of FILTERS.OPTIONS">
+                        <ion-select-option [value]="FILTER.VALUE">{{FILTER.NAME}}
                         </ion-select-option>
                       </ng-container>
                     </ion-select>
@@ -56,20 +56,20 @@
           <ion-card-content style="overflow-x: scroll">
             <ion-grid *ngFor="let line of logLines" class="ion-no-padding" style="user-select: text;">
 
-              <ion-row style="font-family: monospace; font-size: small" style.color="black">
+              <ion-row style="font-family: monospace; font-size: small" STYLE.COLOR="black">
                 <ion-col size-sm="2" size="6">
-                  {{ line.time }}
+                  {{ LINE.TIME }}
                 </ion-col>
                 <ion-col size-sm="1" size="6">
-                  {{ line.level }}
+                  {{ LINE.LEVEL }}
                 </ion-col>
                 <ion-col size-sm="auto" size="12">
-                  {{ line.source }}
+                  {{ LINE.SOURCE }}
                 </ion-col>
               </ion-row>
-              <ion-row style="font-family: monospace" [style.color]="line.color">
+              <ion-row style="font-family: monospace" [STYLE.COLOR]="LINE.COLOR">
                 <ion-col size="12">
-                  <ion-text [innerHTML]="line.message"></ion-text>
+                  <ion-text [innerHTML]="LINE.MESSAGE"></ion-text>
                 </ion-col>
               </ion-row>
             </ion-grid>

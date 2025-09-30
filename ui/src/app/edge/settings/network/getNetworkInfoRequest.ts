@@ -18,7 +18,7 @@ export class GetNetworkInfoRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetNetworkInfoRequest.METHOD, {});
+        super(GET_NETWORK_INFO_REQUEST.METHOD, {});
     }
 
 }

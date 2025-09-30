@@ -7,7 +7,7 @@ import { Role } from "src/app/shared/type/role";
 import { LiveDataService } from "../../../livedataservice";
 
 @Component({
-  templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  templateUrl: "../../../../../shared/components/formly/formly-field-modal/TEMPLATE.HTML",
   standalone: false,
   providers: [
     { provide: DataService, useClass: LiveDataService },
@@ -17,15 +17,15 @@ export class ModalComponent extends AbstractFormlyComponent {
 
   public static generateView(translate: TranslateService): OeFormlyView {
     return {
-      title: translate.instant("General.autarchy"),
+      title: TRANSLATE.INSTANT("GENERAL.AUTARCHY"),
       lines: [{
         type: "info-line",
-        name: translate.instant("Edge.Index.Widgets.autarchyInfo"),
+        name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.AUTARCHY_INFO"),
       }],
     };
   }
   protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(this.translate);
+    return MODAL_COMPONENT.GENERATE_VIEW(THIS.TRANSLATE);
   }
 
 }

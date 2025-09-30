@@ -8,12 +8,12 @@ import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../
 
 interface MyCategorizedFactories extends CategorizedFactories {
   isClicked?: boolean,
-  filteredFactories?: EdgeConfig.Factory[],
+  filteredFactories?: EDGE_CONFIG.FACTORY[],
 }
 
 @Component({
-  selector: IndexComponent.SELECTOR,
-  templateUrl: "./index.component.html",
+  selector: INDEX_COMPONENT.SELECTOR,
+  templateUrl: "./INDEX.COMPONENT.HTML",
   standalone: false,
 })
 export class IndexComponent implements OnInit {
@@ -34,53 +34,53 @@ export class IndexComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.edge = await this.service.getCurrentEdge();
-    this.list = await this.getCategorizedFactories();
-    for (const entry of this.list) {
-      entry.isClicked = false;
-      entry.filteredFactories = entry.factories;
+    THIS.EDGE = await THIS.SERVICE.GET_CURRENT_EDGE();
+    THIS.LIST = await THIS.GET_CATEGORIZED_FACTORIES();
+    for (const entry of THIS.LIST) {
+      ENTRY.IS_CLICKED = false;
+      ENTRY.FILTERED_FACTORIES = ENTRY.FACTORIES;
     }
-    this.updateFilter("");
+    THIS.UPDATE_FILTER("");
   }
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    const filters = completeFilter.toLowerCase().split(" ");
+    const filters = COMPLETE_FILTER.TO_LOWER_CASE().split(" ");
     let countFilteredEntries = 0;
-    for (const entry of this.list) {
-      entry.filteredFactories = entry.factories.filter(entry =>
+    for (const entry of THIS.LIST) {
+      ENTRY.FILTERED_FACTORIES = ENTRY.FACTORIES.FILTER(entry =>
         // Search for filter strings in Factory-ID, -Name and Description
-        Utils.matchAll(filters, [
-          entry.id.toLowerCase(),
-          entry.name.toLowerCase(),
-          entry.description.toLowerCase(),
+        UTILS.MATCH_ALL(filters, [
+          ENTRY.ID.TO_LOWER_CASE(),
+          ENTRY.NAME.TO_LOWER_CASE(),
+          ENTRY.DESCRIPTION.TO_LOWER_CASE(),
         ]),
       );
-      countFilteredEntries += entry.filteredFactories.length;
+      countFilteredEntries += ENTRY.FILTERED_FACTORIES.LENGTH;
     }
     // If not more than 10 Factories survived filtering -> show all of them immediately
     if (countFilteredEntries > 10) {
-      this.showAllFactories = false;
+      THIS.SHOW_ALL_FACTORIES = false;
     } else {
-      this.showAllFactories = true;
+      THIS.SHOW_ALL_FACTORIES = true;
     }
   }
 
   private async getCategorizedFactories(): Promise<MyCategorizedFactories[]> {
-    if (EdgePermission.hasReducedFactories(this.edge)) {
-      const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(this.websocket, new ComponentJsonApiRequest({
+    if (EDGE_PERMISSION.HAS_REDUCED_FACTORIES(THIS.EDGE)) {
+      const response = await THIS.EDGE.SEND_REQUEST<GetAllComponentFactoriesResponse>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
         componentId: "_componentManager",
         payload: new GetAllComponentFactoriesRequest(),
       }));
-      for (const [factoryId, factory] of Object.entries(response.result.factories)) {
-        factory.id = factoryId;
+      for (const [factoryId, factory] of OBJECT.ENTRIES(RESPONSE.RESULT.FACTORIES)) {
+        FACTORY.ID = factoryId;
       }
 
-      return EdgeConfig.listAvailableFactories(response.result.factories, this.translate);
+      return EDGE_CONFIG.LIST_AVAILABLE_FACTORIES(RESPONSE.RESULT.FACTORIES, THIS.TRANSLATE);
     }
 
-    const config = await this.service.getConfig();
-    return config.listAvailableFactories(this.translate);
+    const config = await THIS.SERVICE.GET_CONFIG();
+    return CONFIG.LIST_AVAILABLE_FACTORIES(THIS.TRANSLATE);
   }
 }
 
@@ -90,7 +90,7 @@ class GetAllComponentFactoriesRequest extends JsonrpcRequest {
   private static METHOD: string = "getAllComponentFactories";
 
   public constructor() {
-    super(GetAllComponentFactoriesRequest.METHOD, {});
+    super(GET_ALL_COMPONENT_FACTORIES_REQUEST.METHOD, {});
   }
 
 }
@@ -100,7 +100,7 @@ class GetAllComponentFactoriesResponse extends JsonrpcResponseSuccess {
   public constructor(
     public override readonly id: string,
     public override readonly result: {
-      factories: { [factoryId: string]: EdgeConfig.Factory },
+      factories: { [factoryId: string]: EDGE_CONFIG.FACTORY },
     },
   ) {
     super(id, result);

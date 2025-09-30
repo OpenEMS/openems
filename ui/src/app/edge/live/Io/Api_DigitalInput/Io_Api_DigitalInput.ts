@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { EdgeConfig } from "src/app/shared/shared";
 
-import { Io_Api_DigitalInput_ModalComponent } from "./modal/modal.component";
+import { Io_Api_DigitalInput_ModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
     selector: "Io_Api_DigitalInput",
@@ -12,24 +12,24 @@ import { Io_Api_DigitalInput_ModalComponent } from "./modal/modal.component";
 
 export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
 
-    public ioComponents: EdgeConfig.Component[] | null = null;
+    public ioComponents: EDGE_CONFIG.COMPONENT[] | null = null;
     public ioComponentCount = 0;
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: Io_Api_DigitalInput_ModalComponent,
             componentProps: {
-                edge: this.edge,
-                ioComponents: this.ioComponents,
+                edge: THIS.EDGE,
+                ioComponents: THIS.IO_COMPONENTS,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     protected override afterIsInitialized(): void {
-        this.service.getConfig().then(config => {
-            this.ioComponents = config.getComponentsImplementingNature("io.openems.edge.io.api.DigitalInput").filter(component => component.isEnabled);
-            this.ioComponentCount = this.ioComponents.length;
+        THIS.SERVICE.GET_CONFIG().then(config => {
+            THIS.IO_COMPONENTS = CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.IO.API.DIGITAL_INPUT").filter(component => COMPONENT.IS_ENABLED);
+            THIS.IO_COMPONENT_COUNT = THIS.IO_COMPONENTS.LENGTH;
         });
     }
 

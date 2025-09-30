@@ -3,14 +3,14 @@
         <ion-col>
             <ion-item lines="none">
                 <ion-label style="white-space:pre-wrap">
-                    <a [href]="props.url" class="underline" target="_blank">{{props.label}}</a>&nbsp;{{secondLabel}}
+                    <a [href]="PROPS.URL" class="underline" target="_blank">{{PROPS.LABEL}}</a>&nbsp;{{secondLabel}}
                 </ion-label>
             </ion-item>
         </ion-col>
         <ion-col>
             <ion-item lines="none" class="custom-checkbox">
-                <ion-checkbox color="primary" slot="end" [formControl]="formControl" [value]="props.value"
-                    [required]="props.required"></ion-checkbox>
+                <ion-checkbox color="primary" slot="end" [formControl]="formControl" [value]="PROPS.VALUE"
+                    [required]="PROPS.REQUIRED"></ion-checkbox>
             </ion-item>
         </ion-col>
     </ion-row>

@@ -7,7 +7,7 @@ import { Role } from "src/app/shared/type/role";
 import { LiveDataService } from "../../../livedataservice";
 
 @Component({
-    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/TEMPLATE.HTML",
     standalone: false,
     providers: [
         { provide: DataService, useClass: LiveDataService },
@@ -17,15 +17,15 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     public static generateView(translate: TranslateService): OeFormlyView {
         return {
-            title: translate.instant("General.selfConsumption"),
+            title: TRANSLATE.INSTANT("GENERAL.SELF_CONSUMPTION"),
             lines: [{
                 type: "info-line",
-                name: translate.instant("Edge.Index.Widgets.selfconsumptionInfo"),
+                name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.SELFCONSUMPTION_INFO"),
             }],
         };
     }
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-        return ModalComponent.generateView(this.translate);
+        return MODAL_COMPONENT.GENERATE_VIEW(THIS.TRANSLATE);
     }
 
 }

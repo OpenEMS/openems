@@ -12,6 +12,6 @@ export namespace AssistantEdgePermission {
         if (edge == null) {
             return false;
         }
-        return edge.isVersionAtLeast("2025.8.1");
+        return EDGE.IS_VERSION_AT_LEAST("2025.8.1");
     }
 }

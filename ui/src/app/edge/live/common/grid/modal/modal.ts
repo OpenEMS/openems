@@ -8,11 +8,11 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
-import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
+import { GridSectionComponent } from "../../../energymonitor/chart/section/GRID.COMPONENT";
 import { LiveDataService } from "../../../livedataservice";
 
 @Component({
-  templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+  templateUrl: "../../../../../shared/components/formly/formly-field-modal/TEMPLATE.HTML",
   standalone: false,
   providers: [
     { provide: DataService, useClass: LiveDataService },
@@ -22,24 +22,24 @@ export class ModalComponent extends AbstractFormlyComponent {
 
   public static generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
 
-    const isActivated = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
+    const isActivated = GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(config, "CONTROLLER.ESS.LIMITER14A");
     // Grid-Mode
     const lines: OeFormlyField[] = [{
       type: "channel-line",
-      name: translate.instant("General.offGrid"),
+      name: TRANSLATE.INSTANT("GENERAL.OFF_GRID"),
       channel: "_sum/GridMode",
       filter: Filter.GRID_MODE_IS_OFF_GRID,
       converter: Converter.HIDE_VALUE,
     }];
 
-    const gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
+    const gridMeters = OBJECT.VALUES(CONFIG.COMPONENTS).filter(component => config?.isTypeGrid(component));
 
     // Sum Channels (if more than one meter)
-    if (gridMeters.length > 1) {
+    if (GRID_METERS.LENGTH > 1) {
       if (isActivated) {
-        lines.push({
+        LINES.PUSH({
           type: "value-from-channels-line",
-          name: translate.instant("General.state"),
+          name: TRANSLATE.INSTANT("GENERAL.STATE"),
           value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
           channelsToSubscribe: [
             new ChannelAddress("_sum", "GridMode"),
@@ -48,16 +48,16 @@ export class ModalComponent extends AbstractFormlyComponent {
         });
       }
 
-      lines.push(
+      LINES.PUSH(
         {
           type: "channel-line",
-          name: translate.instant("General.gridSellAdvanced"),
+          name: TRANSLATE.INSTANT("GENERAL.GRID_SELL_ADVANCED"),
           channel: "_sum/GridActivePower",
           converter: Converter.GRID_SELL_POWER_OR_ZERO,
         },
         {
           type: "channel-line",
-          name: translate.instant("General.gridBuyAdvanced"),
+          name: TRANSLATE.INSTANT("GENERAL.GRID_BUY_ADVANCED"),
           channel: "_sum/GridActivePower",
           converter: Converter.GRID_BUY_POWER_OR_ZERO,
         },
@@ -70,12 +70,12 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     // Individual Meters
     for (const meter of gridMeters) {
-      if (gridMeters.length === 1) {
+      if (GRID_METERS.LENGTH === 1) {
         // Two lines if there is only one meter (= same visualization as with Sum Channels)
         if (isActivated) {
-          lines.push({
+          LINES.PUSH({
             type: "value-from-channels-line",
-            name: translate.instant("General.state"),
+            name: TRANSLATE.INSTANT("GENERAL.STATE"),
             value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
             channelsToSubscribe: [
               new ChannelAddress("_sum", "GridMode"),
@@ -84,34 +84,34 @@ export class ModalComponent extends AbstractFormlyComponent {
           });
         }
 
-        lines.push(
+        LINES.PUSH(
           {
             type: "channel-line",
-            name: translate.instant("General.gridSellAdvanced"),
-            channel: meter.id + "/ActivePower",
+            name: TRANSLATE.INSTANT("GENERAL.GRID_SELL_ADVANCED"),
+            channel: METER.ID + "/ActivePower",
             converter: Converter.GRID_SELL_POWER_OR_ZERO,
           },
           {
             type: "channel-line",
-            name: translate.instant("General.gridBuyAdvanced"),
-            channel: meter.id + "/ActivePower",
+            name: TRANSLATE.INSTANT("GENERAL.GRID_BUY_ADVANCED"),
+            channel: METER.ID + "/ActivePower",
             converter: Converter.GRID_BUY_POWER_OR_ZERO,
           },
         );
 
       } else {
         // More than one meter? Show only one line per meter.
-        lines.push({
+        LINES.PUSH({
           type: "channel-line",
-          name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
-          channel: meter.id + "/ActivePower",
+          name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, METER.ALIAS),
+          channel: METER.ID + "/ActivePower",
           converter: Converter.POWER_IN_WATT,
         });
       }
 
-      lines.push(
+      LINES.PUSH(
         // Individual phases: Voltage, Current and Power
-        ...ModalComponent.generatePhasesView(meter, translate, role),
+        ...MODAL_COMPONENT.GENERATE_PHASES_VIEW(meter, translate, role),
         {
           // Line separator
           type: "horizontal-line",
@@ -119,51 +119,51 @@ export class ModalComponent extends AbstractFormlyComponent {
       );
     }
 
-    if (gridMeters.length > 0) {
+    if (GRID_METERS.LENGTH > 0) {
       // Technical info
-      lines.push({
+      LINES.PUSH({
         type: "info-line",
-        name: translate.instant("Edge.Index.Widgets.phasesInfo"),
+        name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.PHASES_INFO"),
       });
     }
 
     return {
-      title: translate.instant("General.grid"),
+      title: TRANSLATE.INSTANT("GENERAL.GRID"),
       lines: lines,
     };
   }
 
-  private static generatePhasesView(component: EdgeConfig.Component, translate: TranslateService, role: Role): OeFormlyField[] {
+  private static generatePhasesView(component: EDGE_CONFIG.COMPONENT, translate: TranslateService, role: Role): OeFormlyField[] {
     return ["L1", "L2", "L3"]
       .map(phase => <OeFormlyField>{
         type: "children-line",
         name: {
-          channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
-          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("General.phase") + " " + phase),
+          channel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActivePower" + phase),
+          converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, TRANSLATE.INSTANT("GENERAL.PHASE") + " " + phase),
         },
 
-        indentation: TextIndentation.SINGLE,
-        children: ModalComponent.generatePhasesLineItems(role, phase, component),
+        indentation: TEXT_INDENTATION.SINGLE,
+        children: MODAL_COMPONENT.GENERATE_PHASES_LINE_ITEMS(role, phase, component),
       });
   }
 
-  private static generatePhasesLineItems(role: Role, phase: string, component: EdgeConfig.Component) {
+  private static generatePhasesLineItems(role: Role, phase: string, component: EDGE_CONFIG.COMPONENT) {
     const children: OeFormlyField[] = [];
-    if (Role.isAtLeast(role, Role.INSTALLER)) {
-      children.push({
+    if (ROLE.IS_AT_LEAST(role, ROLE.INSTALLER)) {
+      CHILDREN.PUSH({
         type: "item",
-        channel: component.id + "/Voltage" + phase,
+        channel: COMPONENT.ID + "/Voltage" + phase,
         converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT,
       }, {
         type: "item",
-        channel: component.id + "/Current" + phase,
+        channel: COMPONENT.ID + "/Current" + phase,
         converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
       });
     }
 
-    children.push({
+    CHILDREN.PUSH({
       type: "item",
-      channel: component.id + "/ActivePower" + phase,
+      channel: COMPONENT.ID + "/ActivePower" + phase,
       converter: Converter.POSITIVE_POWER,
     });
 
@@ -171,7 +171,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   }
 
   protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(config, role, this.translate);
+    return MODAL_COMPONENT.GENERATE_VIEW(config, role, THIS.TRANSLATE);
   }
 
 }

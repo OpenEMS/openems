@@ -3,26 +3,26 @@ import { FieldType } from "@ngx-formly/core";
 
 @Component({
   selector: "formly-custom-select",
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: VIEW_ENCAPSULATION.NONE,
   template: `
     <ion-select
         [id]="id"
-        [label]="props.label + (to.required ? '*' : '')"
+        [label]="PROPS.LABEL + (TO.REQUIRED ? '*' : '')"
         interface="alert"
         [interfaceOptions]="{ cssClass: 'custom-ion-alert' }"
         justify="space-between"
-        [placeholder]="to.placeholder"
+        [placeholder]="TO.PLACEHOLDER"
         [formControl]="formControl"
         [formlyAttributes]="field"
-        [multiple]="props.multiple ?? false"
+        [multiple]="PROPS.MULTIPLE ?? false"
     >
-      <ng-container *ngFor="let option of props.options">
-        <ion-select-option [value]="option.value">
-          {{ option.label }}
+      <ng-container *ngFor="let option of PROPS.OPTIONS">
+        <ion-select-option [value]="OPTION.VALUE">
+          {{ OPTION.LABEL }}
         </ion-select-option>
       </ng-container>
     </ion-select>
-    <p *ngIf="to.description" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
+    <p *ngIf="TO.DESCRIPTION" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ TO.DESCRIPTION }}</p>
   `,
   standalone: false,
   styles: [`

@@ -14,23 +14,23 @@ export const OemMeta: BaseMeta = {
         FORGET_PASSWORD: "#",
         EVCS: null,
 
-        CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: "io.openems.edge.controller.ess.gridoptimizedcharge/readme.adoc",
-        CONTROLLER_CHP_SOC: "io.openems.edge.controller.chp.soc/readme.adoc",
-        CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "io.openems.edge.controller.io.channelsinglethreshold/readme.adoc",
-        CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "io.openems.edge.controller.io.fixdigitaloutput/readme.adoc",
-        CONTROLLER_IO_HEAT_PUMP_SG_READY: "io.openems.edge.controller.io.heatpump.sgready/readme.adoc",
-        CONTROLLER_IO_HEATING_ELEMENT: "io.openems.edge.controller.io.heatingelement/readme.adoc",
-        CONTROLLER_ESS_TIME_OF_USE_TARIFF: "io.openems.edge.controller.ess.timeofusetariff/readme.adoc",
+        CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: "IO.OPENEMS.EDGE.CONTROLLER.ESS.GRIDOPTIMIZEDCHARGE/README.ADOC",
+        CONTROLLER_CHP_SOC: "IO.OPENEMS.EDGE.CONTROLLER.CHP.SOC/README.ADOC",
+        CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "IO.OPENEMS.EDGE.CONTROLLER.IO.CHANNELSINGLETHRESHOLD/README.ADOC",
+        CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "IO.OPENEMS.EDGE.CONTROLLER.IO.FIXDIGITALOUTPUT/README.ADOC",
+        CONTROLLER_IO_HEAT_PUMP_SG_READY: "IO.OPENEMS.EDGE.CONTROLLER.IO.HEATPUMP.SGREADY/README.ADOC",
+        CONTROLLER_IO_HEATING_ELEMENT: "IO.OPENEMS.EDGE.CONTROLLER.IO.HEATINGELEMENT/README.ADOC",
+        CONTROLLER_ESS_TIME_OF_USE_TARIFF: "IO.OPENEMS.EDGE.CONTROLLER.ESS.TIMEOFUSETARIFF/README.ADOC",
 
-        CONTROLLER_API_MODBUSTCP_READ: "io.openems.edge.controller.api.modbus/readme.adoc",
-        CONTROLLER_API_MODBUSTCP_READWRITE: "io.openems.edge.controller.api.modbus/readme.adoc",
+        CONTROLLER_API_MODBUSTCP_READ: "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS/README.ADOC",
+        CONTROLLER_API_MODBUSTCP_READWRITE: "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS/README.ADOC",
 
-        CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
-        CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
+        CONTROLLER_API_REST_READ: "IO.OPENEMS.EDGE.CONTROLLER.API.REST/README.ADOC",
+        CONTROLLER_API_REST_READWRITE: "IO.OPENEMS.EDGE.CONTROLLER.API.REST/README.ADOC",
 
         SETTINGS_ALERTING: null,
         SETTINGS_NETWORK_CONFIGURATION: null,
-        EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
+        EVCS_CLUSTER: "IO.OPENEMS.EDGE.EVCS.CLUSTER/README.ADOC",
 
         SYSTEM: {
             INDUSTRIAL_S: "#",

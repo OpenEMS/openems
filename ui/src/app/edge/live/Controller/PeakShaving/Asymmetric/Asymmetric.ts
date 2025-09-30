@@ -4,11 +4,11 @@ import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
-import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.component";
+import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
     selector: "Controller_Asymmetric_PeakShaving",
-    templateUrl: "./Asymmetric.html",
+    templateUrl: "./ASYMMETRIC.HTML",
     standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
@@ -20,46 +20,46 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: Controller_Asymmetric_PeakShavingModalComponent,
             componentProps: {
-                component: this.component,
-                edge: this.edge,
-                mostStressedPhase: this.mostStressedPhase,
+                component: THIS.COMPONENT,
+                edge: THIS.EDGE,
+                mostStressedPhase: THIS.MOST_STRESSED_PHASE,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     protected override getChannelAddresses() {
-        this.meterId = this.component.properties["meter.id"];
+        THIS.METER_ID = THIS.COMPONENT.PROPERTIES["METER.ID"];
         return [
-            new ChannelAddress(this.meterId, "ActivePower"),
-            new ChannelAddress(this.meterId, "ActivePowerL1"),
-            new ChannelAddress(this.meterId, "ActivePowerL2"),
-            new ChannelAddress(this.meterId, "ActivePowerL3"),
+            new ChannelAddress(THIS.METER_ID, "ActivePower"),
+            new ChannelAddress(THIS.METER_ID, "ActivePowerL1"),
+            new ChannelAddress(THIS.METER_ID, "ActivePowerL2"),
+            new ChannelAddress(THIS.METER_ID, "ActivePowerL3"),
         ];
     }
 
     protected override onCurrentData(currentData: CurrentData) {
 
         const activePowerArray: number[] = [
-            currentData.allComponents[this.meterId + "/ActivePowerL1"],
-            currentData.allComponents[this.meterId + "/ActivePowerL2"],
-            currentData.allComponents[this.meterId + "/ActivePowerL3"],
+            CURRENT_DATA.ALL_COMPONENTS[THIS.METER_ID + "/ActivePowerL1"],
+            CURRENT_DATA.ALL_COMPONENTS[THIS.METER_ID + "/ActivePowerL2"],
+            CURRENT_DATA.ALL_COMPONENTS[THIS.METER_ID + "/ActivePowerL3"],
         ];
 
         const name: string[] = ["L1", "L2", "L3"];
 
-        this.mostStressedPhase.next({
+        THIS.MOST_STRESSED_PHASE.NEXT({
 
             // Show most stressed Phase
-            name: name[activePowerArray.indexOf(Math.max(...activePowerArray))],
-            value: Math.max(...activePowerArray, 0),
+            name: name[ACTIVE_POWER_ARRAY.INDEX_OF(MATH.MAX(...activePowerArray))],
+            value: MATH.MAX(...activePowerArray, 0),
         });
 
-        this.peakShavingPower = this.component.properties["peakShavingPower"];
-        this.rechargePower = this.component.properties["rechargePower"];
+        THIS.PEAK_SHAVING_POWER = THIS.COMPONENT.PROPERTIES["peakShavingPower"];
+        THIS.RECHARGE_POWER = THIS.COMPONENT.PROPERTIES["rechargePower"];
     }
 
 }

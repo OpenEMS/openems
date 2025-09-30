@@ -2,16 +2,16 @@
 
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
-import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "chart.js";
+import { Chart, ChartComponentLike, ChartDataset, ChartOptions, LegendItem, PointStyle } from "CHART.JS";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { EmptyObj, TPartialBy } from "../../type/utility";
-import { ArrayUtils } from "../../utils/array/array.utils";
+import { ArrayUtils } from "../../utils/array/ARRAY.UTILS";
 import { ChartAxis, HistoryUtils, Utils } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
-import { ChartTypes } from "./chart.types";
+import { ChartTypes } from "./CHART.TYPES";
 
 export namespace ChartConstants {
   export const NUMBER_OF_Y_AXIS_TICKS: number = 7;
@@ -22,15 +22,15 @@ export namespace ChartConstants {
   export class Plugins {
 
     public static Legend = class {
-      public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => ChartConstants.Plugins.POINT_STYLE(dataset);
+      public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => CHART_CONSTANTS.PLUGINS.POINT_STYLE(dataset);
     };
 
     public static Datasets = class {
 
-      public static POINT_STYLE = (dataset: HistoryUtils.DisplayValue<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
-        const res = ChartConstants.Plugins.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
+      public static POINT_STYLE = (dataset: HISTORY_UTILS.DISPLAY_VALUE<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
+        const res = CHART_CONSTANTS.PLUGINS.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
         return {
-          pointStyle: res.pointStyle,
+          pointStyle: RES.POINT_STYLE,
           ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }),
         };
       };
@@ -43,12 +43,12 @@ export namespace ChartConstants {
        * @param color the color of the dataset
        * @returns chartjs dataset options
        */
-      public static HOVER_ENHANCE = (color: ChartTypes.Color) => ({
+      public static HOVER_ENHANCE = (color: CHART_TYPES.COLOR) => ({
         pointHoverRadius: 2,
         pointHoverBorderWidth: 5,
         pointRadius: 0,
-        pointHoverBackgroundColor: color.backgroundColor,
-        pointHoverBorderColor: color.borderColor,
+        pointHoverBackgroundColor: COLOR.BACKGROUND_COLOR,
+        pointHoverBorderColor: COLOR.BORDER_COLOR,
       });
     };
 
@@ -56,7 +56,7 @@ export namespace ChartConstants {
 
       public static POINT_STYLE = (dataset: ChartDataset): { rotation: number, pointStyle: PointStyle } => {
         return {
-          pointStyle: ChartConstants.Plugins.POINT_STYLE(dataset).pointStyle,
+          pointStyle: CHART_CONSTANTS.PLUGINS.POINT_STYLE(dataset).pointStyle,
           rotation: 0,
         };
       };
@@ -64,15 +64,15 @@ export namespace ChartConstants {
       public static HEAT_PUMP_SUFFIX = (translate: TranslateService, value: number | null): string => {
         switch (value) {
           case -1:
-            return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+            return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
           case 1:
-            return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+            return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK");
           case 2:
-            return translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+            return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION");
           case 3:
-            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+            return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC");
           case 4:
-            return translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
+            return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM");
           default:
             return "";
         }
@@ -100,7 +100,7 @@ export namespace ChartConstants {
           function calculateTicksWidth(currentScale, ctx): number {
             let maxTickWidth = 0;
             currentScale?.ticks?.forEach(tick => {
-              const labelWidth = ctx.measureText(tick.label).width;
+              const labelWidth = CTX.MEASURE_TEXT(TICK.LABEL).width;
               if (labelWidth > maxTickWidth) {
                 maxTickWidth = labelWidth;
               }
@@ -126,23 +126,23 @@ export namespace ChartConstants {
            * @returns the horizontally centered position for the y axis title
           */
           function calculateXPositionForTitle(chart, totalScaleWidth, scale: string): number {
-            if (scale === ChartAxis.RIGHT) {
+            if (scale === CHART_AXIS.RIGHT) {
 
               // two right axis
-              if ("scales" in chart && ChartAxis.RIGHT_2 in chart.scales) {
+              if ("scales" in chart && ChartAxis.RIGHT_2 in CHART.SCALES) {
                 const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
-                const right2Scale = chart.scales[ChartAxis.RIGHT_2];
+                const right2Scale = CHART.SCALES[ChartAxis.RIGHT_2];
                 const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
-                return chart.width - right2ScaleWidth - totalScaleWidth;
+                return CHART.WIDTH - right2ScaleWidth - totalScaleWidth;
               }
 
               // one right axis
-              return chart.width - totalScaleWidth / 2;
+              return CHART.WIDTH - totalScaleWidth / 2;
             }
 
             // second right axis
             if (scale === ChartAxis.RIGHT_2) {
-              return chart.width - totalScaleWidth / 4;
+              return CHART.WIDTH - totalScaleWidth / 4;
             }
 
             // Left scale
@@ -150,11 +150,11 @@ export namespace ChartConstants {
           }
 
           // Filter invalid objects
-          if ("scales" in chart && id in chart.scales && !("position" in chart.scales[id])) {
+          if ("scales" in chart && id in CHART.SCALES && !("position" in CHART.SCALES[id])) {
             return;
           }
 
-          const currentScale = chart.scales[id];
+          const currentScale = CHART.SCALES[id];
 
           if (!currentScale) {
             return;
@@ -165,15 +165,15 @@ export namespace ChartConstants {
 
           const totalChartAreaWidth = maxTickWidth;
           const marginCurrentScaleToLeft = currentScale?.left ?? 0;
-          const text = currentScale.options.title.text;
-          const textColor = currentScale.options.title.color;
+          const text = CURRENT_SCALE.OPTIONS.TITLE.TEXT;
+          const textColor = CURRENT_SCALE.OPTIONS.TITLE.COLOR;
 
-          ctx.save();
-          ctx.font = options.font as string;
-          ctx.textAlign = isLeftAxis(marginCurrentScaleToLeft) ? "start" : "end";
-          ctx.fillStyle = textColor;
-          ctx.fillText(text, calculateXPositionForTitle(chart, totalChartAreaWidth, id), 10);
-          ctx.restore();
+          CTX.SAVE();
+          CTX.FONT = OPTIONS.FONT as string;
+          CTX.TEXT_ALIGN = isLeftAxis(marginCurrentScaleToLeft) ? "start" : "end";
+          CTX.FILL_STYLE = textColor;
+          CTX.FILL_TEXT(text, calculateXPositionForTitle(chart, totalChartAreaWidth, id), 10);
+          CTX.RESTORE();
         },
       });
     };
@@ -182,13 +182,13 @@ export namespace ChartConstants {
       id: "empty_chart",
       beforeDraw: (chart, args, options) => {
         const { ctx } = <{ ctx: CanvasRenderingContext2D }>chart;
-        ctx.save();
+        CTX.SAVE();
 
-        ctx.textAlign = "center";
-        ctx.fillStyle = "grey";
-        ctx.font = "1.5em serif";
-        ctx.fillText(text, chart.width / 2, chart.height / 2, chart.width);
-        ctx.restore();
+        CTX.TEXT_ALIGN = "center";
+        CTX.FILL_STYLE = "grey";
+        CTX.FONT = "1.5em serif";
+        CTX.FILL_TEXT(text, CHART.WIDTH / 2, CHART.HEIGHT / 2, CHART.WIDTH);
+        CTX.RESTORE();
       },
       defaults: {
         color: "none",
@@ -203,9 +203,9 @@ export namespace ChartConstants {
      */
     public static readonly BAR_CHART_DATALABELS = (unit: string, disable: boolean): any => ({
       ...ChartDataLabels,
-      color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
+      color: getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-text"),
       formatter: (value, ctx) => {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
         return formatNumber(value, locale, "1.0-0") + "\xa0" + unit;
       },
       ...{
@@ -218,8 +218,8 @@ export namespace ChartConstants {
 
     public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> => {
 
-      if (dataset == null || dataset.backgroundColor == null) {
-        return { pointStyle: Chart.defaults.plugins.legend.labels.pointStyle };
+      if (dataset == null || DATASET.BACKGROUND_COLOR == null) {
+        return { pointStyle: CHART.DEFAULTS.PLUGINS.LEGEND.LABELS.POINT_STYLE };
       }
 
       if ("borderDash" in dataset) {
@@ -228,7 +228,7 @@ export namespace ChartConstants {
 
       return {
         pointStyle: "circle",
-        fillStyle: RGBColor.fromString(dataset.backgroundColor.toString()).toString(),
+        fillStyle: RGBCOLOR.FROM_STRING(DATASET.BACKGROUND_COLOR.TO_STRING()).toString(),
       };
     };
   }
@@ -264,7 +264,7 @@ export namespace ChartConstants {
   }
 
   /**
-   * Default yScale CartesianScaleTypeRegistry.linear
+   * Default yScale CARTESIAN_SCALE_TYPE_REGISTRY.LINEAR
    *
    * @param yAxis the yAxis
    * @param translate the translate service
@@ -272,18 +272,18 @@ export namespace ChartConstants {
    * @param datasets the chart datasets
    * @returns scale options
    */
-  export const DEFAULT_Y_SCALE_OPTIONS = (yAxis: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"],) => {
-    const beginAtZero: boolean = ChartConstants.isDataSeriesPositive(datasets);
+  export const DEFAULT_Y_SCALE_OPTIONS = (yAxis: HISTORY_UTILS.Y_AXES, translate: TranslateService, chartType: "line" | "bar", datasets: ChartDataset[], showYAxisTitle?: boolean, formatNumber?: HISTORY_UTILS.CHART_DATA["tooltip"]["formatNumber"],) => {
+    const beginAtZero: boolean = CHART_CONSTANTS.IS_DATA_SERIES_POSITIVE(datasets);
     const scaleOptions: ReturnType<typeof getScaleOptions> = getScaleOptions(datasets, yAxis, chartType);
-    const yScaleTitle = yAxis.customTitle ?? AbstractHistoryChart.getYAxisTitle(yAxis.unit, translate, chartType, yAxis.customTitle);
+    const yScaleTitle = Y_AXIS.CUSTOM_TITLE ?? ABSTRACT_HISTORY_CHART.GET_YAXIS_TITLE(Y_AXIS.UNIT, translate, chartType, Y_AXIS.CUSTOM_TITLE);
     if (showYAxisTitle) {
-      Chart.register(ChartConstants.Plugins.YAXIS_TITLE_POSITION(yAxis.yAxisId));
+      CHART.REGISTER(CHART_CONSTANTS.PLUGINS.YAXIS_TITLE_POSITION(Y_AXIS.Y_AXIS_ID));
     }
 
     return {
       title: {
         padding: 5,
-        color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-primary"),
+        color: getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-chart-primary"),
         text: yScaleTitle,
         display: false,
         font: {
@@ -292,26 +292,26 @@ export namespace ChartConstants {
       },
       stacked: chartType === "line" ? false : true,
       beginAtZero: beginAtZero,
-      position: yAxis.position,
+      position: Y_AXIS.POSITION,
       grid: {
-        display: yAxis.displayGrid ?? true,
+        display: Y_AXIS.DISPLAY_GRID ?? true,
       },
-      ...(scaleOptions?.min !== null && { min: scaleOptions.min }),
-      ...(scaleOptions?.max !== null && { max: scaleOptions.max }),
+      ...(scaleOptions?.min !== null && { min: SCALE_OPTIONS.MIN }),
+      ...(scaleOptions?.max !== null && { max: SCALE_OPTIONS.MAX }),
       ticks: {
-        color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
+        color: getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-text"),
         padding: 5,
         maxTicksLimit: ChartConstants.NUMBER_OF_Y_AXIS_TICKS,
-        ...(scaleOptions?.stepSize && { stepSize: scaleOptions.stepSize }),
+        ...(scaleOptions?.stepSize && { stepSize: SCALE_OPTIONS.STEP_SIZE }),
         callback: function (value, index, ticks) {
-          // if (index == (ticks.length - 1) && showYAxisTitle) {
-          //   const upperMostTick = element.customTitle ?? AbstractHistoryChart.getYAxisType(element.unit, translate, chartType);
-          //   AssertionUtils.assertHasMaxLength(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
+          // if (index == (TICKS.LENGTH - 1) && showYAxisTitle) {
+          //   const upperMostTick = ELEMENT.CUSTOM_TITLE ?? ABSTRACT_HISTORY_CHART.GET_YAXIS_TYPE(ELEMENT.UNIT, translate, chartType);
+          //   ASSERTION_UTILS.ASSERT_HAS_MAX_LENGTH(upperMostTick, ChartConstants.MAX_LENGTH_OF_Y_AXIS_TITLE);
           //   return upperMostTick;
           // }
 
           // Formats a value safely
-          return Formatter.formatSafely(value, formatNumber);
+          return FORMATTER.FORMAT_SAFELY(value, formatNumber);
         },
       },
     };
@@ -324,13 +324,13 @@ export namespace ChartConstants {
    * @param yAxis the yAxis
    * @returns min, max and stepsize for datasets belonging to this yAxis
    */
-  export function getScaleOptions(datasets: ChartDataset[], yAxis: HistoryUtils.yAxes, chartType: "line" | "bar"): { min: number; max: number; stepSize: number; } | null {
+  export function getScaleOptions(datasets: ChartDataset[], yAxis: HISTORY_UTILS.Y_AXES, chartType: "line" | "bar"): { min: number; max: number; stepSize: number; } | null {
 
     const stackMap: { [index: string]: ChartDataset } = {};
-    datasets?.filter(el => el["yAxisID"] === yAxis.yAxisId).forEach((dataset, index) => {
-      const stackId = dataset.stack || "default"; // If no stack is defined, use "default"
+    datasets?.filter(el => el["yAxisID"] === Y_AXIS.Y_AXIS_ID).forEach((dataset, index) => {
+      const stackId = DATASET.STACK || "default"; // If no stack is defined, use "default"
 
-      if (dataset.hidden) {
+      if (DATASET.HIDDEN) {
         return;
       }
 
@@ -341,34 +341,34 @@ export namespace ChartConstants {
 
       if (!(stackId in stackMap)) {
         // If the stack doesn"t exist yet, create an entry
-        stackMap[stackId] = { ...dataset, data: [...dataset.data] };
+        stackMap[stackId] = { ...dataset, data: [...DATASET.DATA] };
       } else {
         // If the stack already exists, merge the data arrays
-        stackMap[stackId].data = stackMap[stackId].data.map((value, index) => {
-          return Utils.addSafely(value as number, (dataset.data[index] as number)); // Sum data points or handle missing values
+        stackMap[stackId].data = stackMap[stackId].DATA.MAP((value, index) => {
+          return UTILS.ADD_SAFELY(value as number, (DATASET.DATA[index] as number)); // Sum data points or handle missing values
         });
       }
     });
 
-    return Object.values(stackMap)
+    return OBJECT.VALUES(stackMap)
       .reduce((arr: { min: number, max: number, stepSize: number }, dataset: ChartDataset) => {
         let currMin: number | null;
-        if (yAxis.scale?.dynamicScale) {
-          currMin = ArrayUtils.findSmallestNumber(dataset.data as number[]);
+        if (Y_AXIS.SCALE?.dynamicScale) {
+          currMin = ARRAY_UTILS.FIND_SMALLEST_NUMBER(DATASET.DATA as number[]);
 
           if (chartType === "bar") {
             // to start the y-axis a few percent below the lowest value
             // Applies only bar charts with dynamic scale set to true (schedule charts)
-            currMin = Math.floor(currMin - (currMin * 0.05));
+            currMin = MATH.FLOOR(currMin - (currMin * 0.05));
           }
         } else {
 
           // Starts yAxis at least at 0
-          currMin = ArrayUtils.findSmallestNumber([...dataset.data as number[], 0]);
+          currMin = ARRAY_UTILS.FIND_SMALLEST_NUMBER([...DATASET.DATA as number[], 0]);
         }
 
-        const min = Math.floor(Math.min(...[arr.min, currMin].filter(el => el != null))) ?? null;
-        let max = Math.ceil(Math.max(arr.max, ArrayUtils.findBiggestNumber(dataset.data as number[]))) ?? null;
+        const min = MATH.FLOOR(MATH.MIN(...[ARR.MIN, currMin].filter(el => el != null))) ?? null;
+        let max = MATH.CEIL(MATH.MAX(ARR.MAX, ARRAY_UTILS.FIND_BIGGEST_NUMBER(DATASET.DATA as number[]))) ?? null;
 
         if (max === null || min === null) {
           return arr;
@@ -381,7 +381,7 @@ export namespace ChartConstants {
         arr = {
           min: min,
           max: max,
-          stepSize: Math.max(arr?.stepSize ?? 0, ChartConstants.calculateStepSize(min, max)),
+          stepSize: MATH.MAX(arr?.stepSize ?? 0, CHART_CONSTANTS.CALCULATE_STEP_SIZE(min, max)),
         };
 
         return arr;
@@ -404,7 +404,7 @@ export namespace ChartConstants {
 
     const difference = max - min;
 
-    return parseFloat(Utils.divideSafely(difference,
+    return parseFloat(UTILS.DIVIDE_SAFELY(difference,
       /* Subtracting 0, because there is always one interval less than amount of ticks*/
       ChartConstants.NUMBER_OF_Y_AXIS_TICKS - 2).toString());
   }
@@ -416,7 +416,7 @@ export namespace ChartConstants {
    * @returns true, if only positive data exists
    */
   export function isDataSeriesPositive(datasets: ChartDataset[]): boolean {
-    return datasets.filter(el => el != null).map(el => el.data).every(el => el.every(e => (e as number) >= 0));
+    return DATASETS.FILTER(el => el != null).map(el => EL.DATA).every(el => EL.EVERY(e => (e as number) >= 0));
   }
 }
 

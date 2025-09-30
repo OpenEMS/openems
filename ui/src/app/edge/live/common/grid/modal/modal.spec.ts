@@ -1,12 +1,12 @@
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { GridMode } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
-import { expectView } from "./constants.spec";
+import { expectView } from "./CONSTANTS.SPEC";
 
-const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
+const VIEW_CONTEXT = (properties?: {}): OE_FORMLY_VIEW_TESTER.CONTEXT => ({
   "_sum/GridMode": GridMode.ON_GRID,
   "_sum/GridActivePower": -1000,
   "meter0/ActivePower": -1000,
@@ -19,14 +19,14 @@ const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
 
 describe("Grid - Modal", () => {
   let TEST_CONTEXT: TestContext;
-  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TESTING_UTILS.SHARED_SETUP());
 
   it("generateView()", () => {
     {
       // No Meters
-      const EMS = DummyConfig.from();
+      const EMS = DUMMY_CONFIG.FROM();
 
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+      expectView(EMS, ROLE.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
         ],
@@ -35,13 +35,13 @@ describe("Grid - Modal", () => {
 
     {
       // Single Meter
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
-        DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
+      const EMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+        DUMMY_CONFIG.COMPONENT.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
       );
 
       // Admin and Installer
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+      expectView(EMS, ROLE.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
@@ -56,7 +56,7 @@ describe("Grid - Modal", () => {
       });
 
       // Owner and Guest
-      expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
+      expectView(EMS, ROLE.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
@@ -71,7 +71,7 @@ describe("Grid - Modal", () => {
       });
 
       // Offgrid
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ "_sum/GridMode": GridMode.OFF_GRID }), TEST_CONTEXT, {
+      expectView(EMS, ROLE.ADMIN, VIEW_CONTEXT({ "_sum/GridMode": GridMode.OFF_GRID }), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           {
@@ -93,14 +93,14 @@ describe("Grid - Modal", () => {
 
     {
       // Two Meters
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter10"),
-        DummyConfig.Component.SOCOMEC_GRID_METER("meter11"),
-        DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
+      const EMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_GRID_METER("meter10"),
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_GRID_METER("meter11"),
+        DUMMY_CONFIG.COMPONENT.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
       );
 
       // Admin and Installer -> two meters
-      expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+      expectView(EMS, ROLE.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),
@@ -122,7 +122,7 @@ describe("Grid - Modal", () => {
       });
 
       // Owner and Guest -> two meters
-      expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
+      expectView(EMS, ROLE.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
         title: "Netz",
         lines: [
           VALUE_FROM_CHANNELS_LINE("Zustand", "keine externe Limitierung"),

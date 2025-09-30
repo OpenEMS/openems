@@ -6,24 +6,24 @@ import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/s
 import { Language } from "src/app/shared/type/language";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
-import { StorageModalComponent } from "./modal/modal.component";
+import { StorageModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
     selector: "storage",
-    templateUrl: "./storage.component.html",
+    templateUrl: "./STORAGE.COMPONENT.HTML",
     standalone: false,
 })
 export class StorageComponent extends AbstractFlatWidget {
 
-    public essComponents: EdgeConfig.Component[] = [];
-    public chargerComponents: EdgeConfig.Component[] = [];
+    public essComponents: EDGE_CONFIG.COMPONENT[] = [];
+    public chargerComponents: EDGE_CONFIG.COMPONENT[] = [];
     public storageIconStyle: string | null = null;
     public isHybridEss: boolean[] = [];
-    public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
+    public emergencyReserveComponents: { [essId: string]: EDGE_CONFIG.COMPONENT } = {};
     public currentSoc: number[] = [];
     public isEmergencyReserveEnabled: boolean[] = [];
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
-    private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
+    private prepareBatteryExtensionCtrl: { [key: string]: EDGE_CONFIG.COMPONENT };
 
     /**
     * Use 'convertChargePower' to convert/map a value
@@ -32,7 +32,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns value
     */
     public convertChargePower = (value: any): string => {
-        return this.convertPower(Utils.multiplySafely(value, -1), true);
+        return THIS.CONVERT_POWER(UTILS.MULTIPLY_SAFELY(value, -1), true);
     };
 
     /**
@@ -42,7 +42,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns value
      */
     public convertDischargePower = (value: any): string => {
-        return this.convertPower(value);
+        return THIS.CONVERT_POWER(value);
     };
 
     /**
@@ -52,7 +52,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         }
@@ -73,14 +73,14 @@ export class StorageComponent extends AbstractFlatWidget {
     }
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: StorageModalComponent,
             componentProps: {
-                edge: this.edge,
-                component: this.component,
+                edge: THIS.EDGE,
+                component: THIS.COMPONENT,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     protected override getChannelAddresses() {
@@ -94,83 +94,83 @@ export class StorageComponent extends AbstractFlatWidget {
             new ChannelAddress("_sum", "EssActivePowerL3"),
         ];
 
-        this.prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension")
-            .filter(component => component.isEnabled)
+        THIS.PREPARE_BATTERY_EXTENSION_CTRL = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.ESS.PREPARE_BATTERY_EXTENSION")
+            .filter(component => COMPONENT.IS_ENABLED)
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties["ess.id"]]: component,
+                    [COMPONENT.PROPERTIES["ESS.ID"]]: component,
                 };
             }, {});
 
 
-        for (const essId in this.prepareBatteryExtensionCtrl) {
-            const controller = this.prepareBatteryExtensionCtrl[essId];
-            channelAddresses.push(
-                new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
-                new ChannelAddress(controller.id, "CtrlIsChargingEss"),
-                new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
-                new ChannelAddress(controller.id, "_PropertyIsRunning"),
-                new ChannelAddress(controller.id, "_PropertyTargetTimeSpecified"),
-                new ChannelAddress(controller.id, "_PropertyTargetTime"),
+        for (const essId in THIS.PREPARE_BATTERY_EXTENSION_CTRL) {
+            const controller = THIS.PREPARE_BATTERY_EXTENSION_CTRL[essId];
+            CHANNEL_ADDRESSES.PUSH(
+                new ChannelAddress(CONTROLLER.ID, "CtrlIsBlockingEss"),
+                new ChannelAddress(CONTROLLER.ID, "CtrlIsChargingEss"),
+                new ChannelAddress(CONTROLLER.ID, "CtrlIsDischargingEss"),
+                new ChannelAddress(CONTROLLER.ID, "_PropertyIsRunning"),
+                new ChannelAddress(CONTROLLER.ID, "_PropertyTargetTimeSpecified"),
+                new ChannelAddress(CONTROLLER.ID, "_PropertyTargetTime"),
             );
         }
 
         // Get emergencyReserves
-        this.emergencyReserveComponents = this.config
-            .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
-            .filter(component => component.isEnabled)
+        THIS.EMERGENCY_RESERVE_COMPONENTS = THIS.CONFIG
+            .getComponentsByFactory("CONTROLLER.ESS.EMERGENCY_CAPACITY_RESERVE")
+            .filter(component => COMPONENT.IS_ENABLED)
             .reduce((result, component) => {
                 return {
                     ...result,
-                    [component.properties["ess.id"]]: component,
+                    [COMPONENT.PROPERTIES["ESS.ID"]]: component,
                 };
             }, {});
-        for (const component of Object.values(this.emergencyReserveComponents)) {
+        for (const component of OBJECT.VALUES(THIS.EMERGENCY_RESERVE_COMPONENTS)) {
 
-            channelAddresses.push(
-                new ChannelAddress(component.id, "_PropertyReserveSoc"),
-                new ChannelAddress(component.id, "_PropertyIsReserveSocEnabled"),
+            CHANNEL_ADDRESSES.PUSH(
+                new ChannelAddress(COMPONENT.ID, "_PropertyReserveSoc"),
+                new ChannelAddress(COMPONENT.ID, "_PropertyIsReserveSocEnabled"),
             );
         }
         // Get Chargers
         // TODO should be moved to Modal
-        this.chargerComponents = this.config
-            .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-            .filter(component => component.isEnabled);
-        for (const component of this.chargerComponents) {
-            channelAddresses.push(
-                new ChannelAddress(component.id, "ActualPower"),
+        THIS.CHARGER_COMPONENTS = THIS.CONFIG
+            .getComponentsImplementingNature("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER")
+            .filter(component => COMPONENT.IS_ENABLED);
+        for (const component of THIS.CHARGER_COMPONENTS) {
+            CHANNEL_ADDRESSES.PUSH(
+                new ChannelAddress(COMPONENT.ID, "ActualPower"),
             );
         }
 
         // Get ESSs
-        this.essComponents = this.config
-            .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-            .filter(component => component.isEnabled && !this.config
-                .getNatureIdsByFactoryId(component.factoryId)
-                .includes("io.openems.edge.ess.api.MetaEss"));
+        THIS.ESS_COMPONENTS = THIS.CONFIG
+            .getComponentsImplementingNature("IO.OPENEMS.EDGE.ESS.API.SYMMETRIC_ESS")
+            .filter(component => COMPONENT.IS_ENABLED && !THIS.CONFIG
+                .getNatureIdsByFactoryId(COMPONENT.FACTORY_ID)
+                .includes("IO.OPENEMS.EDGE.ESS.API.META_ESS"));
 
-        for (const component of this.config
-            .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-            .filter(component => component.isEnabled && !this.config
-                .getNatureIdsByFactoryId(component.factoryId)
-                .includes("io.openems.edge.ess.api.MetaEss"))) {
+        for (const component of THIS.CONFIG
+            .getComponentsImplementingNature("IO.OPENEMS.EDGE.ESS.API.SYMMETRIC_ESS")
+            .filter(component => COMPONENT.IS_ENABLED && !THIS.CONFIG
+                .getNatureIdsByFactoryId(COMPONENT.FACTORY_ID)
+                .includes("IO.OPENEMS.EDGE.ESS.API.META_ESS"))) {
 
             // Check if essComponent is HybridEss
-            this.isHybridEss[component.id] = this.config
-                .getNatureIdsByFactoryId(component.factoryId)
-                .includes("io.openems.edge.ess.api.HybridEss");
+            THIS.IS_HYBRID_ESS[COMPONENT.ID] = THIS.CONFIG
+                .getNatureIdsByFactoryId(COMPONENT.FACTORY_ID)
+                .includes("IO.OPENEMS.EDGE.ESS.API.HYBRID_ESS");
 
-            channelAddresses.push(
-                new ChannelAddress(component.id, "Soc"),
-                new ChannelAddress(component.id, "Capacity"),
+            CHANNEL_ADDRESSES.PUSH(
+                new ChannelAddress(COMPONENT.ID, "Soc"),
+                new ChannelAddress(COMPONENT.ID, "Capacity"),
             );
-            if (this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.ess.api.AsymmetricEss")) {
-                channelAddresses.push(
-                    new ChannelAddress(component.id, "ActivePowerL1"),
-                    new ChannelAddress(component.id, "ActivePowerL2"),
-                    new ChannelAddress(component.id, "ActivePowerL3"),
+            if (THIS.CONFIG.FACTORIES[COMPONENT.FACTORY_ID].NATURE_IDS.INCLUDES("IO.OPENEMS.EDGE.ESS.API.ASYMMETRIC_ESS")) {
+                CHANNEL_ADDRESSES.PUSH(
+                    new ChannelAddress(COMPONENT.ID, "ActivePowerL1"),
+                    new ChannelAddress(COMPONENT.ID, "ActivePowerL2"),
+                    new ChannelAddress(COMPONENT.ID, "ActivePowerL3"),
                 );
             }
         }
@@ -179,29 +179,29 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        for (const essId in this.prepareBatteryExtensionCtrl) {
-            const controller = this.prepareBatteryExtensionCtrl[essId];
+        for (const essId in THIS.PREPARE_BATTERY_EXTENSION_CTRL) {
+            const controller = THIS.PREPARE_BATTERY_EXTENSION_CTRL[essId];
 
-            this.possibleBatteryExtensionMessage.set(
+            THIS.POSSIBLE_BATTERY_EXTENSION_MESSAGE.SET(
                 essId,
-                this.getBatteryCapacityExtensionStatus(
-                    currentData.allComponents[controller.id + "/_PropertyIsRunning"] == 1,
-                    currentData.allComponents[controller.id + "/CtrlIsBlockingEss"],
-                    currentData.allComponents[controller.id + "/CtrlIsChargingEss"],
-                    currentData.allComponents[controller.id + "/CtrlIsDischargingEss"],
-                    currentData.allComponents[controller.id + "/_PropertyTargetTimeSpecified"],
-                    currentData.allComponents[controller.id + "/_PropertyTargetTime"],
+                THIS.GET_BATTERY_CAPACITY_EXTENSION_STATUS(
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/_PropertyIsRunning"] == 1,
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/CtrlIsBlockingEss"],
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/CtrlIsChargingEss"],
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/CtrlIsDischargingEss"],
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/_PropertyTargetTimeSpecified"],
+                    CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/_PropertyTargetTime"],
                 ));
         }
 
         // Check total State_of_Charge for dynamical icon in widget-header
-        const soc = currentData.allComponents["_sum/EssSoc"];
-        this.storageIconStyle = "storage-" + Utils.getStorageSocSegment(soc);
+        const soc = CURRENT_DATA.ALL_COMPONENTS["_sum/EssSoc"];
+        THIS.STORAGE_ICON_STYLE = "storage-" + UTILS.GET_STORAGE_SOC_SEGMENT(soc);
 
-        for (const essId in this.emergencyReserveComponents) {
-            const controller = this.emergencyReserveComponents[essId];
-            controller["currentReserveSoc"] = currentData.allComponents[controller.id + "/_PropertyReserveSoc"];
-            this.isEmergencyReserveEnabled[essId] = currentData.allComponents[controller.id + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
+        for (const essId in THIS.EMERGENCY_RESERVE_COMPONENTS) {
+            const controller = THIS.EMERGENCY_RESERVE_COMPONENTS[essId];
+            controller["currentReserveSoc"] = CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/_PropertyReserveSoc"];
+            THIS.IS_EMERGENCY_RESERVE_ENABLED[essId] = CURRENT_DATA.ALL_COMPONENTS[CONTROLLER.ID + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
         }
     }
 
@@ -213,23 +213,23 @@ export class StorageComponent extends AbstractFlatWidget {
         // Planned Expansion
         if (targetTimeSpecified && targetDate) {
 
-            const date = DateUtils.stringToDate(targetDate.toString());
+            const date = DATE_UTILS.STRING_TO_DATE(TARGET_DATE.TO_STRING());
             return {
-                color: "green", text: this.translate.instant("Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED", {
-                    targetDate: DateUtils.toLocaleDateString(date),
-                    targetTime: date.toLocaleTimeString(),
+                color: "green", text: THIS.TRANSLATE.INSTANT("EDGE.INDEX.RETROFITTING.TARGET_TIME_SPECIFIED", {
+                    targetDate: DATE_UTILS.TO_LOCALE_DATE_STRING(date),
+                    targetTime: DATE.TO_LOCALE_TIME_STRING(),
                 }),
             };
         }
 
         if (essIsBlocking != null && essIsBlocking == 1) {
             // If ess reached targetSoc
-            return { color: "green", text: this.translate.instant("Edge.Index.RETROFITTING.REACHED_TARGET_SOC") };
+            return { color: "green", text: THIS.TRANSLATE.INSTANT("EDGE.INDEX.RETROFITTING.REACHED_TARGET_SOC") };
 
         } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
 
             // If Ess is charging to or discharging to the targetSoc
-            return { color: "orange", text: this.translate.instant("Edge.Index.RETROFITTING.PREPARING") };
+            return { color: "orange", text: THIS.TRANSLATE.INSTANT("EDGE.INDEX.RETROFITTING.PREPARING") };
         } else {
             return null;
         }

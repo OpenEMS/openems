@@ -5,7 +5,7 @@ import { Language } from "../../type/language";
 export namespace Formatter {
 
   // Changes the number format based on the language selected.
-  const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+  const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
 
   export const FORMAT_WATT = (value: number) => {
     return formatNumber(value, locale, "1.0-0") + " W";
@@ -54,8 +54,8 @@ export namespace Formatter {
     return formatNumber(value, locale, "1.0-0") + " h";
   };
 
-  export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
-    return formatNumber(parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
+  export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = CURRENCY.UNIT.CENT) => {
+    return formatNumber(parseInt(VALUE.TO_STRING()), locale, "1.0-2") + " " + CURRENCY.GET_CURRENCY_LABEL_BY_CURRENCY(currency);
   };
 
   export const formatSafely = (value: number | string | null, format: string) => {
@@ -64,12 +64,12 @@ export namespace Formatter {
       return value;
     }
 
-    return formatNumber(parseFloat(value.toString()), locale, format);
+    return formatNumber(parseFloat(VALUE.TO_STRING()), locale, format);
   };
 
   export const formatSafelyWithSuffix = (value: number | string | null, format: string, suffix: string | null) => {
 
-    const formattedValue = Formatter.formatSafely(value, format);
+    const formattedValue = FORMATTER.FORMAT_SAFELY(value, format);
     if (formattedValue == null) {
       return null;
     }

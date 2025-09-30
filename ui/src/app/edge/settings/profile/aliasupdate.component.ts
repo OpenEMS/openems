@@ -7,15 +7,15 @@ import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
     selector: "aliasupdate",
-    templateUrl: "./aliasupdate.component.html",
+    templateUrl: "./ALIASUPDATE.COMPONENT.HTML",
     standalone: false,
 })
 export class AliasUpdateComponent implements OnInit {
 
-    public component: EdgeConfig.Component | null = null;
+    public component: EDGE_CONFIG.COMPONENT | null = null;
 
     public formGroup: FormGroup | null = null;
-    public factory: EdgeConfig.Factory | null = null;
+    public factory: EDGE_CONFIG.FACTORY | null = null;
     public componentIcon: string | null = null;
 
     private edge: Edge;
@@ -29,35 +29,35 @@ export class AliasUpdateComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.EDGE = edge;
         });
-        this.service.getConfig().then(config => {
-            const componentId = this.route.snapshot.params["componentId"];
-            this.component = config.components[componentId];
-            this.factory = config.factories[this.component.factoryId];
-            this.componentIcon = config.getFactoryIcon(this.factory, this.translate);
-            this.formGroup = this.formBuilder.group({
-                alias: new FormControl(this.component.alias),
+        THIS.SERVICE.GET_CONFIG().then(config => {
+            const componentId = THIS.ROUTE.SNAPSHOT.PARAMS["componentId"];
+            THIS.COMPONENT = CONFIG.COMPONENTS[componentId];
+            THIS.FACTORY = CONFIG.FACTORIES[THIS.COMPONENT.FACTORY_ID];
+            THIS.COMPONENT_ICON = CONFIG.GET_FACTORY_ICON(THIS.FACTORY, THIS.TRANSLATE);
+            THIS.FORM_GROUP = THIS.FORM_BUILDER.GROUP({
+                alias: new FormControl(THIS.COMPONENT.ALIAS),
             });
         });
     }
 
     updateAlias(alias) {
         const newAlias = alias;
-        if (this.edge != null) {
-            if (this.component.id == newAlias) {
-                this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
+        if (THIS.EDGE != null) {
+            if (THIS.COMPONENT.ID == newAlias) {
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INPUT_NOT_VALID"), "danger");
             } else {
-                this.edge.updateComponentConfig(this.websocket, this.component.id, [
+                THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, [
                     { name: "alias", value: newAlias },
                 ]).then(() => {
-                    this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    THIS.FORM_GROUP.MARK_AS_PRISTINE();
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                    console.warn(reason);
+                    THIS.FORM_GROUP.MARK_AS_PRISTINE();
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                    CONSOLE.WARN(reason);
                 });
             }
         }

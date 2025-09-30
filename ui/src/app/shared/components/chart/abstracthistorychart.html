@@ -4,7 +4,7 @@
         <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
     </tr>
 </table>
-<div [style.height.px]="getChartHeight()" id="chart-area" class="semi-transparent-background ion-padding-top">
+<div [STYLE.HEIGHT.PX]="getChartHeight()" id="chart-area" class="semi-transparent-background ion-padding-top">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
         <canvas style="padding-bottom: 2vh;" baseChart [datasets]="datasets" [labels]="labels" [options]="options"

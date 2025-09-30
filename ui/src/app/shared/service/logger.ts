@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { Changelog } from "src/app/changelog/view/component/changelog.constants";
+import { Changelog } from "src/app/changelog/view/component/CHANGELOG.CONSTANTS";
 import { environment } from "src/environments";
 import { LogMessageNotification } from "../jsonrpc/notification/logMessageNotification";
 import { Service } from "./service";
@@ -32,7 +32,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public debug(msg: string) {
-        this.sendLogMessageNotification(Level.DEBUG, msg);
+        THIS.SEND_LOG_MESSAGE_NOTIFICATION(LEVEL.DEBUG, msg);
     }
 
     /**
@@ -41,7 +41,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public info(msg: string) {
-        this.sendLogMessageNotification(Level.INFO, msg);
+        THIS.SEND_LOG_MESSAGE_NOTIFICATION(LEVEL.INFO, msg);
     }
 
     /**
@@ -50,7 +50,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public warn(msg: string) {
-        this.sendLogMessageNotification(Level.WARNING, msg);
+        THIS.SEND_LOG_MESSAGE_NOTIFICATION(LEVEL.WARNING, msg);
     }
 
     /**
@@ -59,7 +59,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public error(msg: string) {
-        this.sendLogMessageNotification(Level.ERROR, msg);
+        THIS.SEND_LOG_MESSAGE_NOTIFICATION(LEVEL.ERROR, msg);
     }
 
     /**
@@ -69,29 +69,29 @@ export class Logger {
      * @param msg the message to be logged
      */
     private sendLogMessageNotification(level: Level, msg: string) {
-        if (environment.production == false) {
+        if (ENVIRONMENT.PRODUCTION == false) {
             return;
         }
 
         const message: LogMessageNotification["params"] = { level: level, msg: msg };
-        if (!this.previousMessage
-            || message.level !== this.previousMessage.level
-            || message.msg !== this.previousMessage.msg) {
-            this.previousMessage = message;
-            this.messageCounter = 0;
+        if (!THIS.PREVIOUS_MESSAGE
+            || MESSAGE.LEVEL !== THIS.PREVIOUS_MESSAGE.LEVEL
+            || MESSAGE.MSG !== THIS.PREVIOUS_MESSAGE.MSG) {
+            THIS.PREVIOUS_MESSAGE = message;
+            THIS.MESSAGE_COUNTER = 0;
         }
-        this.messageCounter++;
-        if (!isPowerOf2(this.messageCounter) && this.messageCounter % 1024 !== 0) {
+        THIS.MESSAGE_COUNTER++;
+        if (!isPowerOf2(THIS.MESSAGE_COUNTER) && THIS.MESSAGE_COUNTER % 1024 !== 0) {
             return;
         }
 
-        const page = this.router.url;
-        this.service.websocket.sendNotification(new LogMessageNotification({
-            level: message.level,
-            msg: "[count=" + this.messageCounter
+        const page = THIS.ROUTER.URL;
+        THIS.SERVICE.WEBSOCKET.SEND_NOTIFICATION(new LogMessageNotification({
+            level: MESSAGE.LEVEL,
+            msg: "[count=" + THIS.MESSAGE_COUNTER
                 + ";page=" + page
                 + ";version=" + Changelog.UI_VERSION
-                + "] " + message.msg,
+                + "] " + MESSAGE.MSG,
         }));
     }
 

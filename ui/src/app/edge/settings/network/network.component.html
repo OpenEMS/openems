@@ -5,20 +5,20 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
-            <ion-label> {{ form.name === 'eth0' ? 'LAN' : form.name + ' (INTERNAL)' }}</ion-label>
-            <ion-text translate>Edge.Network.advancedMode</ion-text>
-            <ion-toggle mode="md" (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
+            <ion-label> {{ FORM.NAME === 'eth0' ? 'LAN' : FORM.NAME + ' (INTERNAL)' }}</ion-label>
+            <ion-text translate>EDGE.NETWORK.ADVANCED_MODE</ion-text>
+            <ion-toggle mode="md" (ionChange)="FORM.MODEL.ADVANCED_MODE = !FORM.MODEL.ADVANCED_MODE; 
               hideOrShowFields(form)">
             </ion-toggle>
             <oe-help-button key="SETTINGS_NETWORK_CONFIGURATION"></oe-help-button>
           </ion-item>
           <ion-card-content>
             <form (ngSubmit)="submit(form)">
-              <formly-form [form]="form.formGroup" [fields]="form.fields" [model]="form.model">
+              <formly-form [form]="FORM.FORM_GROUP" [fields]="FORM.FIELDS" [model]="FORM.MODEL">
               </formly-form>
               <ion-item>
-                <ion-button [disabled]="form.formGroup.pristine" type="submit" color="primary">
-                  {{ 'Edge.Network.submit' | translate}}
+                <ion-button [disabled]="FORM.FORM_GROUP.PRISTINE" type="submit" color="primary">
+                  {{ 'EDGE.NETWORK.SUBMIT' | translate}}
                 </ion-button>
               </ion-item>
             </form>

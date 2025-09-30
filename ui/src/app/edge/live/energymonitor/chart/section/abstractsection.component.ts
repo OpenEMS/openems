@@ -73,45 +73,45 @@ export class EnergyFlow {
 
     public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
         if (energyFlow == null) {
-            this.points = "0,0 0,0";
+            THIS.POINTS = "0,0 0,0";
         } else {
             const p = energyFlow;
-            this.points = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+            THIS.POINTS = P.TOP_LEFT.X + "," + P.TOP_LEFT.Y
+                + (P.MIDDLE_TOP ? " " + P.MIDDLE_TOP.X + "," + P.MIDDLE_TOP.Y : "")
+                + " " + P.TOP_RIGHT.X + "," + P.TOP_RIGHT.Y
+                + (P.MIDDLE_RIGHT ? " " + P.MIDDLE_RIGHT.X + "," + P.MIDDLE_RIGHT.Y : "")
+                + " " + P.BOTTOM_RIGHT.X + "," + P.BOTTOM_RIGHT.Y
+                + (P.MIDDLE_BOTTOM ? " " + P.MIDDLE_BOTTOM.X + "," + P.MIDDLE_BOTTOM.Y : "")
+                + " " + P.BOTTOM_LEFT.X + "," + P.BOTTOM_LEFT.Y
+                + (P.MIDDLE_LEFT ? " " + P.MIDDLE_LEFT.X + "," + P.MIDDLE_LEFT.Y : "");
         }
         if (animationEnergyFlow == null) {
-            this.animationPoints = "0,0 0,0";
+            THIS.ANIMATION_POINTS = "0,0 0,0";
         } else {
             const p = animationEnergyFlow;
-            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+            THIS.ANIMATION_POINTS = P.TOP_LEFT.X + "," + P.TOP_LEFT.Y
+                + (P.MIDDLE_TOP ? " " + P.MIDDLE_TOP.X + "," + P.MIDDLE_TOP.Y : "")
+                + " " + P.TOP_RIGHT.X + "," + P.TOP_RIGHT.Y
+                + (P.MIDDLE_RIGHT ? " " + P.MIDDLE_RIGHT.X + "," + P.MIDDLE_RIGHT.Y : "")
+                + " " + P.BOTTOM_RIGHT.X + "," + P.BOTTOM_RIGHT.Y
+                + (P.MIDDLE_BOTTOM ? " " + P.MIDDLE_BOTTOM.X + "," + P.MIDDLE_BOTTOM.Y : "")
+                + " " + P.BOTTOM_LEFT.X + "," + P.BOTTOM_LEFT.Y
+                + (P.MIDDLE_LEFT ? " " + P.MIDDLE_LEFT.X + "," + P.MIDDLE_LEFT.Y : "");
         }
     }
 
     public switchState() {
-        if (this.state == "one") {
-            this.state = "two";
-        } else if (this.state == "two") {
-            this.state = "one";
+        if (THIS.STATE == "one") {
+            THIS.STATE = "two";
+        } else if (THIS.STATE == "two") {
+            THIS.STATE = "one";
         } else {
-            this.state = "one";
+            THIS.STATE = "one";
         }
     }
 
     public hide() {
-        this.state = "three";
+        THIS.STATE = "three";
     }
 }
 
@@ -136,7 +136,7 @@ export abstract class AbstractSection {
     protected gridMode: GridMode;
     protected restrictionMode: number;
 
-    private lastCurrentData: DefaultTypes.Summary | null = null;
+    private lastCurrentData: DEFAULT_TYPES.SUMMARY | null = null;
 
     constructor(
         translateName: string,
@@ -146,13 +146,13 @@ export abstract class AbstractSection {
         protected service: Service,
         widgetClass: string,
     ) {
-        this.sectionId = translateName;
-        this.name = translate.instant(translateName);
-        this.energyFlow = this.initEnergyFlow(0);
-        service.getConfig().then(config => {
-            config.widgets.classes.forEach(clazz => {
-                if (clazz.toString() === widgetClass) {
-                    this.isEnabled = true;
+        THIS.SECTION_ID = translateName;
+        THIS.NAME = TRANSLATE.INSTANT(translateName);
+        THIS.ENERGY_FLOW = THIS.INIT_ENERGY_FLOW(0);
+        SERVICE.GET_CONFIG().then(config => {
+            CONFIG.WIDGETS.CLASSES.FOR_EACH(clazz => {
+                if (CLAZZ.TO_STRING() === widgetClass) {
+                    THIS.IS_ENABLED = true;
                 }
             });
         });
@@ -161,10 +161,10 @@ export abstract class AbstractSection {
     /**
     * Updates the Values for this Section.
      *
-     * @param sum the CurrentData.Summary
+     * @param sum the CURRENT_DATA.SUMMARY
     */
-    public updateCurrentData(sum: DefaultTypes.Summary): void {
-        this.lastCurrentData = sum;
+    public updateCurrentData(sum: DEFAULT_TYPES.SUMMARY): void {
+        THIS.LAST_CURRENT_DATA = sum;
         this._updateCurrentData(sum);
     }
 
@@ -172,56 +172,56 @@ export abstract class AbstractSection {
     * This method is called on every change of resolution of the browser window.
      */
     public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
-        this.outerRadius = outerRadius;
-        this.innerRadius = innerRadius;
-        this.height = height;
-        this.width = width;
-        const outlineArc = this.getArc()
-            .startAngle(this.deg2rad(this.getStartAngle()))
-            .endAngle(this.deg2rad(this.getEndAngle()));
-        this.outlinePath = outlineArc();
+        THIS.OUTER_RADIUS = outerRadius;
+        THIS.INNER_RADIUS = innerRadius;
+        THIS.HEIGHT = height;
+        THIS.WIDTH = width;
+        const outlineArc = THIS.GET_ARC()
+            .startAngle(THIS.DEG2RAD(THIS.GET_START_ANGLE()))
+            .endAngle(THIS.DEG2RAD(THIS.GET_END_ANGLE()));
+        THIS.OUTLINE_PATH = outlineArc();
 
         /**
          * imaginary positioning "square"
          */
-        this.square = this.getSquare(innerRadius);
-        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
+        THIS.SQUARE = THIS.GET_SQUARE(innerRadius);
+        THIS.SQUARE_POSITION = THIS.GET_SQUARE_POSITION(THIS.SQUARE, innerRadius);
         /**
          * energy flow rectangle
          */
-        const availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
-        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
+        const availableInnerRadius = innerRadius - THIS.SQUARE.IMAGE.Y - THIS.SQUARE.IMAGE.LENGTH - 10;
+        THIS.ENERGY_FLOW = THIS.INIT_ENERGY_FLOW(availableInnerRadius);
 
         // now update also the value specific elements
-        if (this.lastCurrentData) {
-            this.updateCurrentData(this.lastCurrentData);
+        if (THIS.LAST_CURRENT_DATA) {
+            THIS.UPDATE_CURRENT_DATA(THIS.LAST_CURRENT_DATA);
         }
 
         // update correct positioning for Image + Text
-        this.setElementHeight();
+        THIS.SET_ELEMENT_HEIGHT();
     }
 
     /**
-     * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
+     * ATTR.FILL="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
      * otherwise Energymonitor wont be displayed correctly
      */
     protected adjustFillRefbyBrowser(): void {
-        if (navigator.vendor.match(/apple/i)) {
-            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")";
+        if (NAVIGATOR.VENDOR.MATCH(/apple/i)) {
+            THIS.FILL_REF = "url(" + WINDOW.LOCATION.ORIGIN + WINDOW.LOCATION.PATHNAME + "#" + THIS.SECTION_ID + ")";
         }
         else {
-            this.fillRef = "url(#" + this.sectionId + ")";
+            THIS.FILL_REF = "url(#" + THIS.SECTION_ID + ")";
         }
     }
 
     protected getArc(): any {
-        return d3.arc()
-            .innerRadius(this.innerRadius)
-            .outerRadius(this.outerRadius);
+        return D3.ARC()
+            .innerRadius(THIS.INNER_RADIUS)
+            .outerRadius(THIS.OUTER_RADIUS);
     }
 
     protected deg2rad(value: number): number {
-        return value * (Math.PI / 180);
+        return value * (MATH.PI / 180);
     }
 
     /**
@@ -229,35 +229,35 @@ export abstract class AbstractSection {
     *
     * @param valueAbsolute the absolute value of the Section
     * @param valueRatio    the relative value of the Section in [-1,1]
-    * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
+    * @param sumRatio      the relative value of the Section compared to the total SYSTEM.IN_POWER/OutPower [0,1]
     */
     protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
-        if (!this.isEnabled) {
+        if (!THIS.IS_ENABLED) {
             return;
         }
 
         // TODO smoothly resize the arc
-        this.valueText = this.getValueText(valueAbsolute);
+        THIS.VALUE_TEXT = THIS.GET_VALUE_TEXT(valueAbsolute);
 
         /*
          * Create the percentage Arc
          */
         let startAngle;
-        switch (this.getRatioType()) {
+        switch (THIS.GET_RATIO_TYPE()) {
             case "Only Positive [0,1]":
-                startAngle = this.getStartAngle();
-                valueRatio = Math.min(1, Math.max(0, valueRatio));
+                startAngle = THIS.GET_START_ANGLE();
+                valueRatio = MATH.MIN(1, MATH.MAX(0, valueRatio));
                 break;
             case "Negative and Positive [-1,1]":
-                startAngle = (this.getStartAngle() + this.getEndAngle()) / 2;
-                valueRatio = Math.min(1, Math.max(-1, valueRatio));
+                startAngle = (THIS.GET_START_ANGLE() + THIS.GET_END_ANGLE()) / 2;
+                valueRatio = MATH.MIN(1, MATH.MAX(-1, valueRatio));
                 break;
         }
-        const valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
-        const valueArc = this.getArc()
-            .startAngle(this.deg2rad(startAngle))
-            .endAngle(this.deg2rad(valueEndAngle));
-        this.valuePath = valueArc();
+        const valueEndAngle = (THIS.GET_END_ANGLE() - startAngle) * valueRatio + startAngle;
+        const valueArc = THIS.GET_ARC()
+            .startAngle(THIS.DEG2RAD(startAngle))
+            .endAngle(THIS.DEG2RAD(valueEndAngle));
+        THIS.VALUE_PATH = valueArc();
 
         /*
          * Create the energy flow direction arrow
@@ -272,9 +272,9 @@ export abstract class AbstractSection {
         sumRatio *= 10;
 
         //radius * 1.2 for longer arrows
-        const svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        const svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
+        const svgEnergyFlow = THIS.GET_SVG_ENERGY_FLOW(sumRatio, THIS.ENERGY_FLOW.RADIUS * 1.2);
+        const svgAnimationEnergyFlow = THIS.GET_SVG_ANIMATION_ENERGY_FLOW(sumRatio, THIS.ENERGY_FLOW.RADIUS * 1.2);
+        THIS.ENERGY_FLOW.UPDATE(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
     /**
@@ -303,7 +303,7 @@ export abstract class AbstractSection {
             length,
             new SvgTextPosition(xText, yText, "middle", textSize),
             new SvgTextPosition(xText, yNumber, "middle", numberSize),
-            new SvgImagePosition("assets/img/" + this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
+            new SvgImagePosition("assets/img/" + THIS.GET_IMAGE_PATH(), (length / 2) - (imageSize / 2), yImage, imageSize),
         );
     }
 
@@ -341,9 +341,9 @@ export abstract class AbstractSection {
     /**
      * Updates the Values for this Section. Should internally call updateSectionData().
      *
-     * @param sum the CurrentData.Summary
+     * @param sum the CURRENT_DATA.SUMMARY
      */
-    protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
+    protected abstract _updateCurrentData(sum: DEFAULT_TYPES.SUMMARY): void;
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;

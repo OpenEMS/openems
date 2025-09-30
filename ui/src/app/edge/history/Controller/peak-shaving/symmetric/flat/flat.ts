@@ -3,7 +3,7 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 
 @Component({
     selector: "oe-controller-peakshaving-symmetric",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget { }

@@ -5,13 +5,13 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { Utils } from "src/app/shared/utils/utils";
 import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State, Unit } from "../util/utils";
 
 @Component({
     selector: "heatingelement-modal",
-    templateUrl: "./modal.html",
+    templateUrl: "./MODAL.HTML",
     standalone: false,
 })
 export class ModalComponent extends AbstractModal implements OnInit {
@@ -19,11 +19,11 @@ export class ModalComponent extends AbstractModal implements OnInit {
     private static PROPERTY_MODE: string = "_PropertyMode";
     private static PREDICTED_PV_PRODUCTION_HOUR = 5;
     private static POWER_OVERSHOOT_FACTOR = 1.1;
-    protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(this.translate);
+    protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(THIS.TRANSLATE);
     protected mode: string;
     protected runState: State;
     protected level: Level;
-    protected consumptionMeter: EdgeConfig.Component = null;
+    protected consumptionMeter: EDGE_CONFIG.COMPONENT = null;
     protected outputChannelArray: ChannelAddress[] = [];
     protected maxPower: number = 15;
     protected requiredPower: number | null;
@@ -40,83 +40,83 @@ export class ModalComponent extends AbstractModal implements OnInit {
      * @param workMode the name of the work mode to activate
      */
     protected switchWorkMode(event, workMode: string): void {
-        event.detail.checked ? this.formGroup.controls["workMode"].setValue(workMode) : this.formGroup.controls["workMode"].setValue("NONE");
-        this.formGroup.controls["workMode"].markAsDirty();
+        EVENT.DETAIL.CHECKED ? THIS.FORM_GROUP.CONTROLS["workMode"].setValue(workMode) : THIS.FORM_GROUP.CONTROLS["workMode"].setValue("NONE");
+        THIS.FORM_GROUP.CONTROLS["workMode"].markAsDirty();
     }
 
     protected override onIsInitialized(): void {
-        this.subscription.add(this.formGroup.get("minEnergyLimitInKwh").valueChanges.subscribe((newValue) => {
-            this.formGroup.controls["minEnergylimit"].setValue(newValue * 1000);
-            this.formGroup.controls["minEnergylimit"].markAsDirty();
+        THIS.SUBSCRIPTION.ADD(THIS.FORM_GROUP.GET("minEnergyLimitInKwh").VALUE_CHANGES.SUBSCRIBE((newValue) => {
+            THIS.FORM_GROUP.CONTROLS["minEnergylimit"].setValue(newValue * 1000);
+            THIS.FORM_GROUP.CONTROLS["minEnergylimit"].markAsDirty();
         }));
     }
 
     protected getRequiredPower(currentEnergy: number): number | null {
         const now = new Date();
-        const timeString = this.formGroup?.controls["endTimeWithMeter"]?.value;
+        const timeString = THIS.FORM_GROUP?.controls["endTimeWithMeter"]?.value;
         if (timeString) {
-            const [hours, minutes] = timeString.split(":").map(Number);
-            const endTimeWithMeter = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-            const energylimit = this.formGroup?.controls["minEnergylimit"]?.value;
+            const [hours, minutes] = TIME_STRING.SPLIT(":").map(Number);
+            const endTimeWithMeter = new Date(NOW.GET_FULL_YEAR(), NOW.GET_MONTH(), NOW.GET_DATE(), hours, minutes);
+            const energylimit = THIS.FORM_GROUP?.controls["minEnergylimit"]?.value;
             let restEnergy = energylimit - currentEnergy;
             const startTime = new Date(now);
 
-            if (endTimeWithMeter.getTime() < now.getTime()) {
-                endTimeWithMeter.setDate(endTimeWithMeter.getDate() + 1);
-                startTime.setDate(now.getDate() + 1);
-                startTime.setHours(0, 0, 0, 0);
+            if (END_TIME_WITH_METER.GET_TIME() < NOW.GET_TIME()) {
+                END_TIME_WITH_METER.SET_DATE(END_TIME_WITH_METER.GET_DATE() + 1);
+                START_TIME.SET_DATE(NOW.GET_DATE() + 1);
+                START_TIME.SET_HOURS(0, 0, 0, 0);
                 restEnergy = energylimit;
             }
 
-            return restEnergy / ((endTimeWithMeter.getTime() - startTime.getTime()) / 1000 / 3600);
+            return restEnergy / ((END_TIME_WITH_METER.GET_TIME() - START_TIME.GET_TIME()) / 1000 / 3600);
         }
         return null;
     }
 
-    protected pinFormatterEnergy = (value: number) => this.pinFormatter(value, Unit.KILO_WATT_HOURS);
-    protected pinFormatterTime = (value: number) => this.pinFormatter(value, Unit.HOUR);
+    protected pinFormatterEnergy = (value: number) => THIS.PIN_FORMATTER(value, Unit.KILO_WATT_HOURS);
+    protected pinFormatterTime = (value: number) => THIS.PIN_FORMATTER(value, UNIT.HOUR);
 
     protected pinFormatter(value: number, unit: Unit): string {
         switch (unit) {
             case Unit.KILO_WATT_HOURS:
                 return Formatter.FORMAT_KILO_WATT_HOURS(value);
-            case Unit.HOUR:
+            case UNIT.HOUR:
                 return Formatter.FORMAT_HOUR(value);
             default:
-                return value.toString();
+                return VALUE.TO_STRING();
         }
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
 
-        AssertionUtils.assertIsDefined<EdgeConfig.Component>(this.component, "Heating element can't be found");
+        ASSERTION_UTILS.ASSERT_IS_DEFINED<EDGE_CONFIG.COMPONENT>(THIS.COMPONENT, "Heating element can't be found");
 
-        this.outputChannelArray.push(
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL1"]),
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL2"]),
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL3"]),
+        THIS.OUTPUT_CHANNEL_ARRAY.PUSH(
+            CHANNEL_ADDRESS.FROM_STRING(
+                THIS.COMPONENT.PROPERTIES["outputChannelPhaseL1"]),
+            CHANNEL_ADDRESS.FROM_STRING(
+                THIS.COMPONENT.PROPERTIES["outputChannelPhaseL2"]),
+            CHANNEL_ADDRESS.FROM_STRING(
+                THIS.COMPONENT.PROPERTIES["outputChannelPhaseL3"]),
         );
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, "ForceStartAtSecondsOfDay"),
-            ...this.outputChannelArray,
-            new ChannelAddress(this.component.id, "Level"),
-            new ChannelAddress(this.component.id, "Status"),
-            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
-            new ChannelAddress(this.component.id, "_PropertyWorkMode"),
+            new ChannelAddress(THIS.COMPONENT.ID, "ForceStartAtSecondsOfDay"),
+            ...THIS.OUTPUT_CHANNEL_ARRAY,
+            new ChannelAddress(THIS.COMPONENT.ID, "Level"),
+            new ChannelAddress(THIS.COMPONENT.ID, "Status"),
+            new ChannelAddress(THIS.COMPONENT.ID, ModalComponent.PROPERTY_MODE),
+            new ChannelAddress(THIS.COMPONENT.ID, "_PropertyWorkMode"),
 
         ];
 
-        if ("meter.id" in this.component.properties) {
-            channelAddresses.push(
-                new ChannelAddress(this.component.properties["meter.id"], "ActivePower"),
-                new ChannelAddress(this.component.id, "Phase1AvgPower"),
-                new ChannelAddress(this.component.id, "Phase2AvgPower"),
-                new ChannelAddress(this.component.id, "Phase3AvgPower"),
-                new ChannelAddress(this.component.id, "SessionEnergy")
+        if ("METER.ID" in THIS.COMPONENT.PROPERTIES) {
+            CHANNEL_ADDRESSES.PUSH(
+                new ChannelAddress(THIS.COMPONENT.PROPERTIES["METER.ID"], "ActivePower"),
+                new ChannelAddress(THIS.COMPONENT.ID, "Phase1AvgPower"),
+                new ChannelAddress(THIS.COMPONENT.ID, "Phase2AvgPower"),
+                new ChannelAddress(THIS.COMPONENT.ID, "Phase3AvgPower"),
+                new ChannelAddress(THIS.COMPONENT.ID, "SessionEnergy")
             );
         }
 
@@ -125,49 +125,49 @@ export class ModalComponent extends AbstractModal implements OnInit {
 
     protected override onCurrentData(currentData: CurrentData) {
         // get current mode
-        AssertionUtils.assertIsDefined<EdgeConfig.Component>(this.component, "Heating element can't be found");
-        this.mode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_MODE];
-        this.consumptionMeter = this.config.getComponent(this.component.properties["meter.id"]);
-        this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
-        this.level = currentData.allComponents[this.component.id + "/" + "Level"];
+        ASSERTION_UTILS.ASSERT_IS_DEFINED<EDGE_CONFIG.COMPONENT>(THIS.COMPONENT, "Heating element can't be found");
+        THIS.MODE = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + ModalComponent.PROPERTY_MODE];
+        THIS.CONSUMPTION_METER = THIS.CONFIG.GET_COMPONENT(THIS.COMPONENT.PROPERTIES["METER.ID"]);
+        THIS.RUN_STATE = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + "Status"];
+        THIS.LEVEL = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + "Level"];
 
-        if (!this.consumptionMeter) {
+        if (!THIS.CONSUMPTION_METER) {
             return;
         }
 
-        const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
+        const activePower = CURRENT_DATA.ALL_COMPONENTS[THIS.CONSUMPTION_METER.ID + "/ActivePower"];
 
-        const avgPowerPhase1 = currentData.allComponents[this.component.id + "/Phase1AvgPower"];
-        const avgPowerPhase2 = currentData.allComponents[this.component.id + "/Phase2AvgPower"];
-        const avgPowerPhase3 = currentData.allComponents[this.component.id + "/Phase3AvgPower"];
-        const totalPower = Utils.addSafely(avgPowerPhase1, avgPowerPhase2, avgPowerPhase3);
+        const avgPowerPhase1 = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Phase1AvgPower"];
+        const avgPowerPhase2 = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Phase2AvgPower"];
+        const avgPowerPhase3 = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Phase3AvgPower"];
+        const totalPower = UTILS.ADD_SAFELY(avgPowerPhase1, avgPowerPhase2, avgPowerPhase3);
 
-        if (totalPower !== null && totalPower / 1000 * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR > this.maxPower) {
-            this.maxPower = Math.round(totalPower / 1000) * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR;
+        if (totalPower !== null && totalPower / 1000 * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR > THIS.MAX_POWER) {
+            THIS.MAX_POWER = MATH.ROUND(totalPower / 1000) * ModalComponent.PREDICTED_PV_PRODUCTION_HOUR;
         }
 
-        const currentEnergy = currentData.allComponents[this.component.id + "/SessionEnergy"];
-        this.requiredPower = this.getRequiredPower(currentEnergy);
-        this.isUnreachable = this.requiredPower !== null ? this.requiredPower > totalPower * ModalComponent.POWER_OVERSHOOT_FACTOR : false;
-        this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
+        const currentEnergy = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SessionEnergy"];
+        THIS.REQUIRED_POWER = THIS.GET_REQUIRED_POWER(currentEnergy);
+        THIS.IS_UNREACHABLE = THIS.REQUIRED_POWER !== null ? THIS.REQUIRED_POWER > totalPower * ModalComponent.POWER_OVERSHOOT_FACTOR : false;
+        THIS.RUN_STATE = getInactiveIfPowerIsLow(THIS.RUN_STATE, activePower);
     }
 
     protected override getFormGroup(): FormGroup {
 
-        const group: FormGroup = this.formBuilder.group({
-            minTime: new FormControl(this.component.properties.minTime),
-            minKwh: new FormControl(this.component.properties.minKwh),
-            endTime: new FormControl(this.component.properties.endTime),
-            workMode: new FormControl(this.component.properties.workMode),
-            endTimeWithMeter: new FormControl(this.component.properties.endTimeWithMeter),
-            minEnergylimit: new FormControl(this.component.properties.minEnergylimit),
-            minEnergyLimitInKwh: new FormControl(Math.round(this.component.properties.minEnergylimit / 1000)),
-            defaultLevel: new FormControl(this.component.properties.defaultLevel),
-            mode: new FormControl(this.mode),
+        const group: FormGroup = THIS.FORM_BUILDER.GROUP({
+            minTime: new FormControl(THIS.COMPONENT.PROPERTIES.MIN_TIME),
+            minKwh: new FormControl(THIS.COMPONENT.PROPERTIES.MIN_KWH),
+            endTime: new FormControl(THIS.COMPONENT.PROPERTIES.END_TIME),
+            workMode: new FormControl(THIS.COMPONENT.PROPERTIES.WORK_MODE),
+            endTimeWithMeter: new FormControl(THIS.COMPONENT.PROPERTIES.END_TIME_WITH_METER),
+            minEnergylimit: new FormControl(THIS.COMPONENT.PROPERTIES.MIN_ENERGYLIMIT),
+            minEnergyLimitInKwh: new FormControl(MATH.ROUND(THIS.COMPONENT.PROPERTIES.MIN_ENERGYLIMIT / 1000)),
+            defaultLevel: new FormControl(THIS.COMPONENT.PROPERTIES.DEFAULT_LEVEL),
+            mode: new FormControl(THIS.MODE),
         });
 
-        if (this.component.properties["meter.id"] !== null) {
-            group.addControl("meterId", new FormControl(this.component.properties["meter.id"]));
+        if (THIS.COMPONENT.PROPERTIES["METER.ID"] !== null) {
+            GROUP.ADD_CONTROL("meterId", new FormControl(THIS.COMPONENT.PROPERTIES["METER.ID"]));
         }
 
         return group;

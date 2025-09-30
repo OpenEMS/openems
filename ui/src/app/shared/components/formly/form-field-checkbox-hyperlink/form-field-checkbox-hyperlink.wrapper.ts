@@ -4,8 +4,8 @@ import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
     selector: "form-field-checkbox-hyperlink",
-    templateUrl: "./form-field-checkbox-hyperlink.wrapper.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: "./form-field-checkbox-HYPERLINK.WRAPPER.HTML",
+    changeDetection: CHANGE_DETECTION_STRATEGY.ON_PUSH,
     standalone: false,
 })
 export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implements OnInit {
@@ -14,16 +14,16 @@ export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implem
 
     public ngOnInit() {
         // If the default value is not set in beginning.
-        if (!this.formControl.value) {
-            this.formControl.setValue(this.field.props.defaultValue);
+        if (!THIS.FORM_CONTROL.VALUE) {
+            THIS.FORM_CONTROL.SET_VALUE(THIS.FIELD.PROPS.DEFAULT_VALUE);
         }
 
         // Since its a custom wrapper, we are seperating label with checkbox.
         // mentioning required to true does not generate (*) to the label, so we are hard coding it.
-        if (this.field.props.required) {
-            this.secondLabel = this.field.props.description + "*";
+        if (THIS.FIELD.PROPS.REQUIRED) {
+            THIS.SECOND_LABEL = THIS.FIELD.PROPS.DESCRIPTION + "*";
         } else {
-            this.secondLabel = this.field.props.description;
+            THIS.SECOND_LABEL = THIS.FIELD.PROPS.DESCRIPTION;
         }
     }
 }

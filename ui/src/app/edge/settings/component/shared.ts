@@ -1,8 +1,8 @@
 export const IGNORE_NATURES = [
-  "io.openems.edge.common.modbusslave.ModbusSlave",
-  "io.openems.edge.common.component.OpenemsComponent",
-  "io.openems.edge.bridge.modbus.api.BridgeModbusSerial",
-  "io.openems.edge.bridge.modbus.api.BridgeModbusTcp",
-  "io.openems.edge.common.jsonapi.JsonApi",
-  "org.osgi.service.cm.ConfigurationListener",
+  "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+  "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+  "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.BRIDGE_MODBUS_SERIAL",
+  "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.BRIDGE_MODBUS_TCP",
+  "IO.OPENEMS.EDGE.COMMON.JSONAPI.JSON_API",
+  "ORG.OSGI.SERVICE.CM.CONFIGURATION_LISTENER",
 ];

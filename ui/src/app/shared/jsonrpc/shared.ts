@@ -5,7 +5,7 @@ import { environment } from "src/environments";
 import { NavigationId, NavigationTree } from "../components/navigation/shared";
 import { EdgeConfig } from "../shared";
 import { Role } from "../type/role";
-import { ArrayUtils } from "../utils/array/array.utils";
+import { ArrayUtils } from "../utils/array/ARRAY.UTILS";
 import { AuthenticateResponse } from "./response/authenticateResponse";
 
 export type Edges = [{
@@ -44,10 +44,10 @@ export class User {
      * @returns the user if passed User is valid, else null
      */
     public static from(user: AuthenticateResponse["result"]["user"]): User | null {
-        if (!user || !(ArrayUtils.containsAllStrings(Object.keys(user), User.getPropertyKeys()))) {
+        if (!user || !(ARRAY_UTILS.CONTAINS_ALL_STRINGS(OBJECT.KEYS(user), USER.GET_PROPERTY_KEYS()))) {
             return null;
         }
-        return new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, user.settings ?? {});
+        return new User(USER.ID, USER.NAME, USER.GLOBAL_ROLE, USER.LANGUAGE, USER.HAS_MULTIPLE_EDGES, USER.SETTINGS ?? {});
     }
 
     /**
@@ -56,7 +56,7 @@ export class User {
      * @returns all keys
      */
     private static getPropertyKeys(): string[] {
-        return Object.keys(new this("", "", "admin", "", false, {}));
+        return OBJECT.KEYS(new this("", "", "admin", "", false, {}));
     }
 
     /**
@@ -66,12 +66,12 @@ export class User {
      */
     public getThemeFromSettings(): Theme | null {
 
-        if (environment.backend === "OpenEMS Edge") {
-            return localStorage.getItem("THEME") as Theme ?? null;
+        if (ENVIRONMENT.BACKEND === "OpenEMS Edge") {
+            return LOCAL_STORAGE.GET_ITEM("THEME") as Theme ?? null;
         }
 
-        if ("theme" in this.settings) {
-            return this.settings["theme"] as Theme;
+        if ("theme" in THIS.SETTINGS) {
+            return THIS.SETTINGS["theme"] as Theme;
         }
 
         return null;
@@ -84,24 +84,24 @@ export class User {
      */
     public getUseNewUIFromSettings(): boolean {
 
-        if (UserSettings.USE_NEW_UI in this.settings) {
-            return this.settings[UserSettings.USE_NEW_UI] as boolean;
+        if (UserSettings.USE_NEW_UI in THIS.SETTINGS) {
+            return THIS.SETTINGS[UserSettings.USE_NEW_UI] as boolean;
         }
 
         return false;
     }
 
     public isAtLeast(role: Role) {
-        return Role.isAtLeast(this.globalRole, role);
+        return ROLE.IS_AT_LEAST(THIS.GLOBAL_ROLE, role);
     }
 
-    public getNavigationTree(navigationTree: NavigationTree, translate: TranslateService, components: { [id: string]: EdgeConfig.Component; }) {
+    public getNavigationTree(navigationTree: NavigationTree, translate: TranslateService, components: { [id: string]: EDGE_CONFIG.COMPONENT; }) {
 
-        const showNewUI = navigationTree != null || this.getUseNewUIFromSettings();
+        const showNewUI = navigationTree != null || THIS.GET_USE_NEW_UIFROM_SETTINGS();
         if (!showNewUI) {
             return;
         }
-        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+        NAVIGATION_TREE.SET_CHILD(NAVIGATION_ID.LIVE, new NavigationTree(NAVIGATION_ID.HISTORY, "history", { name: "stats-chart-outline" }, TRANSLATE.INSTANT("GENERAL.HISTORY"), "label", [], null));
     }
 
 };

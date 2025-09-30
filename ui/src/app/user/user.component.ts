@@ -5,14 +5,14 @@ import { FormGroup, Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { environment, Theme as SystemTheme } from "../../environments";
-import { Changelog } from "../changelog/view/component/changelog.constants";
+import { Changelog } from "../changelog/view/component/CHANGELOG.CONSTANTS";
 import { Theme as UserTheme } from "../edge/history/shared";
-import { NavigationService } from "../shared/components/navigation/service/navigation.service";
+import { NavigationService } from "../shared/components/navigation/service/NAVIGATION.SERVICE";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
-import { UserService } from "../shared/service/user.service";
+import { UserService } from "../shared/service/USER.SERVICE";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
@@ -32,12 +32,12 @@ type UserInformation = {
 };
 
 @Component({
-  templateUrl: "./user.component.html",
+  templateUrl: "./USER.COMPONENT.HTML",
   standalone: false,
 })
 export class UserComponent implements OnInit {
 
-  private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
+  private static readonly DEFAULT_THEME: UserTheme = USER_THEME.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
   protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
   protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" or other OEM Themes.
 
@@ -48,7 +48,7 @@ export class UserComponent implements OnInit {
   ];
   protected readonly environment = environment;
   protected readonly uiVersion = Changelog.UI_VERSION;
-  protected readonly languages: Language[] = Language.ALL;
+  protected readonly languages: Language[] = LANGUAGE.ALL;
   protected currentLanguage: Language;
   protected isEditModeDisabled: boolean = true;
   protected form: { formGroup: FormGroup, model: UserInformation | CompanyUserInformation };
@@ -57,7 +57,7 @@ export class UserComponent implements OnInit {
     key: "firstname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.firstname"),
+      label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.FIRSTNAME"),
       disabled: true,
     },
   },
@@ -65,7 +65,7 @@ export class UserComponent implements OnInit {
     key: "lastname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.lastname"),
+      label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.LASTNAME"),
       disabled: true,
     },
   }];
@@ -84,86 +84,86 @@ export class UserComponent implements OnInit {
     private navigationService: NavigationService,
   ) {
     effect(async () => {
-      const user = this.userService.currentUser();
+      const user = THIS.USER_SERVICE.CURRENT_USER();
 
-      if (user && this.form == null) {
-        this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
-        await this.updateUserInformation();
+      if (user && THIS.FORM == null) {
+        THIS.IS_AT_LEAST_ADMIN = ROLE.IS_AT_LEAST(USER.GLOBAL_ROLE, ROLE.ADMIN);
+        await THIS.UPDATE_USER_INFORMATION();
 
-        this.isAllowedToSeeUserDetails = this.isUserAllowedToSeeContactDetails(user.id);
-        this.showInformation = this.form != null;
-        this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
-        this.useNewUi = user.getUseNewUIFromSettings();
-        this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
+        THIS.IS_ALLOWED_TO_SEE_USER_DETAILS = THIS.IS_USER_ALLOWED_TO_SEE_CONTACT_DETAILS(USER.ID);
+        THIS.SHOW_INFORMATION = THIS.FORM != null;
+        THIS.USER_THEME = USER.GET_THEME_FROM_SETTINGS() ?? UserComponent.DEFAULT_THEME;
+        THIS.USE_NEW_UI = USER.GET_USE_NEW_UIFROM_SETTINGS();
+        THIS.NEW_NAVIGATION_FORCED = NAVIGATION_SERVICE.FORCE_NEW_NAVIGATION(untracked(() => THIS.SERVICE.CURRENT_EDGE()));
       }
     });
   }
 
   ngOnInit() {
-    this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
-    this.systemTheme = environment.theme as SystemTheme;
+    THIS.CURRENT_LANGUAGE = LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT;
+    THIS.SYSTEM_THEME = ENVIRONMENT.THEME as SystemTheme;
   }
 
   public setTheme(theme: UserTheme): void {
-    this.userService.selectTheme(theme);
+    THIS.USER_SERVICE.SELECT_THEME(theme);
   }
 
   public applyChanges() {
     const params: SetUserInformationRequest["params"] = {
       user: {
-        lastname: this.form.model.lastname,
-        firstname: this.form.model.firstname,
-        email: this.form.model.email,
-        phone: this.form.model.phone,
+        lastname: THIS.FORM.MODEL.LASTNAME,
+        firstname: THIS.FORM.MODEL.FIRSTNAME,
+        email: THIS.FORM.MODEL.EMAIL,
+        phone: THIS.FORM.MODEL.PHONE,
         address: {
-          street: this.form.model.street,
-          zip: this.form.model.zip,
-          city: this.form.model.city,
-          country: this.form.model.country,
+          street: THIS.FORM.MODEL.STREET,
+          zip: THIS.FORM.MODEL.ZIP,
+          city: THIS.FORM.MODEL.CITY,
+          country: THIS.FORM.MODEL.COUNTRY,
         },
       },
     };
 
-    this.service.websocket.sendRequest(new SetUserInformationRequest(params)).then(() => {
-      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+    THIS.SERVICE.WEBSOCKET.SEND_REQUEST(new SetUserInformationRequest(params)).then(() => {
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
     });
-    this.enableAndDisableFormFields();
-    this.form.formGroup.markAsPristine();
+    THIS.ENABLE_AND_DISABLE_FORM_FIELDS();
+    THIS.FORM.FORM_GROUP.MARK_AS_PRISTINE();
   }
 
   public enableAndDisableEditMode(): void {
-    if (!this.isEditModeDisabled) {
-      this.updateUserInformation();
+    if (!THIS.IS_EDIT_MODE_DISABLED) {
+      THIS.UPDATE_USER_INFORMATION();
     }
-    this.enableAndDisableFormFields();
+    THIS.ENABLE_AND_DISABLE_FORM_FIELDS();
   }
 
   public enableAndDisableFormFields(): boolean {
-    this.userInformationFields = this.userInformationFields.map(field => {
-      field.props.disabled = !field.props.disabled;
+    THIS.USER_INFORMATION_FIELDS = THIS.USER_INFORMATION_FIELDS.MAP(field => {
+      FIELD.PROPS.DISABLED = !FIELD.PROPS.DISABLED;
       return field;
     });
-    return this.isEditModeDisabled = !this.isEditModeDisabled;
+    return THIS.IS_EDIT_MODE_DISABLED = !THIS.IS_EDIT_MODE_DISABLED;
   }
 
   public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.websocket.status === "online") {
-          this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
-            const user = response.result.user;
+        if (THIS.WEBSOCKET.STATUS === "online") {
+          THIS.SERVICE.WEBSOCKET.SEND_REQUEST(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
+            const user = RESPONSE.RESULT.USER;
             resolve({
-              lastname: user.lastname,
-              firstname: user.firstname,
-              email: user.email,
-              phone: user.phone,
-              street: user.address.street,
-              zip: user.address.zip,
-              city: user.address.city,
-              country: user.address.country,
-              ...(user.company?.name ? { companyName: user.company.name } : {}),
+              lastname: USER.LASTNAME,
+              firstname: USER.FIRSTNAME,
+              email: USER.EMAIL,
+              phone: USER.PHONE,
+              street: USER.ADDRESS.STREET,
+              zip: USER.ADDRESS.ZIP,
+              city: USER.ADDRESS.CITY,
+              country: USER.ADDRESS.COUNTRY,
+              ...(USER.COMPANY?.name ? { companyName: USER.COMPANY.NAME } : {}),
             });
           }).catch(() => {
             resolve({
@@ -187,40 +187,40 @@ export class UserComponent implements OnInit {
    * Logout from OpenEMS Edge or Backend.
    */
   public doLogout() {
-    this.userService.currentUser.set(null);
-    this.websocket.logout();
+    THIS.USER_SERVICE.CURRENT_USER.SET(null);
+    THIS.WEBSOCKET.LOGOUT();
   }
 
   public toggleDebugMode(event: Event) {
-    localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
-    this.environment.debugMode = (event as CustomEvent).detail["checked"];
+    LOCAL_STORAGE.SET_ITEM("DEBUGMODE", (event as CustomEvent).detail["checked"]);
+    THIS.ENVIRONMENT.DEBUG_MODE = (event as CustomEvent).detail["checked"];
   }
 
   public async toggleNewUI(event: Event) {
     const isToggleOn = (event as CustomEvent).detail["checked"];
-    this.service.startSpinner("user");
-    await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
-    this.service.stopSpinner("user");
+    THIS.SERVICE.START_SPINNER("user");
+    await THIS.USER_SERVICE.UPDATE_USER_SETTINGS_WITH_PROPERTY("useNewUI", isToggleOn);
+    THIS.SERVICE.STOP_SPINNER("user");
   }
 
   public setLanguage(language: Language): void {
     // Get Key of LanguageTag Enum
-    localStorage.LANGUAGE = language.key;
+    LOCAL_STORAGE.LANGUAGE = LANGUAGE.KEY;
 
-    this.service.setLang(language);
-    this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
-      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+    THIS.SERVICE.SET_LANG(language);
+    THIS.WEBSOCKET.SEND_REQUEST(new UpdateUserLanguageRequest({ language: LANGUAGE.KEY })).then(() => {
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+      THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
     });
 
-    this.currentLanguage = language;
-    this.translate.use(language.key);
+    THIS.CURRENT_LANGUAGE = language;
+    THIS.TRANSLATE.USE(LANGUAGE.KEY);
   }
 
   private updateUserInformation(): Promise<void> {
-    return this.getUserInformation().then((userInformation) => {
-      this.form = {
+    return THIS.GET_USER_INFORMATION().then((userInformation) => {
+      THIS.FORM = {
         formGroup: new FormGroup({}),
         model: userInformation,
       };
@@ -229,7 +229,7 @@ export class UserComponent implements OnInit {
         key: "street",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.street"),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.STREET"),
           disabled: true,
         },
       },
@@ -237,7 +237,7 @@ export class UserComponent implements OnInit {
         key: "zip",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.zip"),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.ZIP"),
           disabled: true,
         },
       },
@@ -245,7 +245,7 @@ export class UserComponent implements OnInit {
         key: "city",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.city"),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.CITY"),
           disabled: true,
         },
       },
@@ -253,8 +253,8 @@ export class UserComponent implements OnInit {
         key: "country",
         type: "select",
         props: {
-          label: this.translate.instant("Register.Form.country"),
-          options: COUNTRY_OPTIONS(this.translate),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.COUNTRY"),
+          options: COUNTRY_OPTIONS(THIS.TRANSLATE),
           disabled: true,
         },
       },
@@ -262,36 +262,36 @@ export class UserComponent implements OnInit {
         key: "email",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.email"),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.EMAIL"),
           disabled: true,
         },
         validators: {
-          validation: [Validators.email],
+          validation: [VALIDATORS.EMAIL],
         },
       },
       {
         key: "phone",
         type: "input",
         props: {
-          label: this.translate.instant("Register.Form.phone"),
+          label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.PHONE"),
           disabled: true,
         },
 
       }];
 
-      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
-        this.companyInformationFields = [{
+      if (OBJECT.PROTOTYPE.HAS_OWN_PROPERTY.CALL(userInformation, "companyName")) {
+        THIS.COMPANY_INFORMATION_FIELDS = [{
           key: "companyName",
           type: "input",
           props: {
-            label: this.translate.instant("Register.Form.companyName"),
+            label: THIS.TRANSLATE.INSTANT("REGISTER.FORM.COMPANY_NAME"),
             disabled: true,
           },
         },
         ...baseInformationFields,
         ];
       } else {
-        this.userInformationFields = baseInformationFields;
+        THIS.USER_INFORMATION_FIELDS = baseInformationFields;
       }
     });
   }
@@ -304,9 +304,9 @@ export class UserComponent implements OnInit {
    */
   private isUserAllowedToSeeContactDetails(id: string): boolean {
     switch (id) {
-      case "demo@fenecon.de":
-      case "pv@schachinger-gaerten.de":
-      case "pv@studentenpark1-straubing.de":
+      case "demo@FENECON.DE":
+      case "pv@schachinger-GAERTEN.DE":
+      case "pv@studentenpark1-STRAUBING.DE":
         return false;
       default:
         return true;

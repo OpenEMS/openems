@@ -9,7 +9,7 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 
 
 @Component({
-    templateUrl: "./overview.html",
+    templateUrl: "./OVERVIEW.HTML",
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
@@ -28,23 +28,23 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
 
     protected override afterIsInitialized() {
 
-        this.service.historyPeriod.pipe(takeUntil(this.stopOnDestroy), filter(period => !!period))
+        THIS.SERVICE.HISTORY_PERIOD.PIPE(takeUntil(THIS.STOP_ON_DESTROY), filter(period => !!period))
             .subscribe((period) => {
-                this.isAllowed = period.isWeekOrDay();
+                THIS.IS_ALLOWED = PERIOD.IS_WEEK_OR_DAY();
             });
 
-        const navigationButtons: EdgeConfig.Component[] = [];
-        const gridMeters = Object.values(this.config.components)
-            .filter((component) => component.isEnabled && this.config.isTypeGrid(component));
+        const navigationButtons: EDGE_CONFIG.COMPONENT[] = [];
+        const gridMeters = OBJECT.VALUES(THIS.CONFIG.COMPONENTS)
+            .filter((component) => COMPONENT.IS_ENABLED && THIS.CONFIG.IS_TYPE_GRID(component));
 
         if (!gridMeters) {
             return;
         }
 
-        navigationButtons.push(...gridMeters);
+        NAVIGATION_BUTTONS.PUSH(...gridMeters);
 
-        this.navigationButtons = navigationButtons.map(el => (
-            { id: el.id, alias: navigationButtons.length === 1 ? this.translate.instant("Edge.History.PHASE_ACCURATE") : el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
+        THIS.NAVIGATION_BUTTONS = NAVIGATION_BUTTONS.MAP(el => (
+            { id: EL.ID, alias: NAVIGATION_BUTTONS.LENGTH === 1 ? THIS.TRANSLATE.INSTANT("EDGE.HISTORY.PHASE_ACCURATE") : EL.ALIAS, callback: () => { THIS.ROUTER.NAVIGATE(["./" + EL.ID], { relativeTo: THIS.ROUTE }); } }
         ));
     }
 }

@@ -1,9 +1,9 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center"
         style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title translate>General.digitalInputs</ion-title>
+        <ion-title translate>GENERAL.DIGITAL_INPUTS</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
+            <ion-button (click)="MODAL_CTRL.DISMISS()">
                 <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -11,20 +11,20 @@
 </ion-header>
 
 <ion-content>
-    <ng-container *ngIf="service.currentEdge() as edge">
-        <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+    <ng-container *ngIf="SERVICE.CURRENT_EDGE() as edge">
+        <ng-container *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
             <ng-container *ngFor="let channelsPerComponent of digitalInputChannelsPerComponent">
                 <ion-card-content>
                     <table class="full_width">
                         <tr class="underline">
-                            <td style="width: 100%;">{{ channelsPerComponent.componentAlias}}</td>
+                            <td style="width: 100%;">{{ CHANNELS_PER_COMPONENT.COMPONENT_ALIAS}}</td>
                         </tr>
-                        <ng-container *ngFor="let channel of channelsPerComponent.channels">
+                        <ng-container *ngFor="let channel of CHANNELS_PER_COMPONENT.CHANNELS">
                             <tr>
-                                <td style="width:65%">{{ channel.id }}</td>
+                                <td style="width:65%">{{ CHANNEL.ID }}</td>
                                 <td style="width:36%" class="align_right">
                                     <ion-icon name="radio-button-off"
-                                        *ngIf="currentData[channelsPerComponent.componentId + '/' + channel.id] === 0; else inputOn">
+                                        *ngIf="currentData[CHANNELS_PER_COMPONENT.COMPONENT_ID + '/' + CHANNEL.ID] === 0; else inputOn">
                                     </ion-icon>
                                     <ng-template #inputOn>
                                         <ion-icon name="radio-button-on"></ion-icon>

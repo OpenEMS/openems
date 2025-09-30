@@ -19,7 +19,7 @@ export class GetSystemUpdateStateRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetSystemUpdateStateRequest.METHOD, {});
+        super(GET_SYSTEM_UPDATE_STATE_REQUEST.METHOD, {});
     }
 
 }

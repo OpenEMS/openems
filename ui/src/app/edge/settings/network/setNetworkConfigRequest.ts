@@ -29,6 +29,6 @@ export class SetNetworkConfigRequest extends JsonrpcRequest {
     public constructor(
         public override readonly params: NetworkConfig,
     ) {
-        super(SetNetworkConfigRequest.METHOD, params);
+        super(SET_NETWORK_CONFIG_REQUEST.METHOD, params);
     }
 }

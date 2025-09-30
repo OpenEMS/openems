@@ -23,6 +23,6 @@ export class GetUserAlertingConfigsRequest extends JsonrpcRequest {
             edgeId: string
         },
     ) {
-        super(GetUserAlertingConfigsRequest.METHOD, params);
+        super(GET_USER_ALERTING_CONFIGS_REQUEST.METHOD, params);
     }
 }

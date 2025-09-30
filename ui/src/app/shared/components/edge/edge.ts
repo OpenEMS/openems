@@ -27,7 +27,7 @@ import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigRespo
 import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
 import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
-import { ArrayUtils } from "../../utils/array/array.utils";
+import { ArrayUtils } from "../../utils/array/ARRAY.UTILS";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
 import { CurrentData } from "./currentdata";
@@ -68,7 +68,7 @@ export class Edge {
   ) { }
 
   setIsSubscribed(isSubscribed: boolean) {
-    this.isSubscribed = isSubscribed;
+    THIS.IS_SUBSCRIBED = isSubscribed;
   }
   /**
    * Gets the Config. If not available yet, it requests it via Websocket.
@@ -76,17 +76,17 @@ export class Edge {
    * @param websocket the Websocket connection
    */
   public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
-    if (this.config.value == null || !this.config.value.isValid()) {
-      this.refreshConfig(websocket);
+    if (THIS.CONFIG.VALUE == null || !THIS.CONFIG.VALUE.IS_VALID()) {
+      THIS.REFRESH_CONFIG(websocket);
     }
-    return this.config;
+    return THIS.CONFIG;
   }
 
   /**
    * Gets the current config. If not available null.
    */
   public getCurrentConfig(): EdgeConfig | null {
-    return this.config.value;
+    return THIS.CONFIG.VALUE;
   }
 
   /**
@@ -95,8 +95,8 @@ export class Edge {
    * @param websocket the Websocket connection
    */
   public getFirstValidConfig(websocket: Websocket): Promise<EdgeConfig> {
-    return this.getConfig(websocket)
-      .pipe(filter(config => config != null && config.isValid()),
+    return THIS.GET_CONFIG(websocket)
+      .pipe(filter(config => config != null && CONFIG.IS_VALID()),
         first())
       .toPromise();
   }
@@ -110,24 +110,24 @@ export class Edge {
    * @returns a promise of the found channel
    */
   public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
-    if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getFirstValidConfig(websocket);
-      const foundChannel = config.getChannel(channel);
+    if (EDGE_PERMISSION.HAS_CHANNELS_IN_EDGE_CONFIG(this)) {
+      const config = await THIS.GET_FIRST_VALID_CONFIG(websocket);
+      const foundChannel = CONFIG.GET_CHANNEL(channel);
       if (!foundChannel) {
         throw new Error("Channel not found: " + channel);
       }
-      return { id: channel.channelId, ...foundChannel };
+      return { id: CHANNEL.CHANNEL_ID, ...foundChannel };
     }
 
-    const response = await this.sendRequest<GetChannelResponse>(websocket, new ComponentJsonApiRequest({
+    const response = await THIS.SEND_REQUEST<GetChannelResponse>(websocket, new ComponentJsonApiRequest({
       componentId: "_componentManager",
       payload: new GetChannelRequest({
-        componentId: channel.componentId,
-        channelId: channel.channelId,
+        componentId: CHANNEL.COMPONENT_ID,
+        channelId: CHANNEL.CHANNEL_ID,
       }),
     }));
 
-    return response.result.channel;
+    return RESPONSE.RESULT.CHANNEL;
   }
 
   /**
@@ -139,55 +139,55 @@ export class Edge {
    * @returns a promise with the reuslt channels
    */
   public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
-    if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-      const config = await this.getFirstValidConfig(websocket);
-      const component = config.components[componentId];
+    if (EDGE_PERMISSION.HAS_CHANNELS_IN_EDGE_CONFIG(this)) {
+      const config = await THIS.GET_FIRST_VALID_CONFIG(websocket);
+      const component = CONFIG.COMPONENTS[componentId];
       if (!component) {
         throw new Error("Component not found");
       }
-      return Object.entries(component.channels).reduce((p, c) => {
+      return OBJECT.ENTRIES(COMPONENT.CHANNELS).reduce((p, c) => {
         return [...p, { id: c[0], ...c[1] }];
       }, []);
     }
 
-    const response = await this.sendRequest<GetChannelsOfComponentResponse>(websocket, new ComponentJsonApiRequest({
+    const response = await THIS.SEND_REQUEST<GetChannelsOfComponentResponse>(websocket, new ComponentJsonApiRequest({
       componentId: "_componentManager",
       payload: new GetChannelsOfComponentRequest({ componentId: componentId }),
     }));
 
-    return response.result.channels;
+    return RESPONSE.RESULT.CHANNELS;
   }
 
-  public async getFactoryProperties(websocket: Websocket, factoryId: string): Promise<[EdgeConfig.Factory, EdgeConfig.FactoryProperty[]]> {
-    if (EdgePermission.hasReducedFactories(this)) {
-      const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(websocket, new ComponentJsonApiRequest({
+  public async getFactoryProperties(websocket: Websocket, factoryId: string): Promise<[EDGE_CONFIG.FACTORY, EDGE_CONFIG.FACTORY_PROPERTY[]]> {
+    if (EDGE_PERMISSION.HAS_REDUCED_FACTORIES(this)) {
+      const response = await THIS.SEND_REQUEST<GetPropertiesOfFactoryResponse>(websocket, new ComponentJsonApiRequest({
         componentId: "_componentManager",
         payload: new GetPropertiesOfFactoryRequest({ factoryId }),
       }));
-      return [response.result.factory, response.result.properties];
+      return [RESPONSE.RESULT.FACTORY, RESPONSE.RESULT.PROPERTIES];
     }
 
-    const factory = (await this.getFirstValidConfig(websocket)).factories[factoryId];
-    return [factory, factory.properties];
+    const factory = (await THIS.GET_FIRST_VALID_CONFIG(websocket)).factories[factoryId];
+    return [factory, FACTORY.PROPERTIES];
   }
 
   /**
    * Called by Service, when this Edge is set as currentEdge.
    */
   public markAsCurrentEdge(websocket: Websocket): void {
-    this.getConfig(websocket);
+    THIS.GET_CONFIG(websocket);
   }
 
   /**
    * Add Channels to subscription
    *
    * @param websocket the Websocket
-   * @param id        a unique ID for this subscription (e.g. the component selector)
+   * @param id        a unique ID for this subscription (E.G. the component selector)
    * @param channels  the subscribed Channel-Addresses
    */
   public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
-    this.subscribedChannels[id] = channels;
-    this.sendSubscribeChannels(websocket);
+    THIS.SUBSCRIBED_CHANNELS[id] = channels;
+    THIS.SEND_SUBSCRIBE_CHANNELS(websocket);
   }
 
   /**
@@ -196,8 +196,8 @@ export class Edge {
    * @param websocket the Websocket
    */
   public subscribeChannelsOnReconnect(websocket: Websocket): void {
-    if (Object.keys(this.subscribedChannels).length > 0) {
-      this.sendSubscribeChannels(websocket);
+    if (OBJECT.KEYS(THIS.SUBSCRIBED_CHANNELS).length > 0) {
+      THIS.SEND_SUBSCRIBE_CHANNELS(websocket);
     }
   }
 
@@ -211,8 +211,8 @@ export class Edge {
    * @todo should be removed
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
-    delete this.subscribedChannels[id];
-    this.sendSubscribeChannels(websocket);
+    delete THIS.SUBSCRIBED_CHANNELS[id];
+    THIS.SEND_SUBSCRIBE_CHANNELS(websocket);
   }
 
   /**
@@ -221,8 +221,8 @@ export class Edge {
    * @param websocket the Websocket
    */
   public unsubscribeAllChannels(websocket: Websocket) {
-    this.subscribedChannels = {};
-    this.sendSubscribeChannels(websocket);
+    THIS.SUBSCRIBED_CHANNELS = {};
+    THIS.SEND_SUBSCRIBE_CHANNELS(websocket);
   }
 
   /**
@@ -234,9 +234,9 @@ export class Edge {
    * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
    */
   public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
-    this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
+    THIS.SUBSCRIBED_CHANNELS = OBJECT.ENTRIES(THIS.SUBSCRIBED_CHANNELS).reduce((arr, [id, subscribedChannels]) => {
 
-      if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
+      if (ARRAY_UTILS.EQUALS_CHECK(CHANNELS.MAP(channel => CHANNEL.TO_STRING()), SUBSCRIBED_CHANNELS.MAP(channel => CHANNEL.TO_STRING()))) {
         return arr;
       }
 
@@ -245,7 +245,7 @@ export class Edge {
       return arr;
     }, {});
 
-    this.sendSubscribeChannels(websocket);
+    THIS.SEND_SUBSCRIBE_CHANNELS(websocket);
   }
 
   /**
@@ -254,7 +254,7 @@ export class Edge {
    * @param websocket the Websocket
    */
   public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: true }));
+    return THIS.SEND_REQUEST(websocket, new SubscribeSystemLogRequest({ subscribe: true }));
   }
 
   /**
@@ -263,28 +263,28 @@ export class Edge {
    * @param websocket the Websocket
    */
   public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
-    return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
+    return THIS.SEND_REQUEST(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
   }
 
   /**
    * Handles a EdgeConfigNotification
    */
   public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
-    this.config.next(new EdgeConfig(this, message.params));
+    THIS.CONFIG.NEXT(new EdgeConfig(this, MESSAGE.PARAMS));
   }
 
   /**
    * Handles a CurrentDataNotification
    */
   public handleCurrentDataNotification(message: CurrentDataNotification): void {
-    this.currentData.next(new CurrentData(message.params));
+    THIS.CURRENT_DATA.NEXT(new CurrentData(MESSAGE.PARAMS));
   }
 
   /**
    * Handles a SystemLogNotification
    */
   public handleSystemLogNotification(message: SystemLogNotification): void {
-    this.systemLog.next(message.params.line);
+    THIS.SYSTEM_LOG.NEXT(MESSAGE.PARAMS.LINE);
   }
 
   /**
@@ -296,7 +296,7 @@ export class Edge {
    */
   public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
     const request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
-    return this.sendRequest(ws, request);
+    return THIS.SEND_REQUEST(ws, request);
   }
 
   /**
@@ -308,7 +308,7 @@ export class Edge {
    */
   public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
     const request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
-    return this.sendRequest(ws, request);
+    return THIS.SEND_REQUEST(ws, request);
   }
 
   /**
@@ -319,7 +319,7 @@ export class Edge {
    */
   public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
     const request = new DeleteComponentConfigRequest({ componentId: componentId });
-    return this.sendRequest(ws, request);
+    return THIS.SEND_REQUEST(ws, request);
   }
 
   /**
@@ -330,9 +330,9 @@ export class Edge {
    * @param responseCallback the JSON-RPC Response callback
    */
   public sendRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
-    const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
+    const wrap = new EdgeRpcRequest({ edgeId: THIS.ID, payload: request });
     return new Promise((resolve, reject) => {
-      ws.sendRequest(wrap).then(response => {
+      WS.SEND_REQUEST(wrap).then(response => {
         resolve(response["result"]["payload"]);
       }).catch(reason => {
         reject(reason);
@@ -352,8 +352,8 @@ export class Edge {
     if (!hasUpdateAppVersion(this)) {
       request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
     } else {
-      const jsonObject = properties.reduce((acc, current) => {
-        acc[current.name] = current.value;
+      const jsonObject = PROPERTIES.REDUCE((acc, current) => {
+        acc[CURRENT.NAME] = CURRENT.VALUE;
         return acc;
       }, {});
       const payload = new UpdateAppConfigRequest({ componentId: componentId, properties: jsonObject });
@@ -362,7 +362,7 @@ export class Edge {
         payload: payload,
       });
     }
-    return this.sendRequest(ws, request);
+    return THIS.SEND_REQUEST(ws, request);
   }
 
   /**
@@ -371,30 +371,30 @@ export class Edge {
    * @param isOnline
    */
   public setOnline(isOnline: boolean): void {
-    this.isOnline = isOnline;
+    THIS.IS_ONLINE = isOnline;
   }
 
   /**
    * Returns whether the given version is higher than the Edge' version
    *
-   * Example: {{ edge.isVersionAtLeast('2018.9') }}
+   * Example: {{ EDGE.IS_VERSION_AT_LEAST('2018.9') }}
    *
    * @param version
    */
   public isVersionAtLeast(version: string): boolean {
-    return compareVersions(this.version, version) >= 0;
+    return compareVersions(THIS.VERSION, version) >= 0;
   }
 
   /**
    * Determines if the version of the edge is a SNAPSHOT.
    *
    * <p>
-   * Version strings are built like `major.minor.patch-branch.date.hash`. So any version string that contains a hyphen is a SNAPSHOT.
+   * Version strings are built like `MAJOR.MINOR.PATCH-BRANCH.DATE.HASH`. So any version string that contains a hyphen is a SNAPSHOT.
    *
    * @returns true if the version of the edge is a SNAPSHOT
    */
   public isSnapshot(): boolean {
-    return this.version.includes("-");
+    return THIS.VERSION.INCLUDES("-");
   }
 
   /**
@@ -405,7 +405,7 @@ export class Edge {
    * @return true if the current Role is equal or more privileged than the given Role
    */
   public roleIsAtLeast(role: Role | string): boolean {
-    return Role.isAtLeast(this.role, role);
+    return ROLE.IS_AT_LEAST(THIS.ROLE, role);
   }
 
   /**
@@ -414,7 +414,7 @@ export class Edge {
   * @returns the name of the role
   */
   public getRoleString(): string {
-    return Role[this.role].toLowerCase();
+    return Role[THIS.ROLE].toLowerCase();
   }
 
   /**
@@ -426,7 +426,7 @@ export class Edge {
    */
   public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
     const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
-      NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
+      NAVIGATION_ID.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
       null,
     ];
 
@@ -434,30 +434,30 @@ export class Edge {
     const navigationTree = new NavigationTree(..._baseNavigationTree);
 
     // TODO find automated way to create reference for parents
-    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+    NAVIGATION_TREE.SET_CHILD(NAVIGATION_ID.LIVE, new NavigationTree(NAVIGATION_ID.HISTORY, "history", { name: "stats-chart-outline" }, TRANSLATE.INSTANT("GENERAL.HISTORY"), "label", [], null));
 
-    if (edge.isOnline === false) {
+    if (EDGE.IS_ONLINE === false) {
       return navigationTree;
     }
 
-    const conf = await this.config.getValue();
+    const conf = await THIS.CONFIG.GET_VALUE();
     const baseMode: NavigationTree["mode"] = "label";
-    for (const [componentId, component] of Object.entries(conf.components)) {
-      switch (component.factoryId) {
-        case "Evse.Controller.Single":
-          navigationTree.setChild(NavigationId.LIVE,
+    for (const [componentId, component] of OBJECT.ENTRIES(CONF.COMPONENTS)) {
+      switch (COMPONENT.FACTORY_ID) {
+        case "EVSE.CONTROLLER.SINGLE":
+          NAVIGATION_TREE.SET_CHILD(NAVIGATION_ID.LIVE,
             new NavigationTree(
               componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-              ...(this.roleIsAtLeast(Role.ADMIN)
-                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+              ...(THIS.ROLE_IS_AT_LEAST(ROLE.ADMIN)
+                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, TRANSLATE.INSTANT("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
                 : []),
 
-              new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
-              new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+              new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, TRANSLATE.INSTANT("GENERAL.HISTORY"), baseMode, [], null),
+              new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, TRANSLATE.INSTANT("MENU.SETTINGS"), baseMode, [], null),
             ], navigationTree));
           break;
-        case "Controller.IO.Heating.Room":
-          navigationTree.setChild(NavigationId.LIVE,
+        case "CONTROLLER.IO.HEATING.ROOM":
+          NAVIGATION_TREE.SET_CHILD(NAVIGATION_ID.LIVE,
             new NavigationTree(
               componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
               navigationTree,));
@@ -473,49 +473,49 @@ export class Edge {
  */
   private refreshConfig(websocket: Websocket): void {
     // make sure to send not faster than every 1000 ms
-    if (this.isRefreshConfigBlocked) {
+    if (THIS.IS_REFRESH_CONFIG_BLOCKED) {
       return;
     }
     // block refreshConfig()
-    this.isRefreshConfigBlocked = true;
+    THIS.IS_REFRESH_CONFIG_BLOCKED = true;
     setTimeout(() => {
       // unblock refreshConfig()
-      this.isRefreshConfigBlocked = false;
+      THIS.IS_REFRESH_CONFIG_BLOCKED = false;
     }, 1000);
 
     const request = new GetEdgeConfigRequest();
-    this.sendRequest(websocket, request).then(response => {
+    THIS.SEND_REQUEST(websocket, request).then(response => {
       const edgeConfigResponse = response as GetEdgeConfigResponse;
-      this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
+      THIS.CONFIG.NEXT(new EdgeConfig(this, EDGE_CONFIG_RESPONSE.RESULT));
     }).catch(reason => {
-      console.warn("Unable to refresh config", reason);
-      this.config.next(new EdgeConfig(this));
+      CONSOLE.WARN("Unable to refresh config", reason);
+      THIS.CONFIG.NEXT(new EdgeConfig(this));
     });
   }
 
   /**
- * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
+ * Sends a SubscribeChannelsRequest for all Channels in 'THIS.SUBSCRIBED_CHANNELS'
  *
  * @param websocket the Websocket
  */
   private sendSubscribeChannels(websocket: Websocket): void {
     // make sure to send not faster than every 100 ms
-    if (this.subscribeChannelsTimeout == null) {
-      this.subscribeChannelsTimeout = setTimeout(() => {
+    if (THIS.SUBSCRIBE_CHANNELS_TIMEOUT == null) {
+      THIS.SUBSCRIBE_CHANNELS_TIMEOUT = setTimeout(() => {
         // reset subscribeChannelsTimeout
-        this.subscribeChannelsTimeout = null;
+        THIS.SUBSCRIBE_CHANNELS_TIMEOUT = null;
 
         // merge channels from currentDataSubscribes
         const channels: ChannelAddress[] = [];
-        for (const componentId in this.subscribedChannels) {
-          channels.push(...this.subscribedChannels[componentId]);
+        for (const componentId in THIS.SUBSCRIBED_CHANNELS) {
+          CHANNELS.PUSH(...THIS.SUBSCRIBED_CHANNELS[componentId]);
         }
         const request = new SubscribeChannelsRequest(channels);
-        this.sendRequest(websocket, request).then(() => {
-          this.subscribeChannelsSuccessful = true;
+        THIS.SEND_REQUEST(websocket, request).then(() => {
+          THIS.SUBSCRIBE_CHANNELS_SUCCESSFUL = true;
         }).catch(reason => {
-          this.subscribeChannelsSuccessful = false;
-          console.warn(reason);
+          THIS.SUBSCRIBE_CHANNELS_SUCCESSFUL = false;
+          CONSOLE.WARN(reason);
         });
       }, 100);
     }

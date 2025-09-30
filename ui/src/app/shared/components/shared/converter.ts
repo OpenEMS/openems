@@ -65,7 +65,7 @@ export namespace Converter {
   export const GRID_SELL_POWER_OR_ZERO: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
       value <= 0
-        ? Formatter.FORMAT_WATT(Math.abs(value))
+        ? Formatter.FORMAT_WATT(MATH.ABS(value))
         : Formatter.FORMAT_WATT(0));
   };
 
@@ -77,7 +77,7 @@ export namespace Converter {
    */
   export const POSITIVE_POWER: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_WATT(Math.abs(value)));
+      Formatter.FORMAT_WATT(MATH.ABS(value)));
   };
 
   /**
@@ -133,7 +133,7 @@ export namespace Converter {
    */
   export const POWER_IN_KILO_WATT: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_KILO_WATT(Utils.divideSafely(value, 1000)));
+      Formatter.FORMAT_KILO_WATT(UTILS.DIVIDE_SAFELY(value, 1000)));
   };
 
   /**
@@ -233,7 +233,7 @@ export namespace Converter {
    */
   export const CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
-      Formatter.FORMAT_AMPERE(Math.abs(value) / 1000));
+      Formatter.FORMAT_AMPERE(MATH.ABS(value) / 1000));
   };
 
   export const ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO: Converter = (raw) => {
@@ -291,30 +291,30 @@ export namespace Converter {
    * @param currentData the currentData
    * @returns the otherPower
    */
-  export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EdgeConfig.Component[], consumptionMeters: EdgeConfig.Component[], currentData: CurrentData): number => {
-    const activePowerTotal = currentData.allComponents["_sum/ConsumptionActivePower"] ?? null;
-    const evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + "/ChargePower"])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
-    const consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + "/ActivePower"])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
+  export const CALCULATE_CONSUMPTION_OTHER_POWER = (evcss: EDGE_CONFIG.COMPONENT[], consumptionMeters: EDGE_CONFIG.COMPONENT[], currentData: CurrentData): number => {
+    const activePowerTotal = CURRENT_DATA.ALL_COMPONENTS["_sum/ConsumptionActivePower"] ?? null;
+    const evcsChargePowerTotal = evcss?.map(evcs => CURRENT_DATA.ALL_COMPONENTS[EVCS.ID + "/ChargePower"])?.reduce((prev, curr) => UTILS.ADD_SAFELY(prev, curr), 0) ?? null;
+    const consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => CURRENT_DATA.ALL_COMPONENTS[METER.ID + "/ActivePower"])?.reduce((prev, curr) => UTILS.ADD_SAFELY(prev, curr), 0) ?? null;
 
-    return Utils.subtractSafely(activePowerTotal,
-      Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
+    return UTILS.SUBTRACT_SAFELY(activePowerTotal,
+      UTILS.ADD_SAFELY(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
   };
 
   export const GRID_STATE_TO_MESSAGE = (translate: TranslateService, currentData: CurrentData): string => {
-    const gridMode = currentData.allComponents["_sum/GridMode"];
-    const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];
+    const gridMode = CURRENT_DATA.ALL_COMPONENTS["_sum/GridMode"];
+    const restrictionMode = CURRENT_DATA.ALL_COMPONENTS["ctrlEssLimiter14a0/RestrictionMode"];
     if (gridMode === GridMode.OFF_GRID) {
-      return translate.instant("GRID_STATES.OFF_GRID");
+      return TRANSLATE.INSTANT("GRID_STATES.OFF_GRID");
     }
     if (restrictionMode === 1) {
-      return translate.instant("GRID_STATES.RESTRICTION");
+      return TRANSLATE.INSTANT("GRID_STATES.RESTRICTION");
     }
-    return translate.instant("GRID_STATES.NO_EXTERNAL_LIMITATION");
+    return TRANSLATE.INSTANT("GRID_STATES.NO_EXTERNAL_LIMITATION");
   };
 
   export const ON_OFF = (translate: TranslateService) => {
     return (raw): string => {
-      return translate.instant(raw == 1 ? "General.on" : "General.off");
+      return TRANSLATE.INSTANT(raw == 1 ? "GENERAL.ON" : "GENERAL.OFF");
     };
   };
 
@@ -322,15 +322,15 @@ export namespace Converter {
     return (raw): string => {
       switch (raw) {
         case -1:
-          return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
         case 0:
-          return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK");
         case 1:
-          return translate.instant("Edge.Index.Widgets.HeatPump.normalOperationShort");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION_SHORT");
         case 2:
-          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRecShort");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC_SHORT");
         case 3:
-          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnComShort");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM_SHORT");
       }
     };
   };
@@ -338,7 +338,7 @@ export namespace Converter {
   export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
     return (raw): any => {
       return IF_NUMBER(raw, value => {
-        return TimeUtils.formatSecondsToDuration(value, locale);
+        return TIME_UTILS.FORMAT_SECONDS_TO_DURATION(value, locale);
       });
     };
   };
@@ -353,19 +353,19 @@ export namespace Converter {
     return (value: any): string => {
       switch (value) {
         case 0:
-          return translate.instant("General.inactive");
+          return TRANSLATE.INSTANT("GENERAL.INACTIVE");
         case 1:
-          return translate.instant("General.active");
+          return TRANSLATE.INSTANT("GENERAL.ACTIVE");
         case 2:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_FORCED");
         case 3:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVED_FORCED_LIMIT");
         case 4:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEATINGELEMENT.DONE");
         case 5:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEATINGELEMENT.UNREACHABLE");
         case 6:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEATINGELEMENT.CALIBRATION");
         default:
           return "";
       };
@@ -382,14 +382,14 @@ export namespace Converter {
     return (value: any): string => {
       switch (value) {
         case 0:
-          return translate.instant("Edge.Index.Widgets.HEAT.HEATING");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT.HEATING");
         case 1:
-          return translate.instant("Edge.Index.Widgets.HEAT.TARGET_TEMPERATURE_REACHED");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT.TARGET_TEMPERATURE_REACHED");
         case 2:
-          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
         case -1:
         default:
-          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
       }
     };
   };

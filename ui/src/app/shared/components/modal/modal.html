@@ -4,18 +4,18 @@
     <ion-buttons slot="end">
       <!-- Additional Toolbarbuttons -->
       <ng-container *ngIf="toolbarButtons !== null">
-        <ng-container *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
-          <ion-button *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">
-            <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
-              [size]="button.icon?.size ??'medium'">
+        <ng-container *ngIf="((toolbarButtons | typeof) !== 'Object') && TOOLBAR_BUTTONS.LENGTH > 0, else singleButton">
+          <ion-button *ngFor="let button of toolbarButtons" [href]="BUTTON.URL" target="_blank">
+            <ion-icon [name]="BUTTON.ICON?.name ??'help-circle-outline'" [color]="BUTTON.ICON?.color ??'light'"
+              [size]="BUTTON.ICON?.size ??'medium'">
             </ion-icon>
           </ion-button>
         </ng-container>
 
         <ng-template #singleButton>
           <ion-button [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
-            <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
-              [color]="toolbarButtons.icon?.color ?? 'dark'" [size]="toolbarButtons.icon?.size ??'medium'">
+            <ion-icon [name]="TOOLBAR_BUTTONS.ICON?.name ??'help-circle-outline'"
+              [color]="TOOLBAR_BUTTONS.ICON?.color ?? 'dark'" [size]="TOOLBAR_BUTTONS.ICON?.size ??'medium'">
             </ion-icon>
           </ion-button>
         </ng-template>
@@ -24,7 +24,7 @@
       <ng-content select="[button]"></ng-content>
       <oe-help-button *ngIf="helpKey" [key]="helpKey" [useDefaultPrefix]="useDefaultPrefix"></oe-help-button>
 
-      <ion-button (click)="modalController.dismiss()">
+      <ion-button (click)="MODAL_CONTROLLER.DISMISS()">
         <ion-icon name="close-outline" size="medium" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -58,7 +58,7 @@
 
   <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
   <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" style="position: fixed"
-    [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+    [horizontal]="THIS.SERVICE.IS_SMARTPHONE_RESOLUTION ? 'end':'center'">
     <ion-fab-button (click)="applyChanges()">
       <ion-icon size="large" name="checkmark-circle-outline">
       </ion-icon>

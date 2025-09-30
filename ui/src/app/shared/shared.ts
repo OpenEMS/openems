@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-export { ChartConstants } from "./components/chart/chart.constants";
+export { ChartConstants } from "./components/chart/CHART.CONSTANTS";
 export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
@@ -20,14 +20,14 @@ import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({
-  "oe-consumption": "assets/img/icon/consumption.svg",
-  "oe-evcs": "assets/img/icon/evcs.svg",
-  "oe-grid": "assets/img/icon/grid.svg",
-  "oe-grid-storage": "assets/img/icon/gridStorage.svg",
-  "oe-grid-restriction": "assets/img/icon/gridRestriction.svg",
-  "oe-offgrid": "assets/img/icon/offgrid.svg",
-  "oe-production": "assets/img/icon/production.svg",
-  "oe-storage": "assets/img/icon/storage.svg",
+  "oe-consumption": "assets/img/icon/CONSUMPTION.SVG",
+  "oe-evcs": "assets/img/icon/EVCS.SVG",
+  "oe-grid": "assets/img/icon/GRID.SVG",
+  "oe-grid-storage": "assets/img/icon/GRID_STORAGE.SVG",
+  "oe-grid-restriction": "assets/img/icon/GRID_RESTRICTION.SVG",
+  "oe-offgrid": "assets/img/icon/OFFGRID.SVG",
+  "oe-production": "assets/img/icon/PRODUCTION.SVG",
+  "oe-storage": "assets/img/icon/STORAGE.SVG",
 });
 
 export class EdgePermission {
@@ -36,10 +36,10 @@ export class EdgePermission {
   * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
   *
   * @param edge the edge
-  * @returns true, if user is at least {@link Role.OWNER}
+  * @returns true, if user is at least {@link ROLE.OWNER}
   */
   public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
-    return Role.isAtLeast(edge.role, Role.OWNER);
+    return ROLE.IS_AT_LEAST(EDGE.ROLE, ROLE.OWNER);
   }
 
   /**
@@ -47,23 +47,23 @@ export class EdgePermission {
    * and if histroyPeriods exist, it gets the correspondent periods accordingly
    *
    * @param edge the edge
-   * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
+   * @param historyPeriods the historyPeriods I.E 'day', 'week' or 'custom'
    * @returns the list of allowed periods for this edge
    */
-  public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
+  public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DEFAULT_TYPES.PERIOD_STRING_VALUES[]) {
 
     if (historyPeriods?.length > 0) {
       return historyPeriods;
     }
 
-    return Object.values(DefaultTypes.PeriodString).reduce((arr, el) => {
+    return OBJECT.VALUES(DEFAULT_TYPES.PERIOD_STRING).reduce((arr, el) => {
 
       // hide total, if no first ibn date
-      if (el === DefaultTypes.PeriodString.TOTAL && edge?.firstSetupProtocol === null) {
+      if (el === DEFAULT_TYPES.PERIOD_STRING.TOTAL && edge?.firstSetupProtocol === null) {
         return arr;
       }
 
-      arr.push(el);
+      ARR.PUSH(el);
       return arr;
     }, []);
   }
@@ -82,7 +82,7 @@ export class EdgePermission {
    * @returns true if the channels are included in the edgeconfig
    */
   public static hasChannelsInEdgeConfig(edge: Edge): boolean {
-    return !edge.isVersionAtLeast("2024.6.1");
+    return !EDGE.IS_VERSION_AT_LEAST("2024.6.1");
   }
 
   /**
@@ -95,7 +95,7 @@ export class EdgePermission {
    * @returns true if only the factories of the used components are in the edgeconfig
    */
   public static hasReducedFactories(edge: Edge): boolean {
-    return edge.isVersionAtLeast("2024.6.1");
+    return EDGE.IS_VERSION_AT_LEAST("2024.6.1");
   }
 }
 
@@ -105,30 +105,30 @@ export class UserPermission {
    * Checks if user is allowed to see  {@link FooterComponent}
    *
    * @param user the current user
-   * @returns true, if user is at least {@link Role.GUEST}
+   * @returns true, if user is at least {@link ROLE.GUEST}
    */
   public static isUserAllowedToSeeFooter(user: User): boolean {
-    return Role.isAtLeast(user.globalRole, Role.GUEST);
+    return ROLE.IS_AT_LEAST(USER.GLOBAL_ROLE, ROLE.GUEST);
   }
 
   public static isUserAllowedToSeeOverview(user: User): boolean {
 
-    if (Role.isAtLeast(user.globalRole, Role.INSTALLER)) {
+    if (ROLE.IS_AT_LEAST(USER.GLOBAL_ROLE, ROLE.INSTALLER)) {
       return true;
     }
 
-    return user.hasMultipleEdges;
+    return USER.HAS_MULTIPLE_EDGES;
   }
 
   /**
   * Checks if user is allowed to see {@link SystemRestartComponent}
   *
   * @param user the current user
-  * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
+  * @returns true, if user is at least {@link ROLE.ADMIN} and edge version is at least 2024.2.2
   */
   public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
     const isAllowed = edge?.isVersionAtLeast("2024.2.2");
-    return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
+    return ROLE.IS_AT_LEAST(user?.globalRole, ROLE.OWNER) && isAllowed;
   }
 
   /**
@@ -138,7 +138,7 @@ export class UserPermission {
   * @returns true, if user has access to see additional updates
   */
   public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
-    return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
+    return EDGE.IS_VERSION_AT_LEAST("2025.5.4") && EDGE.ROLE_IS_AT_LEAST(ROLE.ADMIN);
   }
 
 }
@@ -149,7 +149,7 @@ export enum Producttype {
 export namespace Currency {
 
   /**
-   * This method returns the corresponding label based on the user-selected currency in "core.meta."
+   * This method returns the corresponding label based on the user-selected currency in "CORE.META."
    *
    * @param currency The currency enum.
    * @returns the Currencylabel
@@ -174,11 +174,11 @@ export namespace Currency {
   export function getChartCurrencyUnitLabel(currency: string) {
     switch (currency) {
       case "SEK":
-        return Unit.OERE;
+        return UNIT.OERE;
       case "CHF":
-        return Unit.RAPPEN;
+        return UNIT.RAPPEN;
       default:
-        return Unit.CENT;
+        return UNIT.CENT;
     }
   }
 
@@ -224,10 +224,10 @@ export async function presentAlert(alertController: AlertController, translate: 
     throw new Error("Confirmation button is missing");
   }
 
-  const alert = alertController.create({
+  const alert = ALERT_CONTROLLER.CREATE({
     ...alertOptions,
     buttons: [{
-      text: translate.instant("General.cancel"),
+      text: TRANSLATE.INSTANT("GENERAL.CANCEL"),
       role: "cancel",
     },
     ...(alertOptions?.buttons ?? []),

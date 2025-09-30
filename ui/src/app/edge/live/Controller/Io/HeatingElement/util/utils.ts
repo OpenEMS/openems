@@ -32,8 +32,8 @@ export enum Unit {
  */
 export function getInactiveIfPowerIsLow(runState: State, activePower: number): State {
 
-    if (activePower < 100 && runState !== State.DONE) {
-        return State.INACTIVE;
+    if (activePower < 100 && runState !== STATE.DONE) {
+        return STATE.INACTIVE;
     }
     return runState;
 }

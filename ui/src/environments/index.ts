@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { Filter } from "src/app/index/filter/filter.component";
+import { Filter } from "src/app/index/filter/FILTER.COMPONENT";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
@@ -15,7 +15,7 @@ export interface Environment {
     readonly defaultLanguage: string;
 
     readonly url: string;
-    readonly backend: DefaultTypes.Backend;
+    readonly backend: DEFAULT_TYPES.BACKEND;
 
     readonly production: boolean;
     debugMode: boolean;
@@ -142,5 +142,5 @@ export interface Environment {
  * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
  */
 export function getWebsocketScheme(): string {
-    return window.location.protocol === "https:" ? "wss://" : "ws://";
+    return WINDOW.LOCATION.PROTOCOL === "https:" ? "wss://" : "ws://";
 }

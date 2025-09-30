@@ -8,30 +8,30 @@ import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
 import { Theme as UserTheme } from "../edge/history/shared";
-import { PlatFormService } from "../platform.service";
+import { PlatFormService } from "../PLATFORM.SERVICE";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
 import { States } from "../shared/ngrx-store/states";
-import { UserService } from "../shared/service/user.service";
+import { UserService } from "../shared/service/USER.SERVICE";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
 
 
 @Component({
   selector: "login",
-  templateUrl: "./login.component.html",
+  templateUrl: "./LOGIN.COMPONENT.HTML",
   standalone: false,
 })
 export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
-  private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
+  private static readonly DEFAULT_THEME: UserTheme = USER_THEME.LIGHT;
   public currentThemeMode: UserTheme;
   public environment = environment;
   public form: FormGroup;
   protected formIsDisabled: boolean = false;
   protected popoverActive: "android" | "ios" | null = null;
   protected showPassword: boolean = false;
-  protected readonly operatingSystem = PlatFormService.deviceInfo.os;
-  protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
+  protected readonly operatingSystem = PLAT_FORM_SERVICE.DEVICE_INFO.OS;
+  protected readonly isApp: boolean = CAPACITOR.GET_PLATFORM() !== "web";
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
 
@@ -46,13 +46,13 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     private userService: UserService,
   ) {
     effect(() => {
-      const user = this.userService.currentUser();
-      this.currentThemeMode = userService.getValidBrowserTheme(user?.getThemeFromSettings() ?? localStorage.getItem("THEME") as UserTheme);
+      const user = THIS.USER_SERVICE.CURRENT_USER();
+      THIS.CURRENT_THEME_MODE = USER_SERVICE.GET_VALID_BROWSER_THEME(user?.getThemeFromSettings() ?? LOCAL_STORAGE.GET_ITEM("THEME") as UserTheme);
     });
   }
 
   public static getCurrentTheme(user: User): UserTheme {
-    return (user?.settings[UserSettings.THEME] ?? localStorage.getItem("THEME") ?? this.DEFAULT_THEME) as UserTheme;
+    return (user?.settings[USER_SETTINGS.THEME] ?? LOCAL_STORAGE.GET_ITEM("THEME") ?? this.DEFAULT_THEME) as UserTheme;
   }
   /**
    * Preprocesses the credentials
@@ -69,13 +69,13 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   }
 
   ngAfterContentChecked() {
-    this.cdref.detectChanges();
+    THIS.CDREF.DETECT_CHANGES();
   }
 
   ngOnInit() {
     const interval = setInterval(() => {
-      if (this.websocket.status === "online" && !this.router.url.split("/").includes("live")) {
-        this.router.navigate(["/overview"]);
+      if (THIS.WEBSOCKET.STATUS === "online" && !THIS.ROUTER.URL.SPLIT("/").includes("live")) {
+        THIS.ROUTER.NAVIGATE(["/overview"]);
         clearInterval(interval);
       }
     }, 1000);
@@ -84,23 +84,23 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
 
   async ionViewWillEnter() {
     // Execute Login-Request if url path matches 'demo'
-    if (this.route.snapshot.routeConfig.path == "demo") {
+    if (THIS.ROUTE.SNAPSHOT.ROUTE_CONFIG.PATH == "demo") {
 
       await new Promise((resolve) => setTimeout(() => {
 
         // Wait for Websocket
-        if (this.websocket.status == "waiting for credentials") {
-          this.service.startSpinner("loginspinner");
-          const lang = this.route.snapshot.queryParamMap.get("lang") ?? null;
+        if (THIS.WEBSOCKET.STATUS == "waiting for credentials") {
+          THIS.SERVICE.START_SPINNER("loginspinner");
+          const lang = THIS.ROUTE.SNAPSHOT.QUERY_PARAM_MAP.GET("lang") ?? null;
           if (lang) {
             localStorage.DEMO_LANGUAGE = lang;
           }
           resolve(
-            this.doDemoLogin({ username: "demo", password: "demo" }));
+            THIS.DO_DEMO_LOGIN({ username: "demo", password: "demo" }));
         }
       }, 2000));
     } else {
-      localStorage.removeItem("DEMO_LANGUAGE");
+      LOCAL_STORAGE.REMOVE_ITEM("DEMO_LANGUAGE");
     }
   }
 
@@ -111,19 +111,19 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
    */
   public doLogin(param: { username?: string, password: string }) {
 
-    this.websocket.state.set(States.AUTHENTICATION_WITH_CREDENTIALS);
-    param = LoginComponent.preprocessCredentials(param.password, param.username);
+    THIS.WEBSOCKET.STATE.SET(States.AUTHENTICATION_WITH_CREDENTIALS);
+    param = LOGIN_COMPONENT.PREPROCESS_CREDENTIALS(PARAM.PASSWORD, PARAM.USERNAME);
 
     // Prevent that user submits via keyevent 'enter' multiple times
-    if (this.formIsDisabled) {
+    if (THIS.FORM_IS_DISABLED) {
       return;
     }
 
-    this.formIsDisabled = true;
-    this.websocket.login(new AuthenticateWithPasswordRequest(param))
+    THIS.FORM_IS_DISABLED = true;
+    THIS.WEBSOCKET.LOGIN(new AuthenticateWithPasswordRequest(param))
       .finally(() => {
-        this.ionViewWillEnter();
-        this.formIsDisabled = false;
+        THIS.ION_VIEW_WILL_ENTER();
+        THIS.FORM_IS_DISABLED = false;
       });
   }
 
@@ -134,40 +134,40 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   */
   public doDemoLogin(param: { username?: string, password: string }) {
 
-    this.websocket.login(new AuthenticateWithPasswordRequest(param)).then(() => {
-      this.service.stopSpinner("loginspinner");
+    THIS.WEBSOCKET.LOGIN(new AuthenticateWithPasswordRequest(param)).then(() => {
+      THIS.SERVICE.STOP_SPINNER("loginspinner");
     });
 
     return new Promise<Edge[]>((resolve, reject) => {
 
-      const req = new GetEdgesRequest({ page: this.page });
+      const req = new GetEdgesRequest({ page: THIS.PAGE });
 
-      this.service.getEdges(req)
+      THIS.SERVICE.GET_EDGES(req)
         .then((edges) => {
           setTimeout(() => {
-            this.router.navigate(["/device", edges[0].id]);
+            THIS.ROUTER.NAVIGATE(["/device", edges[0].id]);
           }, 100);
           resolve(edges);
         }).catch((err) => {
           reject(err);
         });
     }).finally(() => {
-      this.service.stopSpinner("loginspinner");
+      THIS.SERVICE.STOP_SPINNER("loginspinner");
     },
     );
   }
 
   ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
   }
 
   protected async showPopoverOrRedirectToStore(operatingSystem: "android" | "ios") {
-    const link: string | null = PlatFormService.getAppStoreLink();
+    const link: string | null = PLAT_FORM_SERVICE.GET_APP_STORE_LINK();
     if (link) {
-      window.open(link, "_blank");
+      WINDOW.OPEN(link, "_blank");
     } else {
-      this.popoverActive = operatingSystem;
+      THIS.POPOVER_ACTIVE = operatingSystem;
     }
   }
 

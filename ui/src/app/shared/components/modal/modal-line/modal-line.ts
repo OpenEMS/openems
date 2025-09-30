@@ -6,7 +6,7 @@ import { ButtonLabel } from "../modal-button/modal-button";
 
 @Component({
     selector: "oe-modal-line",
-    templateUrl: "./modal-line.html",
+    templateUrl: "./modal-LINE.HTML",
     standalone: false,
 })
 export class ModalLineComponent extends AbstractModalLine {
@@ -27,7 +27,7 @@ export class ModalLineComponent extends AbstractModalLine {
         { type: "TEXT", valueConverter?: Converter };
 
     /** Fixed indentation of the modal-line */
-    @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+    @Input() protected textIndent: TextIndentation = TEXT_INDENTATION.NONE;
     protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 }
 

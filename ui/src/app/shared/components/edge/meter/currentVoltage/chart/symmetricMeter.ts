@@ -5,67 +5,67 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "currentVoltageChart",
-  templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
 
-    const component = this.config.getComponent(this.route.snapshot.params.componentId);
-    const chartObject: HistoryUtils.ChartData = {
+    const component = THIS.CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
+    const chartObject: HISTORY_UTILS.CHART_DATA = {
       input: [
         {
-          name: component.id + "Current",
-          powerChannel: ChannelAddress.fromString(component.id + "/Current"),
+          name: COMPONENT.ID + "Current",
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/Current"),
 
         },
         {
-          name: component.id + "Voltage",
-          powerChannel: ChannelAddress.fromString(component.id + "/Voltage"),
+          name: COMPONENT.ID + "Voltage",
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/Voltage"),
         },
       ],
-      output: (data: HistoryUtils.ChannelData) => [
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => [
 
         {
-          name: this.translate.instant("Edge.History.CURRENT"),
+          name: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.CURRENT"),
           converter: () => {
-            return data[component.id + "Current"];
+            return data[COMPONENT.ID + "Current"];
           },
           color: "rgb(253,197,7)",
           hiddenOnInit: false,
           stack: 1,
 
-          yAxisId: ChartAxis.LEFT,
+          yAxisId: CHART_AXIS.LEFT,
         },
         {
-          name: this.translate.instant("Edge.History.VOLTAGE"),
+          name: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.VOLTAGE"),
           converter: () => {
-            return data[component.id + "Voltage"];
+            return data[COMPONENT.ID + "Voltage"];
           },
           color: "rgb(255,0,0)",
           hiddenOnInit: false,
           stack: 1,
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: CHART_AXIS.RIGHT,
         },
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: THIS.TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.VOLTAGE,
+        unit: YAXIS_TYPE.VOLTAGE,
         position: "right",
-        yAxisId: ChartAxis.RIGHT,
+        yAxisId: CHART_AXIS.RIGHT,
         displayGrid: false,
         scale: {
           dynamicScale: true,
         },
       },
       {
-        unit: YAxisType.CURRENT,
+        unit: YAXIS_TYPE.CURRENT,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       },
       ],
     };

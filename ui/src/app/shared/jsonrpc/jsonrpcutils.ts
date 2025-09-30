@@ -6,7 +6,7 @@ export class JsonRpcUtils {
     private static THRESHOLD: number = -0.50;
 
     public static normalizeQueryData(data: (number | null)[]): (number | null)[] {
-        return data.map(el => JsonRpcUtils.roundSlightlyNegativeValues(el));
+        return DATA.MAP(el => JSON_RPC_UTILS.ROUND_SLIGHTLY_NEGATIVE_VALUES(el));
     }
 
     /**
@@ -19,7 +19,7 @@ export class JsonRpcUtils {
             return null;
         }
 
-        return (value > JsonRpcUtils.THRESHOLD && value < 0) ? 0 : value;
+        return (value > JSON_RPC_UTILS.THRESHOLD && value < 0) ? 0 : value;
     }
 
 
@@ -29,9 +29,9 @@ export class JsonRpcUtils {
     public static channelsToStringArray(channels: ChannelAddress[]): string[] {
         const result = [];
         for (const channel of channels) {
-            result.push(channel.toString());
+            RESULT.PUSH(CHANNEL.TO_STRING());
         }
-        return Array.from(new Set(result));
+        return ARRAY.FROM(new Set(result));
     }
 
     /**

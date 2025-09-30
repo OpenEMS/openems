@@ -1,9 +1,9 @@
 <ion-card button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/delayedselltogridchart'"
+    [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/' + COMPONENT.ID + '/delayedselltogridchart'"
     *ngIf="component && edge">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="normal" name="trending-down-outline"></ion-icon>
-        <ion-label>{{ component.alias }}</ion-label>
+        <ion-label>{{ COMPONENT.ALIAS }}</ion-label>
     </ion-item>
     <ion-card-content style="color: var(--ion-card-content-color);">
         <table class="full_width">

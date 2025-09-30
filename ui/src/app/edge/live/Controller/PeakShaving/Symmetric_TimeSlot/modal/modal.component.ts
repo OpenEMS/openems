@@ -7,14 +7,14 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 
 @Component({
     selector: "timeslotpeakshaving-modal",
-    templateUrl: "./modal.component.html",
+    templateUrl: "./MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
     private static readonly SELECTOR = "timeslotpeakshaving-modal";
 
-    @Input() protected component: EdgeConfig.Component | null = null;
+    @Input() protected component: EDGE_CONFIG.COMPONENT | null = null;
     @Input() protected edge: Edge | null = null;
 
     public formGroup: FormGroup;
@@ -29,86 +29,86 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
     ) { }
 
     ngOnInit() {
-        this.formGroup = this.formBuilder.group({
-            peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
+        THIS.FORM_GROUP = THIS.FORM_BUILDER.GROUP({
+            peakShavingPower: new FormControl(THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(?:[1-9][0-9]*|0)$"),
+                VALIDATORS.REQUIRED,
             ])),
-            rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
+            rechargePower: new FormControl(THIS.COMPONENT.PROPERTIES.RECHARGE_POWER, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(?:[1-9][0-9]*|0)$"),
+                VALIDATORS.REQUIRED,
             ])),
-            hysteresisSoc: new FormControl(this.component.properties.hysteresisSoc, Validators.compose([
-                Validators.pattern("^(100|[1-9]?[0-9])$"),
-                Validators.required,
+            hysteresisSoc: new FormControl(THIS.COMPONENT.PROPERTIES.HYSTERESIS_SOC, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(100|[1-9]?[0-9])$"),
+                VALIDATORS.REQUIRED,
             ])),
-            slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),
-            slowChargeStartTime: new FormControl(this.component.properties.slowChargeStartTime, Validators.compose([
-                Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
-                Validators.required,
+            slowChargePower: new FormControl((THIS.COMPONENT.PROPERTIES.SLOW_CHARGE_POWER) * -1),
+            slowChargeStartTime: new FormControl(THIS.COMPONENT.PROPERTIES.SLOW_CHARGE_START_TIME, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
+                VALIDATORS.REQUIRED,
             ])),
-            startDate: new FormControl(this.component.properties.startDate, Validators.compose([
-                Validators.pattern("^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)[0-9]{2}$"),
-                Validators.required,
+            startDate: new FormControl(THIS.COMPONENT.PROPERTIES.START_DATE, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(0[1-9]|[12][0-9]|3[01])[.](0[1-9]|1[012])[.](19|20)[0-9]{2}$"),
+                VALIDATORS.REQUIRED,
             ])),
-            startTime: new FormControl(this.component.properties.startTime, Validators.compose([
-                Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
-                Validators.required,
+            startTime: new FormControl(THIS.COMPONENT.PROPERTIES.START_TIME, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
+                VALIDATORS.REQUIRED,
             ])),
-            endDate: new FormControl(this.component.properties.endDate),
-            endTime: new FormControl(this.component.properties.endTime, Validators.compose([
-                Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
-                Validators.required,
+            endDate: new FormControl(THIS.COMPONENT.PROPERTIES.END_DATE),
+            endTime: new FormControl(THIS.COMPONENT.PROPERTIES.END_TIME, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
+                VALIDATORS.REQUIRED,
             ])),
-            monday: new FormControl(this.component.properties.monday),
-            tuesday: new FormControl(this.component.properties.tuesday),
-            wednesday: new FormControl(this.component.properties.wednesday),
-            thursday: new FormControl(this.component.properties.thursday),
-            friday: new FormControl(this.component.properties.friday),
-            saturday: new FormControl(this.component.properties.saturday),
-            sunday: new FormControl(this.component.properties.sunday),
+            monday: new FormControl(THIS.COMPONENT.PROPERTIES.MONDAY),
+            tuesday: new FormControl(THIS.COMPONENT.PROPERTIES.TUESDAY),
+            wednesday: new FormControl(THIS.COMPONENT.PROPERTIES.WEDNESDAY),
+            thursday: new FormControl(THIS.COMPONENT.PROPERTIES.THURSDAY),
+            friday: new FormControl(THIS.COMPONENT.PROPERTIES.FRIDAY),
+            saturday: new FormControl(THIS.COMPONENT.PROPERTIES.SATURDAY),
+            sunday: new FormControl(THIS.COMPONENT.PROPERTIES.SUNDAY),
         });
     }
 
     applyChanges() {
-        if (this.edge != null) {
-            if (this.edge.roleIsAtLeast("owner")) {
-                const peakShavingPower = this.formGroup.controls["peakShavingPower"];
-                const rechargePower = this.formGroup.controls["rechargePower"];
-                if (peakShavingPower.valid && rechargePower.valid) {
-                    if (peakShavingPower.value >= rechargePower.value) {
+        if (THIS.EDGE != null) {
+            if (THIS.EDGE.ROLE_IS_AT_LEAST("owner")) {
+                const peakShavingPower = THIS.FORM_GROUP.CONTROLS["peakShavingPower"];
+                const rechargePower = THIS.FORM_GROUP.CONTROLS["rechargePower"];
+                if (PEAK_SHAVING_POWER.VALID && RECHARGE_POWER.VALID) {
+                    if (PEAK_SHAVING_POWER.VALUE >= RECHARGE_POWER.VALUE) {
                         const updateComponentArray = [];
-                        Object.keys(this.formGroup.controls).forEach((element, index) => {
-                            if (this.formGroup.controls[element].dirty) {
-                                if (Object.keys(this.formGroup.controls)[index] == "slowChargePower") {
-                                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: (this.formGroup.controls[element].value) * -1 });
+                        OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS).forEach((element, index) => {
+                            if (THIS.FORM_GROUP.CONTROLS[element].dirty) {
+                                if (OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS)[index] == "slowChargePower") {
+                                    UPDATE_COMPONENT_ARRAY.PUSH({ name: OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS)[index], value: (THIS.FORM_GROUP.CONTROLS[element].value) * -1 });
                                 } else {
-                                    updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+                                    UPDATE_COMPONENT_ARRAY.PUSH({ name: OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS)[index], value: THIS.FORM_GROUP.CONTROLS[element].value });
                                 }
                             }
                         });
-                        this.loading = true;
-                        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                            this.component.properties.peakShavingPower = peakShavingPower.value;
-                            this.component.properties.rechargePower = rechargePower.value;
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                        THIS.LOADING = true;
+                        THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, updateComponentArray).then(() => {
+                            THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER = PEAK_SHAVING_POWER.VALUE;
+                            THIS.COMPONENT.PROPERTIES.RECHARGE_POWER = RECHARGE_POWER.VALUE;
+                            THIS.LOADING = false;
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
                         }).catch(reason => {
-                            peakShavingPower.setValue(this.component.properties.peakShavingPower);
-                            rechargePower.setValue(this.component.properties.rechargePower);
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                            console.warn(reason);
+                            PEAK_SHAVING_POWER.SET_VALUE(THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER);
+                            RECHARGE_POWER.SET_VALUE(THIS.COMPONENT.PROPERTIES.RECHARGE_POWER);
+                            THIS.LOADING = false;
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                            CONSOLE.WARN(reason);
                         });
-                        this.formGroup.markAsPristine();
+                        THIS.FORM_GROUP.MARK_AS_PRISTINE();
                     } else {
-                        this.service.toast(this.translate.instant("Edge.Index.Widgets.Peakshaving.relationError"), "danger");
+                        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.PEAKSHAVING.RELATION_ERROR"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INPUT_NOT_VALID"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INSUFFICIENT_RIGHTS"), "danger");
             }
         }
     }

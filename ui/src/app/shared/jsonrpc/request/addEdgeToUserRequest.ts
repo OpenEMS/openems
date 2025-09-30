@@ -21,7 +21,7 @@ export class AddEdgeToUserRequest extends JsonrpcRequest {
             setupPassword: string
         },
     ) {
-        super(AddEdgeToUserRequest.METHOD, params);
+        super(ADD_EDGE_TO_USER_REQUEST.METHOD, params);
     }
 
 }

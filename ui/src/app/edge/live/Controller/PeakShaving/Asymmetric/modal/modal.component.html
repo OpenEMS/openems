@@ -1,9 +1,9 @@
 <ion-header>
     <ion-toolbar class="ion-justify-content-center"
         style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title>{{ component.alias }}</ion-title>
+        <ion-title>{{ COMPONENT.ALIAS }}</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
+            <ion-button (click)="MODAL_CTRL.DISMISS()">
                 <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -12,12 +12,12 @@
 
 <ion-content>
     <ng-container *ngIf="!loading">
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ng-container *ngIf="component.properties['meter.id'] as meterId">
+        <ion-card-content class="underline" *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
+            <ng-container *ngIf="COMPONENT.PROPERTIES['METER.ID'] as meterId">
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            General.measuredValue
+                            GENERAL.MEASURED_VALUE
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
@@ -30,10 +30,10 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L1</span>
+                            GENERAL.MEASURED_VALUE<span>&nbsp;L1</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L1'">
+                            [CLASS.BOLD]="(mostStressedPhase | async)?.name === 'L1'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL1'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -42,10 +42,10 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L2</span>
+                            GENERAL.MEASURED_VALUE<span>&nbsp;L2</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L2'">
+                            [CLASS.BOLD]="(mostStressedPhase | async)?.name === 'L2'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL2'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -54,10 +54,10 @@
                     <tr>
                         <td style="width: 2%"></td>
                         <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L3</span>
+                            GENERAL.MEASURED_VALUE<span>&nbsp;L3</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L3'">
+                            [CLASS.BOLD]="(mostStressedPhase | async)?.name === 'L3'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL3'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -66,12 +66,12 @@
                 </table>
             </ng-container>
         </ion-card-content>
-        <ion-card-content *ngIf="edge.roleIsAtLeast('owner')">
+        <ion-card-content *ngIf="EDGE.ROLE_IS_AT_LEAST('owner')">
             <form [formGroup]="formGroup">
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingPower
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -85,7 +85,7 @@
                 <table class="full_width">
                     <tr>
                         <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.rechargePower
+                            EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER
                         </td>
                         <td style="width: 35%" class="align_right">
                             <ion-item lines="inset" class="noPadding">
@@ -105,13 +105,13 @@
                 </ion-col>
                 <ion-col size="10">
                     <ion-note class="ion-text-wrap"><small
-                            translate>Edge.Index.Widgets.Peakshaving.asymmetricInfo</small>
+                            translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.ASYMMETRIC_INFO</small>
                     </ion-note>
                 </ion-col>
             </ion-row>
         </ion-grid>
     </ng-container>
-    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab *ngIf="FORM_GROUP.DIRTY" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button (click)="applyChanges()">
             <ion-icon size="large" name="checkmark-circle-outline">
             </ion-icon>

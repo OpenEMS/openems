@@ -4,12 +4,12 @@ import { TranslateService } from "@ngx-translate/core";
 import { parse } from "date-fns";
 import { Subject } from "rxjs";
 import { filter, take, takeUntil } from "rxjs/operators";
-import { Filter } from "src/app/index/filter/filter.component";
+import { Filter } from "src/app/index/filter/FILTER.COMPONENT";
 import { Role } from "src/app/shared/type/role";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
-  placeholder: translate.instant("Edge.Config.Log.level"),
+  placeholder: TRANSLATE.INSTANT("EDGE.CONFIG.LOG.LEVEL"),
   category: "level",
   options: [
     {
@@ -17,23 +17,23 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
       value: "DEBUG",
     },
     {
-      name: translate.instant("General.info"),
+      name: TRANSLATE.INSTANT("GENERAL.INFO"),
       value: "INFO",
     },
     {
-      name: translate.instant("General.warning"),
+      name: TRANSLATE.INSTANT("GENERAL.WARNING"),
       value: "WARN",
     },
     {
-      name: translate.instant("General.fault"),
+      name: TRANSLATE.INSTANT("GENERAL.FAULT"),
       value: "ERROR",
     },
   ],
 });
 
 @Component({
-  selector: SystemLogComponent.SELECTOR,
-  templateUrl: "./systemlog.component.html",
+  selector: SYSTEM_LOG_COMPONENT.SELECTOR,
+  templateUrl: "./SYSTEMLOG.COMPONENT.HTML",
   standalone: false,
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
@@ -46,7 +46,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   /** Displayed loglines */
   protected logLines: typeof this._logLines = [];
   protected query: string | null = null;
-  protected filters: Filter = LOG_LEVEL_FILTER(this.translate);
+  protected filters: Filter = LOG_LEVEL_FILTER(THIS.TRANSLATE);
   protected isCondensedOutput: boolean | null = null;
   protected isAtLeastGuest: boolean = false;
 
@@ -72,8 +72,8 @@ export class SystemLogComponent implements OnInit, OnDestroy {
 
   public subscribe() {
     // put placeholder
-    if (this.logLines.length > 0) {
-      this.logLines.unshift({
+    if (THIS.LOG_LINES.LENGTH > 0) {
+      THIS.LOG_LINES.UNSHIFT({
         time: "-------------------",
         level: "----",
         color: "black",
@@ -83,88 +83,88 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     }
 
     // complete old subscribe
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.ngUnsubscribe = new Subject<void>();
+    THIS.NG_UNSUBSCRIBE.NEXT();
+    THIS.NG_UNSUBSCRIBE.COMPLETE();
+    THIS.NG_UNSUBSCRIBE = new Subject<void>();
 
-    this.service.getCurrentEdge().then(edge => {
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
       // send request to Edge
-      edge.subscribeSystemLog(this.websocket);
+      EDGE.SUBSCRIBE_SYSTEM_LOG(THIS.WEBSOCKET);
 
       // subscribe to notifications
-      edge.systemLog.pipe(
-        takeUntil(this.ngUnsubscribe),
+      EDGE.SYSTEM_LOG.PIPE(
+        takeUntil(THIS.NG_UNSUBSCRIBE),
       ).subscribe(line => {
 
         // add line
         this._logLines.unshift({
-          time: parse(line.time, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx", new Date()).toLocaleString(),
-          color: this.getColor(line.level),
-          level: line.level,
-          source: line.source,
-          message: line.message.replace(/\n/g, "</br>"),
+          time: parse(LINE.TIME, "yyyy-MM-dd'T'HH:mm:SS.SSSXXX", new Date()).toLocaleString(),
+          color: THIS.GET_COLOR(LINE.LEVEL),
+          level: LINE.LEVEL,
+          source: LINE.SOURCE,
+          message: LINE.MESSAGE.REPLACE(/\n/g, "</br>"),
         });
 
-        this.filterLogs();
+        THIS.FILTER_LOGS();
         // remove old lines
         if (this._logLines.length > this.MAX_LOG_ENTRIES) {
           this._logLines.length = this.MAX_LOG_ENTRIES;
         }
       });
     });
-    this.isSubscribed = true;
+    THIS.IS_SUBSCRIBED = true;
   }
 
   ngOnInit() {
-    this.subscribe();
+    THIS.SUBSCRIBE();
 
-    this.service.getCurrentEdge().then(edge => {
-      this.isAtLeastGuest = !edge.roleIsAtLeast(Role.OWNER);
-      edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1))
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.IS_AT_LEAST_GUEST = !EDGE.ROLE_IS_AT_LEAST(ROLE.OWNER);
+      EDGE.GET_CONFIG(THIS.WEBSOCKET).pipe(filter(config => !!config), take(1))
         .subscribe(config => {
-          const component = config.getComponent(SystemLogComponent.DEBUG_LOG_CONTROLLER_ID);
+          const component = CONFIG.GET_COMPONENT(SystemLogComponent.DEBUG_LOG_CONTROLLER_ID);
 
           if (!component) {
-            this.isCondensedOutput = null;
+            THIS.IS_CONDENSED_OUTPUT = null;
           }
 
-          if (component.properties?.condensedOutput != null) {
-            this.isCondensedOutput = component.properties?.condensedOutput;
+          if (COMPONENT.PROPERTIES?.condensedOutput != null) {
+            THIS.IS_CONDENSED_OUTPUT = COMPONENT.PROPERTIES?.condensedOutput;
           }
         });
     });
   }
 
   ngOnDestroy() {
-    this.unsubscribe();
+    THIS.UNSUBSCRIBE();
   }
 
   public toggleSubscribe(event: CustomEvent) {
-    if (event.detail["checked"]) {
-      this.subscribe();
+    if (EVENT.DETAIL["checked"]) {
+      THIS.SUBSCRIBE();
     } else {
-      this.unsubscribe();
+      THIS.UNSUBSCRIBE();
     }
   }
 
   public unsubscribe() {
-    this.service.getCurrentEdge().then(edge => {
-      edge.unsubscribeSystemLog(this.websocket);
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      EDGE.UNSUBSCRIBE_SYSTEM_LOG(THIS.WEBSOCKET);
     });
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.ngUnsubscribe = new Subject<void>();
+    THIS.NG_UNSUBSCRIBE.NEXT();
+    THIS.NG_UNSUBSCRIBE.COMPLETE();
+    THIS.NG_UNSUBSCRIBE = new Subject<void>();
   }
 
   protected toggleCondensedOutput(event: CustomEvent) {
-    this.service.getCurrentEdge()
+    THIS.SERVICE.GET_CURRENT_EDGE()
       .then(edge =>
-        edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
-          name: "condensedOutput", value: event.detail["checked"],
+        EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
+          name: "condensedOutput", value: EVENT.DETAIL["checked"],
         }]).then(() => {
-          this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+          THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
         }).catch((reason) => {
-          this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+          THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
         }));
   }
 
@@ -176,10 +176,10 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   protected searchOnChange(searchParams?: SelectCustomEvent): void {
 
     if (searchParams) {
-      this.searchParams = searchParams?.target?.value ?? null;
+      THIS.SEARCH_PARAMS = searchParams?.target?.value ?? null;
     }
 
-    this.filterLogs();
+    THIS.FILTER_LOGS();
   }
 
   private getColor(level: "INFO" | "WARN" | "DEBUG" | "ERROR"): string {
@@ -200,26 +200,26 @@ export class SystemLogComponent implements OnInit, OnDestroy {
    */
   private filterLogs(): void {
 
-    if (this.query === null && this.searchParams === null) {
-      this.logLines = this._logLines;
+    if (THIS.QUERY === null && THIS.SEARCH_PARAMS === null) {
+      THIS.LOG_LINES = this._logLines;
       return;
     }
 
-    this.logLines = this._logLines
-      .filter(line => (this.searchParams != null && this.searchParams?.length > 0)
-        ? this.searchParams?.includes(line.level)
+    THIS.LOG_LINES = this._logLines
+      .filter(line => (THIS.SEARCH_PARAMS != null && THIS.SEARCH_PARAMS?.length > 0)
+        ? THIS.SEARCH_PARAMS?.includes(LINE.LEVEL)
         : true)
-      .reduce((arr: typeof this.logLines, el) => {
+      .reduce((arr: typeof THIS.LOG_LINES, el) => {
 
-        if (this.query == null || !this.query.length) {
+        if (THIS.QUERY == null || !THIS.QUERY.LENGTH) {
           return this._logLines;
         }
 
-        const message = el.message.split("</br>").filter(el => el.toLowerCase().includes(this.query!.toLowerCase())).join("</br>");
+        const message = EL.MESSAGE.SPLIT("</br>").filter(el => EL.TO_LOWER_CASE().includes(THIS.QUERY!.toLowerCase())).join("</br>");
 
         if (message?.length > 0) {
-          el.message = message;
-          arr.push(el);
+          EL.MESSAGE = message;
+          ARR.PUSH(el);
         }
 
         return arr;

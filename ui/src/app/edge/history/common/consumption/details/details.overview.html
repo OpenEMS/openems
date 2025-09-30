@@ -1,5 +1,5 @@
-<oe-chart [title]="component.alias + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)"
-  *ngIf="isInitialized && component" [period]="service.historyPeriod.value">
+<oe-chart [title]="COMPONENT.ALIAS + '&nbsp;-&nbsp;' + ('EDGE.HISTORY.PHASE_ACCURATE' | translate)"
+  *ngIf="isInitialized && component" [period]="SERVICE.HISTORY_PERIOD.VALUE">
   <ng-container [ngSwitch]="componentType">
     <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
     <consumptionMeterChart *ngSwitchCase="'consumptionMeter'" [isOnlyChart]="true"></consumptionMeterChart>

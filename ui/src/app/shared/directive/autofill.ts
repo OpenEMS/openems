@@ -12,14 +12,14 @@ export class AutofillDirective implements OnInit {
   constructor(private el: ElementRef, private logger: Logger) { }
 
   ngOnInit(): void {
-    if (Capacitor.getPlatform() !== "ios") { return; }
+    if (CAPACITOR.GET_PLATFORM() !== "ios") { return; }
     setTimeout(() => {
       try {
-        this.el.nativeElement.children[0].addEventListener("change", (e) => {
-          this.el.nativeElement.value = (e.target as any).value;
+        THIS.EL.NATIVE_ELEMENT.CHILDREN[0].addEventListener("change", (e) => {
+          THIS.EL.NATIVE_ELEMENT.VALUE = (E.TARGET as any).value;
         });
       } catch {
-        console.error("Android Autofill Directive inactive");
+        CONSOLE.ERROR("Android Autofill Directive inactive");
       }
     }, 100); // Need some time for the ion-input to create the input element
   }

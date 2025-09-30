@@ -3,21 +3,21 @@ import { NgModule } from "@angular/core";
 import { FormControl, ValidationErrors } from "@angular/forms";
 import { FORMLY_CONFIG, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
-import { SharedModule } from "src/app/shared/shared.module";
+import { SharedModule } from "src/app/shared/SHARED.MODULE";
 import { FormlyTextComponent } from "./formly/formly-text";
 import { FormlyInputWithUnitComponent } from "./formly/input-with-unit";
-import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/formly-option-group-picker.component";
-import { FormlyReorderArrayComponent } from "./formly/reorder-select/formly-reorder-array.component";
-import { FormlySafeInputModalComponent } from "./formly/safe-input/formly-safe-input-modal.component";
-import { FormlySafeInputWrapperComponent } from "./formly/safe-input/formly-safe-input.extended";
-import { IndexComponent } from "./index.component";
-import { InstallAppComponent } from "./install.component";
-import { KeyModalComponent } from "./keypopup/modal.component";
-import { SingleAppComponent } from "./single.component";
-import { UpdateAppComponent } from "./update.component";
+import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/formly-option-group-PICKER.COMPONENT";
+import { FormlyReorderArrayComponent } from "./formly/reorder-select/formly-reorder-ARRAY.COMPONENT";
+import { FormlySafeInputModalComponent } from "./formly/safe-input/formly-safe-input-MODAL.COMPONENT";
+import { FormlySafeInputWrapperComponent } from "./formly/safe-input/formly-safe-INPUT.EXTENDED";
+import { IndexComponent } from "./INDEX.COMPONENT";
+import { InstallAppComponent } from "./INSTALL.COMPONENT";
+import { KeyModalComponent } from "./keypopup/MODAL.COMPONENT";
+import { SingleAppComponent } from "./SINGLE.COMPONENT";
+import { UpdateAppComponent } from "./UPDATE.COMPONENT";
 
 export function KeyValidator(control: FormControl): ValidationErrors {
-  return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { "key": true };
+  return /^(.{4}-){3}.{4}$/.test(CONTROL.VALUE) ? null : { "key": true };
 }
 
 export function registerTranslateExtension(translate: TranslateService) {
@@ -26,7 +26,7 @@ export function registerTranslateExtension(translate: TranslateService) {
       {
         name: "key",
         message() {
-          return translate.stream("Edge.Config.App.Key.invalidPattern");
+          return TRANSLATE.STREAM("EDGE.CONFIG.APP.KEY.INVALID_PATTERN");
         },
       },
     ],
@@ -36,7 +36,7 @@ export function registerTranslateExtension(translate: TranslateService) {
 @NgModule({
   imports: [
     SharedModule,
-    FormlyModule.forRoot({
+    FORMLY_MODULE.FOR_ROOT({
       wrappers: [
         { name: "formly-safe-input-wrapper", component: FormlySafeInputWrapperComponent },
         { name: "input-with-unit", component: FormlyInputWithUnitComponent },

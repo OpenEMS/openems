@@ -13,18 +13,18 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
   @Input({ required: true })
-  public period!: DefaultTypes.HistoryPeriod;
+  public period!: DEFAULT_TYPES.HISTORY_PERIOD;
 
   @Input({ required: true })
   protected componentId!: string;
 
   /**
-   * True after this.edge, this.config and this.component are set.
+   * True after THIS.EDGE, THIS.CONFIG and THIS.COMPONENT are set.
    */
   public isInitialized: boolean = false;
   public edge: Edge | null = null;
   public config: EdgeConfig | null = null;
-  public component: EdgeConfig.Component | null = null;
+  public component: EDGE_CONFIG.COMPONENT | null = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
 
   private selector: string = uuidv4();
@@ -38,47 +38,47 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
   ) { }
 
   public ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.service.getConfig().then(config => {
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.SERVICE.GET_CONFIG().then(config => {
         // store important variables publically
-        this.edge = edge;
-        this.config = config;
-        this.component = config.components[this.componentId];
+        THIS.EDGE = edge;
+        THIS.CONFIG = config;
+        THIS.COMPONENT = CONFIG.COMPONENTS[THIS.COMPONENT_ID];
 
         // announce initialized
-        this.isInitialized = true;
+        THIS.IS_INITIALIZED = true;
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
       }).then(() => {
-        this.updateValues();
+        THIS.UPDATE_VALUES();
       });
     });
   }
 
   public updateValues() {
-    const channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ allComponents: {} });
-    this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-      const result = response.result;
+    const channelAddresses = THIS.GET_CHANNEL_ADDRESSES();
+    THIS.ON_CURRENT_DATA({ allComponents: {} });
+    THIS.SERVICE.QUERY_ENERGY(THIS.PERIOD.FROM, THIS.PERIOD.TO, channelAddresses).then(response => {
+      const result = RESPONSE.RESULT;
       const allComponents = {};
       for (const channelAddress of channelAddresses) {
-        const ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca];
+        const ca = CHANNEL_ADDRESS.TO_STRING();
+        allComponents[ca] = RESULT.DATA[ca];
       }
-      this.onCurrentData({ allComponents: allComponents });
+      THIS.ON_CURRENT_DATA({ allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
     });
   }
 
   public ngOnChanges() {
-    this.updateValues();
+    THIS.UPDATE_VALUES();
   }
 
   public ngOnDestroy() {
     // Unsubscribe from CurrentData subject
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
   }
 
   /**

@@ -1,5 +1,5 @@
-<oe-flat-widget button [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/gridchart'"
-    [icon]="{name: 'oe-grid', color:'dark'}" [title]="'General.grid' | translate" *ngIf="isInitialized">
+<oe-flat-widget button [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/gridchart'"
+    [icon]="{name: 'oe-grid', color:'dark'}" [title]="'GENERAL.GRID' | translate" *ngIf="isInitialized">
     <oe-flat-widget-line *ngIf="offGridTime > 0" [name]="'GRID_STATES.OFF_GRID' | translate"
         channelAddress="_sum/GridModeOffGridTime" [converter]="TIME_CONVERTER">
     </oe-flat-widget-line>
@@ -7,10 +7,10 @@
         channelAddress="ctrlEssLimiter14a0/CumulatedRestrictionTime" [converter]="TIME_CONVERTER">
     </oe-flat-widget-line>
     <oe-flat-widget-horizontal-line *ngIf="restrictionTime > 0 || offGridTime > 0 "></oe-flat-widget-horizontal-line>
-    <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" channelAddress="_sum/GridSellActiveEnergy"
+    <oe-flat-widget-line [name]="'GENERAL.GRID_SELL_ADVANCED' | translate" channelAddress="_sum/GridSellActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'General.gridBuyAdvanced'| translate" channelAddress="_sum/GridBuyActiveEnergy"
+    <oe-flat-widget-line [name]="'GENERAL.GRID_BUY_ADVANCED'| translate" channelAddress="_sum/GridBuyActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>
 </oe-flat-widget>

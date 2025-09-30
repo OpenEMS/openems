@@ -22,7 +22,7 @@ export class UpdateUserLanguageRequest extends JsonrpcRequest {
             language: string
         },
     ) {
-        super(UpdateUserLanguageRequest.METHOD, params);
+        super(UPDATE_USER_LANGUAGE_REQUEST.METHOD, params);
     }
 
 }

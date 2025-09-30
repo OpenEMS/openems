@@ -8,7 +8,7 @@ import { environment } from "src/environments";
 
 @Component({
     selector: "oe-offline",
-    templateUrl: "./offline.component.html",
+    templateUrl: "./OFFLINE.COMPONENT.HTML",
     styles: [`
             ion-item > ion-label > h3 {
                 font-weight: bolder;
@@ -39,18 +39,18 @@ export class OfflineComponent implements OnInit {
     public static formatMilliSecondsToValidRange(ms: number, translate: TranslateService): string {
         const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
         const TWO_HOURS = 2 * 60 * 60 * 1000;
-        let translationKey: { singular: string, plural: string } = { singular: "General.TIME.MINUTE", plural: "General.TIME.MINUTES" };
-        let convertedSeconds: number = TimeUtils.getMinutesFromMilliSeconds(ms) ?? 0;
+        let translationKey: { singular: string, plural: string } = { singular: "GENERAL.TIME.MINUTE", plural: "GENERAL.TIME.MINUTES" };
+        let convertedSeconds: number = TIME_UTILS.GET_MINUTES_FROM_MILLI_SECONDS(ms) ?? 0;
 
         if (ms > TWO_DAYS) {
-            convertedSeconds = TimeUtils.getDaysFromMilliSeconds(ms) ?? 0;
-            translationKey = { singular: "General.TIME.DAY", plural: "General.TIME.DAYS" };
+            convertedSeconds = TIME_UTILS.GET_DAYS_FROM_MILLI_SECONDS(ms) ?? 0;
+            translationKey = { singular: "GENERAL.TIME.DAY", plural: "GENERAL.TIME.DAYS" };
         } else if (ms > TWO_HOURS) {
-            convertedSeconds = TimeUtils.getHoursFromMilliSeconds(ms) ?? 0;
-            translationKey = { singular: "General.TIME.HOUR", plural: "General.TIME.HOURS" };
+            convertedSeconds = TIME_UTILS.GET_HOURS_FROM_MILLI_SECONDS(ms) ?? 0;
+            translationKey = { singular: "GENERAL.TIME.HOUR", plural: "GENERAL.TIME.HOURS" };
         }
 
-        return TimeUtils.getDurationText(convertedSeconds, translate, translationKey.singular, translationKey.plural);
+        return TIME_UTILS.GET_DURATION_TEXT(convertedSeconds, translate, TRANSLATION_KEY.SINGULAR, TRANSLATION_KEY.PLURAL);
     }
 
     /**
@@ -62,25 +62,25 @@ export class OfflineComponent implements OnInit {
      */
     private static getTimeSinceEdgeIsOffline(date: string, translate: TranslateService): string | null {
 
-        const _date: Date | null = DateUtils.stringToDate(date);
+        const _date: Date | null = DATE_UTILS.STRING_TO_DATE(date);
         if (!_date) {
             return null;
         }
 
         const milliSeconds: number = _date.getTime();
-        const _diff: number | null = Utils.subtractSafely(new Date().getTime(), milliSeconds);
+        const _diff: number | null = UTILS.SUBTRACT_SAFELY(new Date().getTime(), milliSeconds);
 
         if (_diff === null) {
             return null;
         }
-        return OfflineComponent.formatMilliSecondsToValidRange(_diff, translate);
+        return OFFLINE_COMPONENT.FORMAT_MILLI_SECONDS_TO_VALID_RANGE(_diff, translate);
     }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
-            this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
-            this.timeSinceOffline = OfflineComponent.getTimeSinceEdgeIsOffline(edge.lastmessage?.toString(), this.translate);
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.EDGE = edge;
+            THIS.IS_AT_LEAST_INSTALLER = THIS.EDGE.ROLE_IS_AT_LEAST(ROLE.INSTALLER);
+            THIS.TIME_SINCE_OFFLINE = OFFLINE_COMPONENT.GET_TIME_SINCE_EDGE_IS_OFFLINE(EDGE.LASTMESSAGE?.toString(), THIS.TRANSLATE);
         });
     }
 }

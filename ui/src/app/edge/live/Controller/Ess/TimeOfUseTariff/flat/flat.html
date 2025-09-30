@@ -1,11 +1,11 @@
-<oe-flat-widget button *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
+<oe-flat-widget button *ngIf="isInitialized" [title]="COMPONENT.ALIAS" [icon]="{name:
     'cloud-outline', color: 'normal'}" (click)="presentModal()">
 
-    <oe-flat-widget-line [name]="'General.mode' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+    <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [channelAddress]="COMPONENT.ID + '/_PropertyMode'"
         [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE' | translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.PRICE' | translate"
         [value]="priceWithCurrency"></oe-flat-widget-line>
-    <oe-flat-widget-line leftColumnWidth="20" [name]="'General.STATUS' | translate"
-        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE" [channelAddress]="component.id + '/StateMachine'">
+    <oe-flat-widget-line leftColumnWidth="20" [name]="'GENERAL.STATUS' | translate"
+        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE" [channelAddress]="COMPONENT.ID + '/StateMachine'">
     </oe-flat-widget-line>
 </oe-flat-widget>

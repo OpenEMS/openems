@@ -1,34 +1,34 @@
 // @ts-strict-ignore
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
 
-import { TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
-import { expectView } from "./modal.constants.spec";
+import { TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
+import { expectView } from "./MODAL.CONSTANTS.SPEC";
 
 describe("Consumption - Modal", () => {
   let TEST_CONTEXT;
-  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TESTING_UTILS.SHARED_SETUP());
 
   it("generateView()", () => {
 
     // No evcs and consumptionMeters and negative ConsumptionActivePower
     {
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
+      const VIEW_CONTEXT: OE_FORMLY_VIEW_TESTER.CONTEXT = {
         "_sum/ConsumptionActivePower": -1000,
         "_sum/ConsumptionActivePowerL1": -1000,
         "_sum/ConsumptionActivePowerL2": 1000,
         "_sum/ConsumptionActivePowerL3": -1000,
       };
-      const EMS = DummyConfig.from();
+      const EMS = DUMMY_CONFIG.FROM();
 
       expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "0 W"),
-          CHANNEL_LINE("Phase L1", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "0 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "0 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "1.000 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "0 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
           LINE_INFO_PHASES_DE,
@@ -38,14 +38,14 @@ describe("Consumption - Modal", () => {
 
     // two evcs and two consumptionMeter, negative consumptionMeter phase
     {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", "Heizung"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs1", "Evcs 2"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs2", "Evcs 3"),
+      const EMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_CONSUMPTION_METER("meter1", "Heizung"),
+        DUMMY_CONFIG.COMPONENT.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
+        DUMMY_CONFIG.COMPONENT.EVCS_KEBA_KECONTACT("evcs1", "Evcs 2"),
+        DUMMY_CONFIG.COMPONENT.EVCS_KEBA_KECONTACT("evcs2", "Evcs 3"),
       );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
+      const VIEW_CONTEXT: OE_FORMLY_VIEW_TESTER.CONTEXT = {
         "_sum/ConsumptionActivePower": 1000,
         "_sum/ConsumptionActivePowerL1": 300,
         "_sum/ConsumptionActivePowerL2": 350,
@@ -67,9 +67,9 @@ describe("Consumption - Modal", () => {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "300 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "350 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "350 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           CHANNEL_LINE("Evcs", "1.000 W"),
           LINE_HORIZONTAL,
@@ -78,14 +78,14 @@ describe("Consumption - Modal", () => {
           CHANNEL_LINE("Evcs 3", "-"),
           LINE_HORIZONTAL,
           CHANNEL_LINE("Waermepumpe", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "1.000 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "1.000 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "0 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "1.000 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           CHANNEL_LINE("Heizung", "-"),
-          CHANNEL_LINE("Phase L1", "-", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "-", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "-", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "-", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "-", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "-", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
           LINE_INFO_PHASES_DE,
@@ -95,10 +95,10 @@ describe("Consumption - Modal", () => {
 
     // No consumptionMeter, one evcs
     {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
+      const EMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
       );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
+      const VIEW_CONTEXT: OE_FORMLY_VIEW_TESTER.CONTEXT = {
         "_sum/ConsumptionActivePower": 1000,
         "_sum/ConsumptionActivePowerL1": 300,
         "_sum/ConsumptionActivePowerL2": 350,
@@ -110,9 +110,9 @@ describe("Consumption - Modal", () => {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "300 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "350 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "350 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           CHANNEL_LINE("Evcs", "1.000 W"),
           LINE_HORIZONTAL,
@@ -124,10 +124,10 @@ describe("Consumption - Modal", () => {
 
     // One consumptionMeter, no evcs
     {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
+      const EMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
       );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
+      const VIEW_CONTEXT: OE_FORMLY_VIEW_TESTER.CONTEXT = {
         "_sum/ConsumptionActivePower": 1000,
         "_sum/ConsumptionActivePowerL1": 300,
         "_sum/ConsumptionActivePowerL2": 350,
@@ -142,14 +142,14 @@ describe("Consumption - Modal", () => {
         title: "Verbrauch",
         lines: [
           CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "300 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "350 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "350 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           CHANNEL_LINE("Waermepumpe", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "1.000 W", TextIndentation.SINGLE),
+          CHANNEL_LINE("Phase L1", "1.000 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L2", "0 W", TEXT_INDENTATION.SINGLE),
+          CHANNEL_LINE("Phase L3", "1.000 W", TEXT_INDENTATION.SINGLE),
           LINE_HORIZONTAL,
           VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
           LINE_INFO_PHASES_DE,

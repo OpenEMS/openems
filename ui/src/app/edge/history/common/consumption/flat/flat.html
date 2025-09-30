@@ -1,34 +1,34 @@
-<oe-flat-widget [title]="'General.consumption' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/consumptionchart'" *ngIf="isInitialized">
+<oe-flat-widget [title]="'GENERAL.CONSUMPTION' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
+    [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/consumptionchart'" *ngIf="isInitialized">
 
     <oe-flat-widget-line
-        *ngIf="evcsComponents.length === 0 && consumptionMeterComponents.length === 0 && heatComponents.length === 0, else meters"
+        *ngIf="EVCS_COMPONENTS.LENGTH === 0 && CONSUMPTION_METER_COMPONENTS.LENGTH === 0 && HEAT_COMPONENTS.LENGTH === 0, else meters"
         channelAddress="_sum/ConsumptionActiveEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
 
     <ng-template #meters>
         <ng-container *ngFor="let component of evcsComponents">
-            <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActiveConsumptionEnergy'"
+            <oe-flat-widget-line [name]="COMPONENT.ALIAS" [channelAddress]="COMPONENT.ID + '/ActiveConsumptionEnergy'"
                 [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
         </ng-container>
 
         <ng-container *ngFor="let component of heatComponents">
-            <oe-flat-widget-line [name]="'Edge.Index.Widgets.HEAT.HEATING_ENERGY' | translate"
-                [channelAddress]="component.id + '/ActiveProductionEnergy'"
+            <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT.HEATING_ENERGY' | translate"
+                [channelAddress]="COMPONENT.ID + '/ActiveProductionEnergy'"
                 [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
         </ng-container>
 
         <ng-container *ngFor="let component of consumptionMeterComponents">
-            <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActiveProductionEnergy'"
+            <oe-flat-widget-line [name]="COMPONENT.ALIAS" [channelAddress]="COMPONENT.ID + '/ActiveProductionEnergy'"
                 [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
         </ng-container>
 
     </ng-template>
     <ng-container
-        *ngIf="(evcsComponents.length !== 0 || consumptionMeterComponents.length !== 0 || heatComponents.length !== 0)">
+        *ngIf="(EVCS_COMPONENTS.LENGTH !== 0 || CONSUMPTION_METER_COMPONENTS.LENGTH !== 0 || HEAT_COMPONENTS.LENGTH !== 0)">
 
         <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-        <oe-flat-widget-line [name]="'General.otherConsumption'| translate" [value]="totalOtherEnergy"
+        <oe-flat-widget-line [name]="'GENERAL.OTHER_CONSUMPTION'| translate" [value]="totalOtherEnergy"
             [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
 

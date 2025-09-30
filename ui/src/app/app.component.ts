@@ -7,17 +7,17 @@ import { MenuController, ModalController, NavController, Platform, ToastControll
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
-import { PlatFormService } from "./platform.service";
-import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { PlatFormService } from "./PLATFORM.SERVICE";
+import { NavigationService } from "./shared/components/navigation/service/NAVIGATION.SERVICE";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
-import { UserService } from "./shared/service/user.service";
+import { UserService } from "./shared/service/USER.SERVICE";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
 @Component({
   selector: "app-root",
-  templateUrl: "app.component.html",
+  templateUrl: "APP.COMPONENT.HTML",
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -51,41 +51,41 @@ export class AppComponent implements OnInit, OnDestroy {
     protected navigationService: NavigationService,
     protected navCtrl: NavController
   ) {
-    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+    SERVICE.SET_LANG(LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.GET_BY_BROWSER_LANG(NAVIGATOR.LANGUAGE));
 
-    this.subscription.add(
-      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
-        this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
-        this.isUserAllowedToSeeFooter = UserPermission.isUserAllowedToSeeFooter(metadata.user);
+    THIS.SUBSCRIPTION.ADD(
+      THIS.SERVICE.METADATA.PIPE(filter(metadata => !!metadata)).subscribe(metadata => {
+        THIS.IS_USER_ALLOWED_TO_SEE_OVERVIEW = USER_PERMISSION.IS_USER_ALLOWED_TO_SEE_OVERVIEW(METADATA.USER);
+        THIS.IS_USER_ALLOWED_TO_SEE_FOOTER = USER_PERMISSION.IS_USER_ALLOWED_TO_SEE_FOOTER(METADATA.USER);
       }));
 
-    this.subscription.add(
-      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
+    THIS.SUBSCRIPTION.ADD(
+      THIS.ROUTER.EVENTS.PIPE(filter(event => event instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
         // Hide footer for history detail views
-        const segments = e.url.split("/");
-        this.isHistoryDetailView = segments.slice(0, -1).includes("history");
+        const segments = E.URL.SPLIT("/");
+        THIS.IS_HISTORY_DETAIL_VIEW = SEGMENTS.SLICE(0, -1).includes("history");
       }));
 
-    this.appService.listen();
-    SplashScreen.hide();
+    THIS.APP_SERVICE.LISTEN();
+    SPLASH_SCREEN.HIDE();
   }
 
   ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.subscription.unsubscribe();
+    THIS.NG_UNSUBSCRIBE.NEXT();
+    THIS.NG_UNSUBSCRIBE.COMPLETE();
+    THIS.SUBSCRIPTION.UNSUBSCRIBE();
   }
 
   ngOnInit() {
 
     // Checks if sessionStorage is not null, undefined or empty string
-    if (localStorage.getItem("DEBUGMODE")) {
-      this.environment.debugMode = JSON.parse(localStorage.getItem("DEBUGMODE"));
+    if (LOCAL_STORAGE.GET_ITEM("DEBUGMODE")) {
+      THIS.ENVIRONMENT.DEBUG_MODE = JSON.PARSE(LOCAL_STORAGE.GET_ITEM("DEBUGMODE"));
     }
 
-    this.service.notificationEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(async notification => {
-      const toast = await this.toastController.create({
-        message: notification.message,
+    THIS.SERVICE.NOTIFICATION_EVENT.PIPE(takeUntil(THIS.NG_UNSUBSCRIBE)).subscribe(async notification => {
+      const toast = await THIS.TOAST_CONTROLLER.CREATE({
+        message: NOTIFICATION.MESSAGE,
         position: "top",
         duration: 2000,
         buttons: [
@@ -95,44 +95,44 @@ export class AppComponent implements OnInit, OnDestroy {
           },
         ],
       });
-      toast.present();
+      TOAST.PRESENT();
     });
 
-    this.platform.ready().then(() => {
+    THIS.PLATFORM.READY().then(() => {
       // OEM colors exist only after ionic is initialized, so the notch color has to be set here
-      const notchColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-background");
-      this.meta.updateTag(
+      const notchColor = getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-background");
+      THIS.META.UPDATE_TAG(
         { name: "theme-color", content: notchColor },
       );
-      this.service.deviceHeight = this.platform.height();
-      this.service.deviceWidth = this.platform.width();
-      this.checkSmartphoneResolution(true);
-      this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-        this.service.deviceHeight = this.platform.height();
-        this.service.deviceWidth = this.platform.width();
-        this.checkSmartphoneResolution(false);
+      THIS.SERVICE.DEVICE_HEIGHT = THIS.PLATFORM.HEIGHT();
+      THIS.SERVICE.DEVICE_WIDTH = THIS.PLATFORM.WIDTH();
+      THIS.CHECK_SMARTPHONE_RESOLUTION(true);
+      THIS.PLATFORM.RESIZE.PIPE(takeUntil(THIS.NG_UNSUBSCRIBE)).subscribe(() => {
+        THIS.SERVICE.DEVICE_HEIGHT = THIS.PLATFORM.HEIGHT();
+        THIS.SERVICE.DEVICE_WIDTH = THIS.PLATFORM.WIDTH();
+        THIS.CHECK_SMARTPHONE_RESOLUTION(false);
       });
     });
 
-    this.title.setTitle(environment.edgeShortName);
+    THIS.TITLE.SET_TITLE(ENVIRONMENT.EDGE_SHORT_NAME);
   }
 
   private checkSmartphoneResolution(init: boolean): void {
     if (init == true) {
-      if (this.platform.width() <= 576) {
-        this.service.isSmartphoneResolution = true;
-        this.service.isSmartphoneResolutionSubject.next(true);
-      } else if (this.platform.width() > 576) {
-        this.service.isSmartphoneResolution = false;
-        this.service.isSmartphoneResolutionSubject.next(false);
+      if (THIS.PLATFORM.WIDTH() <= 576) {
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION = true;
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION_SUBJECT.NEXT(true);
+      } else if (THIS.PLATFORM.WIDTH() > 576) {
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION = false;
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION_SUBJECT.NEXT(false);
       }
     } else {
-      if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
-        this.service.isSmartphoneResolution = true;
-        this.service.isSmartphoneResolutionSubject.next(true);
-      } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
-        this.service.isSmartphoneResolution = false;
-        this.service.isSmartphoneResolutionSubject.next(false);
+      if (THIS.PLATFORM.WIDTH() <= 576 && THIS.SERVICE.IS_SMARTPHONE_RESOLUTION == false) {
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION = true;
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION_SUBJECT.NEXT(true);
+      } else if (THIS.PLATFORM.WIDTH() > 576 && THIS.SERVICE.IS_SMARTPHONE_RESOLUTION == true) {
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION = false;
+        THIS.SERVICE.IS_SMARTPHONE_RESOLUTION_SUBJECT.NEXT(false);
       }
     }
   }

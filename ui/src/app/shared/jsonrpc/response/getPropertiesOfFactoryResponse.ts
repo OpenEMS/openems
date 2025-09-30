@@ -9,8 +9,8 @@ import { JsonrpcResponseSuccess } from "../base";
  *   "jsonrpc": "2.0",
  *   "id": UUID,
  *   "result": {
- *     "factory": EdgeConfig.Factory,
- *     "properties": EdgeConfig.FactoryProperty[]
+ *     "factory": EDGE_CONFIG.FACTORY,
+ *     "properties": EDGE_CONFIG.FACTORY_PROPERTY[]
  *   }
  * }
  * </pre>
@@ -20,8 +20,8 @@ export class GetPropertiesOfFactoryResponse extends JsonrpcResponseSuccess {
     public constructor(
         public override readonly id: string,
         public override readonly result: {
-            factory: EdgeConfig.Factory,
-            properties: EdgeConfig.FactoryProperty[],
+            factory: EDGE_CONFIG.FACTORY,
+            properties: EDGE_CONFIG.FACTORY_PROPERTY[],
         },
     ) {
         super(id, result);

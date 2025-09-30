@@ -1,7 +1,7 @@
-<oe-chart [title]="componentSome.displayName" *ngIf="isInitialized && component && componentSome"
-  [period]="service.historyPeriod.value">
+<oe-chart [title]="COMPONENT_SOME.DISPLAY_NAME" *ngIf="isInitialized && component && componentSome"
+  [period]="SERVICE.HISTORY_PERIOD.VALUE">
 
-  <ng-container [ngSwitch]="componentSome.type">
+  <ng-container [ngSwitch]="COMPONENT_SOME.TYPE">
     <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
     <productionMeterChart *ngSwitchCase="'productionMeter'" [isOnlyChart]="true"></productionMeterChart>
     <chargerChart *ngSwitchCase="'charger'" [isOnlyChart]="true"></chargerChart>

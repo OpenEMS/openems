@@ -6,13 +6,13 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { NavigationService } from "src/app/shared/components/navigation/service/NAVIGATION.SERVICE";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 
 @Component({
     selector: "oe-controller-evse-history",
-    templateUrl: "./history.html",
+    templateUrl: "./HISTORY.HTML",
     standalone: false,
     styles: [
         `
@@ -21,7 +21,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
         }
         `,
     ],
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: VIEW_ENCAPSULATION.NONE,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -45,24 +45,24 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                this.meterId = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id")?.id ?? null;
-                const timeOfUseCtrl = this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
-                this.showStatusChart = timeOfUseCtrl !== null;
+            THIS.ROUTE.PARAMS.PIPE(filter(params => params != null), take(1)).subscribe((params) => {
+                THIS.COMPONENT = CONFIG.GET_COMPONENT(PARAMS.COMPONENT_ID);
+                THIS.METER_ID = THIS.CONFIG.GET_COMPONENT_FROM_OTHER_COMPONENTS_PROPERTY(THIS.COMPONENT.ID, "CHARGE_POINT.ID")?.id ?? null;
+                const timeOfUseCtrl = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.ESS.TIME-Of-Use-Tariff")?.[0] ?? null;
+                THIS.SHOW_STATUS_CHART = timeOfUseCtrl !== null;
                 res();
             });
         });
     }
 
     protected override getFormGroup(): FormGroup {
-        AssertionUtils.assertIsDefined(this.component);
-        return this.formBuilder.group({
-            mode: new FormControl(this.component.properties.mode),
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(THIS.COMPONENT);
+        return THIS.FORM_BUILDER.GROUP({
+            mode: new FormControl(THIS.COMPONENT.PROPERTIES.MODE),
         });
     }
 
     protected hideFooter() {
-        this.showNewFooter = !this.showNewFooter;
+        THIS.SHOW_NEW_FOOTER = !THIS.SHOW_NEW_FOOTER;
     }
 }

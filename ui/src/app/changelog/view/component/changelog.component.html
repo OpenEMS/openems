@@ -5,25 +5,25 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" color="primary" name="today-outline"></ion-icon>
-          <ion-label translate>Menu.changelog</ion-label>
+          <ion-label translate>MENU.CHANGELOG</ion-label>
         </ion-item>
         <ion-card-content>
           <ng-container
-            *ngFor="let changelog of changelogs | slice:0:(showAll ? changelogs.length : slice);  let last = last;">
+            *ngFor="let changelog of changelogs | slice:0:(showAll ? CHANGELOGS.LENGTH : slice);  let last = last;">
             <ion-row>
-              <ion-label *ngIf="changelog.title" style="font-size:large">{{ changelog.title }}</ion-label>
-              <ion-label *ngIf="changelog.version" style="font-size:large">
-                Version {{ changelog.version }}
+              <ion-label *ngIf="CHANGELOG.TITLE" style="font-size:large">{{ CHANGELOG.TITLE }}</ion-label>
+              <ion-label *ngIf="CHANGELOG.VERSION" style="font-size:large">
+                Version {{ CHANGELOG.VERSION }}
               </ion-label>
             </ion-row>
             <ion-row>
               <ul>
-                <ng-container *ngFor="let change of changelog.changes">
-                  <ng-container *ngIf="change.hasOwnProperty('roleIsAtLeast'); else no_roleIsAtLeast">
+                <ng-container *ngFor="let change of CHANGELOG.CHANGES">
+                  <ng-container *ngIf="CHANGE.HAS_OWN_PROPERTY('roleIsAtLeast'); else no_roleIsAtLeast">
                     <!-- Limited to 'roleIsAtLeast' -->
-                    <ng-container *ngIf="(service.metadata | async)?.user as user">
-                      <li *ngIf="roleIsAtLeast(user.globalRole, change.roleIsAtLeast)">
-                        <span [innerHtml]="change.change"></span>
+                    <ng-container *ngIf="(SERVICE.METADATA | async)?.user as user">
+                      <li *ngIf="roleIsAtLeast(USER.GLOBAL_ROLE, CHANGE.ROLE_IS_AT_LEAST)">
+                        <span [innerHtml]="CHANGE.CHANGE"></span>
                         <span style="color: darkgray"><i> (Dieser Eintrag ist nur sichtbar für '{{
                             numberToRole(change['roleIsAtLeast'])
                             }}')</i></span>
@@ -41,7 +41,7 @@
                 -5%;">
             </div>
           </ng-container>
-          <ion-row *ngIf="changelogs.length > slice && !showAll">
+          <ion-row *ngIf="CHANGELOGS.LENGTH > slice && !showAll">
             <ion-col>
               <ion-item lines="none" class="ion-float-right">
                 <ion-button (click)="showAll = true">

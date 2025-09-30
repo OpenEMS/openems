@@ -22,13 +22,13 @@ export class WsData {
    * @param request
    */
   public sendRequest(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
-    if (environment.debugMode) {
+    if (ENVIRONMENT.DEBUG_MODE) {
       if (request instanceof EdgeRpcRequest) {
-        console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
+        CONSOLE.INFO("Request      [" + REQUEST.PARAMS.PAYLOAD.METHOD + ":" + REQUEST.PARAMS.EDGE_ID + "]", REQUEST.PARAMS.PAYLOAD.PARAMS);
       } else if (request instanceof AuthenticateWithPasswordRequest) {
-        console.info("Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
+        CONSOLE.INFO("Request      [" + AUTHENTICATE_WITH_PASSWORD_REQUEST.METHOD + "]");
       } else {
-        console.info("Request      [" + request.method + "]", request.params);
+        CONSOLE.INFO("Request      [" + REQUEST.METHOD + "]", REQUEST.PARAMS);
       }
     }
 
@@ -41,12 +41,12 @@ export class WsData {
     });
 
     // check for existing Promise with this JSON-RPC Request ID
-    if (request.id in this.requestPromises) {
+    if (REQUEST.ID in THIS.REQUEST_PROMISES) {
       promiseReject("ID already exists"); // TODO JSONRPC_ID_NOT_UNIQUE(4000)
 
     } else {
-      this.requestPromises[request.id] = { resolve: promiseResolve, reject: promiseReject };
-      ws.next(request);
+      THIS.REQUEST_PROMISES[REQUEST.ID] = { resolve: promiseResolve, reject: promiseReject };
+      WS.NEXT(request);
     }
 
     return promise;
@@ -59,7 +59,7 @@ export class WsData {
    * @param notification
    */
   public sendNotification(ws: WebSocketSubject<any>, notification: JsonrpcNotification) {
-    ws.next(notification);
+    WS.NEXT(notification);
   }
 
   /**
@@ -68,28 +68,28 @@ export class WsData {
    * @param response
    */
   public handleJsonrpcResponse(response: JsonrpcResponse) {
-    const promise = this.requestPromises[response.id];
+    const promise = THIS.REQUEST_PROMISES[RESPONSE.ID];
     if (promise) {
       // this was a response on a request
       if (response instanceof JsonrpcResponseSuccess) {
         // Success Response -> resolve Promise
-        promise.resolve(response);
+        PROMISE.RESOLVE(response);
 
       } else if (response instanceof JsonrpcResponseError) {
         // Named OpenEMS-Error Response -> reject Promise
-        promise.reject(response);
+        PROMISE.REJECT(response);
 
       } else {
         // Undefined Error Response -> reject Promise
         // TODO use OpenemsError code
-        promise.reject(
-          new JsonrpcResponseError(response.id, {
+        PROMISE.REJECT(
+          new JsonrpcResponseError(RESPONSE.ID, {
             code: 0, message: "Response is neither JsonrpcResponseSuccess nor JsonrpcResponseError: " + response, data: {},
           }));
       }
     } else {
       // TODO throw exception
-      console.warn("Got Response without Request", response);
+      CONSOLE.WARN("Got Response without Request", response);
     }
   }
 }

@@ -7,80 +7,80 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
     selector: "Controller_Ess_GridOptimizedCharge",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    public override component: EdgeConfig.Component | null = null;
+    public override component: EDGE_CONFIG.COMPONENT | null = null;
     public mode: string = "-";
     public state: string = "-";
     public isSellToGridLimitAvoided: boolean = false;
     public sellToGridLimitMinimumChargeLimit: boolean = false;
     public delayChargeMaximumChargeLimit: number | null = null;
-    public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
+    public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(THIS.TRANSLATE);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
+                component: THIS.COMPONENT,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     protected override getChannelAddresses() {
         return [
-            new ChannelAddress(this.componentId, "DelayChargeState"),
-            new ChannelAddress(this.componentId, "SellToGridLimitState"),
-            new ChannelAddress(this.componentId, "DelayChargeMaximumChargeLimit"),
-            new ChannelAddress(this.componentId, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.componentId, "_PropertyMode"),
+            new ChannelAddress(THIS.COMPONENT_ID, "DelayChargeState"),
+            new ChannelAddress(THIS.COMPONENT_ID, "SellToGridLimitState"),
+            new ChannelAddress(THIS.COMPONENT_ID, "DelayChargeMaximumChargeLimit"),
+            new ChannelAddress(THIS.COMPONENT_ID, "SellToGridLimitMinimumChargeLimit"),
+            new ChannelAddress(THIS.COMPONENT_ID, "_PropertyMode"),
         ];
     }
     protected override onCurrentData(currentData: CurrentData) {
-        this.mode = currentData.allComponents[this.component.id + "/_PropertyMode"];
+        THIS.MODE = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/_PropertyMode"];
 
         // Check if Grid feed in limitation is avoided
-        if (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 0 ||
-            (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 3
-                && currentData.allComponents[this.component.id + "/DelayChargeState"] != 0
-                && currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"] > 0)) {
-            this.isSellToGridLimitAvoided = true;
+        if (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SellToGridLimitState"] == 0 ||
+            (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SellToGridLimitState"] == 3
+                && CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/DelayChargeState"] != 0
+                && CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SellToGridLimitMinimumChargeLimit"] > 0)) {
+            THIS.IS_SELL_TO_GRID_LIMIT_AVOIDED = true;
         }
 
-        this.sellToGridLimitMinimumChargeLimit = currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"];
+        THIS.SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SellToGridLimitMinimumChargeLimit"];
 
-        switch (currentData.allComponents[this.component.id + "/DelayChargeState"]) {
+        switch (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/DelayChargeState"]) {
             case -1:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.notDefined");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED");
                 break;
             case 0:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE");
                 break;
             case 1:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME");
                 break;
             case 2:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL");
                 break;
             case 3:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED");
                 break;
             case 4:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE");
                 break;
             case 5:
             case 7:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive");
+                THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
                 break;
-            case 8: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed");
+            case 8: THIS.STATE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");
                 break;
         }
 
-        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
+        THIS.DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/DelayChargeMaximumChargeLimit"];
     }
 
 }

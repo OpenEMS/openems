@@ -23,6 +23,6 @@ export class GetLatestSetupProtocolCoreInfoRequest extends JsonrpcRequest {
             edgeId: string
         },
     ) {
-        super(GetLatestSetupProtocolCoreInfoRequest.METHOD, params);
+        super(GET_LATEST_SETUP_PROTOCOL_CORE_INFO_REQUEST.METHOD, params);
     }
 }

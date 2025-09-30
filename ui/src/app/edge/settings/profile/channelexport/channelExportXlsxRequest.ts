@@ -23,7 +23,7 @@ export class ChannelExportXlsxRequest extends JsonrpcRequest {
             componentId: string
         },
     ) {
-        super(ChannelExportXlsxRequest.METHOD, params);
+        super(CHANNEL_EXPORT_XLSX_REQUEST.METHOD, params);
     }
 
 }

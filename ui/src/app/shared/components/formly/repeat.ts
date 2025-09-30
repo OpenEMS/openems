@@ -3,7 +3,7 @@ import { FieldArrayType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-repeat-section",
-    templateUrl: "./repeat.html",
+    templateUrl: "./REPEAT.HTML",
     standalone: false,
 })
 export class RepeatTypeComponent extends FieldArrayType {
@@ -12,12 +12,12 @@ export class RepeatTypeComponent extends FieldArrayType {
 
     public override add(i?: number, initialModel?: any): void {
         i = Number(i) + 1;
-        super.add(i, initialModel);
-        this.formControl.markAsDirty();
+        SUPER.ADD(i, initialModel);
+        THIS.FORM_CONTROL.MARK_AS_DIRTY();
     }
 
     public override remove(i: number): void {
-        super.remove(i);
-        this.formControl.markAsDirty();
+        SUPER.REMOVE(i);
+        THIS.FORM_CONTROL.MARK_AS_DIRTY();
     }
 }

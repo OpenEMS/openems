@@ -6,15 +6,15 @@ import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
-import { RouteService } from "../../service/route.service";
+import { RouteService } from "../../service/ROUTE.SERVICE";
 import { Edge, Service, Websocket } from "../../shared";
-import { NavigationService } from "../navigation/service/navigation.service";
-import { PickDateComponent } from "../pickdate/pickdate.component";
-import { StatusSingleComponent } from "../status/single/status.component";
+import { NavigationService } from "../navigation/service/NAVIGATION.SERVICE";
+import { PickDateComponent } from "../pickdate/PICKDATE.COMPONENT";
+import { StatusSingleComponent } from "../status/single/STATUS.COMPONENT";
 
 @Component({
     selector: "header",
-    templateUrl: "./header.component.html",
+    templateUrl: "./HEADER.COMPONENT.HTML",
     standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -47,7 +47,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
 
         effect(() => {
-            this.showBackButton = this.navigationService.headerOptions().showBackButton;
+            THIS.SHOW_BACK_BUTTON = THIS.NAVIGATION_SERVICE.HEADER_OPTIONS().showBackButton;
         });
     }
 
@@ -56,164 +56,164 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             return;
         }
         this._customBackUrl = url;
-        this.updateBackUrl(url);
+        THIS.UPDATE_BACK_URL(url);
     }
 
     ngOnInit() {
         // set inital URL
-        this.updateUrl(this.router.routerState.snapshot.url);
+        THIS.UPDATE_URL(THIS.ROUTER.ROUTER_STATE.SNAPSHOT.URL);
         // update backUrl on navigation events
-        this.router.events.pipe(
-            takeUntil(this.ngUnsubscribe),
+        THIS.ROUTER.EVENTS.PIPE(
+            takeUntil(THIS.NG_UNSUBSCRIBE),
             filter(event => event instanceof NavigationEnd),
         ).subscribe(event => {
-            window.scrollTo(0, 0);
-            this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+            WINDOW.SCROLL_TO(0, 0);
+            THIS.UPDATE_URL((<NavigationEnd>event).urlAfterRedirects);
         });
 
     }
 
     // used to prevent 'Expression has changed after it was checked' error
     ngAfterViewChecked() {
-        this.cdRef.detectChanges();
+        THIS.CD_REF.DETECT_CHANGES();
     }
 
     updateUrl(url: string) {
-        this.updateBackUrl(url);
-        this.updateEnableSideMenu(url);
-        this.updateCurrentPage(url);
+        THIS.UPDATE_BACK_URL(url);
+        THIS.UPDATE_ENABLE_SIDE_MENU(url);
+        THIS.UPDATE_CURRENT_PAGE(url);
     }
 
     updateEnableSideMenu(url: string) {
-        const urlArray = url.split("/");
-        const file = urlArray.pop();
+        const urlArray = URL.SPLIT("/");
+        const file = URL_ARRAY.POP();
 
-        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
+        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || URL_ARRAY.LENGTH > 3) {
             // disable side-menu; show back-button instead
-            this.enableSideMenu = false;
+            THIS.ENABLE_SIDE_MENU = false;
         } else {
             // enable side-menu if back-button is not needed
-            this.enableSideMenu = true;
+            THIS.ENABLE_SIDE_MENU = true;
         }
     }
 
     updateBackUrl(url: string) {
 
         if (this._customBackUrl) {
-            this.backUrl = this._customBackUrl;
+            THIS.BACK_URL = this._customBackUrl;
             return;
         }
 
         // disable backUrl & Segment Navigation on initial 'login' page
         if (url === "/login" || url === "/overview" || url === "/index") {
-            this.backUrl = false;
+            THIS.BACK_URL = false;
             return;
         }
 
 
         // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
+        const currentEdge: Edge = THIS.SERVICE.CURRENT_EDGE();
         if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
+            THIS.BACK_URL = "/device/" + CURRENT_EDGE.ID + "/live";
             return;
         }
 
         // set backUrl for user if no edge had been selected
         if (url === "/user") {
-            this.backUrl = "/overview";
+            THIS.BACK_URL = "/overview";
             return;
         }
 
         if (url === "/changelog" && currentEdge != null) {
             // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
+            THIS.BACK_URL = "/device/" + CURRENT_EDGE.ID + "/settings/profile";
             return;
         }
 
-        const urlArray = url.split("/");
+        const urlArray = URL.SPLIT("/");
         let backUrl: string | boolean = "/";
-        const file = urlArray.pop();
+        const file = URL_ARRAY.POP();
 
         // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-        if ((file == "history" || file == "live") && urlArray.length == 3) {
-            this.backUrl = false;
+        if ((file == "history" || file == "live") && URL_ARRAY.LENGTH == 3) {
+            THIS.BACK_URL = false;
             return;
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
-            this.backUrl = false;
+        if (file === "live" && URL_ARRAY.LENGTH == 3 && THIS.ENVIRONMENT.BACKEND === "OpenEMS Edge") {
+            THIS.BACK_URL = false;
             return;
         }
 
         // remove one part of the url for 'index'
         if (file === "live") {
-            urlArray.pop();
+            URL_ARRAY.POP();
         }
 
         // fix url for App "settings/app/install" and "settings/app/update"
-        if (urlArray.slice(-3, -1).join("/") === "settings/app") {
-            urlArray.pop();
+        if (URL_ARRAY.SLICE(-3, -1).join("/") === "settings/app") {
+            URL_ARRAY.POP();
         }
 
         // re-join the url
-        backUrl = urlArray.join("/") || "/";
+        backUrl = URL_ARRAY.JOIN("/") || "/";
 
         // correct path for '/device/[edgeId]/index'
         if (backUrl === "/device") {
             backUrl = "/";
         }
-        this.backUrl = backUrl;
+        THIS.BACK_URL = backUrl;
     }
 
     updateCurrentPage(url: string) {
-        const urlArray = url.split("/");
-        let file = urlArray.pop();
-        if (urlArray.length >= 4) {
+        const urlArray = URL.SPLIT("/");
+        let file = URL_ARRAY.POP();
+        if (URL_ARRAY.LENGTH >= 4) {
             file = urlArray[3];
         }
         // Enable Segment Navigation for Edge-Index-Page
-        if ((file == "history" || file == "live") && urlArray.length == 3) {
+        if ((file == "history" || file == "live") && URL_ARRAY.LENGTH == 3) {
             if (file == "history") {
-                this.currentPage = "IndexHistory";
+                THIS.CURRENT_PAGE = "IndexHistory";
             } else {
-                this.currentPage = "IndexLive";
+                THIS.CURRENT_PAGE = "IndexLive";
             }
-        } else if (file == "settings" && urlArray.length > 1) {
-            this.currentPage = "EdgeSettings";
+        } else if (file == "settings" && URL_ARRAY.LENGTH > 1) {
+            THIS.CURRENT_PAGE = "EdgeSettings";
         }
         else {
-            this.currentPage = "Other";
+            THIS.CURRENT_PAGE = "Other";
         }
     }
 
     public segmentChanged(event) {
-        if (event.detail.value == "IndexLive") {
-            this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
-            this.cdRef.detectChanges();
+        if (EVENT.DETAIL.VALUE == "IndexLive") {
+            THIS.NAV_CTRL.NAVIGATE_ROOT(["/device/" + THIS.SERVICE.CURRENT_EDGE().id + "/live"], { replaceUrl: true });
+            THIS.CD_REF.DETECT_CHANGES();
         }
-        if (event.detail.value == "IndexHistory") {
+        if (EVENT.DETAIL.VALUE == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/history"]);
-            this.cdRef.detectChanges();
+            // THIS.ROUTER.NAVIGATE(["../history"], { relativeTo: THIS.ROUTE });
+            THIS.NAV_CTRL.NAVIGATE_ROOT(["/device/" + THIS.SERVICE.CURRENT_EDGE().id + "/history"]);
+            THIS.CD_REF.DETECT_CHANGES();
         }
     }
 
     async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
+        const modal = await THIS.MODAL_CTRL.CREATE({
             component: StatusSingleComponent,
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
+        THIS.NG_UNSUBSCRIBE.NEXT();
+        THIS.NG_UNSUBSCRIBE.COMPLETE();
     }
 
     protected toggleMenu() {
-        this.menu.toggle();
+        THIS.MENU.TOGGLE();
     }
 }

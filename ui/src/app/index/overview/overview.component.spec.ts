@@ -8,36 +8,36 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { Theme } from "src/app/edge/history/shared";
-import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
-import { UserService } from "src/app/shared/service/user.service";
+import { UserService } from "src/app/shared/service/USER.SERVICE";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
-import { registerTranslateExtension } from "src/app/shared/translate.extension";
+import { registerTranslateExtension } from "src/app/shared/TRANSLATE.EXTENSION";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
-import { OverViewComponent } from "./overview.component";
+import { OverViewComponent } from "./OVERVIEW.COMPONENT";
 
 describe("OverviewComponent", () => {
     let component: OverViewComponent;
     let fixture: ComponentFixture<OverViewComponent>;
-    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges"], {
+    const serviceSpyObject = JASMINE.CREATE_SPY_OBJ<Service>("Service", ["getCurrentEdge", "getEdges"], {
         metadata: new BehaviorSubject({
             edges: null,
             user: null,
         }),
         getEdges(): Promise<Edge[]> {
-            return Promise.resolve([]);
+            return PROMISE.RESOLVE([]);
         },
     });
 
-    const userServiceSpyObj = jasmine.createSpyObj<UserService>("UserService", ["currentUser"], {
-        currentUser: signal(new User("", "", "admin", "", true, { theme: Theme.LIGHT })),
+    const userServiceSpyObj = JASMINE.CREATE_SPY_OBJ<UserService>("UserService", ["currentUser"], {
+        currentUser: signal(new User("", "", "admin", "", true, { theme: THEME.LIGHT })),
     });
 
     beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+        await TEST_BED.CONFIGURE_TESTING_MODULE({
+            imports: [TRANSLATE_MODULE.FOR_ROOT({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: LANGUAGE.DEFAULT.KEY, useDefaultLang: false }),
             ],
             declarations: [OverViewComponent],
             providers: [
@@ -46,37 +46,37 @@ describe("OverviewComponent", () => {
                 Websocket,
                 TranslateService,
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
-                { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+                { provide: LOCALE_ID, useValue: LANGUAGE.DEFAULT.KEY },
                 Pagination,
                 Utils,
                 IonicModule,
                 Router,
             ],
         }).compileComponents().then(() => {
-            fixture = TestBed.createComponent(OverViewComponent);
-            component = fixture.componentInstance;
-            fixture.detectChanges();
+            fixture = TEST_BED.CREATE_COMPONENT(OverViewComponent);
+            component = FIXTURE.COMPONENT_INSTANCE;
+            FIXTURE.DETECT_CHANGES();
         });
     });
 
     it("+loggedInUserCanInstall & ibn-button exists - Global role ADMIN", async () => {
         const button = await getIbnButtonElement(component, fixture, "installer");
-        expect(component.loggedInUserCanInstall).toEqual(true);
+        expect(COMPONENT.LOGGED_IN_USER_CAN_INSTALL).toEqual(true);
         expect(button).toBeTruthy();
     });
 
     it("+loggedInUserCanInstall & ibn-button doesnt exist - Global role OWNER", async () => {
         const button = await getIbnButtonElement(component, fixture, "owner");
-        expect(component.loggedInUserCanInstall).toEqual(false);
+        expect(COMPONENT.LOGGED_IN_USER_CAN_INSTALL).toEqual(false);
         expect(button).toBeNull();
     });
 
     async function getIbnButtonElement(component: OverViewComponent, fixture: ComponentFixture<OverViewComponent>, globalRole: "installer" | "owner") {
-        serviceSpyObject.metadata.next({
-            edges: { ["edge0"]: DummyConfig.dummyEdge({ role: Role.INSTALLER }) },
+        SERVICE_SPY_OBJECT.METADATA.NEXT({
+            edges: { ["edge0"]: DUMMY_CONFIG.DUMMY_EDGE({ role: ROLE.INSTALLER }) },
             user: {
-                globalRole: globalRole, hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {}, getThemeFromSettings() {
-                    return Theme.LIGHT;
+                globalRole: globalRole, hasMultipleEdges: true, id: "", language: LANGUAGE.DE.KEY, name: "TEST.USER", settings: {}, getThemeFromSettings() {
+                    return THEME.LIGHT;
                 },
                 isAtLeast(role) {
                     return true;
@@ -90,10 +90,10 @@ describe("OverviewComponent", () => {
             },
         });
 
-        component.ionViewWillEnter();
-        await fixture.whenStable();
-        fixture.detectChanges();
+        COMPONENT.ION_VIEW_WILL_ENTER();
+        await FIXTURE.WHEN_STABLE();
+        FIXTURE.DETECT_CHANGES();
         const { debugElement } = fixture;
-        return debugElement.query(By.css("[testId=\"ibn-button\"]"));
+        return DEBUG_ELEMENT.QUERY(BY.CSS("[testId=\"ibn-button\"]"));
     }
 });

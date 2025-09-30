@@ -21,7 +21,7 @@ export class ConverterPipe implements PipeTransform {
 
         // Converter not provided, returns prev value
         if (!converter) {
-            return value.toString();
+            return VALUE.TO_STRING();
         }
         return converter(value);
     }

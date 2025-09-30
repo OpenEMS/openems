@@ -6,9 +6,9 @@ import { RouterModule, Routes } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
-import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
-import { DetailsOverviewComponent } from "./details/details.overview";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-ERROR.MODULE";
+import { PickdateComponentModule } from "src/app/shared/components/pickdate/PICKDATE.MODULE";
+import { DetailsOverviewComponent } from "./details/DETAILS.OVERVIEW";
 import { OverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
@@ -26,7 +26,7 @@ const routes: Routes = [
     IonicModule,
     TranslateModule,
     PickdateComponentModule,
-    RouterModule.forChild(routes),
+    ROUTER_MODULE.FOR_CHILD(routes),
     HistoryDataErrorModule,
     NgxSpinnerModule,
     OverviewComponent,

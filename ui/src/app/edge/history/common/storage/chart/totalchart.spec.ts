@@ -1,26 +1,26 @@
-import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
-import { History } from "src/app/shared/components/shared/testing/channels.spec";
+import { DummyConfig } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
+import { History } from "src/app/shared/components/shared/testing/CHANNELS.SPEC";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { ChartConstants } from "src/app/shared/shared";
 import { ChartAxis } from "src/app/shared/utils/utils";
-import { DATA, LABELS } from "../../energy/chart/chart.constants.spec";
-import { expectTotalChartViewToEqual } from "../shared/chart.constants.spec";
+import { DATA, LABELS } from "../../energy/chart/CHART.CONSTANTS.SPEC";
+import { expectTotalChartViewToEqual } from "../shared/CHART.CONSTANTS.SPEC";
 
 describe("History TotalChart", () => {
-    const defaultEMS = DummyConfig.from(
-        DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
+    const defaultEMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
     );
 
     let TEST_CONTEXT: TestContext;
     beforeEach(async () =>
-        TEST_CONTEXT = await TestingUtils.sharedSetup(),
+        TEST_CONTEXT = await TESTING_UTILS.SHARED_SETUP(),
     );
 
     it("#getChartData()", () => {
         {
             // Line-Chart, showPhases is set to false.
-            expectTotalChartViewToEqual(TEST_CONTEXT, "line", History.DAY,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "line", HISTORY.DAY,
                 {
                     datasets: {
                         data: [
@@ -28,17 +28,17 @@ describe("History TotalChart", () => {
                             DATA("Entladung: 0 kWh", [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
                             DATA("Ladezustand", [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 12, 12, 12, 11, 11, 11, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]),
                         ],
-                        labels: LABELS(History.DAY.dataChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.MULTI_LINE_OPTIONS("hour", "line", {
-                            [ChartAxis.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
+                        labels: LABELS(HISTORY.DAY.DATA_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.MULTI_LINE_OPTIONS("hour", "line", {
+                            [CHART_AXIS.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
                         }),
                     },
-                }, Array.of(Object.values(defaultEMS.components)[0]), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, defaultEMS);
+                }, ARRAY.OF(OBJECT.VALUES(DEFAULT_EMS.COMPONENTS)[0]), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, defaultEMS);
         }
 
         {
             // Line-Chart, showPhases is set to false.
-            expectTotalChartViewToEqual(TEST_CONTEXT, "line", History.WEEK,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "line", HISTORY.WEEK,
                 {
                     datasets: {
                         data: [
@@ -46,21 +46,21 @@ describe("History TotalChart", () => {
                             DATA("Entladung: 13,7 kWh", [0.027956773446545735, 0.02793238434163701, 0.028003065134099617, 0.02795220588235294, 0.027998854961832062, 0.028116988416988415, 0.027987117552334944, 0.028404306220095696, 0.02210508757297748, 0.02458289572393098, 0.025521831735889244, 0.03394027565084227, 0.06640016920473774, 0.07485995085995086, 0.05630216802168022, 0.040562390158172236, 0.042727272727272725, 0.04185823488533704, 0.02956647864625302, 0.02693582887700535, 0.029227223427331885, 0.031081920903954802, 0.02950079575596817, 0.02929895178197065, 0.02774064837905237, 0.027340638930163447, 0.027272103350827612, 0.027199391171993912, 0.02697577592732778, 0.02688116057233704, 0.02704352806414662, 0.026709154929577466, 0.024765209940017137, 0.020726594301221167, 0.024283930058284765, 0.027086363636363638, 0.04770666666666666, 0.05307067510548523, 0.05273466476462197, 0.054757768924302785, 0.05023135033050047, 0.041280141843971635, 0.03150934119960669, 0.026471978392977717, 0.031050412465627866, 0.029384710234278667, 0.02795327604726101, 0.028357904496986556, 0.025564085881587508, null, 0.026944094488188977, 0.027036082474226807, 0.026367164179104476, 0.025185562632696393, 0.026994444444444442, 0.025911782850092536, 0.01343197071384991, 0.024309846431797653, 0.02523471223021583, 0.026126705653021443, 0.06064339781328848, 0.03996433289299867, 0.037667578659370725, 0.050665427509293676, 0.04189218523878437, 0.02988109495295124, 0.02693968253968254, 0.025741935483870968, 0.028640000000000002, 0.031331460674157305, 0.030017262638717634, 0.028636402753872633, 0.028408956692913385, 0.02814567233384853, 0.02825509028044564, 0.028126129666011787, 0.028175675675675676, 0.027409126063418405, 0.027549439844130538, 0.027246363209760677, 0.02296663244353183, 0.02165732959850607, 0.022306306306306308, 0.025892307692307694, 0.0518, 0.05290322580645162, 0.05902597402597402, 0.03935110294117647, 0.03387375113533152, 0.02998160073597056, 0.0264819734345351, 0.029473684210526315, 0.028432854465958775, 0.029162214983713356, 0.028663861386138613, 0.02823558082859464, 0.028460033305578683, 0.029076231430805316, 0.028803389830508477, 0.02862062404870624, 0.028578023655093474, 0.02837057010785824, 0.02746546431312356, 0.027873293515358364, 0.025733505154639177, 0.02635780287474333, 0.027692853246044733, 0.024205128205128205, null, 0.026746031746031747, 0.023178571428571427, 0.026168618266978923, 0.028333646616541353, 0.026758232235701906, 0.023993934142114384, 0.02471902131018153, 0.02823051948051948, 0.028745721271393642, 0.028485825458588104, 0.02822232263895165, 0.028392755392755393, 0.028338354151359293, 0.027164207340143777, 0.02694932432432432, 0.026942610652663165, 0.027809220389805097, 0.027980593607305936, 0.02826596758817922, 0.029656794425087108, 0.025145056246299584, 0.02520321410057024, 0.02882728749323227, 0.03222576966932725, 0.031200444197667963, 0.030594259988745078, 0.04334990059642147, 0.04615876288659794, 0.03340802469135802, 0.027489320388349517, 0.025818808777429467, 0.02795967741935484, 0.028969951391957578, 0.027549955791335103, 0.02834137055837563, 0.028250760538896132, 0.027812838360402166, 0.02810333080999243, 0.027840314136125657, 0.027800384615384616, 0.027979583975346688, 0.027235769230769234, 0.026924960505529224, 0.029038479809976248, 0.02793128390596745, 0.03410349373764008, 0.0327387339055794, 0.029509929906542054, 0.03700855745721272, 0.03224008574490889, 0.02770136363636364, 0.030787037037037036, 0.025786028602860285, 0.029997148966500357, 0.03289406099518459, 0.03532872928176795, 0.025655647382920112, 0.02746238030095759, 0.02827226647356988]),
                             DATA("Ladezustand", [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.666666666666666, 13.75, 10.75, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.583333333333334, 10.25, 11.416666666666666, 10.583333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.25, 11.166666666666666, 10.083333333333334, 11.333333333333334, 10.916666666666666, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.166666666666666, 12.416666666666666, 16.083333333333332, 17.166666666666668, 12.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.916666666666666, 19.916666666666668, 31.75, 39.333333333333336, 39.916666666666664, 32, 21.916666666666668, 13.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.5, 10, 10, 10.833333333333334, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10]),
                         ],
-                        labels: LABELS(History.WEEK.dataChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.MULTI_LINE_OPTIONS("day", "line", {
-                            [ChartAxis.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
+                        labels: LABELS(HISTORY.WEEK.DATA_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.MULTI_LINE_OPTIONS("day", "line", {
+                            [CHART_AXIS.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
                         }),
                     },
-                }, Array.of(Object.values(defaultEMS.components)[0]), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, defaultEMS);
+                }, ARRAY.OF(OBJECT.VALUES(DEFAULT_EMS.COMPONENTS)[0]), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, defaultEMS);
         }
 
         {
             // Emergency Reserve activated
-            const emergencyReserveConfig = DummyConfig.from(
-                DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
-                DummyConfig.Component.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({ essId: "ess2" }),
+            const emergencyReserveConfig = DUMMY_CONFIG.FROM(
+                DUMMY_CONFIG.COMPONENT.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
+                DUMMY_CONFIG.COMPONENT.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({ essId: "ess2" }),
             );
-            expectTotalChartViewToEqual(TEST_CONTEXT, "line", History.WEEK,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "line", HISTORY.WEEK,
                 {
                     datasets: {
                         data: [
@@ -69,20 +69,20 @@ describe("History TotalChart", () => {
                             DATA("Ladezustand", [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.666666666666666, 13.75, 10.75, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.583333333333334, 10.25, 11.416666666666666, 10.583333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.25, 11.166666666666666, 10.083333333333334, 11.333333333333334, 10.916666666666666, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.166666666666666, 12.416666666666666, 16.083333333333332, 17.166666666666668, 12.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.916666666666666, 19.916666666666668, 31.75, 39.333333333333336, 39.916666666666664, 32, 21.916666666666668, 13.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.5, 10, 10, 10.833333333333334, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10]),
                             DATA("Notstromreserve", [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]),
                         ],
-                        labels: LABELS(History.WEEK.dataChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.MULTI_LINE_OPTIONS("day", "line", {
-                            [ChartAxis.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
+                        labels: LABELS(HISTORY.WEEK.DATA_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.MULTI_LINE_OPTIONS("day", "line", {
+                            [CHART_AXIS.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
                         }),
                     },
-                }, Array.of(Object.values(defaultEMS.components)[0]), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, emergencyReserveConfig);
+                }, ARRAY.OF(OBJECT.VALUES(DEFAULT_EMS.COMPONENTS)[0]), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, emergencyReserveConfig);
         }
         {
             // Emergency Reserve deactivated
-            const emergencyReserveConfig = DummyConfig.from(
-                DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
-                DummyConfig.Component.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({ essId: "ess2", isReserveSocEnabled: false }),
+            const emergencyReserveConfig = DUMMY_CONFIG.FROM(
+                DUMMY_CONFIG.COMPONENT.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
+                DUMMY_CONFIG.COMPONENT.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE({ essId: "ess2", isReserveSocEnabled: false }),
             );
-            expectTotalChartViewToEqual(TEST_CONTEXT, "line", History.WEEK,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "line", HISTORY.WEEK,
                 {
                     datasets: {
                         data: [
@@ -90,48 +90,48 @@ describe("History TotalChart", () => {
                             DATA("Entladung: 13,7 kWh", [0.027956773446545735, 0.02793238434163701, 0.028003065134099617, 0.02795220588235294, 0.027998854961832062, 0.028116988416988415, 0.027987117552334944, 0.028404306220095696, 0.02210508757297748, 0.02458289572393098, 0.025521831735889244, 0.03394027565084227, 0.06640016920473774, 0.07485995085995086, 0.05630216802168022, 0.040562390158172236, 0.042727272727272725, 0.04185823488533704, 0.02956647864625302, 0.02693582887700535, 0.029227223427331885, 0.031081920903954802, 0.02950079575596817, 0.02929895178197065, 0.02774064837905237, 0.027340638930163447, 0.027272103350827612, 0.027199391171993912, 0.02697577592732778, 0.02688116057233704, 0.02704352806414662, 0.026709154929577466, 0.024765209940017137, 0.020726594301221167, 0.024283930058284765, 0.027086363636363638, 0.04770666666666666, 0.05307067510548523, 0.05273466476462197, 0.054757768924302785, 0.05023135033050047, 0.041280141843971635, 0.03150934119960669, 0.026471978392977717, 0.031050412465627866, 0.029384710234278667, 0.02795327604726101, 0.028357904496986556, 0.025564085881587508, null, 0.026944094488188977, 0.027036082474226807, 0.026367164179104476, 0.025185562632696393, 0.026994444444444442, 0.025911782850092536, 0.01343197071384991, 0.024309846431797653, 0.02523471223021583, 0.026126705653021443, 0.06064339781328848, 0.03996433289299867, 0.037667578659370725, 0.050665427509293676, 0.04189218523878437, 0.02988109495295124, 0.02693968253968254, 0.025741935483870968, 0.028640000000000002, 0.031331460674157305, 0.030017262638717634, 0.028636402753872633, 0.028408956692913385, 0.02814567233384853, 0.02825509028044564, 0.028126129666011787, 0.028175675675675676, 0.027409126063418405, 0.027549439844130538, 0.027246363209760677, 0.02296663244353183, 0.02165732959850607, 0.022306306306306308, 0.025892307692307694, 0.0518, 0.05290322580645162, 0.05902597402597402, 0.03935110294117647, 0.03387375113533152, 0.02998160073597056, 0.0264819734345351, 0.029473684210526315, 0.028432854465958775, 0.029162214983713356, 0.028663861386138613, 0.02823558082859464, 0.028460033305578683, 0.029076231430805316, 0.028803389830508477, 0.02862062404870624, 0.028578023655093474, 0.02837057010785824, 0.02746546431312356, 0.027873293515358364, 0.025733505154639177, 0.02635780287474333, 0.027692853246044733, 0.024205128205128205, null, 0.026746031746031747, 0.023178571428571427, 0.026168618266978923, 0.028333646616541353, 0.026758232235701906, 0.023993934142114384, 0.02471902131018153, 0.02823051948051948, 0.028745721271393642, 0.028485825458588104, 0.02822232263895165, 0.028392755392755393, 0.028338354151359293, 0.027164207340143777, 0.02694932432432432, 0.026942610652663165, 0.027809220389805097, 0.027980593607305936, 0.02826596758817922, 0.029656794425087108, 0.025145056246299584, 0.02520321410057024, 0.02882728749323227, 0.03222576966932725, 0.031200444197667963, 0.030594259988745078, 0.04334990059642147, 0.04615876288659794, 0.03340802469135802, 0.027489320388349517, 0.025818808777429467, 0.02795967741935484, 0.028969951391957578, 0.027549955791335103, 0.02834137055837563, 0.028250760538896132, 0.027812838360402166, 0.02810333080999243, 0.027840314136125657, 0.027800384615384616, 0.027979583975346688, 0.027235769230769234, 0.026924960505529224, 0.029038479809976248, 0.02793128390596745, 0.03410349373764008, 0.0327387339055794, 0.029509929906542054, 0.03700855745721272, 0.03224008574490889, 0.02770136363636364, 0.030787037037037036, 0.025786028602860285, 0.029997148966500357, 0.03289406099518459, 0.03532872928176795, 0.025655647382920112, 0.02746238030095759, 0.02827226647356988]),
                             DATA("Ladezustand", [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.666666666666666, 13.75, 10.75, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.583333333333334, 10.25, 11.416666666666666, 10.583333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.25, 11.166666666666666, 10.083333333333334, 11.333333333333334, 10.916666666666666, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.166666666666666, 12.416666666666666, 16.083333333333332, 17.166666666666668, 12.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11.916666666666666, 19.916666666666668, 31.75, 39.333333333333336, 39.916666666666664, 32, 21.916666666666668, 13.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10.5, 10, 10, 10.833333333333334, 10.083333333333334, 10, 10, 10, 10, 10, 10, 10, 10]),
                         ],
-                        labels: LABELS(History.WEEK.dataChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.MULTI_LINE_OPTIONS("day", "line", {
-                            [ChartAxis.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
+                        labels: LABELS(HISTORY.WEEK.DATA_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.MULTI_LINE_OPTIONS("day", "line", {
+                            [CHART_AXIS.RIGHT]: { scale: { beginAtZero: true, title: { text: "%" }, grid: { display: true }, type: "linear" } },
                         }),
                     },
-                }, Array.of(Object.values(defaultEMS.components)[0]), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, emergencyReserveConfig);
+                }, ARRAY.OF(OBJECT.VALUES(DEFAULT_EMS.COMPONENTS)[0]), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, emergencyReserveConfig);
         }
 
         {
             // Bar-Chart, showPhases is set to false.
-            expectTotalChartViewToEqual(TEST_CONTEXT, "bar", History.YEAR,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "bar", HISTORY.YEAR,
                 {
                     datasets: {
                         data: [
                             DATA("Beladung: 1.205,4 kWh", [119.370, 181.427, 336.099, 29.022, 468.619, 70.836, null, null, null, null, null, null]),
                             DATA("Entladung: 1.063,2 kWh", [101.231, 145.815, 293.974, 30.014, 441.409, 50.797, null, null, null, null, null, null]),
                         ],
-                        labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("month", "bar", {}),
+                        labels: LABELS(HISTORY.YEAR.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.BAR_CHART_OPTIONS("month", "bar", {}),
                     },
-                }, Array.of(Object.values(defaultEMS.components)[0]), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, defaultEMS);
+                }, ARRAY.OF(OBJECT.VALUES(DEFAULT_EMS.COMPONENTS)[0]), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, defaultEMS);
         }
 
         // Two ess, bar-chart
         {
-            const EMS = DummyConfig.from(
-                DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess1"),
-                DummyConfig.Component.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
+            const EMS = DUMMY_CONFIG.FROM(
+                DUMMY_CONFIG.COMPONENT.ESS_GENERIC_MANAGEDSYMMETRIC("ess1"),
+                DUMMY_CONFIG.COMPONENT.ESS_GENERIC_MANAGEDSYMMETRIC("ess2"),
             );
 
             // Bar-Chart, showPhases is set to false.
-            expectTotalChartViewToEqual(TEST_CONTEXT, "bar", History.YEAR,
+            expectTotalChartViewToEqual(TEST_CONTEXT, "bar", HISTORY.YEAR,
                 {
                     datasets: {
                         data: [
                             DATA("Beladung: 1.205,4 kWh", [119.370, 181.427, 336.099, 29.022, 468.619, 70.836, null, null, null, null, null, null]),
                             DATA("Entladung: 1.063,2 kWh", [101.231, 145.815, 293.974, 30.014, 441.409, 50.797, null, null, null, null, null, null]),
                         ],
-                        labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues?.result?.timestamps ?? []),
-                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("month", "bar", {}),
+                        labels: LABELS(HISTORY.YEAR.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES?.result?.timestamps ?? []),
+                        options: OE_TESTER.CHART_OPTIONS.BAR_CHART_OPTIONS("month", "bar", {}),
                     },
-                }, Object.values(EMS.components), false, ChartConstants.Colors.DEFAULT_PHASES_COLORS, EMS);
+                }, OBJECT.VALUES(EMS.COMPONENTS), false, CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS, EMS);
         }
     });
 });

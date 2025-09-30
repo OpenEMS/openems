@@ -4,18 +4,18 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
     selector: "oe-controller-io-heating-room",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: ModalComponent,
             componentProps: {
-                component: this.component,
+                component: THIS.COMPONENT,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 }

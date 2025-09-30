@@ -26,7 +26,7 @@ import { States } from "../ngrx-store/states";
 import { Language } from "../type/language";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
-import { UserService } from "./user.service";
+import { UserService } from "./USER.SERVICE";
 import { WsData } from "./wsdata";
 
 @Injectable()
@@ -59,11 +59,11 @@ export class Websocket implements WebsocketInterface {
     private userService: UserService,
     private pagination: Pagination,
   ) {
-    service.websocket = this;
+    SERVICE.WEBSOCKET = this;
 
     // try to auto connect using token or session_id
     setTimeout(() => {
-      this.connect();
+      THIS.CONNECT();
     });
   }
 
@@ -75,48 +75,48 @@ export class Websocket implements WebsocketInterface {
    */
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
-      this.sendRequest(request).then(r => {
-        this.state.set(States.AUTHENTICATED);
+      THIS.SEND_REQUEST(request).then(r => {
+        THIS.STATE.SET(STATES.AUTHENTICATED);
         const authenticateResponse = (r as AuthenticateResponse).result;
 
         if (request instanceof AuthenticateWithPasswordRequest) {
-          if (Capacitor.getPlatform() === "ios") {
-            SavePassword.promptDialog({
-              username: request.params.username,
-              password: request.params.password,
+          if (CAPACITOR.GET_PLATFORM() === "ios") {
+            SAVE_PASSWORD.PROMPT_DIALOG({
+              username: REQUEST.PARAMS.USERNAME,
+              password: REQUEST.PARAMS.PASSWORD,
             });
           }
         }
 
-        const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
-        localStorage.LANGUAGE = language.key;
-        this.service.setLang(language);
-        this.status = "online";
+        const language = LANGUAGE.GET_BY_KEY(localStorage.DEMO_LANGUAGE ?? AUTHENTICATE_RESPONSE.USER.LANGUAGE.TO_LOCALE_LOWER_CASE());
+        LOCAL_STORAGE.LANGUAGE = LANGUAGE.KEY;
+        THIS.SERVICE.SET_LANG(language);
+        THIS.STATUS = "online";
 
         // received login token -> save in cookie
-        this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
-        this.userService.currentUser.set(User.from(authenticateResponse.user));
+        THIS.COOKIE_SERVICE.SET("token", AUTHENTICATE_RESPONSE.TOKEN, { expires: 365, path: "/", sameSite: "Strict", secure: LOCATION.PROTOCOL === "https:" });
+        THIS.USER_SERVICE.CURRENT_USER.SET(USER.FROM(AUTHENTICATE_RESPONSE.USER));
         // Metadata
-        this.service.metadata.next({
-          user: authenticateResponse.user,
+        THIS.SERVICE.METADATA.NEXT({
+          user: AUTHENTICATE_RESPONSE.USER,
           edges: {},
         });
 
         // Resubscribe Channels
-        this.service.getCurrentEdge().then(edge => {
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
 
-          this.pagination.getAndSubscribeEdge(edge).then(() => {
-            edge.subscribeChannelsSuccessful = true;
+          THIS.PAGINATION.GET_AND_SUBSCRIBE_EDGE(edge).then(() => {
+            EDGE.SUBSCRIBE_CHANNELS_SUCCESSFUL = true;
             if (edge != null) {
-              edge.subscribeChannelsOnReconnect(this);
+              EDGE.SUBSCRIBE_CHANNELS_ON_RECONNECT(this);
             }
           });
         });
 
-        this.router.initialNavigation();
+        THIS.ROUTER.INITIAL_NAVIGATION();
         resolve();
       }).catch(reason => {
-        this.checkErrorCode(reason);
+        THIS.CHECK_ERROR_CODE(reason);
         resolve();
       });
     });
@@ -126,10 +126,10 @@ export class Websocket implements WebsocketInterface {
    * Logs out by sending a logout JSON-RPC Request.
    */
   public logout() {
-    this.sendRequest(new LogoutRequest()).then(response => {
-      this.onLoggedOut();
+    THIS.SEND_REQUEST(new LogoutRequest()).then(response => {
+      THIS.ON_LOGGED_OUT();
     }).catch(reason => {
-      console.error(reason);
+      CONSOLE.ERROR(reason);
     });
   }
 
@@ -141,34 +141,34 @@ export class Websocket implements WebsocketInterface {
   public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
     if (
       // logged in + normal operation
-      this.status == "online"
+      THIS.STATUS == "online"
       // otherwise only authentication request allowed
       || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
 
       return new Promise((resolve, reject) => {
-        this.wsdata.sendRequest(this.socket, request).then(response => {
-          if (environment.debugMode) {
+        THIS.WSDATA.SEND_REQUEST(THIS.SOCKET, request).then(response => {
+          if (ENVIRONMENT.DEBUG_MODE) {
             if (request instanceof EdgeRpcRequest) {
-              console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result["payload"]["result"]);
+              CONSOLE.INFO("Response     [" + REQUEST.PARAMS.PAYLOAD.METHOD + ":" + REQUEST.PARAMS.EDGE_ID + "]", RESPONSE.RESULT["payload"]["result"]);
             } else {
-              console.info("Response     [" + request.method + "]", response.result);
+              CONSOLE.INFO("Response     [" + REQUEST.METHOD + "]", RESPONSE.RESULT);
             }
           }
           resolve(response);
 
         }).catch(reason => {
-          if (environment.debugMode) {
+          if (ENVIRONMENT.DEBUG_MODE) {
             if (reason instanceof JsonrpcResponseError) {
-              console.warn("Request failed [" + request.method + "]", reason.error);
+              CONSOLE.WARN("Request failed [" + REQUEST.METHOD + "]", REASON.ERROR);
 
-              if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
-                const edges = this.service.metadata.value?.edges ?? {};
-                if (request.params.edgeId in edges) {
-                  edges[request.params.edgeId].isOnline = false;
+              if (request instanceof EdgeRpcRequest && REASON.ERROR?.code == 3000 /* Edge is not connected */) {
+                const edges = THIS.SERVICE.METADATA.VALUE?.edges ?? {};
+                if (REQUEST.PARAMS.EDGE_ID in edges) {
+                  edges[REQUEST.PARAMS.EDGE_ID].isOnline = false;
                 }
               }
             } else {
-              console.warn("Request failed [" + request.method + "]", reason);
+              CONSOLE.WARN("Request failed [" + REQUEST.METHOD + "]", reason);
             }
           }
           reject(reason);
@@ -177,7 +177,7 @@ export class Websocket implements WebsocketInterface {
       });
 
     } else {
-      return Promise.reject("Websocket is not connected or authenticated! Unable to send Request: " + JSON.stringify(request));
+      return PROMISE.REJECT("Websocket is not connected or authenticated! Unable to send Request: " + JSON.STRINGIFY(request));
     }
   }
 
@@ -192,9 +192,9 @@ export class Websocket implements WebsocketInterface {
       const interval = setInterval(() => {
 
         // TODO: Status should be Observable, furthermore status should be like state-machine
-        if (this.status == "online") {
+        if (THIS.STATUS == "online") {
           clearInterval(interval);
-          this.sendRequest(request)
+          THIS.SEND_REQUEST(request)
             .then((response) => resolve(response))
             .catch((err) => reject(err));
         }
@@ -208,139 +208,139 @@ export class Websocket implements WebsocketInterface {
    * @param notification the JSON-RPC Notification
    */
   public sendNotification(notification: JsonrpcNotification): void {
-    if (this.status != "online") {
-      console.warn("Websocket is not connected! Unable to send Notification", notification);
+    if (THIS.STATUS != "online") {
+      CONSOLE.WARN("Websocket is not connected! Unable to send Notification", notification);
     }
-    this.wsdata.sendNotification(this.socket, notification);
+    THIS.WSDATA.SEND_NOTIFICATION(THIS.SOCKET, notification);
   }
 
   /**
  * Opens a connection using a stored token. Called once by constructor
  */
   private connect() {
-    this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
-    if (this.status != "initial") {
+    THIS.STATE.SET(States.WEBSOCKET_NOT_YET_CONNECTED);
+    if (THIS.STATUS != "initial") {
       return;
     }
     // trying to connect
-    this.state.set(States.WEBSOCKET_CONNECTING);
-    this.status = "connecting";
+    THIS.STATE.SET(States.WEBSOCKET_CONNECTING);
+    THIS.STATUS = "connecting";
 
-    if (environment.debugMode) {
-      console.info("Websocket connecting to URL [" + environment.url + "]");
+    if (ENVIRONMENT.DEBUG_MODE) {
+      CONSOLE.INFO("Websocket connecting to URL [" + ENVIRONMENT.URL + "]");
     }
 
     /*
     * Open Websocket connection + define onOpen/onClose callbacks.
     */
-    this.socket = webSocket({
-      url: environment.url,
+    THIS.SOCKET = webSocket({
+      url: ENVIRONMENT.URL,
       openObserver: {
         next: (value) => {
-          this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
+          THIS.STATE.SET(States.WEBSOCKET_NOT_YET_CONNECTED);
           // Websocket connection is open
-          if (environment.debugMode) {
-            console.info("Websocket connection opened");
+          if (ENVIRONMENT.DEBUG_MODE) {
+            CONSOLE.INFO("Websocket connection opened");
           }
 
-          const token = this.cookieService.get("token");
+          const token = THIS.COOKIE_SERVICE.GET("token");
           if (token) {
-            this.state.set(States.AUTHENTICATING_WITH_TOKEN);
+            THIS.STATE.SET(States.AUTHENTICATING_WITH_TOKEN);
 
             // Login with Session Token
-            this.login(new AuthenticateWithTokenRequest({ token: token }));
-            this.status = "authenticating";
+            THIS.LOGIN(new AuthenticateWithTokenRequest({ token: token }));
+            THIS.STATUS = "authenticating";
 
           } else {
             // No Token -> directly ask for Login credentials
-            this.state.set(States.NOT_AUTHENTICATED);
-            this.status = "waiting for credentials";
-            this.router.navigate(["login"]);
+            THIS.STATE.SET(States.NOT_AUTHENTICATED);
+            THIS.STATUS = "waiting for credentials";
+            THIS.ROUTER.NAVIGATE(["login"]);
           }
         },
       },
       closeObserver: {
         next: (value) => {
           // Websocket connection is closed. Auto-Reconnect starts.
-          this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
-          if (environment.debugMode) {
-            console.info("Websocket connection closed");
+          THIS.STATE.SET(States.WEBSOCKET_CONNECTION_CLOSED);
+          if (ENVIRONMENT.DEBUG_MODE) {
+            CONSOLE.INFO("Websocket connection closed");
           }
           // trying to connect
-          this.state.set(States.WEBSOCKET_CONNECTING);
-          this.status = "connecting";
+          THIS.STATE.SET(States.WEBSOCKET_CONNECTING);
+          THIS.STATUS = "connecting";
         },
       },
     });
 
-    this.socket.pipe(
+    THIS.SOCKET.PIPE(
       // Websocket Auto-Reconnect
       retryWhen((errors) => {
-        console.warn(errors);
-        return errors.pipe(delay(1000));
+        CONSOLE.WARN(errors);
+        return ERRORS.PIPE(delay(1000));
       }),
 
     ).subscribe(originalMessage => {
       // Receive message from server
       const message: JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError =
-        JsonrpcMessage.from(originalMessage);
+        JSONRPC_MESSAGE.FROM(originalMessage);
 
       if (message instanceof JsonrpcRequest) {
         // handle JSON-RPC Request
-        if (environment.debugMode) {
-          console.info("Receive Request", message);
+        if (ENVIRONMENT.DEBUG_MODE) {
+          CONSOLE.INFO("Receive Request", message);
         }
-        this.onRequest(message);
+        THIS.ON_REQUEST(message);
 
       } else if (message instanceof JsonrpcResponse) {
         // handle JSON-RPC Response
-        this.wsdata.handleJsonrpcResponse(message);
+        THIS.WSDATA.HANDLE_JSONRPC_RESPONSE(message);
 
       } else if (message instanceof JsonrpcNotification) {
         // handle JSON-RPC Notification
-        if (environment.debugMode) {
-          if (message.method == EdgeRpcNotification.METHOD && "payload" in message.params) {
+        if (ENVIRONMENT.DEBUG_MODE) {
+          if (MESSAGE.METHOD == EDGE_RPC_NOTIFICATION.METHOD && "payload" in MESSAGE.PARAMS) {
             const m = message as EdgeRpcNotification;
-            const payload = m.params.payload;
-            console.info("Notification [" + m.params.edgeId + "] [" + payload["method"] + "]", payload["params"]);
+            const payload = M.PARAMS.PAYLOAD;
+            CONSOLE.INFO("Notification [" + M.PARAMS.EDGE_ID + "] [" + payload["method"] + "]", payload["params"]);
           } else {
-            console.info("Notification [" + message.method + "]", message.params);
+            CONSOLE.INFO("Notification [" + MESSAGE.METHOD + "]", MESSAGE.PARAMS);
           }
         }
-        this.onNotification(message);
+        THIS.ON_NOTIFICATION(message);
       }
 
     }, error => {
-      this.onError(error);
+      THIS.ON_ERROR(error);
 
     }, () => {
-      this.status = "failed";
-      this.onClose();
+      THIS.STATUS = "failed";
+      THIS.ON_CLOSE();
     });
   }
 
   private checkErrorCode(reason: JsonrpcResponseError) {
 
     // TODO create global Errorhandler for any type of error
-    switch (reason.error.code) {
+    switch (REASON.ERROR.CODE) {
       case 1003:
-        this.service.toast(this.translate.instant("Login.authenticationFailed"), "danger");
-        this.onLoggedOut();
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("LOGIN.AUTHENTICATION_FAILED"), "danger");
+        THIS.ON_LOGGED_OUT();
         break;
       case 1:
-        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
-        this.status = "waiting for credentials";
-        this.service.onLogout();
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("LOGIN.REQUEST_TIMEOUT"), "danger");
+        THIS.STATUS = "waiting for credentials";
+        THIS.SERVICE.ON_LOGOUT();
         break;
       default:
-        this.onLoggedOut();
+        THIS.ON_LOGGED_OUT();
     }
   }
 
   private onLoggedOut(): void {
-    this.status = "waiting for credentials";
-    this.cookieService.delete("token", "/");
-    this.service.onLogout();
+    THIS.STATUS = "waiting for credentials";
+    THIS.COOKIE_SERVICE.DELETE("token", "/");
+    THIS.SERVICE.ON_LOGOUT();
   }
 
   /**
@@ -349,7 +349,7 @@ export class Websocket implements WebsocketInterface {
    * @param message the JSON-RPC Request
    */
   private onRequest(message: JsonrpcRequest): void {
-    console.warn("Unhandled Request: " + message);
+    CONSOLE.WARN("Unhandled Request: " + message);
   }
 
   /**
@@ -358,12 +358,12 @@ export class Websocket implements WebsocketInterface {
    * @param message the JSON-RPC Notification
    */
   private onNotification(message: JsonrpcNotification): void {
-    switch (message.method) {
-      case EdgeRpcNotification.METHOD:
-        this.handleEdgeRpcNotification(message as EdgeRpcNotification);
+    switch (MESSAGE.METHOD) {
+      case EDGE_RPC_NOTIFICATION.METHOD:
+        THIS.HANDLE_EDGE_RPC_NOTIFICATION(message as EdgeRpcNotification);
         break;
       default:
-        console.warn("Unhandled Notification: " + message);
+        CONSOLE.WARN("Unhandled Notification: " + message);
     }
   }
 
@@ -373,14 +373,14 @@ export class Websocket implements WebsocketInterface {
    * @param error the error
    */
   private onError(error: any): void {
-    console.error("Websocket error", error);
+    CONSOLE.ERROR("Websocket error", error);
   }
 
   /**
    * Handle Websocket closed event.
    */
   private onClose(): void {
-    console.info("Websocket closed.");
+    CONSOLE.INFO("Websocket closed.");
   }
 
   /**
@@ -389,25 +389,25 @@ export class Websocket implements WebsocketInterface {
    * @param message the EdgeRpcNotification
    */
   private handleEdgeRpcNotification(edgeRpcNotification: EdgeRpcNotification): void {
-    const edgeId = edgeRpcNotification.params.edgeId;
-    const message = edgeRpcNotification.params.payload;
+    const edgeId = EDGE_RPC_NOTIFICATION.PARAMS.EDGE_ID;
+    const message = EDGE_RPC_NOTIFICATION.PARAMS.PAYLOAD;
 
-    const edges = this.service.metadata.value?.edges ?? {};
+    const edges = THIS.SERVICE.METADATA.VALUE?.edges ?? {};
     if (edgeId in edges) {
       const edge = edges[edgeId];
 
-      switch (message.method) {
-        case EdgeConfigNotification.METHOD:
-          edge.isOnline = true; // Mark Edge as online
-          edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
+      switch (MESSAGE.METHOD) {
+        case EDGE_CONFIG_NOTIFICATION.METHOD:
+          EDGE.IS_ONLINE = true; // Mark Edge as online
+          EDGE.HANDLE_EDGE_CONFIG_NOTIFICATION(message as EdgeConfigNotification);
           break;
 
-        case CurrentDataNotification.METHOD:
-          edge.handleCurrentDataNotification(message as CurrentDataNotification);
+        case CURRENT_DATA_NOTIFICATION.METHOD:
+          EDGE.HANDLE_CURRENT_DATA_NOTIFICATION(message as CurrentDataNotification);
           break;
 
-        case SystemLogNotification.METHOD:
-          edge.handleSystemLogNotification(message as SystemLogNotification);
+        case SYSTEM_LOG_NOTIFICATION.METHOD:
+          EDGE.HANDLE_SYSTEM_LOG_NOTIFICATION(message as SystemLogNotification);
           break;
       }
     }

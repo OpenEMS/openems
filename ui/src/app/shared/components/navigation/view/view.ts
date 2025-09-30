@@ -4,8 +4,8 @@ import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
-import { NavigationComponent } from "../navigation.component";
-import { NavigationService } from "../service/navigation.service";
+import { NavigationComponent } from "../NAVIGATION.COMPONENT";
+import { NavigationService } from "../service/NAVIGATION.SERVICE";
 import { ViewUtils } from "./shared/shared";
 
 export enum Status {
@@ -19,7 +19,7 @@ export enum Status {
  */
 @Component({
     selector: "oe-navigation-view",
-    templateUrl: "./view.html",
+    templateUrl: "./VIEW.HTML",
     styles: [`
         :host {
             height: 100%;
@@ -34,7 +34,7 @@ export enum Status {
 })
 export class NavigationPageComponent {
 
-    @Input() protected component: EdgeConfig.Component | null = null;
+    @Input() protected component: EDGE_CONFIG.COMPONENT | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
 
     protected contentHeight: number | null = null;
@@ -48,48 +48,48 @@ export class NavigationPageComponent {
         private websocket: Websocket,
         private translate: TranslateService,
     ) {
-        this.service.getCurrentEdge().then(edge => this.edge = edge);
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => THIS.EDGE = edge);
 
         effect(() => {
-            const breakpoint = NavigationComponent.breakPoint();
+            const breakpoint = NAVIGATION_COMPONENT.BREAK_POINT();
             if (breakpoint > NavigationComponent.INITIAL_BREAKPOINT) {
                 return;
             }
-            this.contentHeight = ViewUtils.getViewHeight(untracked(() => this.navigationService.position()));
+            THIS.CONTENT_HEIGHT = VIEW_UTILS.GET_VIEW_HEIGHT(untracked(() => THIS.NAVIGATION_SERVICE.POSITION()));
         });
     }
 
     // Changes applied together
     public applyChanges() {
         const updateComponentArray: { name: string, value: any }[] = [];
-        this.service.startSpinner("spinner");
-        for (const key in this.formGroup.controls) {
-            const control = this.formGroup.controls[key];
-            this.formGroup.controls[key];
+        THIS.SERVICE.START_SPINNER("spinner");
+        for (const key in THIS.FORM_GROUP.CONTROLS) {
+            const control = THIS.FORM_GROUP.CONTROLS[key];
+            THIS.FORM_GROUP.CONTROLS[key];
 
             // Check if formControl-value didn't change
-            if (control.pristine) {
+            if (CONTROL.PRISTINE) {
                 continue;
             }
 
-            updateComponentArray.push({
+            UPDATE_COMPONENT_ARRAY.PUSH({
                 name: key,
-                value: this.formGroup.value[key],
+                value: THIS.FORM_GROUP.VALUE[key],
             });
         }
 
-        if (this.edge) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
+        if (THIS.EDGE) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                }).finally(() => this.service.stopSpinner("spinner"));
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                }).finally(() => THIS.SERVICE.STOP_SPINNER("spinner"));
         }
-        this.formGroup.markAsPristine();
+        THIS.FORM_GROUP.MARK_AS_PRISTINE();
     }
 
     protected onDomChange() {
-        this.contentHeight = ViewUtils.getViewHeight(this.navigationService.position());
+        THIS.CONTENT_HEIGHT = VIEW_UTILS.GET_VIEW_HEIGHT(THIS.NAVIGATION_SERVICE.POSITION());
     }
 }

@@ -4,7 +4,7 @@ import { IonicModule } from "@ionic/angular";
 
 @Component({
     selector: "oe-img",
-    templateUrl: "./oe-img.html",
+    templateUrl: "./oe-IMG.HTML",
     standalone: true,
     imports: [
         CommonModule,
@@ -19,10 +19,10 @@ export class OeImageComponent {
         height?: number,
     } | null;
 
-    protected readonly FALLBACK_IMG_URL: string = "assets/img/image-not-found.png";
+    protected readonly FALLBACK_IMG_URL: string = "assets/img/image-not-FOUND.PNG";
 
     protected onImgError(event: Event) {
-        const imgElement = event.target as HTMLImageElement;
-        imgElement.src = this.FALLBACK_IMG_URL;
+        const imgElement = EVENT.TARGET as HTMLImageElement;
+        IMG_ELEMENT.SRC = this.FALLBACK_IMG_URL;
     }
 }

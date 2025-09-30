@@ -3,23 +3,23 @@
         <ion-row>
             <ion-col>
                 <ion-item>
-                    <ion-label style="white-space:pre-wrap">{{props.label}}</ion-label>
-                    <ion-checkbox slot="end" [checked]="value" [value]="props.value" [disabled]="props.disabled"
+                    <ion-label style="white-space:pre-wrap">{{PROPS.LABEL}}</ion-label>
+                    <ion-checkbox slot="end" [checked]="value" [value]="PROPS.VALUE" [disabled]="PROPS.DISABLED"
                         (ionChange)="updateFormControl($event)">
                     </ion-checkbox>
                 </ion-item>
             </ion-col>
         </ion-row>
-        <ion-row *ngIf="props.description && showContent()">
+        <ion-row *ngIf="PROPS.DESCRIPTION && showContent()">
             <ion-col>
-                <ion-item [class.disabled]="props.disabled" lines="none" style="padding-top: 10px;">
-                    <ion-text style="white-space: pre-line;" [innerHTML]="props.description"></ion-text>
+                <ion-item [CLASS.DISABLED]="PROPS.DISABLED" lines="none" style="padding-top: 10px;">
+                    <ion-text style="white-space: pre-line;" [innerHTML]="PROPS.DESCRIPTION"></ion-text>
                 </ion-item>
             </ion-col>
         </ion-row>
         <ion-row class="ion-justify-content-center" style="padding-top: 10px;" *ngIf="showContent()">
             <ion-item lines="none">
-                <img class="center" [src]="props.url">
+                <img class="center" [src]="PROPS.URL">
             </ion-item>
         </ion-row>
     </ion-card>

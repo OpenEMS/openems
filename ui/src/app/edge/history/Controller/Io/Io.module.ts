@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
-import { DigitalOutput } from "./DigitalOutput/digitalOutput.module";
-import { HeatingElement } from "./heatingelement/heatingelement.module";
+import { DigitalOutput } from "./DigitalOutput/DIGITAL_OUTPUT.MODULE";
+import { HeatingElement } from "./heatingelement/HEATINGELEMENT.MODULE";
 
 @NgModule({
     imports: [

@@ -5,15 +5,15 @@ import { TranslateService } from "@ngx-translate/core";
 export class TranslateExtension implements FormlyExtension {
     constructor(private translate: TranslateService) { }
     prePopulate(field: FormlyFieldConfig) {
-        const props = field.props || {};
-        if (!props.translate || props._translated) {
+        const props = FIELD.PROPS || {};
+        if (!PROPS.TRANSLATE || props._translated) {
             return;
         }
 
         props._translated = true;
-        field.expressions = {
-            ...(field.expressions || {}),
-            "props.label": this.translate.stream(props.label),
+        FIELD.EXPRESSIONS = {
+            ...(FIELD.EXPRESSIONS || {}),
+            "PROPS.LABEL": THIS.TRANSLATE.STREAM(PROPS.LABEL),
         };
     }
 }
@@ -39,5 +39,5 @@ export function registerTranslateExtension(translate: TranslateService) {
  * @returns the validation error message.
  */
 export function serialNumber(translate: TranslateService, field: FormlyFieldConfig, length: number) {
-    return translate.stream("INSTALLATION.FORM.BATTERY_SERIAL_NUMBER", { serialNumber: ((field.props.prefix ?? "") + field.formControl.value), length: length });
+    return TRANSLATE.STREAM("INSTALLATION.FORM.BATTERY_SERIAL_NUMBER", { serialNumber: ((FIELD.PROPS.PREFIX ?? "") + FIELD.FORM_CONTROL.VALUE), length: length });
 }

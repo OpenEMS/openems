@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { NavigationService } from "src/app/shared/components/navigation/service/NAVIGATION.SERVICE";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, Edge, Service, Websocket } from "../../../shared/shared";
 
 @Component({
-  selector: EnergymonitorComponent.SELECTOR,
-  templateUrl: "./energymonitor.component.html",
+  selector: ENERGYMONITOR_COMPONENT.SELECTOR,
+  templateUrl: "./ENERGYMONITOR.COMPONENT.HTML",
   standalone: false,
 })
 export class EnergymonitorComponent implements OnInit, OnDestroy {
@@ -23,14 +23,14 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.EDGE = edge;
 
-      const essMinMaxChannels = this.edge.isVersionAtLeast("2024.2.2")
+      const essMinMaxChannels = THIS.EDGE.IS_VERSION_AT_LEAST("2024.2.2")
         ? [new ChannelAddress("_sum", "EssMinDischargePower"), new ChannelAddress("_sum", "EssMaxDischargePower")]
         : [new ChannelAddress("_sum", "EssMaxApparentPower")];
 
-      this.dataService.getValues([
+      THIS.DATA_SERVICE.GET_VALUES([
         // Ess
         new ChannelAddress("_sum", "EssSoc"), new ChannelAddress("_sum", "EssActivePower"),
         ...essMinMaxChannels,
@@ -45,8 +45,8 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, EnergymonitorComponent.SELECTOR);
+    if (THIS.EDGE != null) {
+      THIS.EDGE.UNSUBSCRIBE_CHANNELS(THIS.WEBSOCKET, ENERGYMONITOR_COMPONENT.SELECTOR);
     }
   }
 }

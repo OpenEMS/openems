@@ -1,11 +1,11 @@
 import { Component, effect, EventEmitter, Output, signal, WritableSignal } from "@angular/core";
-import { RouteService } from "src/app/shared/service/route.service";
-import { NavigationService } from "../service/navigation.service";
+import { RouteService } from "src/app/shared/service/ROUTE.SERVICE";
+import { NavigationService } from "../service/NAVIGATION.SERVICE";
 import { NavigationTree } from "../shared";
 
 @Component({
     selector: "oe-navigation-breadcrumbs",
-    templateUrl: "./breadcrumbs.html",
+    templateUrl: "./BREADCRUMBS.HTML",
     standalone: false,
 })
 export class NavigationBreadCrumbsComponent {
@@ -20,12 +20,12 @@ export class NavigationBreadCrumbsComponent {
     ) {
 
         effect(() => {
-            const currentNode = this.navigationService.currentNode();
+            const currentNode = THIS.NAVIGATION_SERVICE.CURRENT_NODE();
             const parents: (NavigationTree | null)[] = [...currentNode?.getParents() ?? []];
             if (parents?.length >= 1) {
-                parents.push(currentNode);
+                PARENTS.PUSH(currentNode);
             }
-            this.breadCrumbs.set(parents);
+            THIS.BREAD_CRUMBS.SET(parents);
         });
     }
 
@@ -40,6 +40,6 @@ export class NavigationBreadCrumbsComponent {
         if (!shouldNavigate) {
             return;
         }
-        this.navigate.emit(node);
+        THIS.NAVIGATE.EMIT(node);
     }
 }

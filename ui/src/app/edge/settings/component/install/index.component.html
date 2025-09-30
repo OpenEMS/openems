@@ -1,24 +1,24 @@
 <ion-content>
   <ion-searchbar style="--background: var(--ion-color-searchbar-background); color:var(--ion-color-searchbar-text);"
-    (ionInput)="updateFilter($event.detail.value)"></ion-searchbar>
+    (ionInput)="updateFilter($EVENT.DETAIL.VALUE)"></ion-searchbar>
   <ion-list>
     <ng-container *ngFor="let entry of list">
       <ion-item-group>
-        <ion-item style="cursor: pointer" (click)="entry.isClicked = !entry.isClicked" lines="inset"
-          *ngIf="entry.filteredFactories.length>= 1">
-          <ion-icon name="{{entry.category.icon}}"></ion-icon>
+        <ion-item style="cursor: pointer" (click)="ENTRY.IS_CLICKED = !ENTRY.IS_CLICKED" lines="inset"
+          *ngIf="ENTRY.FILTERED_FACTORIES.LENGTH>= 1">
+          <ion-icon name="{{ENTRY.CATEGORY.ICON}}"></ion-icon>
           <ion-label class="ion-padding-start">
-            {{ entry.category.title }}
+            {{ ENTRY.CATEGORY.TITLE }}
           </ion-label>
         </ion-item>
       </ion-item-group>
-      <ng-container *ngIf="(entry.isClicked || showAllFactories)">
-        <ion-item lines="none" *ngFor="let item of entry.filteredFactories" [routerLink]=[item.id]>
+      <ng-container *ngIf="(ENTRY.IS_CLICKED || showAllFactories)">
+        <ion-item lines="none" *ngFor="let item of ENTRY.FILTERED_FACTORIES" [routerLink]=[ITEM.ID]>
           <ion-label style="cursor: pointer" class="ion-text-wrap">
             <ion-text color="primary">
-              <h3>{{ item.name }}</h3>
+              <h3>{{ ITEM.NAME }}</h3>
             </ion-text>
-            <small class="custom-channels-text">{{ item.description }}</small>
+            <small class="custom-channels-text">{{ ITEM.DESCRIPTION }}</small>
           </ion-label>
         </ion-item>
       </ng-container>

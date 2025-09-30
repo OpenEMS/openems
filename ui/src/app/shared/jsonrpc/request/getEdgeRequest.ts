@@ -26,7 +26,7 @@ export class GetEdgeRequest extends JsonrpcRequest {
             edgeId: string
         },
     ) {
-        super(GetEdgeRequest.METHOD, params);
+        super(GET_EDGE_REQUEST.METHOD, params);
     }
 
 }

@@ -5,15 +5,15 @@ import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../../../shared/shared";
 
 @Component({
-  selector: AdministrationComponent.SELECTOR,
-  templateUrl: "./administration.component.html",
+  selector: ADMINISTRATION_COMPONENT.SELECTOR,
+  templateUrl: "./ADMINISTRATION.COMPONENT.HTML",
   standalone: false,
 })
 export class AdministrationComponent implements OnInit {
 
   private static readonly SELECTOR = "administration";
 
-  @Input({ required: true }) public evcsComponent!: EdgeConfig.Component;
+  @Input({ required: true }) public evcsComponent!: EDGE_CONFIG.COMPONENT;
   @Input({ required: true }) public edge!: Edge;
 
   // used for ion-toggle in html
@@ -28,33 +28,33 @@ export class AdministrationComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.evcsComponent.properties["minHwCurrent"] == 6000) {
-      this.isCheckedZoe = false;
-    } else if (this.evcsComponent.properties["minHwCurrent"] == 10000) {
-      this.isCheckedZoe = true;
+    if (THIS.EVCS_COMPONENT.PROPERTIES["minHwCurrent"] == 6000) {
+      THIS.IS_CHECKED_ZOE = false;
+    } else if (THIS.EVCS_COMPONENT.PROPERTIES["minHwCurrent"] == 10000) {
+      THIS.IS_CHECKED_ZOE = true;
     }
   }
 
   updateZoeMode(event: CustomEvent) {
-    let newValue = this.evcsComponent.properties["minHwCurrent"];
-    const oldValue = this.evcsComponent.properties["minHwCurrent"];
+    let newValue = THIS.EVCS_COMPONENT.PROPERTIES["minHwCurrent"];
+    const oldValue = THIS.EVCS_COMPONENT.PROPERTIES["minHwCurrent"];
 
-    if (event.detail.checked == true) {
+    if (EVENT.DETAIL.CHECKED == true) {
       newValue = 10000;
     } else {
       newValue = 6000;
     }
 
-    if (this.edge != null && oldValue != newValue) {
-      this.edge.updateComponentConfig(this.websocket, this.evcsComponent.id, [
+    if (THIS.EDGE != null && oldValue != newValue) {
+      THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.EVCS_COMPONENT.ID, [
         { name: "minHwCurrent", value: newValue },
       ]).then(() => {
-        this.evcsComponent.properties.minHwCurrent = newValue;
-        this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+        THIS.EVCS_COMPONENT.PROPERTIES.MIN_HW_CURRENT = newValue;
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
       }).catch(reason => {
-        this.evcsComponent.properties.minHwCurrent = oldValue;
-        this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
-        console.warn(reason);
+        THIS.EVCS_COMPONENT.PROPERTIES.MIN_HW_CURRENT = oldValue;
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
+        CONSOLE.WARN(reason);
       });
     }
   }

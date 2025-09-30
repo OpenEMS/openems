@@ -6,7 +6,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-safe-input-modal",
-    templateUrl: "./formly-safe-input-modal.component.html",
+    templateUrl: "./formly-safe-input-MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class FormlySafeInputModalComponent implements OnInit {
@@ -26,11 +26,11 @@ export class FormlySafeInputModalComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.myModel = Object.assign({}, this.model);
+        THIS.MY_MODEL = OBJECT.ASSIGN({}, THIS.MODEL);
     }
 
     protected onSelected() {
-        this.modalCtrl.dismiss(this.myModel);
+        THIS.MODAL_CTRL.DISMISS(THIS.MY_MODEL);
     }
 
 }

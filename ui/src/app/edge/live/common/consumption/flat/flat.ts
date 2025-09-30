@@ -6,23 +6,23 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "consumption",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public evcss: EdgeConfig.Component[] | null = null;
-  public consumptionMeters: EdgeConfig.Component[] | null = null;
+  public evcss: EDGE_CONFIG.COMPONENT[] | null = null;
+  public consumptionMeters: EDGE_CONFIG.COMPONENT[] | null = null;
   public sumActivePower: number = 0;
   public evcsSumOfChargePower: number;
   public otherPower: number;
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
   async presentModal() {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: ModalComponent,
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses() {
@@ -37,29 +37,29 @@ export class FlatComponent extends AbstractFlatWidget {
     ];
 
     // Get consumptionMeterComponents
-    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
+    THIS.CONSUMPTION_METERS = THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")
+      .filter(component => COMPONENT.IS_ENABLED && THIS.CONFIG.IS_TYPE_CONSUMPTION_METERED(component));
 
-    for (const component of this.consumptionMeters) {
-      channelAddresses.push(
-        new ChannelAddress(component.id, "ActivePower"),
-        new ChannelAddress(component.id, "ActivePowerL1"),
-        new ChannelAddress(component.id, "ActivePowerL2"),
-        new ChannelAddress(component.id, "ActivePowerL3"),
+    for (const component of THIS.CONSUMPTION_METERS) {
+      CHANNEL_ADDRESSES.PUSH(
+        new ChannelAddress(COMPONENT.ID, "ActivePower"),
+        new ChannelAddress(COMPONENT.ID, "ActivePowerL1"),
+        new ChannelAddress(COMPONENT.ID, "ActivePowerL2"),
+        new ChannelAddress(COMPONENT.ID, "ActivePowerL3"),
       );
     }
 
     // Get EVCSs
-    this.evcss = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+    THIS.EVCSS = THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.EVCS.API.EVCS")
       .filter(component =>
-        !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-        !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
-        !(this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
-        !component.isEnabled == false);
+        !(COMPONENT.FACTORY_ID == "EVCS.CLUSTER.SELF_CONSUMPTION") &&
+        !(COMPONENT.FACTORY_ID == "EVCS.CLUSTER.PEAK_SHAVING") &&
+        !(THIS.CONFIG.FACTORIES[COMPONENT.FACTORY_ID].NATURE_IDS.INCLUDES("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")) &&
+        !COMPONENT.IS_ENABLED == false);
 
-    for (const component of this.evcss) {
-      channelAddresses.push(
-        new ChannelAddress(component.id, "ChargePower"),
+    for (const component of THIS.EVCSS) {
+      CHANNEL_ADDRESSES.PUSH(
+        new ChannelAddress(COMPONENT.ID, "ChargePower"),
       );
     }
     return channelAddresses;
@@ -67,27 +67,27 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected override onCurrentData(currentData: CurrentData) {
 
-    this.evcsSumOfChargePower = 0;
+    THIS.EVCS_SUM_OF_CHARGE_POWER = 0;
     let consumptionMetersSumOfActivePower: number = 0;
-    this.sumActivePower = currentData.allComponents["_sum/ConsumptionActivePower"];
+    THIS.SUM_ACTIVE_POWER = CURRENT_DATA.ALL_COMPONENTS["_sum/ConsumptionActivePower"];
 
     // TODO move sums to Model
     // Iterate over evcsComponents to get ChargePower for every component
-    for (const component of this.evcss) {
-      if (currentData.allComponents[component.id + "/ChargePower"]) {
-        this.evcsSumOfChargePower += currentData.allComponents[component.id + "/ChargePower"];
+    for (const component of THIS.EVCSS) {
+      if (CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ChargePower"]) {
+        THIS.EVCS_SUM_OF_CHARGE_POWER += CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ChargePower"];
       }
     }
 
     // Iterate over evcsComponents to get ChargePower for every component
-    for (const component of this.consumptionMeters) {
-      if (currentData.allComponents[component.id + "/ActivePower"]) {
-        consumptionMetersSumOfActivePower += currentData.allComponents[component.id + "/ActivePower"];
+    for (const component of THIS.CONSUMPTION_METERS) {
+      if (CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ActivePower"]) {
+        consumptionMetersSumOfActivePower += CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ActivePower"];
       }
     }
 
-    this.otherPower = Utils.subtractSafely(this.sumActivePower,
-      Utils.addSafely(this.evcsSumOfChargePower, consumptionMetersSumOfActivePower));
+    THIS.OTHER_POWER = UTILS.SUBTRACT_SAFELY(THIS.SUM_ACTIVE_POWER,
+      UTILS.ADD_SAFELY(THIS.EVCS_SUM_OF_CHARGE_POWER, consumptionMetersSumOfActivePower));
   }
 
 }

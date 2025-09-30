@@ -24,7 +24,7 @@ export namespace AssertionUtils {
         maxLength: number,
         message: string = `String exceeds maximum length of ${maxLength}`,
     ): asserts value {
-        if (value.length > maxLength) {
+        if (VALUE.LENGTH > maxLength) {
             throw new Error(message);
         }
     }

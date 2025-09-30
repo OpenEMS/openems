@@ -4,7 +4,7 @@ import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 
-import { Controller_Io_HeatpumpModalComponent } from "./modal/modal.component";
+import { Controller_Io_HeatpumpModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
   selector: "Controller_Io_Heatpump",
@@ -15,67 +15,67 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
 
   private static PROPERTY_MODE: string = "_PropertyMode";
 
-  public override component: EdgeConfig.Component | null = null;
+  public override component: EDGE_CONFIG.COMPONENT | null = null;
   public status: BehaviorSubject<{ name: string }> = new BehaviorSubject(null);
   public isConnectionSuccessful: boolean;
   public mode: string;
   public statusValue: number;
 
   async presentModal() {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: Controller_Io_HeatpumpModalComponent,
       componentProps: {
-        edge: this.edge,
-        component: this.component,
-        status: this.status,
+        edge: THIS.EDGE,
+        component: THIS.COMPONENT,
+        status: THIS.STATUS,
       },
     });
-    modal.onDidDismiss().then(() => {
-      this.service.getConfig().then(config => {
-        this.component = config.components[this.componentId];
+    MODAL.ON_DID_DISMISS().then(() => {
+      THIS.SERVICE.GET_CONFIG().then(config => {
+        THIS.COMPONENT = CONFIG.COMPONENTS[THIS.COMPONENT_ID];
       });
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses() {
     return [
-      new ChannelAddress(this.component.id, "Status"),
-      new ChannelAddress(this.component.id, "State"),
-      new ChannelAddress(this.component.id, Controller_Io_HeatpumpComponent.PROPERTY_MODE),
+      new ChannelAddress(THIS.COMPONENT.ID, "Status"),
+      new ChannelAddress(THIS.COMPONENT.ID, "State"),
+      new ChannelAddress(THIS.COMPONENT.ID, Controller_Io_HeatpumpComponent.PROPERTY_MODE),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.isConnectionSuccessful = currentData.allComponents[this.componentId + "/State"] != 3 ? true : false;
+    THIS.IS_CONNECTION_SUCCESSFUL = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT_ID + "/State"] != 3 ? true : false;
 
     // Status
-    switch (currentData.allComponents[this.componentId + "/Status"]) {
+    switch (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT_ID + "/Status"]) {
       case -1:
-        this.statusValue = this.translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+        THIS.STATUS_VALUE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
         break;
       case 0:
-        this.statusValue = this.translate.instant("Edge.Index.Widgets.HeatPump.lock");
+        THIS.STATUS_VALUE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK");
         break;
       case 1:
-        this.statusValue = this.translate.instant("Edge.Index.Widgets.HeatPump.normalOperation");
+        THIS.STATUS_VALUE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION");
         break;
       case 2:
-        this.statusValue = this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec");
+        THIS.STATUS_VALUE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC");
         break;
       case 3:
-        this.statusValue = this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom");
+        THIS.STATUS_VALUE = THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM");
         break;
     }
 
     // Mode
-    switch (currentData.allComponents[this.component.id + "/" + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
+    switch (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + Controller_Io_HeatpumpComponent.PROPERTY_MODE]) {
       case "AUTOMATIC": {
-        this.mode = this.translate.instant("General.automatic");
+        THIS.MODE = THIS.TRANSLATE.INSTANT("GENERAL.AUTOMATIC");
         break;
       }
       case "MANUAL": {
-        this.mode = this.translate.instant("General.manually");
+        THIS.MODE = THIS.TRANSLATE.INSTANT("GENERAL.MANUALLY");
         break;
       }
     }

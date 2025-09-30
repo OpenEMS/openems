@@ -9,12 +9,12 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
     selector: "chpsocchart",
-    templateUrl: "../abstracthistorychart.html",
+    templateUrl: "../ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
+    @Input({ required: true }) public period!: DEFAULT_TYPES.HISTORY_PERIOD;
     @Input({ required: true }) public componentId!: string;
 
     constructor(
@@ -26,64 +26,64 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
     }
 
     ngOnChanges() {
-        this.updateChart();
+        THIS.UPDATE_CHART();
     }
 
     ngOnInit() {
-        this.startSpinner();
+        THIS.START_SPINNER();
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh();
+        THIS.UNSUBSCRIBE_CHART_REFRESH();
     }
 
     public getChartHeight(): number {
-        return window.innerHeight / 1.3;
+        return WINDOW.INNER_HEIGHT / 1.3;
     }
 
     protected updateChart() {
-        this.autoSubscribeChartRefresh();
-        this.startSpinner();
-        this.loading = true;
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getCurrentEdge().then(() => {
-                this.service.getConfig().then(config => {
-                    const outputChannel = config.getComponentProperties(this.componentId)["outputChannelAddress"];
-                    const inputChannel = config.getComponentProperties(this.componentId)["inputChannelAddress"];
-                    const lowThreshold = this.componentId + "/_PropertyLowThreshold";
-                    const highThreshold = this.componentId + "/_PropertyHighThreshold";
-                    const result = response.result;
+        THIS.AUTO_SUBSCRIBE_CHART_REFRESH();
+        THIS.START_SPINNER();
+        THIS.LOADING = true;
+        THIS.QUERY_HISTORIC_TIMESERIES_DATA(THIS.PERIOD.FROM, THIS.PERIOD.TO).then(response => {
+            THIS.SERVICE.GET_CURRENT_EDGE().then(() => {
+                THIS.SERVICE.GET_CONFIG().then(config => {
+                    const outputChannel = CONFIG.GET_COMPONENT_PROPERTIES(THIS.COMPONENT_ID)["outputChannelAddress"];
+                    const inputChannel = CONFIG.GET_COMPONENT_PROPERTIES(THIS.COMPONENT_ID)["inputChannelAddress"];
+                    const lowThreshold = THIS.COMPONENT_ID + "/_PropertyLowThreshold";
+                    const highThreshold = THIS.COMPONENT_ID + "/_PropertyHighThreshold";
+                    const result = RESPONSE.RESULT;
                     // convert labels
                     const labels: Date[] = [];
-                    for (const timestamp of result.timestamps) {
-                        labels.push(new Date(timestamp));
+                    for (const timestamp of RESULT.TIMESTAMPS) {
+                        LABELS.PUSH(new Date(timestamp));
                     }
-                    this.labels = labels;
+                    THIS.LABELS = labels;
 
                     // convert datasets
                     const datasets = [];
 
                     // convert datasets
-                    for (const channel in result.data) {
+                    for (const channel in RESULT.DATA) {
                         if (channel == outputChannel) {
-                            const address = ChannelAddress.fromString(channel);
-                            const data = result.data[channel].map(value => {
+                            const address = CHANNEL_ADDRESS.FROM_STRING(channel);
+                            const data = RESULT.DATA[channel].map(value => {
                                 if (value == null) {
                                     return null;
                                 } else {
                                     return value * 100; // convert to % [0,100]
                                 }
                             });
-                            datasets.push({
-                                label: address.channelId,
+                            DATASETS.PUSH({
+                                label: ADDRESS.CHANNEL_ID,
                                 data: data,
                             });
-                            this.colors.push({
+                            THIS.COLORS.PUSH({
                                 backgroundColor: "rgba(0,191,255,0.05)",
                                 borderColor: "rgba(0,191,255,1)",
                             });
                         } else {
-                            const data = result.data[channel].map(value => {
+                            const data = RESULT.DATA[channel].map(value => {
                                 if (value == null) {
                                     return null;
                                 } else if (value > 100 || value < 0) {
@@ -93,78 +93,78 @@ export class ChpSocChartComponent extends AbstractHistoryChart implements OnInit
                                 }
                             });
                             if (channel == inputChannel) {
-                                datasets.push({
-                                    label: this.translate.instant("General.soc"),
+                                DATASETS.PUSH({
+                                    label: THIS.TRANSLATE.INSTANT("GENERAL.SOC"),
                                     data: data,
                                 });
-                                this.colors.push({
+                                THIS.COLORS.PUSH({
                                     backgroundColor: "rgba(0,0,0,0)",
                                     borderColor: "rgba(0,223,0,1)",
                                 });
                             }
                             if (channel == lowThreshold) {
-                                datasets.push({
-                                    label: this.translate.instant("Edge.Index.Widgets.CHP.lowThreshold"),
+                                DATASETS.PUSH({
+                                    label: THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.CHP.LOW_THRESHOLD"),
                                     data: data,
                                     borderDash: [3, 3],
                                 });
-                                this.colors.push({
+                                THIS.COLORS.PUSH({
                                     backgroundColor: "rgba(0,0,0,0)",
                                     borderColor: "rgba(0,191,255,1)",
                                 });
                             }
                             if (channel == highThreshold) {
-                                datasets.push({
-                                    label: this.translate.instant("Edge.Index.Widgets.CHP.highThreshold"),
+                                DATASETS.PUSH({
+                                    label: THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.CHP.HIGH_THRESHOLD"),
                                     data: data,
                                     borderDash: [3, 3],
                                 });
-                                this.colors.push({
+                                THIS.COLORS.PUSH({
                                     backgroundColor: "rgba(0,0,0,0)",
                                     borderColor: "rgba(0,191,255,1)",
                                 });
                             }
                         }
                     }
-                    this.datasets = datasets;
-                    this.loading = false;
-                    this.stopSpinner();
+                    THIS.DATASETS = datasets;
+                    THIS.LOADING = false;
+                    THIS.STOP_SPINNER();
                 }).catch(reason => {
-                    console.error(reason); // TODO error message
-                    this.initializeChart();
+                    CONSOLE.ERROR(reason); // TODO error message
+                    THIS.INITIALIZE_CHART();
                     return;
                 });
             }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
+                CONSOLE.ERROR(reason); // TODO error message
+                THIS.INITIALIZE_CHART();
                 return;
             });
         }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
+            CONSOLE.ERROR(reason); // TODO error message
+            THIS.INITIALIZE_CHART();
             return;
         }).finally(() => {
-            this.unit = YAxisType.PERCENTAGE;
-            this.setOptions(this.options);
+            THIS.UNIT = YAXIS_TYPE.PERCENTAGE;
+            THIS.SET_OPTIONS(THIS.OPTIONS);
         });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            const outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["outputChannelAddress"]);
-            const inputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)["inputChannelAddress"]);
+            const outputChannel = CHANNEL_ADDRESS.FROM_STRING(CONFIG.GET_COMPONENT_PROPERTIES(THIS.COMPONENT_ID)["outputChannelAddress"]);
+            const inputChannel = CHANNEL_ADDRESS.FROM_STRING(CONFIG.GET_COMPONENT_PROPERTIES(THIS.COMPONENT_ID)["inputChannelAddress"]);
             const result: ChannelAddress[] = [
                 outputChannel,
                 inputChannel,
-                new ChannelAddress(this.componentId, "_PropertyHighThreshold"),
-                new ChannelAddress(this.componentId, "_PropertyLowThreshold"),
+                new ChannelAddress(THIS.COMPONENT_ID, "_PropertyHighThreshold"),
+                new ChannelAddress(THIS.COMPONENT_ID, "_PropertyLowThreshold"),
             ];
             resolve(result);
         });
     }
 
     protected setLabel() {
-        this.options = this.createDefaultChartOptions();
+        THIS.OPTIONS = THIS.CREATE_DEFAULT_CHART_OPTIONS();
     }
 
 }

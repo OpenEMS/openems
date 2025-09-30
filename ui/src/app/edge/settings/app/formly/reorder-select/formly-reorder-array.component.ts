@@ -5,7 +5,7 @@ import { FieldType, FieldTypeConfig, FormlyFieldConfig, FormlyFieldProps } from 
 
 @Component({
     selector: "reorder-array",
-    templateUrl: "./formly-reorder-array.component.html",
+    templateUrl: "./formly-reorder-ARRAY.COMPONENT.HTML",
     standalone: false,
 })
 export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
@@ -19,93 +19,93 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
     protected itemToAdd: SelectOption | null = null;
 
     private get allowDuplicates(): boolean {
-        return this.props.allowDuplicates ?? false;
+        return THIS.PROPS.ALLOW_DUPLICATES ?? false;
     }
 
     private get selectOptions(): SelectOption[] {
-        return this.props.selectOptions.map<SelectOption>(optionConfig => {
+        return THIS.PROPS.SELECT_OPTIONS.MAP<SelectOption>(optionConfig => {
             return {
-                label: optionConfig.label,
-                value: optionConfig.value,
+                label: OPTION_CONFIG.LABEL,
+                value: OPTION_CONFIG.VALUE,
                 expressions: {
-                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
+                    locked: OPTION_CONFIG.EXPRESSIONS?.locked?.(THIS.FIELD) ?? false,
                 },
             };
         }) ?? [];
     }
 
     public ngOnInit(): void {
-        const oldValues = this.formControl.getRawValue() as string[];
+        const oldValues = THIS.FORM_CONTROL.GET_RAW_VALUE() as string[];
 
-        this.availableItems = this.selectOptions;
+        THIS.AVAILABLE_ITEMS = THIS.SELECT_OPTIONS;
         if (oldValues) {
             for (const v of oldValues) {
-                const foundItemIndex = this.availableItems.findIndex(e => e.value === v);
+                const foundItemIndex = THIS.AVAILABLE_ITEMS.FIND_INDEX(e => E.VALUE === v);
                 if (foundItemIndex === -1) {
                     // item not found
                     continue;
                 }
 
-                this.selectedItems.push(this.availableItems[foundItemIndex]);
-                if (!this.allowDuplicates) {
-                    this.availableItems.splice(foundItemIndex, 1);
+                THIS.SELECTED_ITEMS.PUSH(THIS.AVAILABLE_ITEMS[foundItemIndex]);
+                if (!THIS.ALLOW_DUPLICATES) {
+                    THIS.AVAILABLE_ITEMS.SPLICE(foundItemIndex, 1);
                 }
             }
         }
         // select first element if existing
-        if (this.availableItems.length !== 0) {
-            this.itemToAdd = this.availableItems[0];
+        if (THIS.AVAILABLE_ITEMS.LENGTH !== 0) {
+            THIS.ITEM_TO_ADD = THIS.AVAILABLE_ITEMS[0];
         }
-        this.updateValue();
+        THIS.UPDATE_VALUE();
     }
 
     protected doReorder(ev: CustomEvent<ItemReorderEventDetail>) {
-        if (this.selectedItems[ev.detail.to].expressions.locked) {
-            ev.detail.complete(false);
+        if (THIS.SELECTED_ITEMS[EV.DETAIL.TO].EXPRESSIONS.LOCKED) {
+            EV.DETAIL.COMPLETE(false);
             return;
         }
-        this.selectedItems = ev.detail.complete(this.selectedItems);
-        this.updateValue();
+        THIS.SELECTED_ITEMS = EV.DETAIL.COMPLETE(THIS.SELECTED_ITEMS);
+        THIS.UPDATE_VALUE();
     }
 
     protected removeItem(item: SelectOption) {
-        const deletedItems = this.selectedItems.splice(this.selectedItems.indexOf(item), 1);
-        this.updateValue();
-        if (this.allowDuplicates) {
+        const deletedItems = THIS.SELECTED_ITEMS.SPLICE(THIS.SELECTED_ITEMS.INDEX_OF(item), 1);
+        THIS.UPDATE_VALUE();
+        if (THIS.ALLOW_DUPLICATES) {
             return;
         }
-        this.availableItems.push(...deletedItems);
-        if (!this.itemToAdd) {
-            this.itemToAdd = deletedItems[0];
+        THIS.AVAILABLE_ITEMS.PUSH(...deletedItems);
+        if (!THIS.ITEM_TO_ADD) {
+            THIS.ITEM_TO_ADD = deletedItems[0];
         }
     }
 
     protected addItem() {
-        if (!this.itemToAdd) {
+        if (!THIS.ITEM_TO_ADD) {
             return;
         }
-        this.selectedItems.push(this.itemToAdd);
-        this.updateValue();
-        if (this.allowDuplicates) {
+        THIS.SELECTED_ITEMS.PUSH(THIS.ITEM_TO_ADD);
+        THIS.UPDATE_VALUE();
+        if (THIS.ALLOW_DUPLICATES) {
             return;
         }
-        this.availableItems.splice(this.availableItems.indexOf(this.itemToAdd), 1);
-        this.itemToAdd = this.availableItems.length !== 0 ? this.availableItems[0] : null;
+        THIS.AVAILABLE_ITEMS.SPLICE(THIS.AVAILABLE_ITEMS.INDEX_OF(THIS.ITEM_TO_ADD), 1);
+        THIS.ITEM_TO_ADD = THIS.AVAILABLE_ITEMS.LENGTH !== 0 ? THIS.AVAILABLE_ITEMS[0] : null;
     }
 
     private updateValue() {
-        this.formControl.setValue(this.selectedItems.map(i => i.value));
-        this.invalidateSelectOptions();
+        THIS.FORM_CONTROL.SET_VALUE(THIS.SELECTED_ITEMS.MAP(i => I.VALUE));
+        THIS.INVALIDATE_SELECT_OPTIONS();
     }
 
     private invalidateSelectOptions() {
-        const newOptions = this.selectOptions;
-        this.selectedItems.forEach(option => {
-            const validatedOption = newOptions.find(o => o.value === option.value);
+        const newOptions = THIS.SELECT_OPTIONS;
+        THIS.SELECTED_ITEMS.FOR_EACH(option => {
+            const validatedOption = NEW_OPTIONS.FIND(o => O.VALUE === OPTION.VALUE);
             if (!validatedOption) {
                 return;
             }
-            option.expressions.locked = validatedOption.expressions.locked;
+            OPTION.EXPRESSIONS.LOCKED = VALIDATED_OPTION.EXPRESSIONS.LOCKED;
         });
     }
 

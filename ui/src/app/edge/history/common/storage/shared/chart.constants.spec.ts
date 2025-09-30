@@ -1,21 +1,21 @@
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { EdgeConfig } from "src/app/shared/shared";
 import { StorageTotalChartComponent } from "../chart/totalchart";
 import { StorageEssChartComponent } from "../details/chart/esschart";
 
-export function expectEssChartViewToEqual(testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View, component: EdgeConfig.Component, config: EdgeConfig): void {
-  expect(TestingUtils.removeFunctions(OeChartTester
+export function expectEssChartViewToEqual(testContext: TestContext, chartType: "line" | "bar", channels: OE_TESTER.TYPES.CHANNELS, view: OE_CHART_TESTER.VIEW, component: EDGE_CONFIG.COMPONENT, config: EdgeConfig): void {
+  expect(TESTING_UTILS.REMOVE_FUNCTIONS(OeChartTester
     .apply(StorageEssChartComponent
-      .getChartData(testContext.translate, component, chartType, config), chartType, channels, testContext, config)))
-    .toEqual(TestingUtils.removeFunctions(view));
+      .getChartData(TEST_CONTEXT.TRANSLATE, component, chartType, config), chartType, channels, testContext, config)))
+    .toEqual(TESTING_UTILS.REMOVE_FUNCTIONS(view));
 }
 
-export function expectTotalChartViewToEqual(testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View, essComponents: EdgeConfig.Component[], showPhases: boolean, phaseColors: string[], config: EdgeConfig): void {
+export function expectTotalChartViewToEqual(testContext: TestContext, chartType: "line" | "bar", channels: OE_TESTER.TYPES.CHANNELS, view: OE_CHART_TESTER.VIEW, essComponents: EDGE_CONFIG.COMPONENT[], showPhases: boolean, phaseColors: string[], config: EdgeConfig): void {
 
-  expect(TestingUtils.removeFunctions(OeChartTester
+  expect(TESTING_UTILS.REMOVE_FUNCTIONS(OeChartTester
     .apply(StorageTotalChartComponent
-      .getChartData(testContext.translate, chartType, config), chartType, channels, testContext, config)))
-    .toEqual(TestingUtils.removeFunctions(view));
+      .getChartData(TEST_CONTEXT.TRANSLATE, chartType, config), chartType, channels, testContext, config)))
+    .toEqual(TESTING_UTILS.REMOVE_FUNCTIONS(view));
 }

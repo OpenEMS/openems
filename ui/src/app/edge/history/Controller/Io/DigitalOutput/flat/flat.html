@@ -1,18 +1,18 @@
 <oe-flat-widget button *ngIf="isInitialized" [title]="'Laststeuerung'" button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/digitaloutputchart'" [icon]="{name:
+    [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/digitaloutputchart'" [icon]="{name:
     'power-outline',color:'normal'}">
 
     <ng-container *ngFor="let controller of singleThresholdControllers; let first = first">
-        <oe-flat-widget-line [name]="controller.alias" [channelAddress]="controller.id + '/CumulatedActiveTime'"
+        <oe-flat-widget-line [name]="CONTROLLER.ALIAS" [channelAddress]="CONTROLLER.ID + '/CumulatedActiveTime'"
             [converter]="FORMAT_SECONDS_TO_DURATION">
         </oe-flat-widget-line>
     </ng-container>
 
     <oe-flat-widget-horizontal-line
-        *ngIf="singleThresholdControllers.length > 0 && fixDigitalOutputControllers.length > 0"></oe-flat-widget-horizontal-line>
+        *ngIf="SINGLE_THRESHOLD_CONTROLLERS.LENGTH > 0 && FIX_DIGITAL_OUTPUT_CONTROLLERS.LENGTH > 0"></oe-flat-widget-horizontal-line>
 
     <ng-container *ngFor="let controller of fixDigitalOutputControllers; let first = first">
-        <oe-flat-widget-line [name]="controller.alias" [channelAddress]="controller.id + '/CumulatedActiveTime'"
+        <oe-flat-widget-line [name]="CONTROLLER.ALIAS" [channelAddress]="CONTROLLER.ID + '/CumulatedActiveTime'"
             [converter]="FORMAT_SECONDS_TO_DURATION">
         </oe-flat-widget-line>
     </ng-container>

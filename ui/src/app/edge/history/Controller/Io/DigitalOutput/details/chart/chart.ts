@@ -9,57 +9,57 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 
 @Component({
   selector: "detailChart",
-  templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, chartType: "line" | "bar", route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-    const controller: EdgeConfig.Component = config.getComponent(route.snapshot.params.componentId);
+  public static getChartData(config: EdgeConfig, chartType: "line" | "bar", route: ActivatedRoute, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
+    const controller: EDGE_CONFIG.COMPONENT = CONFIG.GET_COMPONENT(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
 
-    const input: HistoryUtils.InputChannel[] = [];
+    const input: HISTORY_UTILS.INPUT_CHANNEL[] = [];
     let inputChannel: ChannelAddress | null = null;
-    const outputChannel = ChannelAddress.fromString(Array.isArray(config.getComponentProperties(controller.id)["outputChannelAddress"])
-      ? config.getComponentProperties(controller.id)["outputChannelAddress"][0]
-      : config.getComponentProperties(controller.id)["outputChannelAddress"]);
+    const outputChannel = CHANNEL_ADDRESS.FROM_STRING(ARRAY.IS_ARRAY(CONFIG.GET_COMPONENT_PROPERTIES(CONTROLLER.ID)["outputChannelAddress"])
+      ? CONFIG.GET_COMPONENT_PROPERTIES(CONTROLLER.ID)["outputChannelAddress"][0]
+      : CONFIG.GET_COMPONENT_PROPERTIES(CONTROLLER.ID)["outputChannelAddress"]);
 
-    if (controller.factoryId === "Controller.IO.ChannelSingleThreshold") {
-      inputChannel = ChannelAddress.fromString(config.getComponentProperties(controller.id)["inputChannelAddress"]);
-      input.push({
-        name: inputChannel.toString(), powerChannel: inputChannel,
+    if (CONTROLLER.FACTORY_ID === "CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD") {
+      inputChannel = CHANNEL_ADDRESS.FROM_STRING(CONFIG.GET_COMPONENT_PROPERTIES(CONTROLLER.ID)["inputChannelAddress"]);
+      INPUT.PUSH({
+        name: INPUT_CHANNEL.TO_STRING(), powerChannel: inputChannel,
       });
     }
 
-    input.push({
-      name: controller.id + "output", powerChannel: outputChannel, energyChannel: new ChannelAddress(controller.id, "CumulatedActiveTime"),
+    INPUT.PUSH({
+      name: CONTROLLER.ID + "output", powerChannel: outputChannel, energyChannel: new ChannelAddress(CONTROLLER.ID, "CumulatedActiveTime"),
     });
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => {
-        const output: HistoryUtils.DisplayValue[] = [];
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
+        const output: HISTORY_UTILS.DISPLAY_VALUE[] = [];
 
-        output.push({
+        OUTPUT.PUSH({
           name: Name.METER_ALIAS_OR_ID(controller),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyQueryResponse?.result.data[controller.id + "/CumulatedActiveTime"] ?? null;
+            return energyQueryResponse?.RESULT.DATA[CONTROLLER.ID + "/CumulatedActiveTime"] ?? null;
           },
           converter: () => {
 
             if (chartType == "line") {
-              return data[controller.id + "output"]?.map(val => Utils.multiplySafely(1000, val));
+              return data[CONTROLLER.ID + "output"]?.map(val => UTILS.MULTIPLY_SAFELY(1000, val));
             }
 
-            return data[controller.id + "output"]
+            return data[CONTROLLER.ID + "output"]
               // TODO add logic to not have to adjust non power data manually
-              ?.map(val => Utils.multiplySafely(val, 1000));
+              ?.map(val => UTILS.MULTIPLY_SAFELY(val, 1000));
           },
-          color: ChartConstants.Colors.YELLOW,
+          color: CHART_CONSTANTS.COLORS.YELLOW,
           stack: 0,
         });
 
         if (inputChannel) {
-          output.push(ChartComponent.getDisplayValue(data, inputChannel, translate));
+          OUTPUT.PUSH(CHART_COMPONENT.GET_DISPLAY_VALUE(data, inputChannel, translate));
         }
 
         return output;
@@ -67,29 +67,29 @@ export class ChartComponent extends AbstractHistoryChart {
       tooltip: {
         formatNumber: "1.0-0",
       },
-      yAxes: ChartComponent.getYAxes(inputChannel, chartType),
+      yAxes: CHART_COMPONENT.GET_YAXES(inputChannel, chartType),
     };
   }
   protected static getInputChannelLabel(translate: TranslateService, channelAddress: ChannelAddress): string {
-    switch (channelAddress.channelId) {
+    switch (CHANNEL_ADDRESS.CHANNEL_ID) {
       case "GridActivePower":
-        return translate.instant("General.grid");
+        return TRANSLATE.INSTANT("GENERAL.GRID");
       case "ProductionActivePower":
-        return translate.instant("General.production");
+        return TRANSLATE.INSTANT("GENERAL.PRODUCTION");
       case "EssSoc":
-        return translate.instant("General.soc");
+        return TRANSLATE.INSTANT("GENERAL.SOC");
       default:
-        return translate.instant("Edge.Index.Widgets.Singlethreshold.other");
+        return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER");
     }
   }
 
-  protected static getYAxes(inputChannel: ChannelAddress | null, chartType: "line" | "bar"): HistoryUtils.yAxes[] {
-    const leftYAxis: HistoryUtils.yAxes = {
-      unit: chartType === "line" ? YAxisType.RELAY : YAxisType.TIME,
+  protected static getYAxes(inputChannel: ChannelAddress | null, chartType: "line" | "bar"): HISTORY_UTILS.Y_AXES[] {
+    const leftYAxis: HISTORY_UTILS.Y_AXES = {
+      unit: chartType === "line" ? YAXIS_TYPE.RELAY : YAXIS_TYPE.TIME,
       position: "left",
-      yAxisId: ChartAxis.LEFT,
+      yAxisId: CHART_AXIS.LEFT,
     };
-    const yAxes: HistoryUtils.yAxes[] = [leftYAxis];
+    const yAxes: HISTORY_UTILS.Y_AXES[] = [leftYAxis];
 
     if (!inputChannel) {
       return yAxes;
@@ -99,19 +99,19 @@ export class ChartComponent extends AbstractHistoryChart {
       return yAxes;
     }
 
-    switch (inputChannel.channelId) {
+    switch (INPUT_CHANNEL.CHANNEL_ID) {
       case "EssSoc":
-        yAxes.push({
-          unit: YAxisType.PERCENTAGE,
+        Y_AXES.PUSH({
+          unit: YAXIS_TYPE.PERCENTAGE,
           position: "right",
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: CHART_AXIS.RIGHT,
         });
         break;
       default:
-        yAxes.push({
-          unit: YAxisType.ENERGY,
+        Y_AXES.PUSH({
+          unit: YAXIS_TYPE.ENERGY,
           position: "right",
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: CHART_AXIS.RIGHT,
         });
         break;
     }
@@ -120,44 +120,44 @@ export class ChartComponent extends AbstractHistoryChart {
 
   protected static getYAxisId(inputChannel: ChannelAddress): ChartAxis {
     if (!inputChannel) {
-      return ChartAxis.LEFT;
+      return CHART_AXIS.LEFT;
     }
 
-    switch (inputChannel.channelId) {
+    switch (INPUT_CHANNEL.CHANNEL_ID) {
       case "EssSoc":
       default:
-        return ChartAxis.RIGHT;
+        return CHART_AXIS.RIGHT;
     }
   }
 
   protected static getColor(inputChannel: ChannelAddress): string {
-    if (!inputChannel || inputChannel.channelId != "EssSoc") {
+    if (!inputChannel || INPUT_CHANNEL.CHANNEL_ID != "EssSoc") {
       return "rgb(0,0,0)";
     }
     return "rgb(189,195,199)";
   }
 
-  protected static getConverter(inputChannel: ChannelAddress, data: HistoryUtils.ChannelData): () => {} {
-    if (!inputChannel || inputChannel.channelId != "EssSoc") {
-      return () => data[inputChannel.toString()];
+  protected static getConverter(inputChannel: ChannelAddress, data: HISTORY_UTILS.CHANNEL_DATA): () => {} {
+    if (!inputChannel || INPUT_CHANNEL.CHANNEL_ID != "EssSoc") {
+      return () => data[INPUT_CHANNEL.TO_STRING()];
     }
 
-    return () => data[inputChannel.toString()]
+    return () => data[INPUT_CHANNEL.TO_STRING()]
       // TODO add logic to not have to adjust non power data manually
-      ?.map((val: number) => Utils.multiplySafely(val, 1000));
+      ?.map((val: number) => UTILS.MULTIPLY_SAFELY(val, 1000));
   }
 
-  private static getDisplayValue(data: HistoryUtils.ChannelData, inputChannel: ChannelAddress, translate: TranslateService): HistoryUtils.DisplayValue {
+  private static getDisplayValue(data: HISTORY_UTILS.CHANNEL_DATA, inputChannel: ChannelAddress, translate: TranslateService): HISTORY_UTILS.DISPLAY_VALUE {
     return {
-      name: ChartComponent.getInputChannelLabel(translate, inputChannel),
-      converter: ChartComponent.getConverter(inputChannel, data),
-      color: ChartComponent.getColor(inputChannel),
-      yAxisId: ChartAxis.RIGHT,
+      name: CHART_COMPONENT.GET_INPUT_CHANNEL_LABEL(translate, inputChannel),
+      converter: CHART_COMPONENT.GET_CONVERTER(inputChannel, data),
+      color: CHART_COMPONENT.GET_COLOR(inputChannel),
+      yAxisId: CHART_AXIS.RIGHT,
       stack: 1,
     };
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return ChartComponent.getChartData(this.config, this.chartType, this.route, this.translate);
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    return CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.CHART_TYPE, THIS.ROUTE, THIS.TRANSLATE);
   }
 }

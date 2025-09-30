@@ -9,7 +9,7 @@ import { IonCheckbox, IonicModule } from "@ionic/angular";
  */
 @Component({
     selector: "oe-checkbox",
-    templateUrl: "./oe-checkbox.html",
+    templateUrl: "./oe-CHECKBOX.HTML",
     standalone: true,
     imports: [
         CommonModule,

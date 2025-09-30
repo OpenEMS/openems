@@ -1,8 +1,8 @@
 <ion-breadcrumbs *ngIf="breadCrumbs().length > 0" maxItems="3">
-    @for(parent of breadCrumbs(); track parent.id; let isLast = $last){
+    @for(parent of breadCrumbs(); track PARENT.ID; let isLast = $last){
     <ion-breadcrumb [active]="isLast" (click)="navigateTo(parent, !isLast)" color="primary">
-        <ion-text *ngIf="parent.mode === 'label'" [color]="isLast ? 'primary': 'medium'">{{parent.label}}</ion-text>
-        <ion-icon *ngIf="parent.mode === 'icon'" [name]="'home-outline'"
+        <ion-text *ngIf="PARENT.MODE === 'label'" [color]="isLast ? 'primary': 'medium'">{{PARENT.LABEL}}</ion-text>
+        <ion-icon *ngIf="PARENT.MODE === 'icon'" [name]="'home-outline'"
             [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
     </ion-breadcrumb>
     }

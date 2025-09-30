@@ -8,14 +8,14 @@ import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } 
 
 @Component({
     selector: "Io_Api_DigitalInputModal",
-    templateUrl: "./modal.component.html",
+    templateUrl: "./MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "Io_Api_DigitalInput_ModalComponent";
 
     @Input({ required: true }) public edge!: Edge;
-    @Input({ required: true }) public ioComponents!: EdgeConfig.Component[];
+    @Input({ required: true }) public ioComponents!: EDGE_CONFIG.COMPONENT[];
 
     protected digitalInputChannelsPerComponent: { componentId: string, componentAlias: string, channels: Channel[] }[];
 
@@ -26,31 +26,31 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit(): void {
-        this.getDigitalInputChannels().then(channelsPerComponent => {
-            this.digitalInputChannelsPerComponent = channelsPerComponent;
-            const channels = this.digitalInputChannelsPerComponent.reduce((p, c) => {
-                return [...p, ...c.channels.map(e => new ChannelAddress(c.componentId, e.id))];
+        THIS.GET_DIGITAL_INPUT_CHANNELS().then(channelsPerComponent => {
+            THIS.DIGITAL_INPUT_CHANNELS_PER_COMPONENT = channelsPerComponent;
+            const channels = THIS.DIGITAL_INPUT_CHANNELS_PER_COMPONENT.REDUCE((p, c) => {
+                return [...p, ...C.CHANNELS.MAP(e => new ChannelAddress(C.COMPONENT_ID, E.ID))];
             }, []);
-            this.edge.subscribeChannels(this.websocket, Io_Api_DigitalInput_ModalComponent.SELECTOR, channels);
+            THIS.EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, Io_Api_DigitalInput_ModalComponent.SELECTOR, channels);
         });
     }
 
     ngOnDestroy(): void {
-        this.edge.unsubscribeChannels(this.websocket, Io_Api_DigitalInput_ModalComponent.SELECTOR);
+        THIS.EDGE.UNSUBSCRIBE_CHANNELS(THIS.WEBSOCKET, Io_Api_DigitalInput_ModalComponent.SELECTOR);
     }
 
     private async getDigitalInputChannels(): Promise<{ componentId: string, componentAlias: string, channels: Channel[] }[]> {
-        if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-            return this.ioComponents.map(e => {
+        if (EDGE_PERMISSION.HAS_CHANNELS_IN_EDGE_CONFIG(THIS.EDGE)) {
+            return THIS.IO_COMPONENTS.MAP(e => {
                 return {
-                    componentId: e.id,
-                    componentAlias: e.alias,
-                    channels: Object.entries(e.channels)
+                    componentId: E.ID,
+                    componentAlias: E.ALIAS,
+                    channels: OBJECT.ENTRIES(E.CHANNELS)
                         .filter(([key, value]) => {
-                            if (value.accessMode !== "RO") {
+                            if (VALUE.ACCESS_MODE !== "RO") {
                                 return false;
                             }
-                            if (value.type !== "BOOLEAN") {
+                            if (VALUE.TYPE !== "BOOLEAN") {
                                 return false;
                             }
                             if (key === "_PropertyEnabled") {
@@ -65,13 +65,13 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
             });
         }
 
-        const response = await this.edge.sendRequest<GetDigitalInputChannelsOfComponentsResponse>(this.websocket, new ComponentJsonApiRequest({
+        const response = await THIS.EDGE.SEND_REQUEST<GetDigitalInputChannelsOfComponentsResponse>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
             componentId: "_componentManager",
-            payload: new GetDigitalInputChannelsOfComponentsRequest({ componentIds: this.ioComponents.map(e => e.id) }),
+            payload: new GetDigitalInputChannelsOfComponentsRequest({ componentIds: THIS.IO_COMPONENTS.MAP(e => E.ID) }),
         }));
-        return response.result.channelsPerComponent.map(e => {
+        return RESPONSE.RESULT.CHANNELS_PER_COMPONENT.MAP(e => {
             return {
-                componentAlias: this.ioComponents.find(c => c.id == e.componentId)?.alias ?? e.componentId,
+                componentAlias: THIS.IO_COMPONENTS.FIND(c => C.ID == E.COMPONENT_ID)?.alias ?? E.COMPONENT_ID,
                 ...e,
             };
         });
@@ -88,7 +88,7 @@ export class GetDigitalInputChannelsOfComponentsRequest extends JsonrpcRequest {
             componentIds: string[],
         },
     ) {
-        super(GetDigitalInputChannelsOfComponentsRequest.METHOD, params);
+        super(GET_DIGITAL_INPUT_CHANNELS_OF_COMPONENTS_REQUEST.METHOD, params);
     }
 
 }

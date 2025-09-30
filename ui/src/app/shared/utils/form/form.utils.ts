@@ -16,20 +16,20 @@ export namespace FormUtils {
     export function findFormControlSafely(f: FormGroup, formControlName: string): AbstractControl | null {
 
         let result: AbstractControl | null = null;
-        const controls = f.controls;
+        const controls = F.CONTROLS;
         if (formControlName in controls) {
-            result = f.controls[formControlName];
+            result = F.CONTROLS[formControlName];
             return result;
         }
 
-        Object.values(controls).map(el => {
+        OBJECT.VALUES(controls).map(el => {
             if (el instanceof FormGroup) {
-                result = FormUtils.findFormControlSafely(el, formControlName);
+                result = FORM_UTILS.FIND_FORM_CONTROL_SAFELY(el, formControlName);
             }
 
             if (el instanceof FormControl) {
-                if (el.value instanceof FormGroup) {
-                    result = FormUtils.findFormControlSafely(el.value, formControlName);
+                if (EL.VALUE instanceof FormGroup) {
+                    result = FORM_UTILS.FIND_FORM_CONTROL_SAFELY(EL.VALUE, formControlName);
                 }
             }
         });
@@ -47,13 +47,13 @@ export namespace FormUtils {
      * @returns the <T>control if found, else null
      */
     export function findFormControlsValueSafely<T>(f: FormGroup, formControlName: string): T | null {
-        const formControl: AbstractControl | null = FormUtils.findFormControlSafely(f, formControlName);
+        const formControl: AbstractControl | null = FORM_UTILS.FIND_FORM_CONTROL_SAFELY(f, formControlName);
 
         if (!formControl) {
             return null;
         }
 
-        return formControl.value;
+        return FORM_CONTROL.VALUE;
     }
 
     /**
@@ -61,11 +61,11 @@ export namespace FormUtils {
      *
      * @param fields the fields
      * @param key the key to look for
-     * @returns fields if key in {@link FormlyFieldConfig.props formlyfield props}, else empty arr
+     * @returns fields if key in {@link FORMLY_FIELD_CONFIG.PROPS formlyfield props}, else empty arr
      */
     export function filterFieldPropsWithKey(fields: FormlyFieldConfig[], key: string): FormlyFieldConfig[] {
-        return fields.filter(field => {
-            return field?.props != null && key in field.props;
+        return FIELDS.FILTER(field => {
+            return field?.props != null && key in FIELD.PROPS;
         });
     }
 };

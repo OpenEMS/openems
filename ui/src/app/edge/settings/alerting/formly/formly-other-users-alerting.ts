@@ -5,12 +5,12 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/view-component/help-popover/help-popover";
-import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { AlertingComponent } from "../alerting.component";
+import { FormUtils } from "src/app/shared/utils/form/FORM.UTILS";
+import { AlertingComponent } from "../ALERTING.COMPONENT";
 
 @Component({
     selector: "formly-other-users-alerting",
-    templateUrl: "./formly-other-users-alerting.html",
+    templateUrl: "./formly-other-users-ALERTING.HTML",
     standalone: true,
     imports: [
         IonicModule,
@@ -19,23 +19,23 @@ import { AlertingComponent } from "../alerting.component";
         ReactiveFormsModule,
         HelpPopoverButtonComponent,
     ],
-    styleUrls: ["./alerting.scss"],
-    encapsulation: ViewEncapsulation.None,
+    styleUrls: ["./ALERTING.SCSS"],
+    encapsulation: VIEW_ENCAPSULATION.NONE,
 })
 export class FormlyOtherUsersAlertingComponent extends FieldWrapper implements OnInit {
 
     protected mailCheckBoxChecked: Map<string, boolean> = new Map();
 
     ngOnInit() {
-        const userOptions = this.props.options as FormlyFieldConfig[] ?? [];
+        const userOptions = THIS.PROPS.OPTIONS as FormlyFieldConfig[] ?? [];
         for (const user of userOptions) {
-            for (const alertingField of user.fieldGroup ?? []) {
-                const dependentControls = FormUtils.filterFieldPropsWithKey(alertingField.fieldGroup, "disabledOnFormControl");
+            for (const alertingField of USER.FIELD_GROUP ?? []) {
+                const dependentControls = FORM_UTILS.FILTER_FIELD_PROPS_WITH_KEY(ALERTING_FIELD.FIELD_GROUP, "disabledOnFormControl");
 
                 for (const control of dependentControls) {
-                    const controlDependentOn = control.props.disabledOnFormControl;
-                    const isToggleOn = this.form.controls[user.key as string]?.controls[controlDependentOn]?.value ?? false;
-                    this.updateToggleDependentFields(user.key as string, control.key as string, isToggleOn);
+                    const controlDependentOn = CONTROL.PROPS.DISABLED_ON_FORM_CONTROL;
+                    const isToggleOn = THIS.FORM.CONTROLS[USER.KEY as string]?.controls[controlDependentOn]?.value ?? false;
+                    THIS.UPDATE_TOGGLE_DEPENDENT_FIELDS(USER.KEY as string, CONTROL.KEY as string, isToggleOn);
                 }
             }
         }
@@ -48,13 +48,13 @@ export class FormlyOtherUsersAlertingComponent extends FieldWrapper implements O
      * @param controlName the control to update
      */
     protected changeEditMode(user: string, controlName: string) {
-        const userForm = FormUtils.findFormControlSafely(this.form as FormGroup, user) as FormGroup;
-        const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(userForm, controlName);
-        this.checkValidity(user);
-        const userOptions = (this.props.options as any[]).find(el => el.key == user) as FormlyFieldConfig;
-        const affectedControls: string[] = userOptions.fieldGroup.map(el => el.fieldGroup).flat(1).filter(el => el.props?.disabledOnFormControl == controlName)?.map(el => el.key as string) ?? [];
+        const userForm = FORM_UTILS.FIND_FORM_CONTROL_SAFELY(THIS.FORM as FormGroup, user) as FormGroup;
+        const isToggleOn = FORM_UTILS.FIND_FORM_CONTROLS_VALUE_SAFELY<boolean>(userForm, controlName);
+        THIS.CHECK_VALIDITY(user);
+        const userOptions = (THIS.PROPS.OPTIONS as any[]).find(el => EL.KEY == user) as FormlyFieldConfig;
+        const affectedControls: string[] = USER_OPTIONS.FIELD_GROUP.MAP(el => EL.FIELD_GROUP).flat(1).filter(el => EL.PROPS?.disabledOnFormControl == controlName)?.map(el => EL.KEY as string) ?? [];
         for (const control of affectedControls) {
-            this.updateToggleDependentFields(user, control, isToggleOn);
+            THIS.UPDATE_TOGGLE_DEPENDENT_FIELDS(user, control, isToggleOn);
         }
     }
 
@@ -64,16 +64,16 @@ export class FormlyOtherUsersAlertingComponent extends FieldWrapper implements O
      * @param user the selected user
      */
     protected checkValidity(user: string) {
-        const userForm = FormUtils.findFormControlSafely(this.form as FormGroup, user) as FormGroup;
-        this.mailCheckBoxChecked.set(user, AlertingComponent.isFormValid(userForm));
+        const userForm = FORM_UTILS.FIND_FORM_CONTROL_SAFELY(THIS.FORM as FormGroup, user) as FormGroup;
+        THIS.MAIL_CHECK_BOX_CHECKED.SET(user, ALERTING_COMPONENT.IS_FORM_VALID(userForm));
     }
 
     private updateToggleDependentFields(user: string, control: string, isToggleOn: boolean) {
-        const userFormControls = this.form.controls[user];
+        const userFormControls = THIS.FORM.CONTROLS[user];
         if (!isToggleOn) {
-            userFormControls.controls[control].disable();
+            USER_FORM_CONTROLS.CONTROLS[control].disable();
         } else {
-            userFormControls.controls[control].enable();
+            USER_FORM_CONTROLS.CONTROLS[control].enable();
         }
     }
 }

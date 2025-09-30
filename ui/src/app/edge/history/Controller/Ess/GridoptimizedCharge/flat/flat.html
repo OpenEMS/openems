@@ -1,13 +1,13 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" button
-  [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/gridOptimizedChargeChart'"
+<oe-flat-widget *ngIf="isInitialized" [title]="COMPONENT.ALIAS" button
+  [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/' + COMPONENT.ID + '/gridOptimizedChargeChart'"
   [icon]="{name: 'oe-grid-storage', size: 'large', color: 'normal'}">
-  <oe-flat-widget-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed' | translate"
-    [channelAddress]="component.id + '/AvoidLowChargingTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED' | translate"
+    [channelAddress]="COMPONENT.ID + '/AvoidLowChargingTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
     [filter]="filter"></oe-flat-widget-line>
-  <oe-flat-widget-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive' | translate"
-    [channelAddress]="component.id + '/DelayChargeTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE' | translate"
+    [channelAddress]="COMPONENT.ID + '/DelayChargeTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
     [filter]="filter"></oe-flat-widget-line>
-  <oe-flat-widget-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided' | translate"
-    [channelAddress]="component.id + '/SellToGridLimitTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.GRID_FEED_IN_LIMITATION_AVOIDED' | translate"
+    [channelAddress]="COMPONENT.ID + '/SellToGridLimitTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
     [filter]="filter"></oe-flat-widget-line>
 </oe-flat-widget>

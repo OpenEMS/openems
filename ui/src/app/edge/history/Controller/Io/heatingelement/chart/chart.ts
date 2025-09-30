@@ -2,84 +2,84 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-io-heatingelement-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-    public static getChartData(config: EdgeConfig, translate: TranslateService, component: EdgeConfig.Component, phaseColors: string[], chartType: "line" | "bar"): HistoryUtils.ChartData {
+    public static getChartData(config: EdgeConfig, translate: TranslateService, component: EDGE_CONFIG.COMPONENT, phaseColors: string[], chartType: "line" | "bar"): HISTORY_UTILS.CHART_DATA {
 
-        const consumptionMeter: EdgeConfig.Component = config.getComponent(component.properties["meter.id"]);
+        const consumptionMeter: EDGE_CONFIG.COMPONENT = CONFIG.GET_COMPONENT(COMPONENT.PROPERTIES["METER.ID"]);
 
-        const input: HistoryUtils.InputChannel[] = [
-            { name: component.id, powerChannel: new ChannelAddress(component.id, "Level") },
+        const input: HISTORY_UTILS.INPUT_CHANNEL[] = [
+            { name: COMPONENT.ID, powerChannel: new ChannelAddress(COMPONENT.ID, "Level") },
         ];
 
-        if (consumptionMeter && consumptionMeter.isEnabled) {
-            input.push({
-            name: consumptionMeter.id + "/ActivePower",
-            powerChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActivePower"),
-            energyChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActiveProductionEnergy"),
+        if (consumptionMeter && CONSUMPTION_METER.IS_ENABLED) {
+            INPUT.PUSH({
+            name: CONSUMPTION_METER.ID + "/ActivePower",
+            powerChannel: CHANNEL_ADDRESS.FROM_STRING(CONSUMPTION_METER.ID + "/ActivePower"),
+            energyChannel: CHANNEL_ADDRESS.FROM_STRING(CONSUMPTION_METER.ID + "/ActiveProductionEnergy"),
             });
         }
 
         for (const level of [1, 2, 3]) {
-            input.push({
-                name: component.id + level,
-                powerChannel: new ChannelAddress(component.id, "Level"),
-                energyChannel: new ChannelAddress(component.id, "Level" + level + "CumulatedTime"),
+            INPUT.PUSH({
+                name: COMPONENT.ID + level,
+                powerChannel: new ChannelAddress(COMPONENT.ID, "Level"),
+                energyChannel: new ChannelAddress(COMPONENT.ID, "Level" + level + "CumulatedTime"),
             });
         }
 
         return {
             input: input,
-            output: (data: HistoryUtils.ChannelData) => {
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
 
-                const output: HistoryUtils.DisplayValue[] = [];
+                const output: HISTORY_UTILS.DISPLAY_VALUE[] = [];
 
                 if (chartType === "line") {
-                    output.push({
+                    OUTPUT.PUSH({
                         name: "Level",
-                        converter: () => data[component.id].map(val => Utils.multiplySafely(val, 1000)),
-                        color: ChartConstants.Colors.RED,
+                        converter: () => data[COMPONENT.ID].map(val => UTILS.MULTIPLY_SAFELY(val, 1000)),
+                        color: CHART_CONSTANTS.COLORS.RED,
                         stack: 0,
-                        yAxisId: ChartAxis.LEFT,
+                        yAxisId: CHART_AXIS.LEFT,
                     });
 
                 }
 
                 if (chartType === "bar") {
                     for (const level of [1, 2, 3]) {
-                        output.push({
+                        OUTPUT.PUSH({
                             name: "Level " + level,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
-                                energyQueryResponse?.result.data[component.id + "/Level" + level + "CumulatedTime"] ?? null,
-                            converter: () => data[component.id + level]
+                                energyQueryResponse?.RESULT.DATA[COMPONENT.ID + "/Level" + level + "CumulatedTime"] ?? null,
+                            converter: () => data[COMPONENT.ID + level]
                                 // TODO add logic to not have to adjust non power data manually
-                                .map(val => Utils.multiplySafely(val, 1000)),
-                            color: phaseColors[level % phaseColors.length],
+                                .map(val => UTILS.MULTIPLY_SAFELY(val, 1000)),
+                            color: phaseColors[level % PHASE_COLORS.LENGTH],
                             stack: 0,
-                            yAxisId: ChartAxis.LEFT,
+                            yAxisId: CHART_AXIS.LEFT,
                         });
                     }
                 }
 
-                if (consumptionMeter && consumptionMeter.isEnabled){
-                    output.push({
-                    name: translate.instant("General.consumption"),
+                if (consumptionMeter && CONSUMPTION_METER.IS_ENABLED){
+                    OUTPUT.PUSH({
+                    name: TRANSLATE.INSTANT("GENERAL.CONSUMPTION"),
                     nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
-                        energyValues?.result.data[consumptionMeter.id + "/ActiveProductionEnergy"],
+                        energyValues?.RESULT.DATA[CONSUMPTION_METER.ID + "/ActiveProductionEnergy"],
                     converter: () =>
-                        data[consumptionMeter.id + "/ActivePower"] ?? null,
-                    color: ChartConstants.Colors.YELLOW,
+                        data[CONSUMPTION_METER.ID + "/ActivePower"] ?? null,
+                    color: CHART_CONSTANTS.COLORS.YELLOW,
                     stack: 1,
-                    yAxisId: ChartAxis.RIGHT,
+                    yAxisId: CHART_AXIS.RIGHT,
                     });
                 }
 
@@ -89,19 +89,19 @@ export class ChartComponent extends AbstractHistoryChart {
                 formatNumber: "1.0-2",
             },
             yAxes:
-            consumptionMeter && consumptionMeter.isEnabled ?
+            consumptionMeter && CONSUMPTION_METER.IS_ENABLED ?
             [
                 {
-                    unit:  YAxisType.ENERGY,
+                    unit:  YAXIS_TYPE.ENERGY,
                     position: "right",
-                    yAxisId: ChartAxis.RIGHT,
+                    yAxisId: CHART_AXIS.RIGHT,
                 },
                 {
                     unit: chartType === "line"
                         ? YAxisType.HEATING_ELEMENT
-                        : YAxisType.TIME,
+                        : YAXIS_TYPE.TIME,
                     position: "left",
-                    yAxisId: ChartAxis.LEFT,
+                    yAxisId: CHART_AXIS.LEFT,
 
                 },
             ]
@@ -110,16 +110,16 @@ export class ChartComponent extends AbstractHistoryChart {
                 {
                     unit: chartType === "line"
                         ? YAxisType.HEATING_ELEMENT
-                        : YAxisType.TIME,
+                        : YAXIS_TYPE.TIME,
                     position: "left",
-                    yAxisId: ChartAxis.LEFT,
+                    yAxisId: CHART_AXIS.LEFT,
 
                 },
             ],
         };
     }
 
-    protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.config, this.translate, this.component, AbstractHistoryChart.phaseColors, this.chartType);
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+        return CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.TRANSLATE, THIS.COMPONENT, ABSTRACT_HISTORY_CHART.PHASE_COLORS, THIS.CHART_TYPE);
     }
 }

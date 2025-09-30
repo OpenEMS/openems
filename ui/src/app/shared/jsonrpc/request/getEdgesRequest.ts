@@ -32,6 +32,6 @@ export class GetEdgesRequest extends JsonrpcRequest {
             searchParams?: {}
         },
     ) {
-        super(GetEdgesRequest.METHOD, params);
+        super(GET_EDGES_REQUEST.METHOD, params);
     }
 }

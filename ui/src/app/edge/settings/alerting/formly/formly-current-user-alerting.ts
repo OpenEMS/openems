@@ -5,12 +5,12 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/view-component/help-popover/help-popover";
-import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { ModalComponentsModule } from "../../../../shared/components/modal/modal.module";
+import { FormUtils } from "src/app/shared/utils/form/FORM.UTILS";
+import { ModalComponentsModule } from "../../../../shared/components/modal/MODAL.MODULE";
 
 @Component({
     selector: "formly-current-user-alerting",
-    templateUrl: "./formly-current-user-alerting.html",
+    templateUrl: "./formly-current-user-ALERTING.HTML",
     standalone: true,
     imports: [
         IonicModule,
@@ -21,36 +21,36 @@ import { ModalComponentsModule } from "../../../../shared/components/modal/modal
         ModalComponentsModule,
         FormlyModule,
     ],
-    styleUrl: "./alerting.scss",
+    styleUrl: "./ALERTING.SCSS",
 })
 export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements OnInit {
 
     ngOnInit() {
-        const flattenedFormGroup = (this.props.options as FormlyFieldConfig[])
-            .map(el => el.fieldGroup).flat(1);
-        const dependentControls = FormUtils.filterFieldPropsWithKey(flattenedFormGroup as FormlyFieldConfig[], "disabledOnFormControl");
+        const flattenedFormGroup = (THIS.PROPS.OPTIONS as FormlyFieldConfig[])
+            .map(el => EL.FIELD_GROUP).flat(1);
+        const dependentControls = FORM_UTILS.FILTER_FIELD_PROPS_WITH_KEY(flattenedFormGroup as FormlyFieldConfig[], "disabledOnFormControl");
 
         if (!dependentControls) {
             return;
         }
 
         for (const control of dependentControls) {
-            const controlDependentOn = control.props.disabledOnFormControl;
-            const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(this.form as FormGroup, controlDependentOn);
-            this.updateToggleDependentFields(control.key as string, isToggleOn);
+            const controlDependentOn = CONTROL.PROPS.DISABLED_ON_FORM_CONTROL;
+            const isToggleOn = FORM_UTILS.FIND_FORM_CONTROLS_VALUE_SAFELY<boolean>(THIS.FORM as FormGroup, controlDependentOn);
+            THIS.UPDATE_TOGGLE_DEPENDENT_FIELDS(CONTROL.KEY as string, isToggleOn);
         }
     }
 
     protected changeEditMode(controlName: string) {
-        const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(this.form as FormGroup, controlName);
-        const normalizedFormGroup = (this.props.options as FormlyFieldConfig[])
-            .map(el => el.fieldGroup
+        const isToggleOn = FORM_UTILS.FIND_FORM_CONTROLS_VALUE_SAFELY<boolean>(THIS.FORM as FormGroup, controlName);
+        const normalizedFormGroup = (THIS.PROPS.OPTIONS as FormlyFieldConfig[])
+            .map(el => EL.FIELD_GROUP
                 ?.map((i) => i)).flat(1);
 
         // Disable other controls if dependent
-        const affectedControls: string[] = normalizedFormGroup.filter(el => el.props?.disabledOnFormControl == controlName)?.map(el => el.key as string) ?? [];
+        const affectedControls: string[] = NORMALIZED_FORM_GROUP.FILTER(el => EL.PROPS?.disabledOnFormControl == controlName)?.map(el => EL.KEY as string) ?? [];
         for (const control of affectedControls) {
-            this.updateToggleDependentFields(control, isToggleOn);
+            THIS.UPDATE_TOGGLE_DEPENDENT_FIELDS(control, isToggleOn);
         }
     }
 
@@ -62,9 +62,9 @@ export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements 
      */
     private updateToggleDependentFields(control: string, isToggleOn: boolean) {
         if (!isToggleOn) {
-            this.form.get(control).disable();
+            THIS.FORM.GET(control).disable();
         } else {
-            this.form.get(control).enable();
+            THIS.FORM.GET(control).enable();
         }
     }
 }

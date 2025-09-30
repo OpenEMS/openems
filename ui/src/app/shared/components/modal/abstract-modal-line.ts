@@ -20,13 +20,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     @Input({ required: true }) public formGroup!: FormGroup;
 
     /** component */
-    @Input() public component: EdgeConfig.Component = null;
+    @Input() public component: EDGE_CONFIG.COMPONENT = null;
 
     /** FormGroup ControlName */
     @Input({ required: true }) public controlName!: string;
 
     /**
-    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+    * Use `converter` to convert/map a CurrentData value to another value, E.G. an Enum number to a text.
     *
     * @param value the current data value
     * @returns converter function
@@ -41,7 +41,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     */
     @Input() public filter: Filter = Filter.NO_FILTER;
     @Input({ required: true }) public value!: number | string;
-    @Input() public roleIsAtLeast?: Role = Role.GUEST;
+    @Input() public roleIsAtLeast?: Role = ROLE.GUEST;
 
     /**
      * displayValue is the displayed @Input value in html
@@ -75,17 +75,17 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         @Inject(FormBuilder) public formBuilder: FormBuilder,
         private ref: ChangeDetectorRef,
     ) {
-        ref.detach();
+        REF.DETACH();
         setInterval(() => {
-            this.ref.detectChanges(); // manually trigger change detection
+            THIS.REF.DETECT_CHANGES(); // manually trigger change detection
         }, 0);
     }
 
     /** Name for parameter, displayed on the left side*/
     @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
         if (typeof value === "object") {
-            this.subscribe(value.channel);
-            this._name = value.converter;
+            THIS.SUBSCRIBE(VALUE.CHANNEL);
+            this._name = VALUE.CONVERTER;
         } else {
             this._name = value;
         }
@@ -95,44 +95,44 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     @Input()
     set channelAddress(channelAddress: string) {
         if (channelAddress) {
-            this.subscribe(ChannelAddress.fromString(channelAddress));
+            THIS.SUBSCRIBE(CHANNEL_ADDRESS.FROM_STRING(channelAddress));
         }
     }
 
     ngOnChanges() {
-        this.setValue(this.value);
+        THIS.SET_VALUE(THIS.VALUE);
     }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(config => {
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.SERVICE.GET_CONFIG().then(config => {
                 // store important variables publically
-                this.edge = edge;
-                this.config = config;
+                THIS.EDGE = edge;
+                THIS.CONFIG = config;
 
                 // get the channel addresses that should be subscribed
-                const channelAddresses: ChannelAddress[] = [...this.getChannelAddresses()];
+                const channelAddresses: ChannelAddress[] = [...THIS.GET_CHANNEL_ADDRESSES()];
 
-                if (typeof this.name == "object") {
-                    channelAddresses.push(this.name.channel);
+                if (typeof THIS.NAME == "object") {
+                    CHANNEL_ADDRESSES.PUSH(THIS.NAME.CHANNEL);
                 }
 
-                const channelIds = this.getChannelIds();
+                const channelIds = THIS.GET_CHANNEL_IDS();
                 for (const channelId of channelIds) {
-                    channelAddresses.push(new ChannelAddress(this.component.id, channelId));
+                    CHANNEL_ADDRESSES.PUSH(new ChannelAddress(THIS.COMPONENT.ID, channelId));
                 }
-                if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                if (CHANNEL_ADDRESSES.LENGTH != 0) {
+                    THIS.EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.SELECTOR, channelAddresses);
                 }
 
                 // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY)).subscribe(currentData => {
                     const allComponents = {};
                     for (const channelAddress of channelAddresses) {
-                        const ca = channelAddress.toString();
-                        allComponents[ca] = currentData.channel[ca];
+                        const ca = CHANNEL_ADDRESS.TO_STRING();
+                        allComponents[ca] = CURRENT_DATA.CHANNEL[ca];
                     }
-                    this.onCurrentData({ allComponents: allComponents });
+                    THIS.ON_CURRENT_DATA({ allComponents: allComponents });
                 });
             });
         });
@@ -140,13 +140,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     public ngOnDestroy() {
         // Unsubscribe from OpenEMS
-        if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, this.selector);
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UNSUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.SELECTOR);
         }
 
         // Unsubscribe from CurrentData subject
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
+        THIS.STOP_ON_DESTROY.NEXT();
+        THIS.STOP_ON_DESTROY.COMPLETE();
     }
 
     /** value defines value of the parameter, displayed on the right */
@@ -155,39 +155,39 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         /** Prevent undefined values */
         value = value != null ? value : null;
 
-        if (this.filter) {
-            this.show = this.filter(value);
+        if (THIS.FILTER) {
+            THIS.SHOW = THIS.FILTER(value);
         }
 
         if (typeof this._name == "function") {
-            this.displayName = this._name(value);
+            THIS.DISPLAY_NAME = this._name(value);
 
         } else {
-            this.displayName = this._name;
-            if (this.converter) {
-                this.displayValue = this.converter(value);
+            THIS.DISPLAY_NAME = this._name;
+            if (THIS.CONVERTER) {
+                THIS.DISPLAY_VALUE = THIS.CONVERTER(value);
             }
         }
     }
 
     /** Subscribe on HTML passed Channels */
     protected subscribe(channelAddress: ChannelAddress) {
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.EDGE = edge;
 
             // Check if user is allowed to see these channel-values
-            if (this.edge.roleIsAtLeast(this.roleIsAtLeast)) {
-                this.isAllowedToBeSeen = true;
-                edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+            if (THIS.EDGE.ROLE_IS_AT_LEAST(THIS.ROLE_IS_AT_LEAST)) {
+                THIS.IS_ALLOWED_TO_BE_SEEN = true;
+                EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.SELECTOR, [channelAddress]);
 
                 // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                    if (currentData.channel[channelAddress.toString()] != null) {
-                        this.setValue(currentData.channel[channelAddress.toString()]);
+                EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY)).subscribe(currentData => {
+                    if (CURRENT_DATA.CHANNEL[CHANNEL_ADDRESS.TO_STRING()] != null) {
+                        THIS.SET_VALUE(CURRENT_DATA.CHANNEL[CHANNEL_ADDRESS.TO_STRING()]);
                     }
                 });
             } else {
-                this.isAllowedToBeSeen = false;
+                THIS.IS_ALLOWED_TO_BE_SEEN = false;
             }
         });
 

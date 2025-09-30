@@ -1,13 +1,13 @@
 // TO NOT AUTOFORMAT THIS FILE AS IT WILL BREAK CI BUILD WITH FOLLOWING ERROR:
-//   Error: zone-testing.js is needed for the fakeAsync() test helper but could not be found.
-//   Please make sure that your environment includes zone.js/testing
-// (See https://stackoverflow.com/a/68797535/4137113)
+//   Error: zone-TESTING.JS is needed for the fakeAsync() test helper but could not be found.
+//   Please make sure that your environment includes ZONE.JS/testing
+// (See https://STACKOVERFLOW.COM/a/68797535/4137113)
 
-// This file is a copy of https://github.com/angular/angular/blob/main/aio/src/test.ts
+// This file is a copy of https://GITHUB.COM/angular/angular/blob/main/aio/src/TEST.TS
 
-// This file is required by karma.conf.js and loads recursively all the .spec and framework files
+// This file is required by KARMA.CONF.JS and loads recursively all the .spec and framework files
 
-import "zone.js/testing";
+import "ZONE.JS/testing";
 
 import { getTestBed } from "@angular/core/testing";
 import {

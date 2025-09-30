@@ -10,7 +10,7 @@ import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
     selector: "heatingelement-modal",
-    templateUrl: "./modal.html",
+    templateUrl: "./MODAL.HTML",
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
@@ -28,16 +28,16 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
+            THIS.ROUTE.PARAMS.PIPE(filter(params => params != null), take(1)).subscribe((params) => {
+                THIS.COMPONENT = CONFIG.GET_COMPONENT(PARAMS.COMPONENT_ID);
                 res();
             });
         });
     }
 
     protected override getFormGroup(): FormGroup {
-        return this.formBuilder.group({
-            mode: new FormControl(this.component.properties.mode),
+        return THIS.FORM_BUILDER.GROUP({
+            mode: new FormControl(THIS.COMPONENT.PROPERTIES.MODE),
         });
     }
 }

@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
 
 @Component({
-  templateUrl: "./currentVoltage.overview.html",
+  templateUrl: "./CURRENT_VOLTAGE.OVERVIEW.HTML",
   standalone: false,
 })
 export class CurrentAndVoltageOverviewComponent extends AbstractHistoryChartOverview {
@@ -10,7 +10,7 @@ export class CurrentAndVoltageOverviewComponent extends AbstractHistoryChartOver
   protected isMeterAsymmetric: boolean | null = null;
 
   protected override afterIsInitialized(): void {
-    this.isMeterAsymmetric = this.config.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter",
-      this.route.snapshot.params.componentId);
+    THIS.IS_METER_ASYMMETRIC = THIS.CONFIG.HAS_COMPONENT_NATURE("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
+      THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
   }
 }

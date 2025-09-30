@@ -1,10 +1,10 @@
 <ion-header>
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title translate>General.storageSystem</ion-title>
+        <ion-title translate>GENERAL.STORAGE_SYSTEM</ion-title>
         <ion-buttons slot="end">
             <oe-help-button key="COMMON_STORAGE"></oe-help-button>
 
-            <ion-button (click)="modalCtrl.dismiss()">
+            <ion-button (click)="MODAL_CTRL.DISMISS()">
                 <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
             </ion-button>
         </ion-buttons>
@@ -16,43 +16,43 @@
     <form [formGroup]="formGroup" *ngIf="formGroup" style="margin-bottom: 15%;" class="align_items">
 
         <!-- one ESS Component -->
-        <ng-container *ngIf="essComponents?.length === 1 && edge.currentData | async as currentData">
+        <ng-container *ngIf="essComponents?.length === 1 && EDGE.CURRENT_DATA | async as currentData">
             <ng-container *ngFor="let component of essComponents">
-                <ion-card-content *ngVar="currentData.summary.storage as sum"
-                    [class.underline]="!isLastElement(component, essComponents)">
+                <ion-card-content *ngVar="CURRENT_DATA.SUMMARY.STORAGE as sum"
+                    [CLASS.UNDERLINE]="!isLastElement(component, essComponents)">
                     <table class="full_width">
                         <div style="padding-top: 5px;"></div>
                         <tr>
-                            <td style="width:65%" translate>General.soc</td>
+                            <td style="width:65%" translate>GENERAL.SOC</td>
                             <td style="width: 35%" class="align_right">
-                                {{ sum.soc | unitvalue:'%' }}
+                                {{ SUM.SOC | unitvalue:'%' }}
                             </td>
                         </tr>
                         <!-- Charge/Discharge -->
                         <tr>
-                            <td style="width:65%" translate>General.CHARGE</td>
-                            <td style="width:35%" class="align_right">{{ (sum.effectivePower <= 0 ? (sum.effectivePower
+                            <td style="width:65%" translate>GENERAL.CHARGE</td>
+                            <td style="width:35%" class="align_right">{{ (SUM.EFFECTIVE_POWER <= 0 ? (SUM.EFFECTIVE_POWER
                                     * -1) : null) | unitvalue:'W' }}</td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.DISCHARGE</td>
+                            <td style="width:65%" translate>GENERAL.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
-                                {{ (sum.effectivePower > 0 ? sum.effectivePower : null) | unitvalue:'W' }}
+                                {{ (SUM.EFFECTIVE_POWER > 0 ? SUM.EFFECTIVE_POWER : null) | unitvalue:'W' }}
                             </td>
                         </tr>
                     </table>
                     <!-- 3 Phases -->
                     <div style="padding-top: 5px;"></div>
                     <table class="full_width"
-                        *ngIf="sum.activePowerL1 !== null && sum.activePowerL2 !== null && sum.activePowerL3 !== null">
+                        *ngIf="SUM.ACTIVE_POWER_L1 !== null && SUM.ACTIVE_POWER_L2 !== null && SUM.ACTIVE_POWER_L3 !== null">
                         <ng-container *ngFor="let phase of ['L1', 'L2', 'L3']">
                             <ng-container *ngIf="chargerComponents?.length !== 0; else noCharger">
                                 <ng-container *ngVar="sum['effectiveActivePower' + phase] as value">
                                     <ng-container *ngIf="value !== null && value !== undefined">
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.DISCHARGE</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -60,8 +60,8 @@
                                         </tr>
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.CHARGE</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -75,8 +75,8 @@
                                     <ng-container *ngIf="value !== null && value !== undefined">
                                         <tr *ngIf="value > 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.DISCHARGE</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.DISCHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ value | unitvalue:'W' }}
@@ -84,8 +84,8 @@
                                         </tr>
                                         <tr *ngIf="value <= 0">
                                             <td style="width:2%"></td>
-                                            <td style="width:63%"><span translate>General.phase</span> {{ phase }} <span
-                                                    translate>General.CHARGE</span>
+                                            <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }} <span
+                                                    translate>GENERAL.CHARGE</span>
                                             </td>
                                             <td style="width:35%" class="align_right">
                                                 {{ (value * -1) | unitvalue:'W' }}
@@ -98,25 +98,25 @@
                     </table>
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                    <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
+                    <ng-container [formGroupName]="COMPONENT.ID" *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID]">
                         <ng-container [formGroupName]="'emergencyReserveController'"
-                            *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                            *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']">
                             <ng-container>
                                 <table class="full_width" style="margin-top: 2%;">
                                     <tr>
                                         <ion-item-divider color="light">
                                             <td style="width: 70%;" translate>
-                                                Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                             </td>
                                             <td style="width: 15%;" class="align_right">
-                                                {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                {{FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.reserveSoc|
                                                 unitvalue:'%' }}
                                             </td>
                                             <td style="width: 15%" class="align_right">
 
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
-                                                    *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                    *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
                                                     <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
@@ -133,7 +133,7 @@
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
                                                     <small translate>
-                                                        Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
                                             </ion-note>
@@ -144,7 +144,7 @@
 
                                 <!-- Show only when EmergencyReserve is enabled -->
                                 <ng-container
-                                    *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] && formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                    *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['reserveSoc'] && FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['isReserveSocEnabled']">
                                     <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
                                         <ion-label slot="start">
                                             {{ 5 | unitvalue:'%' }}
@@ -154,17 +154,17 @@
                                         </ion-label>
                                     </ion-range>
 
-                                    <ng-container *ngIf="this.formGroup.controls['_meta'] && hasRequiredEdgeVersion">
+                                    <ng-container *ngIf="THIS.FORM_GROUP.CONTROLS['_meta'] && hasRequiredEdgeVersion">
                                         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
-                                        <oe-modal-line [name]="'Edge.Index.Widgets.STORAGE.GRID_CHARGE' | translate"
-                                            [formGroup]="this.formGroup.controls['_meta']"
+                                        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE' | translate"
+                                            [formGroup]="THIS.FORM_GROUP.CONTROLS['_meta']"
                                             controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }"
                                             leftColumnWidth="100">
                                         </oe-modal-line>
 
                                         <oe-modal-line *ngIf="hasRequiredEdgeVersion"
-                                            [innerHtml]="'Edge.Index.Widgets.STORAGE.GRID_CHARGE_WARNING' | translate">
+                                            [innerHtml]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING' | translate">
                                         </oe-modal-line>
 
                                         <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -174,14 +174,14 @@
                         </ng-container>
 
                         <ng-container [formGroupName]="'prepareBatteryExtensionController'"
-                            *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+                            *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
 
 
                             <table class="full_width" style="margin-top: 2%;">
                                 <tr>
                                     <ion-item-divider color="light">
                                         <td style="width: 90%;" translate>
-                                            Edge.Index.RETROFITTING.OPTIMAL
+                                            EDGE.INDEX.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
                                             <ion-toggle mode="md" formControlName="isRunning">
@@ -192,20 +192,20 @@
 
                             </table>
                             <ng-container
-                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['isRunning']">
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                     <ng-container
-                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                        *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] !== null">
                                         <ng-container
-                                            *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                            *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
                                             <ion-segment [formControlName]="'targetTimeSpecified'">
                                                 <ion-segment-button value="false">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                 </ion-segment-button>
                                                 <ion-segment-button value="true">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                 </ion-segment-button>
                                             </ion-segment>
 
@@ -224,7 +224,7 @@
                                                                  targetTime: prepareBatteryExtensionController['targetTime'],
                                                                  targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -242,15 +242,15 @@
                                                         <ion-item button="true" id="open-date-input">
                                                             <ion-label style="text-align: center"
                                                                 *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
-                                                                [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                [translateParams]="{date: targetTime | date: 'DD.MM.YYYY', time: targetTime | date: 'HH:mm'}"
+                                                                translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                             </ion-label>
 
                                                             <ng-template #noValidTargetTime>
                                                                 <ion-icon name="warning-outline"
                                                                     color="warning"></ion-icon>
                                                                 <ion-label style="text-align: center;" translate>
-                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                    EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                 </ion-label>
                                                             </ng-template>
 
@@ -261,8 +261,8 @@
                                                                     <ion-datetime [showDefaultButtons]="true"
                                                                         style="overflow-y: auto;"
                                                                         presentation="date-time"
-                                                                        [doneText]="translate.instant('General.ok')"
-                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [doneText]="TRANSLATE.INSTANT('GENERAL.OK')"
+                                                                        [cancelText]="TRANSLATE.INSTANT('GENERAL.CANCEL')"
                                                                         [formControlName]="'targetTime'"></ion-datetime>
                                                                 </ng-template>
                                                             </ion-popover>
@@ -280,21 +280,21 @@
                                                         <ion-note class="ion-text-wrap ion-align-items-center">
                                                             <ion-text>
                                                                 <small
-                                                                    *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                    *ngIf="!IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID) && THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
                                                                     translate
-                                                                    [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
-                                                                 targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
-                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
-                                                                targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                    [translateParams]="{targetDate: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'DD.MM.YYYY',
+                                                                 targetTime: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                                targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                                targetTimeBuffer: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
                                                                 </small>
-                                                                <small *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                <small *ngIf="IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID)"
                                                                     translate
                                                                     [translateParams]="{
-                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                                targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -316,37 +316,37 @@
         <!-- more than one ESS component -->
         <ng-container *ngIf="essComponents?.length > 1">
             <!-- summary of all ESS components -->
-            <ion-card-content class="underline" *ngIf="edge.currentData | async as currentData">
-                <ng-container *ngIf="currentData.summary.storage as sum">
+            <ion-card-content class="underline" *ngIf="EDGE.CURRENT_DATA | async as currentData">
+                <ng-container *ngIf="CURRENT_DATA.SUMMARY.STORAGE as sum">
                     <table class="full_width">
                         <tr>
                             <td style="width:100%" translate>
-                                General.TOTAL
+                                GENERAL.TOTAL
                             </td>
                         </tr>
                         <div style="padding-top: 5px;"></div>
                         <tr>
-                            <td style="width: 65%" translate>General.soc</td>
+                            <td style="width: 65%" translate>GENERAL.SOC</td>
                             <td style="width:35%" class="align_right">
-                                {{ sum.soc | unitvalue:'%' }}
+                                {{ SUM.SOC | unitvalue:'%' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.CHARGE</td>
+                            <td style="width:65%" translate>GENERAL.CHARGE</td>
                             <td style="width:35%" class="align_right">
-                                {{ sum.effectiveChargePower | unitvalue:'W' }}
+                                {{ SUM.EFFECTIVE_CHARGE_POWER | unitvalue:'W' }}
                             </td>
                         </tr>
                         <tr>
-                            <td style="width:65%" translate>General.DISCHARGE</td>
+                            <td style="width:65%" translate>GENERAL.DISCHARGE</td>
                             <td style="width:35%" class="align_right">
-                                {{ sum.effectiveDischargePower | unitvalue:'W' }}
+                                {{ SUM.EFFECTIVE_DISCHARGE_POWER | unitvalue:'W' }}
                             </td>
                         </tr>
                     </table>
                     <!-- 3 Phases -->
                     <ng-container
-                        *ngIf="sum.activePowerL1 !== null && sum.activePowerL2 !== null && sum.activePowerL3 !== null">
+                        *ngIf="SUM.ACTIVE_POWER_L1 !== null && SUM.ACTIVE_POWER_L2 !== null && SUM.ACTIVE_POWER_L3 !== null">
                         <div style="padding-top: 5px;"></div>
                         <table class="full_width">
                             <ng-container *ngFor="let phase of ['L1', 'L2', 'L3']">
@@ -355,8 +355,8 @@
                                         <ng-container *ngIf="value !== null && value !== undefined">
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.DISCHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -364,8 +364,8 @@
                                             </tr>
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.CHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -379,8 +379,8 @@
                                         <ng-container *ngIf="value !== null && value !== undefined">
                                             <tr *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.DISCHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -388,8 +388,8 @@
                                             </tr>
                                             <tr *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.CHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -401,11 +401,11 @@
                             </ng-container>
                         </table>
                         <!-- Info Text -->
-                        <ng-container *ngIf="service.currentEdge() as edge">
-                            <ng-container *ngIf="edge.currentData | async as currentData">
-                                <ng-container *ngIf="currentData.summary.storage as sum">
+                        <ng-container *ngIf="SERVICE.CURRENT_EDGE() as edge">
+                            <ng-container *ngIf="EDGE.CURRENT_DATA | async as currentData">
+                                <ng-container *ngIf="CURRENT_DATA.SUMMARY.STORAGE as sum">
                                     <ion-grid
-                                        *ngIf="sum.activePowerL1 !== null && sum.activePowerL2 !== null && sum.activePowerL3 !== null"
+                                        *ngIf="SUM.ACTIVE_POWER_L1 !== null && SUM.ACTIVE_POWER_L2 !== null && SUM.ACTIVE_POWER_L3 !== null"
                                         class="ion-padding-top">
                                         <ion-row class="ion-justify-content-center ion-align-items-center">
                                             <ion-col size="2" class="ion-text-center">
@@ -415,7 +415,7 @@
                                             </ion-col>
                                             <ion-col size="10">
                                                 <ion-note class="ion-text-wrap"><small
-                                                        translate>Edge.Index.Widgets.phasesInfo</small>
+                                                        translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small>
                                                 </ion-note>
                                             </ion-col>
                                         </ion-row>
@@ -428,37 +428,37 @@
                 </ng-container>
             </ion-card-content>
 
-            <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+            <ng-container *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
                 <ng-container *ngFor="let component of essComponents">
-                    <ng-container *ngIf="config.factories[component.factoryId] as factory">
+                    <ng-container *ngIf="CONFIG.FACTORIES[COMPONENT.FACTORY_ID] as factory">
                         <ion-card-content
-                            [class.underline]="chargerComponents?.length > 0 || !isLastElement(component, essComponents)">
+                            [CLASS.UNDERLINE]="chargerComponents?.length > 0 || !isLastElement(component, essComponents)">
                             <table class="full_width">
                                 <tr>
                                     <td style="width: 100%">
-                                        {{ component.alias }}
+                                        {{ COMPONENT.ALIAS }}
                                     </td>
                                 </tr>
                                 <div style="padding-top: 5px;"></div>
                                 <tr>
-                                    <td style="width: 65%" translate>General.soc</td>
+                                    <td style="width: 65%" translate>GENERAL.SOC</td>
                                     <td style="width: 35%" class="align_right">
-                                        {{ currentData[component.id + '/Soc'] | unitvalue:'%' }}
+                                        {{ currentData[COMPONENT.ID + '/Soc'] | unitvalue:'%' }}
                                     </td>
                                 </tr>
                             </table>
                             <!-- Symmetric ESS -->
-                            <ng-container *ngVar="currentData[component.id + '/ActivePower'] as value">
+                            <ng-container *ngVar="currentData[COMPONENT.ID + '/ActivePower'] as value">
                                 <table
-                                    *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.SymmetricEss') && value !== null && value !== undefined"
+                                    *ngIf="FACTORY.NATURE_IDS.INCLUDES('IO.OPENEMS.EDGE.ESS.API.SYMMETRIC_ESS') && value !== null && value !== undefined"
                                     class="full_width">
                                     <tr>
-                                        <td style="width:65%" translate>General.CHARGE</td>
+                                        <td style="width:65%" translate>GENERAL.CHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value <= 0 ? (value * -1) : null)
                                                 | unitvalue:'W' }}<td>
                                     </tr>
                                     <tr>
-                                        <td style="width:65%" translate>General.DISCHARGE</td>
+                                        <td style="width:65%" translate>GENERAL.DISCHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value > 0 ? value : null) |
                                             unitvalue:'W' }}
                                         <td>
@@ -466,15 +466,15 @@
                                 </table>
                             </ng-container>
                             <!-- Asymmetric ESS -->
-                            <table *ngIf="factory.natureIds.includes('io.openems.edge.ess.api.AsymmetricEss')"
+                            <table *ngIf="FACTORY.NATURE_IDS.INCLUDES('IO.OPENEMS.EDGE.ESS.API.ASYMMETRIC_ESS')"
                                 class="full_width">
                                 <ng-container *ngFor="let phase of ['L1', 'L2', 'L3']">
-                                    <ng-container *ngVar="currentData[component.id + '/ActivePower' + phase] as value">
+                                    <ng-container *ngVar="currentData[COMPONENT.ID + '/ActivePower' + phase] as value">
                                         <tr *ngIf="value !== null && value !== undefined">
                                             <ng-container *ngIf="value > 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.DISCHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.DISCHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ value | unitvalue:'W' }}
@@ -482,8 +482,8 @@
                                             </ng-container>
                                             <ng-container *ngIf="value <= 0">
                                                 <td style="width:2%"></td>
-                                                <td style="width:63%"><span translate>General.phase</span> {{ phase }}
-                                                    <span translate>General.CHARGE</span>
+                                                <td style="width:63%"><span translate>GENERAL.PHASE</span> {{ phase }}
+                                                    <span translate>GENERAL.CHARGE</span>
                                                 </td>
                                                 <td style="width:35%" class="align_right">
                                                     {{ (value * -1) | unitvalue:'W' }}
@@ -495,24 +495,24 @@
                             </table>
 
                             <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                            <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
+                            <ng-container [formGroupName]="COMPONENT.ID" *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID]">
                                 <ng-container [formGroupName]="'emergencyReserveController'">
-                                    <ng-container *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                                    <ng-container *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']">
                                         <table class="full_width" style="margin-top: 2%;">
                                             <tr>
                                                 <ion-item-divider color="light">
                                                     <td style="width: 70%;" translate>
-                                                        Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                                     </td>
                                                     <td style="width: 15%;" class="align_right">
-                                                        {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                        {{FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.reserveSoc|
                                                         unitvalue:'%' }}
                                                     </td>
                                                     <td style="width: 15%" class="align_right">
 
                                                         <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                         <ng-container
-                                                            *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                            *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
                                                             <ion-toggle mode="md"
                                                                 [formControlName]="'isReserveSocEnabled'">
                                                             </ion-toggle>
@@ -532,7 +532,7 @@
                                                     <ion-note class="ion-text-wrap ion-align-items-center">
                                                         <ion-text>
                                                             <small style="color: var(--ion-text-color);" translate>
-                                                                Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                                EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                             </small>
                                                         </ion-text>
                                                     </ion-note>
@@ -542,7 +542,7 @@
 
                                         <!-- Show only when EmergencyReserve is enabled -->
                                         <ng-container
-                                            *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] &&  formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                            *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['reserveSoc'] &&  FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['isReserveSocEnabled']">
                                             <ion-range formControlName="reserveSoc" pin color="primary" min="5"
                                                 max="100">
                                                 <ion-label slot="start">
@@ -557,13 +557,13 @@
                                 </ng-container>
 
                                 <ng-container [formGroupName]="'prepareBatteryExtensionController'"
-                                    *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+                                    *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
 
                                     <table class="full_width" style="margin-top: 2%;">
                                         <tr>
                                             <ion-item-divider color="light">
                                                 <td style="width: 90%;" translate>
-                                                    Edge.Index.RETROFITTING.OPTIMAL
+                                                    EDGE.INDEX.RETROFITTING.OPTIMAL
                                                 </td>
                                                 <td style="width: 15%" class="align_right">
                                                     <ion-toggle mode="md" formControlName="isRunning">
@@ -574,21 +574,21 @@
                                         </tr>
                                     </table>
                                     <ng-container
-                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                        *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['isRunning']">
                                         <ng-container
                                             *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                             <ng-container
-                                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                                *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] !== null">
                                                 <ng-container
-                                                    *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                                    *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
                                                     <ion-segment [formControlName]="'targetTimeSpecified'">
                                                         <ion-segment-button value="false">
                                                             <ion-label
-                                                                translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                                translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                         </ion-segment-button>
                                                         <ion-segment-button value="true">
                                                             <ion-label
-                                                                translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                                translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                         </ion-segment-button>
                                                     </ion-segment>
 
@@ -608,7 +608,7 @@
                                                                  targetTime: prepareBatteryExtensionController['targetTime'],
                                                                  targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                         </small>
                                                                     </ion-text>
                                                                 </ion-note>
@@ -626,8 +626,8 @@
                                                                 <ion-item button="true" id="open-date-input">
                                                                     <ion-label style="text-align: center"
                                                                         *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
-                                                                        [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                        translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                        [translateParams]="{date: targetTime | date: 'DD.MM.YYYY', time: targetTime | date: 'HH:mm'}"
+                                                                        translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                                     </ion-label>
 
                                                                     <ng-template #noValidTargetTime>
@@ -635,7 +635,7 @@
                                                                             color="warning"></ion-icon>
                                                                         <ion-label style="text-align: center;"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                            EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                         </ion-label>
                                                                     </ng-template>
 
@@ -646,8 +646,8 @@
                                                                             <ion-datetime [showDefaultButtons]="true"
                                                                                 style="overflow-y: auto;"
                                                                                 presentation="date-time"
-                                                                                [doneText]="translate.instant('General.ok')"
-                                                                                [cancelText]="translate.instant('General.cancel')"
+                                                                                [doneText]="TRANSLATE.INSTANT('GENERAL.OK')"
+                                                                                [cancelText]="TRANSLATE.INSTANT('GENERAL.CANCEL')"
                                                                                 [formControlName]="'targetTime'"></ion-datetime>
                                                                         </ng-template>
                                                                     </ion-popover>
@@ -666,22 +666,22 @@
                                                                 <ion-note class="ion-text-wrap ion-align-items-center">
                                                                     <ion-text>
                                                                         <small
-                                                                            *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                            *ngIf="!IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID) && THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
                                                                             translate
-                                                                            [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
-                                                                 targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
-                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
-                                                                targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                            [translateParams]="{targetDate: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'DD.MM.YYYY',
+                                                                 targetTime: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                                targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                                targetTimeBuffer: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
                                                                         </small>
                                                                         <small
-                                                                            *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                            *ngIf="IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID)"
                                                                             translate
                                                                             [translateParams]="{
-                                                                targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                                targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                             translate>
-                                                                            Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                            EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
                                                                         </small>
                                                                     </ion-text>
                                                                 </ion-note>
@@ -705,22 +705,22 @@
         <!-- DC Charger -->
         <ng-container *ngIf="chargerComponents?.length !== 0 && essComponents?.length !== 1">
             <ng-container *ngFor="let component of chargerComponents">
-                <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
-                    <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
-                        <ng-container *ngVar="currentData[component.id + '/ActualPower'] as value">
+                <ion-card-content [CLASS.UNDERLINE]="!isLastElement(component, chargerComponents)">
+                    <table *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData" class="full_width">
+                        <ng-container *ngVar="currentData[COMPONENT.ID + '/ActualPower'] as value">
                             <ng-container *ngIf="value !== null && value !== undefined">
                                 <tr>
-                                    <td style="width: 100%">{{ component.alias }}</td>
+                                    <td style="width: 100%">{{ COMPONENT.ALIAS }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.CHARGE</td>
+                                    <td style="width:20%" translate>GENERAL.CHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value > 0 ? value : null) | unitvalue:'W' }}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="width:20%" translate>General.DISCHARGE</td>
+                                    <td style="width:20%" translate>GENERAL.DISCHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
                                         {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}</td>
@@ -730,24 +730,24 @@
                     </table>
 
                     <!-- Show if ess has EmergencyCapacityReserveController assigned-->
-                    <ng-container [formGroupName]="component.id" *ngIf="formGroup.controls[component.id]">
+                    <ng-container [formGroupName]="COMPONENT.ID" *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID]">
                         <ng-container [formGroupName]="'emergencyReserveController'">
-                            <ng-container *ngIf="formGroup.value[component.id]?.['emergencyReserveController']">
+                            <ng-container *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']">
                                 <table class="full_width" style="margin-top: 2%;">
                                     <tr>
                                         <ion-item-divider color="light">
                                             <td style="width: 70%;" translate>
-                                                Edge.Index.EmergencyReserve.EMERGENCY_RESERVE
+                                                EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE
                                             </td>
                                             <td style="width: 15%;" class="align_right">
-                                                {{formGroup.value[component.id]?.['emergencyReserveController']?.reserveSoc|
+                                                {{FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.reserveSoc|
                                                 unitvalue:'%' }}
                                             </td>
                                             <td style="width: 15%" class="align_right">
 
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
-                                                    *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
+                                                    *ngIf="FORM_GROUP.CONTROLS[COMPONENT.ID].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
                                                     <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
@@ -764,7 +764,7 @@
                                             <ion-note class="ion-text-wrap ion-align-items-center">
                                                 <ion-text>
                                                     <small style="color: var(--ion-text-color);" translate>
-                                                        Edge.Index.EmergencyReserve.INFO_FOR_EMERGENCY_RESERVE_SLIDER
+                                                        EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER
                                                     </small>
                                                 </ion-text>
                                             </ion-note>
@@ -775,7 +775,7 @@
 
                                 <!-- Show only when EmergencyReserve is enabled -->
                                 <ng-container
-                                    *ngIf="formGroup.value[component.id]?.['emergencyReserveController']?.['reserveSoc'] && formGroup.value[component.id]?.['emergencyReserveController']?.['isReserveSocEnabled']">
+                                    *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['reserveSoc'] && FORM_GROUP.VALUE[COMPONENT.ID]?.['emergencyReserveController']?.['isReserveSocEnabled']">
                                     <ion-range formControlName="reserveSoc" pin color="primary" min="5" max="100">
                                         <ion-label slot="start">
                                             {{ 5 | unitvalue:'%' }}
@@ -788,13 +788,13 @@
                             </ng-container>
                         </ng-container>
                         <ng-container [formGroupName]="'prepareBatteryExtensionController'"
-                            *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
+                            *ngIf="FORM_GROUP.VALUE[COMPONENT.ID]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
 
                             <table class="full_width" style="margin-top: 2%;">
                                 <tr>
                                     <ion-item-divider color="light">
                                         <td style="width: 90%;" translate>
-                                            Edge.Index.RETROFITTING.OPTIMAL
+                                            EDGE.INDEX.RETROFITTING.OPTIMAL
                                         </td>
                                         <td style="width: 15%" class="align_right">
                                             <ion-toggle mode="md" formControlName="isRunning">
@@ -805,20 +805,20 @@
                                 </tr>
                             </table>
                             <ng-container
-                                *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['isRunning']">
+                                *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['isRunning']">
                                 <ng-container *ngIf="controllerIsRequiredEdgeVersion, else oldControllerVersion">
                                     <ng-container
-                                        *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
+                                        *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] !== null">
                                         <ng-container
-                                            *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+                                            *ngIf="THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
                                             <ion-segment [formControlName]="'targetTimeSpecified'">
                                                 <ion-segment-button value="false">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.INSTANT_START</ion-label>
                                                 </ion-segment-button>
                                                 <ion-segment-button value="true">
                                                     <ion-label
-                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                        translate>EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION</ion-label>
                                                 </ion-segment-button>
                                             </ion-segment>
 
@@ -837,7 +837,7 @@
                                                              targetTime: prepareBatteryExtensionController['targetTime'],
                                                              targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_INSTANT_START
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -855,15 +855,15 @@
                                                         <ion-item button="true" id="open-date-input">
                                                             <ion-label style="text-align: center"
                                                                 *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
-                                                                [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                [translateParams]="{date: targetTime | date: 'DD.MM.YYYY', time: targetTime | date: 'HH:mm'}"
+                                                                translate>EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME
                                                             </ion-label>
 
                                                             <ng-template #noValidTargetTime>
                                                                 <ion-icon name="warning-outline"
                                                                     color="warning"></ion-icon>
                                                                 <ion-label style="text-align: center;" translate>
-                                                                    Edge.Index.RETROFITTING.SELECT_A_DATE
+                                                                    EDGE.INDEX.RETROFITTING.SELECT_A_DATE
                                                                 </ion-label>
                                                             </ng-template>
 
@@ -874,8 +874,8 @@
                                                                     <ion-datetime [showDefaultButtons]="true"
                                                                         style="overflow-y: auto;"
                                                                         presentation="date-time"
-                                                                        [doneText]="translate.instant('General.ok')"
-                                                                        [cancelText]="translate.instant('General.cancel')"
+                                                                        [doneText]="TRANSLATE.INSTANT('GENERAL.OK')"
+                                                                        [cancelText]="TRANSLATE.INSTANT('GENERAL.CANCEL')"
                                                                         [formControlName]="'targetTime'"></ion-datetime>
                                                                 </ng-template>
                                                             </ion-popover>
@@ -893,21 +893,21 @@
                                                         <ion-note class="ion-text-wrap ion-align-items-center">
                                                             <ion-text>
                                                                 <small
-                                                                    *ngIf="!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
+                                                                    *ngIf="!IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID) && THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer']"
                                                                     translate
-                                                                    [translateParams]="{targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy',
-                                                             targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
-                                                            targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'],
-                                                            targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
+                                                                    [translateParams]="{targetDate: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'DD.MM.YYYY',
+                                                             targetTime: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm',
+                                                            targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc'],
+                                                            targetTimeBuffer: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION
                                                                 </small>
-                                                                <small *ngIf="isTargetTimeInValid.get(component.id)"
+                                                                <small *ngIf="IS_TARGET_TIME_IN_VALID.GET(COMPONENT.ID)"
                                                                     translate
                                                                     [translateParams]="{
-                                                            targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc']}"
+                                                            targetSoc: THIS.FORM_GROUP.CONTROLS[COMPONENT.ID]?.value['prepareBatteryExtensionController']['targetSoc']}"
                                                                     translate>
-                                                                    Edge.Index.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
+                                                                    EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE
                                                                 </small>
                                                             </ion-text>
                                                         </ion-note>
@@ -933,11 +933,11 @@
                 <td>
                     <ion-text>
                         <span translate>
-                            Edge.Index.RETROFITTING.UPDATE_TO_NEW_VERSION
+                            EDGE.INDEX.RETROFITTING.UPDATE_TO_NEW_VERSION
                         </span>
                         →
-                        <a (click)="modalCtrl.dismiss()" routerLink="/device/{{ edge.id }}/settings/system"
-                            [innerHtml]="'Edge.Index.SYSTEMUPDATE' | translate"></a>
+                        <a (click)="MODAL_CTRL.DISMISS()" routerLink="/device/{{ EDGE.ID }}/settings/system"
+                            [innerHtml]="'EDGE.INDEX.SYSTEMUPDATE' | translate"></a>
                     </ion-text>
                 </td>
             </tr>

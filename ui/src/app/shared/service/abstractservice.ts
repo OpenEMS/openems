@@ -21,14 +21,14 @@ export abstract class AbstractService extends ErrorHandler {
   abstract setLang(language: Language): void;
 
   /**
-   * Returns the configured language for docs.fenecon.de
+   * Returns the configured language for DOCS.FENECON.DE
    */
   abstract getDocsLang(): string;
 
   /**
    * Shows a nofication using toastr
    */
-  abstract notify(notification: DefaultTypes.Notification);
+  abstract notify(notification: DEFAULT_TYPES.NOTIFICATION);
 
   /**
    * Parses the route params and sets the current edge

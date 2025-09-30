@@ -7,45 +7,45 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 
 @Component({
   selector: "totalChart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig): HISTORY_UTILS.CHART_DATA {
 
-    const controller: string[] = config?.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-      .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"));
+    const controller: string[] = config?.getComponentIdsImplementingNature("IO.OPENEMS.IMPL.CONTROLLER.CHANNELTHRESHOLD.CHANNEL_THRESHOLD_CONTROLLER")
+      .concat(CONFIG.GET_COMPONENT_IDS_BY_FACTORY("CONTROLLER.CHANNEL_THRESHOLD"));
 
     const components: { [controllerId: string]: string } = {};
-    const input: HistoryUtils.InputChannel[] = [];
+    const input: HISTORY_UTILS.INPUT_CHANNEL[] = [];
 
     for (const controllerId of controller) {
-      const powerChannel = ChannelAddress.fromString(config.getComponentProperties(controllerId)["outputChannelAddress"]);
-      components[controllerId] = powerChannel.channelId;
-      input.push({ name: controllerId, powerChannel: powerChannel, energyChannel: new ChannelAddress(controllerId, "CumulatedActiveTime") });
+      const powerChannel = CHANNEL_ADDRESS.FROM_STRING(CONFIG.GET_COMPONENT_PROPERTIES(controllerId)["outputChannelAddress"]);
+      components[controllerId] = POWER_CHANNEL.CHANNEL_ID;
+      INPUT.PUSH({ name: controllerId, powerChannel: powerChannel, energyChannel: new ChannelAddress(controllerId, "CumulatedActiveTime") });
     }
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
 
-        const output: HistoryUtils.DisplayValue[] = [];
+        const output: HISTORY_UTILS.DISPLAY_VALUE[] = [];
 
-        for (let i = 0; i < controller.length; i++) {
+        for (let i = 0; i < CONTROLLER.LENGTH; i++) {
           const controllerId = controller[i];
-          output.push({
+          OUTPUT.PUSH({
             name: components[controllerId] ?? controllerId,
             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyQueryResponse?.result.data[controllerId + "/CumulatedActiveTime"] ?? null;
+              return energyQueryResponse?.RESULT.DATA[controllerId + "/CumulatedActiveTime"] ?? null;
             },
             converter: () => {
 
               return data[controllerId]
                 // TODO add logic to not have to adjust non power data manually
-                .map(val => Utils.multiplySafely(val, 1000));
+                .map(val => UTILS.MULTIPLY_SAFELY(val, 1000));
             },
-            color: ChartConstants.Colors.SHADES_OF_YELLOW[i % (ChartConstants.Colors.SHADES_OF_YELLOW.length - 1)],
+            color: CHART_CONSTANTS.COLORS.SHADES_OF_YELLOW[i % (CHART_CONSTANTS.COLORS.SHADES_OF_YELLOW.length - 1)],
             stack: 0,
           });
         }
@@ -56,16 +56,16 @@ export class TotalChartComponent extends AbstractHistoryChart {
         formatNumber: "1.0-0",
       },
       yAxes: [{
-        unit: YAxisType.RELAY,
+        unit: YAXIS_TYPE.RELAY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
 
-    return TotalChartComponent.getChartData(this.config);
+    return TOTAL_CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG);
   }
 
 }

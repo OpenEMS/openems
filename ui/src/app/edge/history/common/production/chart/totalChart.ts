@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 
 import { ChannelAddress } from "../../../../../shared/shared";
@@ -9,150 +9,150 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared
 
 @Component({
   selector: "productionTotalChart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
   public override getChartHeight(): number {
-    if (this.showTotal) {
-      return window.innerHeight / 1.3;
+    if (THIS.SHOW_TOTAL) {
+      return WINDOW.INNER_HEIGHT / 1.3;
     } else {
-      return window.innerHeight / 2.3;
+      return WINDOW.INNER_HEIGHT / 2.3;
     }
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    const productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => this.config.isProducer(component));
-    const chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    const productionMeterComponents = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")
+      .filter(component => THIS.CONFIG.IS_PRODUCER(component));
+    const chargerComponents = THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER");
 
-    const channels: HistoryUtils.InputChannel[] = [{
+    const channels: HISTORY_UTILS.INPUT_CHANNEL[] = [{
       name: "ProductionActivePower",
-      powerChannel: ChannelAddress.fromString("_sum/ProductionActivePower"),
-      energyChannel: ChannelAddress.fromString("_sum/ProductionActiveEnergy"),
+      powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionActivePower"),
+      energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionActiveEnergy"),
     }];
 
     // If at least one charger
-    if (chargerComponents.length > 0) {
-      channels.push({
+    if (CHARGER_COMPONENTS.LENGTH > 0) {
+      CHANNELS.PUSH({
         name: "ProductionDcActualPower",
-        powerChannel: ChannelAddress.fromString("_sum/ProductionDcActualPower"),
-        energyChannel: ChannelAddress.fromString("_sum/ProductionDcActiveEnergy"),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionDcActualPower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionDcActiveEnergy"),
       });
     }
 
     // If showPhases is true
-    if (this.showPhases) {
-      channels.push(
+    if (THIS.SHOW_PHASES) {
+      CHANNELS.PUSH(
         {
           name: "ProductionAcActivePowerL1",
-          powerChannel: ChannelAddress.fromString("_sum/ProductionAcActivePowerL1"),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionAcActivePowerL1"),
         },
         {
           name: "ProductionAcActivePowerL2",
-          powerChannel: ChannelAddress.fromString("_sum/ProductionAcActivePowerL2"),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionAcActivePowerL2"),
         },
         {
           name: "ProductionAcActivePowerL3",
-          powerChannel: ChannelAddress.fromString("_sum/ProductionAcActivePowerL3"),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionAcActivePowerL3"),
         });
     }
 
     for (const component of productionMeterComponents) {
-      channels.push({
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
+      CHANNELS.PUSH({
+        name: COMPONENT.ID,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActiveProductionEnergy"),
       });
 
     }
     for (const component of chargerComponents) {
-      channels.push({
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActualPower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActualEnergy"),
+      CHANNELS.PUSH({
+        name: COMPONENT.ID,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActualPower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActualEnergy"),
       });
     }
 
-    const chartObject: HistoryUtils.ChartData = {
+    const chartObject: HISTORY_UTILS.CHART_DATA = {
       input: channels,
-      output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValue[] = [];
-        datasets.push({
-          name: this.showTotal == false ? this.translate.instant("General.production") : this.translate.instant("General.TOTAL"),
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
+        const datasets: HISTORY_UTILS.DISPLAY_VALUE[] = [];
+        DATASETS.PUSH({
+          name: THIS.SHOW_TOTAL == false ? THIS.TRANSLATE.INSTANT("GENERAL.PRODUCTION") : THIS.TRANSLATE.INSTANT("GENERAL.TOTAL"),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyQueryResponse?.result.data["_sum/ProductionActiveEnergy"] ?? null;
+            return energyQueryResponse?.RESULT.DATA["_sum/ProductionActiveEnergy"] ?? null;
           },
           converter: () => {
             return data["ProductionActivePower"];
           },
-          color: ChartConstants.Colors.BLUE,
+          color: CHART_CONSTANTS.COLORS.BLUE,
           hiddenOnInit: true,
           stack: 2,
         });
 
-        if (!this.showTotal) {
+        if (!THIS.SHOW_TOTAL) {
           return datasets;
         }
 
         for (let i = 1; i < 4; i++) {
-          datasets.push({
+          DATASETS.PUSH({
             name: "Phase L" + i,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data["_sum/ProductionAcActiveEnergyL" + i];
+              return ENERGY_VALUES.RESULT.DATA["_sum/ProductionAcActiveEnergyL" + i];
             },
             converter: () => {
-              if (!this.showPhases) {
+              if (!THIS.SHOW_PHASES) {
                 return null;
               }
 
               let effectiveProduction = [];
 
-              if (this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
+              if (THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER").length > 0) {
                 data["ProductionDcActualPower"].forEach((value, index) => {
-                  effectiveProduction[index] = Utils.addSafely(data["ProductionAcActivePowerL" + i][index], value / 3);
+                  effectiveProduction[index] = UTILS.ADD_SAFELY(data["ProductionAcActivePowerL" + i][index], value / 3);
                 });
-              } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").length > 0) {
+              } else if (THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER").length > 0) {
                 effectiveProduction = data["ProductionAcActivePowerL" + i];
               }
               return effectiveProduction;
             },
-            color: "rgb(" + AbstractHistoryChart.phaseColors[i - 1] + ")",
+            color: "rgb(" + ABSTRACT_HISTORY_CHART.PHASE_COLORS[i - 1] + ")",
             stack: 3,
           });
         }
 
         // ProductionMeters
         const productionMeterColors: string[] = ["rgb(253,197,7)", "rgb(202, 158, 6", "rgb(228, 177, 6)", "rgb(177, 138, 5)", "rgb(152, 118, 4)"];
-        for (let i = 0; i < productionMeterComponents.length; i++) {
+        for (let i = 0; i < PRODUCTION_METER_COMPONENTS.LENGTH; i++) {
           const component = productionMeterComponents[i];
-          datasets.push({
-            name: component.alias ?? component.id,
+          DATASETS.PUSH({
+            name: COMPONENT.ALIAS ?? COMPONENT.ID,
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyResponse.result.data[component.id + "/ActiveProductionEnergy"] ?? null;
+              return ENERGY_RESPONSE.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"] ?? null;
             },
             converter: () => {
-              return data[component.id] ?? null;
+              return data[COMPONENT.ID] ?? null;
             },
-            color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
+            color: productionMeterColors[MATH.MIN(i, (PRODUCTION_METER_COLORS.LENGTH - 1))],
             stack: 1,
           });
         }
 
         const chargerColors: string[] = ["rgb(0,223,0)", "rgb(0,134,0)", "rgb(0,201,0)", "rgb(0,134,0)", "rgb(0,156,0)"];
         // ChargerComponents
-        for (let i = 0; i < chargerComponents.length; i++) {
+        for (let i = 0; i < CHARGER_COMPONENTS.LENGTH; i++) {
           const component = chargerComponents[i];
-          datasets.push({
-            name: component.alias ?? component.id,
+          DATASETS.PUSH({
+            name: COMPONENT.ALIAS ?? COMPONENT.ID,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data[new ChannelAddress(component.id, "ActualEnergy").toString()];
+              return ENERGY_VALUES.RESULT.DATA[new ChannelAddress(COMPONENT.ID, "ActualEnergy").toString()];
             },
             converter: () => {
-              return data[component.id] ?? null;
+              return data[COMPONENT.ID] ?? null;
             },
-            color: chargerColors[Math.min(i, (chargerColors.length - 1))],
+            color: chargerColors[MATH.MIN(i, (CHARGER_COLORS.LENGTH - 1))],
             stack: 1,
           });
         }
@@ -160,12 +160,12 @@ export class TotalChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: THIS.TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
 

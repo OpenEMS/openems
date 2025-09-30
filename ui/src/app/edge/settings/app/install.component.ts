@@ -15,18 +15,18 @@ import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
-import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
+import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/MODAL.COMPONENT";
 import { hasPredefinedKey } from "./permissions";
 
 @Component({
-  selector: InstallAppComponent.SELECTOR,
-  templateUrl: "./install.component.html",
+  selector: INSTALL_APP_COMPONENT.SELECTOR,
+  templateUrl: "./INSTALL.COMPONENT.HTML",
   standalone: false,
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "app-install";
-  public readonly spinnerId: string = InstallAppComponent.SELECTOR;
+  public readonly spinnerId: string = INSTALL_APP_COMPONENT.SELECTOR;
 
   protected form: FormGroup | null = null;
   protected fields: FormlyFieldConfig[] | null = null;
@@ -62,96 +62,96 @@ export class InstallAppComponent implements OnInit, OnDestroy {
  */
   public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
     return (reason) => {
-      if (reason.error) {
-        reason = reason.error;
-        if (reason.message) {
-          reason = reason.message;
+      if (REASON.ERROR) {
+        reason = REASON.ERROR;
+        if (REASON.MESSAGE) {
+          reason = REASON.MESSAGE;
         }
       }
-      console.error(reason);
-      service.toast(messageBuilder(reason), "danger");
+      CONSOLE.ERROR(reason);
+      SERVICE.TOAST(messageBuilder(reason), "danger");
     };
   }
 
   public ngOnInit() {
-    this.service.startSpinner(this.spinnerId);
+    THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
     const state = history?.state;
     if (state) {
       if ("appKey" in state) {
-        this.key = state["appKey"];
+        THIS.KEY = state["appKey"];
       }
       if ("useMasterKey" in state) {
-        this.useMasterKey = state["useMasterKey"];
+        THIS.USE_MASTER_KEY = state["useMasterKey"];
       }
     }
-    const appId = this.route.snapshot.params["appId"];
-    const appName = this.route.snapshot.queryParams["name"];
-    this.appId = appId;
-    this.service.setCurrentComponent(appName, this.route).then(edge => {
-      this.edge = edge;
+    const appId = THIS.ROUTE.SNAPSHOT.PARAMS["appId"];
+    const appName = THIS.ROUTE.SNAPSHOT.QUERY_PARAMS["name"];
+    THIS.APP_ID = appId;
+    THIS.SERVICE.SET_CURRENT_COMPONENT(appName, THIS.ROUTE).then(edge => {
+      THIS.EDGE = edge;
 
-      this.edge.sendRequest(this.websocket,
-        new AppCenter.Request({
-          payload: new AppCenterIsAppFree.Request({
-            appId: this.appId,
+      THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
+        new APP_CENTER.REQUEST({
+          payload: new APP_CENTER_IS_APP_FREE.REQUEST({
+            appId: THIS.APP_ID,
           }),
         }),
       ).then(response => {
-        const result = (response as AppCenterIsAppFree.Response).result;
-        this.isAppFree = result.isAppFree;
+        const result = (response as APP_CENTER_IS_APP_FREE.RESPONSE).result;
+        THIS.IS_APP_FREE = RESULT.IS_APP_FREE;
       }).catch(() => {
-        this.isAppFree = false;
+        THIS.IS_APP_FREE = false;
       });
 
-      this.service.metadata
-        .pipe(takeUntil(this.stopOnDestroy))
+      THIS.SERVICE.METADATA
+        .pipe(takeUntil(THIS.STOP_ON_DESTROY))
         .subscribe(entry => {
-          this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
+          THIS.HAS_PREDEFINED_KEY = hasPredefinedKey(edge, ENTRY.USER);
         });
-      edge.sendRequest(this.websocket,
+      EDGE.SEND_REQUEST(THIS.WEBSOCKET,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
-          payload: new GetAppAssistant.Request({ appId: appId }),
+          payload: new GET_APP_ASSISTANT.REQUEST({ appId: appId }),
         })).then(response => {
-          const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
+          const appAssistant = GET_APP_ASSISTANT.POSTPROCESS((response as GET_APP_ASSISTANT.RESPONSE).result);
 
-          this.fields = GetAppAssistant.setInitialModel(appAssistant.fields, {});
-          this.appName = appAssistant.name;
-          this.model = {};
-          this.form = new FormGroup({});
+          THIS.FIELDS = GET_APP_ASSISTANT.SET_INITIAL_MODEL(APP_ASSISTANT.FIELDS, {});
+          THIS.APP_NAME = APP_ASSISTANT.NAME;
+          THIS.MODEL = {};
+          THIS.FORM = new FormGroup({});
 
         })
-        .catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error))
+        .catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => "Error while receiving App Assistant for [" + appId + "]: " + error))
         .finally(() => {
-          this.service.stopSpinner(this.spinnerId);
+          THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
         });
     });
   }
 
   public ngOnDestroy(): void {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
   }
 
   /**
    * Submit for installing a app.
    */
   protected submit() {
-    this.obtainKey().then(key => {
-      this.service.startSpinnerTransparentBackground(this.appId);
+    THIS.OBTAIN_KEY().then(key => {
+      THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(THIS.APP_ID);
       // remove alias field from properties
-      const alias = this.form.value["ALIAS"];
+      const alias = THIS.FORM.VALUE["ALIAS"];
       const clonedFields = {};
-      for (const item in this.form.value) {
+      for (const item in THIS.FORM.VALUE) {
         if (item !== "ALIAS") {
-          clonedFields[item] = this.form.value[item];
+          clonedFields[item] = THIS.FORM.VALUE[item];
         }
       }
 
       let request: JsonrpcRequest = new ComponentJsonApiRequest({
         componentId: "_appManager",
-        payload: new AddAppInstance.Request({
-          appId: this.appId,
+        payload: new ADD_APP_INSTANCE.REQUEST({
+          appId: THIS.APP_ID,
           alias: alias,
           properties: clonedFields,
           ...(key && { key: key }),
@@ -159,35 +159,35 @@ export class InstallAppComponent implements OnInit, OnDestroy {
       });
       // if key not set send request with supplied key
       if (!key) {
-        request = new AppCenter.Request({
-          payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
+        request = new APP_CENTER.REQUEST({
+          payload: new APP_CENTER_INSTALL_APP_WITH_SUPPLIED_KEY_REQUEST.REQUEST({
             installRequest: request,
           }),
         });
       }
 
-      this.isInstalling = true;
-      this.edge.sendRequest(this.websocket, request).then(response => {
-        const result = (response as AddAppInstance.Response).result;
+      THIS.IS_INSTALLING = true;
+      THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, request).then(response => {
+        const result = (response as ADD_APP_INSTANCE.RESPONSE).result;
 
-        if (result.instance) {
-          result.instanceId = result.instance.instanceId;
-          this.model = result.instance.properties;
+        if (RESULT.INSTANCE) {
+          RESULT.INSTANCE_ID = RESULT.INSTANCE.INSTANCE_ID;
+          THIS.MODEL = RESULT.INSTANCE.PROPERTIES;
         }
-        if (result.warnings && result.warnings.length > 0) {
-          this.service.toast(result.warnings.join(";"), "warning");
+        if (RESULT.WARNINGS && RESULT.WARNINGS.LENGTH > 0) {
+          THIS.SERVICE.TOAST(RESULT.WARNINGS.JOIN(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant("Edge.Config.App.successInstall"), "success");
+          THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.SUCCESS_INSTALL"), "success");
         }
 
-        this.form.markAsPristine();
+        THIS.FORM.MARK_AS_PRISTINE();
         const navigationExtras = { state: { appInstanceChange: true } };
-        this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+        THIS.ROUTER.NAVIGATE(["device/" + (THIS.EDGE.ID) + "/settings/app/"], navigationExtras);
       })
-        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failInstall", { error: error })))
+        .catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error })))
         .finally(() => {
-          this.isInstalling = false;
-          this.service.stopSpinner(this.appId);
+          THIS.IS_INSTALLING = false;
+          THIS.SERVICE.STOP_SPINNER(THIS.APP_ID);
         });
     }).catch(() => {
       // can not get key => dont install
@@ -201,19 +201,19 @@ export class InstallAppComponent implements OnInit, OnDestroy {
    */
   private obtainKey(): Promise<string | null> {
     return new Promise<string | null>((resolve, reject) => {
-      if (this.key) {
-        resolve(this.key);
+      if (THIS.KEY) {
+        resolve(THIS.KEY);
         return;
       }
-      if (this.useMasterKey) {
+      if (THIS.USE_MASTER_KEY) {
         resolve(null);
         return;
       }
-      if (this.isAppFree) {
+      if (THIS.IS_APP_FREE) {
         resolve(null);
         return;
       }
-      this.presentModal()
+      THIS.PRESENT_MODAL()
         .then(resolve)
         .catch(reject);
     });
@@ -221,36 +221,36 @@ export class InstallAppComponent implements OnInit, OnDestroy {
 
   // popup for key
   private async presentModal(): Promise<string> {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: KeyModalComponent,
       componentProps: {
-        edge: this.edge,
-        appId: this.appId,
-        behaviour: KeyValidationBehaviour.SELECT,
-        appName: this.appName,
+        edge: THIS.EDGE,
+        appId: THIS.APP_ID,
+        behaviour: KEY_VALIDATION_BEHAVIOUR.SELECT,
+        appName: THIS.APP_NAME,
       },
       cssClass: "auto-height",
     });
 
     const selectKeyPromise = new Promise<string>((resolve, reject) => {
-      modal.onDidDismiss().then(event => {
-        if (!event.data) {
+      MODAL.ON_DID_DISMISS().then(event => {
+        if (!EVENT.DATA) {
           reject();
           return; // no key selected
         }
-        if (event.data?.useMasterKey) {
+        if (EVENT.DATA?.useMasterKey) {
           resolve(null);
           return;
         }
-        if (event.data?.key?.keyId) {
-          resolve(event.data.key.keyId);
+        if (EVENT.DATA?.key?.keyId) {
+          resolve(EVENT.DATA.KEY.KEY_ID);
           return;
         }
         reject();
       });
     });
 
-    await modal.present();
+    await MODAL.PRESENT();
     return selectKeyPromise;
   }
 

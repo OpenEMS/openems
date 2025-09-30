@@ -27,7 +27,7 @@ export class SubscribeSystemLogRequest extends JsonrpcRequest {
             subscribe: boolean
         },
     ) {
-        super(SubscribeSystemLogRequest.METHOD, params);
+        super(SUBSCRIBE_SYSTEM_LOG_REQUEST.METHOD, params);
     }
 
 }

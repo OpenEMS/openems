@@ -1,5 +1,5 @@
 {
-  "de": {
+  "DE": {
     "ALERTING": {
       "DELAY": "Verzögerung",
       "CHECKBOX_HELP": "Sie erhalten bei Eintritt des Ereignisses mit der ausgewählten Verzögerung eine E-Mail.",
@@ -8,7 +8,7 @@
       "OTHER_USERS": "Weitere Benutzer"
     }
   },
-  "en": {
+  "EN": {
     "ALERTING": {
       "DELAY": "Delay",
       "CHECKBOX_HELP": "When the event occurs, you will receive an e-mail after the set delay time.",

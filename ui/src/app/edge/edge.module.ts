@@ -1,8 +1,8 @@
 import { NgModule } from "@angular/core";
-import { SharedModule } from "./../shared/shared.module";
-import { EdgeComponent } from "./edge.component";
-import { HistoryModule } from "./history/history.module";
-import { LiveModule } from "./live/live.module";
+import { SharedModule } from "./../shared/SHARED.MODULE";
+import { EdgeComponent } from "./EDGE.COMPONENT";
+import { HistoryModule } from "./history/HISTORY.MODULE";
+import { LiveModule } from "./live/LIVE.MODULE";
 
 @NgModule({
   declarations: [

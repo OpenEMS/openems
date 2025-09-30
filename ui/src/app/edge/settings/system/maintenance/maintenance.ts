@@ -19,8 +19,8 @@ enum SystemRestartState {
 }
 
 @Component({
-    selector: MaintenanceComponent.SELECTOR,
-    templateUrl: "./maintenance.html",
+    selector: MAINTENANCE_COMPONENT.SELECTOR,
+    templateUrl: "./MAINTENANCE.HTML",
     styles: [`
     :host {
         :is(ion-card) {
@@ -40,14 +40,14 @@ export class MaintenanceComponent implements OnInit {
     protected edge: Edge | null = null;
     protected options: { key: string, message: string, color: "success" | "warning" | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
         {
-            key: Type.HARD, message: null, color: null, info: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
-                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant("SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING", { edgeShortName: environment.edgeShortName }),
+            key: TYPE.HARD, message: null, color: null, info: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: ENVIRONMENT.EDGE_SHORT_NAME }), roleIsAtLeast: ROLE.OWNER, button: {
+                callback: () => THIS.CONFIRMATION_ALERT(TYPE.HARD), disabled: false, label: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING", { edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME }),
             },
         },
     ];
 
-    protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
-    protected spinnerId: string = MaintenanceComponent.SELECTOR;
+    protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SYSTEM_RESTART_STATE.INITIAL });
+    protected spinnerId: string = MAINTENANCE_COMPONENT.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
 
     constructor(
@@ -62,18 +62,18 @@ export class MaintenanceComponent implements OnInit {
  * Present confirmation alert
  */
     async presentAlert(type: Type) {
-        const translate = this.translate;
-        const system = type === Type.HARD ? environment.edgeShortName : "OpenEMS";
-        const alert = this.alertCtrl.create({
-            subHeader: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: system }),
-            message: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: system }),
+        const translate = THIS.TRANSLATE;
+        const system = type === TYPE.HARD ? ENVIRONMENT.EDGE_SHORT_NAME : "OpenEMS";
+        const alert = THIS.ALERT_CTRL.CREATE({
+            subHeader: TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: system }),
+            message: TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: system }),
             buttons: [{
-                text: translate.instant("General.cancel"),
+                text: TRANSLATE.INSTANT("GENERAL.CANCEL"),
                 role: "cancel",
             },
             {
-                text: translate.instant("General.RESTART"),
-                handler: () => this.execRestart(type),
+                text: TRANSLATE.INSTANT("GENERAL.RESTART"),
+                handler: () => THIS.EXEC_RESTART(type),
             }],
             cssClass: "alertController",
         });
@@ -81,29 +81,29 @@ export class MaintenanceComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.startSpinner(this.spinnerId);
-        this.service.getCurrentEdge().then((edge) => {
-            this.service.getConfig().then(() => {
-                this.edge = edge;
+        THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+        THIS.SERVICE.GET_CURRENT_EDGE().then((edge) => {
+            THIS.SERVICE.GET_CONFIG().then(() => {
+                THIS.EDGE = edge;
 
-                this.options = this.options.map(option => {
-                    option.button.disabled = !this.edge.roleIsAtLeast(option.roleIsAtLeast);
+                THIS.OPTIONS = THIS.OPTIONS.MAP(option => {
+                    OPTION.BUTTON.DISABLED = !THIS.EDGE.ROLE_IS_AT_LEAST(OPTION.ROLE_IS_AT_LEAST);
                     return option;
                 });
             });
         });
 
-        this.systemRestartState.subscribe(state => {
-            this.updateOptions(state.key);
+        THIS.SYSTEM_RESTART_STATE.SUBSCRIBE(state => {
+            THIS.UPDATE_OPTIONS(STATE.KEY);
         });
     }
 
-    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
-        message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }),
-        subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: environment.edgeShortName }),
+    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(THIS.ALERT_CTRL, THIS.TRANSLATE, {
+        message: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: ENVIRONMENT.EDGE_SHORT_NAME }),
+        subHeader: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: ENVIRONMENT.EDGE_SHORT_NAME }),
         buttons: [{
-            text: this.translate.instant("General.RESTART"),
-            handler: () => this.execRestart(type),
+            text: THIS.TRANSLATE.INSTANT("GENERAL.RESTART"),
+            handler: () => THIS.EXEC_RESTART(type),
         }],
     });
 
@@ -117,26 +117,26 @@ export class MaintenanceComponent implements OnInit {
         let disableButtons: boolean = false;
         let showInfo: boolean = false;
         let color: "warning" | "success" | null = null;
-        const system = type === Type.HARD ? environment.edgeShortName : this.translate.instant("General.SYSTEM");
+        const system = type === TYPE.HARD ? ENVIRONMENT.EDGE_SHORT_NAME : THIS.TRANSLATE.INSTANT("GENERAL.SYSTEM");
 
-        switch (this.systemRestartState?.value?.state) {
-            case SystemRestartState.FAILED:
-                message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_FAILED", { system: system });
+        switch (THIS.SYSTEM_RESTART_STATE?.value?.state) {
+            case SYSTEM_RESTART_STATE.FAILED:
+                message = THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_FAILED", { system: system });
                 color = "warning";
                 disableButtons = false;
                 showInfo = true;
                 break;
-            case SystemRestartState.RESTARTING:
-                this.service.startSpinnerTransparentBackground(this.spinnerId + type);
-                this.checkSystemState(type);
+            case SYSTEM_RESTART_STATE.RESTARTING:
+                THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(THIS.SPINNER_ID + type);
+                THIS.CHECK_SYSTEM_STATE(type);
                 disableButtons = true;
-                message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTARTING", { system: system, minutes: 10 });
+                message = THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTARTING", { system: system, minutes: 10 });
                 break;
-            case SystemRestartState.RESTARTED:
-                this.service.stopSpinner(this.spinnerId + type);
+            case SYSTEM_RESTART_STATE.RESTARTED:
+                THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID + type);
                 disableButtons = false;
                 color = "success";
-                message = this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTARTED", { system: system });
+                message = THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTARTED", { system: system });
                 showInfo = true;
                 break;
             default:
@@ -148,14 +148,14 @@ export class MaintenanceComponent implements OnInit {
             return;
         }
 
-        this.options = this.options.map(option => {
-            if (option.key === type) {
-                option.message = message;
+        THIS.OPTIONS = THIS.OPTIONS.MAP(option => {
+            if (OPTION.KEY === type) {
+                OPTION.MESSAGE = message;
             }
             // Hide and show buttons
-            option.button.disabled = disableButtons ? disableButtons : !this.edge.roleIsAtLeast(option.roleIsAtLeast);
-            option.color = color;
-            option.info = showInfo ? this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }) : null;
+            OPTION.BUTTON.DISABLED = disableButtons ? disableButtons : !THIS.EDGE.ROLE_IS_AT_LEAST(OPTION.ROLE_IS_AT_LEAST);
+            OPTION.COLOR = color;
+            OPTION.INFO = showInfo ? THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: ENVIRONMENT.EDGE_SHORT_NAME }) : null;
             return option;
         });
     }
@@ -170,18 +170,18 @@ export class MaintenanceComponent implements OnInit {
         const request = new ComponentJsonApiRequest({ componentId: "_host", payload: new ExecuteSystemRestartRequest({ type: type }) });
 
         // Workaround, there could be no response
-        this.edge.sendRequest(this.websocket, request).catch(() => {
-            this.systemRestartState.next({ key: type, state: SystemRestartState.FAILED });
+        THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, request).catch(() => {
+            THIS.SYSTEM_RESTART_STATE.NEXT({ key: type, state: SYSTEM_RESTART_STATE.FAILED });
             return;
         });
 
         setTimeout(() => {
-            if (this.systemRestartState?.value?.state === SystemRestartState.FAILED) {
+            if (THIS.SYSTEM_RESTART_STATE?.value?.state === SYSTEM_RESTART_STATE.FAILED) {
                 return;
             }
 
-            this.systemRestartState.next({ key: type, state: SystemRestartState.RESTARTING });
-        }, MaintenanceComponent.TIMEOUT);
+            THIS.SYSTEM_RESTART_STATE.NEXT({ key: type, state: SYSTEM_RESTART_STATE.RESTARTING });
+        }, MAINTENANCE_COMPONENT.TIMEOUT);
     }
 
     /**
@@ -192,12 +192,12 @@ export class MaintenanceComponent implements OnInit {
     private checkSystemState(type: Type): void {
 
         const subscription: Subscription = new Subscription();
-        subscription.add(
+        SUBSCRIPTION.ADD(
 
             // wait for next edgeConfig
-            this.edge.getConfig(this.websocket).pipe(skip(1)).subscribe(() => {
-                subscription.unsubscribe();
-                this.systemRestartState.next({ key: type, state: SystemRestartState.RESTARTED });
+            THIS.EDGE.GET_CONFIG(THIS.WEBSOCKET).pipe(skip(1)).subscribe(() => {
+                SUBSCRIPTION.UNSUBSCRIBE();
+                THIS.SYSTEM_RESTART_STATE.NEXT({ key: type, state: SYSTEM_RESTART_STATE.RESTARTED });
             }),
         );
     }

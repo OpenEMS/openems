@@ -3,8 +3,8 @@ import { FieldType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-input-section",
-    templateUrl: "./input.html",
+    templateUrl: "./INPUT.HTML",
     standalone: false,
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: VIEW_ENCAPSULATION.NONE,
 })
 export class InputTypeComponent extends FieldType { }

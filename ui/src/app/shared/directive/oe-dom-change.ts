@@ -15,13 +15,13 @@ export class DomChangeDirective {
     private changes: MutationObserver;
 
     constructor(private elementRef: ElementRef) {
-        const element = this.elementRef.nativeElement;
+        const element = THIS.ELEMENT_REF.NATIVE_ELEMENT;
 
-        this.changes = new MutationObserver((mutations: MutationRecord[]) => {
-            mutations.forEach((mutation: MutationRecord) => this.ngDomChange.emit(mutation));
+        THIS.CHANGES = new MutationObserver((mutations: MutationRecord[]) => {
+            MUTATIONS.FOR_EACH((mutation: MutationRecord) => THIS.NG_DOM_CHANGE.EMIT(mutation));
         });
 
-        this.changes.observe(element, {
+        THIS.CHANGES.OBSERVE(element, {
             attributes: true,
             childList: true,
             characterData: true,

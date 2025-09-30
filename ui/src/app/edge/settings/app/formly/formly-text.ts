@@ -6,10 +6,10 @@ import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
     styles: [".warning {color: red}"],
     template: `
     <ion-item lines="none">
-        <ion-text [innerHTML]="props.description"></ion-text>
+        <ion-text [innerHTML]="PROPS.DESCRIPTION"></ion-text>
     </ion-item>
     `,
-    encapsulation: ViewEncapsulation.None,
+    encapsulation: VIEW_ENCAPSULATION.NONE,
     standalone: false,
 })
 export class FormlyTextComponent extends FieldType<FieldTypeConfig> {

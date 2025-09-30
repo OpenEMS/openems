@@ -19,7 +19,7 @@ export class GetModbusProtocolRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetModbusProtocolRequest.METHOD, {});
+        super(GET_MODBUS_PROTOCOL_REQUEST.METHOD, {});
     }
 
 }

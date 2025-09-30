@@ -1,11 +1,11 @@
-<ion-item (click)="onSelectItem()" [disabled]="formControl.disabled" [button]="!formControl.disabled">
+<ion-item (click)="onSelectItem()" [disabled]="FORM_CONTROL.DISABLED" [button]="!FORM_CONTROL.DISABLED">
     <ion-label>
-        <span>{{to.label}}</span>
-        <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
-        <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+        <span>{{TO.LABEL}}</span>
+        <span *ngIf="TO.REQUIRED && TO.HIDE_REQUIRED_MARKER !== true">*</span>
+        <span *ngIf="TO.DESCRIPTION"><br /><small>{{ TO.DESCRIPTION }}</small></span>
     </ion-label>
     <ion-text>
-        {{ formControl.value }}
+        {{ FORM_CONTROL.VALUE }}
     </ion-text>
     <ion-icon name="caret-down-outline"></ion-icon>
 </ion-item>

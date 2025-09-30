@@ -10,15 +10,15 @@ type Priority = "CAR" | "STORAGE";
 
 @Component({
     selector: "Evcs_Api_Cluster-modal",
-    templateUrl: "./evcsCluster-modal.page.html",
+    templateUrl: "./evcsCluster-MODAL.PAGE.HTML",
     standalone: false,
 })
 export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     @Input({ required: true }) public edge!: Edge;
-    @Input() public config: EdgeConfig.Component | null = null;
+    @Input() public config: EDGE_CONFIG.COMPONENT | null = null;
     @Input({ required: true }) public componentId!: string;
-    @Input() public evcsMap: { [sourceId: string]: EdgeConfig.Component } = {};
+    @Input() public evcsMap: { [sourceId: string]: EDGE_CONFIG.COMPONENT } = {};
 
     @ViewChild(IonReorderGroup, { static: true })
     public reorderGroup: IonReorderGroup;
@@ -34,7 +34,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     public firstEvcs: string;
     public lastEvcs: string;
     public prioritizedEvcsList: string[];
-    public evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+    public evcsConfigMap: { [evcsId: string]: EDGE_CONFIG.COMPONENT } = {};
 
     public chargeState: ChargeState;
     private chargePlug: ChargePlug;
@@ -52,40 +52,40 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     ngOnInit() {
 
 
-        this.prioritizedEvcsList = this.config.properties["evcs.ids"];
-        this.evcsAmount = this.prioritizedEvcsList.length;
-        this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1];
-        this.firstEvcs = this.prioritizedEvcsList[0];
+        THIS.PRIORITIZED_EVCS_LIST = THIS.CONFIG.PROPERTIES["EVCS.IDS"];
+        THIS.EVCS_AMOUNT = THIS.PRIORITIZED_EVCS_LIST.LENGTH;
+        THIS.LAST_EVCS = THIS.PRIORITIZED_EVCS_LIST[THIS.EVCS_AMOUNT - 1];
+        THIS.FIRST_EVCS = THIS.PRIORITIZED_EVCS_LIST[0];
 
-        this.service.getConfig().then(config => {
-            this.prioritizedEvcsList.forEach(evcsId => {
-                this.evcsConfigMap[evcsId] = config.getComponent(evcsId);
+        THIS.SERVICE.GET_CONFIG().then(config => {
+            THIS.PRIORITIZED_EVCS_LIST.FOR_EACH(evcsId => {
+                THIS.EVCS_CONFIG_MAP[evcsId] = CONFIG.GET_COMPONENT(evcsId);
             });
         });
     }
 
     doReorder(ev: any) {
-        const oldListOrder = this.prioritizedEvcsList;
-        this.prioritizedEvcsList = ev.detail.complete(this.prioritizedEvcsList);
+        const oldListOrder = THIS.PRIORITIZED_EVCS_LIST;
+        THIS.PRIORITIZED_EVCS_LIST = EV.DETAIL.COMPLETE(THIS.PRIORITIZED_EVCS_LIST);
 
-        const newListOrder = this.prioritizedEvcsList;
+        const newListOrder = THIS.PRIORITIZED_EVCS_LIST;
 
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, this.config.id, [
-                { name: "evcs.ids", value: newListOrder },
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.CONFIG.ID, [
+                { name: "EVCS.IDS", value: newListOrder },
             ]).then(response => {
-                this.config.properties.chargeMode = newListOrder;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                THIS.CONFIG.PROPERTIES.CHARGE_MODE = newListOrder;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                this.config.properties.chargeMode = oldListOrder;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                THIS.CONFIG.PROPERTIES.CHARGE_MODE = oldListOrder;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
 
     cancel() {
-        this.modalCtrl.dismiss();
+        THIS.MODAL_CTRL.DISMISS();
     }
 
     /**
@@ -93,11 +93,11 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     *
     * @param event
     */
-    updateChargeMode(event: CustomEvent, currentController: EdgeConfig.Component) {
-        const oldChargeMode = currentController.properties.chargeMode;
+    updateChargeMode(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT) {
+        const oldChargeMode = CURRENT_CONTROLLER.PROPERTIES.CHARGE_MODE;
         let newChargeMode: ChargeMode;
 
-        switch (event.detail.value) {
+        switch (EVENT.DETAIL.VALUE) {
             case "FORCE_CHARGE":
                 newChargeMode = "FORCE_CHARGE";
                 break;
@@ -106,27 +106,27 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
                 break;
         }
 
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "chargeMode", value: newChargeMode },
             ]).then(response => {
-                currentController.properties.chargeMode = newChargeMode;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.CHARGE_MODE = newChargeMode;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.chargeMode = oldChargeMode;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.CHARGE_MODE = oldChargeMode;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
     /**
      * Changed the Priority between the components of the charging session
      */
-    priorityChanged(event: CustomEvent, currentController: EdgeConfig.Component) {
-        const oldPriority = currentController.properties.priority;
+    priorityChanged(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT) {
+        const oldPriority = CURRENT_CONTROLLER.PROPERTIES.PRIORITY;
         let newPriority: Priority;
 
-        switch (event.detail.value) {
+        switch (EVENT.DETAIL.VALUE) {
             case "CAR":
                 newPriority = "CAR";
                 break;
@@ -135,16 +135,16 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
                 break;
         }
 
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "priority", value: newPriority },
             ]).then(response => {
-                currentController.properties.priority = newPriority;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.PRIORITY = newPriority;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.priority = oldPriority;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.PRIORITY = oldPriority;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
@@ -154,21 +154,21 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      *
      * @param event
      */
-    updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
-        const oldMinChargePower = currentController.properties.forceChargeMinPower;
-        let newMinChargePower = event.detail.value;
+    updateForceMinPower(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT, numberOfPhases: number) {
+        const oldMinChargePower = CURRENT_CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER;
+        let newMinChargePower = EVENT.DETAIL.VALUE;
         newMinChargePower /= numberOfPhases;
 
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "forceChargeMinPower", value: newMinChargePower },
             ]).then(response => {
-                currentController.properties.forceChargeMinPower = newMinChargePower;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER = newMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.forceChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER = oldMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
@@ -178,20 +178,20 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      *
      * @param event
      */
-    updateDefaultMinPower(event: CustomEvent, currentController: EdgeConfig.Component) {
-        const oldMinChargePower = currentController.properties.defaultChargeMinPower;
-        const newMinChargePower = event.detail.value;
+    updateDefaultMinPower(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT) {
+        const oldMinChargePower = CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER;
+        const newMinChargePower = EVENT.DETAIL.VALUE;
 
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "defaultChargeMinPower", value: newMinChargePower },
             ]).then(response => {
-                currentController.properties.defaultChargeMinPower = newMinChargePower;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER = newMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.defaultChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER = oldMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
@@ -206,24 +206,24 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param event
      * @param phases
      */
-    allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EdgeConfig.Component) {
+    allowMinimumChargePower(event: CustomEvent, phases: number, currentController: EDGE_CONFIG.COMPONENT) {
 
-        const oldMinChargePower = currentController.properties.defaultChargeMinPower;
+        const oldMinChargePower = CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER;
 
         let newMinChargePower = 0;
         if (oldMinChargePower == null || oldMinChargePower == 0) {
             newMinChargePower = phases != undefined ? 1400 * phases : 4200;
         }
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "defaultChargeMinPower", value: newMinChargePower },
             ]).then(response => {
-                currentController.properties.defaultChargeMinPower = newMinChargePower;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER = newMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.defaultChargeMinPower = oldMinChargePower;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.DEFAULT_CHARGE_MIN_POWER = oldMinChargePower;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
@@ -233,20 +233,20 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
     *
     * @param event
     */
-    enableOrDisableCharging(event: CustomEvent, currentController: EdgeConfig.Component) {
+    enableOrDisableCharging(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT) {
 
-        const oldChargingState = currentController.properties.enabledCharging;
+        const oldChargingState = CURRENT_CONTROLLER.PROPERTIES.ENABLED_CHARGING;
         const newChargingState = !oldChargingState;
-        if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, currentController.id, [
+        if (THIS.EDGE != null) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, CURRENT_CONTROLLER.ID, [
                 { name: "enabledCharging", value: newChargingState },
             ]).then(response => {
-                currentController.properties.enabledCharging = newChargingState;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                CURRENT_CONTROLLER.PROPERTIES.ENABLED_CHARGING = newChargingState;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
-                currentController.properties.enabledCharging = oldChargingState;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                console.warn(reason);
+                CURRENT_CONTROLLER.PROPERTIES.ENABLED_CHARGING = oldChargingState;
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                CONSOLE.WARN(reason);
             });
         }
     }
@@ -257,46 +257,46 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param state
      * @param plug
      */
-    getState(power: number, state: number, plug: number, currentController: EdgeConfig.Component) {
+    getState(power: number, state: number, plug: number, currentController: EDGE_CONFIG.COMPONENT) {
         if (currentController != null) {
-            if (currentController.properties.enabledCharging != null && currentController.properties.enabledCharging == false) {
-                return this.translate.instant("Edge.Index.Widgets.EVCS.chargingStationDeactivated");
+            if (CURRENT_CONTROLLER.PROPERTIES.ENABLED_CHARGING != null && CURRENT_CONTROLLER.PROPERTIES.ENABLED_CHARGING == false) {
+                return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
             }
         }
         if (power == null || power == 0) {
 
-            this.chargeState = state;
-            this.chargePlug = plug;
+            THIS.CHARGE_STATE = state;
+            THIS.CHARGE_PLUG = plug;
 
-            if (this.chargePlug == null) {
-                if (this.chargeState == null) {
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
+            if (THIS.CHARGE_PLUG == null) {
+                if (THIS.CHARGE_STATE == null) {
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
                 }
-            } else if (this.chargePlug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-                return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
+            } else if (THIS.CHARGE_PLUG != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+                return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
             }
 
-            switch (this.chargeState) {
-                case ChargeState.STARTING:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.starting");
-                case ChargeState.UNDEFINED:
-                case ChargeState.ERROR:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.error");
+            switch (THIS.CHARGE_STATE) {
+                case CHARGE_STATE.STARTING:
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.STARTING");
+                case CHARGE_STATE.UNDEFINED:
+                case CHARGE_STATE.ERROR:
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.ERROR");
                 case ChargeState.READY_FOR_CHARGING:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.readyForCharging");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING");
                 case ChargeState.NOT_READY_FOR_CHARGING:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.notReadyForCharging");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING");
                 case ChargeState.AUTHORIZATION_REJECTED:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
                 case ChargeState.ENERGY_LIMIT_REACHED:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED");
                 case ChargeState.CHARGING_FINISHED:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
                 default:
-                    return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
+                    return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
             }
         }
-        return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
     }
 
     /**
@@ -306,7 +306,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
      * @param i
      */
     formatNumber(i: number) {
-        const round = Math.ceil(i / 100) * 100;
+        const round = MATH.CEIL(i / 100) * 100;
         return round;
     }
 
@@ -325,14 +325,14 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
     //TODO: Do it in the edge component
     currentChargingPower(): number {
-        return this.sumOfChannel("ChargePower");
+        return THIS.SUM_OF_CHANNEL("ChargePower");
     }
 
     private sumOfChannel(channel: string): number {
 
         const sum = 0;/*
-    this.evcsMap.forEach(station => {
-      let channelValue = this.edge.currentData.value.channel[station.id + "/" + channel];
+    THIS.EVCS_MAP.FOR_EACH(station => {
+      let channelValue = THIS.EDGE.CURRENT_DATA.VALUE.CHANNEL[STATION.ID + "/" + channel];
       if (channelValue != null) {
         sum += channelValue;
       };
@@ -345,7 +345,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 enum ChargeState {
     UNDEFINED = -1,           //Undefined
     STARTING,                 //Starting
-    NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+    NOT_READY_FOR_CHARGING,   //Not ready for Charging E.G. unplugged, X1 or "ena" not enabled, RFID not enabled,...
     READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
     CHARGING,                 //Charging
     ERROR,                    //Error

@@ -7,7 +7,7 @@ import { Service } from "src/app/shared/shared";
  */
 @Component({
     selector: "oe-help-link",
-    templateUrl: "./help-link.html",
+    templateUrl: "./help-LINK.HTML",
     standalone: false,
 })
 export class HelpLinkComponent {
@@ -23,6 +23,6 @@ export class HelpLinkComponent {
         }
 
         this._link =
-            key.replace("{language}", this.service.getDocsLang());
+            KEY.REPLACE("{language}", THIS.SERVICE.GET_DOCS_LANG());
     }
 }

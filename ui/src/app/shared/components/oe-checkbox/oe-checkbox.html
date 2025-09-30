@@ -1,15 +1,15 @@
-<form *ngIf="form" [formGroup]="form.formGroup">
+<form *ngIf="form" [formGroup]="FORM.FORM_GROUP">
     <ion-row class="ion-align-items-center ion-padding-top">
         <ion-col size="auto">
             <ion-item lines="none">
                 <ion-checkbox #htmlRef [slot]="attributes?.slot ?? 'start'"
                     [labelPlacement]="attributes?.labelPlacement ?? end" class="ion-white-space-pre-wrap"
-                    [formControlName]="form.controlName">
+                    [formControlName]="FORM.CONTROL_NAME">
                 </ion-checkbox>
             </ion-item>
         </ion-col>
         <ion-col>
-            <ion-label [innerHTML]="attributes.text"></ion-label>
+            <ion-label [innerHTML]="ATTRIBUTES.TEXT"></ion-label>
         </ion-col>
     </ion-row>
 </form>

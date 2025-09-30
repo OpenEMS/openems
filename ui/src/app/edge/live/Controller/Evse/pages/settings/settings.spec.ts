@@ -1,28 +1,28 @@
 // @ts-strict-ignore
 import { FormControl, FormGroup } from "@angular/forms";
-import { DummyConfig, RANGE_BUTTONS_FROM_FORM_CONTROL_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
+import { DummyConfig, RANGE_BUTTONS_FROM_FORM_CONTROL_LINE } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
 
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { EvseSettingsComponent } from "./settings";
 
-function expectView(component: EdgeConfig.Component, edge: Edge, viewContext: OeFormlyViewTester.Context, testContext: TestContext, view: OeFormlyViewTester.View, formGroup: FormGroup): void {
-  const generatedView = OeFormlyViewTester.apply(EvseSettingsComponent.generateView(testContext.translate, component, edge), viewContext, formGroup);
+function expectView(component: EDGE_CONFIG.COMPONENT, edge: Edge, viewContext: OE_FORMLY_VIEW_TESTER.CONTEXT, testContext: TestContext, view: OE_FORMLY_VIEW_TESTER.VIEW, formGroup: FormGroup): void {
+  const generatedView = OE_FORMLY_VIEW_TESTER.APPLY(EVSE_SETTINGS_COMPONENT.GENERATE_VIEW(TEST_CONTEXT.TRANSLATE, component, edge), viewContext, formGroup);
   expect(generatedView).toEqual(view);
 }
 
 describe("EVSE Settings", () => {
   let TEST_CONTEXT;
-  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TESTING_UTILS.SHARED_SETUP());
 
   it("+generateView()", () => {
     {
-      const component = DummyConfig.from(
-        DummyConfig.Component.EVSE_CHARGEPOINT_KEBA_UDP("evseChargePoint0"),
+      const component = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.EVSE_CHARGEPOINT_KEBA_UDP("evseChargePoint0"),
       ).getComponent("evseChargePoint0");
-      const edge = DummyConfig.dummyEdge({});
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {};
+      const edge = DUMMY_CONFIG.DUMMY_EDGE({});
+      const VIEW_CONTEXT: OE_FORMLY_VIEW_TESTER.CONTEXT = {};
 
       expectView(component, edge, VIEW_CONTEXT, TEST_CONTEXT, {
         lines: [

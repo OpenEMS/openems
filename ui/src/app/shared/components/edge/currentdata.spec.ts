@@ -1,7 +1,7 @@
 import { CurrentData } from "./currentdata";
 
 export function expectRatioToEqual(maxApparentPower: number | null, minDischargePower: number | null, effectivePower: number | null, result: number | null): void {
-  expect(CurrentData.getEssPowerRatio(maxApparentPower, minDischargePower, effectivePower)).toEqual(result);
+  expect(CURRENT_DATA.GET_ESS_POWER_RATIO(maxApparentPower, minDischargePower, effectivePower)).toEqual(result);
 }
 
 describe("CurrentData", () => {

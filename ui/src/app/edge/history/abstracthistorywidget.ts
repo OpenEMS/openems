@@ -27,8 +27,8 @@ export abstract class AbstractHistoryWidget {
     protected subscribeWidgetRefresh() {
         // XXX disabled to reduce server load
 
-        // this.refreshWidgetData.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-        // this.updateValues()
+        // THIS.REFRESH_WIDGET_DATA.PIPE(takeUntil(THIS.NG_UNSUBSCRIBE)).subscribe(() => {
+        // THIS.UPDATE_VALUES()
         // })
     }
 
@@ -38,9 +38,9 @@ export abstract class AbstractHistoryWidget {
     protected unsubscribeWidgetRefresh() {
         // XXX disabled to reduce server load
 
-        // if (this.ngUnsubscribe.isStopped == false) {
-        //     this.ngUnsubscribe.next();
-        // this.ngUnsubscribe.complete();
+        // if (THIS.NG_UNSUBSCRIBE.IS_STOPPED == false) {
+        //     THIS.NG_UNSUBSCRIBE.NEXT();
+        // THIS.NG_UNSUBSCRIBE.COMPLETE();
         // }
     }
 
@@ -54,29 +54,29 @@ export abstract class AbstractHistoryWidget {
     */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
 
-        const resolution = calculateResolution(this.service, fromDate, toDate).resolution;
+        const resolution = calculateResolution(THIS.SERVICE, fromDate, toDate).resolution;
         const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
-                        edge.sendRequest(this.service.websocket, request).then(response => {
+            THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+                THIS.SERVICE.GET_CONFIG().then(config => {
+                    THIS.GET_CHANNEL_ADDRESSES(edge, config).then(channelAddresses => {
+                        const request = new QueryHistoricTimeseriesDataRequest(DATE_UTILS.MAX_DATE(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        EDGE.SEND_REQUEST(THIS.SERVICE.WEBSOCKET, request).then(response => {
                             const result = (response as QueryHistoricTimeseriesDataResponse).result;
-                            this.activeQueryData = response.id;
-                            if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                            THIS.ACTIVE_QUERY_DATA = RESPONSE.ID;
+                            if (OBJECT.KEYS(RESULT.DATA).length != 0 && OBJECT.KEYS(RESULT.TIMESTAMPS).length != 0) {
                                 resolve(response as QueryHistoricTimeseriesDataResponse);
                             } else {
-                                reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                reject(new JsonrpcResponseError(RESPONSE.ID, { code: 0, message: "Result was empty" }));
                             }
                         }).catch(reason => reject(reason));
                     }).catch(reason => reject(reason));
                 });
             });
         }).then((response) => {
-            if (this.activeQueryData !== response.id) {
+            if (THIS.ACTIVE_QUERY_DATA !== RESPONSE.ID) {
                 return;
             }
-            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
+            return DATE_TIME_UTILS.NORMALIZE_TIMESTAMPS(RESOLUTION.UNIT, response);
         });
         return result;
     }
@@ -87,7 +87,7 @@ export abstract class AbstractHistoryWidget {
     // protected checkAllowanceWidgetRefresh(): boolean {
     //     let currentDate = new Date();
     //     let allowRefresh: boolean = false;
-    //     if (isAfter(this.service.historyPeriod.from.getDate(), currentDate.getDate()) || currentDate.getDate() == this.service.historyPeriod.from.getDate()) {
+    //     if (isAfter(THIS.SERVICE.HISTORY_PERIOD.FROM.GET_DATE(), CURRENT_DATE.GET_DATE()) || CURRENT_DATE.GET_DATE() == THIS.SERVICE.HISTORY_PERIOD.FROM.GET_DATE()) {
     //         allowRefresh = true;
     //     } else {
     //         allowRefresh = false;

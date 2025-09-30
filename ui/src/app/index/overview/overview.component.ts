@@ -8,15 +8,15 @@ import { Subject } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
 import { Pagination } from "src/app/shared/service/pagination";
-import { UserService } from "src/app/shared/service/user.service";
+import { UserService } from "src/app/shared/service/USER.SERVICE";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
-import { ChosenFilter } from "../filter/filter.component";
+import { ChosenFilter } from "../filter/FILTER.COMPONENT";
 
 @Component({
     selector: "overview",
-    templateUrl: "./overview.component.html",
+    templateUrl: "./OVERVIEW.COMPONENT.HTML",
     standalone: false,
 })
 export class OverViewComponent implements ViewWillEnter, OnDestroy {
@@ -56,20 +56,20 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     ) {
 
         effect(() => {
-            const user = this.userService.currentUser();
+            const user = THIS.USER_SERVICE.CURRENT_USER();
 
             if (user) {
-                this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                THIS.IS_AT_LEAST_INSTALLER = USER.IS_AT_LEAST(ROLE.INSTALLER);
             }
         });
     }
 
     ionViewWillEnter() {
-        this.page = 0;
-        this.filteredEdges = [];
-        this.limitReached = false;
-        this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
-            this.init();
+        THIS.PAGE = 0;
+        THIS.FILTERED_EDGES = [];
+        THIS.LIMIT_REACHED = false;
+        THIS.SERVICE.METADATA.PIPE(filter(metadata => !!metadata), take(1)).subscribe(() => {
+            THIS.INIT();
         });
     }
 
@@ -80,61 +80,61 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
      */
     doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
         setTimeout(() => {
-            this.page++;
-            this.loadNextPage().then((edges) => {
-                this.filteredEdges.push(...edges);
-                infiniteScroll.target.complete();
+            THIS.PAGE++;
+            THIS.LOAD_NEXT_PAGE().then((edges) => {
+                THIS.FILTERED_EDGES.PUSH(...edges);
+                INFINITE_SCROLL.TARGET.COMPLETE();
             }).catch(() => {
-                infiniteScroll.target.complete();
+                INFINITE_SCROLL.TARGET.COMPLETE();
             });
         }, 200);
     }
 
     ngOnDestroy() {
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
+        THIS.STOP_ON_DESTROY.NEXT();
+        THIS.STOP_ON_DESTROY.COMPLETE();
     }
 
     loadNextPage(): Promise<Edge[]> {
 
-        this.loading = true;
+        THIS.LOADING = true;
         return new Promise<Edge[]>((resolve, reject) => {
-            if (this.limitReached) {
+            if (THIS.LIMIT_REACHED) {
                 resolve([]);
                 return;
             }
 
             const searchParamsObj = {};
-            if (this.searchParams && this.searchParams.size > 0) {
-                for (const [key, value] of this.searchParams) {
+            if (THIS.SEARCH_PARAMS && THIS.SEARCH_PARAMS.SIZE > 0) {
+                for (const [key, value] of THIS.SEARCH_PARAMS) {
                     searchParamsObj[key] = value;
                 }
             }
             const req = new GetEdgesRequest({
-                page: this.page,
-                ...(this.query && this.query != "" && { query: this.query }),
-                ...(this.limit && { limit: this.limit }),
+                page: THIS.PAGE,
+                ...(THIS.QUERY && THIS.QUERY != "" && { query: THIS.QUERY }),
+                ...(THIS.LIMIT && { limit: THIS.LIMIT }),
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
 
-            this.lastReqId = req.id;
+            THIS.LAST_REQ_ID = REQ.ID;
 
-            this.service.getEdges(req)
+            THIS.SERVICE.GET_EDGES(req)
                 .then((edges) => {
-                    if (this.lastReqId !== req.id) {
-                        resolve(this.filteredEdges);
+                    if (THIS.LAST_REQ_ID !== REQ.ID) {
+                        resolve(THIS.FILTERED_EDGES);
                     }
-                    this.limitReached = edges.length < this.limit;
+                    THIS.LIMIT_REACHED = EDGES.LENGTH < THIS.LIMIT;
                     resolve(edges);
                 }).catch((err) => {
                     reject(err);
                 });
         }).finally(() =>
-            this.loading = false);
+            THIS.LOADING = false);
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
-        this.pagination.getAndSubscribeEdge(edge);
+        THIS.PAGINATION.GET_AND_SUBSCRIBE_EDGE(edge);
     }
 
     /**
@@ -145,42 +145,42 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     protected searchOnChange(searchParams?: Map<string, ChosenFilter["value"]>) {
 
         if (searchParams) {
-            this.searchParams = searchParams;
+            THIS.SEARCH_PARAMS = searchParams;
         }
 
-        this.filteredEdges = [];
-        this.page = 0;
-        this.limitReached = false;
+        THIS.FILTERED_EDGES = [];
+        THIS.PAGE = 0;
+        THIS.LIMIT_REACHED = false;
 
-        this.loadNextPage().then((edges) => {
-            this.filteredEdges = edges;
+        THIS.LOAD_NEXT_PAGE().then((edges) => {
+            THIS.FILTERED_EDGES = edges;
         });
     }
 
     private init() {
 
-        this.loadNextPage().then((edges) => {
-            this.service.metadata
+        THIS.LOAD_NEXT_PAGE().then((edges) => {
+            THIS.SERVICE.METADATA
                 .pipe(
                     filter(metadata => !!metadata),
                     take(1),
                 )
                 .subscribe(metadata => {
-                    const edgeIds = Object.keys(metadata.edges);
-                    this.noEdges = edgeIds.length === 0;
-                    this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
+                    const edgeIds = OBJECT.KEYS(METADATA.EDGES);
+                    THIS.NO_EDGES = EDGE_IDS.LENGTH === 0;
+                    THIS.LOGGED_IN_USER_CAN_INSTALL = ROLE.IS_AT_LEAST(METADATA.USER.GLOBAL_ROLE, "installer");
 
                     // Forward directly to device page, if
                     // - Direct local access to Edge
-                    // - No installer (i.e. guest or owner) and access to only one Edge
-                    if (environment.backend == "OpenEMS Edge" || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
-                        const edge = metadata.edges[edgeIds[0]];
+                    // - No installer (I.E. guest or owner) and access to only one Edge
+                    if (ENVIRONMENT.BACKEND == "OpenEMS Edge" || (!THIS.LOGGED_IN_USER_CAN_INSTALL && EDGE_IDS.LENGTH == 1)) {
+                        const edge = METADATA.EDGES[edgeIds[0]];
                         setTimeout(() => {
-                            this.router.navigate(["/device", edge.id]);
+                            THIS.ROUTER.NAVIGATE(["/device", EDGE.ID]);
                         }, 100);
                         return;
                     }
-                    this.filteredEdges = edges;
+                    THIS.FILTERED_EDGES = edges;
                 });
         });
     }

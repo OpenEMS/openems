@@ -4,7 +4,7 @@ import { differenceInDays, endOfMonth, endOfYear, format, getDay, getMonth, getY
 
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Service } from "../shared";
-import { StringUtils } from "../utils/string/string.utils";
+import { StringUtils } from "../utils/string/STRING.UTILS";
 import { TRange } from "./utility";
 
 export namespace DefaultTypes {
@@ -98,8 +98,8 @@ export namespace DefaultTypes {
 
   export enum PeriodString { DAY = "day", WEEK = "week", MONTH = "month", YEAR = "year", TOTAL = "total", CUSTOM = "custom" }
 
-  /** Values of {@link DefaultTypes.PeriodString} */
-  export type PeriodStringValues = Exclude<`${DefaultTypes.PeriodString}`, "custom">;
+  /** Values of {@link DEFAULT_TYPES.PERIOD_STRING} */
+  export type PeriodStringValues = Exclude<`${DEFAULT_TYPES.PERIOD_STRING}`, "custom">;
 
   export namespace History {
 
@@ -109,7 +109,7 @@ export namespace DefaultTypes {
     }
     export type InputChannel = {
 
-      /** Must be unique, is used as identifier in {@link ChartData.input} */
+      /** Must be unique, is used as identifier in {@link CHART_DATA.INPUT} */
       name: string,
       powerChannel: ChannelAddress,
       energyChannel?: ChannelAddress
@@ -168,13 +168,13 @@ export namespace DefaultTypes {
  */
     private static getTranslatedDayString(translate: TranslateService, date: Date): string {
       switch (getDay(date)) {
-        case 0: return translate.instant("General.Week.sunday");
-        case 1: return translate.instant("General.Week.monday");
-        case 2: return translate.instant("General.Week.tuesday");
-        case 3: return translate.instant("General.Week.wednesday");
-        case 4: return translate.instant("General.Week.thursday");
-        case 5: return translate.instant("General.Week.friday");
-        case 6: return translate.instant("General.Week.saturday");
+        case 0: return TRANSLATE.INSTANT("GENERAL.WEEK.SUNDAY");
+        case 1: return TRANSLATE.INSTANT("GENERAL.WEEK.MONDAY");
+        case 2: return TRANSLATE.INSTANT("GENERAL.WEEK.TUESDAY");
+        case 3: return TRANSLATE.INSTANT("GENERAL.WEEK.WEDNESDAY");
+        case 4: return TRANSLATE.INSTANT("GENERAL.WEEK.THURSDAY");
+        case 5: return TRANSLATE.INSTANT("GENERAL.WEEK.FRIDAY");
+        case 6: return TRANSLATE.INSTANT("GENERAL.WEEK.SATURDAY");
       }
     }
 
@@ -186,56 +186,56 @@ export namespace DefaultTypes {
      */
     private static getTranslatedMonthString(translate: TranslateService, date: Date): string {
       switch (getMonth(date) + 1) {
-        case 1: return translate.instant("General.Month.january");
-        case 2: return translate.instant("General.Month.february");
-        case 3: return translate.instant("General.Month.march");
-        case 4: return translate.instant("General.Month.april");
-        case 5: return translate.instant("General.Month.may");
-        case 6: return translate.instant("General.Month.june");
-        case 7: return translate.instant("General.Month.july");
-        case 8: return translate.instant("General.Month.august");
-        case 9: return translate.instant("General.Month.september");
-        case 10: return translate.instant("General.Month.october");
-        case 11: return translate.instant("General.Month.november");
-        case 12: return translate.instant("General.Month.december");
+        case 1: return TRANSLATE.INSTANT("GENERAL.MONTH.JANUARY");
+        case 2: return TRANSLATE.INSTANT("GENERAL.MONTH.FEBRUARY");
+        case 3: return TRANSLATE.INSTANT("GENERAL.MONTH.MARCH");
+        case 4: return TRANSLATE.INSTANT("GENERAL.MONTH.APRIL");
+        case 5: return TRANSLATE.INSTANT("GENERAL.MONTH.MAY");
+        case 6: return TRANSLATE.INSTANT("GENERAL.MONTH.JUNE");
+        case 7: return TRANSLATE.INSTANT("GENERAL.MONTH.JULY");
+        case 8: return TRANSLATE.INSTANT("GENERAL.MONTH.AUGUST");
+        case 9: return TRANSLATE.INSTANT("GENERAL.MONTH.SEPTEMBER");
+        case 10: return TRANSLATE.INSTANT("GENERAL.MONTH.OCTOBER");
+        case 11: return TRANSLATE.INSTANT("GENERAL.MONTH.NOVEMBER");
+        case 12: return TRANSLATE.INSTANT("GENERAL.MONTH.DECEMBER");
       }
     }
 
     public getText(translate: TranslateService, service: Service): string {
 
-      if (service.periodString === DefaultTypes.PeriodString.TOTAL) {
-        return translate.instant("Edge.History.TOTAL");
+      if (SERVICE.PERIOD_STRING === DEFAULT_TYPES.PERIOD_STRING.TOTAL) {
+        return TRANSLATE.INSTANT("EDGE.HISTORY.TOTAL");
       }
 
-      if (isSameDay(this.from, this.to)) {
-        if (isSameDay(this.from, new Date())) {
+      if (isSameDay(THIS.FROM, THIS.TO)) {
+        if (isSameDay(THIS.FROM, new Date())) {
           // Selected TODAY
-          return translate.instant("Edge.History.today") + ", " + format(new Date(), translate.instant("General.dateFormat"));
+          return TRANSLATE.INSTANT("EDGE.HISTORY.TODAY") + ", " + format(new Date(), TRANSLATE.INSTANT("GENERAL.DATE_FORMAT"));
 
-        } else if (isSameDay(this.from, subDays(new Date(), 1))) {
+        } else if (isSameDay(THIS.FROM, subDays(new Date(), 1))) {
           // Selected YESTERDAY
-          return translate.instant("Edge.History.yesterday") + ", " + format(this.from, translate.instant("General.dateFormat"));
+          return TRANSLATE.INSTANT("EDGE.HISTORY.YESTERDAY") + ", " + format(THIS.FROM, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT"));
 
         } else {
           // Selected one single day
-          return HistoryPeriod.getTranslatedDayString(translate, this.from) + ", " + translate.instant("Edge.History.selectedDay", {
-            value: format(this.from, translate.instant("General.dateFormat")),
+          return HISTORY_PERIOD.GET_TRANSLATED_DAY_STRING(translate, THIS.FROM) + ", " + TRANSLATE.INSTANT("EDGE.HISTORY.SELECTED_DAY", {
+            value: format(THIS.FROM, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")),
           });
         }
-      } else if (isSameMonth(this.from, this.to) && isSameDay(this.from, startOfMonth(this.from)) && isSameDay(this.to, endOfMonth(this.to))) {
+      } else if (isSameMonth(THIS.FROM, THIS.TO) && isSameDay(THIS.FROM, startOfMonth(THIS.FROM)) && isSameDay(THIS.TO, endOfMonth(THIS.TO))) {
         // Selected one month
-        return HistoryPeriod.getTranslatedMonthString(translate, this.from) + " " + getYear(this.from);
+        return HISTORY_PERIOD.GET_TRANSLATED_MONTH_STRING(translate, THIS.FROM) + " " + getYear(THIS.FROM);
       }
       // Selected one year
-      else if (isSameYear(this.from, this.to) && isSameDay(this.from, startOfYear(this.from)) && isSameDay(this.to, endOfYear(this.to))) {
-        return getYear(this.from).toString();
+      else if (isSameYear(THIS.FROM, THIS.TO) && isSameDay(THIS.FROM, startOfYear(THIS.FROM)) && isSameDay(THIS.TO, endOfYear(THIS.TO))) {
+        return getYear(THIS.FROM).toString();
       }
 
       else {
-        return translate.instant(
-          "General.periodFromTo", {
-          value1: format(this.from, translate.instant("General.dateFormat")),
-          value2: format(this.to, translate.instant("General.dateFormat")),
+        return TRANSLATE.INSTANT(
+          "GENERAL.PERIOD_FROM_TO", {
+          value1: format(THIS.FROM, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")),
+          value2: format(THIS.TO, TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")),
         });
       }
     }
@@ -246,7 +246,7 @@ export namespace DefaultTypes {
      * @returns true if period is week or day, false if not
      */
     public isWeekOrDay(): boolean {
-      return Math.abs(differenceInDays(this.to, this.from)) <= 6;
+      return MATH.ABS(differenceInDays(THIS.TO, THIS.FROM)) <= 6;
     }
   }
 }
@@ -260,9 +260,9 @@ export class RGBColor<T extends RGBValue = RGBValue> {
   private readonly blue: T;
 
   constructor(red: T, green: T, blue: T) {
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
+    THIS.RED = red;
+    THIS.GREEN = green;
+    THIS.BLUE = blue;
   }
 
   /**
@@ -273,12 +273,12 @@ export class RGBColor<T extends RGBValue = RGBValue> {
    */
   public static fromString(rgbString: string | null): RGBColor {
 
-    const subStr: string | null = StringUtils.getSubstringInBetween("(", ")", rgbString);
+    const subStr: string | null = STRING_UTILS.GET_SUBSTRING_IN_BETWEEN("(", ")", rgbString);
     if (!subStr) {
       throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
     }
 
-    const rgb: string[] = subStr.split(",").map(el => el.trim());
+    const rgb: string[] = SUB_STR.SPLIT(",").map(el => EL.TRIM());
     const red: RGBValue = parseInt(rgb[0]) as RGBValue;
     const green: RGBValue = parseInt(rgb[1]) as RGBValue;
     const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
@@ -298,8 +298,8 @@ export class RGBColor<T extends RGBValue = RGBValue> {
    * @returns the new rgba string
    */
   public static rgbStringToRgba(opacity: number, color: string): string {
-    const rgbColor = RGBColor.fromString(color);
-    return "rgba(" + [rgbColor.red, rgbColor.green, rgbColor.blue, opacity].join(",") + ")";
+    const rgbColor = RGBCOLOR.FROM_STRING(color);
+    return "rgba(" + [RGB_COLOR.RED, RGB_COLOR.GREEN, RGB_COLOR.BLUE, opacity].join(",") + ")";
   }
 
   /**
@@ -308,10 +308,10 @@ export class RGBColor<T extends RGBValue = RGBValue> {
    * @returns the rgb color as string
    */
   public toString(): string {
-    if (this.red == null || this.green == null || this.blue == null) {
+    if (THIS.RED == null || THIS.GREEN == null || THIS.BLUE == null) {
       throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
     }
-    return `rgb(${this.red},${this.green},${this.blue})`;
+    return `rgb(${THIS.RED},${THIS.GREEN},${THIS.BLUE})`;
   }
 
   /**
@@ -324,6 +324,6 @@ export class RGBColor<T extends RGBValue = RGBValue> {
     if (opacity == null) {
       throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);
     }
-    return `rgba(${this.red},${this.green},${this.blue},${opacity})`;
+    return `rgba(${THIS.RED},${THIS.GREEN},${THIS.BLUE},${opacity})`;
   }
 }

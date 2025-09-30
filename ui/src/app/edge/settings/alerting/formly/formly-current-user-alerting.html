@@ -1,26 +1,26 @@
-<ion-grid *ngIf="props.options" class="ion-no-padding">
+<ion-grid *ngIf="PROPS.OPTIONS" class="ion-no-padding">
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    @for (row of props.options; track row; let odd = $odd) {
+    @for (row of PROPS.OPTIONS; track row; let odd = $odd) {
     <ion-row *ngIf="row?.props" class="ion-align-self-start"
-      [style.background]="odd ? 'var(--ion-background-color-card-header)' : ''">
+      [STYLE.BACKGROUND]="odd ? 'var(--ion-background-color-card-header)' : ''">
       <ion-col size="auto" class="ion-padding ion-align-self-center">
-        <ion-icon class="ion-margin-start" size="large" [name]="row.props?.icon.name" [color]="row.props?.icon.color"
-          [size]="row.props?.icon.size" item-left></ion-icon>
+        <ion-icon class="ion-margin-start" size="large" [name]="ROW.PROPS?.ICON.NAME" [color]="ROW.PROPS?.ICON.COLOR"
+          [size]="ROW.PROPS?.ICON.SIZE" item-left></ion-icon>
       </ion-col>
       <ion-col>
         <ion-row class="ion-no-padding ion-align-items-center">
           <ion-col>
             <ion-item lines="none" class="ion-full-width ion-background-transparent">
-              {{ row.props?.title }}
+              {{ ROW.PROPS?.title }}
             </ion-item>
           </ion-col>
           <ion-col>
-            @for (col of row.fieldGroup; track $index) {
-            @switch (col.type) {
+            @for (col of ROW.FIELD_GROUP; track $index) {
+            @switch (COL.TYPE) {
             @case ("toggle") {
             <ion-item lines="none" class="ion-background-transparent">
-              <ion-toggle label-placement="start" slot="end" [formControlName]="col.key"
-                (ionChange)="changeEditMode(col.key)"></ion-toggle>
+              <ion-toggle label-placement="start" slot="end" [formControlName]="COL.KEY"
+                (ionChange)="changeEditMode(COL.KEY)"></ion-toggle>
             </ion-item>
             }
             }
@@ -28,17 +28,17 @@
           </ion-col>
         </ion-row>
         <ion-row class="ion-no-padding ion-align-items-center">
-          @for (col of row.fieldGroup; track $index) {
-          @switch (col.type) {
+          @for (col of ROW.FIELD_GROUP; track $index) {
+          @switch (COL.TYPE) {
           @case ("radio-buttons") {
           <ion-col>
             <ion-item lines="none" class="ion-background-transparent">
-              <ion-select [formControlName]="col.key" interface="popover"
-                class="custom-ion-popover ion-background-transparent" label-placement="floating" [label]="col.name"
-                justify="start" [class.disabled]="to.disabled">
-                @for (option of col.props.options; track option.value) {
-                <ion-select-option class="ion-full-width" [value]="option.value" labelPlacement="end" justify="start">
-                  {{ option.label }}
+              <ion-select [formControlName]="COL.KEY" interface="popover"
+                class="custom-ion-popover ion-background-transparent" label-placement="floating" [label]="COL.NAME"
+                justify="start" [CLASS.DISABLED]="TO.DISABLED">
+                @for (option of COL.PROPS.OPTIONS; track OPTION.VALUE) {
+                <ion-select-option class="ion-full-width" [value]="OPTION.VALUE" labelPlacement="end" justify="start">
+                  {{ OPTION.LABEL }}
                 </ion-select-option>
                 }
               </ion-select>
@@ -48,16 +48,16 @@
           @case ("checkbox") {
           <!-- Checkbox -->
           <ion-col class="ion-align-self-center ion-no-padding ion-no-padding-top" [ngClass]="
-                              nestedGroup?.controls[col.props.disabledOnFormControl]?.value === false ? 'ion-disabled' : ''
+                              nestedGroup?.controls[COL.PROPS.DISABLED_ON_FORM_CONTROL]?.value === false ? 'ion-disabled' : ''
                             " size-md="5" size-lg="5" size-sm="5" size-xs="11">
             <ion-row>
               <ion-col>
                 <ion-item class="ion-background-transparent" lines="none">
                   <ion-checkbox style="margin-right: 5%" class="ion-font-size-smaller" slot="start" labelPlacement="end"
-                    [formControlName]="col.key" justify="start" [formlyAttributes]="col">
-                    {{ col.name }}
+                    [formControlName]="COL.KEY" justify="start" [formlyAttributes]="col">
+                    {{ COL.NAME }}
                   </ion-checkbox>
-                  <oe-help-popover-button [helpMsg]="col.props.help"></oe-help-popover-button>
+                  <oe-help-popover-button [helpMsg]="COL.PROPS.HELP"></oe-help-popover-button>
                 </ion-item>
               </ion-col>
             </ion-row>

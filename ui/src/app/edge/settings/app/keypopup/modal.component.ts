@@ -17,8 +17,8 @@ import { AppCenterIsKeyApplicable } from "./appCenterIsKeyApplicable";
 import { Key } from "./key";
 
 @Component({
-    selector: KeyModalComponent.SELECTOR,
-    templateUrl: "./modal.component.html",
+    selector: KEY_MODAL_COMPONENT.SELECTOR,
+    templateUrl: "./MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class KeyModalComponent implements OnInit {
@@ -30,8 +30,8 @@ export class KeyModalComponent implements OnInit {
     @Input() public appName: string | null = null;
     @Input({ required: true }) public behaviour!: KeyValidationBehaviour;
 
-    @Input() public knownApps: GetApps.App[] | null = null;
-    public readonly spinnerId: string = KeyModalComponent.SELECTOR;
+    @Input() public knownApps: GET_APPS.APP[] | null = null;
+    public readonly spinnerId: string = KEY_MODAL_COMPONENT.SELECTOR;
 
     protected form: FormGroup;
     protected fields: FormlyFieldConfig[];
@@ -42,7 +42,7 @@ export class KeyModalComponent implements OnInit {
         useMasterKey?: boolean,
     };
     protected options: FormlyFormOptions;
-    private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
+    private lastValidKey: APP_CENTER_IS_KEY_APPLICABLE.RESPONSE | null = null;
     private registeredKeys: Key[] = [];
 
     constructor(
@@ -64,35 +64,35 @@ export class KeyModalComponent implements OnInit {
  */
     private static transformInput(value: string): string {
         // remove spaces
-        let trimmed = value.replace(/\s+/g, "");
+        let trimmed = VALUE.REPLACE(/\s+/g, "");
 
         // trimm max length of input
-        if (trimmed.length > 19) {
-            trimmed = trimmed.substring(0, 19);
+        if (TRIMMED.LENGTH > 19) {
+            trimmed = TRIMMED.SUBSTRING(0, 19);
         }
 
         // remove last dash
-        const hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-";
-        trimmed = trimmed.replace(/-/g, "");
+        const hasDashAsLastChar = TRIMMED.SUBSTRING(TRIMMED.LENGTH - 1, TRIMMED.LENGTH) == "-";
+        trimmed = TRIMMED.REPLACE(/-/g, "");
 
         const numbers = [];
 
         // push single parts into array
-        numbers.push(trimmed.substring(0, 4));
-        if (trimmed.substring(4, 8) !== "") {
-            numbers.push(trimmed.substring(4, 8));
+        NUMBERS.PUSH(TRIMMED.SUBSTRING(0, 4));
+        if (TRIMMED.SUBSTRING(4, 8) !== "") {
+            NUMBERS.PUSH(TRIMMED.SUBSTRING(4, 8));
         }
 
-        if (trimmed.substring(8, 12) != "") {
-            numbers.push(trimmed.substring(8, 12));
+        if (TRIMMED.SUBSTRING(8, 12) != "") {
+            NUMBERS.PUSH(TRIMMED.SUBSTRING(8, 12));
         }
 
-        if (trimmed.substring(12, 16) != "") {
-            numbers.push(trimmed.substring(12, 16));
+        if (TRIMMED.SUBSTRING(12, 16) != "") {
+            NUMBERS.PUSH(TRIMMED.SUBSTRING(12, 16));
         }
 
         // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
-        let modifiedValue = numbers.join("-");
+        let modifiedValue = NUMBERS.JOIN("-");
         // readd last
         if (hasDashAsLastChar) {
             modifiedValue += "-";
@@ -106,92 +106,92 @@ export class KeyModalComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.form = new FormGroup({});
-        this.options = {
+        THIS.FORM = new FormGroup({});
+        THIS.OPTIONS = {
             formState: {
                 gotInvalidKeyResponse: false,
             },
         };
-        this.model = {
+        THIS.MODEL = {
             useRegisteredKeys: false,
             registeredKey: "",
             key: "",
         };
 
-        if (this.behaviour === KeyValidationBehaviour.REGISTER) {
-            this.fields = this.getFields();
+        if (THIS.BEHAVIOUR === KEY_VALIDATION_BEHAVIOUR.REGISTER) {
+            THIS.FIELDS = THIS.GET_FIELDS();
             return;
         }
-        this.service.startSpinner(this.spinnerId);
-        this.edge.sendRequest(this.websocket, new AppCenter.Request({
-            payload: new AppCenterGetRegisteredKeys.Request({
-                ...(this.appId && { appId: this.appId }),
+        THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+        THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, new APP_CENTER.REQUEST({
+            payload: new APP_CENTER_GET_REGISTERED_KEYS.REQUEST({
+                ...(THIS.APP_ID && { appId: THIS.APP_ID }),
             }),
         })).then(response => {
-            const result = (response as AppCenterGetRegisteredKeys.Response).result;
-            this.registeredKeys = result.keys;
-            this.fields = this.getFields();
-            if (this.registeredKeys.length > 0) {
-                this.model.useRegisteredKeys = true;
-                this.model.registeredKey = this.registeredKeys[0].keyId;
+            const result = (response as APP_CENTER_GET_REGISTERED_KEYS.RESPONSE).result;
+            THIS.REGISTERED_KEYS = RESULT.KEYS;
+            THIS.FIELDS = THIS.GET_FIELDS();
+            if (THIS.REGISTERED_KEYS.LENGTH > 0) {
+                THIS.MODEL.USE_REGISTERED_KEYS = true;
+                THIS.MODEL.REGISTERED_KEY = THIS.REGISTERED_KEYS[0].keyId;
             }
-            const selectRegisteredKey = this.fields.find(f => f.key === "registeredKey");
-            this.registeredKeys.forEach(key => {
-                const desc = this.getDescription(key);
-                (selectRegisteredKey.props.options as any[]).push({
-                    value: key.keyId,
-                    label: key.keyId,
+            const selectRegisteredKey = THIS.FIELDS.FIND(f => F.KEY === "registeredKey");
+            THIS.REGISTERED_KEYS.FOR_EACH(key => {
+                const desc = THIS.GET_DESCRIPTION(key);
+                (SELECT_REGISTERED_KEY.PROPS.OPTIONS as any[]).push({
+                    value: KEY.KEY_ID,
+                    label: KEY.KEY_ID,
                     description: desc,
                 });
             });
         }).catch(reason => {
-            this.fields = this.getFields();
-            this.service.toast(this.translate.instant("Edge.Config.App.Key.failedLoadingRegisterKey"), "danger");
+            THIS.FIELDS = THIS.GET_FIELDS();
+            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.FAILED_LOADING_REGISTER_KEY"), "danger");
         }).finally(() => {
-            this.service.stopSpinner(this.spinnerId);
+            THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
         });
     }
 
     /**
  * Depending on the behaviour:
  *
- * KeyValidationBehaviour.NAVIGATE:
+ * KEY_VALIDATION_BEHAVIOUR.NAVIGATE:
  *  navigates to the install page of the app and passes the key
  *
- * KeyValidationBehaviour.REGISTER:
+ * KEY_VALIDATION_BEHAVIOUR.REGISTER:
  *  registers the entered key for the passed app
  *
- * KeyValidationBehaviour.SELECT:
+ * KEY_VALIDATION_BEHAVIOUR.SELECT:
  *  if a valid key gets selected it gets returned
  */
     protected onClickCreateApp(): void {
-        switch (this.behaviour) {
-            case KeyValidationBehaviour.NAVIGATE:
-                this.service.startSpinner(this.spinnerId);
-                this.modalCtrl.dismiss({ key: this.getSelectedKey(), useMasterKey: this.model.useMasterKey });
+        switch (THIS.BEHAVIOUR) {
+            case KEY_VALIDATION_BEHAVIOUR.NAVIGATE:
+                THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+                THIS.MODAL_CTRL.DISMISS({ key: THIS.GET_SELECTED_KEY(), useMasterKey: THIS.MODEL.USE_MASTER_KEY });
                 // navigate to App install view and pass valid key
-                this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]
-                    , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey(), useMasterKey: this.model.useMasterKey } });
-                this.service.stopSpinner(this.spinnerId);
+                THIS.ROUTER.NAVIGATE(["device/" + (THIS.EDGE.ID) + "/settings/app/install/" + THIS.APP_ID]
+                    , { queryParams: { name: THIS.APP_NAME }, state: { appKey: THIS.GET_RAW_APP_KEY(), useMasterKey: THIS.MODEL.USE_MASTER_KEY } });
+                THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
                 break;
-            case KeyValidationBehaviour.REGISTER:
-                this.service.startSpinner(this.spinnerId);
+            case KEY_VALIDATION_BEHAVIOUR.REGISTER:
+                THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
                 // only register key for this app
-                this.registerKey().then(() => {
-                    this.modalCtrl.dismiss({ key: this.getSelectedKey() });
-                    this.service.toast(this.translate.instant("Edge.Config.App.Key.successRegisterKey"), "success");
+                THIS.REGISTER_KEY().then(() => {
+                    THIS.MODAL_CTRL.DISMISS({ key: THIS.GET_SELECTED_KEY() });
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.SUCCESS_REGISTER_KEY"), "success");
                 }).catch(() => {
-                    this.service.toast(this.translate.instant("Edge.Config.App.Key.failedRegisterKey"), "danger");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.FAILED_REGISTER_KEY"), "danger");
                 }).finally(() => {
-                    this.service.stopSpinner(this.spinnerId);
+                    THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
                 });
                 break;
-            case KeyValidationBehaviour.SELECT:
-                if (this.model.useMasterKey) {
-                    this.modalCtrl.dismiss({ useMasterKey: true });
+            case KEY_VALIDATION_BEHAVIOUR.SELECT:
+                if (THIS.MODEL.USE_MASTER_KEY) {
+                    THIS.MODAL_CTRL.DISMISS({ useMasterKey: true });
                     return;
                 }
-                this.modalCtrl.dismiss({ key: this.getSelectedKey() });
+                THIS.MODAL_CTRL.DISMISS({ key: THIS.GET_SELECTED_KEY() });
         }
     }
 
@@ -199,52 +199,52 @@ export class KeyModalComponent implements OnInit {
      * Validates the currently entered key.
     */
     protected validateKey(): void {
-        if (this.form.invalid) {
+        if (THIS.FORM.INVALID) {
             return;
         }
-        const appKey = this.getRawAppKey();
-        const request = new AppCenter.Request({
-            payload: new AppCenterIsKeyApplicable.Request({ key: appKey, appId: this.appId }),
+        const appKey = THIS.GET_RAW_APP_KEY();
+        const request = new APP_CENTER.REQUEST({
+            payload: new APP_CENTER_IS_KEY_APPLICABLE.REQUEST({ key: appKey, appId: THIS.APP_ID }),
         });
 
-        this.service.startSpinner(this.spinnerId);
-        this.edge.sendRequest(this.websocket, request)
+        THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+        THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, request)
             .then((response) => {
-                const result = (response as AppCenterIsKeyApplicable.Response).result;
-                if (result.isKeyApplicable) {
-                    this.lastValidKey = (response as AppCenterIsKeyApplicable.Response);
+                const result = (response as APP_CENTER_IS_KEY_APPLICABLE.RESPONSE).result;
+                if (RESULT.IS_KEY_APPLICABLE) {
+                    THIS.LAST_VALID_KEY = (response as APP_CENTER_IS_KEY_APPLICABLE.RESPONSE);
 
-                    if (result.additionalInfo.registrations.length !== 0
-                        && this.behaviour === KeyValidationBehaviour.REGISTER) {
-                        const differentEdge = result.additionalInfo.registrations.some(registration => {
-                            return registration.edgeId !== this.edge.id;
+                    if (RESULT.ADDITIONAL_INFO.REGISTRATIONS.LENGTH !== 0
+                        && THIS.BEHAVIOUR === KEY_VALIDATION_BEHAVIOUR.REGISTER) {
+                        const differentEdge = RESULT.ADDITIONAL_INFO.REGISTRATIONS.SOME(registration => {
+                            return REGISTRATION.EDGE_ID !== THIS.EDGE.ID;
                         });
                         if (differentEdge) {
-                            this.service.toast(this.translate.instant("Edge.Config.App.Key.alreadyRegisteredDifferentSystem"), "warning");
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_SYSTEM"), "warning");
                             return;
                         }
-                        const sameApp = result.additionalInfo.registrations.some(registration => {
-                            return registration.appId === this.appId && registration.edgeId === this.edge.id;
+                        const sameApp = RESULT.ADDITIONAL_INFO.REGISTRATIONS.SOME(registration => {
+                            return REGISTRATION.APP_ID === THIS.APP_ID && REGISTRATION.EDGE_ID === THIS.EDGE.ID;
                         });
                         if (!sameApp) {
-                            this.service.toast(this.translate.instant("Edge.Config.App.Key.alreadyRegisteredDifferentApp"), "warning");
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_APP"), "warning");
                             return;
                         }
                     }
 
-                    this.service.toast(this.translate.instant("Edge.Config.App.Key.valid"), "success");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.VALID"), "success");
                 } else {
-                    this.service.toast(this.translate.instant("Edge.Config.App.Key.invalid"), "danger");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.INVALID"), "danger");
                 }
             }).catch(reason => {
                 // this may happen if the key is not stored in the database
-                this.service.toast(this.translate.instant("Edge.Config.App.Key.invalid"), "danger");
-                this.options.formState.gotInvalidKeyResponse = true;
-                if (environment.debugMode) {
-                    console.log("Failed to validate Key", reason);
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.INVALID"), "danger");
+                THIS.OPTIONS.FORM_STATE.GOT_INVALID_KEY_RESPONSE = true;
+                if (ENVIRONMENT.DEBUG_MODE) {
+                    CONSOLE.LOG("Failed to validate Key", reason);
                 }
             }).finally(() => {
-                this.service.stopSpinner(this.spinnerId);
+                THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
             });
     }
 
@@ -254,46 +254,46 @@ export class KeyModalComponent implements OnInit {
     * @returns true if the current selected key is valid
     */
     protected isKeyValid(): boolean {
-        if (this.model.useRegisteredKeys
-            || this.model.useMasterKey) {
+        if (THIS.MODEL.USE_REGISTERED_KEYS
+            || THIS.MODEL.USE_MASTER_KEY) {
             return true;
         }
-        return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
+        return THIS.LAST_VALID_KEY !== null && THIS.GET_RAW_APP_KEY() === THIS.LAST_VALID_KEY.RESULT.ADDITIONAL_INFO.KEY_ID;
     }
 
     private getDescription(key: Key): string | null {
-        if (!this.knownApps) {
+        if (!THIS.KNOWN_APPS) {
             return null;
         }
-        const bundles = key.bundles;
+        const bundles = KEY.BUNDLES;
         if (!bundles) {
             return null;
         }
-        if (!bundles.some(bundle => bundle.length != 0)) {
+        if (!BUNDLES.SOME(bundle => BUNDLE.LENGTH != 0)) {
             return null;
         }
 
-        const appPrefix = environment.edgeShortName + " App";
+        const appPrefix = ENVIRONMENT.EDGE_SHORT_NAME + " App";
         // map to multiple description fields
         const descriptionFields = [];
         for (const bundle of bundles) {
             let isCategorySet = false;
             // if multiple apps are in bundle find category which has all the apps
             // and set the category name as the description
-            for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
-                if (apps.every(app => {
-                    if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
+            for (const [catName, apps] of OBJECT.ENTRIES(THIS.GET_APPS_BY_CATEGORY())) {
+                if (APPS.EVERY(app => {
+                    if (FLAGS.GET_BY_TYPE(APP.FLAGS, Flags.SHOW_AFTER_KEY_REDEEM) && ENVIRONMENT.PRODUCTION) {
                         return true;
                     }
                     for (const appFromBundle of bundle) {
-                        if (appFromBundle.appId === app.appId) {
+                        if (APP_FROM_BUNDLE.APP_ID === APP.APP_ID) {
                             return true;
                         }
                     }
                     return false;
                 })) {
-                    const category = apps[0].categorys.find(c => c.name === catName);
-                    descriptionFields.push(category.readableName);
+                    const category = apps[0].CATEGORYS.FIND(c => C.NAME === catName);
+                    DESCRIPTION_FIELDS.PUSH(CATEGORY.READABLE_NAME);
                     isCategorySet = true;
                 }
             }
@@ -302,25 +302,25 @@ export class KeyModalComponent implements OnInit {
             }
             // if apps are not directly of a category, list them
             for (const appOfBundle of bundle) {
-                const app = this.knownApps.find(app => app.appId === appOfBundle.appId);
-                descriptionFields.push(app.name);
+                const app = THIS.KNOWN_APPS.FIND(app => APP.APP_ID === APP_OF_BUNDLE.APP_ID);
+                DESCRIPTION_FIELDS.PUSH(APP.NAME);
             }
         }
-        return descriptionFields.length === 0 ? null : descriptionFields.map(e => appPrefix + " " + e).join(", ");
+        return DESCRIPTION_FIELDS.LENGTH === 0 ? null : DESCRIPTION_FIELDS.MAP(e => appPrefix + " " + e).join(", ");
     }
 
-    private getAppsByCategory(): { [key: string]: GetApps.App[]; } {
-        const map: { [key: string]: GetApps.App[]; } = {};
-        for (const app of this.knownApps) {
-            for (const category of app.categorys) {
-                let appList: GetApps.App[];
-                if (map[category.name]) {
-                    appList = map[category.name];
+    private getAppsByCategory(): { [key: string]: GET_APPS.APP[]; } {
+        const map: { [key: string]: GET_APPS.APP[]; } = {};
+        for (const app of THIS.KNOWN_APPS) {
+            for (const category of APP.CATEGORYS) {
+                let appList: GET_APPS.APP[];
+                if (map[CATEGORY.NAME]) {
+                    appList = map[CATEGORY.NAME];
                 } else {
                     appList = [];
-                    map[category.name] = appList;
+                    map[CATEGORY.NAME] = appList;
                 }
-                appList.push(app);
+                APP_LIST.PUSH(app);
             }
         }
         return map;
@@ -333,89 +333,89 @@ export class KeyModalComponent implements OnInit {
      */
     private getFields(): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
-        fields.push({
+        FIELDS.PUSH({
             key: "useRegisteredKeys",
             type: "checkbox",
             props: {
-                label: this.translate.instant("Edge.Config.App.Key.useRegisteredKey"),
+                label: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.USE_REGISTERED_KEY"),
             },
-            hide: this.registeredKeys.length === 0,
+            hide: THIS.REGISTERED_KEYS.LENGTH === 0,
             expressions: {
-                "props.disabled": field => field.model.useMasterKey,
+                "PROPS.DISABLED": field => FIELD.MODEL.USE_MASTER_KEY,
             },
         });
 
-        fields.push({
+        FIELDS.PUSH({
             key: "registeredKey",
             type: "select",
             props: {
-                label: this.translate.instant("Edge.Config.App.Key.registeredKey"),
+                label: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.REGISTERED_KEY"),
                 required: true,
                 options: [],
             },
             expressions: {
-                "hide": () => this.registeredKeys.length === 0,
-                "props.disabled": field => !field.model.useRegisteredKeys || field.model.useMasterKey,
+                "hide": () => THIS.REGISTERED_KEYS.LENGTH === 0,
+                "PROPS.DISABLED": field => !FIELD.MODEL.USE_REGISTERED_KEYS || FIELD.MODEL.USE_MASTER_KEY,
             },
             wrappers: ["formly-select-extended-wrapper"],
         });
 
-        fields.push({
+        FIELDS.PUSH({
             key: "key",
             type: "input",
             props: {
-                label: this.translate.instant("Edge.Config.App.Key.key"),
+                label: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.KEY"),
                 required: true,
                 placeholder: "XXXX-XXXX-XXXX-XXXX",
             },
             expressions: {
-                "props.disabled": field => field.model.useRegisteredKeys || field.model.useMasterKey,
+                "PROPS.DISABLED": field => FIELD.MODEL.USE_REGISTERED_KEYS || FIELD.MODEL.USE_MASTER_KEY,
             },
             validators: {
                 validation: ["key"],
             },
             hooks: {
                 onInit: (field) => {
-                    field.formControl.valueChanges.subscribe((next) => {
-                        const nextInput = KeyModalComponent.transformInput(next);
+                    FIELD.FORM_CONTROL.VALUE_CHANGES.SUBSCRIBE((next) => {
+                        const nextInput = KEY_MODAL_COMPONENT.TRANSFORM_INPUT(next);
                         if (!nextInput) {
                             return;
                         }
-                        field.formControl.setValue(nextInput);
+                        FIELD.FORM_CONTROL.SET_VALUE(nextInput);
                     });
                 },
             },
         });
 
-        if (this.behaviour !== KeyValidationBehaviour.REGISTER
-            && hasPredefinedKey(this.edge, this.service.metadata.value.user)) {
-            this.model.useMasterKey = true;
-            fields.push(
+        if (THIS.BEHAVIOUR !== KEY_VALIDATION_BEHAVIOUR.REGISTER
+            && hasPredefinedKey(THIS.EDGE, THIS.SERVICE.METADATA.VALUE.USER)) {
+            THIS.MODEL.USE_MASTER_KEY = true;
+            FIELDS.PUSH(
                 {
                     key: "useMasterKey",
                     type: "checkbox",
                     props: {
-                        label: this.translate.instant("Edge.Config.App.Key.useMasterKey"),
+                        label: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.USE_MASTER_KEY"),
                     },
                 },
                 {
                     type: "text",
                     props: {
-                        description: this.translate.instant("Edge.Config.App.Key.MASTER_KEY_HINT"),
+                        description: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.MASTER_KEY_HINT"),
                     },
                     expressions: {
-                        hide: "!model.useMasterKey",
+                        hide: "!MODEL.USE_MASTER_KEY",
                     },
                 },
             );
         }
 
-        fields.push({
+        FIELDS.PUSH({
             type: "text",
             props: {
-                description: this.translate.instant("Edge.Config.App.Key.KEY_TYPO_MESSAGE_HINT"),
+                description: THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.KEY.KEY_TYPO_MESSAGE_HINT"),
             },
-            hideExpression: "!formState.gotInvalidKeyResponse",
+            hideExpression: "!FORM_STATE.GOT_INVALID_KEY_RESPONSE",
         });
 
         return fields;
@@ -424,18 +424,18 @@ export class KeyModalComponent implements OnInit {
     private registerKey(): Promise<void> {
         return new Promise((resolve, reject) => {
             // key already registered
-            if (this.lastValidKey?.result.additionalInfo.keyId === this.getRawAppKey()
-                && this.lastValidKey.result.additionalInfo.registrations.some(registration => {
-                    return registration.edgeId === this.edge.id && registration.appId === this.appId;
+            if (THIS.LAST_VALID_KEY?.RESULT.ADDITIONAL_INFO.KEY_ID === THIS.GET_RAW_APP_KEY()
+                && THIS.LAST_VALID_KEY.RESULT.ADDITIONAL_INFO.REGISTRATIONS.SOME(registration => {
+                    return REGISTRATION.EDGE_ID === THIS.EDGE.ID && REGISTRATION.APP_ID === THIS.APP_ID;
                 })) {
                 resolve();
                 return;
             }
             // only register key for this app
-            this.edge.sendRequest(this.websocket, new AppCenter.Request({
-                payload: new AppCenterAddRegisterKeyHistory.Request({
-                    key: this.getRawAppKey(),
-                    ...(this.appId && { appId: this.appId }),
+            THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, new APP_CENTER.REQUEST({
+                payload: new APP_CENTER_ADD_REGISTER_KEY_HISTORY.REQUEST({
+                    key: THIS.GET_RAW_APP_KEY(),
+                    ...(THIS.APP_ID && { appId: THIS.APP_ID }),
                 }),
             })).then(() => {
                 resolve();
@@ -451,10 +451,10 @@ export class KeyModalComponent implements OnInit {
      * @returns the selected key
      */
     private getSelectedKey() {
-        if (this.model.useRegisteredKeys) {
-            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey());
+        if (THIS.MODEL.USE_REGISTERED_KEYS) {
+            return THIS.REGISTERED_KEYS.FIND(k => K.KEY_ID === THIS.GET_RAW_APP_KEY());
         }
-        return { keyId: this.getRawAppKey() };
+        return { keyId: THIS.GET_RAW_APP_KEY() };
     }
 
     /**
@@ -463,10 +463,10 @@ export class KeyModalComponent implements OnInit {
      * @returns the entered key
      */
     private getRawAppKey(): string {
-        if (this.model.useRegisteredKeys) {
-            return this.model.registeredKey;
+        if (THIS.MODEL.USE_REGISTERED_KEYS) {
+            return THIS.MODEL.REGISTERED_KEY;
         } else {
-            return this.model.key;
+            return THIS.MODEL.KEY;
         }
     }
 

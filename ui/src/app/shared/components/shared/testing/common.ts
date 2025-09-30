@@ -1,10 +1,10 @@
-import { CartesianScaleTypeRegistry, TimeUnit } from "chart.js";
+import { CartesianScaleTypeRegistry, TimeUnit } from "CHART.JS";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 
 import { TAllPartialWithExtraProps } from "src/app/shared/type/utility";
-import { ChartConstants } from "../../chart/chart.constants";
+import { ChartConstants } from "../../chart/CHART.CONSTANTS";
 import { OeChartTester } from "./tester";
 
 export namespace OeTester {
@@ -22,7 +22,7 @@ export namespace OeTester {
   }
 
   export namespace ChartOptions {
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [k: string]: { scale: Partial<CartesianScaleTypeRegistry["linear"]["options"]>, title?: string, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [k: string]: { scale: Partial<CartesianScaleTypeRegistry["linear"]["options"]>, title?: string, ticks?: { stepSize: number; min?: number, max?: number }; }; }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
       type: "option",
       options: {
         // Important for point style on chart hover for line chart
@@ -77,7 +77,7 @@ export namespace OeTester {
         },
       },
     });
-    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: Partial<CartesianScaleTypeRegistry["linear"]["options"]>, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: Partial<CartesianScaleTypeRegistry["linear"]["options"]>, ticks?: { stepSize: number; }; }; }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
       type: "option",
       options: {
         "interaction": {
@@ -136,7 +136,7 @@ export namespace OeTester {
         },
       },
     });
-    export const MULTI_LINE_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: TAllPartialWithExtraProps<CartesianScaleTypeRegistry["linear"]["options"]>, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const MULTI_LINE_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: TAllPartialWithExtraProps<CartesianScaleTypeRegistry["linear"]["options"]>, ticks?: { stepSize: number; }; }; }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
       type: "option",
       options: {
         "interaction": {
@@ -182,9 +182,9 @@ export namespace OeTester {
             "stacked": false,
             ...options["right"]?.scale as any,
             ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-            "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 }, ...options["right"]?.scale.title },
+            "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 }, ...options["right"]?.SCALE.TITLE },
             "position": "right",
-            "grid": { "display": false, ...options["right"]?.scale.grid },
+            "grid": { "display": false, ...options["right"]?.SCALE.GRID },
             "ticks": {
               ...options["right"]?.ticks,
               "color": "",
@@ -195,7 +195,7 @@ export namespace OeTester {
         },
       },
     });
-    export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+    export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
       type: "option",
       options: {
         "interaction": {

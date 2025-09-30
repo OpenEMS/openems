@@ -2,8 +2,8 @@ import { Utils } from "../../shared";
 
 export namespace ArrayUtils {
   export function equalsCheck<T>(a: T[], b: T[]): boolean {
-    return a.length === b.length &&
-      a.every((v, i) => v === b[i]);
+    return A.LENGTH === B.LENGTH &&
+      A.EVERY((v, i) => v === b[i]);
   }
 
   /**
@@ -14,8 +14,8 @@ export namespace ArrayUtils {
    * @returns a number if arr not empty, else null
    */
   export function findSmallestNumber(arr: (number | null | undefined)[]): number | null {
-    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
-    return filteredArr.length > 0 ? Math.min(...filteredArr) : null;
+    const filteredArr = ARR.FILTER((el): el is number => NUMBER.IS_FINITE(el));
+    return FILTERED_ARR.LENGTH > 0 ? MATH.MIN(...filteredArr) : null;
   }
 
   /**
@@ -26,8 +26,8 @@ export namespace ArrayUtils {
    * @returns a number if arr not empty, else null
    */
   export function findBiggestNumber(arr: (number | null | undefined)[]): number | null {
-    const filteredArr = arr.filter((el): el is number => Number.isFinite(el));
-    return filteredArr.length > 0 ? Math.max(...filteredArr) : null;
+    const filteredArr = ARR.FILTER((el): el is number => NUMBER.IS_FINITE(el));
+    return FILTERED_ARR.LENGTH > 0 ? MATH.MAX(...filteredArr) : null;
   }
 
   export function summarizeValuesByIndex(data: { [name: string]: number[] }): (number | null)[] {
@@ -35,7 +35,7 @@ export namespace ArrayUtils {
 
     for (const key in data) {
       data[key].forEach((value, index) => {
-        result[index] = Utils.addSafely(result[index], value);
+        result[index] = UTILS.ADD_SAFELY(result[index], value);
       });
     }
 
@@ -51,7 +51,7 @@ export namespace ArrayUtils {
    * @returns sorted array
    */
   export function sortedAlphabetically<Type>(array: Type[], fn: (arg: Type) => string): Type[] {
-    return array.sort((a: Type, b: Type) => {
+    return ARRAY.SORT((a: Type, b: Type) => {
       const aVal = fn(a);
       const bVal = fn(b);
       if (!aVal) {
@@ -59,7 +59,7 @@ export namespace ArrayUtils {
       } else if (!bVal) {
         return -1;
       }
-      return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
+      return A_VAL.LOCALE_COMPARE(bVal, undefined, { sensitivity: "accent" });
     });
   }
 
@@ -71,7 +71,7 @@ export namespace ArrayUtils {
    * @returns true if arr contains at least one of the strings
    */
   export function containsStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
-    return arr.filter(el => strings.includes(el)).length > 0;
+    return ARR.FILTER(el => STRINGS.INCLUDES(el)).length > 0;
   }
 
   /**
@@ -82,15 +82,15 @@ export namespace ArrayUtils {
    * @returns true if arr contains all of the strings
    */
   export function containsAllStrings(strings: (number | string | null)[], arr: (number | string | null)[]): boolean {
-    return arr.every(el => strings.includes(el));
+    return ARR.EVERY(el => STRINGS.INCLUDES(el));
   }
 
   export function getArrayOfLength<T = number>(length: number): T[] {
-    return Array.from({ length }, (_, index) => index) as T[];
+    return ARRAY.FROM({ length }, (_, index) => index) as T[];
   }
 
   export function sanitize<T>(arr: T[]): T[] {
-    return arr.filter(el => el != null);
+    return ARR.FILTER(el => el != null);
   }
 
   export namespace ReducerFunctions {

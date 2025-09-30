@@ -2,55 +2,55 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-controller-evse-history-status-chart",
-    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    public static getChartData(component: EdgeConfig.Component, translate: TranslateService, timeOfUseCtrl: EdgeConfig.Component): HistoryUtils.ChartData {
-        AssertionUtils.assertIsDefined(component);
+    public static getChartData(component: EDGE_CONFIG.COMPONENT, translate: TranslateService, timeOfUseCtrl: EDGE_CONFIG.COMPONENT): HISTORY_UTILS.CHART_DATA {
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
 
         return {
             input: [{
                 name: "ActualMode",
-                powerChannel: new ChannelAddress(component.id, "ActualMode"),
+                powerChannel: new ChannelAddress(COMPONENT.ID, "ActualMode"),
             },
             ...(timeOfUseCtrl == null
                 ? []
-                : [{ name: "QuarterlyPrice", powerChannel: new ChannelAddress(timeOfUseCtrl.id, "QuarterlyPrice") }])],
-            output: (data: HistoryUtils.ChannelData) => {
+                : [{ name: "QuarterlyPrice", powerChannel: new ChannelAddress(TIME_OF_USE_CTRL.ID, "QuarterlyPrice") }])],
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
                 return [{
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.ZERO"),
-                    converter: () => this.getDataset(data, 0),
-                    color: ChartConstants.Colors.BLUE_GREY,
+                    name: TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.ZERO"),
+                    converter: () => THIS.GET_DATASET(data, 0),
+                    color: CHART_CONSTANTS.COLORS.BLUE_GREY,
                 }, {
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM"),
-                    converter: () => this.getDataset(data, 1),
-                    color: ChartConstants.Colors.GREEN,
+                    name: TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.MINIMUM"),
+                    converter: () => THIS.GET_DATASET(data, 1),
+                    color: CHART_CONSTANTS.COLORS.GREEN,
                 }, {
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.PV"),
-                    converter: () => this.getDataset(data, 2),
-                    color: ChartConstants.Colors.BLUE,
+                    name: TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.PV"),
+                    converter: () => THIS.GET_DATASET(data, 2),
+                    color: CHART_CONSTANTS.COLORS.BLUE,
                 }, {
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.FORCE"),
-                    converter: () => this.getDataset(data, 3),
-                    color: ChartConstants.Colors.RED,
+                    name: TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.FORCE"),
+                    converter: () => THIS.GET_DATASET(data, 3),
+                    color: CHART_CONSTANTS.COLORS.RED,
                 }];
             },
             tooltip: {
-                formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
+                formatNumber: CHART_CONSTANTS.NUMBER_FORMAT.ZERO_TO_TWO,
             },
             yAxes: [{
-                unit: YAxisType.CURRENCY,
+                unit: YAXIS_TYPE.CURRENCY,
                 position: "left",
-                yAxisId: ChartAxis.LEFT,
+                yAxisId: CHART_AXIS.LEFT,
             }],
         };
     }
@@ -62,12 +62,12 @@ export class ChartComponent extends AbstractHistoryChart {
     * @param desiredState The desired state data from the whole dataset.
     * @returns the desired state array data.
     */
-    private static getDataset(data: HistoryUtils.ChannelData, desiredState: number): any[] {
+    private static getDataset(data: HISTORY_UTILS.CHANNEL_DATA, desiredState: number): any[] {
         const prices = data["QuarterlyPrice"]
-            .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        console.log(data, desiredState);
+            .map(val => TIME_OF_USE_TARIFF_UTILS.FORMAT_PRICE(UTILS.MULTIPLY_SAFELY(val, 1000)));
+        CONSOLE.LOG(data, desiredState);
         const states = data["ActualMode"]
-            .map(val => Utils.multiplySafely(val, 1000))
+            .map(val => UTILS.MULTIPLY_SAFELY(val, 1000))
             .map(val => {
                 if (val === null) {
                     return null;
@@ -81,7 +81,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     return 2; // SURPLUS
                 }
             });
-        const length = prices.length;
+        const length = PRICES.LENGTH;
         const dataset = Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
@@ -98,11 +98,11 @@ export class ChartComponent extends AbstractHistoryChart {
 
     protected override beforeSetChartLabel(): void {
         // Use only bar chart
-        this.chartType = "bar";
+        THIS.CHART_TYPE = "bar";
     }
 
-    protected override getChartData(): HistoryUtils.ChartData {
-        const timeOfUseCtrl = this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
-        return ChartComponent.getChartData(this.component, this.translate, timeOfUseCtrl);
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+        const timeOfUseCtrl = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.ESS.TIME-Of-Use-Tariff")?.[0] ?? null;
+        return CHART_COMPONENT.GET_CHART_DATA(THIS.COMPONENT, THIS.TRANSLATE, timeOfUseCtrl);
     }
 }

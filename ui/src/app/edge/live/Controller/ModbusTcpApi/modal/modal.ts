@@ -4,15 +4,15 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { ProfileComponent } from "src/app/edge/settings/profile/profile.component";
-import { PlatFormService } from "src/app/platform.service";
+import { ProfileComponent } from "src/app/edge/settings/profile/PROFILE.COMPONENT";
+import { PlatFormService } from "src/app/PLATFORM.SERVICE";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, ChannelRegister, CurrentData, Service, Websocket } from "src/app/shared/shared";
 import { OverrideStatus } from "src/app/shared/type/general";
 
 @Component({
-  templateUrl: "./modal.html",
+  templateUrl: "./MODAL.HTML",
   standalone: false,
 })
 export class ModalComponent extends AbstractModal {
@@ -27,7 +27,7 @@ export class ModalComponent extends AbstractModal {
   protected activePowerEqualsChannel: ChannelAddress | null = null;
   protected activePowerEqualsValue: number | null = null;
   protected channelRegisters = ChannelRegister;
-  private profile = new ProfileComponent(this.service, this.route, null, this.translate, this.websocket, this.platFormService);
+  private profile = new ProfileComponent(THIS.SERVICE, THIS.ROUTE, null, THIS.TRANSLATE, THIS.WEBSOCKET, THIS.PLAT_FORM_SERVICE);
 
   constructor(
     protected override websocket: Websocket,
@@ -44,61 +44,61 @@ export class ModalComponent extends AbstractModal {
 
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    this.activePowerEqualsChannel = new ChannelAddress(this.component.id, "Ess0SetActivePowerEquals");
-    const writeChannelIds = this.config.components[this.component.id]?.properties.writeChannels || [];
-    this.writeChannels = writeChannelIds.map(channelId => new ChannelAddress(this.component.id, channelId));
+    THIS.ACTIVE_POWER_EQUALS_CHANNEL = new ChannelAddress(THIS.COMPONENT.ID, "Ess0SetActivePowerEquals");
+    const writeChannelIds = THIS.CONFIG.COMPONENTS[THIS.COMPONENT.ID]?.PROPERTIES.WRITE_CHANNELS || [];
+    THIS.WRITE_CHANNELS = WRITE_CHANNEL_IDS.MAP(channelId => new ChannelAddress(THIS.COMPONENT.ID, channelId));
     return [
-      ...this.writeChannels,
-      this.activePowerEqualsChannel,
-      new ChannelAddress(this.component.id, "OverrideStatus"),
+      ...THIS.WRITE_CHANNELS,
+      THIS.ACTIVE_POWER_EQUALS_CHANNEL,
+      new ChannelAddress(THIS.COMPONENT.ID, "OverrideStatus"),
     ];
   }
 
   protected override onIsInitialized(): void {
-    this.edge.getConfig(this.websocket).subscribe((config) => {
-      const newChannels = (config.components[this.component.id]?.properties?.writeChannels || [])
-        .map(channelId => new ChannelAddress(this.component.id, channelId));
+    THIS.EDGE.GET_CONFIG(THIS.WEBSOCKET).subscribe((config) => {
+      const newChannels = (CONFIG.COMPONENTS[THIS.COMPONENT.ID]?.properties?.writeChannels || [])
+        .map(channelId => new ChannelAddress(THIS.COMPONENT.ID, channelId));
 
-      this.writeChannels = newChannels.filter(channel => !channel.channelId.includes("Ess0SetActivePowerEquals"));
-      this.getFormatChannelNames();
-      this.edge.subscribeChannels(this.websocket, this.component.id, this.writeChannels);
+      THIS.WRITE_CHANNELS = NEW_CHANNELS.FILTER(channel => !CHANNEL.CHANNEL_ID.INCLUDES("Ess0SetActivePowerEquals"));
+      THIS.GET_FORMAT_CHANNEL_NAMES();
+      THIS.EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.COMPONENT.ID, THIS.WRITE_CHANNELS);
     });
   }
 
   protected getModbusProtocol(componentId: string, type: string) {
-    return this.profile.getModbusProtocol(componentId, type);
+    return THIS.PROFILE.GET_MODBUS_PROTOCOL(componentId, type);
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.activePowerEqualsValue = this.edge.currentData.value.channel[this.activePowerEqualsChannel!.toString()];
-    this.writeChannelValues = this.writeChannels?.map(channel =>
-      this.edge.currentData.value.channel[channel.toString()],
+    THIS.ACTIVE_POWER_EQUALS_VALUE = THIS.EDGE.CURRENT_DATA.VALUE.CHANNEL[THIS.ACTIVE_POWER_EQUALS_CHANNEL!.toString()];
+    THIS.WRITE_CHANNEL_VALUES = THIS.WRITE_CHANNELS?.map(channel =>
+      THIS.EDGE.CURRENT_DATA.VALUE.CHANNEL[CHANNEL.TO_STRING()],
     ) || [];
-    this.overrideStatus = this.getTranslatedState(currentData.allComponents[this.component.id + "/OverrideStatus"]);
+    THIS.OVERRIDE_STATUS = THIS.GET_TRANSLATED_STATE(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/OverrideStatus"]);
   }
 
   protected getTranslatedChannel(channel: ChannelAddress): string {
-    if (channel.channelId.includes("Ess0SetActive")) {
-      const channelName = channel.channelId.replace("Ess0", "");
+    if (CHANNEL.CHANNEL_ID.INCLUDES("Ess0SetActive")) {
+      const channelName = CHANNEL.CHANNEL_ID.REPLACE("Ess0", "");
       switch (channelName) {
         case "SetActivePowerEquals":
-          return this.translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS");
+          return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS");
         case "SetActivePowerGreaterOrEquals":
-          return this.translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_GREATER_OR_EQUALS");
+          return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_GREATER_OR_EQUALS");
         case "SetActivePowerLessOrEquals":
-          return this.translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_LESS_OR_EQUALS");
+          return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_LESS_OR_EQUALS");
       }
     }
   }
 
   private getTranslatedState(state: OverrideStatus) {
     switch (state) {
-      case OverrideStatus.ACTIVE:
-        return this.translate.instant("MODBUS_TCP_API_READ_WRITE.OVERRIDING");
-      case OverrideStatus.ERROR:
-        return this.translate.instant("EVCS.error");
+      case OVERRIDE_STATUS.ACTIVE:
+        return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.OVERRIDING");
+      case OVERRIDE_STATUS.ERROR:
+        return THIS.TRANSLATE.INSTANT("EVCS.ERROR");
       default:
-        return this.translate.instant("MODBUS_TCP_API_READ_WRITE.NOT_OVERRIDING");
+        return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.NOT_OVERRIDING");
     }
   }
 
@@ -107,16 +107,16 @@ export class ModalComponent extends AbstractModal {
    * the modal view. It has to be done dynamically since channels can be overwritten in any order.
    */
   private getFormatChannelNames(): void {
-    this.formattedWriteChannels = [];
-    this.writeChannels.forEach(channel => {
-      let formattedString = `(${channel.channelId})`;
+    THIS.FORMATTED_WRITE_CHANNELS = [];
+    THIS.WRITE_CHANNELS.FOR_EACH(channel => {
+      let formattedString = `(${CHANNEL.CHANNEL_ID})`;
       for (const registerName in ChannelRegister) {
-        if (channel.channelId.includes(registerName) && channel.channelId.startsWith("Ess0")) {
+        if (CHANNEL.CHANNEL_ID.INCLUDES(registerName) && CHANNEL.CHANNEL_ID.STARTS_WITH("Ess0")) {
           formattedString = `(${registerName}/${ChannelRegister[registerName]})`;
           break;
         }
       }
-      this.formattedWriteChannels.push(formattedString);
+      THIS.FORMATTED_WRITE_CHANNELS.PUSH(formattedString);
     });
   }
 }

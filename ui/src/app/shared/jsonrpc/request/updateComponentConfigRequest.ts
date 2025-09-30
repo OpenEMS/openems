@@ -31,7 +31,7 @@ export class UpdateComponentConfigRequest extends JsonrpcRequest {
             }[]
         },
     ) {
-        super(UpdateComponentConfigRequest.METHOD, params);
+        super(UPDATE_COMPONENT_CONFIG_REQUEST.METHOD, params);
     }
 
 }

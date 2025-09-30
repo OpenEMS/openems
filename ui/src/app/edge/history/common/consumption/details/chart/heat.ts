@@ -9,41 +9,41 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "heatChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class HeatChartDetailComponent extends AbstractHistoryChart {
 
-    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
 
-        const component = config?.getComponent(route.snapshot.params.componentId);
+        const component = config?.getComponent(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
 
         return {
             input: [{
-                name: component.id,
-                powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
-                energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
+                name: COMPONENT.ID,
+                powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActivePower"),
+                energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActiveProductionEnergy"),
             }],
-            output: (data: HistoryUtils.ChannelData) => [{
-                name: component.alias,
-                nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveProductionEnergy"],
-                converter: () => data[component.id],
-                color: ChartConstants.Colors.GREEN,
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => [{
+                name: COMPONENT.ALIAS,
+                nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_QUERY_RESPONSE.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"],
+                converter: () => data[COMPONENT.ID],
+                color: CHART_CONSTANTS.COLORS.GREEN,
                 stack: 2,
             }],
             tooltip: {
                 formatNumber: "1.1-2",
             },
             yAxes: [{
-                unit: YAxisType.ENERGY,
+                unit: YAXIS_TYPE.ENERGY,
                 position: "left",
-                yAxisId: ChartAxis.LEFT,
+                yAxisId: CHART_AXIS.LEFT,
             }],
         };
     }
 
-    protected override getChartData(): HistoryUtils.ChartData {
-        return HeatChartDetailComponent.getChartData(this.config, this.route, this.translate);
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+        return HEAT_CHART_DETAIL_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.ROUTE, THIS.TRANSLATE);
     }
 
 }

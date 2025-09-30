@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 
 @Component({
     selector: "percentagebar",
-    templateUrl: "./percentagebar.component.html",
+    templateUrl: "./PERCENTAGEBAR.COMPONENT.HTML",
     standalone: false,
 })
 export class PercentageBarComponent {

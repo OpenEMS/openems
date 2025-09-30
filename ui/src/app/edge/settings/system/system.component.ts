@@ -2,7 +2,7 @@
 import { Component, effect } from "@angular/core";
 import { Subject, takeUntil, timer } from "rxjs";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { UserService } from "src/app/shared/service/user.service";
+import { UserService } from "src/app/shared/service/USER.SERVICE";
 import { environment } from "src/environments";
 import { Edge, Service, UserPermission, Utils, Websocket } from "../../../shared/shared";
 import { ExecuteUpdate } from "./jsonrpc/executeUpdate";
@@ -10,8 +10,8 @@ import { GetUpdateables, Updateable } from "./jsonrpc/getUpdateables";
 import { GetUpdateState, UpdateState } from "./jsonrpc/getUpdateState";
 
 @Component({
-  selector: SystemComponent.SELECTOR,
-  templateUrl: "./system.component.html",
+  selector: SYSTEM_COMPONENT.SELECTOR,
+  templateUrl: "./SYSTEM.COMPONENT.HTML",
   standalone: false,
 })
 export class SystemComponent {
@@ -20,7 +20,7 @@ export class SystemComponent {
   private static readonly REFRESH_UPDATE_STATE_INTERVAL: number = 5_000; // 5s
 
   protected readonly environment = environment;
-  protected readonly spinnerId: string = SystemComponent.SELECTOR;
+  protected readonly spinnerId: string = SYSTEM_COMPONENT.SELECTOR;
   protected showLog: boolean = false;
   protected readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the openems service is restarted after update
   protected edge: Edge;
@@ -39,57 +39,57 @@ export class SystemComponent {
     effect(async (onCleanup) => {
       const subjectOnCleanup = new Subject<void>();
       onCleanup(() => {
-        subjectOnCleanup.next();
-        subjectOnCleanup.complete();
+        SUBJECT_ON_CLEANUP.NEXT();
+        SUBJECT_ON_CLEANUP.COMPLETE();
       });
 
-      const user = this.userService.currentUser();
-      this.edge = await this.service.currentEdge();
-      if (!this.edge) {
+      const user = THIS.USER_SERVICE.CURRENT_USER();
+      THIS.EDGE = await THIS.SERVICE.CURRENT_EDGE();
+      if (!THIS.EDGE) {
         return;
       }
 
-      this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
+      THIS.CAN_SEE_SYSTEM_RESTART = USER_PERMISSION.IS_ALLOWED_TO_SEE_SYSTEM_RESTART(user, THIS.EDGE);
 
-      this.canSeeAdditionalUpdates = UserPermission.isAllowedToSeeAdditionalUpdates(this.edge);
-      if (!this.canSeeAdditionalUpdates) {
+      THIS.CAN_SEE_ADDITIONAL_UPDATES = USER_PERMISSION.IS_ALLOWED_TO_SEE_ADDITIONAL_UPDATES(THIS.EDGE);
+      if (!THIS.CAN_SEE_ADDITIONAL_UPDATES) {
         return;
       }
-      this.updateables = await this.fetchUpdateables(subjectOnCleanup);
+      THIS.UPDATEABLES = await THIS.FETCH_UPDATEABLES(subjectOnCleanup);
     });
   }
 
   protected executeUpdate(updateableState: UpdateableState) {
-    this.edge.sendRequest<ExecuteUpdate.Response>(this.websocket, new ComponentJsonApiRequest({
+    THIS.EDGE.SEND_REQUEST<EXECUTE_UPDATE.RESPONSE>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
       componentId: "_updateManager",
-      payload: new ExecuteUpdate.Request({ id: updateableState.updateable.id }),
+      payload: new EXECUTE_UPDATE.REQUEST({ id: UPDATEABLE_STATE.UPDATEABLE.ID }),
     })).then(_ => {
-      updateableState.updateState = { type: "running", percentCompleted: 0, logs: [] };
-      this.subscribeUpdateState(updateableState);
+      UPDATEABLE_STATE.UPDATE_STATE = { type: "running", percentCompleted: 0, logs: [] };
+      THIS.SUBSCRIBE_UPDATE_STATE(updateableState);
     });
   }
 
   private async fetchUpdateables(subjectOnCleanup: Subject<void>): Promise<UpdateableState[]> {
-    const result = (await this.edge.sendRequest<GetUpdateables.Response>(this.websocket, new ComponentJsonApiRequest({
+    const result = (await THIS.EDGE.SEND_REQUEST<GET_UPDATEABLES.RESPONSE>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
       componentId: "_updateManager",
-      payload: new GetUpdateables.Request(),
+      payload: new GET_UPDATEABLES.REQUEST(),
     }))).result;
 
-    return result.updateables.map(u => {
+    return RESULT.UPDATEABLES.MAP(u => {
       const updateableState: UpdateableState = { updateable: u, unsubscribe: new Subject<void>() };
-      subjectOnCleanup.subscribe(() => {
-        updateableState.unsubscribe.next();
-        updateableState.unsubscribe.complete();
+      SUBJECT_ON_CLEANUP.SUBSCRIBE(() => {
+        UPDATEABLE_STATE.UNSUBSCRIBE.NEXT();
+        UPDATEABLE_STATE.UNSUBSCRIBE.COMPLETE();
       });
-      this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
+      THIS.EDGE.SEND_REQUEST<GET_UPDATE_STATE.RESPONSE>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
         componentId: "_updateManager",
-        payload: new GetUpdateState.Request({ id: u.id }),
+        payload: new GET_UPDATE_STATE.REQUEST({ id: U.ID }),
       })).then(response => {
-        const result = response.result;
-        updateableState.updateState = result.state;
+        const result = RESPONSE.RESULT;
+        UPDATEABLE_STATE.UPDATE_STATE = RESULT.STATE;
 
-        if (updateableState.updateState.type === "running") {
-          this.subscribeUpdateState(updateableState);
+        if (UPDATEABLE_STATE.UPDATE_STATE.TYPE === "running") {
+          THIS.SUBSCRIBE_UPDATE_STATE(updateableState);
         }
       });
       return updateableState;
@@ -98,22 +98,22 @@ export class SystemComponent {
 
   private subscribeUpdateState(updateableState: UpdateableState) {
     const source = timer(0, SystemComponent.REFRESH_UPDATE_STATE_INTERVAL);
-    source.pipe(
-      takeUntil(updateableState.unsubscribe),
+    SOURCE.PIPE(
+      takeUntil(UPDATEABLE_STATE.UNSUBSCRIBE),
     ).subscribe(_ => {
-      if (!this.edge.isOnline) {
+      if (!THIS.EDGE.IS_ONLINE) {
         return;
       }
 
-      this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
+      THIS.EDGE.SEND_REQUEST<GET_UPDATE_STATE.RESPONSE>(THIS.WEBSOCKET, new ComponentJsonApiRequest({
         componentId: "_updateManager",
-        payload: new GetUpdateState.Request({ id: updateableState.updateable.id }),
+        payload: new GET_UPDATE_STATE.REQUEST({ id: UPDATEABLE_STATE.UPDATEABLE.ID }),
       })).then(response => {
-        const result = response.result;
-        updateableState.updateState = result.state;
+        const result = RESPONSE.RESULT;
+        UPDATEABLE_STATE.UPDATE_STATE = RESULT.STATE;
 
-        if (result.state.type !== "running") {
-          updateableState.unsubscribe.next();
+        if (RESULT.STATE.TYPE !== "running") {
+          UPDATEABLE_STATE.UNSUBSCRIBE.NEXT();
         }
       });
     });

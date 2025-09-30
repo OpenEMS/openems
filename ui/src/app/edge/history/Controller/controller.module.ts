@@ -1,11 +1,11 @@
 import { NgModule } from "@angular/core";
-import { ChannelThreshold } from "./ChannelThreshold/channelThreshold.module";
-import { ControllerEss } from "./Ess/ess.module";
-import { GridOptimizeCharge } from "./Ess/GridoptimizedCharge/gridOptimizeCharge.module";
-import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
-import { ControllerHeat } from "./Heat/heat.module";
-import { ControllerIo } from "./Io/Io.module";
-import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
+import { ChannelThreshold } from "./ChannelThreshold/CHANNEL_THRESHOLD.MODULE";
+import { ControllerEss } from "./Ess/ESS.MODULE";
+import { GridOptimizeCharge } from "./Ess/GridoptimizedCharge/GRID_OPTIMIZE_CHARGE.MODULE";
+import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/TIME_OF_USE_TARIFF.MODULE";
+import { ControllerHeat } from "./Heat/HEAT.MODULE";
+import { ControllerIo } from "./Io/IO.MODULE";
+import { ModbusTcpApi } from "./ModbusTcpApi/MODBUS_TCP_API.MODULE";
 
 @NgModule({
   imports: [

@@ -2,14 +2,14 @@
 import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/UNITVALUE.PIPE";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./ABSTRACTSECTION.COMPONENT";
 
 @Component({
     selector: "[consumptionsection]",
-    templateUrl: "./consumption.component.html",
+    templateUrl: "./CONSUMPTION.COMPONENT.HTML",
     animations: [
         trigger("Consumption", [
             state("show", style({
@@ -39,27 +39,27 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         translate: TranslateService,
         service: Service,
     ) {
-        super("General.consumption", "right", "#FDC507", translate, service, "Consumption");
-        this.unitpipe = unitpipe;
+        super("GENERAL.CONSUMPTION", "right", "#FDC507", translate, service, "Consumption");
+        THIS.UNITPIPE = unitpipe;
     }
 
     get stateName() {
-        return this.showAnimation ? "show" : "hide";
+        return THIS.SHOW_ANIMATION ? "show" : "hide";
     }
 
     ngOnInit() {
-        this.adjustFillRefbyBrowser();
+        THIS.ADJUST_FILL_REFBY_BROWSER();
     }
 
     toggleAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showAnimation = !this.showAnimation;
-        }, this.animationSpeed);
-        this.animationTrigger = true;
+        THIS.START_ANIMATION = setInterval(() => {
+            THIS.SHOW_ANIMATION = !THIS.SHOW_ANIMATION;
+        }, THIS.ANIMATION_SPEED);
+        THIS.ANIMATION_TRIGGER = true;
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        clearInterval(THIS.START_ANIMATION);
     }
 
     protected getStartAngle(): number {
@@ -74,37 +74,37 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return "Only Positive [0,1]";
     }
 
-    protected _updateCurrentData(sum: DefaultTypes.Summary): void {
+    protected _updateCurrentData(sum: DEFAULT_TYPES.SUMMARY): void {
         let arrowIndicate: number;
         // only reacts to kW values (50 W => 0.1 kW rounded)
-        if (sum.consumption.activePower > 49) {
-            if (!this.animationTrigger) {
-                this.toggleAnimation();
+        if (SUM.CONSUMPTION.ACTIVE_POWER > 49) {
+            if (!THIS.ANIMATION_TRIGGER) {
+                THIS.TOGGLE_ANIMATION();
             }
-            arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
+            arrowIndicate = UTILS.DIVIDE_SAFELY(SUM.CONSUMPTION.ACTIVE_POWER, SUM.SYSTEM.TOTAL_POWER);
         } else {
             arrowIndicate = 0;
         }
-        super.updateSectionData(
-            sum.consumption.activePower,
-            sum.consumption.powerRatio,
+        SUPER.UPDATE_SECTION_DATA(
+            SUM.CONSUMPTION.ACTIVE_POWER,
+            SUM.CONSUMPTION.POWER_RATIO,
             arrowIndicate);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        const x = innerRadius - 5 - square.length;
-        const y = (square.length / 2) * (-1);
+        const x = innerRadius - 5 - SQUARE.LENGTH;
+        const y = (SQUARE.LENGTH / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "icon/consumption.svg";
+        return "icon/CONSUMPTION.SVG";
     }
 
     protected getValueText(value: number): string {
-        if (value == null || Number.isNaN(value)) {
+        if (value == null || NUMBER.IS_NA_N(value)) {
             return "";
         }
-        return this.unitpipe.transform(value, "kW");
+        return THIS.UNITPIPE.TRANSFORM(value, "kW");
     }
 
     protected initEnergyFlow(radius: number): EnergyFlow {
@@ -112,12 +112,12 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
+        THIS.SQUARE.VALUE_TEXT.Y = THIS.SQUARE.VALUE_TEXT.Y - (THIS.SQUARE.VALUE_TEXT.Y * 0.3);
+        THIS.SQUARE.IMAGE.Y = THIS.SQUARE.IMAGE.Y - (THIS.SQUARE.IMAGE.Y * 0.3);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        const v = Math.abs(ratio);
+        const v = MATH.ABS(ratio);
         const r = radius;
         const p = {
             topLeft: { x: v, y: v * -1 },
@@ -129,16 +129,16 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         };
         if (ratio > 0) {
             // towards right
-            p.topRight.x = p.topRight.x - v;
-            p.middleRight.x = p.middleRight.x + v;
-            p.bottomRight.x = p.bottomRight.x - v;
-            p.middleLeft.x = p.topLeft.x + v;
+            P.TOP_RIGHT.X = P.TOP_RIGHT.X - v;
+            P.MIDDLE_RIGHT.X = P.MIDDLE_RIGHT.X + v;
+            P.BOTTOM_RIGHT.X = P.BOTTOM_RIGHT.X - v;
+            P.MIDDLE_LEFT.X = P.TOP_LEFT.X + v;
         }
         return p;
     }
 
     protected getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
-        const v = Math.abs(ratio);
+        const v = MATH.ABS(ratio);
         const r = radius;
         const animationWidth = (r * -1) - v;
         let p = {
@@ -151,10 +151,10 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         };
         if (ratio > 0) {
             // towards right
-            p.topRight.x = p.topLeft.x + animationWidth * 0.2;
-            p.middleRight.x = p.middleLeft.x + animationWidth * 0.2 + 2 * v;
-            p.bottomRight.x = p.bottomLeft.x + animationWidth * 0.2;
-            p.middleLeft.x = p.middleRight.x - animationWidth * 0.2;
+            P.TOP_RIGHT.X = P.TOP_LEFT.X + animationWidth * 0.2;
+            P.MIDDLE_RIGHT.X = P.MIDDLE_LEFT.X + animationWidth * 0.2 + 2 * v;
+            P.BOTTOM_RIGHT.X = P.BOTTOM_LEFT.X + animationWidth * 0.2;
+            P.MIDDLE_LEFT.X = P.MIDDLE_RIGHT.X - animationWidth * 0.2;
         } else {
             p = null;
         }

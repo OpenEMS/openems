@@ -23,7 +23,7 @@ export class SetEmergencyReserveRequest extends JsonrpcRequest {
             value: number
         },
     ) {
-        super(SetEmergencyReserveRequest.METHOD, params);
+        super(SET_EMERGENCY_RESERVE_REQUEST.METHOD, params);
     }
 
 }

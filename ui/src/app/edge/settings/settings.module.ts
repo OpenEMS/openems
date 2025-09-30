@@ -1,27 +1,27 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
-import tr from "src/app/edge/settings/shared/translation.json";
-import { ComponentsModule } from "src/app/shared/components/components.module";
+import { ChangelogComponent } from "src/app/changelog/view/component/CHANGELOG.COMPONENT";
+import tr from "src/app/edge/settings/shared/TRANSLATION.JSON";
+import { ComponentsModule } from "src/app/shared/components/COMPONENTS.MODULE";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Language } from "src/app/shared/type/language";
-import { SharedModule } from "./../../shared/shared.module";
-import { AppModule } from "./app/app.module";
-import { ChannelsComponent } from "./channels/channels.component";
-import { IndexComponent as ComponentInstallIndexComponent } from "./component/install/index.component";
-import { ComponentInstallComponent } from "./component/install/install.component";
-import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/index.component";
-import { ComponentUpdateComponent } from "./component/update/update.component";
+import { SharedModule } from "./../../shared/SHARED.MODULE";
+import { AppModule } from "./app/APP.MODULE";
+import { ChannelsComponent } from "./channels/CHANNELS.COMPONENT";
+import { IndexComponent as ComponentInstallIndexComponent } from "./component/install/INDEX.COMPONENT";
+import { ComponentInstallComponent } from "./component/install/INSTALL.COMPONENT";
+import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/INDEX.COMPONENT";
+import { ComponentUpdateComponent } from "./component/update/UPDATE.COMPONENT";
 import { JsonrpcTestComponent } from "./jsonrpctest/jsonrpctest";
-import { NetworkComponent } from "./network/network.component";
-import { PowerAssistantModule } from "./powerassistant/powerassistant.module";
-import { AliasUpdateComponent } from "./profile/aliasupdate.component";
-import { ProfileComponent } from "./profile/profile.component";
-import { SettingsComponent } from "./settings.component";
+import { NetworkComponent } from "./network/NETWORK.COMPONENT";
+import { PowerAssistantModule } from "./powerassistant/POWERASSISTANT.MODULE";
+import { AliasUpdateComponent } from "./profile/ALIASUPDATE.COMPONENT";
+import { ProfileComponent } from "./profile/PROFILE.COMPONENT";
+import { SettingsComponent } from "./SETTINGS.COMPONENT";
 import { MaintenanceComponent } from "./system/maintenance/maintenance";
-import { OeSystemUpdateComponent } from "./system/oe-system-update.component";
-import { SystemComponent } from "./system/system.component";
-import { SystemExecuteComponent } from "./systemexecute/systemexecute.component";
+import { OeSystemUpdateComponent } from "./system/oe-system-UPDATE.COMPONENT";
+import { SystemComponent } from "./system/SYSTEM.COMPONENT";
+import { SystemExecuteComponent } from "./systemexecute/SYSTEMEXECUTE.COMPONENT";
 
 @NgModule({
   imports: [
@@ -56,8 +56,8 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
 export class SettingsModule {
 
   constructor(private translate: TranslateService) {
-    Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
-      translate.setTranslation(lang, translations, shouldMerge);
+    LANGUAGE.SET_ADDITIONAL_TRANSLATION_FILE(tr, translate).then(({ lang, translations, shouldMerge }) => {
+      TRANSLATE.SET_TRANSLATION(lang, translations, shouldMerge);
     });
   }
 }

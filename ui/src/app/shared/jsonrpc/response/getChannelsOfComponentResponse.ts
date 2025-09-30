@@ -1,7 +1,7 @@
 import { EdgeConfig } from "../../components/edge/edgeconfig";
 import { JsonrpcResponseSuccess } from "../base";
 
-export type Channel = { id: string } & EdgeConfig.ComponentChannel;
+export type Channel = { id: string } & EDGE_CONFIG.COMPONENT_CHANNEL;
 
 /**
  * Represents a JSON-RPC Response for a {@link GetChannelsOfComponentResponse}.

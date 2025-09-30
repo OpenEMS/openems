@@ -6,7 +6,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { IonicModule, RefresherCustomEvent } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { PlatFormService } from "src/app/platform.service";
+import { PlatFormService } from "src/app/PLATFORM.SERVICE";
 
 /**
  * Component used to indicate if live data is still updated
@@ -64,15 +64,15 @@ export class PullToRefreshComponent {
     constructor(private el: ElementRef, private renderer: Renderer2, private platFormService: PlatFormService) {
 
         effect(() => {
-            const isActive = platFormService.isActiveAgain();
+            const isActive = PLAT_FORM_SERVICE.IS_ACTIVE_AGAIN();
             if (isActive) {
-                PlatFormService.handleRefresh();
+                PLAT_FORM_SERVICE.HANDLE_REFRESH();
             }
         });
 
         // Rerender ion-content to use full available height
-        const hostElement = this.el.nativeElement;
-        this.renderer.addClass(hostElement, "ion-page");
+        const hostElement = THIS.EL.NATIVE_ELEMENT;
+        THIS.RENDERER.ADD_CLASS(hostElement, "ion-page");
     }
 
     @Input({ required: true }) public refresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => { };

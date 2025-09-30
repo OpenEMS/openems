@@ -1,7 +1,7 @@
 // @ts-strict-ignore
-import { TimeUnit } from "chart.js";
+import { TimeUnit } from "CHART.JS";
 import { SumState } from "src/app/index/shared/sumState";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
@@ -24,54 +24,54 @@ export namespace DummyConfig {
         firstSetupProtocol?: Date,
     }): Edge {
         return new Edge(
-            values.edgeId ?? "edge0",
-            values.comment ?? "edge0",
-            values.producttype ?? "",
-            values.version ?? "2023.3.5",
-            values.role ?? Role.ADMIN,
-            values.isOnline ?? true,
-            values.lastmessage ?? new Date(),
-            values.sumState ?? SumState.OK,
-            values.firstSetupProtocol ?? new Date(0),
+            VALUES.EDGE_ID ?? "edge0",
+            VALUES.COMMENT ?? "edge0",
+            VALUES.PRODUCTTYPE ?? "",
+            VALUES.VERSION ?? "2023.3.5",
+            VALUES.ROLE ?? ROLE.ADMIN,
+            VALUES.IS_ONLINE ?? true,
+            VALUES.LASTMESSAGE ?? new Date(),
+            VALUES.SUM_STATE ?? SUM_STATE.OK,
+            VALUES.FIRST_SETUP_PROTOCOL ?? new Date(0),
         );
     }
 
-    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
+    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", ROLE.ADMIN, true, new Date(), SUM_STATE.OK, new Date(0));
     export function from(...components: Component[]): EdgeConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
             components: <unknown>components?.reduce((acc, c) => {
-                c.factoryId = c.factory.id;
-                return ({ ...acc, [c.id]: c });
+                C.FACTORY_ID = C.FACTORY.ID;
+                return ({ ...acc, [C.ID]: c });
             }, {}),
             factories: components?.reduce((p, c) => {
-                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, "", c.factory.natureIds);
+                p[C.FACTORY.ID] = new EDGE_CONFIG.FACTORY(C.FACTORY.ID, "", C.FACTORY.NATURE_IDS);
                 return p;
             }, {}),
         });
     }
 
     export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
-        const components = Object.values(edgeConfig?.components) ?? null;
+        const components = OBJECT.VALUES(edgeConfig?.components) ?? null;
 
         const factories = {};
-        components.forEach(obj => {
-            if (factories[obj.factoryId]) {
-                factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];
+        COMPONENTS.FOR_EACH(obj => {
+            if (factories[OBJ.FACTORY_ID]) {
+                factories[OBJ.FACTORY_ID].componentIds = [...factories[OBJ.FACTORY_ID].componentIds, OBJ.ID];
             } else {
-                factories[obj.factoryId] = {
-                    componentIds: [obj.id],
+                factories[OBJ.FACTORY_ID] = {
+                    componentIds: [OBJ.ID],
                     description: "",
-                    id: obj.factoryId,
-                    name: obj.factoryId,
-                    natureIds: edgeConfig.factories[obj.factoryId].natureIds,
+                    id: OBJ.FACTORY_ID,
+                    name: OBJ.FACTORY_ID,
+                    natureIds: EDGE_CONFIG.FACTORIES[OBJ.FACTORY_ID].natureIds,
                     properties: [],
                 };
             }
         });
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
-            components: edgeConfig.components,
+            components: EDGE_CONFIG.COMPONENTS,
             factories: factories,
         });
     }
@@ -79,204 +79,204 @@ export namespace DummyConfig {
     export namespace Factory {
 
         export const SUM = {
-            id: "Core.Sum",
+            id: "CORE.SUM",
             natureIds: [
-                "io.openems.edge.common.sum.Sum",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.COMMON.SUM.SUM",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const METER_SOCOMEC_THREEPHASE = {
-            id: "Meter.Socomec.Threephase",
+            id: "METER.SOCOMEC.THREEPHASE",
             natureIds: [
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.meter.api.ElectricityMeter",
-                "io.openems.edge.meter.socomec.SocomecMeter",
-                "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
+                "IO.OPENEMS.EDGE.METER.SOCOMEC.SOCOMEC_METER",
+                "IO.OPENEMS.EDGE.METER.SOCOMEC.THREEPHASE.SOCOMEC_METER_THREEPHASE",
             ],
         };
 
         export const METER_GOODWE_GRID = {
-            id: "GoodWe.Grid-Meter",
+            id: "GOOD_WE.GRID-Meter",
             natureIds: [
-                "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
-                "io.openems.edge.meter.api.ElectricityMeter",
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.GOODWE.GRIDMETER.GOOD_WE_GRID_METER",
+                "IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const CHARGER_GOODWE_MPPT_TWO_STRING = {
-            id: "GoodWe.Charger.Mppt.Two-String",
+            id: "GOOD_WE.CHARGER.MPPT.TWO-String",
             natureIds: [
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.ess.dccharger.api.EssDcCharger",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.goodwe.charger.GoodWeCharger",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.GOODWE.CHARGER.GOOD_WE_CHARGER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const EVCS_KEBA_KECONTACT = {
-            id: "Evcs.Keba.KeContact",
+            id: "EVCS.KEBA.KE_CONTACT",
             natureIds: [
-                "io.openems.edge.evcs.keba.kecontact.EvcsKebaKeContact",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.evcs.api.ManagedEvcs",
-                "io.openems.edge.evcs.api.Evcs",
+                "IO.OPENEMS.EDGE.EVCS.KEBA.KECONTACT.EVCS_KEBA_KE_CONTACT",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.EVCS.API.MANAGED_EVCS",
+                "IO.OPENEMS.EDGE.EVCS.API.EVCS",
             ],
         };
 
         export const EVSE_CHARGEPOINT_KEBA_UDP = {
-            id: "Evse.ChargePoint.Keba.UDP",
+            id: "EVSE.CHARGE_POINT.KEBA.UDP",
             natureIds: [
-                "io.openems.edge.meter.api.ElectricityMeter",
-                "io.openems.edge.evse.chargepoint.keba.common.KebaUdp",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
-                "io.openems.edge.evse.chargepoint.keba.common.EvseKeba",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
+                "IO.OPENEMS.EDGE.EVSE.CHARGEPOINT.KEBA.COMMON.KEBA_UDP",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.EVSE.API.CHARGEPOINT.EVSE_CHARGE_POINT",
+                "IO.OPENEMS.EDGE.EVSE.CHARGEPOINT.KEBA.COMMON.EVSE_KEBA",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const ESS_GENERIC_MANAGEDSYMMETRIC = {
-            id: "Ess.Generic.ManagedSymmetric",
+            id: "ESS.GENERIC.MANAGED_SYMMETRIC",
             natureIds: [
-                "io.openems.edge.goodwe.common.GoodWe",
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.ess.api.SymmetricEss",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.ess.api.HybridEss",
-                "io.openems.edge.goodwe.ess.GoodWeEss",
-                "io.openems.edge.ess.api.ManagedSymmetricEss",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.GOODWE.COMMON.GOOD_WE",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.ESS.API.SYMMETRIC_ESS",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.ESS.API.HYBRID_ESS",
+                "IO.OPENEMS.EDGE.GOODWE.ESS.GOOD_WE_ESS",
+                "IO.OPENEMS.EDGE.ESS.API.MANAGED_SYMMETRIC_ESS",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const ESS_LIMITER_14A = {
-            id: "Controller.Ess.Limiter14a",
+            id: "CONTROLLER.ESS.LIMITER14A",
             natureIds: [
-                "io.openems.edge.controller.ess.limiter14a",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.CONTROLLER.ESS.LIMITER14A",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
 
             ],
         };
 
         export const SOLAR_EDGE_PV_INVERTER = {
-            id: "SolarEdge.PV-Inverter",
+            id: "SOLAR_EDGE.PV-Inverter",
             natureIds: [
-                "io.openems.edge.pvinverter.sunspec.SunSpecPvInverter",
-                "io.openems.edge.meter.api.AsymmetricMeter",
-                "io.openems.edge.meter.api.SymmetricMeter",
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.common.modbusslave.ModbusSlave",
-                "io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter",
-                "io.openems.edge.common.component.OpenemsComponent",
+                "IO.OPENEMS.EDGE.PVINVERTER.SUNSPEC.SUN_SPEC_PV_INVERTER",
+                "IO.OPENEMS.EDGE.METER.API.ASYMMETRIC_METER",
+                "IO.OPENEMS.EDGE.METER.API.SYMMETRIC_METER",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.COMMON.MODBUSSLAVE.MODBUS_SLAVE",
+                "IO.OPENEMS.EDGE.PVINVERTER.API.MANAGED_SYMMETRIC_PV_INVERTER",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
             ],
         };
         export const EVCS_HARDY_BARTH = {
-            id: "Evcs.HardyBarth",
+            id: "EVCS.HARDY_BARTH",
             natureIds: [
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
-                "io.openems.edge.evcs.api.ManagedEvcs",
-                "io.openems.edge.evcs.api.Evcs",
-                "io.openems.edge.evcs.api.DeprecatedEvcs",
-                "io.openems.edge.meter.api.ElectricityMeter",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.EVCS.HARDYBARTH.EVCS_HARDY_BARTH",
+                "IO.OPENEMS.EDGE.EVCS.API.MANAGED_EVCS",
+                "IO.OPENEMS.EDGE.EVCS.API.EVCS",
+                "IO.OPENEMS.EDGE.EVCS.API.DEPRECATED_EVCS",
+                "IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
             ],
         };
 
         export const EVCS_MENNEKES = {
-            id: "Evcs.Mennekes",
+            id: "EVCS.MENNEKES",
             natureIds: [
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.evcs.hardybarth.EvcsHardyBarth",
-                "io.openems.edge.evcs.api.ManagedEvcs",
-                "io.openems.edge.evcs.api.Evcs",
-                "io.openems.edge.meter.api.ElectricityMeter",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.EVCS.HARDYBARTH.EVCS_HARDY_BARTH",
+                "IO.OPENEMS.EDGE.EVCS.API.MANAGED_EVCS",
+                "IO.OPENEMS.EDGE.EVCS.API.EVCS",
+                "IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER",
             ],
         };
 
         export const MODBUS_TCP_READWRITE = {
-            id: "Controller.Api.ModbusTcp.ReadWrite",
+            id: "CONTROLLER.API.MODBUS_TCP.READ_WRITE",
             natureIds: [
-                "io.openems.edge.common.jsonapi.JsonApi",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.controller.api.modbus.ModbusTcpApi",
-                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusTcpReadWrite",
-                "io.openems.edge.controller.api.Controller",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.COMMON.JSONAPI.JSON_API",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS.MODBUS_TCP_API",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS.READWRITE.CONTROLLER_API_MODBUS_TCP_READ_WRITE",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.CONTROLLER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const MODBUS_RTU_READWRITE = {
-            id: "Controller.Api.ModbusRtu.ReadWrite",
+            id: "CONTROLLER.API.MODBUS_RTU.READ_WRITE",
             natureIds: [
-                "io.openems.edge.common.jsonapi.JsonApi",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.controller.api.modbus.ModbusRtuApi",
-                "io.openems.edge.controller.api.modbus.readwrite.ControllerApiModbusRtuReadWrite",
-                "io.openems.edge.controller.api.Controller",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.COMMON.JSONAPI.JSON_API",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS.MODBUS_RTU_API",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.MODBUS.READWRITE.CONTROLLER_API_MODBUS_RTU_READ_WRITE",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.CONTROLLER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const HEAT_PUMP_SG_READY = {
-            id: "Controller.Io.HeatPump.SgReady",
+            id: "CONTROLLER.IO.HEAT_PUMP.SG_READY",
             natureIds: [
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.controller.io.heatpump.sgready.ControllerIoHeatPumpSgReady",
-                "io.openems.edge.controller.api.Controller",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.CONTROLLER.IO.HEATPUMP.SGREADY.CONTROLLER_IO_HEAT_PUMP_SG_READY",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.CONTROLLER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const GOODWE_CHARGER_PV_1 = {
-            id: "GoodWe.Charger-PV1",
+            id: "GOOD_WE.CHARGER-PV1",
             natureIds: [
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.ess.dccharger.api.EssDcCharger",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.goodwe.charger.GoodWeCharger",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.GOODWE.CHARGER.GOOD_WE_CHARGER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
 
         export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE = {
-            id: "Controller.Ess.EmergencyCapacityReserve",
+            id: "CONTROLLER.ESS.EMERGENCY_CAPACITY_RESERVE",
             natureIds: [
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve",
-                "io.openems.edge.controller.api.Controller",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.CONTROLLER.ESS.EMERGENCYCAPACITYRESERVE.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.CONTROLLER",
             ],
         };
         export const Heat_MYPV_ACTHOR = {
             id: "HeatMyPv",
             natureIds: [
-                "io.openems.edge.heat.mypv.acthor9s.HeatMyPvAcThor9s",
-                "io.openems.edge.bridge.modbus.api.ModbusComponent",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.heat.api.ManagedHeatElement",
-                "io.openems.edge.heat.api.Heat",
+                "IO.OPENEMS.EDGE.HEAT.MYPV.ACTHOR9S.HEAT_MY_PV_AC_THOR9S",
+                "IO.OPENEMS.EDGE.BRIDGE.MODBUS.API.MODBUS_COMPONENT",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.HEAT.API.MANAGED_HEAT_ELEMENT",
+                "IO.OPENEMS.EDGE.HEAT.API.HEAT",
             ],
         };
 
         export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = {
-            id: "Controller.Io.FixDigitalOutput",
+            id: "CONTROLLER.IO.FIX_DIGITAL_OUTPUT",
             natureIds: [
-                "io.openems.edge.controller.io.fixdigitaloutput.ControllerIoFixDigitalOutput",
-                "io.openems.edge.common.component.OpenemsComponent",
-                "io.openems.edge.controller.api.Controller",
-                "io.openems.edge.timedata.api.TimedataProvider",
+                "IO.OPENEMS.EDGE.CONTROLLER.IO.FIXDIGITALOUTPUT.CONTROLLER_IO_FIX_DIGITAL_OUTPUT",
+                "IO.OPENEMS.EDGE.COMMON.COMPONENT.OPENEMS_COMPONENT",
+                "IO.OPENEMS.EDGE.CONTROLLER.API.CONTROLLER",
+                "IO.OPENEMS.EDGE.TIMEDATA.API.TIMEDATA_PROVIDER",
             ],
         };
     }
@@ -286,8 +286,8 @@ export namespace DummyConfig {
         export const SUM = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Core.Sum",
-            factory: Factory.SUM,
+            factoryId: "CORE.SUM",
+            factory: FACTORY.SUM,
             properties: {
                 enabled: "true",
             },
@@ -296,7 +296,7 @@ export namespace DummyConfig {
         export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Evcs.HardyBarth",
+            factoryId: "EVCS.HARDY_BARTH",
             factory: Factory.EVCS_HARDY_BARTH,
             properties: {
                 enabled: "true",
@@ -307,7 +307,7 @@ export namespace DummyConfig {
         export const EVCS_MENNEKES = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Evcs.Mennekes",
+            factoryId: "EVCS.MENNEKES",
             factory: Factory.EVCS_MENNEKES,
             properties: {
                 enabled: "true",
@@ -318,7 +318,7 @@ export namespace DummyConfig {
         export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Meter.Socomec.Threephase",
+            factoryId: "METER.SOCOMEC.THREEPHASE",
             factory: Factory.METER_SOCOMEC_THREEPHASE,
             properties: {
                 invert: false,
@@ -359,7 +359,7 @@ export namespace DummyConfig {
             properties: {
                 "alias": "MPPT 1",
                 "enabled": true,
-                "essOrBatteryInverter.id": "batteryInverter0",
+                "ESS_OR_BATTERY_INVERTER.ID": "batteryInverter0",
                 "mpptPort": "MPPT_1",
             },
             channels: {},
@@ -368,7 +368,7 @@ export namespace DummyConfig {
         export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "SolarEdge.PV-Inverter",
+            factoryId: "SOLAR_EDGE.PV-Inverter",
             factory: Factory.SOLAR_EDGE_PV_INVERTER,
             properties: {
                 invert: false,
@@ -381,7 +381,7 @@ export namespace DummyConfig {
         export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Ess.Generic.ManagedSymmetric",
+            factoryId: "ESS.GENERIC.MANAGED_SYMMETRIC",
             factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
             properties: {
                 invert: false,
@@ -396,7 +396,7 @@ export namespace DummyConfig {
             factory: Factory.ESS_LIMITER_14A,
             properties: {
                 enabled: "true",
-                ["ess.id"]: "ess0",
+                ["ESS.ID"]: "ess0",
             },
             channels: {},
         });
@@ -467,12 +467,12 @@ export namespace DummyConfig {
         export const CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE = ({ id = "ctrlEmergencyCapacityReserve0", essId = "ess0", isReserveSocEnabled = true, alias = id }: { id?: string, essId?: string, isReserveSocEnabled?: boolean, alias?: string }): Component => ({
             id: id,
             alias: alias ?? id,
-            factoryId: "Controller.Ess.EmergencyCapacityReserve",
+            factoryId: "CONTROLLER.ESS.EMERGENCY_CAPACITY_RESERVE",
             factory: Factory.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE,
             isEnabled: true,
             properties: {
                 "modbusUnitId": 5,
-                "ess.id": essId,
+                "ESS.ID": essId,
                 "isReserveSocEnabled": isReserveSocEnabled,
             },
             channels: {},
@@ -528,24 +528,24 @@ type Component = {
     isEnabled?: boolean
 };
 
-export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "channel-line",
     name: name,
     ...(indentation && { indentation: indentation }),
     value: value,
 });
 
-export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
+export const VALUE_FROM_CHANNELS_LINE = (name: string, value: string, indentation?: TextIndentation): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "value-from-channels-line",
     name: name,
     ...(indentation && { indentation: indentation }),
     value: value,
 });
 
-export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OeFormlyViewTester.Field => ({
+export const PHASE_ADMIN = (name: string, voltage: string, current: string, power: string): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "children-line",
     name: name,
-    indentation: TextIndentation.SINGLE,
+    indentation: TEXT_INDENTATION.SINGLE,
     children: [
         {
             type: "item",
@@ -562,10 +562,10 @@ export const PHASE_ADMIN = (name: string, voltage: string, current: string, powe
     ],
 });
 
-export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
+export const PHASE_GUEST = (name: string, power: string): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "children-line",
     name: name,
-    indentation: TextIndentation.SINGLE,
+    indentation: TEXT_INDENTATION.SINGLE,
     children: [
         {
             type: "item",
@@ -574,26 +574,26 @@ export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Fie
     ],
 });
 
-export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
+export const LINE_HORIZONTAL: OE_FORMLY_VIEW_TESTER.FIELD = {
     type: "horizontal-line",
 };
 
-export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
+export const LINE_INFO_PHASES_DE: OE_FORMLY_VIEW_TESTER.FIELD = {
     type: "info-line",
     name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
 };
 
-export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
+export const LINE_INFO = (text: string): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "info-line",
     name: text,
 });
-export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
+export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "buttons-from-form-control-line",
     name: text,
     buttons: buttons,
     controlName: controlName,
 });
-export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, expectedValue: T, properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,): OeFormlyViewTester.Field => ({
+export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, expectedValue: T, properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,): OE_FORMLY_VIEW_TESTER.FIELD => ({
     type: "range-button-from-form-control-line",
     controlName,
     expectedValue,
@@ -603,7 +603,7 @@ export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, exp
 export namespace ChartConfig {
 
 
-    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
         type: "option", options: {
             "responsive": true,
             "maintainAspectRatio": false,
@@ -707,7 +707,7 @@ export namespace ChartConfig {
             },
         },
     });
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
         type: "option",
         options: {
             "responsive": true,
@@ -811,7 +811,7 @@ export namespace ChartConfig {
             },
         },
     });
-    export const LINE_CHART_OPTIONS_TYPE_PERCENTAGE = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS_TYPE_PERCENTAGE = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number }, ticks: { stepSize: number } } }, title?: string): OE_CHART_TESTER.DATASET.OPTION => ({
         type: "option",
         options: {
             "responsive": true,
@@ -928,36 +928,36 @@ export namespace ChartConfig {
 
 describe("PersistencePriority", () => {
     it("#isLessThan", () => {
-        expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
-        expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(null, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH)).toBe(false);
-        expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(PERSISTENCE_PRIORITY.LOW, PERSISTENCE_PRIORITY.HIGH)).toBe(true);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(PersistencePriority.VERY_HIGH, PERSISTENCE_PRIORITY.HIGH)).toBe(false);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(PERSISTENCE_PRIORITY.HIGH, PERSISTENCE_PRIORITY.HIGH)).toBe(false);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(null, PERSISTENCE_PRIORITY.HIGH)).toBe(false);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(undefined, PERSISTENCE_PRIORITY.HIGH)).toBe(false);
+        expect(PERSISTENCE_PRIORITY.IS_LESS_THAN(undefined, null)).toBe(false);
     });
 });
 
 describe("hasPropertyValue", () => {
 
-    const component = new EdgeConfig.Component("component0", "", true, "factoryId", {
+    const component = new EDGE_CONFIG.COMPONENT("component0", "", true, "factoryId", {
         "booleanValue": true,
         "booleanValueString": "true",
         "numberValueStrng": "42",
     });
 
     it("#booleanValue", () => {
-        expect(component.hasPropertyValue("booleanValue", true)).toBeTrue();
+        expect(COMPONENT.HAS_PROPERTY_VALUE("booleanValue", true)).toBeTrue();
     });
 
     it("#booleanValueString", () => {
-        expect(component.hasPropertyValue("booleanValueString", true)).toBeTrue();
+        expect(COMPONENT.HAS_PROPERTY_VALUE("booleanValueString", true)).toBeTrue();
     });
 
     it("#wrongEquals", () => {
-        expect(component.hasPropertyValue("booleanValueString", false)).toBeFalse();
+        expect(COMPONENT.HAS_PROPERTY_VALUE("booleanValueString", false)).toBeFalse();
     });
 
     it("#compareWrongTypes", () => {
-        expect(component.hasPropertyValue("numberValueStrng", 42)).toBeTrue();
+        expect(COMPONENT.HAS_PROPERTY_VALUE("numberValueStrng", 42)).toBeTrue();
     });
 });

@@ -2,24 +2,24 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { ChannelAddress } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "sellToGridLimitChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(gridmeterId: string, componentId: string, translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(gridmeterId: string, componentId: string, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
     return {
       input: [
         {
           name: "ActivePower",
           powerChannel: new ChannelAddress(gridmeterId, "ActivePower"),
-          converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE,
+          converter: HISTORY_UTILS.VALUE_CONVERTER.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE,
         },
         {
           name: "_PropertyMaximumSellToGridPower",
@@ -30,28 +30,28 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
           powerChannel: new ChannelAddress("_sum", "ProductionActivePower"),
         },
       ],
-      output: (data: HistoryUtils.ChannelData) => ([
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => ([
         {
-          name: translate.instant("General.gridSell"),
+          name: TRANSLATE.INSTANT("GENERAL.GRID_SELL"),
           converter: () => data["ActivePower"],
-          color: ChartConstants.Colors.PURPLE,
+          color: CHART_CONSTANTS.COLORS.PURPLE,
         },
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn"),
+          name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN"),
           converter: () => data["_PropertyMaximumSellToGridPower"],
-          color: ChartConstants.Colors.YELLOW,
+          color: CHART_CONSTANTS.COLORS.YELLOW,
           hideShadow: true,
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.MAXIMUM_GRIDSELL_WITH_CHARGE"),
-          converter: () => data["_PropertyMaximumSellToGridPower"].map(el => Utils.multiplySafely(el, 0.95)),
-          color: ChartConstants.Colors.RED,
+          name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRIDSELL_WITH_CHARGE"),
+          converter: () => data["_PropertyMaximumSellToGridPower"].map(el => UTILS.MULTIPLY_SAFELY(el, 0.95)),
+          color: CHART_CONSTANTS.COLORS.RED,
           hideShadow: true,
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("General.production"),
+          name: TRANSLATE.INSTANT("GENERAL.PRODUCTION"),
           converter: () => data["ProductionActivePower"],
           color: "rgb(45,143,171)",
         },
@@ -60,16 +60,16 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
         formatNumber: "1.0-2",
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
   }
 
-  protected getChartData(): HistoryUtils.ChartData {
-    const gridMeterId = this.config.getComponentProperties(this.component.id)["meter.id"];
-    return SellToGridLimitChartComponent.getChartData(gridMeterId, this.component.id, this.translate);
+  protected getChartData(): HISTORY_UTILS.CHART_DATA {
+    const gridMeterId = THIS.CONFIG.GET_COMPONENT_PROPERTIES(THIS.COMPONENT.ID)["METER.ID"];
+    return SELL_TO_GRID_LIMIT_CHART_COMPONENT.GET_CHART_DATA(gridMeterId, THIS.COMPONENT.ID, THIS.TRANSLATE);
   }
 
 }

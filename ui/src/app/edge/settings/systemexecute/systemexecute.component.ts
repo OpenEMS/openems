@@ -17,8 +17,8 @@ const COMMANDS: { [key: string]: CommandFunction; } = {
 };
 
 @Component({
-  selector: SystemExecuteComponent.SELECTOR,
-  templateUrl: "./systemexecute.component.html",
+  selector: SYSTEM_EXECUTE_COMPONENT.SELECTOR,
+  templateUrl: "./SYSTEMEXECUTE.COMPONENT.HTML",
   standalone: false,
 })
 export class SystemExecuteComponent implements OnInit {
@@ -40,7 +40,7 @@ export class SystemExecuteComponent implements OnInit {
     templateOptions: { options: [{ value: "ping", label: "Ping device in network" }] },
   }, {
     key: "ping",
-    hideExpression: (model: any, formState: any) => this.model["predefined"] !== "ping",
+    hideExpression: (model: any, formState: any) => THIS.MODEL["predefined"] !== "ping",
     fieldGroup: [{
       key: "ip",
       type: "input",
@@ -49,7 +49,7 @@ export class SystemExecuteComponent implements OnInit {
       },
       validation: {
         messages: {
-          pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`,
+          pattern: (error, field: FormlyFieldConfig) => `"${FIELD.FORM_CONTROL.VALUE}" is not a valid IP Address`,
         },
       },
     }],
@@ -74,7 +74,7 @@ export class SystemExecuteComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.form = this.formBuilder.group({
+    THIS.FORM = THIS.FORM_BUILDER.GROUP({
       username: new FormControl("root"),
       password: new FormControl(""),
       timeoutSeconds: new FormControl(5),
@@ -85,61 +85,61 @@ export class SystemExecuteComponent implements OnInit {
 
   public updatePredefined() {
     let command;
-    if (!this.form.valid) {
+    if (!THIS.FORM.VALID) {
       command = "";
     } else {
-      const m = this.model;
-      const cmd = COMMANDS[m.predefined];
-      switch (m.predefined) {
+      const m = THIS.MODEL;
+      const cmd = COMMANDS[M.PREDEFINED];
+      switch (M.PREDEFINED) {
         case "ping":
-          command = cmd(m.ping.ip);
+          command = cmd(M.PING.IP);
           break;
         case "openems-restart":
         default:
           command = cmd();
       }
     }
-    this.form.controls["command"].setValue(command);
+    THIS.FORM.CONTROLS["command"].setValue(command);
   }
 
   public submit() {
-    const username = this.form.controls["username"];
-    const password = this.form.controls["password"];
-    const timeoutSeconds = this.form.controls["timeoutSeconds"];
-    const runInBackground = this.form.controls["runInBackground"];
-    const command = this.form.controls["command"];
+    const username = THIS.FORM.CONTROLS["username"];
+    const password = THIS.FORM.CONTROLS["password"];
+    const timeoutSeconds = THIS.FORM.CONTROLS["timeoutSeconds"];
+    const runInBackground = THIS.FORM.CONTROLS["runInBackground"];
+    const command = THIS.FORM.CONTROLS["command"];
 
-    this.service.getCurrentEdge().then(edge => {
-      this.loading = true;
-      this.stdout = [];
-      this.stderr = [];
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.LOADING = true;
+      THIS.STDOUT = [];
+      THIS.STDERR = [];
       const executeSystemCommandRequest = new ExecuteSystemCommandRequest({
-        username: username.value,
-        password: password.value,
-        timeoutSeconds: timeoutSeconds.value,
-        runInBackground: runInBackground.value,
-        command: command.value,
+        username: USERNAME.VALUE,
+        password: PASSWORD.VALUE,
+        timeoutSeconds: TIMEOUT_SECONDS.VALUE,
+        runInBackground: RUN_IN_BACKGROUND.VALUE,
+        command: COMMAND.VALUE,
       });
 
-      edge.sendRequest(this.websocket,
+      EDGE.SEND_REQUEST(THIS.WEBSOCKET,
         new ComponentJsonApiRequest({
           componentId: "_host",
           payload: executeSystemCommandRequest,
         })).then(response => {
           const result = (response as ExecuteSystemCommandResponse).result;
-          this.loading = false;
-          if (result.stdout.length == 0) {
-            this.stdout = [""];
+          THIS.LOADING = false;
+          if (RESULT.STDOUT.LENGTH == 0) {
+            THIS.STDOUT = [""];
           } else {
-            this.stdout = result.stdout;
+            THIS.STDOUT = RESULT.STDOUT;
           }
-          this.stderr = result.stderr;
+          THIS.STDERR = RESULT.STDERR;
 
         }).catch(reason => {
-          this.loading = false;
-          this.stderr = ["Error executing system command:", reason.error.message];
+          THIS.LOADING = false;
+          THIS.STDERR = ["Error executing system command:", REASON.ERROR.MESSAGE];
         });
-      this.commandLogs.unshift(executeSystemCommandRequest);
+      THIS.COMMAND_LOGS.UNSHIFT(executeSystemCommandRequest);
     });
   }
 

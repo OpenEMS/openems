@@ -9,10 +9,10 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 
 @Component({
-    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/TEMPLATE.HTML",
     standalone: false,
     providers: [
         { provide: DataService, useClass: LiveDataService },
@@ -28,7 +28,7 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     // Increased skip count
-    private component: EdgeConfig.Component | null = null;
+    private component: EDGE_CONFIG.COMPONENT | null = null;
     private energySessionLimitChannel: ChannelAddress | null = null;
 
     constructor(
@@ -38,14 +38,14 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
         super();
     }
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
-        AssertionUtils.assertIsDefined(component);
-        AssertionUtils.assertIsDefined(edge);
+    public static generateView(translate: TranslateService, component: EDGE_CONFIG.COMPONENT | null, edge: Edge | null): OeFormlyView {
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
         const lines: OeFormlyField[] = [
             {
                 type: "value-from-form-control-line",
-                name: translate.instant("EVSE_SINGLE.SETTINGS.ENERGY_LIMIT"),
+                name: TRANSLATE.INSTANT("EVSE_SINGLE.SETTINGS.ENERGY_LIMIT"),
                 controlName: "manualEnergySessionLimit",
                 converter: Converter.WATT_HOURS_IN_KILO_WATT_HOURS,
             },
@@ -70,18 +70,18 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafely<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
+        THIS.SET_FORM_CONTROL_SAFELY<number>(THIS.FORM, "manualEnergySessionLimit", currentData, THIS.ENERGY_SESSION_LIMIT_CHANNEL);
     }
 
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-        this.component = config.getComponent(this.route.snapshot.params.componentId);
-        const edge = this.service.currentEdge();
-        return EvseSettingsComponent.generateView(this.translate, this.component, edge);
+        THIS.COMPONENT = CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
+        const edge = THIS.SERVICE.CURRENT_EDGE();
+        return EVSE_SETTINGS_COMPONENT.GENERATE_VIEW(THIS.TRANSLATE, THIS.COMPONENT, edge);
     }
 
     protected override getFormGroup(): FormGroup {
-        if (Object.keys(this.form.controls).length > 0) {
-            return this.form;
+        if (OBJECT.KEYS(THIS.FORM.CONTROLS).length > 0) {
+            return THIS.FORM;
         }
         return new FormGroup({
             manualEnergySessionLimit: new FormControl(null),
@@ -90,12 +90,12 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
 
-        const config = await this.service.getConfig();
-        const component = config.getComponent(this.route.snapshot.params.componentId);
-        if (!component || !component.id) {
+        const config = await THIS.SERVICE.GET_CONFIG();
+        const component = CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
+        if (!component || !COMPONENT.ID) {
             return [];
         }
-        this.energySessionLimitChannel = new ChannelAddress(component.id, "_PropertyManualEnergySessionLimit");
-        return [this.energySessionLimitChannel];
+        THIS.ENERGY_SESSION_LIMIT_CHANNEL = new ChannelAddress(COMPONENT.ID, "_PropertyManualEnergySessionLimit");
+        return [THIS.ENERGY_SESSION_LIMIT_CHANNEL];
     }
 }

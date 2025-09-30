@@ -11,14 +11,14 @@ import { DefaultTypes } from "../../type/defaulttypes";
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
   /**
-   * True after this.edge, this.config and this.component are set.
+   * True after THIS.EDGE, THIS.CONFIG and THIS.COMPONENT are set.
    */
   public isInitialized: boolean = false;
   public config: EdgeConfig = null;
-  public component: EdgeConfig.Component | null = null;
+  public component: EDGE_CONFIG.COMPONENT | null = null;
   public stopOnDestroy: Subject<void> = new Subject<void>();
   public edge: Edge | null = null;
-  public period: DefaultTypes.HistoryPeriod;
+  public period: DEFAULT_TYPES.HISTORY_PERIOD;
   protected showTotal: boolean = true;
   protected showPhases: boolean = false;
 
@@ -30,49 +30,49 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   ) { }
 
   public ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.service.getConfig().then(config => {
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.SERVICE.GET_CONFIG().then(config => {
         // store important variables publically
-        this.edge = edge;
-        this.config = config;
-        this.component = config.getComponent(this.route.snapshot.params.componentId);
+        THIS.EDGE = edge;
+        THIS.CONFIG = config;
+        THIS.COMPONENT = CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
 
-        this.period = this.service.historyPeriod.value;
+        THIS.PERIOD = THIS.SERVICE.HISTORY_PERIOD.VALUE;
 
       }).then(() => {
         // announce initialized
-        this.isInitialized = true;
-        this.afterIsInitialized();
+        THIS.IS_INITIALIZED = true;
+        THIS.AFTER_IS_INITIALIZED();
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
-        this.updateValues();
+        THIS.UPDATE_VALUES();
       });
     });
   }
 
   public updateValues() {
-    const channelAddresses = this.getChannelAddresses();
-    this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-      const result = response.result;
+    const channelAddresses = THIS.GET_CHANNEL_ADDRESSES();
+    THIS.SERVICE.QUERY_ENERGY(THIS.PERIOD.FROM, THIS.PERIOD.TO, channelAddresses).then(response => {
+      const result = RESPONSE.RESULT;
       const allComponents = {};
       for (const channelAddress of channelAddresses) {
-        const ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca];
+        const ca = CHANNEL_ADDRESS.TO_STRING();
+        allComponents[ca] = RESULT.DATA[ca];
       }
-      this.onCurrentData({ allComponents: allComponents });
+      THIS.ON_CURRENT_DATA({ allComponents: allComponents });
     }).catch(() => {
       // TODO Error Message
     });
   }
 
   public ngOnChanges() {
-    this.updateValues();
+    THIS.UPDATE_VALUES();
   }
 
   public ngOnDestroy() {
     // Unsubscribe from CurrentData subject
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
   }
 
   /**
@@ -100,10 +100,10 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
   }
 
   protected setShowTotal(event) {
-    this.showTotal = event;
+    THIS.SHOW_TOTAL = event;
   }
   protected setShowPhases(event) {
-    this.showPhases = event;
+    THIS.SHOW_PHASES = event;
   }
 
   protected afterIsInitialized(): void { }

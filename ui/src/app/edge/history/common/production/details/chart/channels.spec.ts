@@ -9,9 +9,9 @@ export namespace History {
     /**
      * up to 288 datapoints (5 min aggregated values) from a
      *
-     * {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
+     * {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}
      * */
-    export const DAY: OeTester.Types.Channels = ({
+    export const DAY: OE_TESTER.TYPES.CHANNELS = ({
         energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
             data: {
                 "meter0/ActiveProductionEnergy": 15930,
@@ -37,8 +37,8 @@ export namespace History {
     });
 
     /**
-    * up to 31 datapoints(1 day values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-    export const MONTH: OeTester.Types.Channels = {
+    * up to 31 datapoints(1 day values) from a {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}*/
+    export const MONTH: OE_TESTER.TYPES.CHANNELS = {
         energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
             data: {
                 "meter0/ActiveProductionEnergy": 21649,

@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Inject, Injectable } from "@angular/core";
 
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyRequest";
 import { Service } from "src/app/shared/service/service";
 import { Websocket } from "src/app/shared/service/websocket";
@@ -28,41 +28,41 @@ export class HistoryDataService extends DataService {
   public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
 
     for (const channelAddress of channelAddresses) {
-      this.channelAddresses[channelAddress.toString()] = channelAddress;
+      THIS.CHANNEL_ADDRESSES[CHANNEL_ADDRESS.TO_STRING()] = channelAddress;
     }
 
-    if (this.queryChannelsTimeout == null) {
+    if (THIS.QUERY_CHANNELS_TIMEOUT == null) {
 
-      this.queryChannelsTimeout = setTimeout(() => {
-        if (Object.entries(this.channelAddresses).length > 0) {
+      THIS.QUERY_CHANNELS_TIMEOUT = setTimeout(() => {
+        if (OBJECT.ENTRIES(THIS.CHANNEL_ADDRESSES).length > 0) {
 
-          this.service.historyPeriod.subscribe(date => {
+          THIS.SERVICE.HISTORY_PERIOD.SUBSCRIBE(date => {
 
             const request = new QueryHistoricTimeseriesEnergyRequest(
-              DateUtils.maxDate(date.from, edge?.firstSetupProtocol),
-              date.to,
-              Object.values(this.channelAddresses),
+              DATE_UTILS.MAX_DATE(DATE.FROM, edge?.firstSetupProtocol),
+              DATE.TO,
+              OBJECT.VALUES(THIS.CHANNEL_ADDRESSES),
             );
 
-            this.activeQueryData = request.id;
+            THIS.ACTIVE_QUERY_DATA = REQUEST.ID;
 
-            edge.sendRequest(this.websocket, request)
+            EDGE.SEND_REQUEST(THIS.WEBSOCKET, request)
               .then((response) => {
-                if (this.activeQueryData === response.id) {
+                if (THIS.ACTIVE_QUERY_DATA === RESPONSE.ID) {
                   const allComponents = {};
                   const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
 
-                  for (const [key, value] of Object.entries(result.data)) {
+                  for (const [key, value] of OBJECT.ENTRIES(RESULT.DATA)) {
                     allComponents[key] = value;
                   }
 
-                  this.currentValue.set({ allComponents: allComponents });
-                  this.timestamps = response.result["timestamps"] ?? [];
+                  THIS.CURRENT_VALUE.SET({ allComponents: allComponents });
+                  THIS.TIMESTAMPS = RESPONSE.RESULT["timestamps"] ?? [];
                 }
               })
-              .catch(err => console.warn(err))
+              .catch(err => CONSOLE.WARN(err))
               .finally(() => {
-                this.queryChannelsTimeout = null;
+                THIS.QUERY_CHANNELS_TIMEOUT = null;
               });
           });
         }
@@ -75,9 +75,9 @@ export class HistoryDataService extends DataService {
   }
 
   public override refresh(ev: CustomEvent) {
-    this.getValues(Object.values(this.channelAddresses), this.edge, "");
+    THIS.GET_VALUES(OBJECT.VALUES(THIS.CHANNEL_ADDRESSES), THIS.EDGE, "");
     setTimeout(() => {
-      (ev.target as HTMLIonRefresherElement).complete();
+      (EV.TARGET as HTMLIonRefresherElement).complete();
     }, 1000);
   }
 }

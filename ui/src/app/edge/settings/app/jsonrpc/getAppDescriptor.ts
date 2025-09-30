@@ -60,8 +60,8 @@ export namespace GetAppDescriptor {
     }
 
     export function postprocess(appAssistant: AppDescriptor, sanitizer: DomSanitizer): AppDescriptor {
-        if (appAssistant.websiteUrl) {
-            appAssistant.sanitizedWebsiteUrl = sanitizer.bypassSecurityTrustResourceUrl(appAssistant.websiteUrl);
+        if (APP_ASSISTANT.WEBSITE_URL) {
+            APP_ASSISTANT.SANITIZED_WEBSITE_URL = SANITIZER.BYPASS_SECURITY_TRUST_RESOURCE_URL(APP_ASSISTANT.WEBSITE_URL);
         }
         return appAssistant;
     }

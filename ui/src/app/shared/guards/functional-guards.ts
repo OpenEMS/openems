@@ -10,19 +10,19 @@ import { Role } from "../type/role";
  *
  * @param route the route snapshot
  * @param state the routerStateSnapshot
- * @returns true, if edge.role equals requiredTole (provided in {@link Route.data} )
+ * @returns true, if EDGE.ROLE equals requiredTole (provided in {@link ROUTE.DATA} )
  */
 export const hasEdgeRole = (role: Role) => {
     return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
         const location = inject(Location);
         const service = inject(Service);
-        service.getCurrentEdge().then(edge => {
+        SERVICE.GET_CURRENT_EDGE().then(edge => {
             if (edge) {
-                const roleIsAtLeast = Role.isAtLeast(edge.role, role);
+                const roleIsAtLeast = ROLE.IS_AT_LEAST(EDGE.ROLE, role);
 
                 if (!roleIsAtLeast) {
-                    console.warn(`Routing Failed. Reason: User not allowed to access [component:${route?.component["SELECTOR"] ?? state.url}]`);
-                    location.back();
+                    CONSOLE.WARN(`Routing Failed. Reason: User not allowed to access [component:${route?.component["SELECTOR"] ?? STATE.URL}]`);
+                    LOCATION.BACK();
                 }
                 return roleIsAtLeast;
             }

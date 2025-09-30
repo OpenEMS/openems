@@ -11,8 +11,8 @@ import { Edge } from "../../edge/edge";
 import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
 
 @Component({
-    selector: StatusSingleComponent.SELECTOR,
-    templateUrl: "./status.component.html",
+    selector: STATUS_SINGLE_COMPONENT.SELECTOR,
+    templateUrl: "./STATUS.COMPONENT.HTML",
     standalone: false,
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
@@ -34,80 +34,80 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnDestroy() {
-        this.edge?.unsubscribeChannels(this.websocket, StatusSingleComponent.SELECTOR);
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
+        THIS.EDGE?.unsubscribeChannels(THIS.WEBSOCKET, STATUS_SINGLE_COMPONENT.SELECTOR);
+        THIS.STOP_ON_DESTROY.NEXT();
+        THIS.STOP_ON_DESTROY.COMPLETE();
     }
 
     async ngOnInit() {
-        this.config = await this.service.getConfig();
-        this.components = this.config.listActiveComponents([], this.service.translate);
-        this.components.forEach(categorizedComponent => {
-            categorizedComponent.components.forEach(component => {
+        THIS.CONFIG = await THIS.SERVICE.GET_CONFIG();
+        THIS.COMPONENTS = THIS.CONFIG.LIST_ACTIVE_COMPONENTS([], THIS.SERVICE.TRANSLATE);
+        THIS.COMPONENTS.FOR_EACH(categorizedComponent => {
+            CATEGORIZED_COMPONENT.COMPONENTS.FOR_EACH(component => {
                 // sets all arrow buttons to standard position (folded)
                 component["showProperties"] = false;
-                this.subscribedInfoChannels.push(
-                    new ChannelAddress(component.id, "State"),
+                THIS.SUBSCRIBED_INFO_CHANNELS.PUSH(
+                    new ChannelAddress(COMPONENT.ID, "State"),
                 );
             });
         });
-        //need to subscribe on currentedge because component is opened by app.component
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
-            edge.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
+        //need to subscribe on currentedge because component is opened by APP.COMPONENT
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.EDGE = edge;
+            EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, STATUS_SINGLE_COMPONENT.SELECTOR, THIS.SUBSCRIBED_INFO_CHANNELS);
         });
     }
 
-    public async subscribeInfoChannels(component: EdgeConfig.Component) {
-        const channels = await this.getStateChannels(component.id);
-        for (const key of Object.keys(channels)) {
-            const channelAddress = new ChannelAddress(component.id, key);
-            this.subscribedInfoChannels.push(channelAddress);
-            this.onInfoChannels.push(channelAddress);
+    public async subscribeInfoChannels(component: EDGE_CONFIG.COMPONENT) {
+        const channels = await THIS.GET_STATE_CHANNELS(COMPONENT.ID);
+        for (const key of OBJECT.KEYS(channels)) {
+            const channelAddress = new ChannelAddress(COMPONENT.ID, key);
+            THIS.SUBSCRIBED_INFO_CHANNELS.PUSH(channelAddress);
+            THIS.ON_INFO_CHANNELS.PUSH(channelAddress);
         }
-        this.channels[component.id] = channels;
-        this.edge?.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
+        THIS.CHANNELS[COMPONENT.ID] = channels;
+        THIS.EDGE?.subscribeChannels(THIS.WEBSOCKET, STATUS_SINGLE_COMPONENT.SELECTOR, THIS.SUBSCRIBED_INFO_CHANNELS);
     }
 
-    public unsubscribeInfoChannels(component: EdgeConfig.Component) {
-        delete this.channels[component.id];
+    public unsubscribeInfoChannels(component: EDGE_CONFIG.COMPONENT) {
+        delete THIS.CHANNELS[COMPONENT.ID];
         //removes unsubscribed elements from subscribedInfoChannels array
-        this.onInfoChannels.forEach(onInfoChannel => {
-            this.subscribedInfoChannels.forEach((subChannel, index) => {
-                if (onInfoChannel.channelId == subChannel.channelId && component.id == subChannel.componentId) {
-                    this.subscribedInfoChannels.splice(index, 1);
+        THIS.ON_INFO_CHANNELS.FOR_EACH(onInfoChannel => {
+            THIS.SUBSCRIBED_INFO_CHANNELS.FOR_EACH((subChannel, index) => {
+                if (ON_INFO_CHANNEL.CHANNEL_ID == SUB_CHANNEL.CHANNEL_ID && COMPONENT.ID == SUB_CHANNEL.COMPONENT_ID) {
+                    THIS.SUBSCRIBED_INFO_CHANNELS.SPLICE(index, 1);
                 }
             });
         });
         //clear onInfoChannels Array
-        this.onInfoChannels = this.onInfoChannels.filter((channel) => channel.componentId != component.id);
-        this.edge?.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
+        THIS.ON_INFO_CHANNELS = THIS.ON_INFO_CHANNELS.FILTER((channel) => CHANNEL.COMPONENT_ID != COMPONENT.ID);
+        THIS.EDGE?.subscribeChannels(THIS.WEBSOCKET, STATUS_SINGLE_COMPONENT.SELECTOR, THIS.SUBSCRIBED_INFO_CHANNELS);
     }
 
-    private getStateChannels(componentId: string): Promise<typeof this.channels["componentId"]> {
+    private getStateChannels(componentId: string): Promise<typeof THIS.CHANNELS["componentId"]> {
         return new Promise((resolve, reject) => {
-            if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-                const channels: typeof this.channels["componentId"] = {};
-                for (const [key, value] of Object.entries(this.config.components[componentId].channels)) {
+            if (EDGE_PERMISSION.HAS_CHANNELS_IN_EDGE_CONFIG(THIS.EDGE)) {
+                const channels: typeof THIS.CHANNELS["componentId"] = {};
+                for (const [key, value] of OBJECT.ENTRIES(THIS.CONFIG.COMPONENTS[componentId].channels)) {
 
                     // show only state channels
-                    if (value.category !== "STATE") {
+                    if (VALUE.CATEGORY !== "STATE") {
                         continue;
                     }
 
-                    channels[key] = { text: value.text, level: value.level };
+                    channels[key] = { text: VALUE.TEXT, level: VALUE.LEVEL };
                 }
                 resolve(channels);
                 return;
             }
 
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
+            THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, new ComponentJsonApiRequest({
                 componentId: "_componentManager",
                 payload: new GetStateChannelsOfComponentRequest({ componentId: componentId }),
             })).then((response: GetChannelsOfComponentResponse) => {
-                const channels: typeof this.channels["componentId"] = {};
-                for (const item of response.result.channels) {
-                    channels[item.id] = { text: item.text, level: item.level };
+                const channels: typeof THIS.CHANNELS["componentId"] = {};
+                for (const item of RESPONSE.RESULT.CHANNELS) {
+                    channels[ITEM.ID] = { text: ITEM.TEXT, level: ITEM.LEVEL };
                 }
                 resolve(channels);
             }).catch(reject);

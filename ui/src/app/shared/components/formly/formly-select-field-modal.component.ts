@@ -3,7 +3,7 @@ import { ModalController } from "@ionic/angular";
 
 @Component({
     selector: "formly-select-modal",
-    templateUrl: "./formly-select-field-modal.component.html",
+    templateUrl: "./formly-select-field-MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class FormlySelectFieldModalComponent implements OnInit {
@@ -20,11 +20,11 @@ export class FormlySelectFieldModalComponent implements OnInit {
     ) { }
 
     public ngOnInit(): void {
-        this.selectedValue = this.initialSelectedValue;
+        THIS.SELECTED_VALUE = THIS.INITIAL_SELECTED_VALUE;
     }
 
     protected onSelected() {
-        this.modalCtrl.dismiss({ selectedValue: this.selectedValue });
+        THIS.MODAL_CTRL.DISMISS({ selectedValue: THIS.SELECTED_VALUE });
     }
 
 }

@@ -26,14 +26,14 @@ export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
         private fromDate: Date,
         private toDate: Date,
     ) {
-        super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        super(QUERY_HISTORIC_TIMESERIES_EXPORT_XLXS_REQUEST.METHOD, {
+            timezone: INTL.DATE_TIME_FORMAT().resolvedOptions().timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
             toDate: format(toDate, "yyyy-MM-dd"),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
-        delete this.fromDate;
-        delete this.toDate;
+        delete THIS.FROM_DATE;
+        delete THIS.TO_DATE;
     }
 
 }

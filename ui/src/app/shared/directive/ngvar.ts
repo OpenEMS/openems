@@ -22,11 +22,11 @@ export class VarDirective {
 
     @Input()
     set ngVar(context: unknown) {
-        this.context.$implicit = this.context.ngVar = context;
+        THIS.CONTEXT.$implicit = THIS.CONTEXT.NG_VAR = context;
 
-        if (!this.hasView) {
-            this.vcRef.createEmbeddedView(this.templateRef, this.context);
-            this.hasView = true;
+        if (!THIS.HAS_VIEW) {
+            THIS.VC_REF.CREATE_EMBEDDED_VIEW(THIS.TEMPLATE_REF, THIS.CONTEXT);
+            THIS.HAS_VIEW = true;
         }
     }
 

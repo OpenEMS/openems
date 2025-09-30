@@ -4,7 +4,7 @@ import { Service } from "src/app/shared/shared";
 
 @Component({
     selector: "formly-field-navigation",
-    templateUrl: "./formly-field-navigation.html",
+    templateUrl: "./formly-field-NAVIGATION.HTML",
     standalone: false,
 })
 export class FormlyFieldNavigationComponent extends FieldWrapper {
@@ -16,6 +16,6 @@ export class FormlyFieldNavigationComponent extends FieldWrapper {
     }
 
     protected onSubmit(): void {
-        this.field!.props!.onSubmit(this.form);
+        THIS.FIELD!.props!.onSubmit(THIS.FORM);
     }
 }

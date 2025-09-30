@@ -8,7 +8,7 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
-  templateUrl: "./details.overview.html",
+  templateUrl: "./DETAILS.OVERVIEW.HTML",
   standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
@@ -27,35 +27,35 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   protected override afterIsInitialized() {
-    this.componentSome = this.getComponentType();
+    THIS.COMPONENT_SOME = THIS.GET_COMPONENT_TYPE();
 
-    this.service.getCurrentEdge().then(edge => {
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
 
       // Hide current & voltage
-      if (this.component?.factoryId === "Core.Sum") {
+      if (THIS.COMPONENT?.factoryId === "CORE.SUM") {
         return;
       }
 
-      this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+      THIS.NAVIGATION_BUTTONS = [
+        { id: "currentVoltage", isEnabled: EDGE.ROLE_IS_AT_LEAST(ROLE.INSTALLER), alias: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { THIS.ROUTER.NAVIGATE(["./currentVoltage"], { relativeTo: THIS.ROUTE }); } }];
     });
   }
 
-  private getComponentType(): typeof this.componentSome {
-    if (!this.component) {
+  private getComponentType(): typeof THIS.COMPONENT_SOME {
+    if (!THIS.COMPONENT) {
       return null;
     }
 
-    if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
-      return { type: "charger", displayName: this.component.alias };
+    if (THIS.CONFIG.HAS_COMPONENT_NATURE("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER", THIS.COMPONENT.ID) && THIS.COMPONENT.IS_ENABLED) {
+      return { type: "charger", displayName: THIS.COMPONENT.ALIAS };
     }
 
-    if (this.config.isProducer(this.component) && this.component.isEnabled) {
-      return { type: "productionMeter", displayName: this.component.alias };
+    if (THIS.CONFIG.IS_PRODUCER(THIS.COMPONENT) && THIS.COMPONENT.IS_ENABLED) {
+      return { type: "productionMeter", displayName: THIS.COMPONENT.ALIAS };
     }
 
-    if (this.component.factoryId === "Core.Sum") {
-      return { type: "sum", displayName: this.translate.instant("General.TOTAL") };
+    if (THIS.COMPONENT.FACTORY_ID === "CORE.SUM") {
+      return { type: "sum", displayName: THIS.TRANSLATE.INSTANT("GENERAL.TOTAL") };
     }
 
     return null;

@@ -15,10 +15,10 @@ export abstract class DataService {
   protected timestamps: string[] = [];
 
   constructor(service: Service) {
-    service.getCurrentEdge().then((edge) => {
-      this.edge = edge;
-      edge.currentData.pipe(takeUntil(this.stopOnDestroy))
-        .subscribe(() => this.lastUpdated.set(new Date()));
+    SERVICE.GET_CURRENT_EDGE().then((edge) => {
+      THIS.EDGE = edge;
+      EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY))
+        .subscribe(() => THIS.LAST_UPDATED.SET(new Date()));
     });
   }
 

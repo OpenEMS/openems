@@ -2,16 +2,16 @@
     <ion-row>
         <ion-col>
             <ion-item lines="none">
-                <ion-label class="ion-item-label-min-content">{{props.label}}</ion-label>
-                <oe-help-popover-button *ngIf="props.helpMsg" [helpMsg]="props.helpMsg"></oe-help-popover-button>
+                <ion-label class="ion-item-label-min-content">{{PROPS.LABEL}}</ion-label>
+                <oe-help-popover-button *ngIf="PROPS.HELP_MSG" [helpMsg]="PROPS.HELP_MSG"></oe-help-popover-button>
             </ion-item>
         </ion-col>
         <ion-col>
             <ion-item lines="none">
-                <ion-checkbox slot="end" [checked]="value" [value]="props.value" [disabled]="props.disabled"
+                <ion-checkbox slot="end" [checked]="value" [value]="PROPS.VALUE" [disabled]="PROPS.DISABLED"
                     (ionChange)="updateFormControl($event)">
-                    <ng-container *ngIf="props.description">
-                        {{props.description}}
+                    <ng-container *ngIf="PROPS.DESCRIPTION">
+                        {{PROPS.DESCRIPTION}}
                     </ng-container>
                 </ion-checkbox>
             </ion-item>

@@ -28,7 +28,7 @@ export class UpdateAppConfigRequest extends JsonrpcRequest {
             properties: { [key: string]: any }
         },
     ) {
-        super(UpdateAppConfigRequest.METHOD, params);
+        super(UPDATE_APP_CONFIG_REQUEST.METHOD, params);
     }
 
 }

@@ -12,27 +12,27 @@ import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
 import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
-import { AppRoutingModule } from "./app-routing.module";
-import { AppComponent } from "./app.component";
+import { AppRoutingModule } from "./app-ROUTING.MODULE";
+import { AppComponent } from "./APP.COMPONENT";
 import { CheckForUpdateService } from "./appupdateservice";
-import { EdgeModule } from "./edge/edge.module";
-import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
-import { SystemLogComponent } from "./edge/settings/systemlog/systemlog.component";
-import { IndexModule } from "./index/index.module";
-import { RegistrationModule } from "./index/registration/registration.module";
-import { PlatFormService } from "./platform.service";
-import { NavigationComponent } from "./shared/components/navigation/navigation.component";
-import { NavigationService } from "./shared/components/navigation/service/navigation.service";
-import { StatusSingleComponent } from "./shared/components/status/single/status.component";
-import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
+import { EdgeModule } from "./edge/EDGE.MODULE";
+import { SettingsModule as EdgeSettingsModule } from "./edge/settings/SETTINGS.MODULE";
+import { SystemLogComponent } from "./edge/settings/systemlog/SYSTEMLOG.COMPONENT";
+import { IndexModule } from "./index/INDEX.MODULE";
+import { RegistrationModule } from "./index/registration/REGISTRATION.MODULE";
+import { PlatFormService } from "./PLATFORM.SERVICE";
+import { NavigationComponent } from "./shared/components/navigation/NAVIGATION.COMPONENT";
+import { NavigationService } from "./shared/components/navigation/service/NAVIGATION.SERVICE";
+import { StatusSingleComponent } from "./shared/components/status/single/STATUS.COMPONENT";
+import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/POPOVER.COMPONENT";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
-import { UserService } from "./shared/service/user.service";
-import { SharedModule } from "./shared/shared.module";
-import { registerTranslateExtension } from "./shared/translate.extension";
+import { UserService } from "./shared/service/USER.SERVICE";
+import { SharedModule } from "./shared/SHARED.MODULE";
+import { registerTranslateExtension } from "./shared/TRANSLATE.EXTENSION";
 import { Language, MyTranslateLoader } from "./shared/type/language";
-import { UserModule } from "./user/user.module";
+import { UserModule } from "./user/USER.MODULE";
 
 @NgModule({
   declarations: [
@@ -50,10 +50,10 @@ import { UserModule } from "./user/user.module";
     EdgeModule,
     EdgeSettingsModule,
     IndexModule,
-    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
+    IONIC_MODULE.FOR_ROOT({ innerHTMLTemplatesEnabled: true }),
     HttpClientModule,
     SharedModule,
-    TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
+    TRANSLATE_MODULE.FOR_ROOT({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
     UserModule,
     RegistrationModule,
   ],
@@ -61,7 +61,7 @@ import { UserModule } from "./user/user.module";
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     CookieService,
     { provide: ErrorHandler, useClass: MyErrorHandler },
-    { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
+    { provide: LOCALE_ID, useFactory: () => (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.GET_BY_BROWSER_LANG(NAVIGATOR.LANGUAGE) ?? LANGUAGE.DEFAULT).key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     DeviceDetectorService,

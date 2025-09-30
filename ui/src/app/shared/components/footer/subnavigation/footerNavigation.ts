@@ -11,7 +11,7 @@ export type NavigationOption = {
 
 @Component({
   selector: "oe-footer-subnavigation",
-  templateUrl: "footerNavigation.html",
+  templateUrl: "FOOTER_NAVIGATION.HTML",
   standalone: false,
 })
 export class FooterNavigationComponent implements AfterViewInit {
@@ -39,39 +39,39 @@ export class FooterNavigationComponent implements AfterViewInit {
 
   @Input() public set navigationOptions(nodes: NavigationOption[]) {
     this._buttons = nodes;
-    this.buttons = nodes;
+    THIS.BUTTONS = nodes;
   }
-  @HostListener("window:resize", ["$event.target.innerWidth"])
+  @HostListener("window:resize", ["$EVENT.TARGET.INNER_WIDTH"])
   private onResize(width: number) {
-    this.initializeFooterSubnavigation();
+    THIS.INITIALIZE_FOOTER_SUBNAVIGATION();
   }
 
   ngAfterViewInit() {
-    this.cdr.detectChanges();
-    this.initializeFooterSubnavigation();
+    THIS.CDR.DETECT_CHANGES();
+    THIS.INITIALIZE_FOOTER_SUBNAVIGATION();
   }
 
   protected togglePopover(popoverbtn: NavigationOption) {
-    popoverbtn.callback();
-    this.showPopover = false;
+    POPOVERBTN.CALLBACK();
+    THIS.SHOW_POPOVER = false;
   }
 
   /**
    * Initializes sub-navigation
    */
   private initializeFooterSubnavigation(): void {
-    this.buttons = this._buttons;
-    this.getSplitIndex()
+    THIS.BUTTONS = this._buttons;
+    THIS.GET_SPLIT_INDEX()
       .then((indexToSplit) => {
 
         if (indexToSplit == null) {
           return;
         }
 
-        const allowedButtons = this._buttons.filter(el => el.isEnabled == null ? true : el.isEnabled);
-        this.buttons = allowedButtons.slice(0, indexToSplit);
-        this.popoverButtons = allowedButtons.slice(indexToSplit);
-        this.areButtonsReadyToShow = true;
+        const allowedButtons = this._buttons.filter(el => EL.IS_ENABLED == null ? true : EL.IS_ENABLED);
+        THIS.BUTTONS = ALLOWED_BUTTONS.SLICE(0, indexToSplit);
+        THIS.POPOVER_BUTTONS = ALLOWED_BUTTONS.SLICE(indexToSplit);
+        THIS.ARE_BUTTONS_READY_TO_SHOW = true;
       });
   }
 
@@ -85,16 +85,16 @@ export class FooterNavigationComponent implements AfterViewInit {
       let indexToSplit: number = 0;
 
       const interval = setInterval(() => {
-        if (this.subnavigationbuttons && this.container) {
+        if (THIS.SUBNAVIGATIONBUTTONS && THIS.CONTAINER) {
 
           const colLeftPadding = 16;
           const paddingLeftRight = 24;
-          const ionItemWidth = this.container?.nativeElement.offsetWidth - colLeftPadding;
+          const ionItemWidth = THIS.CONTAINER?.NATIVE_ELEMENT.OFFSET_WIDTH - colLeftPadding;
           if (ionItemWidth) {
 
             let sum: number = colLeftPadding;
-            this.subnavigationbuttons.forEach((b, index, el) => {
-              sum += b.nativeElement.offsetWidth + paddingLeftRight;
+            THIS.SUBNAVIGATIONBUTTONS.FOR_EACH((b, index, el) => {
+              sum += B.NATIVE_ELEMENT.OFFSET_WIDTH + paddingLeftRight;
               if ((ionItemWidth) > sum) {
                 indexToSplit = index;
               }
@@ -109,7 +109,7 @@ export class FooterNavigationComponent implements AfterViewInit {
             resolve(indexToSplit);
           }
         }
-      }, FooterNavigationComponent.INTERVAL);
+      }, FOOTER_NAVIGATION_COMPONENT.INTERVAL);
     });
   }
 }

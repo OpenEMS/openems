@@ -1,26 +1,26 @@
 <ng-template #inside>
     <ion-segment [value]="selectedGroup?.group">
         <ng-container *ngFor="let optionGroup of optionGroups; let i = index">
-            <ion-segment-button (click)="selectedIndex = i" [value]="optionGroup.group">
+            <ion-segment-button (click)="selectedIndex = i" [value]="OPTION_GROUP.GROUP">
                 <ion-text translate style="white-space: initial">
-                    {{ optionGroup.title }}
+                    {{ OPTION_GROUP.TITLE }}
                 </ion-text>
             </ion-segment-button>
         </ng-container>
     </ion-segment>
     <div *ngFor="let optionGroup of optionGroups; let i = index">
         <div *ngIf="selectedIndex === i">
-            <ion-row *ngFor="let option of optionGroup.options">
+            <ion-row *ngFor="let option of OPTION_GROUP.OPTIONS">
                 <ion-col>
-                    <ion-item [disabled]="option.disabled">
+                    <ion-item [disabled]="OPTION.DISABLED">
                         <div *ngIf="multi; else noMulti">
                             <ion-checkbox labelPlacement="start" (ionChange)="valueChangeCheckbox(option);"
-                                [checked]="option.selected" class="ion-margin-end"></ion-checkbox>
+                                [checked]="OPTION.SELECTED" class="ion-margin-end"></ion-checkbox>
                         </div>
                         <ng-template #noMulti>
-                            <ion-radio slot="start" [value]="option.value"></ion-radio>
+                            <ion-radio slot="start" [value]="OPTION.VALUE"></ion-radio>
                         </ng-template>
-                        {{ option.title }}
+                        {{ OPTION.TITLE }}
                     </ion-item>
                 </ion-col>
             </ion-row>
@@ -28,13 +28,13 @@
     </div>
 </ng-template>
 
-<div *ngIf="optionGroups.length === 0; elseShowOptions">
+<div *ngIf="OPTION_GROUPS.LENGTH === 0; elseShowOptions">
     <!-- no options set -->
     <ion-grid>
         <ion-row class="ion-justify-content-center">
             <ion-col size="12" class="ion-text-center">
                 <ion-label>
-                    <h1> {{ to.missingOptionsText }} </h1>
+                    <h1> {{ TO.MISSING_OPTIONS_TEXT }} </h1>
                 </ion-label>
             </ion-col>
         </ion-row>

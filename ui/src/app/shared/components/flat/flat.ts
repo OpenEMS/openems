@@ -4,7 +4,7 @@ import { Icon, ImageIcon } from "src/app/shared/type/widget";
 
 @Component({
   selector: "oe-flat-widget",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatWidgetComponent {

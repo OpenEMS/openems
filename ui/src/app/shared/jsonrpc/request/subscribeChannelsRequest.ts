@@ -29,12 +29,12 @@ export class SubscribeChannelsRequest extends JsonrpcRequest {
     public constructor(
         private channels: ChannelAddress[],
     ) {
-        super(SubscribeChannelsRequest.METHOD, {
-            count: SubscribeChannelsRequest.lastCount++,
-            channels: JsonRpcUtils.channelsToStringArray(channels),
+        super(SUBSCRIBE_CHANNELS_REQUEST.METHOD, {
+            count: SUBSCRIBE_CHANNELS_REQUEST.LAST_COUNT++,
+            channels: JSON_RPC_UTILS.CHANNELS_TO_STRING_ARRAY(channels),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
-        delete this.channels;
+        delete THIS.CHANNELS;
     }
 
 }

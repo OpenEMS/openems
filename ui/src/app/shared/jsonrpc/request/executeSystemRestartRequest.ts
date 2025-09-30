@@ -23,7 +23,7 @@ export class ExecuteSystemRestartRequest extends JsonrpcRequest {
             type: Type,
         },
     ) {
-        super(ExecuteSystemRestartRequest.METHOD, params);
+        super(EXECUTE_SYSTEM_RESTART_REQUEST.METHOD, params);
     }
 
 }

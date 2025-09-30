@@ -60,7 +60,7 @@ export namespace GetApp {
         public constructor(
             public override readonly id: string,
             public override readonly result: {
-                app: GetApps.App
+                app: GET_APPS.APP
             },
         ) {
             super(id, result);

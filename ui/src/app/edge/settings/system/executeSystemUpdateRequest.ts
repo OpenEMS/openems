@@ -23,7 +23,7 @@ export class ExecuteSystemUpdateRequest extends JsonrpcRequest {
             isDebug: boolean
         },
     ) {
-        super(ExecuteSystemUpdateRequest.METHOD, params);
+        super(EXECUTE_SYSTEM_UPDATE_REQUEST.METHOD, params);
     }
 
 }

@@ -1,16 +1,16 @@
 import { DecimalPipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
-import { ClassnamePipe } from "./classname/classname.pipe";
+import { ClassnamePipe } from "./classname/CLASSNAME.PIPE";
 import { ConverterPipe } from "./converter/converter";
-import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSecondsToDuration.pipe";
-import { IsclassPipe } from "./isclass/isclass.pipe";
-import { KeysPipe } from "./keys/keys.pipe";
-import { SignPipe } from "./sign/sign.pipe";
-import { TimedisplayPipe } from "./timedisplay/timedisplay.pipe";
-import { TypeofPipe } from "./typeof/typeof.pipe";
-import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
-import { VersionPipe } from "./version/version.pipe";
+import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/FORMAT_SECONDS_TO_DURATION.PIPE";
+import { IsclassPipe } from "./isclass/ISCLASS.PIPE";
+import { KeysPipe } from "./keys/KEYS.PIPE";
+import { SignPipe } from "./sign/SIGN.PIPE";
+import { TimedisplayPipe } from "./timedisplay/TIMEDISPLAY.PIPE";
+import { TypeofPipe } from "./typeof/TYPEOF.PIPE";
+import { UnitvaluePipe } from "./unitvalue/UNITVALUE.PIPE";
+import { VersionPipe } from "./version/VERSION.PIPE";
 @NgModule({
     declarations: [
         UnitvaluePipe,

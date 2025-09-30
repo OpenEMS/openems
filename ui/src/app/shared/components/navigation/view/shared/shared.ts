@@ -1,30 +1,30 @@
 import { TSignalValue } from "src/app/shared/type/utility";
-import { NavigationComponent } from "../../navigation.component";
-import { NavigationService } from "../../service/navigation.service";
+import { NavigationComponent } from "../../NAVIGATION.COMPONENT";
+import { NavigationService } from "../../service/NAVIGATION.SERVICE";
 
 export namespace ViewUtils {
 
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
-        const headers = Array.from(document.querySelectorAll("ion-header"));
-        const footers = Array.from(document.querySelectorAll("ion-footer"));
+        const headers = ARRAY.FROM(DOCUMENT.QUERY_SELECTOR_ALL("ion-header"));
+        const footers = ARRAY.FROM(DOCUMENT.QUERY_SELECTOR_ALL("ion-footer"));
 
-        const headerHeight = headers.reduce((sum, el) => sum + el.clientHeight, 0);
-        const footerHeight = footers.reduce((sum, el) => sum + el.clientHeight, 0);
+        const headerHeight = HEADERS.REDUCE((sum, el) => sum + EL.CLIENT_HEIGHT, 0);
+        const footerHeight = FOOTERS.REDUCE((sum, el) => sum + EL.CLIENT_HEIGHT, 0);
 
         return { header: headerHeight, footer: footerHeight };
     }
 
     export function getViewHeight(position: TSignalValue<NavigationService["position"]> | null) {
-        const { header, footer } = ViewUtils.getTotalHeaderFooterHeight();
+        const { header, footer } = VIEW_UTILS.GET_TOTAL_HEADER_FOOTER_HEIGHT();
         if (position == null || position == "disabled") {
-            return window.innerHeight - header - footer;
+            return WINDOW.INNER_HEIGHT - header - footer;
         }
 
         if (position === "bottom") {
-            const actionSheetModal = window.innerHeight * NavigationComponent.breakPoint();
-            return window.innerHeight - header - footer - actionSheetModal;
+            const actionSheetModal = WINDOW.INNER_HEIGHT * NAVIGATION_COMPONENT.BREAK_POINT();
+            return WINDOW.INNER_HEIGHT - header - footer - actionSheetModal;
         }
 
-        return window.innerHeight - header - footer;
+        return WINDOW.INNER_HEIGHT - header - footer;
     }
 }

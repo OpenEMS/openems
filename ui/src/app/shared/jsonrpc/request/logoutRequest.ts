@@ -17,7 +17,7 @@ export class LogoutRequest extends JsonrpcRequest {
     private static METHOD: string = "logout";
 
     public constructor() {
-        super(LogoutRequest.METHOD, {});
+        super(LOGOUT_REQUEST.METHOD, {});
     }
 
 }

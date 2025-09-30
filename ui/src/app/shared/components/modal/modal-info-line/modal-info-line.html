@@ -7,8 +7,8 @@
     </ion-col>
     <ion-col [size]="!icon ? 12: 11">
         <ng-container *ngIf="(info | typeof) !== 'string'; else simpleLine">
-            <div *ngFor="let line of info" [style]="line.lineStyle">
-                {{ line.text }} <br *ngIf="info.length > 1">
+            <div *ngFor="let line of info" [style]="LINE.LINE_STYLE">
+                {{ LINE.TEXT }} <br *ngIf="INFO.LENGTH > 1">
             </div>
         </ng-container>
 

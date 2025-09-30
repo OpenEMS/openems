@@ -25,7 +25,7 @@ export class EdgeRpcRequest extends JsonrpcRequest {
             payload: JsonrpcRequest
         },
     ) {
-        super(EdgeRpcRequest.METHOD, params);
+        super(EDGE_RPC_REQUEST.METHOD, params);
     }
 
 }

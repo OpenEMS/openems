@@ -9,41 +9,41 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "evcsChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class EvcsChartDetailsComponent extends AbstractHistoryChart {
 
-    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService, edge: Edge | null): HistoryUtils.ChartData {
+    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService, edge: Edge | null): HISTORY_UTILS.CHART_DATA {
 
-        const component = config?.getComponent(route.snapshot.params.componentId);
+        const component = config?.getComponent(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
         return {
             input: [{
-                name: component.id,
-                powerChannel: ChannelAddress.fromString(component.id + "/" + EvcsUtils.getEvcsPowerChannelId(component, config, edge)),
-                energyChannel: ChannelAddress.fromString(component.id + "/ActiveConsumptionEnergy"),
+                name: COMPONENT.ID,
+                powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/" + EVCS_UTILS.GET_EVCS_POWER_CHANNEL_ID(component, config, edge)),
+                energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActiveConsumptionEnergy"),
             }],
-            output: (data: HistoryUtils.ChannelData) => [{
-                name: component.alias,
-                nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveConsumptionEnergy"],
-                converter: () => data[component.id],
-                color: ChartConstants.Colors.GREEN,
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => [{
+                name: COMPONENT.ALIAS,
+                nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_QUERY_RESPONSE.RESULT.DATA[COMPONENT.ID + "/ActiveConsumptionEnergy"],
+                converter: () => data[COMPONENT.ID],
+                color: CHART_CONSTANTS.COLORS.GREEN,
                 hiddenOnInit: false,
                 stack: 2,
             }],
             tooltip: {
                 formatNumber: "1.1-2",
-                afterTitle: translate.instant("General.TOTAL"),
+                afterTitle: TRANSLATE.INSTANT("GENERAL.TOTAL"),
             },
             yAxes: [{
-                unit: YAxisType.ENERGY,
+                unit: YAXIS_TYPE.ENERGY,
                 position: "left",
-                yAxisId: ChartAxis.LEFT,
+                yAxisId: CHART_AXIS.LEFT,
             }],
         };
     }
 
-    protected override getChartData(): HistoryUtils.ChartData {
-        return EvcsChartDetailsComponent.getChartData(this.config, this.route, this.translate, this.edge);
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+        return EVCS_CHART_DETAILS_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.ROUTE, THIS.TRANSLATE, THIS.EDGE);
     }
 }

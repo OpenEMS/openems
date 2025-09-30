@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { ChartDataset } from "chart.js";
+import { ChartDataset } from "CHART.JS";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 import { environment } from "src/environments";
@@ -16,14 +16,14 @@ export namespace ControllerEvseSingleShared {
         return (raw: string | null): string => {
             return Converter.IF_STRING(raw, value => {
                 switch (value) {
-                    case Mode.ZERO:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
-                    case Mode.MINIMUM:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
-                    case Mode.SURPLUS:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
-                    case Mode.FORCE:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
+                    case MODE.ZERO:
+                        return TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.ZERO");
+                    case MODE.MINIMUM:
+                        return TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                    case MODE.SURPLUS:
+                        return TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                    case MODE.FORCE:
+                        return TRANSLATE.INSTANT("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
                         return Converter.HIDE_VALUE(value);
                 }
@@ -33,12 +33,12 @@ export namespace ControllerEvseSingleShared {
 
     export function getImgUrlByFactoryId(factoryId: string): string | null {
         switch (factoryId) {
-            case "Evse.ChargePoint.Keba.UDP":
-                return environment.images.EVSE.KEBA_P30;
-            case "Evse.ChargePoint.Keba.Modbus":
-                return environment.images.EVSE.KEBA_P40;
-            case "Evse.ChargePoint.HardyBarth":
-                return environment.images.EVSE.HARDY_BARTH;
+            case "EVSE.CHARGE_POINT.KEBA.UDP":
+                return ENVIRONMENT.IMAGES.EVSE.KEBA_P30;
+            case "EVSE.CHARGE_POINT.KEBA.MODBUS":
+                return ENVIRONMENT.IMAGES.EVSE.KEBA_P40;
+            case "EVSE.CHARGE_POINT.HARDY_BARTH":
+                return ENVIRONMENT.IMAGES.EVSE.HARDY_BARTH;
             default:
                 return null;
         }
@@ -68,7 +68,7 @@ export namespace ControllerEvseSingleShared {
      * @returns The ScheduleChartData.
      */
     export function getScheduleChartData(size: number, prices: number[], modes: number[], timestamps: string[],
-        translate: TranslateService): ControllerEvseSingleShared.ScheduleChartData {
+        translate: TranslateService): CONTROLLER_EVSE_SINGLE_SHARED.SCHEDULE_CHART_DATA {
 
         const datasets: ChartDataset[] = [];
         const colors: any[] = [];
@@ -81,24 +81,24 @@ export namespace ControllerEvseSingleShared {
         const barForce = Array(size).fill(null);
 
         for (let index = 0; index < size; index++) {
-            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
+            const quarterlyPrice = TIME_OF_USE_TARIFF_UTILS.FORMAT_PRICE(prices[index]);
             const mode = modes[index];
-            labels.push(new Date(timestamps[index]));
+            LABELS.PUSH(new Date(timestamps[index]));
 
-            const modeStates = Object.keys(ControllerEvseSingleShared.Mode);
+            const modeStates = OBJECT.KEYS(CONTROLLER_EVSE_SINGLE_SHARED.MODE);
 
             if (mode !== null) {
                 switch (mode) {
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.ZERO):
+                    case MODE_STATES.INDEX_OF(CONTROLLER_EVSE_SINGLE_SHARED.MODE.ZERO):
                         barZero[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.MINIMUM):
+                    case MODE_STATES.INDEX_OF(CONTROLLER_EVSE_SINGLE_SHARED.MODE.MINIMUM):
                         barMinimum[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.SURPLUS):
+                    case MODE_STATES.INDEX_OF(CONTROLLER_EVSE_SINGLE_SHARED.MODE.SURPLUS):
                         barSurplus[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.FORCE):
+                    case MODE_STATES.INDEX_OF(CONTROLLER_EVSE_SINGLE_SHARED.MODE.FORCE):
                         barForce[index] = quarterlyPrice;
                         break;
                 }
@@ -106,51 +106,51 @@ export namespace ControllerEvseSingleShared {
         }
 
         // Set datasets
-        datasets.push({
+        DATASETS.PUSH({
             type: "bar",
             label: "No Charge",
             data: barZero,
             order: 1,
         });
-        colors.push({
+        COLORS.PUSH({
             backgroundColor: "rgba(0,0,0,0.8)",
             borderColor: "rgba(0,0,0,0.9)",
         });
 
-        datasets.push({
+        DATASETS.PUSH({
             type: "bar",
             label: "Minimum",
             data: barMinimum,
             order: 1,
         });
-        colors.push({
+        COLORS.PUSH({
             backgroundColor: "rgba(25, 19, 82, 0.8)",
             borderColor: "rgba(51,102,0,1)",
         });
 
-        datasets.push({
+        DATASETS.PUSH({
             type: "bar",
             label: "Surplus PV",
             data: barSurplus,
             order: 1,
         });
-        colors.push({
+        COLORS.PUSH({
             backgroundColor: "rgba(51,102,0,0.8)",
             borderColor: "rgba(51,102,0,1)",
         });
 
-        datasets.push({
+        DATASETS.PUSH({
             type: "bar",
             label: "Force Charge",
             data: barForce,
             order: 1,
         });
-        colors.push({
+        COLORS.PUSH({
             backgroundColor: "rgba(0, 204, 204,0.5)",
             borderColor: "rgba(0, 204, 204,0.7)",
         });
 
-        const scheduleChartData: ControllerEvseSingleShared.ScheduleChartData = {
+        const scheduleChartData: CONTROLLER_EVSE_SINGLE_SHARED.SCHEDULE_CHART_DATA = {
             colors: colors,
             datasets: datasets,
             labels: labels,

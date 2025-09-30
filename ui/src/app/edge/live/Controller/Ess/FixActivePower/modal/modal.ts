@@ -5,7 +5,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 
 @Component({
-  templateUrl: "./modal.html",
+  templateUrl: "./MODAL.HTML",
   standalone: false,
 })
 export class ModalComponent extends AbstractModal {
@@ -13,22 +13,22 @@ export class ModalComponent extends AbstractModal {
   public chargeDischargePower: { name: string, value: number };
 
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
-  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
+  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(THIS.TRANSLATE);
 
   protected override getChannelAddresses(): ChannelAddress[] {
     return [
-      new ChannelAddress(this.component.id, "_PropertyPower"),
+      new ChannelAddress(THIS.COMPONENT.ID, "_PropertyPower"),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/_PropertyPower"]);
+    THIS.CHARGE_DISCHARGE_POWER = UTILS.CONVERT_CHARGE_DISCHARGE_POWER(THIS.TRANSLATE, CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/_PropertyPower"]);
   }
 
   protected override getFormGroup(): FormGroup {
-    return this.formBuilder.group({
-      mode: new FormControl(this.component.properties.mode),
-      power: new FormControl(this.component.properties.power),
+    return THIS.FORM_BUILDER.GROUP({
+      mode: new FormControl(THIS.COMPONENT.PROPERTIES.MODE),
+      power: new FormControl(THIS.COMPONENT.PROPERTIES.POWER),
     });
   }
 }

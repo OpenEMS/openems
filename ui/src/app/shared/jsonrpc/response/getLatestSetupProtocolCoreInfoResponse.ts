@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Edge } from "../../shared";
-import { AssertionUtils } from "../../utils/assertions/assertions.utils";
+import { AssertionUtils } from "../../utils/assertions/ASSERTIONS.UTILS";
 import { JsonrpcResponseSuccess } from "../base";
 
 /**
@@ -38,7 +38,7 @@ export enum Type {
 
 export function getFileName(type: Type, createDate: Date, edge: Edge | null) {
 
-    AssertionUtils.assertIsDefined(edge);
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
     const prefix = () => {
         switch (type) {
@@ -51,5 +51,5 @@ export function getFileName(type: Type, createDate: Date, edge: Edge | null) {
         }
     };
 
-    return prefix() + `-${edge.id}-${format(createDate, "dd.MM.yyyy")}.pdf`;
+    return prefix() + `-${EDGE.ID}-${format(createDate, "DD.MM.YYYY")}.pdf`;
 }

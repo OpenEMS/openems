@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
-import { ChartDataset } from "chart.js";
+import { ChartDataset } from "CHART.JS";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
@@ -23,7 +23,7 @@ export class Utils {
    * @param array
    */
   public static isLastElement<T>(element: T, array: T[]): boolean {
-    return element == array[array.length - 1];
+    return element == array[ARRAY.LENGTH - 1];
   }
 
   /**
@@ -44,7 +44,7 @@ export class Utils {
       } else {
         copy = new Date();
       }
-      copy.setTime(obj.getTime());
+      COPY.SET_TIME(OBJ.GET_TIME());
       return copy;
     }
 
@@ -55,8 +55,8 @@ export class Utils {
       } else {
         copy = [];
       }
-      for (let i = 0, len = obj.length; i < len; i++) {
-        copy[i] = this.deepCopy(obj[i]);
+      for (let i = 0, len = OBJ.LENGTH; i < len; i++) {
+        copy[i] = THIS.DEEP_COPY(obj[i]);
       }
       return copy;
     }
@@ -69,8 +69,8 @@ export class Utils {
         copy = {};
       }
       for (const attr in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, attr)) {
-          copy[attr] = this.deepCopy(obj[attr], copy[attr]);
+        if (OBJECT.PROTOTYPE.HAS_OWN_PROPERTY.CALL(obj, attr)) {
+          copy[attr] = THIS.DEEP_COPY(obj[attr], copy[attr]);
         }
       }
       return copy;
@@ -88,7 +88,7 @@ export class Utils {
     if (value == null) {
       return value;
     } else {
-      return Math.abs(value);
+      return MATH.ABS(value);
     }
   }
 
@@ -177,18 +177,18 @@ export class Utils {
     const set1 = new Set(v1);
     const set2 = new Set(v2);
 
-    return v1.every(item => set2.has(item)) &&
-      v2.every(item => set1.has(item));
+    return V1.EVERY(item => SET2.HAS(item)) &&
+      V2.EVERY(item => SET1.HAS(item));
   }
 
   public static getRandomInteger(min: number, max: number) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
+    min = MATH.CEIL(min);
+    max = MATH.FLOOR(max);
+    return MATH.FLOOR(MATH.RANDOM() * (max - min)) + min;
   }
 
   /**
-   * Safely rounds a - possibly 'null' - value: Math.round(v)
+   * Safely rounds a - possibly 'null' - value: MATH.ROUND(v)
    *
    * @param v
    * @returns the rounded value, null if value is invalid
@@ -197,12 +197,12 @@ export class Utils {
     if (v == null) {
       return null;
     } else {
-      return Math.round(v);
+      return MATH.ROUND(v);
     }
   }
 
   /**
-   * Safely floors a - possibly 'null' - value: Math.floor(v)
+   * Safely floors a - possibly 'null' - value: MATH.FLOOR(v)
    *
    * @param v
    * @returns the floored value, null if value is invalid
@@ -211,7 +211,7 @@ export class Utils {
     if (v == null) {
       return null;
     } else {
-      return Math.floor(v);
+      return MATH.FLOOR(v);
     }
   }
 
@@ -241,7 +241,7 @@ export class Utils {
     for (const filter of filters) {
       let filterMatched = false;
       for (const base of bases) {
-        if (base.includes(filter)) {
+        if (BASE.INCLUDES(filter)) {
           filterMatched = true;
         }
       }
@@ -259,7 +259,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATT = (value: number | null): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     } else if (value >= 0) {
@@ -276,7 +276,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
     if (value == null) {
       return "-";
     }
@@ -316,7 +316,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_WATTHOURS = (value: number): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
     return formatNumber(value, locale, "1.0-1") + " Wh";
   };
 
@@ -327,8 +327,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-    return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
+    return formatNumber(UTILS.DIVIDE_SAFELY(value, 1000), locale, "1.0-1") + " kWh";
   };
 
   /**
@@ -338,8 +338,8 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS = (value: number): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-    return formatNumber(Utils.divideSafely(value, 10), locale, "1.0-1") + " °C";
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
+    return formatNumber(UTILS.DIVIDE_SAFELY(value, 10), locale, "1.0-1") + " °C";
   };
 
   /**
@@ -349,11 +349,11 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
-    return (value: DefaultTypes.ManualOnOff): string => {
+    return (value: DEFAULT_TYPES.MANUAL_ON_OFF): string => {
       if (value === "MANUAL_ON") {
-        return translate.instant("General.on");
+        return TRANSLATE.INSTANT("GENERAL.ON");
       } else if (value === "MANUAL_OFF") {
-        return translate.instant("General.off");
+        return TRANSLATE.INSTANT("GENERAL.OFF");
       } else {
         return "-";
       }
@@ -369,9 +369,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.DISCHARGE"), value: power };
+      return { name: TRANSLATE.INSTANT("GENERAL.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.CHARGE"), value: power * -1 };
+      return { name: TRANSLATE.INSTANT("GENERAL.CHARGE"), value: power * -1 };
     }
   }
 
@@ -385,11 +385,11 @@ export class Utils {
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === "MANUAL") {
-        return translate.instant("General.manually");
+        return TRANSLATE.INSTANT("GENERAL.MANUALLY");
       } else if (value === "OFF") {
-        return translate.instant("General.off");
+        return TRANSLATE.INSTANT("GENERAL.OFF");
       } else if (value === "AUTOMATIC") {
-        return translate.instant("General.automatic");
+        return TRANSLATE.INSTANT("GENERAL.AUTOMATIC");
       } else {
         return "-";
       }
@@ -404,9 +404,9 @@ export class Utils {
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
     return (value: number): string => {
       const date: Date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setMinutes(value);
-      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: "2-digit", minute: "2-digit" });
+      DATE.SET_HOURS(0, 0, 0, 0);
+      DATE.SET_MINUTES(value);
+      return DATE.TO_LOCALE_TIME_STRING(TRANSLATE.GET_BROWSER_CULTURE_LANG(), { hour: "2-digit", minute: "2-digit" });
     };
   };
 
@@ -418,7 +418,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
     return (value: number | null | undefined): string =>
       (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
   };
@@ -431,13 +431,13 @@ export class Utils {
    */
   public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
     return (value: any): string => {
-      switch (Math.round(value)) {
+      switch (MATH.ROUND(value)) {
         case 0:
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
         case 3:
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
         default: // Usually "1"
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
+          return TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
       }
     };
   };
@@ -472,16 +472,16 @@ export class Utils {
    */
   public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
     // decode base64 string, remove space for IE compatibility
-    // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
-    const binary = atob(response.result.payload.replace(/\s/g, ""));
-    const len = binary.length;
+    // source: https://STACKOVERFLOW.COM/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
+    const binary = atob(RESPONSE.RESULT.PAYLOAD.REPLACE(/\s/g, ""));
+    const len = BINARY.LENGTH;
     const buffer = new ArrayBuffer(len);
     const view = new Uint8Array(buffer);
     for (let i = 0; i < len; i++) {
-      view[i] = binary.charCodeAt(i);
+      view[i] = BINARY.CHAR_CODE_AT(i);
     }
     const data: Blob = new Blob([view], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      type: "application/VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET;charset=UTF-8",
     });
 
     saveAs(data, filename + ".xlsx");
@@ -490,7 +490,7 @@ export class Utils {
   /*
   * Calculate the Self-Consumption rate.
   *
-  * @param sellToGrid the Sell-To-Grid power (i.e. the inverted GridActivePower)
+  * @param sellToGrid the Sell-To-Grid power (I.E. the inverted GridActivePower)
   * @param productionActivePower  the Production Power
   * @returns  the Self-Consumption rate
   */
@@ -508,10 +508,10 @@ export class Utils {
     let result = (1 - (sellToGrid / productionActivePower)) * 100;
 
     // At least 0 %
-    result = Math.max(result, 0);
+    result = MATH.MAX(result, 0);
 
     // At most 100 %
-    result = Math.min(result, 100);
+    result = MATH.MIN(result, 100);
 
     return result;
   }
@@ -529,8 +529,8 @@ export class Utils {
         /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
         return 100;
       } else {
-        return /* min 0 */ Math.max(0,
-        /* max 100 */ Math.min(100,
+        return /* min 0 */ MATH.MAX(0,
+        /* max 100 */ MATH.MIN(100,
           /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
         ));
       }
@@ -556,7 +556,7 @@ export class Utils {
    * @returns the shuffled array
    */
   public static shuffleArray<T>(array: T[]): T[] {
-    return array.sort(() => Math.random() - 0.5);
+    return ARRAY.SORT(() => MATH.RANDOM() - 0.5);
   }
 
   /**
@@ -568,7 +568,7 @@ export class Utils {
    * @returns the value.
    */
   public static isArrayExistingInSource(arrayToCheck: string[], source: Record<string, any>): boolean {
-    return arrayToCheck.every(value => {
+    return ARRAY_TO_CHECK.EVERY(value => {
       if (value in source) {
         return true;
       }
@@ -576,7 +576,7 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result["data"])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
+    return OBJECT.VALUES(ARG.RESULT["data"])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
   /**
@@ -588,29 +588,29 @@ export class Utils {
  * @param consumptionMeterComponents the consumptionMeterComponents
  * @returns the other consumption
  */
-  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EDGE_CONFIG.COMPONENT[], heatComponents: EDGE_CONFIG.COMPONENT[], consumptionMeterComponents: EDGE_CONFIG.COMPONENT[]): number {
 
     let totalEvcsConsumption: number = 0;
     let totalHeatConsumption: number = 0;
     let totalMeteredConsumption: number = 0;
 
     [...heatComponents].forEach(component => {
-      totalHeatConsumption = this.addSafely(totalHeatConsumption, energyValues.result.data[component.id + "/ActiveProductionEnergy"]);
+      totalHeatConsumption = THIS.ADD_SAFELY(totalHeatConsumption, ENERGY_VALUES.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"]);
     });
 
     [...evcsComponents].forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + "/ActiveConsumptionEnergy"]);
+      totalEvcsConsumption = THIS.ADD_SAFELY(totalEvcsConsumption, ENERGY_VALUES.RESULT.DATA[COMPONENT.ID + "/ActiveConsumptionEnergy"]);
     });
 
-    consumptionMeterComponents.forEach(meter => {
-      totalMeteredConsumption = this.addSafely(totalMeteredConsumption, energyValues.result.data[meter.id + "/ActiveProductionEnergy"]);
+    CONSUMPTION_METER_COMPONENTS.FOR_EACH(meter => {
+      totalMeteredConsumption = THIS.ADD_SAFELY(totalMeteredConsumption, ENERGY_VALUES.RESULT.DATA[METER.ID + "/ActiveProductionEnergy"]);
     });
 
-    return Utils.roundSlightlyNegativeValues(
-      Utils.subtractSafely(
-        Utils.subtractSafely(
-          Utils.subtractSafely(
-            energyValues.result.data["_sum/ConsumptionActiveEnergy"], totalEvcsConsumption),
+    return UTILS.ROUND_SLIGHTLY_NEGATIVE_VALUES(
+      UTILS.SUBTRACT_SAFELY(
+        UTILS.SUBTRACT_SAFELY(
+          UTILS.SUBTRACT_SAFELY(
+            ENERGY_VALUES.RESULT.DATA["_sum/ConsumptionActiveEnergy"], totalEvcsConsumption),
           totalMeteredConsumption), totalHeatConsumption));
   }
 
@@ -624,27 +624,27 @@ export class Utils {
    * @param consumptionMeterComponents the consumptionMeterComponents
    * @returns the other consumption
    */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+  public static calculateOtherConsumption(channelData: HISTORY_UTILS.CHANNEL_DATA, evcsComponents: EDGE_CONFIG.COMPONENT[], heatComponents: EDGE_CONFIG.COMPONENT[], consumptionMeterComponents: EDGE_CONFIG.COMPONENT[]): number[] {
 
     const totalEvcsConsumption: number[] = [];
     const totalHeatConsumption: number[] = [];
     const totalMeteredConsumption: number[] = [];
 
-    evcsComponents.forEach(component => {
-      channelData[component.id + "/ChargePower"]?.forEach((value, index) => {
-        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
+    EVCS_COMPONENTS.FOR_EACH(component => {
+      channelData[COMPONENT.ID + "/ChargePower"]?.forEach((value, index) => {
+        totalMeteredConsumption[index] = UTILS.ADD_SAFELY(totalMeteredConsumption[index], value);
       });
     });
 
-    heatComponents.forEach(component => {
-      channelData[component.id + "/ActivePower"]?.forEach((value, index) => {
-        totalHeatConsumption[index] = Utils.addSafely(totalHeatConsumption[index], value);
+    HEAT_COMPONENTS.FOR_EACH(component => {
+      channelData[COMPONENT.ID + "/ActivePower"]?.forEach((value, index) => {
+        totalHeatConsumption[index] = UTILS.ADD_SAFELY(totalHeatConsumption[index], value);
       });
     });
 
-    consumptionMeterComponents.forEach(meter => {
-      channelData[meter.id + "/ActivePower"]?.forEach((value, index) => {
-        totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
+    CONSUMPTION_METER_COMPONENTS.FOR_EACH(meter => {
+      channelData[METER.ID + "/ActivePower"]?.forEach((value, index) => {
+        totalMeteredConsumption[index] = UTILS.ADD_SAFELY(totalMeteredConsumption[index], value);
       });
     });
 
@@ -653,10 +653,10 @@ export class Utils {
       if (value == null) {
         return null;
       }
-      return Utils.roundSlightlyNegativeValues(
-        Utils.subtractSafely(
-          Utils.subtractSafely(
-            Utils.subtractSafely(
+      return UTILS.ROUND_SLIGHTLY_NEGATIVE_VALUES(
+        UTILS.SUBTRACT_SAFELY(
+          UTILS.SUBTRACT_SAFELY(
+            UTILS.SUBTRACT_SAFELY(
               value, totalEvcsConsumption[index]),
             totalMeteredConsumption[index]),
           totalHeatConsumption[index]));
@@ -700,7 +700,7 @@ export namespace HistoryUtils {
  */
   export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
-      label: translate.instant("Edge.History.noData"),
+      label: TRANSLATE.INSTANT("EDGE.HISTORY.NO_DATA"),
       data: [],
       hidden: false,
     }];
@@ -745,7 +745,7 @@ export namespace HistoryUtils {
     borderDash?: [number, number],
     /** Hides shadow of chart lines, default false */
     hideShadow?: boolean,
-    /** axisId from yAxes, default {@link ChartAxis.LEFT} */
+    /** axisId from yAxes, default {@link CHART_AXIS.LEFT} */
     yAxisId?: ChartAxis,
     /** overrides global chartConfig for this dataset */
     custom?: T,
@@ -806,7 +806,7 @@ export namespace HistoryUtils {
     /** Input Channels that need to be queried from the database */
     input: InputChannel[],
     /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData, labels?: (string | Date)[]) => DisplayValue<HistoryUtils.CustomOptions>[],
+    output: (data: ChannelData, labels?: (string | Date)[]) => DisplayValue<HISTORY_UTILS.CUSTOM_OPTIONS>[],
     tooltip: {
       /** Format of Number displayed */
       formatNumber: string,
@@ -824,9 +824,9 @@ export namespace HistoryUtils {
     unit: YAxisType,
     position: "left" | "right" | "bottom" | "top",
     yAxisId: ChartAxis,
-    /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
+    /** YAxis title -> {@link https://WWW.CHARTJS.ORG/docs/latest/samples/scale-options/TITLES.HTML Chartjs Title} */
     customTitle?: string
-    /** Default: true _> {@link https://www.chartjs.org/docs/latest/axes/styling.html#grid-line-configuration Chartjs Grid Display} */
+    /** Default: true _> {@link https://WWW.CHARTJS.ORG/docs/latest/axes/STYLING.HTML#grid-line-configuration Chartjs Grid Display} */
     displayGrid?: boolean,
     scale?: {
       /** Default: false, if true scale starts at minimum value of all datasets assigned to this yaxis */
@@ -840,7 +840,7 @@ export namespace HistoryUtils {
       if (value == null) {
         return null;
       }
-      return Math.max(0, value);
+      return MATH.MAX(0, value);
     };
 
     export const NON_NEGATIVE = (value) => {
@@ -863,12 +863,12 @@ export namespace HistoryUtils {
       if (value == null) {
         return null;
       } else {
-        return Math.abs(Math.min(0, value));
+        return MATH.ABS(MATH.MIN(0, value));
       }
     };
     export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
       if (value < 0) {
-        return Math.abs(value);
+        return MATH.ABS(value);
       } else {
         return 0;
       }
@@ -891,13 +891,13 @@ export namespace TimeOfUseTariffUtils {
    * @returns  the converted price
    */
   export function formatPrice(price: number): number {
-    if (price === null || Number.isNaN(price)) {
+    if (price === null || NUMBER.IS_NA_N(price)) {
       return null;
     } else if (price === 0) {
       return 0;
     } else {
       price = (price / 10.0);
-      return Math.round(price * 10000) / 10000.0;
+      return MATH.ROUND(price * 10000) / 10000.0;
     }
   }
 
@@ -910,18 +910,18 @@ export namespace TimeOfUseTariffUtils {
    * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
    * @returns The formatted label, or exits if the value is not valid.
    */
-  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: Currency.Label): string {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+  export function getLabel(value: number, label: string, translate: TranslateService, currencyLabel?: CURRENCY.LABEL): string {
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
     // Error handling: Return undefined if value is not valid
-    if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
+    if (value === undefined || value === null || NUMBER.IS_NA_N(NUMBER.PARSE_INT(VALUE.TO_STRING()))) {
       return;
     }
 
-    const socLabel = translate.instant("General.soc");
-    const dischargeLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
-    const chargeConsumptionLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
-    const balancingLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
-    const gridBuyLabel = translate.instant("General.gridBuy");
+    const socLabel = TRANSLATE.INSTANT("GENERAL.SOC");
+    const dischargeLabel = TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+    const chargeConsumptionLabel = TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+    const balancingLabel = TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
+    const gridBuyLabel = TRANSLATE.INSTANT("GENERAL.GRID_BUY");
 
     // Switch case to handle different labels
     switch (label) {
@@ -948,6 +948,6 @@ export namespace TimeOfUseTariffUtils {
    * @returns The height of the chart.
    */
   export function getChartHeight(isSmartphoneResolution: boolean): number {
-    return isSmartphoneResolution ? window.innerHeight / 3 : window.innerHeight / 4;
+    return isSmartphoneResolution ? WINDOW.INNER_HEIGHT / 3 : WINDOW.INNER_HEIGHT / 4;
   }
 }

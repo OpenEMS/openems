@@ -8,7 +8,7 @@ import { Service, Websocket } from "../../shared/shared";
 
 @Component({
   selector: "index",
-  templateUrl: "./loading-screen.html",
+  templateUrl: "./loading-SCREEN.HTML",
   standalone: false,
 })
 export class LoadingScreenComponent {
@@ -25,16 +25,16 @@ export class LoadingScreenComponent {
   ) {
 
     effect(() => {
-      this.backendState = this.appStateTracker.loadingState();
-      switch (this.backendState) {
+      THIS.BACKEND_STATE = THIS.APP_STATE_TRACKER.LOADING_STATE();
+      switch (THIS.BACKEND_STATE) {
         case "loading":
-          this.service.startSpinner(this.spinnerId);
+          THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
           break;
         case "failed":
-          this.service.stopSpinner(this.spinnerId);
+          THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
           break;
         case "authenticated":
-          this.appStateTracker.navigateAfterAuthentication();
+          THIS.APP_STATE_TRACKER.NAVIGATE_AFTER_AUTHENTICATION();
           break;
       }
     });

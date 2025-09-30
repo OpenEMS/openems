@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
@@ -11,34 +11,34 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 
 @Component({
   selector: "sumChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class SumChartDetailsComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
 
-    const component = config.getComponent(route.snapshot.params.componentId);
-    const hasCharger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0;
-    const hasAsymmetricMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0;
+    const component = CONFIG.GET_COMPONENT(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
+    const hasCharger = CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.ESS.DCCHARGER.API.ESS_DC_CHARGER").length > 0;
+    const hasAsymmetricMeters = CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.METER.API.ASYMMETRIC_METER").length > 0;
 
-    const input: HistoryUtils.InputChannel[] = [
+    const input: HISTORY_UTILS.INPUT_CHANNEL[] = [
       {
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ProductionActivePower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ProductionActiveEnergy"),
+        name: COMPONENT.ID,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ProductionActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ProductionActiveEnergy"),
       },
     ];
-    let converter: ((data: HistoryUtils.ChannelData, phase: string) => any) | null = null;
+    let converter: ((data: HISTORY_UTILS.CHANNEL_DATA, phase: string) => any) | null = null;
 
     if (hasCharger) {
-      input.push({
-        name: component.id + "ActualPower",
-        powerChannel: ChannelAddress.fromString("_sum/ProductionDcActualPower"),
+      INPUT.PUSH({
+        name: COMPONENT.ID + "ActualPower",
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ProductionDcActualPower"),
       });
 
-      converter = (data: HistoryUtils.ChannelData, phase: string) => data[component.id + "ActualPower"]?.reduce((arr, el, index) => {
-        arr.push(Utils.addSafely(Utils.divideSafely(el, 3), data["ProductionAcActivePower" + phase][index]));
+      converter = (data: HISTORY_UTILS.CHANNEL_DATA, phase: string) => data[COMPONENT.ID + "ActualPower"]?.reduce((arr, el, index) => {
+        ARR.PUSH(UTILS.ADD_SAFELY(UTILS.DIVIDE_SAFELY(el, 3), data["ProductionAcActivePower" + phase][index]));
         return arr;
       }, []);
     }
@@ -48,28 +48,28 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
     }
 
     if (hasAsymmetricMeters || hasCharger) {
-      input.push(...Phase.THREE_PHASE.map(phase => ({
+      INPUT.PUSH(...Phase.THREE_PHASE.map(phase => ({
         name: "ProductionAcActivePower" + phase,
-        powerChannel: ChannelAddress.fromString(component.id + "/ProductionAcActivePower" + phase),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ProductionAcActivePower" + phase),
       })));
     }
 
-    const phaseOutput: (data: HistoryUtils.ChannelData) => HistoryUtils.DisplayValue[] =
+    const phaseOutput: (data: HISTORY_UTILS.CHANNEL_DATA) => HISTORY_UTILS.DISPLAY_VALUE[] =
       converter ? (data) => Phase.THREE_PHASE.map((phase, i) => ({
         name: "Phase " + phase,
         converter: () => converter(data, phase),
-        color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+        color: "rgb(" + ABSTRACT_HISTORY_CHART.PHASE_COLORS[i] + ")",
         stack: 3,
       })) : () => [];
 
-    const chartObject: HistoryUtils.ChartData = {
+    const chartObject: HISTORY_UTILS.CHART_DATA = {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => [
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => [
         {
-          name: translate.instant("General.TOTAL"),
-          nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data["_sum/ProductionActiveEnergy"],
-          converter: () => data[component.id],
-          color: ChartConstants.Colors.BLUE,
+          name: TRANSLATE.INSTANT("GENERAL.TOTAL"),
+          nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_QUERY_RESPONSE.RESULT.DATA["_sum/ProductionActiveEnergy"],
+          converter: () => data[COMPONENT.ID],
+          color: CHART_CONSTANTS.COLORS.BLUE,
           hiddenOnInit: false,
           stack: 2,
         },
@@ -77,19 +77,19 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
 
     return chartObject;
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return SumChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    return SUM_CHART_DETAILS_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.ROUTE, THIS.TRANSLATE);
   }
 }

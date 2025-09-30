@@ -7,7 +7,7 @@ export namespace StringUtils {
     }
 
     export function validateStrings(...arr: (string | null)[]): boolean {
-        return arr.every(el => el != null && isValidString(el));
+        return ARR.EVERY(el => el != null && isValidString(el));
     }
 
     /**
@@ -18,7 +18,7 @@ export namespace StringUtils {
      * @returns true if passed value is not contained by the array
      */
     export function isNotIn(val: string, arr: string[]): boolean {
-        return arr.some(el => val != el);
+        return ARR.SOME(el => val != el);
     }
 
     /**
@@ -35,19 +35,19 @@ export namespace StringUtils {
             throw new Error(INVALID_STRING);
         }
 
-        const startIndex = val.indexOf(start) + 1;
-        const endIndex = val.indexOf(end);
+        const startIndex = VAL.INDEX_OF(start) + 1;
+        const endIndex = VAL.INDEX_OF(end);
 
         if (startIndex === -1 || !startIndex || endIndex === -1 || !endIndex) {
             return null;
         }
 
-        return val.substring(startIndex, endIndex);
+        return VAL.SUBSTRING(startIndex, endIndex);
     }
 
     export function splitBy(value: string | null, key: string): null | string[] {
         if (isValidString(value)) {
-            return value.split("/");
+            return VALUE.SPLIT("/");
         }
 
         return null;

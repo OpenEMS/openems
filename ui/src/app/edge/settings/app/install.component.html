@@ -12,8 +12,8 @@
             <ion-card-content>
               <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
               <ion-item>
-                <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
-                  Edge.Config.App.createApp
+                <ion-button type="submit" color="primary" [disabled]="!(FORM.VALID) || isInstalling" translate>
+                  EDGE.CONFIG.APP.CREATE_APP
                 </ion-button>
                 <div *ngIf="isInstalling" style="min-height: 100px;">
                 </div>

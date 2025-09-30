@@ -10,7 +10,7 @@ import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
 @Component({
     selector: "oe-controller-evse-forecast",
-    templateUrl: "./forecast.html",
+    templateUrl: "./FORECAST.HTML",
     standalone: false,
     styles: [
         `
@@ -42,8 +42,8 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
+            THIS.ROUTE.PARAMS.PIPE(filter(params => params != null), take(1)).subscribe((params) => {
+                THIS.COMPONENT = CONFIG.GET_COMPONENT(PARAMS.COMPONENT_ID);
                 res();
             });
         });

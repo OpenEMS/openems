@@ -1,5 +1,5 @@
 <oe-chart [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" *ngIf="isInitialized"
-  [period]="service.historyPeriod" [title]="component.alias">
+  [period]="SERVICE.HISTORY_PERIOD" [title]="COMPONENT.ALIAS">
   <oe-controller-peakshaving-symmetric-chart [isOnlyChart]="true"
     [component]="component"></oe-controller-peakshaving-symmetric-chart>
 </oe-chart>

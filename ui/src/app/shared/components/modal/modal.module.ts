@@ -6,7 +6,7 @@ import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
-import { PipeComponentsModule } from "../../pipe/pipe.module";
+import { PipeComponentsModule } from "../../pipe/PIPE.MODULE";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { HelpButtonComponent } from "./help-button/help-button";
 import { HelpLinkComponent } from "./help-link/help-link";

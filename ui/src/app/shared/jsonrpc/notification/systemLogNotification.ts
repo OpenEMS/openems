@@ -28,7 +28,7 @@ export class SystemLogNotification extends JsonrpcNotification {
             line: SystemLog
         },
     ) {
-        super(SystemLogNotification.METHOD, params);
+        super(SYSTEM_LOG_NOTIFICATION.METHOD, params);
     }
 
 }

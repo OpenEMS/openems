@@ -21,7 +21,7 @@ export class CurrentDataNotification extends JsonrpcNotification {
     public constructor(
         public override readonly params: { [channelAddress: string]: string | number },
     ) {
-        super(CurrentDataNotification.METHOD, params);
+        super(CURRENT_DATA_NOTIFICATION.METHOD, params);
     }
 
 }

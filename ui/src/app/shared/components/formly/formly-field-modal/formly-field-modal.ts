@@ -4,7 +4,7 @@ import { Service } from "src/app/shared/shared";
 
 @Component({
     selector: "formly-field-modal",
-    templateUrl: "./formly-field-modal.html",
+    templateUrl: "./formly-field-MODAL.HTML",
     standalone: false,
 })
 export class FormlyFieldModalComponent extends FieldWrapper {
@@ -16,6 +16,6 @@ export class FormlyFieldModalComponent extends FieldWrapper {
     }
 
     protected onSubmit(): void {
-        this.field!.props!.onSubmit(this.form);
+        THIS.FIELD!.props!.onSubmit(THIS.FORM);
     }
 }

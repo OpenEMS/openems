@@ -9,7 +9,7 @@ export const theme = {
     edgeLongName: "Open Energy Management System",
     defaultLanguage: "de",
 
-    docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
+    docsUrlPrefix: "https://GITHUB.COM/OpenEMS/openems/blob/develop/",
     PRODUCT_TYPES: () => null,
     ...OemMeta,
 };

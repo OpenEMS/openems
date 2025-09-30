@@ -1,5 +1,5 @@
-import { TimeUnit } from "chart.js";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { TimeUnit } from "CHART.JS";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 
 export namespace History {
 
-  export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks: { stepSize: number; }; }; }): OeChartTester.Dataset.Option => ({
+  export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; }, ticks: { stepSize: number; }; }; }): OE_CHART_TESTER.DATASET.OPTION => ({
     type: "option",
     options: {
       "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": {}, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "index", "callbacks": {} } }, "scales": {
@@ -25,7 +25,7 @@ export namespace History {
       },
     },
   });
-  export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks: { stepSize?: number; }; }; }): OeChartTester.Dataset.Option => ({
+  export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks: { stepSize?: number; }; }; }): OE_CHART_TESTER.DATASET.OPTION => ({
     type: "option",
     options: {
       "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": { "colors": { "enabled": false }, "legend": { "display": true, "position": "bottom", "labels": { "color": "" } }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {} } }, "scales": {
@@ -46,9 +46,9 @@ export namespace History {
   /**
    * up to 288 datapoints (5 min aggregated values) from a
    *
-   * {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
+   * {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}
    * */
-  export const DAY: OeTester.Types.Channels = ({
+  export const DAY: OE_TESTER.TYPES.CHANNELS = ({
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {},
     }),
@@ -637,9 +637,9 @@ export namespace History {
   });
 
   /**
-   * up to 164 datapoints(1 hour values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}
+   * up to 164 datapoints(1 hour values) from a {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}
    * */
-  export const WEEK: OeTester.Types.Channels = ({
+  export const WEEK: OE_TESTER.TYPES.CHANNELS = ({
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {},
     }),
@@ -717,8 +717,8 @@ export namespace History {
 
 
   /**
-  * up to 31 datapoints(1 day values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const MONTH: OeTester.Types.Channels = {
+  * up to 31 datapoints(1 day values) from a {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}*/
+  export const MONTH: OE_TESTER.TYPES.CHANNELS = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         "_sum/GridBuyActiveEnergy": 773000,
@@ -959,8 +959,8 @@ export namespace History {
   };
 
   /**
-  * up to 12 datapoints(1 month values) from a {@link Day.energyPerPeriodChannelWithValues} and {@link Day.dataChannelWithValues}*/
-  export const YEAR: OeTester.Types.Channels = {
+  * up to 12 datapoints(1 month values) from a {@link DAY.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES} and {@link DAY.DATA_CHANNEL_WITH_VALUES}*/
+  export const YEAR: OE_TESTER.TYPES.CHANNELS = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {
         "_sum/GridBuyActiveEnergy": 23209000,

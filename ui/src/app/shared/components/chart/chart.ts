@@ -4,14 +4,14 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
-import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/popover.component";
-import { UserService } from "../../service/user.service";
+import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/POPOVER.COMPONENT";
+import { UserService } from "../../service/USER.SERVICE";
 import { Edge, Service } from "../../shared";
 import { DefaultTypes } from "../../type/defaulttypes";
 
 @Component({
   selector: "oe-chart",
-  templateUrl: "./chart.html",
+  templateUrl: "./CHART.HTML",
   standalone: false,
 })
 export class ChartComponent implements OnInit, OnChanges {
@@ -23,7 +23,7 @@ export class ChartComponent implements OnInit, OnChanges {
   @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
   @Input() public isPopoverNeeded: boolean = false;
   // Manually trigger ChangeDetection through Inputchange
-  @Input() private period?: DefaultTypes.PeriodString;
+  @Input() private period?: DEFAULT_TYPES.PERIOD_STRING;
 
   public edge: Edge | null = null;
 
@@ -41,49 +41,49 @@ export class ChartComponent implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.EDGE = edge;
     });
 
-    const _user = this.userService.currentUser();
-    const isNewNavigation = this.userService.isNewNavigation();
-    this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+    const _user = THIS.USER_SERVICE.CURRENT_USER();
+    const isNewNavigation = THIS.USER_SERVICE.IS_NEW_NAVIGATION();
+    THIS.NEW_NAVIGATION_URL_SEGMENT = isNewNavigation ? "/live" : "";
   }
 
   /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
   ngOnChanges() {
-    this.ref.detectChanges();
-    this.checkIfPopoverNeeded();
+    THIS.REF.DETECT_CHANGES();
+    THIS.CHECK_IF_POPOVER_NEEDED();
   }
 
   async presentPopover(ev: any) {
-    const popover = await this.popoverCtrl.create({
+    const popover = await THIS.POPOVER_CTRL.CREATE({
       component: ChartOptionsPopoverComponent,
       event: ev,
       componentProps: {
-        showPhases: this.showPhases,
-        showTotal: this.showTotal,
+        showPhases: THIS.SHOW_PHASES,
+        showTotal: THIS.SHOW_TOTAL,
       },
     });
 
-    await popover.present();
-    popover.onDidDismiss().then((data) => {
-      this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
-      this.showTotal = data.role == "Total" ? data.data : this.showTotal;
-      this.setShowPhases.emit(this.showPhases);
-      this.setShowTotal.emit(this.showTotal);
+    await POPOVER.PRESENT();
+    POPOVER.ON_DID_DISMISS().then((data) => {
+      THIS.SHOW_PHASES = DATA.ROLE == "Phases" ? DATA.DATA : THIS.SHOW_PHASES;
+      THIS.SHOW_TOTAL = DATA.ROLE == "Total" ? DATA.DATA : THIS.SHOW_TOTAL;
+      THIS.SET_SHOW_PHASES.EMIT(THIS.SHOW_PHASES);
+      THIS.SET_SHOW_TOTAL.EMIT(THIS.SHOW_TOTAL);
     });
-    await popover.present();
+    await POPOVER.PRESENT();
   }
 
   private checkIfPopoverNeeded() {
-    if (this.isPopoverNeeded) {
-      if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
-        this.showPopover = false;
-        this.setShowPhases.emit(false);
-        this.setShowTotal.emit(true);
+    if (THIS.IS_POPOVER_NEEDED) {
+      if (THIS.SERVICE.PERIOD_STRING == DEFAULT_TYPES.PERIOD_STRING.MONTH || (THIS.SERVICE.PERIOD_STRING == DEFAULT_TYPES.PERIOD_STRING.YEAR)) {
+        THIS.SHOW_POPOVER = false;
+        THIS.SET_SHOW_PHASES.EMIT(false);
+        THIS.SET_SHOW_TOTAL.EMIT(true);
       } else {
-        this.showPopover = true;
+        THIS.SHOW_POPOVER = true;
       }
     }
   }

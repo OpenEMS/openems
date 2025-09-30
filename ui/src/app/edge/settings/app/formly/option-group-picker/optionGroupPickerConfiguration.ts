@@ -41,5 +41,5 @@ export function getTitleFromOptionConfig(option: OptionConfig, field: FormlyFiel
     if (!option) {
         return null;
     }
-    return option.expressions?.title?.(field) ?? option.title ?? option.value;
+    return OPTION.EXPRESSIONS?.title?.(field) ?? OPTION.TITLE ?? OPTION.VALUE;
 }

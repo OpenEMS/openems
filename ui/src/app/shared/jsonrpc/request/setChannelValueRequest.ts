@@ -27,7 +27,7 @@ export class SetChannelValueRequest extends JsonrpcRequest {
             value: any
         },
     ) {
-        super(SetChannelValueRequest.METHOD, params);
+        super(SET_CHANNEL_VALUE_REQUEST.METHOD, params);
     }
 
 }

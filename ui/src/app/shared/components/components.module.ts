@@ -6,8 +6,8 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 
 import { DomChangeDirective } from "../directive/oe-dom-change";
-import { PipeModule } from "../pipe/pipe.module";
-import { ChartModule } from "./chart/chart.module";
+import { PipeModule } from "../pipe/PIPE.MODULE";
+import { ChartModule } from "./chart/CHART.MODULE";
 import { FlatWidgetComponent } from "./flat/flat";
 import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal-line/flat-widget-horizontal-line";
 import { FlatWidgetLineComponent } from "./flat/flat-widget-line/flat-widget-line";
@@ -15,13 +15,13 @@ import { FlatWidgetLineItemComponent } from "./flat/flat-widget-line/flat-widget
 import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/flat-widget-line-divider";
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
 import { FooterComponent } from "./footer/footer";
-import { FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
-import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
-import { ModalModule } from "./modal/modal.module";
+import { FooterNavigationModule } from "./footer/subnavigation/FOOTER_NAVIGATION.MODULE";
+import { HistoryDataErrorModule } from "./history-data-error/history-data-ERROR.MODULE";
+import { ModalModule } from "./modal/MODAL.MODULE";
 import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
 import { NavigationChipsComponent } from "./navigation/chips/chips";
 import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
-import { PickdateModule } from "./pickdate/pickdate.module";
+import { PickdateModule } from "./pickdate/PICKDATE.MODULE";
 import { NotificationComponent } from "./shared/notification/notification";
 
 @NgModule({

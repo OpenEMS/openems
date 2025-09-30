@@ -20,19 +20,19 @@ export class Pagination {
 
   public getAndSubscribeEdge(edge: Edge): Promise<void> {
     return new Promise<void>((resolve) => {
-      this.service.updateCurrentEdge(edge.id).then((edge) => {
+      THIS.SERVICE.UPDATE_CURRENT_EDGE(EDGE.ID).then((edge) => {
 
-        this.edge = edge;
-        this.subscribeEdge(edge);
+        THIS.EDGE = edge;
+        THIS.SUBSCRIBE_EDGE(edge);
       }).then(() => {
-        this.service.websocket.state.set(States.EDGE_SELECTED);
-        this.edge.subscribeChannels(this.service.websocket, "", [
+        THIS.SERVICE.WEBSOCKET.STATE.SET(States.EDGE_SELECTED);
+        THIS.EDGE.SUBSCRIBE_CHANNELS(THIS.SERVICE.WEBSOCKET, "", [
           new ChannelAddress("_sum", "State"),
         ]);
       })
         .finally(resolve)
         .catch(() => {
-          this.router.navigate(["index"]);
+          THIS.ROUTER.NAVIGATE(["index"]);
         });
     });
   }
@@ -43,7 +43,7 @@ export class Pagination {
       return;
     }
 
-    const [err, _result] = await JsonRpcUtils.handle(this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] })));
+    const [err, _result] = await JSON_RPC_UTILS.HANDLE(THIS.SERVICE.WEBSOCKET.SEND_REQUEST(new SubscribeEdgesRequest({ edges: [EDGE.ID] })));
 
     if (err) {
       throw err;

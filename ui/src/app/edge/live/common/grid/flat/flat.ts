@@ -4,12 +4,12 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, GridMode, Utils } from "src/app/shared/shared";
 import { Icon } from "src/app/shared/type/widget";
-import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
+import { GridSectionComponent } from "../../../energymonitor/chart/section/GRID.COMPONENT";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "grid",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -30,13 +30,13 @@ export class FlatComponent extends AbstractFlatWidget {
   protected isActivated: boolean = false;
 
   async presentModal() {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: ModalComponent,
       componentProps: {
-        edge: this.edge,
+        edge: THIS.EDGE,
       },
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
@@ -49,19 +49,19 @@ export class FlatComponent extends AbstractFlatWidget {
       new ChannelAddress("_sum", "GridActivePowerL3"),
     ];
 
-    if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {
-      channelAddresses.push(FlatComponent.RESTRICTION_MODE);
+    if (GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(THIS.CONFIG, "CONTROLLER.ESS.LIMITER14A")) {
+      CHANNEL_ADDRESSES.PUSH(FlatComponent.RESTRICTION_MODE);
     }
     return channelAddresses;
   }
   protected override onCurrentData(currentData: CurrentData) {
-    this.isActivated = GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a");
-    this.gridMode = currentData.allComponents[FlatComponent.GRID_MODE.toString()];
-    this.gridState = Converter.GRID_STATE_TO_MESSAGE(this.translate, currentData);
-    const gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
-    this.gridBuyPower = gridActivePower;
-    this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
-    this.icon = GridSectionComponent.getCurrentGridIcon(currentData);
+    THIS.IS_ACTIVATED = GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(THIS.CONFIG, "CONTROLLER.ESS.LIMITER14A");
+    THIS.GRID_MODE = CURRENT_DATA.ALL_COMPONENTS[FlatComponent.GRID_MODE.toString()];
+    THIS.GRID_STATE = Converter.GRID_STATE_TO_MESSAGE(THIS.TRANSLATE, currentData);
+    const gridActivePower = CURRENT_DATA.ALL_COMPONENTS[FlatComponent.GRID_ACTIVE_POWER.toString()];
+    THIS.GRID_BUY_POWER = gridActivePower;
+    THIS.GRID_SELL_POWER = UTILS.MULTIPLY_SAFELY(gridActivePower, -1);
+    THIS.ICON = GRID_SECTION_COMPONENT.GET_CURRENT_GRID_ICON(currentData);
   }
 
 }

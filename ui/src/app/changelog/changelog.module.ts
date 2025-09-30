@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { ChangelogRoutingModule } from "./changelog-routing.module";
-import { ChangelogComponent } from "./view/component/changelog.component";
+import { ChangelogRoutingModule } from "./changelog-ROUTING.MODULE";
+import { ChangelogComponent } from "./view/component/CHANGELOG.COMPONENT";
 import { ChangelogViewComponent } from "./view/view";
 
 @NgModule({

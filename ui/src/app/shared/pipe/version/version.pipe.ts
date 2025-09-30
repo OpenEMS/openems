@@ -12,17 +12,17 @@ export class VersionPipe implements PipeTransform {
 
     transform(version: string, role: Role | string): string {
         if (typeof role === "string") {
-            role = Role.getRole(role);
+            role = ROLE.GET_ROLE(role);
         }
         switch (role) {
-            case Role.OWNER:
-            case Role.GUEST:
-            case Role.INSTALLER:
-                if (version.includes("-")) {
-                    return version.replace(/^(.*)-.*$/, "$1");
+            case ROLE.OWNER:
+            case ROLE.GUEST:
+            case ROLE.INSTALLER:
+                if (VERSION.INCLUDES("-")) {
+                    return VERSION.REPLACE(/^(.*)-.*$/, "$1");
                 }
                 return version;
-            case Role.ADMIN:
+            case ROLE.ADMIN:
                 return version;
         }
     }

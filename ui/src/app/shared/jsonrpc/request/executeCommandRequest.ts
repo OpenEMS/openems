@@ -31,7 +31,7 @@ export class ExecuteSystemCommandRequest extends JsonrpcRequest {
             password?: string
         },
     ) {
-        super(ExecuteSystemCommandRequest.METHOD, params);
+        super(EXECUTE_SYSTEM_COMMAND_REQUEST.METHOD, params);
     }
 
 }

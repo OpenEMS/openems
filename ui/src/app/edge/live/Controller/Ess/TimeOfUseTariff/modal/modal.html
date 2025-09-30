@@ -1,37 +1,37 @@
-<oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup"
+<oe-modal [title]="COMPONENT.ALIAS" [component]="component" [formGroup]="formGroup"
     helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF" *ngIf="isInitialized && formGroup">
 
     <!-- Discharge State -->
-    <oe-modal-line [name]="'General.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
-        [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
+    <oe-modal-line [name]="'GENERAL.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
+        [channelAddress]="COMPONENT.ID + '/StateMachine'"></oe-modal-line>
 
     <!-- Price -->
-    <oe-modal-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.PRICE' | translate"
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.PRICE' | translate"
         [value]="priceWithCurrency"></oe-modal-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
     <!--Select Mode-->
-    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-line [name]="'GENERAL.MODE'| translate"></oe-modal-line>
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-        { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-        { name: ('General.off' | translate), value: 'OFF', icon: {color:'danger', name: 'power'}}]">
+        { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+        { name: ('GENERAL.OFF' | translate), value: 'OFF', icon: {color:'danger', name: 'power'}}]">
     </oe-modal-buttons>
 
-    <ng-container *ngIf="component.factoryId  === 'Controller.Ess.Time-Of-Use-Tariff'">
+    <ng-container *ngIf="COMPONENT.FACTORY_ID  === 'CONTROLLER.ESS.TIME-Of-Use-Tariff'">
 
         <!-- AUTOMATIC Mode -->
-        <ng-container *ngIf="formGroup.value.mode === 'AUTOMATIC'">
+        <ng-container *ngIf="FORM_GROUP.VALUE.MODE === 'AUTOMATIC'">
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
             <oe-modal-info-line
-                [info]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CHART_TITLE'| translate"></oe-modal-info-line>
+                [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_TITLE'| translate"></oe-modal-info-line>
             <statePriceChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
             </statePriceChart>
-            <oe-modal-info-line [info]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CHART_WARNING_NOTE' | translate"
+            <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_WARNING_NOTE' | translate"
                 style="font-size: small;"></oe-modal-info-line>
-            <ng-container *ngIf="edge.roleIsAtLeast('admin')">
+            <ng-container *ngIf="EDGE.ROLE_IS_AT_LEAST('admin')">
                 <oe-modal-horizontal-line></oe-modal-horizontal-line>
-                <oe-modal-info-line [info]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.POWER_SOC_CHART_TITLE' | translate">
+                <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.POWER_SOC_CHART_TITLE' | translate">
                 </oe-modal-info-line>
                 <powerSocChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
                 </powerSocChart>
@@ -39,7 +39,7 @@
         </ng-container>
 
         <!-- OFF Mode -->
-        <ng-container *ngIf="formGroup.value.mode === 'OFF'">
+        <ng-container *ngIf="FORM_GROUP.VALUE.MODE === 'OFF'">
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
             <ion-card-content>
                 <!-- TODO - show Some information -->
@@ -49,16 +49,16 @@
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
         <!-- Control Mode -->
-        <oe-modal-line [name]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CHARGE_FROM_GRID_ACTIVATE'| translate"
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHARGE_FROM_GRID_ACTIVATE'| translate"
             [formGroup]="formGroup" controlName="chargeConsumptionIsActive" [control]="{ type: 'TOGGLE' }"
             leftColumnWidth="100">
         </oe-modal-line>
 
         <!-- Control-Mode description -->
         <ng-container style="font-size: smaller">
-            <ng-container *ngIf="formGroup.value.chargeConsumptionIsActive">
+            <ng-container *ngIf="FORM_GROUP.VALUE.CHARGE_CONSUMPTION_IS_ACTIVE">
                 <span
-                    [innerHtml]="'Edge.Index.Widgets.TIME_OF_USE_TARIFF.CONTROL_MODE_DESCRIPTION.CHARGE_CONSUMPTION' | translate"></span>
+                    [innerHtml]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CONTROL_MODE_DESCRIPTION.CHARGE_CONSUMPTION' | translate"></span>
             </ng-container>
         </ng-container>
     </ng-container>

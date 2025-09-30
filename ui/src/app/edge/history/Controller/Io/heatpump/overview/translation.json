@@ -1,8 +1,8 @@
 {
-    "de": {
-        "LEGEND_DESCRIPTION": "Legende Betriebszustand"
-    },
-    "en": {
-        "LEGEND_DESCRIPTION": "Legend operating status"
-    }
+  "DE": {
+    "LEGEND_DESCRIPTION": "Legende Betriebszustand"
+  },
+  "EN": {
+    "LEGEND_DESCRIPTION": "Legend operating status"
+  }
 }

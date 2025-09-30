@@ -6,12 +6,12 @@ import { EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 interface MyCategorizedComponents extends CategorizedComponents {
   isNatureClicked?: boolean,
-  filteredComponents?: EdgeConfig.Component[],
+  filteredComponents?: EDGE_CONFIG.COMPONENT[],
 }
 
 @Component({
-  selector: IndexComponent.SELECTOR,
-  templateUrl: "./index.component.html",
+  selector: INDEX_COMPONENT.SELECTOR,
+  templateUrl: "./INDEX.COMPONENT.HTML",
   standalone: false,
 })
 export class IndexComponent implements OnInit {
@@ -30,38 +30,38 @@ export class IndexComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.service.getConfig().then(config => {
-      this.config = config;
+    THIS.SERVICE.GET_CONFIG().then(config => {
+      THIS.CONFIG = config;
       const categorizedComponentIds: string[] = [];
-      this.list = config.listActiveComponents(categorizedComponentIds, this.translate);
-      for (const entry of this.list) {
-        entry.isNatureClicked = false;
-        entry.filteredComponents = entry.components;
+      THIS.LIST = CONFIG.LIST_ACTIVE_COMPONENTS(categorizedComponentIds, THIS.TRANSLATE);
+      for (const entry of THIS.LIST) {
+        ENTRY.IS_NATURE_CLICKED = false;
+        ENTRY.FILTERED_COMPONENTS = ENTRY.COMPONENTS;
       }
-      this.updateFilter("");
+      THIS.UPDATE_FILTER("");
     });
   }
 
   updateFilter(completeFilter: string) {
     // take each space-separated string as an individual and-combined filter
-    const filters = completeFilter.toLowerCase().split(" ");
+    const filters = COMPLETE_FILTER.TO_LOWER_CASE().split(" ");
     let countFilteredEntries = 0;
-    for (const entry of this.list) {
-      entry.filteredComponents = entry.components.filter(entry =>
+    for (const entry of THIS.LIST) {
+      ENTRY.FILTERED_COMPONENTS = ENTRY.COMPONENTS.FILTER(entry =>
         // Search for filter strings in Component-ID, -Alias and Factory-ID
-        Utils.matchAll(filters, [
-          entry.id.toLowerCase(),
-          entry.alias.toLowerCase(),
-          entry.factoryId,
+        UTILS.MATCH_ALL(filters, [
+          ENTRY.ID.TO_LOWER_CASE(),
+          ENTRY.ALIAS.TO_LOWER_CASE(),
+          ENTRY.FACTORY_ID,
         ]),
       );
-      countFilteredEntries += entry.filteredComponents.length;
+      countFilteredEntries += ENTRY.FILTERED_COMPONENTS.LENGTH;
     }
     // If not more than 5 Entries survived filtering -> show all of them immediately
     if (countFilteredEntries > 5) {
-      this.showAllEntries = false;
+      THIS.SHOW_ALL_ENTRIES = false;
     } else {
-      this.showAllEntries = true;
+      THIS.SHOW_ALL_ENTRIES = true;
     }
   }
 }

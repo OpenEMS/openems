@@ -3,7 +3,7 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
 
 @Component({
     selector: "overview",
-    templateUrl: "./overview.html",
+    templateUrl: "./OVERVIEW.HTML",
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview { }

@@ -5,7 +5,7 @@ import { Service } from "src/app/shared/shared";
 
 @Component({
     selector: "chartoptionspopover",
-    templateUrl: "./popover.component.html",
+    templateUrl: "./POPOVER.COMPONENT.HTML",
     standalone: false,
 })
 export class ChartOptionsPopoverComponent {
@@ -20,21 +20,21 @@ export class ChartOptionsPopoverComponent {
     ) { }
 
     public setPhases() {
-        if (this.showPhases == true) {
-            this.showPhases = false;
-        } else if (this.showPhases == false) {
-            this.showPhases = true;
+        if (THIS.SHOW_PHASES == true) {
+            THIS.SHOW_PHASES = false;
+        } else if (THIS.SHOW_PHASES == false) {
+            THIS.SHOW_PHASES = true;
         }
-        this.popoverCtrl.dismiss(this.showPhases, "Phases");
+        THIS.POPOVER_CTRL.DISMISS(THIS.SHOW_PHASES, "Phases");
     }
 
     public setTotal() {
-        if (this.showTotal == true) {
-            this.showTotal = false;
-        } else if (this.showTotal == false) {
-            this.showTotal = true;
+        if (THIS.SHOW_TOTAL == true) {
+            THIS.SHOW_TOTAL = false;
+        } else if (THIS.SHOW_TOTAL == false) {
+            THIS.SHOW_TOTAL = true;
         }
-        this.popoverCtrl.dismiss(this.showTotal, "Total");
+        THIS.POPOVER_CTRL.DISMISS(THIS.SHOW_TOTAL, "Total");
     }
 
 }

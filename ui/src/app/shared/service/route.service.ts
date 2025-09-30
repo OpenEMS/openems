@@ -9,11 +9,11 @@ export class RouteService {
     private previousUrl: string | null = null;
 
     constructor(private router: Router) {
-        this.previousUrl = this.currentUrl();
-        router.events.subscribe(event => {
+        THIS.PREVIOUS_URL = THIS.CURRENT_URL();
+        ROUTER.EVENTS.SUBSCRIBE(event => {
             if (event instanceof NavigationEnd) {
-                this.previousUrl = this.currentUrl();
-                this.currentUrl.set(event.urlAfterRedirects);;
+                THIS.PREVIOUS_URL = THIS.CURRENT_URL();
+                THIS.CURRENT_URL.SET(EVENT.URL_AFTER_REDIRECTS);;
             }
         });
     }
@@ -25,7 +25,7 @@ export class RouteService {
     * @returns the previous url
     */
     public getPreviousUrl() {
-        return this.previousUrl;
+        return THIS.PREVIOUS_URL;
     }
 
 
@@ -35,7 +35,7 @@ export class RouteService {
     * @returns the current url
     */
     public getCurrentUrl() {
-        return this.currentUrl();
+        return THIS.CURRENT_URL();
     }
 
     /**
@@ -44,9 +44,9 @@ export class RouteService {
     * @returns the current url
     */
     public getCurrentUrl2() {
-        this.router.events.subscribe(event => {
+        THIS.ROUTER.EVENTS.SUBSCRIBE(event => {
             if (event instanceof NavigationEnd) {
-                return event.urlAfterRedirects;
+                return EVENT.URL_AFTER_REDIRECTS;
             }
         });
     }
@@ -58,8 +58,8 @@ export class RouteService {
      * @returns the value for this key if found, else null
     */
     public getRouteParam<T>(key: string): T | null {
-        const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
-        const routeParams = Object.entries(route.params)
+        const route = THIS.GET_DEEPEST_ROUTE(THIS.ROUTER.ROUTER_STATE.SNAPSHOT.ROOT);
+        const routeParams = OBJECT.ENTRIES(ROUTE.PARAMS)
             .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }, {});
         if (key in routeParams) {
             return routeParams[key] as T;
@@ -68,8 +68,8 @@ export class RouteService {
     }
 
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
-        while (routeSnapshot.firstChild) {
-            routeSnapshot = routeSnapshot.firstChild;
+        while (ROUTE_SNAPSHOT.FIRST_CHILD) {
+            routeSnapshot = ROUTE_SNAPSHOT.FIRST_CHILD;
         }
         return routeSnapshot;
     }

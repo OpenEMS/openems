@@ -6,64 +6,64 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "currentVoltageAsymmetricChart",
-  templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
 
-    const component = this.config.getComponent(this.route.snapshot.params.componentId);
+    const component = THIS.CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
     const currentPhasesColors: string[] = ["rgb(246, 180, 137)", "rgb(238, 120, 42)", "rgb(118, 52, 9)"];
     const voltagePhasesColors: string[] = ["rgb(255, 0, 0)", "rgb(133, 0, 0)", "rgb(71, 0, 0)"];
-    const chartObject: HistoryUtils.ChartData = {
+    const chartObject: HISTORY_UTILS.CHART_DATA = {
       input: [
         ...Phase.THREE_PHASE.map((phase) => ({
           name: "Current" + phase,
-          powerChannel: ChannelAddress.fromString(component.id + "/Current" + phase),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/Current" + phase),
         })),
         ...Phase.THREE_PHASE.map((phase) => ({
           name: "Voltage" + phase,
-          powerChannel: ChannelAddress.fromString(component.id + "/Voltage" + phase),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/Voltage" + phase),
         })),
       ],
-      output: (data: HistoryUtils.ChannelData) => [
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => [
         ...Phase.THREE_PHASE.map((phase, index) => ({
-          name: this.translate.instant("Edge.History.CURRENT") + " " + phase,
+          name: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.CURRENT") + " " + phase,
           converter: () => {
             return data["Current" + phase];
           },
           hideShadow: true,
           color: currentPhasesColors[index],
-          yAxisId: ChartAxis.LEFT,
+          yAxisId: CHART_AXIS.LEFT,
         })),
         ...Phase.THREE_PHASE.map((phase, index) => ({
-          name: this.translate.instant("Edge.History.VOLTAGE") + " " + phase,
+          name: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.VOLTAGE") + " " + phase,
           converter: () => {
             return data["Voltage" + phase];
           },
           hideShadow: true,
           color: voltagePhasesColors[index],
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: CHART_AXIS.RIGHT,
         })),
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: THIS.TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.VOLTAGE,
+        unit: YAXIS_TYPE.VOLTAGE,
         position: "right",
-        yAxisId: ChartAxis.RIGHT,
+        yAxisId: CHART_AXIS.RIGHT,
         displayGrid: false,
         scale: {
           dynamicScale: true,
         },
       },
       {
-        unit: YAxisType.CURRENT,
+        unit: YAXIS_TYPE.CURRENT,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       },
       ],
     };

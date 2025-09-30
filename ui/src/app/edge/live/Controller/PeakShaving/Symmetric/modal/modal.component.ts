@@ -7,12 +7,12 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 
 @Component({
     selector: "symmetricpeakshaving-modal",
-    templateUrl: "./modal.component.html",
+    templateUrl: "./MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
 
-    @Input({ required: true }) protected component!: EdgeConfig.Component;
+    @Input({ required: true }) protected component!: EDGE_CONFIG.COMPONENT;
     @Input({ required: true }) protected edge!: Edge;
 
 
@@ -28,53 +28,53 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.formGroup = this.formBuilder.group({
-            peakShavingPower: new FormControl(this.component.properties.peakShavingPower, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
+        THIS.FORM_GROUP = THIS.FORM_BUILDER.GROUP({
+            peakShavingPower: new FormControl(THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(?:[1-9][0-9]*|0)$"),
+                VALIDATORS.REQUIRED,
             ])),
-            rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
+            rechargePower: new FormControl(THIS.COMPONENT.PROPERTIES.RECHARGE_POWER, VALIDATORS.COMPOSE([
+                VALIDATORS.PATTERN("^(?:[1-9][0-9]*|0)$"),
+                VALIDATORS.REQUIRED,
             ])),
         });
     }
 
     applyChanges() {
-        if (this.edge != null) {
-            if (this.edge.roleIsAtLeast("owner")) {
-                const peakShavingPower = this.formGroup.controls["peakShavingPower"];
-                const rechargePower = this.formGroup.controls["rechargePower"];
-                if (peakShavingPower.valid && rechargePower.valid) {
-                    if (peakShavingPower.value >= rechargePower.value) {
+        if (THIS.EDGE != null) {
+            if (THIS.EDGE.ROLE_IS_AT_LEAST("owner")) {
+                const peakShavingPower = THIS.FORM_GROUP.CONTROLS["peakShavingPower"];
+                const rechargePower = THIS.FORM_GROUP.CONTROLS["rechargePower"];
+                if (PEAK_SHAVING_POWER.VALID && RECHARGE_POWER.VALID) {
+                    if (PEAK_SHAVING_POWER.VALUE >= RECHARGE_POWER.VALUE) {
                         const updateComponentArray = [];
-                        Object.keys(this.formGroup.controls).forEach((element, index) => {
-                            if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+                        OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS).forEach((element, index) => {
+                            if (THIS.FORM_GROUP.CONTROLS[element].dirty) {
+                                UPDATE_COMPONENT_ARRAY.PUSH({ name: OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS)[index], value: THIS.FORM_GROUP.CONTROLS[element].value });
                             }
                         });
-                        this.loading = true;
-                        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                            this.component.properties.peakShavingPower = peakShavingPower.value;
-                            this.component.properties.rechargePower = rechargePower.value;
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                        THIS.LOADING = true;
+                        THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, updateComponentArray).then(() => {
+                            THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER = PEAK_SHAVING_POWER.VALUE;
+                            THIS.COMPONENT.PROPERTIES.RECHARGE_POWER = RECHARGE_POWER.VALUE;
+                            THIS.LOADING = false;
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
                         }).catch(reason => {
-                            peakShavingPower.setValue(this.component.properties.peakShavingPower);
-                            rechargePower.setValue(this.component.properties.rechargePower);
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                            console.warn(reason);
+                            PEAK_SHAVING_POWER.SET_VALUE(THIS.COMPONENT.PROPERTIES.PEAK_SHAVING_POWER);
+                            RECHARGE_POWER.SET_VALUE(THIS.COMPONENT.PROPERTIES.RECHARGE_POWER);
+                            THIS.LOADING = false;
+                            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                            CONSOLE.WARN(reason);
                         });
-                        this.formGroup.markAsPristine();
+                        THIS.FORM_GROUP.MARK_AS_PRISTINE();
                     } else {
-                        this.service.toast(this.translate.instant("Edge.Index.Widgets.Peakshaving.relationError"), "danger");
+                        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.PEAKSHAVING.RELATION_ERROR"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INPUT_NOT_VALID"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
+                THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INSUFFICIENT_RIGHTS"), "danger");
             }
         }
     }

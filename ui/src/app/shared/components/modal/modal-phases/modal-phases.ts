@@ -9,7 +9,7 @@ import { TextIndentation } from "../modal-line/modal-line";
 @Component({
   /** If multiple items in line use this */
   selector: "oe-modal-meter-phases",
-  templateUrl: "./modal-phases.html",
+  templateUrl: "./modal-PHASES.HTML",
   standalone: false,
 })
 export class ModalPhasesComponent extends AbstractModalLine {
@@ -26,18 +26,18 @@ export class ModalPhasesComponent extends AbstractModalLine {
   protected override getChannelAddresses(): ChannelAddress[] {
     const channelAddresses: ChannelAddress[] = [];
 
-    for (const phase of this.phases) {
-      channelAddresses.push(
-        ChannelAddress.fromString(this.component.id + "/ActivePower" + phase.key),
+    for (const phase of THIS.PHASES) {
+      CHANNEL_ADDRESSES.PUSH(
+        CHANNEL_ADDRESS.FROM_STRING(THIS.COMPONENT.ID + "/ActivePower" + PHASE.KEY),
       );
     }
     return channelAddresses;
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
-    for (const phase of this.phases) {
-      const powerPerPhase = currentData.allComponents[this.component.id + "/ActivePower" + phase.key];
-      phase.name = this.translate.instant("General.phase") + " " + phase.key + this.setTranslatedName(powerPerPhase);
+    for (const phase of THIS.PHASES) {
+      const powerPerPhase = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/ActivePower" + PHASE.KEY];
+      PHASE.NAME = THIS.TRANSLATE.INSTANT("GENERAL.PHASE") + " " + PHASE.KEY + THIS.SET_TRANSLATED_NAME(powerPerPhase);
     }
   }
 
@@ -48,8 +48,8 @@ export class ModalPhasesComponent extends AbstractModalLine {
    * @returns converted value
    */
   protected CONVERT_TO_POSITIVE_WATT = (value: number | null): string => {
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-    value = Utils.absSafely(value) ?? 0;
+    const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
+    value = UTILS.ABS_SAFELY(value) ?? 0;
     return formatNumber(value, locale, "1.0-0") + " W";
   };
 }

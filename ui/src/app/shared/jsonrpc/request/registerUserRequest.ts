@@ -52,7 +52,7 @@ export class RegisterUserRequest extends JsonrpcRequest {
             oem: string
         },
     ) {
-        super(RegisterUserRequest.METHOD, params);
+        super(REGISTER_USER_REQUEST.METHOD, params);
     }
 
 }

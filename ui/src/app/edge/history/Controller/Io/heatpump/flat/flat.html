@@ -1,18 +1,18 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatpumpchart'">
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.normalOperation' | translate"
-        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RegularStateTime'"
+<oe-flat-widget *ngIf="isInitialized" [title]="COMPONENT.ALIAS" [icon]="{name: 'flame', color: 'normal'}" button
+    [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/' + COMPONENT.ID + '/heatpumpchart'">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION' | translate"
+        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="COMPONENT.ID + '/RegularStateTime'"
         [converter]="FORMAT_SECONDS_TO_DURATION">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.switchOnRec' | translate"
-        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RecommendationStateTime'"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC' | translate"
+        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="COMPONENT.ID + '/RecommendationStateTime'"
         [converter]="FORMAT_SECONDS_TO_DURATION">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.switchOnCom' | translate"
-        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/ForceOnStateTime'"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM' | translate"
+        [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="COMPONENT.ID + '/ForceOnStateTime'"
         [converter]="FORMAT_SECONDS_TO_DURATION">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.lock' | translate" [filter]="FILTER_NULL_WITH_THRESHOLD"
-        [channelAddress]="component.id + '/LockStateTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK' | translate" [filter]="FILTER_NULL_WITH_THRESHOLD"
+        [channelAddress]="COMPONENT.ID + '/LockStateTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
     </oe-flat-widget-line>
 </oe-flat-widget>

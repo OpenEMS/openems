@@ -1,7 +1,7 @@
 import { Directive, effect, EffectRef, Inject, inject, Injector, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../shared/shared";
 
@@ -19,37 +19,37 @@ export class LiveDataService extends DataService implements OnDestroy {
     ) {
         super(service);
 
-        this.service.getCurrentEdge().then((edge) => {
-            this.edge = edge;
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy))
-                .subscribe(() => this.lastUpdated.set(new Date()));
+        THIS.SERVICE.GET_CURRENT_EDGE().then((edge) => {
+            THIS.EDGE = edge;
+            EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY))
+                .subscribe(() => THIS.LAST_UPDATED.SET(new Date()));
         });
     }
 
     public getValues(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
 
-        AssertionUtils.assertIsDefined(edge);
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
         for (const channelAddress of channelAddresses) {
-            this.subscribedChannelAddresses.push(channelAddress);
+            THIS.SUBSCRIBED_CHANNEL_ADDRESSES.PUSH(channelAddress);
         }
 
-        this.subscribeId = uuidv4();
-        this.edge = edge;
-        if (channelAddresses.length != 0) {
-            edge.subscribeChannels(this.websocket, this.subscribeId, channelAddresses);
+        THIS.SUBSCRIBE_ID = uuidv4();
+        THIS.EDGE = edge;
+        if (CHANNEL_ADDRESSES.LENGTH != 0) {
+            EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.SUBSCRIBE_ID, channelAddresses);
         }
 
         // call onCurrentData() with latest data
-        edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-            const allComponents: { [id: string]: any } = this.currentValue().allComponents;
+        EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY)).subscribe(currentData => {
+            const allComponents: { [id: string]: any } = THIS.CURRENT_VALUE().allComponents;
             for (const channelAddress of channelAddresses) {
-                const ca = channelAddress.toString();
-                allComponents[ca] = currentData.channel[ca];
+                const ca = CHANNEL_ADDRESS.TO_STRING();
+                allComponents[ca] = CURRENT_DATA.CHANNEL[ca];
             }
 
-            this.currentValue.set({ allComponents: allComponents });
-            this.lastUpdated.set(new Date());
+            THIS.CURRENT_VALUE.SET({ allComponents: allComponents });
+            THIS.LAST_UPDATED.SET(new Date());
         });
     }
 
@@ -59,22 +59,22 @@ export class LiveDataService extends DataService implements OnDestroy {
             return;
         }
 
-        this.edge?.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
-        this.stopOnDestroy?.next();
-        this.stopOnDestroy?.complete();
-        this.subscription?.destroy();
+        THIS.EDGE?.unsubscribeFromChannels(THIS.WEBSOCKET, THIS.SUBSCRIBED_CHANNEL_ADDRESSES);
+        THIS.STOP_ON_DESTROY?.next();
+        THIS.STOP_ON_DESTROY?.complete();
+        THIS.SUBSCRIPTION?.destroy();
     }
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
-        this.lastUpdated.set(null);
-        this.edge?.unsubscribeFromChannels(this.websocket, channels);
+        THIS.LAST_UPDATED.SET(null);
+        THIS.EDGE?.unsubscribeFromChannels(THIS.WEBSOCKET, channels);
     }
 
     public override refresh(ev: CustomEvent) {
-        this.currentValue.set({ allComponents: {} });
-        this.edge?.subscribeChannels(this.websocket, this.subscribeId, this.subscribedChannelAddresses);
+        THIS.CURRENT_VALUE.SET({ allComponents: {} });
+        THIS.EDGE?.subscribeChannels(THIS.WEBSOCKET, THIS.SUBSCRIBE_ID, THIS.SUBSCRIBED_CHANNEL_ADDRESSES);
         setTimeout(() => {
-            (ev.target as HTMLIonRefresherElement).complete();
+            (EV.TARGET as HTMLIonRefresherElement).complete();
         }, 1000);
     }
 
@@ -85,29 +85,29 @@ export class LiveDataService extends DataService implements OnDestroy {
      * @returns the currentData for thes channelAddresses
      */
     public async subscribeAndGetFirstValidValueForChannels(channelAddresses: ChannelAddress[], componentId: string): Promise<CurrentData> {
-        this.getValues(channelAddresses, this.edge, componentId);
+        THIS.GET_VALUES(channelAddresses, THIS.EDGE, componentId);
         return new Promise<any>((res) => {
-            this.subscription = effect(() => {
-                const currentValue = this.currentValue();
+            THIS.SUBSCRIPTION = effect(() => {
+                const currentValue = THIS.CURRENT_VALUE();
                 if (!currentValue) {
                     return;
                 }
 
-                const allValuesValid = channelAddresses.every(el => currentValue.allComponents[el.toString()] != null);
+                const allValuesValid = CHANNEL_ADDRESSES.EVERY(el => CURRENT_VALUE.ALL_COMPONENTS[EL.TO_STRING()] != null);
                 if (!allValuesValid) {
                     return;
                 }
 
-                this.unsubscribeFromChannels(channelAddresses);
-                const allComponents: typeof currentValue.allComponents = channelAddresses.reduce((arr: typeof currentValue.allComponents, channel) => {
-                    arr[channel.toString()] = currentValue.allComponents[channel.toString()];
+                THIS.UNSUBSCRIBE_FROM_CHANNELS(channelAddresses);
+                const allComponents: typeof CURRENT_VALUE.ALL_COMPONENTS = CHANNEL_ADDRESSES.REDUCE((arr: typeof CURRENT_VALUE.ALL_COMPONENTS, channel) => {
+                    arr[CHANNEL.TO_STRING()] = CURRENT_VALUE.ALL_COMPONENTS[CHANNEL.TO_STRING()];
                     return arr;
                 }, {});
-                currentValue.allComponents = allComponents;
+                CURRENT_VALUE.ALL_COMPONENTS = allComponents;
                 res(currentValue);
-            }, { injector: this.injector });
+            }, { injector: THIS.INJECTOR });
 
-            this.subscription.destroy();
+            THIS.SUBSCRIPTION.DESTROY();
         });
     }
 
@@ -119,18 +119,18 @@ export class LiveDataService extends DataService implements OnDestroy {
      */
     public async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T | null> {
         return new Promise<any>((res) => {
-            this.subscription = effect(() => {
-                const currentValue = this.currentValue();
+            THIS.SUBSCRIPTION = effect(() => {
+                const currentValue = THIS.CURRENT_VALUE();
 
                 if (!currentValue) {
                     res(null);
                 }
-                const channelValue = currentValue.allComponents[channelAddress.toString()];
+                const channelValue = CURRENT_VALUE.ALL_COMPONENTS[CHANNEL_ADDRESS.TO_STRING()];
 
                 if (channelValue != null) {
                     res(channelValue);
                 }
-            }, { injector: this.injector });
+            }, { injector: THIS.INJECTOR });
         });
     }
 }

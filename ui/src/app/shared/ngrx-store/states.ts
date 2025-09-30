@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 
 import { differenceInSeconds } from "date-fns";
 import { environment } from "src/environments";
-import { RouteService } from "../service/route.service";
+import { RouteService } from "../service/ROUTE.SERVICE";
 import { Websocket } from "../shared";
 
 export enum States {
@@ -35,17 +35,17 @@ export class AppStateTracker {
         private websocket: Websocket,
         private routeService: RouteService,
     ) {
-        if (!localStorage.getItem("AppState")) {
-            console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
+        if (!LOCAL_STORAGE.GET_ITEM("AppState")) {
+            CONSOLE.LOG(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
         }
 
         if (!AppStateTracker.ENABLE_ROUTING) {
-            console.log(`${AppStateTracker.LOG_PREFIX} Routing deactivated`);
+            CONSOLE.LOG(`${AppStateTracker.LOG_PREFIX} Routing deactivated`);
         }
 
         effect(() => {
-            const state = this.websocket.state();
-            this.startStateHandler(state);
+            const state = THIS.WEBSOCKET.STATE();
+            THIS.START_STATE_HANDLER(state);
         });
     }
 
@@ -54,23 +54,23 @@ export class AppStateTracker {
      */
     public navigateAfterAuthentication() {
 
-        this.router.navigate(["overview"]);
+        THIS.ROUTER.NAVIGATE(["overview"]);
         return;
-        // const segments = this.router.routerState.snapshot.url.split("/");
-        // const previousUrl: string = this.routeService.getPreviousUrl();
+        // const segments = THIS.ROUTER.ROUTER_STATE.SNAPSHOT.URL.SPLIT("/");
+        // const previousUrl: string = THIS.ROUTE_SERVICE.GET_PREVIOUS_URL();
 
-        // if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
-        //     this.router.navigate(["./overview"]);
+        // if ((previousUrl === segments[SEGMENTS.LENGTH - 1]) || previousUrl === "/") {
+        //     THIS.ROUTER.NAVIGATE(["./overview"]);
         //     return;
         // }
 
-        // this.router.navigate(previousUrl.split("/"));
+        // THIS.ROUTER.NAVIGATE(PREVIOUS_URL.SPLIT("/"));
     }
 
     private startStateHandler(state: States): void {
 
-        if (environment.debugMode && localStorage.getItem("AppState")) {
-            console.log(`${AppStateTracker.LOG_PREFIX} [${States[this.websocket.state()]}]`);
+        if (ENVIRONMENT.DEBUG_MODE && LOCAL_STORAGE.GET_ITEM("AppState")) {
+            CONSOLE.LOG(`${AppStateTracker.LOG_PREFIX} [${States[THIS.WEBSOCKET.STATE()]}]`);
         }
 
         if (!AppStateTracker.ENABLE_ROUTING) {
@@ -79,15 +79,15 @@ export class AppStateTracker {
 
         switch (state) {
             case States.WEBSOCKET_CONNECTING:
-                this.lastTimeStamp = this.handleWebSocketConnecting(this.lastTimeStamp);
+                THIS.LAST_TIME_STAMP = THIS.HANDLE_WEB_SOCKET_CONNECTING(THIS.LAST_TIME_STAMP);
                 break;
             case States.WEBSOCKET_CONNECTION_CLOSED:
                 break;
-            case States.AUTHENTICATED:
-                this.loadingState.set("authenticated");
+            case STATES.AUTHENTICATED:
+                THIS.LOADING_STATE.SET("authenticated");
                 break;
             default:
-                this.lastTimeStamp = null;
+                THIS.LAST_TIME_STAMP = null;
                 break;
         }
     }
@@ -100,9 +100,9 @@ export class AppStateTracker {
         }
 
         if (differenceInSeconds(now, lastTimeStamp) > AppStateTracker.TIME_TILL_TIMEOUT) {
-            console.warn(`Websocket connection couldnt be established in ${AppStateTracker.TIME_TILL_TIMEOUT}s`);
-            this.loadingState.set("failed");
-            this.router.navigate(["index"]);
+            CONSOLE.WARN(`Websocket connection couldnt be established in ${AppStateTracker.TIME_TILL_TIMEOUT}s`);
+            THIS.LOADING_STATE.SET("failed");
+            THIS.ROUTER.NAVIGATE(["index"]);
             return null;
         }
 

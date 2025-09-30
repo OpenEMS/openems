@@ -4,7 +4,7 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
 
 @Component({
     selector: "gridoptimizedcharge-chart-overview",
-    templateUrl: "./overview.html",
+    templateUrl: "./OVERVIEW.HTML",
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview { }

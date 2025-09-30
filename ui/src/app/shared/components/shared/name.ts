@@ -9,9 +9,9 @@ export namespace Name {
     (value): string => {
       if (typeof value === "number") {
         if (value < 0) {
-          return name + " " + translate.instant("General.gridSellAdvanced");
+          return name + " " + TRANSLATE.INSTANT("GENERAL.GRID_SELL_ADVANCED");
         } else {
-          return name + " " + translate.instant("General.gridBuyAdvanced");
+          return name + " " + TRANSLATE.INSTANT("GENERAL.GRID_BUY_ADVANCED");
         }
       }
       return name;
@@ -20,8 +20,8 @@ export namespace Name {
   /**
    * Even though every meter should have set the alias, it still occurrs, that it is not set
    *
-   * @param meter the meter: {@link EdgeConfig.Component}
+   * @param meter the meter: {@link EDGE_CONFIG.COMPONENT}
    * @returns the meter alias if existing, else meter id
    */
-  export const METER_ALIAS_OR_ID = (meter: EdgeConfig.Component): string => meter.alias ?? meter.id;
+  export const METER_ALIAS_OR_ID = (meter: EDGE_CONFIG.COMPONENT): string => METER.ALIAS ?? METER.ID;
 }

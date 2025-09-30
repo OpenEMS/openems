@@ -10,20 +10,20 @@ import { HelpButtonComponent } from "src/app/shared/components/modal/help-button
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
-import { AdministrationComponent } from "../administration/administration.component";
+import { AdministrationComponent } from "../administration/ADMINISTRATION.COMPONENT";
 import { PopoverComponent } from "../popover/popover";
 
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
-  templateUrl: "./modal.html",
+  templateUrl: "./MODAL.HTML",
   standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
-  public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
-  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
-  protected controller: EdgeConfig.Component;
-  protected evcsComponent: EdgeConfig.Component;
+  public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(THIS.TRANSLATE);
+  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(THIS.TRANSLATE);
+  protected controller: EDGE_CONFIG.COMPONENT;
+  protected evcsComponent: EDGE_CONFIG.COMPONENT;
   protected isConnectionSuccessful: boolean = false;
   protected readonly emptyValue: string = "-";
   protected status: string;
@@ -58,138 +58,138 @@ export class ModalComponent extends AbstractModal {
     super(
       websocket, route, service, modalController, translate,
       formBuilder, ref);
-    ref.detach();
+    REF.DETACH();
     setInterval(() => {
-      this.ref.detectChanges(); // manually trigger change detection
+      THIS.REF.DETECT_CHANGES(); // manually trigger change detection
     }, 0);
   }
 
-  protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);
-  protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.POWER_IN_WATT(val);
+  protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => THIS.CONVERTER.TO_KILO_WATT_HOURS(val);
+  protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => THIS.CONVERTER.POWER_IN_WATT(val);
 
   protected async presentPopover() {
-    const popover = await this.popoverctrl.create({
+    const popover = await THIS.POPOVERCTRL.CREATE({
       component: PopoverComponent,
       componentProps: {
-        chargeMode: this.formGroup.controls["chargeMode"].value,
+        chargeMode: THIS.FORM_GROUP.CONTROLS["chargeMode"].value,
       },
     });
-    return await popover.present();
+    return await POPOVER.PRESENT();
   }
 
   protected async presentModal() {
-    const modal = await this.detailViewController.create({
+    const modal = await THIS.DETAIL_VIEW_CONTROLLER.CREATE({
       component: AdministrationComponent,
       componentProps: {
-        evcsComponent: this.evcsComponent,
-        edge: this.edge,
+        evcsComponent: THIS.EVCS_COMPONENT,
+        edge: THIS.EDGE,
       },
     });
-    modal.onDidDismiss().then(() => {
-      this.updateRenaultZoeConfig();
+    MODAL.ON_DID_DISMISS().then(() => {
+      THIS.UPDATE_RENAULT_ZOE_CONFIG();
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
 
-    this.controller = this.config.getComponentsByFactory("Controller.Evcs")
-      .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component.id);
+    THIS.CONTROLLER = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.EVCS")
+      .find(element => "EVCS.ID" in ELEMENT.PROPERTIES && ELEMENT.PROPERTIES["EVCS.ID"] == THIS.COMPONENT.ID);
 
-    this.evcsComponent = this.config.getComponent(this.component.id);
+    THIS.EVCS_COMPONENT = THIS.CONFIG.GET_COMPONENT(THIS.COMPONENT.ID);
 
     return [
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, this.getPowerChannelId()),
-      new ChannelAddress(this.component.id, "Phases"),
-      new ChannelAddress(this.component.id, "Plug"),
-      new ChannelAddress(this.component.id, "Status"),
-      new ChannelAddress(this.component.id, "State"),
-      new ChannelAddress(this.component.id, "EnergySession"),
-      new ChannelAddress(this.component.id, "MinimumHardwarePower"),
-      new ChannelAddress(this.component.id, "MaximumHardwarePower"),
-      new ChannelAddress(this.component.id, "SetChargePowerLimit"),
-      new ChannelAddress(this.component.id, "_PropertyReadOnly"),
-      new ChannelAddress(this.controller?.id, "_PropertyChargeMode"),
-      new ChannelAddress(this.controller?.id, "_PropertyEnabledCharging"),
-      new ChannelAddress(this.controller?.id, "_PropertyDefaultChargeMinPower"),
-      new ChannelAddress(this.controller?.id, "AwaitingHysteresis"),
+      new ChannelAddress(THIS.COMPONENT.ID, THIS.GET_POWER_CHANNEL_ID()),
+      new ChannelAddress(THIS.COMPONENT.ID, "Phases"),
+      new ChannelAddress(THIS.COMPONENT.ID, "Plug"),
+      new ChannelAddress(THIS.COMPONENT.ID, "Status"),
+      new ChannelAddress(THIS.COMPONENT.ID, "State"),
+      new ChannelAddress(THIS.COMPONENT.ID, "EnergySession"),
+      new ChannelAddress(THIS.COMPONENT.ID, "MinimumHardwarePower"),
+      new ChannelAddress(THIS.COMPONENT.ID, "MaximumHardwarePower"),
+      new ChannelAddress(THIS.COMPONENT.ID, "SetChargePowerLimit"),
+      new ChannelAddress(THIS.COMPONENT.ID, "_PropertyReadOnly"),
+      new ChannelAddress(THIS.CONTROLLER?.id, "_PropertyChargeMode"),
+      new ChannelAddress(THIS.CONTROLLER?.id, "_PropertyEnabledCharging"),
+      new ChannelAddress(THIS.CONTROLLER?.id, "_PropertyDefaultChargeMinPower"),
+      new ChannelAddress(THIS.CONTROLLER?.id, "AwaitingHysteresis"),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
-    this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
-    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
+    THIS.IS_CONNECTION_SUCCESSFUL = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/State"] !== 3 ? true : false;
+    THIS.AWAITING_HYSTERESIS = CURRENT_DATA.ALL_COMPONENTS[THIS.CONTROLLER?.id + "/AwaitingHysteresis"];
+    THIS.IS_READ_WRITE = THIS.COMPONENT.HAS_PROPERTY_VALUE<boolean>("readOnly", true) === false;
     // Do not change values after touching formControls
-    if (this.formGroup?.pristine) {
-      this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/" + this.getPowerChannelId()]);
-      this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
-      this.state = currentData.allComponents[this.component.id + "/Status"];
-      this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
-      this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
-      this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
-      this.numberOfPhases = currentData.allComponents[this.component.id + "/Phases"] ? currentData.allComponents[this.component.id + "/Phases"] : 3;
-      this.defaultChargeMinPower = currentData.allComponents[this.controller?.id + "/_PropertyDefaultChargeMinPower"];
+    if (THIS.FORM_GROUP?.pristine) {
+      THIS.STATUS = THIS.GET_STATE(THIS.CONTROLLER ? CURRENT_DATA.ALL_COMPONENTS[THIS.CONTROLLER.ID + "/_PropertyEnabledCharging"] === 1 : null, CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Status"], CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Plug"]);
+      THIS.CHARGE_POWER = UTILS.CONVERT_CHARGE_DISCHARGE_POWER(THIS.TRANSLATE, CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + THIS.GET_POWER_CHANNEL_ID()]);
+      THIS.CHARGE_POWER_LIMIT = Utils.CONVERT_TO_WATT(THIS.FORMAT_NUMBER(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/SetChargePowerLimit"]));
+      THIS.STATE = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Status"];
+      THIS.ENERGY_SESSION = Utils.CONVERT_TO_WATTHOURS(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/EnergySession"]);
+      THIS.MIN_CHARGE_POWER = THIS.FORMAT_NUMBER(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/MinimumHardwarePower"]);
+      THIS.MAX_CHARGE_POWER = THIS.FORMAT_NUMBER(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/MaximumHardwarePower"]);
+      THIS.NUMBER_OF_PHASES = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Phases"] ? CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Phases"] : 3;
+      THIS.DEFAULT_CHARGE_MIN_POWER = CURRENT_DATA.ALL_COMPONENTS[THIS.CONTROLLER?.id + "/_PropertyDefaultChargeMinPower"];
     }
   }
 
   protected override onIsInitialized(): void {
-    this.subscription.add(this.formGroup?.controls["energyLimit"]?.valueChanges.subscribe(isEnergyLimit => {
+    THIS.SUBSCRIPTION.ADD(THIS.FORM_GROUP?.controls["energyLimit"]?.VALUE_CHANGES.SUBSCRIBE(isEnergyLimit => {
       if (isEnergyLimit) {
-        if (this.formGroup.controls["energySessionLimit"]?.value === 0) {
-          this.formGroup.controls["energySessionLimit"].setValue(20000);
-          this.formGroup.controls["energySessionLimit"].markAsDirty();
+        if (THIS.FORM_GROUP.CONTROLS["energySessionLimit"]?.value === 0) {
+          THIS.FORM_GROUP.CONTROLS["energySessionLimit"].setValue(20000);
+          THIS.FORM_GROUP.CONTROLS["energySessionLimit"].markAsDirty();
         } else {
           // energySessionLimit is already valid -> do nothing
         }
       } else {
-        this.formGroup.controls["energySessionLimit"].setValue(0);
-        this.formGroup.controls["energySessionLimit"].markAsDirty();
+        THIS.FORM_GROUP.CONTROLS["energySessionLimit"].setValue(0);
+        THIS.FORM_GROUP.CONTROLS["energySessionLimit"].markAsDirty();
       }
     }));
 
-    this.subscription.add(this.formGroup?.get("chargeMode").valueChanges.subscribe(chargeMode => {
+    THIS.SUBSCRIPTION.ADD(THIS.FORM_GROUP?.get("chargeMode").VALUE_CHANGES.SUBSCRIBE(chargeMode => {
       if (chargeMode === "OFF") {
-        this.formGroup.get("enabledCharging").setValue(false);
-        this.formGroup.get("chargeMode").markAsPristine(); // do not send chargeMode=OFF to Edge
+        THIS.FORM_GROUP.GET("enabledCharging").setValue(false);
+        THIS.FORM_GROUP.GET("chargeMode").markAsPristine(); // do not send chargeMode=OFF to Edge
       } else {
-        this.formGroup.get("enabledCharging").setValue(true);
+        THIS.FORM_GROUP.GET("enabledCharging").setValue(true);
       }
-      this.formGroup.get("enabledCharging").markAsDirty();
+      THIS.FORM_GROUP.GET("enabledCharging").markAsDirty();
     }));
 
-    this.subscription.add(this.formGroup?.get("minGuarantee").valueChanges.subscribe(minGuarantee => {
+    THIS.SUBSCRIPTION.ADD(THIS.FORM_GROUP?.get("minGuarantee").VALUE_CHANGES.SUBSCRIBE(minGuarantee => {
       if (minGuarantee) {
-        this.formGroup.controls["defaultChargeMinPower"].setValue(1400 /* approx min power per phase */ * this.numberOfPhases);
+        THIS.FORM_GROUP.CONTROLS["defaultChargeMinPower"].setValue(1400 /* approx min power per phase */ * THIS.NUMBER_OF_PHASES);
       } else {
-        this.formGroup.controls["defaultChargeMinPower"].setValue(0);
+        THIS.FORM_GROUP.CONTROLS["defaultChargeMinPower"].setValue(0);
       }
-      this.formGroup.controls["defaultChargeMinPower"].markAsDirty();
+      THIS.FORM_GROUP.CONTROLS["defaultChargeMinPower"].markAsDirty();
     }));
 
     // Convert FormGroup value in kWh to Wh for Component config
-    this.subscription.add(this.formGroup?.get("energySessionLimitKwh").valueChanges.subscribe((newValue) => {
-      this.formGroup.controls["energySessionLimit"].setValue(newValue * 1000);
-      this.formGroup.controls["energySessionLimit"].markAsDirty();
-      this.formGroup.controls["energySessionLimitKwh"].markAsPristine();
+    THIS.SUBSCRIPTION.ADD(THIS.FORM_GROUP?.get("energySessionLimitKwh").VALUE_CHANGES.SUBSCRIBE((newValue) => {
+      THIS.FORM_GROUP.CONTROLS["energySessionLimit"].setValue(newValue * 1000);
+      THIS.FORM_GROUP.CONTROLS["energySessionLimit"].markAsDirty();
+      THIS.FORM_GROUP.CONTROLS["energySessionLimitKwh"].markAsPristine();
     }));
   }
 
   protected override getFormGroup(): FormGroup {
-    return this.formBuilder.group({
-      chargeMode: new FormControl(this.controller?.properties.enabledCharging == false ? "OFF" : this.controller?.properties.chargeMode),
-      energyLimit: new FormControl(this.controller?.properties.energySessionLimit > 0),
-      minGuarantee: new FormControl(this.controller?.properties.defaultChargeMinPower > 0),
-      defaultChargeMinPower: new FormControl(this.controller?.properties.defaultChargeMinPower),
-      forceChargeMinPower: new FormControl(this.controller?.properties.forceChargeMinPower),
-      priority: new FormControl(this.controller?.properties.priority),
+    return THIS.FORM_BUILDER.GROUP({
+      chargeMode: new FormControl(THIS.CONTROLLER?.PROPERTIES.ENABLED_CHARGING == false ? "OFF" : THIS.CONTROLLER?.PROPERTIES.CHARGE_MODE),
+      energyLimit: new FormControl(THIS.CONTROLLER?.PROPERTIES.ENERGY_SESSION_LIMIT > 0),
+      minGuarantee: new FormControl(THIS.CONTROLLER?.PROPERTIES.DEFAULT_CHARGE_MIN_POWER > 0),
+      defaultChargeMinPower: new FormControl(THIS.CONTROLLER?.PROPERTIES.DEFAULT_CHARGE_MIN_POWER),
+      forceChargeMinPower: new FormControl(THIS.CONTROLLER?.PROPERTIES.FORCE_CHARGE_MIN_POWER),
+      priority: new FormControl(THIS.CONTROLLER?.PROPERTIES.PRIORITY),
       // EnergySessionLimit as Wh value
-      energySessionLimit: new FormControl(this.controller?.properties.energySessionLimit),
+      energySessionLimit: new FormControl(THIS.CONTROLLER?.PROPERTIES.ENERGY_SESSION_LIMIT),
       // EnergySessionLimit as kWh value, for ion-range
-      energySessionLimitKwh: new FormControl(Math.round(this.controller?.properties.energySessionLimit / 1000)),
-      enabledCharging: new FormControl(this.isChargingEnabled),
+      energySessionLimitKwh: new FormControl(MATH.ROUND(THIS.CONTROLLER?.PROPERTIES.ENERGY_SESSION_LIMIT / 1000)),
+      enabledCharging: new FormControl(THIS.IS_CHARGING_ENABLED),
     });
   }
 
@@ -208,32 +208,32 @@ export class ModalComponent extends AbstractModal {
      *
      * @param event
      */
-  protected updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
+  protected updateForceMinPower(event: CustomEvent, currentController: EDGE_CONFIG.COMPONENT, numberOfPhases: number) {
 
-    const newMinChargePower = event.detail.value / numberOfPhases;
-    this.formGroup.controls["forceChargeMinPower"].markAsDirty();
-    this.formGroup.controls["forceChargeMinPower"].setValue(newMinChargePower);
+    const newMinChargePower = EVENT.DETAIL.VALUE / numberOfPhases;
+    THIS.FORM_GROUP.CONTROLS["forceChargeMinPower"].markAsDirty();
+    THIS.FORM_GROUP.CONTROLS["forceChargeMinPower"].setValue(newMinChargePower);
   }
 
   /**
  * Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component
  */
   protected updateRenaultZoeConfig() {
-    if (this.controller && this.evcsComponent.properties["minHwCurrent"] == 10000) {
+    if (THIS.CONTROLLER && THIS.EVCS_COMPONENT.PROPERTIES["minHwCurrent"] == 10000) {
 
-      const oldMinChargePower = this.controller.properties.forceChargeMinPower;
+      const oldMinChargePower = THIS.CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER;
       const maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
 
       if (oldMinChargePower < maxAllowedChargePower) {
-        if (this.edge != null) {
+        if (THIS.EDGE != null) {
           const newMinChargePower = maxAllowedChargePower;
-          this.edge.updateComponentConfig(this.websocket, this.controller.id, [
+          THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.CONTROLLER.ID, [
             { name: "forceChargeMinPower", value: newMinChargePower },
           ]).then(() => {
-            this.controller.properties.forceChargeMinPower = newMinChargePower;
+            THIS.CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER = newMinChargePower;
           }).catch(reason => {
-            this.controller.properties.forceChargeMinPower = oldMinChargePower;
-            console.warn(reason);
+            THIS.CONTROLLER.PROPERTIES.FORCE_CHARGE_MIN_POWER = oldMinChargePower;
+            CONSOLE.WARN(reason);
           });
         }
       }
@@ -241,7 +241,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
+    const round = MATH.CEIL(i / 100) * 100;
     return round;
   }
 
@@ -255,39 +255,39 @@ export class ModalComponent extends AbstractModal {
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
     if (enabledCharging === false) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.chargingStationDeactivated");
+      return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
     }
 
     if (plug == null) {
       if (state == null) {
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
       }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower?.value > 450) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
+    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && THIS.CHARGE_POWER?.value > 450) {
+      return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
     }
     switch (state) {
-      case ChargeState.STARTING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.starting");
-      case ChargeState.UNDEFINED:
-      case ChargeState.ERROR:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.error");
+      case CHARGE_STATE.STARTING:
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.STARTING");
+      case CHARGE_STATE.UNDEFINED:
+      case CHARGE_STATE.ERROR:
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.ERROR");
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.readyForCharging");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING");
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notReadyForCharging");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING");
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
-      case ChargeState.CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
+      case CHARGE_STATE.CHARGING:
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED");
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
+        return THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
     }
   }
 
   private getPowerChannelId(): string {
-    return EvcsUtils.getEvcsPowerChannelId(this.component, this.config, this.edge);
+    return EVCS_UTILS.GET_EVCS_POWER_CHANNEL_ID(THIS.COMPONENT, THIS.CONFIG, THIS.EDGE);
   }
 }
 
@@ -295,7 +295,7 @@ export class ModalComponent extends AbstractModal {
 enum ChargeState {
   UNDEFINED = -1,           //Undefined
   STARTING,                 //Starting
-  NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+  NOT_READY_FOR_CHARGING,   //Not ready for Charging E.G. unplugged, X1 or "ena" not enabled, RFID not enabled,...
   READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
   CHARGING,                 //Charging
   ERROR,                    //Error

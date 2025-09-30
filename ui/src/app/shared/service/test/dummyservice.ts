@@ -11,11 +11,11 @@ import { AbstractService } from "../abstractservice";
 export class DummyService extends AbstractService {
 
     public readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
+        , "1234.56.78", ROLE.ADMIN, true, new Date(), SUM_STATE.OK, new Date());
 
-    public currentEdge: WritableSignal<Edge> = signal(this.edge);
+    public currentEdge: WritableSignal<Edge> = signal(THIS.EDGE);
 
-    private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
+    private readonly edgeConfig = new EdgeConfig(THIS.EDGE, undefined);
 
     setLang(id: Language) {
         throw new Error("Method not implemented.");
@@ -23,7 +23,7 @@ export class DummyService extends AbstractService {
     getDocsLang(): string {
         throw new Error("Method not implemented.");
     }
-    notify(notification: DefaultTypes.Notification) {
+    notify(notification: DEFAULT_TYPES.NOTIFICATION) {
         throw new Error("Method not implemented.");
     }
     setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
@@ -34,7 +34,7 @@ export class DummyService extends AbstractService {
     }
     getConfig(): Promise<EdgeConfig> {
         return new Promise((accept, reject) => {
-            accept(this.edgeConfig);
+            accept(THIS.EDGE_CONFIG);
         });
     }
     onLogout() {
@@ -61,7 +61,7 @@ export class DummyService extends AbstractService {
     isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
-    // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+    // https://V16.ANGULAR.IO/api/core/ErrorHandler#errorhandler
 
     override handleError(error: any): void {
         throw new Error("Method not implemented.");

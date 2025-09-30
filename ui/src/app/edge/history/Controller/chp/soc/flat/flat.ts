@@ -3,8 +3,8 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 
 @Component({
     selector: "controller-chp-soc-widget",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
 })
 export class FlatComponent extends AbstractFlatWidget {
-    protected FORMAT_SECONDS_TO_DURATION = this.Converter.FORMAT_SECONDS_TO_DURATION(this.translate.currentLang);
+    protected FORMAT_SECONDS_TO_DURATION = THIS.CONVERTER.FORMAT_SECONDS_TO_DURATION(THIS.TRANSLATE.CURRENT_LANG);
 }

@@ -1,15 +1,15 @@
 <ion-radio-group [(ngModel)]="value" (ionChange)="updateFormControl()">
-    <ion-item *ngIf="props.label">
-        <ion-label>{{props.label}}</ion-label>
+    <ion-item *ngIf="PROPS.LABEL">
+        <ion-label>{{PROPS.LABEL}}</ion-label>
     </ion-item>
 
-    <ng-container *ngFor="let option of props.options">
+    <ng-container *ngFor="let option of PROPS.OPTIONS">
         <ion-card>
             <ion-row>
                 <ion-col>
                     <ion-item>
-                        <ion-label>{{option.label}}</ion-label>
-                        <ion-radio slot="end" [value]="option.value"> </ion-radio>
+                        <ion-label>{{OPTION.LABEL}}</ion-label>
+                        <ion-radio slot="end" [value]="OPTION.VALUE"> </ion-radio>
                     </ion-item>
                 </ion-col>
             </ion-row>
@@ -17,7 +17,7 @@
                 <ion-col>
                     <ion-list lines="none">
                         <ion-item>
-                            <ion-img [src]="option.url"></ion-img>
+                            <ion-img [src]="OPTION.URL"></ion-img>
                         </ion-item>
                     </ion-list>
                 </ion-col>

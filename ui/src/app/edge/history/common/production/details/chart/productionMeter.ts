@@ -9,44 +9,44 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "productionMeterChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-    const component = config.getComponent(route.snapshot.params.componentId);
+  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
+    const component = CONFIG.GET_COMPONENT(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
     return {
       input: [{
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
+        name: COMPONENT.ID,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActiveProductionEnergy"),
       },
       ...Phase.THREE_PHASE.map(phase => ({
         name: "ProductionAcActivePower" + phase,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ActivePower" + phase),
       }))],
 
-      output: (data: HistoryUtils.ChannelData) => {
-        const datasets: HistoryUtils.DisplayValue[] = [];
-        datasets.push({
-          name: component.alias,
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
+        const datasets: HISTORY_UTILS.DISPLAY_VALUE[] = [];
+        DATASETS.PUSH({
+          name: COMPONENT.ALIAS,
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-            return energyQueryResponse.result.data[component.id + "/ActiveProductionEnergy"];
+            return ENERGY_QUERY_RESPONSE.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"];
           },
           converter: () => {
-            return data[component.id];
+            return data[COMPONENT.ID];
           },
           color: "rgb(0,152,204)",
           hiddenOnInit: false,
           stack: 2,
         });
 
-        datasets.push(...Phase.THREE_PHASE.map((phase, i) => ({
+        DATASETS.PUSH(...Phase.THREE_PHASE.map((phase, i) => ({
           name: "Phase " + phase,
           converter: () =>
             data["ProductionAcActivePower" + phase],
-          color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+          color: "rgb(" + ABSTRACT_HISTORY_CHART.PHASE_COLORS[i] + ")",
           stack: 3,
         })));
 
@@ -54,17 +54,17 @@ export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return ProductionMeterChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    return PRODUCTION_METER_CHART_DETAILS_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.ROUTE, THIS.TRANSLATE);
   }
 }

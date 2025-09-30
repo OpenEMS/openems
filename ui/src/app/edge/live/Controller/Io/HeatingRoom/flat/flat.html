@@ -1,13 +1,13 @@
 <ng-container *ngIf="isInitialized">
-    <oe-flat-widget button (click)="presentModal()" [title]="component.alias" [icon]="{color: 'normal', name:'flame'}">
+    <oe-flat-widget button (click)="presentModal()" [title]="COMPONENT.ALIAS" [icon]="{color: 'normal', name:'flame'}">
 
-        <oe-flat-widget-line [name]="'General.mode'| translate"
-            [channelAddress]="component.id + '/_PropertyMode'"></oe-flat-widget-line>
-        <oe-flat-widget-line name="Floor Temperature" [channelAddress]="component.id + '/FloorActual'"
+        <oe-flat-widget-line [name]="'GENERAL.MODE'| translate"
+            [channelAddress]="COMPONENT.ID + '/_PropertyMode'"></oe-flat-widget-line>
+        <oe-flat-widget-line name="Floor Temperature" [channelAddress]="COMPONENT.ID + '/FloorActual'"
             [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"></oe-flat-widget-line>
-        <oe-flat-widget-line name="Ambient Temperature" [channelAddress]="component.id + '/AmbientActual'"
+        <oe-flat-widget-line name="Ambient Temperature" [channelAddress]="COMPONENT.ID + '/AmbientActual'"
             [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"></oe-flat-widget-line>
-        <oe-flat-widget-line name="Power Consumption" [channelAddress]="component.id + '/ActivePower'"
+        <oe-flat-widget-line name="Power Consumption" [channelAddress]="COMPONENT.ID + '/ActivePower'"
             [converter]="Utils.CONVERT_WATT_TO_KILOWATT"></oe-flat-widget-line>
 
     </oe-flat-widget>

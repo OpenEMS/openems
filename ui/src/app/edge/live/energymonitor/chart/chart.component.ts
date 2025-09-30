@@ -4,14 +4,14 @@ import { Subject, fromEvent } from "rxjs";
 import { debounceTime, delay, takeUntil } from "rxjs/operators";
 import { Service } from "src/app/shared/shared";
 import { CurrentData } from "../../../../shared/components/edge/currentdata";
-import { ConsumptionSectionComponent } from "./section/consumption.component";
-import { GridSectionComponent } from "./section/grid.component";
-import { ProductionSectionComponent } from "./section/production.component";
-import { StorageSectionComponent } from "./section/storage.component";
+import { ConsumptionSectionComponent } from "./section/CONSUMPTION.COMPONENT";
+import { GridSectionComponent } from "./section/GRID.COMPONENT";
+import { ProductionSectionComponent } from "./section/PRODUCTION.COMPONENT";
+import { StorageSectionComponent } from "./section/STORAGE.COMPONENT";
 
 @Component({
   selector: "energymonitor-chart",
-  templateUrl: "./chart.component.html",
+  templateUrl: "./CHART.COMPONENT.HTML",
   standalone: false,
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {
@@ -45,23 +45,23 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   ) { }
   @Input()
   set currentData(currentData: CurrentData) {
-    this.service.stopSpinner(this.spinnerId);
-    this.updateCurrentData(currentData);
+    THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
+    THIS.UPDATE_CURRENT_DATA(currentData);
   }
 
   ngOnInit() {
-    this.service.startSpinner(this.spinnerId);
+    THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
     // make sure chart is redrawn in the beginning and on window resize
-    setTimeout(() => this.updateOnWindowResize(), 500);
+    setTimeout(() => THIS.UPDATE_ON_WINDOW_RESIZE(), 500);
     const source = fromEvent(window, "resize", null, null);
-    source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
-      this.updateOnWindowResize();
+    SOURCE.PIPE(takeUntil(THIS.NG_UNSUBSCRIBE), debounceTime(200), delay(100)).subscribe(e => {
+      THIS.UPDATE_ON_WINDOW_RESIZE();
     });
   }
 
   ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    THIS.NG_UNSUBSCRIBE.NEXT();
+    THIS.NG_UNSUBSCRIBE.COMPLETE();
   }
 
   /**
@@ -71,11 +71,11 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     /*
      * Set values for energy monitor
      */
-    const summary = currentData.summary;
-    [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
+    const summary = CURRENT_DATA.SUMMARY;
+    [THIS.CONSUMPTION_SECTION, THIS.GRID_SECTION, THIS.PRODUCTION_SECTION, THIS.STORAGE_SECTION]
       .filter(section => section != null)
       .forEach(section => {
-        section.updateCurrentData(summary);
+        SECTION.UPDATE_CURRENT_DATA(summary);
       });
   }
 
@@ -84,25 +84,25 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    */
   private updateOnWindowResize(): void {
     let size = 300;
-    if (this.chartDiv.nativeElement.offsetParent) {
-      size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
+    if (THIS.CHART_DIV.NATIVE_ELEMENT.OFFSET_PARENT) {
+      size = THIS.CHART_DIV.NATIVE_ELEMENT.OFFSET_PARENT.OFFSET_WIDTH - 30;
     }
-    if (size > window.innerHeight) {
-      size = window.innerHeight;
+    if (size > WINDOW.INNER_HEIGHT) {
+      size = WINDOW.INNER_HEIGHT;
     }
-    this.height = this.width = size;
-    this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
-    const outerRadius = Math.min(this.width, this.height) / 2;
+    THIS.HEIGHT = THIS.WIDTH = size;
+    THIS.TRANSLATION = `translate(${THIS.WIDTH / 2}, ${THIS.HEIGHT / 2})`;
+    const outerRadius = MATH.MIN(THIS.WIDTH, THIS.HEIGHT) / 2;
     const innerRadius = outerRadius - (outerRadius * 0.1378);
     // All sections from update() in section
-    [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
+    [THIS.CONSUMPTION_SECTION, THIS.GRID_SECTION, THIS.PRODUCTION_SECTION, THIS.STORAGE_SECTION]
       .filter(section => section != null)
       .forEach(section => {
-        section.updateOnWindowResize(outerRadius, innerRadius, this.height, this.width);
+        SECTION.UPDATE_ON_WINDOW_RESIZE(outerRadius, innerRadius, THIS.HEIGHT, THIS.WIDTH);
       });
   }
 
   private deg2rad(value: number): number {
-    return value * (Math.PI / 180);
+    return value * (MATH.PI / 180);
   }
 }

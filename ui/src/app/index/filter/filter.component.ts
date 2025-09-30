@@ -8,13 +8,13 @@ import { SUM_STATES } from "../shared/sumState";
 
 @Component({
   selector: "oe-filter",
-  templateUrl: "./filter.component.html",
+  templateUrl: "./FILTER.COMPONENT.HTML",
   standalone: false,
 })
 export class FilterComponent {
 
   @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
-  protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
+  protected filters: Filter[] = [environment.PRODUCT_TYPES(THIS.TRANSLATE), SUM_STATES(THIS.TRANSLATE)];
   protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
   constructor(private translate: TranslateService) { }
@@ -27,7 +27,7 @@ export class FilterComponent {
    */
   public searchOnChange(event, filter: Filter): void {
 
-    const value = event.target.value;
+    const value = EVENT.TARGET.VALUE;
 
     // If no value provided
     if (!value) {
@@ -36,37 +36,37 @@ export class FilterComponent {
 
     let didFilterChange: boolean = false;
 
-    if (Array.isArray(this.searchParams.get(filter.category))) {
-      didFilterChange = Utils.compareArraysSafely(value, this.searchParams.get(filter.category) as any[]);
+    if (ARRAY.IS_ARRAY(THIS.SEARCH_PARAMS.GET(FILTER.CATEGORY))) {
+      didFilterChange = UTILS.COMPARE_ARRAYS_SAFELY(value, THIS.SEARCH_PARAMS.GET(FILTER.CATEGORY) as any[]);
     } else {
-      didFilterChange = value == this.searchParams.get(filter.category);
+      didFilterChange = value == THIS.SEARCH_PARAMS.GET(FILTER.CATEGORY);
     }
 
     // If Map didn't change
-    if (this.searchParams.has(filter.category) && didFilterChange) {
+    if (THIS.SEARCH_PARAMS.HAS(FILTER.CATEGORY) && didFilterChange) {
       return;
     }
 
     let additionalFilter: ChosenFilter;
-    if (filter.setAdditionalFilter) {
-      additionalFilter = filter.setAdditionalFilter();
+    if (FILTER.SET_ADDITIONAL_FILTER) {
+      additionalFilter = FILTER.SET_ADDITIONAL_FILTER();
     }
 
     if (value?.length === 0) {
-      this.searchParams.delete(filter.category);
+      THIS.SEARCH_PARAMS.DELETE(FILTER.CATEGORY);
 
       if (additionalFilter) {
-        this.searchParams.delete(additionalFilter.key);
+        THIS.SEARCH_PARAMS.DELETE(ADDITIONAL_FILTER.KEY);
       }
     } else {
-      this.searchParams.set(filter.category, value);
+      THIS.SEARCH_PARAMS.SET(FILTER.CATEGORY, value);
 
       if (additionalFilter) {
-        this.searchParams.set(additionalFilter.key, additionalFilter.value);
+        THIS.SEARCH_PARAMS.SET(ADDITIONAL_FILTER.KEY, ADDITIONAL_FILTER.VALUE);
       }
     }
 
-    this.setSearchParams.emit(this.searchParams);
+    THIS.SET_SEARCH_PARAMS.EMIT(THIS.SEARCH_PARAMS);
   }
 }
 

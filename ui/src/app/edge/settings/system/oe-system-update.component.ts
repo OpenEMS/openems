@@ -10,8 +10,8 @@ import { ExecuteSystemUpdate } from "./executeSystemUpdate";
 import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
-  selector: OeSystemUpdateComponent.SELECTOR,
-  templateUrl: "./oe-system-update.component.html",
+  selector: OE_SYSTEM_UPDATE_COMPONENT.SELECTOR,
+  templateUrl: "./oe-system-UPDATE.COMPONENT.HTML",
   standalone: false,
   providers: [{
     useClass: LiveDataService,
@@ -26,7 +26,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   @Input() public executeUpdateInstantly: boolean = false;
   @Input({ required: true }) public edge!: Edge;
   public readonly environment = environment;
-  public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
+  public readonly spinnerId: string = OE_SYSTEM_UPDATE_COMPONENT.SELECTOR;
 
   protected executeUpdate: ExecuteSystemUpdate | null = null;
   protected isWaiting: boolean;
@@ -39,46 +39,46 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);
+    THIS.EXECUTE_UPDATE = new ExecuteSystemUpdate(THIS.EDGE, THIS.WEBSOCKET);
 
-    this.executeUpdate.systemUpdateStateChange = (systemUpdateState) => {
-      this.stateChanged.emit(systemUpdateState);
-      if (systemUpdateState.updated) {
-        this.service.stopSpinner(this.spinnerId);
-        this.isWaiting = false;
+    THIS.EXECUTE_UPDATE.SYSTEM_UPDATE_STATE_CHANGE = (systemUpdateState) => {
+      THIS.STATE_CHANGED.EMIT(systemUpdateState);
+      if (SYSTEM_UPDATE_STATE.UPDATED) {
+        THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
+        THIS.IS_WAITING = false;
       }
     };
 
-    this.service.startSpinnerTransparentBackground(this.spinnerId);
-    this.isWaiting = true;
-    this.executeUpdate.start()
+    THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(THIS.SPINNER_ID);
+    THIS.IS_WAITING = true;
+    THIS.EXECUTE_UPDATE.START()
       .finally(() => {
-        if (!this.executeUpdate.systemUpdateState.running) {
-          this.service.stopSpinner(this.spinnerId);
-          this.isWaiting = false;
+        if (!THIS.EXECUTE_UPDATE.SYSTEM_UPDATE_STATE.RUNNING) {
+          THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
+          THIS.IS_WAITING = false;
         }
-        if (this.executeUpdate.systemUpdateState.available && this.executeUpdateInstantly) {
-          this.executeSystemUpdate();
+        if (THIS.EXECUTE_UPDATE.SYSTEM_UPDATE_STATE.AVAILABLE && THIS.EXECUTE_UPDATE_INSTANTLY) {
+          THIS.EXECUTE_SYSTEM_UPDATE();
         }
       });
   }
 
   public ngOnDestroy() {
-    this.executeUpdate.stop();
+    THIS.EXECUTE_UPDATE.STOP();
   }
 
   public executeSystemUpdate() {
-    this.service.startSpinnerTransparentBackground(this.spinnerId);
-    this.isWaiting = true;
-    this.executeUpdate.executeSystemUpdate();
+    THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(THIS.SPINNER_ID);
+    THIS.IS_WAITING = true;
+    THIS.EXECUTE_UPDATE.EXECUTE_SYSTEM_UPDATE();
   }
 
-  protected confirmationAlert: () => void = () => presentAlert(this.alertCtrl, this.translate, {
-    message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.WARNING", { system: environment.edgeShortName }),
-    subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.SUB_HEADER"),
+  protected confirmationAlert: () => void = () => presentAlert(THIS.ALERT_CTRL, THIS.TRANSLATE, {
+    message: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.WARNING", { system: ENVIRONMENT.EDGE_SHORT_NAME }),
+    subHeader: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.SUB_HEADER"),
     buttons: [{
-      text: this.translate.instant("SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE"),
-      handler: () => this.executeSystemUpdate(),
+      text: THIS.TRANSLATE.INSTANT("SETTINGS.SYSTEM_UPDATE.UPDATE_EXECUTE"),
+      handler: () => THIS.EXECUTE_SYSTEM_UPDATE(),
     }],
   });
 

@@ -7,7 +7,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 })
 export class ClassnamePipe implements PipeTransform {
   transform(value, args: string[]): any {
-    const parts = value.split(".");
-    return parts[parts.length - 1];
+    const parts = VALUE.SPLIT(".");
+    return parts[PARTS.LENGTH - 1];
   }
 }

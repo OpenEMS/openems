@@ -9,16 +9,16 @@ export abstract class JsonrpcMessage {
     public static from(message: any): JsonrpcRequest | JsonrpcNotification | JsonrpcResponseSuccess | JsonrpcResponseError {
         if ("method" in message && "params" in message) {
             if ("id" in message) {
-                return new JsonrpcRequest(message.id, message.method, message.params);
+                return new JsonrpcRequest(MESSAGE.ID, MESSAGE.METHOD, MESSAGE.PARAMS);
             } else {
-                return new JsonrpcNotification(message.method, message.params);
+                return new JsonrpcNotification(MESSAGE.METHOD, MESSAGE.PARAMS);
             }
         } else if ("result" in message) {
-            return new JsonrpcResponseSuccess(message.id, message.result);
+            return new JsonrpcResponseSuccess(MESSAGE.ID, MESSAGE.RESULT);
         } else if ("error" in message) {
-            return new JsonrpcResponseError(message.id, message.error);
+            return new JsonrpcResponseError(MESSAGE.ID, MESSAGE.ERROR);
         } else {
-            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.stringify(message));
+            throw new Error("JsonrpcMessage is not a valid Request, Result or Notification: " + JSON.STRINGIFY(message));
         }
     }
 

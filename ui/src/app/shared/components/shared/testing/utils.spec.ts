@@ -6,21 +6,21 @@ import { TestBed, TestModuleMetadata } from "@angular/core/testing";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
-import { routes } from "src/app/app-routing.module";
-import { RouteService } from "src/app/shared/service/route.service";
+import { routes } from "src/app/app-ROUTING.MODULE";
+import { RouteService } from "src/app/shared/service/ROUTE.SERVICE";
 import { Service } from "src/app/shared/shared";
-import { registerTranslateExtension } from "src/app/shared/translate.extension";
+import { registerTranslateExtension } from "src/app/shared/TRANSLATE.EXTENSION";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 
 export type TestContext = { translate: TranslateService, service: Service };
 export const BASE_TEST_BED: TestModuleMetadata = {
     imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+        TRANSLATE_MODULE.FOR_ROOT({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: LANGUAGE.DEFAULT.KEY, useDefaultLang: false }),
     ],
     providers: [
         TranslateService,
         { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
-        { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+        { provide: LOCALE_ID, useValue: LANGUAGE.DEFAULT.KEY },
         Service,
         RouteService,
     ],
@@ -28,9 +28,9 @@ export const BASE_TEST_BED: TestModuleMetadata = {
 
 function setTranslateParams(): Promise<void> {
     return new Promise<void>((res) => {
-        const translateService = TestBed.inject(TranslateService);
-        translateService.addLangs(["de"]);
-        translateService.use("de");
+        const translateService = TEST_BED.INJECT(TranslateService);
+        TRANSLATE_SERVICE.ADD_LANGS(["de"]);
+        TRANSLATE_SERVICE.USE("de");
         registerLocaleData(localDE, "de", localeDeExtra);
         res();
     });
@@ -44,13 +44,13 @@ export namespace TestingUtils {
      * @returns the injected translateService and service
      */
     export async function sharedSetup(): Promise<TestContext> {
-        await TestBed.configureTestingModule(BASE_TEST_BED)
+        await TEST_BED.CONFIGURE_TESTING_MODULE(BASE_TEST_BED)
             .compileComponents()
             .then(() => setTranslateParams());
 
         return {
-            translate: TestBed.inject(TranslateService),
-            service: TestBed.inject(Service),
+            translate: TEST_BED.INJECT(TranslateService),
+            service: TEST_BED.INJECT(Service),
         };
     }
 
@@ -65,9 +65,9 @@ export namespace TestingUtils {
         services: { name: keyof T; provider: new (...args: any[]) => T[keyof T]; metadata: TestModuleMetadata }[],
     ): Promise<T> {
         // Merge all TestModuleMetadata from services
-        const testModuleMetadata = services.reduce((arr, el) => {
-            arr.imports.push(...(el.metadata.imports || []));
-            arr.providers.push(...(el.metadata.providers || []));
+        const testModuleMetadata = SERVICES.REDUCE((arr, el) => {
+            ARR.IMPORTS.PUSH(...(EL.METADATA.IMPORTS || []));
+            ARR.PROVIDERS.PUSH(...(EL.METADATA.PROVIDERS || []));
             return arr;
         }, {
             imports: BASE_TEST_BED.imports ?? [],
@@ -75,19 +75,19 @@ export namespace TestingUtils {
         });
 
         // Set up the TestBed
-        await TestBed.configureTestingModule(testModuleMetadata)
+        await TEST_BED.CONFIGURE_TESTING_MODULE(testModuleMetadata)
             .compileComponents();
         await setTranslateParams();
 
         // Inject services and return them as an object with service names as keys
-        const result = services.reduce((arr, el) => {
-            arr[el.name] = TestBed.inject(el.provider);
+        const result = SERVICES.REDUCE((arr, el) => {
+            arr[EL.NAME] = TEST_BED.INJECT(EL.PROVIDER);
             return arr;
         }, {} as T);
 
         return {
-            translate: TestBed.inject(TranslateService),
-            service: TestBed.inject(Service),
+            translate: TEST_BED.INJECT(TranslateService),
+            service: TEST_BED.INJECT(Service),
             ...result,
         };
     }
@@ -103,7 +103,7 @@ export namespace TestingUtils {
         export function setActivatedRoute(componentId: string): TestModuleMetadata {
             return {
                 imports: [
-                    RouterModule.forRoot(routes),
+                    ROUTER_MODULE.FOR_ROOT(routes),
                 ],
                 providers: [
                     {
@@ -140,6 +140,6 @@ export namespace TestingUtils {
      * @returns the test context with the activatedRoute services injected
      */
     export function setupWithActivatedRoute(componentId: string): Promise<(TestContext & { route: ActivatedRoute; })> {
-        return TestingUtils.mergeSetup<TestContext & { route: ActivatedRoute }>([{ name: "route", provider: ActivatedRoute, metadata: TestingUtils.TestModuleMetadata.setActivatedRoute(componentId) }]);
+        return TESTING_UTILS.MERGE_SETUP<TestContext & { route: ActivatedRoute }>([{ name: "route", provider: ActivatedRoute, metadata: TESTING_UTILS.TEST_MODULE_METADATA.SET_ACTIVATED_ROUTE(componentId) }]);
     }
 }

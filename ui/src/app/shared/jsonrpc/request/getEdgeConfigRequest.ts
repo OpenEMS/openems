@@ -18,7 +18,7 @@ export class GetEdgeConfigRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetEdgeConfigRequest.METHOD, {});
+        super(GET_EDGE_CONFIG_REQUEST.METHOD, {});
     }
 
 }

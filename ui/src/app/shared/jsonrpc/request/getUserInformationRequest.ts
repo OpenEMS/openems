@@ -14,7 +14,7 @@ export class GetUserInformationRequest extends JsonrpcRequest {
     private static METHOD: string = "getUserInformation";
 
     public constructor() {
-        super(GetUserInformationRequest.METHOD, {});
+        super(GET_USER_INFORMATION_REQUEST.METHOD, {});
     }
 
 }

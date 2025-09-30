@@ -7,7 +7,7 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "Controller_Io_FixDigitalOutput",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -16,31 +16,31 @@ export class FlatComponent extends AbstractFlatWidget {
   public outputChannel: string;
 
   async presentModal() {
-    if (!this.isInitialized) {
+    if (!THIS.IS_INITIALIZED) {
       return;
     }
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: ModalComponent,
       componentProps: {
-        component: this.component,
-        edge: this.edge,
+        component: THIS.COMPONENT,
+        edge: THIS.EDGE,
       },
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    this.outputChannel = this.component.properties["outputChannelAddress"];
-    return [ChannelAddress.fromString(this.outputChannel)];
+    THIS.OUTPUT_CHANNEL = THIS.COMPONENT.PROPERTIES["outputChannelAddress"];
+    return [CHANNEL_ADDRESS.FROM_STRING(THIS.OUTPUT_CHANNEL)];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    const channel = currentData.allComponents[this.outputChannel];
+    const channel = CURRENT_DATA.ALL_COMPONENTS[THIS.OUTPUT_CHANNEL];
     if (channel != null) {
       if (channel == 1) {
-        this.state = this.translate.instant("General.on");
+        THIS.STATE = THIS.TRANSLATE.INSTANT("GENERAL.ON");
       } else if (channel == 0) {
-        this.state = this.translate.instant("General.off");
+        THIS.STATE = THIS.TRANSLATE.INSTANT("GENERAL.OFF");
       }
     }
   }

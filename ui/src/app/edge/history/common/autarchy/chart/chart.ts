@@ -7,36 +7,36 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "autarchychart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    this.spinnerId = "autarchy-chart";
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    THIS.SPINNER_ID = "autarchy-chart";
     return {
       input:
         [{
           name: "Consumption",
-          powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
-          energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ConsumptionActivePower"),
+          energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/ConsumptionActiveEnergy"),
         },
         {
           name: "GridBuy",
-          powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-          energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
-          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridActivePower"),
+          energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridBuyActiveEnergy"),
+          converter: HISTORY_UTILS.VALUE_CONVERTER.NON_NULL_OR_NEGATIVE,
         }],
-      output: (data: HistoryUtils.ChannelData) => {
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
         return [{
-          name: this.translate.instant("General.autarchy"),
+          name: THIS.TRANSLATE.INSTANT("GENERAL.AUTARCHY"),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-            return Utils.calculateAutarchy(energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.result.data["_sum/ConsumptionActiveEnergy"] ?? null);
+            return UTILS.CALCULATE_AUTARCHY(energyValues?.RESULT.DATA["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.RESULT.DATA["_sum/ConsumptionActiveEnergy"] ?? null);
           },
           converter: () => {
             return data["Consumption"]
               ?.map((value, index) =>
-                Utils.calculateAutarchy(data["GridBuy"][index], value),
+                UTILS.CALCULATE_AUTARCHY(data["GridBuy"][index], value),
               );
           },
           color: "rgb(0,152,204)",
@@ -46,9 +46,9 @@ export class ChartComponent extends AbstractHistoryChart {
         formatNumber: "1.0-0",
       },
       yAxes: [{
-        unit: YAxisType.PERCENTAGE,
+        unit: YAXIS_TYPE.PERCENTAGE,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
   }

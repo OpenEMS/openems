@@ -35,7 +35,7 @@ export namespace AppCenter {
                 payload: JsonrpcRequest
             },
         ) {
-            super(AppCenter.METHOD, params);
+            super(APP_CENTER.METHOD, params);
         }
     }
 

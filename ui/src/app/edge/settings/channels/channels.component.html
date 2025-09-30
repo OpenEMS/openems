@@ -14,33 +14,33 @@
             <ion-list>
               <ion-item lines="none">
                 <ion-select justify="space-between" style="white-space: initial;width: 100%;" #selectedComponentId
-                  interface="alert" labelPlacement="start" [label]="'CHANNELS.Component'| translate"
+                  interface="alert" labelPlacement="start" [label]="'CHANNELS.COMPONENT'| translate"
                   (ionChange)="onSelectedComponentChanged($event)" class="ion-text-align-left">
                   <ion-select-option style="white-space: normal !important;"
-                    *ngFor="let entry of (config.components | keys)" [value]="entry.key">
-                    {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
+                    *ngFor="let entry of (CONFIG.COMPONENTS | keys)" [value]="ENTRY.KEY">
+                    {{ ENTRY.VALUE.ID }} ({{ ENTRY.VALUE.ALIAS }})</ion-select-option>
                 </ion-select>
               </ion-item>
               <ion-item lines="none">
-                <ngx-spinner [name]="selectedComponentId.value"
+                <ngx-spinner [name]="SELECTED_COMPONENT_ID.VALUE"
                   class="custom-theme-text custom-ion-popover"></ngx-spinner>
                 <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
                   [disabled]="!selectedComponentId?.value" [label]="'CHANNELS.CHANNEL'| translate"
                   justify="space-between">
                   <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
-                      *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
-                      [value]="entry.key">
-                      {{ entry.key }}</ion-select-option>
+                      *ngFor="let entry of CHANNELS_PER_COMPONENT.GET(SELECTED_COMPONENT_ID.VALUE).channels | keyvalue"
+                      [value]="ENTRY.KEY">
+                      {{ ENTRY.KEY }}</ion-select-option>
                   </ng-container>
                 </ion-select>
               </ion-item>
             </ion-list>
 
             <ion-button style="white-space: initial; line-break: strict;"
-              *ngIf="selectedComponentId && selectedComponentId.value && selectedChannelId && selectedChannelId.value"
+              *ngIf="selectedComponentId && SELECTED_COMPONENT_ID.VALUE && selectedChannelId && SELECTED_CHANNEL_ID.VALUE"
               expand="block"
-              (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
+              (click)="subscribeChannel(SELECTED_COMPONENT_ID.VALUE, SELECTED_CHANNEL_ID.VALUE); SELECTED_COMPONENT_ID.VALUE = null;SELECTED_CHANNEL_ID.VALUE = null"><span
                 translate>CHANNELS.ADD</span>
             </ion-button>
           </ion-card-content>
@@ -54,9 +54,9 @@
           </ion-item>
 
           <ion-card-content>
-            <ion-button *ngIf="edge.id" expand="block" (click)="saveChannelsInLocalStorage()"><span
+            <ion-button *ngIf="EDGE.ID" expand="block" (click)="saveChannelsInLocalStorage()"><span
                 translate>CHANNELS.SAVE</span></ion-button>
-            <ion-label [translateParams]="{edgeShortName: environment.edgeShortName}"
+            <ion-label [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}"
               translate>CHANNELS.SAVE_DESCRIPTION
             </ion-label>
           </ion-card-content>
@@ -70,84 +70,84 @@
           <ion-card>
             <ion-item color="light" lines="full">
               <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-              <ion-label>{{component.key}}</ion-label>
+              <ion-label>{{COMPONENT.KEY}}</ion-label>
             </ion-item>
             <ion-card-content>
               <ion-list>
-                <ng-container *ngFor="let channel of component.value | keyvalue">
+                <ng-container *ngFor="let channel of COMPONENT.VALUE | keyvalue">
                   <ion-item lines="inset">
                     <ion-label style="white-space:initial"><span translate>CHANNELS.CHANNEL</span>:
-                      {{channel.key}}</ion-label>
-                    <ion-button (click)="unsubscribeChannel(component.key, channel.key)" slot="end" color="light"
+                      {{CHANNEL.KEY}}</ion-label>
+                    <ion-button (click)="unsubscribeChannel(COMPONENT.KEY, CHANNEL.KEY)" slot="end" color="light"
                       size="small">
                       <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                     </ion-button>
                   </ion-item>
                   <ion-card-content
-                    *ngIf="channelsPerComponent.get(component.key).channels[channel.key] as channelConfig">
+                    *ngIf="CHANNELS_PER_COMPONENT.GET(COMPONENT.KEY).channels[CHANNEL.KEY] as channelConfig">
                     <!-- show meta information -->
                     <ion-item>
                       <div style="display: block; width: 30%;">
                         Meta&nbsp;
                       </div>
                       <ion-text style="display: block; width: 100%;align-items: end;" color="medium">
-                        Type: {{ channelConfig.type.toLowerCase() }}
-                        / Access-Mode: {{ channelConfig.accessMode }}
+                        Type: {{ CHANNEL_CONFIG.TYPE.TO_LOWER_CASE() }}
+                        / Access-Mode: {{ CHANNEL_CONFIG.ACCESS_MODE }}
                         <span>&nbsp;</span>
-                        <span *ngIf="channelConfig.text">/ Text:{{ channelConfig.text }}</span>
+                        <span *ngIf="CHANNEL_CONFIG.TEXT">/ Text:{{ CHANNEL_CONFIG.TEXT }}</span>
                       </ion-text>
 
                     </ion-item>
 
                     <!-- show Channel value (if it is not a Write-Only Channel) -->
-                    <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
+                    <ion-item *ngIf="CHANNEL_CONFIG.ACCESS_MODE !== 'WO'">
                       <ion-label translate>CHANNELS.VALUE</ion-label>
                       <ion-text>
                         <!-- show current value of Channel-->
-                        {{ currentData.channel[component.key + '/' + channel.key] }}&nbsp;{{ channelConfig.unit }}
+                        {{ CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY] }}&nbsp;{{ CHANNEL_CONFIG.UNIT }}
                         <!-- show value as string for enum values -->
-                        <ng-container *ngIf="channelConfig.category === 'ENUM'">
-                          <ng-container *ngFor="let option of (channelConfig.options | keys)">
-                            <span *ngIf="option.value === currentData.channel[component.key + '/' + channel.key]">
-                              ({{ option.key }})
+                        <ng-container *ngIf="CHANNEL_CONFIG.CATEGORY === 'ENUM'">
+                          <ng-container *ngFor="let option of (CHANNEL_CONFIG.OPTIONS | keys)">
+                            <span *ngIf="OPTION.VALUE === CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY]">
+                              ({{ OPTION.KEY }})
                             </span>
                           </ng-container>
                         </ng-container>
                         <!-- show active/inactive string for StateChannels -->
-                        <ng-container *ngIf="channelConfig.category === 'STATE'">
-                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 1">(State is
+                        <ng-container *ngIf="CHANNEL_CONFIG.CATEGORY === 'STATE'">
+                          <span *ngIf="CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY] === 1">(State is
                             SET)</span>
-                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 0">(State is not
+                          <span *ngIf="CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY] === 0">(State is not
                             set)</span>
                         </ng-container>
                         <!-- show active/inactive string for StateChannels -->
                         <ng-container
-                          *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
-                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 1">(On)</span>
-                          <span *ngIf="currentData.channel[component.key + '/' + channel.key] === 0">(Off)</span>
+                          *ngIf="CHANNEL_CONFIG.CATEGORY === 'OPENEMS_TYPE' && CHANNEL_CONFIG.TYPE === 'BOOLEAN'">
+                          <span *ngIf="CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY] === 1">(On)</span>
+                          <span *ngIf="CURRENT_DATA.CHANNEL[COMPONENT.KEY + '/' + CHANNEL.KEY] === 0">(Off)</span>
                         </ng-container>
                       </ion-text>
                     </ion-item>
                     <!-- show input field to write value for RW/RO channels -->
-                    <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
+                    <ion-item *ngIf="['RW', 'WO'].includes(CHANNEL_CONFIG.ACCESS_MODE)">
                       <ion-label translate>CHANNELS.SET_VALUE</ion-label>
-                      <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
+                      <ng-container *ngIf="CHANNEL_CONFIG.TYPE === 'BOOLEAN'; else no_boolean">
                         <!-- show Toggle for boolean value  -->
                         <ion-toggle mode="md" #valueToggle></ion-toggle>
-                        <ion-button (click)="setChannelValue(component.key, channel.key, valueToggle.checked)"
+                        <ion-button (click)="setChannelValue(COMPONENT.KEY, CHANNEL.KEY, VALUE_TOGGLE.CHECKED)"
                           slot="end" color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                         </ion-button>
                       </ng-container>
                       <ng-template #no_boolean>
                         <ion-input placeholder="value" #channelValue></ion-input>
-                        <ion-button (click)="setChannelValue(component.key, channel.key, channelValue.value)" slot="end"
+                        <ion-button (click)="setChannelValue(COMPONENT.KEY, CHANNEL.KEY, CHANNEL_VALUE.VALUE)" slot="end"
                           color="light">
                           <ion-icon slot="icon-only" name="send-outline"></ion-icon>
                         </ion-button>
                       </ng-template>
                     </ion-item>
-                    <ion-item lines="none" *ngIf="channel.value.showPersistencePriority">
+                    <ion-item lines="none" *ngIf="CHANNEL.VALUE.SHOW_PERSISTENCE_PRIORITY">
                       <ion-note style="white-space: initial;">
                         <ion-text color="warning">
                           Warnung:
@@ -159,17 +159,17 @@
                 <ion-item lines="none">
                   <ion-label color="primary" translate>CHANNELS.MORE_CHANNELS</ion-label>
                   <ion-select interface="alert" #selectedChannelId>
-                    <ng-container *ngIf="component.key">
+                    <ng-container *ngIf="COMPONENT.KEY">
                       <ion-select-option color="danger"
-                        *ngFor="let entry of channelsPerComponent.get(component.key).channels | keyvalue"
-                        [value]="entry.key">
-                        {{ entry.key }}
+                        *ngFor="let entry of CHANNELS_PER_COMPONENT.GET(COMPONENT.KEY).channels | keyvalue"
+                        [value]="ENTRY.KEY">
+                        {{ ENTRY.KEY }}
                       </ion-select-option>
                     </ng-container>
                   </ion-select>
                 </ion-item>
                 <ion-button *ngIf="selectedChannelId?.value" expand="block"
-                  (click)="subscribeChannel(component.key, selectedChannelId.value); selectedChannelId.value = null"
+                  (click)="subscribeChannel(COMPONENT.KEY, SELECTED_CHANNEL_ID.VALUE); SELECTED_CHANNEL_ID.VALUE = null"
                   translate>
                   CHANNELS.ADD</ion-button>
 

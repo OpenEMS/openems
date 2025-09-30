@@ -16,7 +16,7 @@ import { Websocket } from "./shared/shared";
 @Injectable()
 export class PlatFormService {
 
-  public static readonly platform: string = Capacitor.getPlatform();
+  public static readonly platform: string = CAPACITOR.GET_PLATFORM();
 
   public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
   public static deviceInfo: DeviceInfo;
@@ -31,23 +31,23 @@ export class PlatFormService {
     private deviceService: DeviceDetectorService,
     private toaster: ToastController,
   ) {
-    PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
-    PlatFormService.isMobile = this.deviceService.isMobile();
+    PLAT_FORM_SERVICE.DEVICE_INFO = THIS.DEVICE_SERVICE.GET_DEVICE_INFO();
+    PLAT_FORM_SERVICE.IS_MOBILE = THIS.DEVICE_SERVICE.IS_MOBILE();
   }
 
   public static handleRefresh() {
     setTimeout(() =>
-      window.location.reload()
+      WINDOW.LOCATION.RELOAD()
       , 1000);
   }
 
   public static getAppStoreLink(): string | null {
-    if (this.isMobile) {
-      switch (PlatFormService.deviceInfo.os) {
+    if (THIS.IS_MOBILE) {
+      switch (PLAT_FORM_SERVICE.DEVICE_INFO.OS) {
         case "iOS":
-          return environment.links.APP.IOS;
+          return ENVIRONMENT.LINKS.APP.IOS;
         case "Android":
-          return environment.links.APP.ANDROID;
+          return ENVIRONMENT.LINKS.APP.ANDROID;
         default:
           return null;
       }
@@ -57,14 +57,14 @@ export class PlatFormService {
 
   public listen() {
     // Don't use in web
-    if (PlatFormService.platform === "web") {
+    if (PLAT_FORM_SERVICE.PLATFORM === "web") {
       return;
     }
 
-    this.updateState();
+    THIS.UPDATE_STATE();
 
-    App.addListener("appStateChange", () => {
-      this.updateState();
+    APP.ADD_LISTENER("appStateChange", () => {
+      THIS.UPDATE_STATE();
     });
   }
 
@@ -80,14 +80,14 @@ export class PlatFormService {
       return null;
     }
 
-    const binary = atob(res.result.payload.replace(/\s/g, ""));
-    const length = binary.length;
+    const binary = atob(RES.RESULT.PAYLOAD.REPLACE(/\s/g, ""));
+    const length = BINARY.LENGTH;
 
     const buffer = new ArrayBuffer(length);
     const view = new Uint8Array(buffer);
 
     for (let i = 0; i < length; i++) {
-      view[i] = binary.charCodeAt(i);
+      view[i] = BINARY.CHAR_CODE_AT(i);
     }
 
     const data: Blob = new Blob([view], {
@@ -105,25 +105,25 @@ export class PlatFormService {
   */
   public downloadAsPdf(data: Blob, fileName: string) {
 
-    if (!this.deviceHasFilePermissions()) {
+    if (!THIS.DEVICE_HAS_FILE_PERMISSIONS()) {
       return;
     }
     saveAs(data, fileName);
   }
 
   public deviceHasFilePermissions(): boolean {
-    if (this.getIsApp()) {
-      this.toast(this.translate.instant("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
+    if (THIS.GET_IS_APP()) {
+      THIS.TOAST(THIS.TRANSLATE.INSTANT("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
       return false;
     }
     return true;
   }
 
   public async sendRequest(req: GetSetupProtocolRequest, websocket: Websocket): Promise<Base64PayloadResponse> | null {
-    if (!this.deviceHasFilePermissions()) {
+    if (!THIS.DEVICE_HAS_FILE_PERMISSIONS()) {
       return null;
     }
-    return await websocket.sendRequest(req) as Base64PayloadResponse;
+    return await WEBSOCKET.SEND_REQUEST(req) as Base64PayloadResponse;
   }
   /**
    * Method that shows a confirmation window for the app selection
@@ -131,15 +131,15 @@ export class PlatFormService {
   * @param clickedApp the app that has been clicked
   */
   public async presentAlert(header: string, message: string, successCallback: () => void) {
-    const alert = this.alertCtrl.create({
+    const alert = THIS.ALERT_CTRL.CREATE({
       header: header,
       message: message,
       buttons: [{
-        text: this.translate.instant("INSTALLATION.BACK"),
+        text: THIS.TRANSLATE.INSTANT("INSTALLATION.BACK"),
         role: "cancel",
       },
       {
-        text: this.translate.instant("INSTALLATION.FORWARD"),
+        text: THIS.TRANSLATE.INSTANT("INSTALLATION.FORWARD"),
         handler: () => {
           successCallback();
         },
@@ -150,13 +150,13 @@ export class PlatFormService {
   }
 
   public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
-    const toast = await this.toaster.create({
+    const toast = await THIS.TOASTER.CREATE({
       message: message,
       color: level,
       duration: duration ?? 2000,
       cssClass: "container",
     });
-    toast.present();
+    TOAST.PRESENT();
   }
 
   /**
@@ -165,13 +165,13 @@ export class PlatFormService {
    * @returns true, if current platform is not web
    */
   public getIsApp() {
-    return Capacitor.getPlatform() !== "web";
+    return CAPACITOR.GET_PLATFORM() !== "web";
   }
 
   private async updateState() {
-    const { isActive } = await App.getState();
-    this.setIsActiveAgain(isActive);
-    PlatFormService.isActive.next(isActive);
+    const { isActive } = await APP.GET_STATE();
+    THIS.SET_IS_ACTIVE_AGAIN(isActive);
+    PLAT_FORM_SERVICE.IS_ACTIVE.NEXT(isActive);
   }
 
   /**
@@ -182,11 +182,11 @@ export class PlatFormService {
   private setIsActiveAgain(isAppCurrentlyActive: boolean) {
 
     if (isAppCurrentlyActive === true
-      && PlatFormService.isActive?.getValue() === false) {
-      this.isActiveAgain.set(true);
+      && PLAT_FORM_SERVICE.IS_ACTIVE?.getValue() === false) {
+      THIS.IS_ACTIVE_AGAIN.SET(true);
       return;
     }
-    this.isActiveAgain.set(false);
+    THIS.IS_ACTIVE_AGAIN.SET(false);
   }
 }
 

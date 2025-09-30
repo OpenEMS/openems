@@ -18,15 +18,15 @@ export class GlobalRouteChangeHandler {
     private translate: TranslateService,
   ) {
 
-    this.router.events.pipe(
+    THIS.ROUTER.EVENTS.PIPE(
       filter(event => event instanceof RoutesRecognized),
       map(event => {
         let data = null;
         let route = event["state"].root;
 
         while (route) {
-          data = route.data || data;
-          route = route.firstChild;
+          data = ROUTE.DATA || data;
+          route = ROUTE.FIRST_CHILD;
         }
 
         return data;
@@ -34,17 +34,17 @@ export class GlobalRouteChangeHandler {
     ).subscribe(async (e: { [key: string]: string }) => {
 
       // Always use last entry of data object
-      const lastData = Object.entries(e).map(([k, v]) => ({ key: k, value: v })).reverse()[0] ?? null;
+      const lastData = OBJECT.ENTRIES(e).map(([k, v]) => ({ key: k, value: v })).reverse()[0] ?? null;
       if (lastData == null) {
         return;
       }
 
-      const res = lastData.key === "navbarTitle" ? lastData.value :
-        (lastData.key === "navbarTitleToBeTranslated"
-          ? translate.instant(lastData.value) : null)
-        ?? this.service.currentPageTitle
-        ?? environment.uiTitle;
-      this.service.currentPageTitle = res;
+      const res = LAST_DATA.KEY === "navbarTitle" ? LAST_DATA.VALUE :
+        (LAST_DATA.KEY === "navbarTitleToBeTranslated"
+          ? TRANSLATE.INSTANT(LAST_DATA.VALUE) : null)
+        ?? THIS.SERVICE.CURRENT_PAGE_TITLE
+        ?? ENVIRONMENT.UI_TITLE;
+      THIS.SERVICE.CURRENT_PAGE_TITLE = res;
     });
   }
 }

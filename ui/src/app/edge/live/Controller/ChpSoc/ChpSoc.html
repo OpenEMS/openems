@@ -1,23 +1,23 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
+<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="COMPONENT.ALIAS" [icon]="{name:
     'flame-outline', color: 'normal'}">
-    <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="icon.name === '', else noValue" [name]="'General.state' | translate" [value]="state">
+    <oe-flat-widget-line [name]="'GENERAL.MODE'| translate" [value]="mode"></oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="ICON.NAME === '', else noValue" [name]="'GENERAL.STATE' | translate" [value]="state">
     </oe-flat-widget-line>
 
     <ng-template #noValue>
-        <oe-flat-widget-line [icon]="icon" [name]="'General.state' | translate"></oe-flat-widget-line>
+        <oe-flat-widget-line [icon]="icon" [name]="'GENERAL.STATE' | translate"></oe-flat-widget-line>
     </ng-template>
 
-    <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue === 'AUTOMATIC'">
+    <oe-flat-widget-percentagebar *ngIf="THIS.MODE_CHANNEL_VALUE === 'AUTOMATIC'">
         <svg>
             <use href="#container"></use>
             <rect y="2" rx="6" ry="6" height="18" ngClass="primary-color"
                 [style]="'x: calc(' + lowThresholdValue + '% + 2px); width: calc(' + thresholdDelta + '% - 4px);'" />
-            <text id="first" *ngIf="(thresholdDelta) > 15" attr.x="{{ lowThresholdValue }}%" dx="3px" y="50%"
+            <text id="first" *ngIf="(thresholdDelta) > 15" ATTR.X="{{ lowThresholdValue }}%" dx="3px" y="50%"
                 dominant-baseline="middle" text-anchor="start" style="font-weight: 500" ngClass="secondary-color">
                 {{lowThresholdValue + " %" }}
             </text>
-            <text id="second" *ngIf="(thresholdDelta) > 15" attr.x="{{ highThresholdValue }}%" dx="-3px" y="50%"
+            <text id="second" *ngIf="(thresholdDelta) > 15" ATTR.X="{{ highThresholdValue }}%" dx="-3px" y="50%"
                 dominant-baseline="middle" text-anchor="end" style="font-weight: 500;" ngClass="secondary-color">
                 {{highThresholdValue + " %" }}
             </text>

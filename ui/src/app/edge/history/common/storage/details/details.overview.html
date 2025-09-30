@@ -1,6 +1,6 @@
-<oe-chart [title]="component.alias" [showPhases]="showPhases" [showTotal]="showTotal"
+<oe-chart [title]="COMPONENT.ALIAS" [showPhases]="showPhases" [showTotal]="showTotal"
   (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized"
-  [period]="service.historyPeriod.value">
+  [period]="SERVICE.HISTORY_PERIOD.VALUE">
 
   <common-storage-details-ess-chart [component]="component" [isOnlyChart]="true">
   </common-storage-details-ess-chart>

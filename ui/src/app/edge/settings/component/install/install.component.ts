@@ -6,8 +6,8 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/shared";
 
 @Component({
-  selector: ComponentInstallComponent.SELECTOR,
-  templateUrl: "./install.component.html",
+  selector: COMPONENT_INSTALL_COMPONENT.SELECTOR,
+  templateUrl: "./INSTALL.COMPONENT.HTML",
   standalone: false,
 })
 export class ComponentInstallComponent implements OnInit {
@@ -15,7 +15,7 @@ export class ComponentInstallComponent implements OnInit {
   private static readonly SELECTOR = "componentInstall";
 
   public edge: Edge | null = null;
-  public factory: EdgeConfig.Factory | null = null;
+  public factory: EDGE_CONFIG.FACTORY | null = null;
   public form = null;
   public model = null;
   public fields: FormlyFieldConfig[] | null = null;
@@ -32,50 +32,50 @@ export class ComponentInstallComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.factoryId = this.route.snapshot.params["factoryId"];
-    this.edge = await this.service.getCurrentEdge();
-    const config = await this.service.getConfig();
-    this.componentIcon = config.getFactoryIcon(this.factory, this.service.translate);
+    THIS.FACTORY_ID = THIS.ROUTE.SNAPSHOT.PARAMS["factoryId"];
+    THIS.EDGE = await THIS.SERVICE.GET_CURRENT_EDGE();
+    const config = await THIS.SERVICE.GET_CONFIG();
+    THIS.COMPONENT_ICON = CONFIG.GET_FACTORY_ICON(THIS.FACTORY, THIS.SERVICE.TRANSLATE);
 
-    const [factory, properties] = await this.edge.getFactoryProperties(this.websocket, this.factoryId);
-    this.factory = factory;
+    const [factory, properties] = await THIS.EDGE.GET_FACTORY_PROPERTIES(THIS.WEBSOCKET, THIS.FACTORY_ID);
+    THIS.FACTORY = factory;
     const fields: FormlyFieldConfig[] = [];
     const model = {};
     for (const property of properties) {
-      const property_id = property.id.replace(".", "_");
-      let defaultValue = property.defaultValue;
+      const property_id = PROPERTY.ID.REPLACE(".", "_");
+      let defaultValue = PROPERTY.DEFAULT_VALUE;
       // if the type is an array and there is no defaultValue then set the defaultValue to an empty array
-      if (property.schema["type"] === "repeat" && defaultValue === null) {
+      if (PROPERTY.SCHEMA["type"] === "repeat" && defaultValue === null) {
         defaultValue = [];
       }
       const field: FormlyFieldConfig = {
         key: property_id,
         type: "input",
         templateOptions: {
-          label: property.name,
+          label: PROPERTY.NAME,
           required: defaultValue === null,
-          description: property.description,
+          description: PROPERTY.DESCRIPTION,
         },
       };
       // add Property Schema
-      Utils.deepCopy(property.schema, field);
-      fields.push(field);
+      UTILS.DEEP_COPY(PROPERTY.SCHEMA, field);
+      FIELDS.PUSH(field);
       if (defaultValue != null) {
         model[property_id] = defaultValue;
 
         // Set the next free Component-ID as defaultValue
-        if (property_id == "id" && property.schema["type"] !== "repeat") {
-          const thisMatch = defaultValue.match(/^(.*)(\d+)$/);
+        if (property_id == "id" && PROPERTY.SCHEMA["type"] !== "repeat") {
+          const thisMatch = DEFAULT_VALUE.MATCH(/^(.*)(\d+)$/);
           if (thisMatch) {
             const thisPrefix = thisMatch[1];
-            let highestSuffix = Number.parseInt(thisMatch[2]);
-            for (const componentId of Object.keys(config.components)) {
-              const componentMatch = componentId.match(/^(.*)(\d+)$/);
+            let highestSuffix = NUMBER.PARSE_INT(thisMatch[2]);
+            for (const componentId of OBJECT.KEYS(CONFIG.COMPONENTS)) {
+              const componentMatch = COMPONENT_ID.MATCH(/^(.*)(\d+)$/);
               if (componentMatch) {
                 const componentPrefix = componentMatch[1];
                 if (componentPrefix === thisPrefix) {
-                  const componentSuffix = Number.parseInt(componentMatch[2]);
-                  highestSuffix = Math.max(highestSuffix, componentSuffix + 1);
+                  const componentSuffix = NUMBER.PARSE_INT(componentMatch[2]);
+                  highestSuffix = MATH.MAX(highestSuffix, componentSuffix + 1);
                 }
               }
             }
@@ -84,32 +84,32 @@ export class ComponentInstallComponent implements OnInit {
         }
       }
     }
-    this.form = new FormGroup({});
-    this.fields = fields;
-    this.model = model;
+    THIS.FORM = new FormGroup({});
+    THIS.FIELDS = fields;
+    THIS.MODEL = model;
   }
 
   public submit() {
-    if (!this.form.valid) {
-      this.service.toast("Please fill mandatory fields!", "danger");
+    if (!THIS.FORM.VALID) {
+      THIS.SERVICE.TOAST("Please fill mandatory fields!", "danger");
       return;
     }
     const properties: { name: string, value: any }[] = [];
-    for (const controlKey in this.form.controls) {
-      const control = this.form.controls[controlKey];
-      if (control.value === null) {
+    for (const controlKey in THIS.FORM.CONTROLS) {
+      const control = THIS.FORM.CONTROLS[controlKey];
+      if (CONTROL.VALUE === null) {
         // ignore 'null' values
         continue;
       }
-      const property_id = controlKey.replace("_", ".");
-      properties.push({ name: property_id, value: control.value });
+      const property_id = CONTROL_KEY.REPLACE("_", ".");
+      PROPERTIES.PUSH({ name: property_id, value: CONTROL.VALUE });
     }
 
-    this.edge.createComponentConfig(this.websocket, this.factoryId, properties).then(response => {
-      this.form.markAsPristine();
-      this.service.toast("Successfully created in instance of " + this.factoryId + ".", "success");
+    THIS.EDGE.CREATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.FACTORY_ID, properties).then(response => {
+      THIS.FORM.MARK_AS_PRISTINE();
+      THIS.SERVICE.TOAST("Successfully created in instance of " + THIS.FACTORY_ID + ".", "success");
     }).catch(reason => {
-      this.service.toast("Error creating an instance of " + this.factoryId + ":" + reason.error.message, "danger");
+      THIS.SERVICE.TOAST("Error creating an instance of " + THIS.FACTORY_ID + ":" + REASON.ERROR.MESSAGE, "danger");
     });
   }
 

@@ -15,6 +15,6 @@ export namespace CurrentDataUtils {
             return null;
         }
 
-        return allComponents[address.toString()];
+        return allComponents[ADDRESS.TO_STRING()];
     };
 }

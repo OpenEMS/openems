@@ -1,7 +1,7 @@
 <oe-navigation-view *ngIf="edge">
   <ion-buttons #header header class="ion-justify-content-center">
     <ion-button size="small" fill="clear" class="ion-justify-content-center"
-      *ngIf="navigationService.position() !== null && navigationService.position() !== 'disabled'">
+      *ngIf="NAVIGATION_SERVICE.POSITION() !== null && NAVIGATION_SERVICE.POSITION() !== 'disabled'">
       <pickdate></pickdate>
     </ion-button>
   </ion-buttons>
@@ -17,10 +17,10 @@
       <ion-row>
         <!-- Energymonitor Chart -->
         <ion-col size="12">
-          <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
+          <energy (setErrorResponse)="setErrorResponse($event)" [STYLE.HEIGHT]="energyChartHeight"></energy>
         </ion-col>
 
-        <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+        <ng-container *ngFor="let clazz of WIDGETS.CLASSES" [ngSwitch]="clazz">
           <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
             <common-storage-widget></common-storage-widget>
           </ion-col>
@@ -51,59 +51,59 @@
           </ion-col>
         </ng-container>
 
-        <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+        <ng-container *ngFor="let widget of WIDGETS.LIST" [ngSwitch]="WIDGET.NAME">
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-            <oe-controller-peakshaving-symmetric [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.SYMMETRIC.PEAK_SHAVING'">
+            <oe-controller-peakshaving-symmetric [componentId]="WIDGET.COMPONENT_ID">
             </oe-controller-peakshaving-symmetric>
           </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.ASYMMETRIC.PEAK_SHAVING'">
             <oe-controller-peakshaving-asymmetric
-              [componentId]="widget.componentId"></oe-controller-peakshaving-asymmetric>
+              [componentId]="WIDGET.COMPONENT_ID"></oe-controller-peakshaving-asymmetric>
           </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
-            <oe-controller-peakshaving-timeslot [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.TIMESLOT_PEAKSHAVING'">
+            <oe-controller-peakshaving-timeslot [componentId]="WIDGET.COMPONENT_ID">
             </oe-controller-peakshaving-timeslot>
           </ion-col>
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
-            <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.ESS.DELAYED_SELL_TO_GRID'">
+            <delayedSellToGridWidget [componentId]="WIDGET.COMPONENT_ID"></delayedSellToGridWidget>
           </ion-col>
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
-            <gridOptimizedChargeWidget [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.ESS.GRID_OPTIMIZED_CHARGE'">
+            <gridOptimizedChargeWidget [componentId]="WIDGET.COMPONENT_ID">
             </gridOptimizedChargeWidget>
           </ion-col>
 
           <ng-container *ngIf="isModbusTcpWidgetAllowed">
-            <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-              <modbusTcpApiWidget [componentId]="widget.componentId">
+            <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.API.MODBUS_TCP.READ_WRITE'">
+              <modbusTcpApiWidget [componentId]="WIDGET.COMPONENT_ID">
               </modbusTcpApiWidget>
             </ion-col>
           </ng-container>
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'">
-            <timeOfUseTariffWidget [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.ESS.TIME-Of-Use-Tariff'">
+            <timeOfUseTariffWidget [componentId]="WIDGET.COMPONENT_ID">
             </timeOfUseTariffWidget>
           </ion-col>
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
-            <controller-io-heatingelement-widget [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.IO.HEATING_ELEMENT'">
+            <controller-io-heatingelement-widget [componentId]="WIDGET.COMPONENT_ID">
             </controller-io-heatingelement-widget>
           </ion-col>
 
           <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
-            *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
-            <controller-heat-widget [componentId]="widget.componentId">
+            *ngSwitchCase="'IO.OPENEMS.EDGE.HEAT.API.MANAGED_HEAT_ELEMENT'">
+            <controller-heat-widget [componentId]="WIDGET.COMPONENT_ID">
             </controller-heat-widget>
           </ion-col>
 
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
-            <controller-io-heatpump-widget [componentId]="widget.componentId">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.IO.HEAT_PUMP.SG_READY'">
+            <controller-io-heatpump-widget [componentId]="WIDGET.COMPONENT_ID">
             </controller-io-heatpump-widget>
           </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
-            <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'CONTROLLER.CHP.SO_C'">
+            <chpsocWidget [componentId]="WIDGET.COMPONENT_ID" [period]="SERVICE.HISTORY_PERIOD.VALUE">
             </chpsocWidget>
           </ion-col>
         </ng-container>

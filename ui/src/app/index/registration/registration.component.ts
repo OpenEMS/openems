@@ -1,10 +1,10 @@
 import { Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
-import { RegistrationModalComponent } from "./modal/modal.component";
+import { RegistrationModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
   selector: "registration",
-  templateUrl: "./registration.component.html",
+  templateUrl: "./REGISTRATION.COMPONENT.HTML",
   standalone: false,
 })
 export class RegistrationComponent {
@@ -12,10 +12,10 @@ export class RegistrationComponent {
   constructor(private modalController: ModalController) { }
 
   async presentModal() {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: RegistrationModalComponent,
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
 }

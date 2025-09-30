@@ -3,7 +3,7 @@ import { Icon } from "src/app/shared/type/widget";
 
 @Component({
     selector: "oe-modal-info-line",
-    templateUrl: "./modal-info-line.html",
+    templateUrl: "./modal-info-LINE.HTML",
     standalone: false,
 })
 export class ModalInfoLineComponent {

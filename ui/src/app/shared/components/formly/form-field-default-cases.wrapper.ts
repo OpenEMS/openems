@@ -13,83 +13,83 @@ export class FormlyWrapperDefaultValueWithCasesComponent extends FieldWrapper im
     private casesToSubscribe: FieldDefaultCases[] = [];
 
     public ngOnInit() {
-        this.getOptions().forEach((item: FieldDefaultCases) => {
-            this.form.valueChanges.subscribe((value) => {
+        THIS.GET_OPTIONS().forEach((item: FieldDefaultCases) => {
+            THIS.FORM.VALUE_CHANGES.SUBSCRIBE((value) => {
                 const indicesToRemove = [];
-                const casesToSub = this.casesToSubscribe;
-                this.casesToSubscribe = [];
-                casesToSub.forEach((defaultCase, i) => {
-                    const control = this.form.get(defaultCase.field);
+                const casesToSub = THIS.CASES_TO_SUBSCRIBE;
+                THIS.CASES_TO_SUBSCRIBE = [];
+                CASES_TO_SUB.FOR_EACH((defaultCase, i) => {
+                    const control = THIS.FORM.GET(DEFAULT_CASE.FIELD);
                     if (control) {
-                        this.subscribe(item, control);
-                        indicesToRemove.push(i);
+                        THIS.SUBSCRIBE(item, control);
+                        INDICES_TO_REMOVE.PUSH(i);
                     }
                 });
-                casesToSub.forEach((a, i) => {
-                    if (indicesToRemove.some(c => c === i)) {
+                CASES_TO_SUB.FOR_EACH((a, i) => {
+                    if (INDICES_TO_REMOVE.SOME(c => c === i)) {
                         return;
                     }
-                    this.casesToSubscribe.push(a);
+                    THIS.CASES_TO_SUBSCRIBE.PUSH(a);
                 });
             });
 
-            const control = this.form.get(item.field);
+            const control = THIS.FORM.GET(ITEM.FIELD);
             if (control) {
-                this.subscribe(item, control);
+                THIS.SUBSCRIBE(item, control);
             } else {
-                this.casesToSubscribe.push(item);
+                THIS.CASES_TO_SUBSCRIBE.PUSH(item);
             }
 
             // if value is already set keep current value
-            if (this.formControl.value) {
+            if (THIS.FORM_CONTROL.VALUE) {
                 return;
             }
-            const value = this.model[item.field];
+            const value = THIS.MODEL[ITEM.FIELD];
             if (!value) {
                 return;
             }
-            if (this.onChange(item, value)) {
+            if (THIS.ON_CHANGE(item, value)) {
                 return;
             }
         });
     }
 
     private subscribe(item: FieldDefaultCases, control: AbstractControl) {
-        control.valueChanges.subscribe((value) => {
-            if (this.onChange(item, value)) {
+        CONTROL.VALUE_CHANGES.SUBSCRIBE((value) => {
+            if (THIS.ON_CHANGE(item, value)) {
                 return;
             }
             // search for first other case
-            const options = this.getOptions();
+            const options = THIS.GET_OPTIONS();
             for (const option of options) {
-                const valueOfField = this.form.getRawValue()[option.field];
+                const valueOfField = THIS.FORM.GET_RAW_VALUE()[OPTION.FIELD];
                 if (!valueOfField) {
                     continue;
                 }
-                for (const optionCase of option.cases) {
-                    if (optionCase.case == valueOfField) {
-                        this.formControl.setValue(optionCase.defaultValue);
+                for (const optionCase of OPTION.CASES) {
+                    if (OPTION_CASE.CASE == valueOfField) {
+                        THIS.FORM_CONTROL.SET_VALUE(OPTION_CASE.DEFAULT_VALUE);
                         return;
                     }
                 }
             }
         });
-        this.onChange(item, this.form.getRawValue()[item.field]);
+        THIS.ON_CHANGE(item, THIS.FORM.GET_RAW_VALUE()[ITEM.FIELD]);
     }
 
     private getOptions(): FieldDefaultCases[] {
-        return this.props.defaultValueOptions ?? [];
+        return THIS.PROPS.DEFAULT_VALUE_OPTIONS ?? [];
     }
 
     private onChange(item: FieldDefaultCases, value: any): boolean {
-        const foundCase = item.cases.find(element => element.case == value);
+        const foundCase = ITEM.CASES.FIND(element => ELEMENT.CASE == value);
         if (!foundCase) {
             return false;
         }
-        if (foundCase.defaultValue === value) {
+        if (FOUND_CASE.DEFAULT_VALUE === value) {
             return true;
         }
-        this.formControl.setValue(foundCase.defaultValue);
+        THIS.FORM_CONTROL.SET_VALUE(FOUND_CASE.DEFAULT_VALUE);
         return true;
     }
 

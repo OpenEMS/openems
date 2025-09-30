@@ -13,9 +13,9 @@
             <ion-item color="light">
               <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
               <ion-label>
-                <span>{{ 'Edge.Index.SYSTEMUPDATE'| translate}}</span>
-                <span *ngIf="environment.backend === 'OpenEMS Backend'"> {{ 'General.FOR' | translate }}
-                  {{ edge.id }}</span>
+                <span>{{ 'EDGE.INDEX.SYSTEMUPDATE'| translate}}</span>
+                <span *ngIf="ENVIRONMENT.BACKEND === 'OpenEMS Backend'"> {{ 'GENERAL.FOR' | translate }}
+                  {{ EDGE.ID }}</span>
               </ion-label>
             </ion-item>
             <ion-card-content>
@@ -24,20 +24,20 @@
           </ng-container>
         </ion-card>
 
-        @if (canSeeAdditionalUpdates && updateables.length !== 0) {
+        @if (canSeeAdditionalUpdates && UPDATEABLES.LENGTH !== 0) {
         <ion-item-divider>
-          <ion-label translate>General.VISIBLE_FOR_ADMINS_ONLY</ion-label>
+          <ion-label translate>GENERAL.VISIBLE_FOR_ADMINS_ONLY</ion-label>
         </ion-item-divider>
-        @for (updateableState of updateables; track updateableState.updateable.id) {
+        @for (updateableState of updateables; track UPDATEABLE_STATE.UPDATEABLE.ID) {
         <ion-card>
           <ion-item color="light">
             <ion-label>
-              {{ updateableState.updateable.name }}
+              {{ UPDATEABLE_STATE.UPDATEABLE.NAME }}
             </ion-label>
           </ion-item>
           <ion-card-content>
-            {{ updateableState.updateable.description }}
-            @switch (updateableState.updateState?.type) {
+            {{ UPDATEABLE_STATE.UPDATEABLE.DESCRIPTION }}
+            @switch (UPDATEABLE_STATE.UPDATE_STATE?.type) {
             @case ("unknown") {
             <!-- Update State is unknown  -->
             <ion-item lines="none">
@@ -55,7 +55,7 @@
                 </ion-col>
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.version }}</ion-label>
+                    <ion-label>{{ UPDATEABLE_STATE.UPDATE_STATE.VERSION }}</ion-label>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -81,7 +81,7 @@
                 </ion-col>
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.currentVersion }}</ion-label>
+                    <ion-label>{{ UPDATEABLE_STATE.UPDATE_STATE.CURRENT_VERSION }}</ion-label>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -93,7 +93,7 @@
                 </ion-col>
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.latestVersion }}</ion-label>
+                    <ion-label>{{ UPDATEABLE_STATE.UPDATE_STATE.LATEST_VERSION }}</ion-label>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -119,10 +119,10 @@
               </ion-label>
             </ion-item>
             <ion-item lines="none">
-              <percentagebar [value]="updateableState.updateState.percentCompleted"></percentagebar>
+              <percentagebar [value]="UPDATEABLE_STATE.UPDATE_STATE.PERCENT_COMPLETED"></percentagebar>
             </ion-item>
             <!-- Debug Logs -->
-            @if (environment.debugMode && updateableState.updateState.logs.length > 0) {
+            @if (ENVIRONMENT.DEBUG_MODE && UPDATEABLE_STATE.UPDATE_STATE.LOGS.LENGTH > 0) {
             <div>
               <p style="cursor: pointer" (click)="showLog = !showLog">
                 <ion-icon *ngIf="!showLog" name="arrow-down-circle-outline">
@@ -132,7 +132,7 @@
                 <span>&nbsp;Details</span>
               </p>
               @if (showLog) {
-              @for (log of updateableState.updateState.logs; track $index) {
+              @for (log of UPDATEABLE_STATE.UPDATE_STATE.LOGS; track $index) {
               <small>{{ log }}</small><br />
               }
               }

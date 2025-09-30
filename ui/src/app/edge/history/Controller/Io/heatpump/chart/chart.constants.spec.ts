@@ -1,6 +1,6 @@
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
@@ -8,15 +8,15 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 import { EdgeConfig } from "src/app/shared/shared";
 import { ChartComponent } from "./chart";
 
-export function expectView(config: EdgeConfig, component: EdgeConfig.Component, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-  expect(TestingUtils.removeFunctions(OeChartTester
+export function expectView(config: EdgeConfig, component: EDGE_CONFIG.COMPONENT, testContext: TestContext, chartType: "line" | "bar", channels: OE_TESTER.TYPES.CHANNELS, view: OE_CHART_TESTER.VIEW): void {
+  expect(TESTING_UTILS.REMOVE_FUNCTIONS(OeChartTester
     .apply(ChartComponent
-      .getChartData(component, testContext.translate, chartType, testContext.service.periodString), chartType, channels, testContext, config)))
-    .toEqual(TestingUtils.removeFunctions(view));
+      .getChartData(component, TEST_CONTEXT.TRANSLATE, chartType, TEST_CONTEXT.SERVICE.PERIOD_STRING), chartType, channels, testContext, config)))
+    .toEqual(TESTING_UTILS.REMOVE_FUNCTIONS(view));
 }
 export namespace History {
 
-  export const DAY: OeTester.Types.Channels = {
+  export const DAY: OE_TESTER.TYPES.CHANNELS = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {},
     }),
@@ -26,7 +26,7 @@ export namespace History {
     }),
   };
 
-  export const MONTH: OeTester.Types.Channels = {
+  export const MONTH: OE_TESTER.TYPES.CHANNELS = {
     energyChannelWithValues: new QueryHistoricTimeseriesEnergyResponse("0", {
       data: {},
     }),

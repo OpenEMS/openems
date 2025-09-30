@@ -1,10 +1,10 @@
 <ion-list>
     <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
         <ng-container *ngFor='let item of selectedItems'>
-            <ion-item [id]="item.value" [disabled]="item.expressions.locked">
-                <ion-reorder slot="start" *ngIf="!item.expressions.locked"></ion-reorder>
+            <ion-item [id]="ITEM.VALUE" [disabled]="ITEM.EXPRESSIONS.LOCKED">
+                <ion-reorder slot="start" *ngIf="!ITEM.EXPRESSIONS.LOCKED"></ion-reorder>
                 <ion-label>
-                    {{item.label}}
+                    {{ITEM.LABEL}}
                 </ion-label>
                 <ion-buttons>
                     <ion-button (click)="removeItem(item)">
@@ -20,14 +20,14 @@
         <ion-col>
             <ion-list>
                 <ion-item lines="none">
-                    <ion-label *ngIf="props.label" position="floating" color="primary"
+                    <ion-label *ngIf="PROPS.LABEL" position="floating" color="primary"
                         style="white-space: normal !important">
-                        {{props.label}}
+                        {{PROPS.LABEL}}
                     </ion-label>
                     <ion-select label="Add" [(ngModel)]="itemToAdd" interface="popover" label-placement="floating"
-                        [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" [disabled]="!availableItems.length">
+                        [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" [disabled]="!AVAILABLE_ITEMS.LENGTH">
                         <ion-select-option *ngFor='let item of availableItems' [value]="item">
-                            {{item.label}}
+                            {{ITEM.LABEL}}
                         </ion-select-option>
                     </ion-select>
                 </ion-item>
@@ -35,7 +35,7 @@
         </ion-col>
         <ion-col size="auto">
             <ion-buttons>
-                <ion-button (click)="addItem()" [disabled]="!availableItems.length">
+                <ion-button (click)="addItem()" [disabled]="!AVAILABLE_ITEMS.LENGTH">
                     <ion-icon name="add" size="large"></ion-icon>
                 </ion-button>
             </ion-buttons>

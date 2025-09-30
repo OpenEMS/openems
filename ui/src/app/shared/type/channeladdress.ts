@@ -11,7 +11,7 @@ export class ChannelAddress {
      * @param address in the form 'Component-ID/Channel-ID'
      */
     public static fromString(address: string): ChannelAddress {
-        const array = address.split("/", 2);
+        const array = ADDRESS.SPLIT("/", 2);
         return new ChannelAddress(array[0], array[1]);
     }
 
@@ -24,11 +24,11 @@ export class ChannelAddress {
         if (address == null) {
             return null;
         }
-        const array = address.split("/", 2);
+        const array = ADDRESS.SPLIT("/", 2);
         return new ChannelAddress(array[0], array[1]);
     }
 
     public toString() {
-        return this.componentId + "/" + this.channelId;
+        return THIS.COMPONENT_ID + "/" + THIS.CHANNEL_ID;
     }
 }

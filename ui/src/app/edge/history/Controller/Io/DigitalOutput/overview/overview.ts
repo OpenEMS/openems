@@ -8,7 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     selector: "overview",
-    templateUrl: "./overview.html",
+    templateUrl: "./OVERVIEW.HTML",
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
@@ -25,12 +25,12 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        const fixDigitalOutputControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory("Controller.Io.FixDigitalOutput");
-        const singleThresholdControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory("Controller.IO.ChannelSingleThreshold");
+        const fixDigitalOutputControllers: EDGE_CONFIG.COMPONENT[] = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.IO.FIX_DIGITAL_OUTPUT");
+        const singleThresholdControllers: EDGE_CONFIG.COMPONENT[] = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD");
         const controllers = [...fixDigitalOutputControllers, ...singleThresholdControllers];
 
-        this.navigationButtons = controllers.map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
+        THIS.NAVIGATION_BUTTONS = CONTROLLERS.MAP(el => (
+            { id: EL.ID, alias: EL.ALIAS, callback: () => { THIS.ROUTER.NAVIGATE(["./" + EL.ID], { relativeTo: THIS.ROUTE }); } }
         ));
         return [];
     }

@@ -1,5 +1,5 @@
 <ng-container *ngIf="edge?.currentData | async as currentData">
-  @if (navigationService.position() === 'bottom') {
+  @if (NAVIGATION_SERVICE.POSITION() === 'bottom') {
   <!-- Hide ion-card with bottom navigation -->
   <ion-item lines="none">
     <energymonitor-chart class="ion-margin-bottom" [currentData]="currentData"></energymonitor-chart>
@@ -9,7 +9,7 @@
     <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
       <ion-icon size="large" slot="start" name="laptop-outline" color="normal"></ion-icon>
       <ion-label translate>
-        Edge.Index.Energymonitor.title
+        EDGE.INDEX.ENERGYMONITOR.TITLE
       </ion-label>
     </ion-item>
     <ion-card-content>

@@ -26,7 +26,7 @@ export class AuthenticateWithTokenRequest extends JsonrpcRequest {
             token: string
         },
     ) {
-        super(AuthenticateWithTokenRequest.METHOD, params);
+        super(AUTHENTICATE_WITH_TOKEN_REQUEST.METHOD, params);
     }
 
 }

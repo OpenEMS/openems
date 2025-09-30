@@ -4,11 +4,11 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared/shared";
-import { DelayedSellToGridModalComponent } from "./modal/modal.component";
+import { DelayedSellToGridModalComponent } from "./modal/MODAL.COMPONENT";
 
 @Component({
-    selector: DelayedSellToGridComponent.SELECTOR,
-    templateUrl: "./delayedselltogrid.component.html",
+    selector: DELAYED_SELL_TO_GRID_COMPONENT.SELECTOR,
+    templateUrl: "./DELAYEDSELLTOGRID.COMPONENT.HTML",
     standalone: false,
 })
 export class DelayedSellToGridComponent implements OnInit, OnDestroy {
@@ -19,7 +19,7 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
 
     public edge: Edge | null = null;
 
-    public component: EdgeConfig.Component | null = null;
+    public component: EDGE_CONFIG.COMPONENT | null = null;
 
     constructor(
         private route: ActivatedRoute,
@@ -30,26 +30,26 @@ export class DelayedSellToGridComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
-            this.service.getConfig().then(config => {
-                this.component = config.getComponent(this.componentId);
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.EDGE = edge;
+            THIS.SERVICE.GET_CONFIG().then(config => {
+                THIS.COMPONENT = CONFIG.GET_COMPONENT(THIS.COMPONENT_ID);
             });
         });
     }
 
     ngOnDestroy() {
-        this.edge.unsubscribeChannels(this.websocket, DelayedSellToGridComponent.SELECTOR);
+        THIS.EDGE.UNSUBSCRIBE_CHANNELS(THIS.WEBSOCKET, DELAYED_SELL_TO_GRID_COMPONENT.SELECTOR);
     }
 
     async presentModal() {
-        const modal = await this.modalCtrl.create({
+        const modal = await THIS.MODAL_CTRL.CREATE({
             component: DelayedSellToGridModalComponent,
             componentProps: {
-                component: this.component,
-                edge: this.edge,
+                component: THIS.COMPONENT,
+                edge: THIS.EDGE,
             },
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 }

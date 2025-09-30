@@ -46,7 +46,7 @@ export class SetUserInformationRequest extends JsonrpcRequest {
             }
         },
     ) {
-        super(SetUserInformationRequest.METHOD, params);
+        super(SET_USER_INFORMATION_REQUEST.METHOD, params);
     }
 
 }

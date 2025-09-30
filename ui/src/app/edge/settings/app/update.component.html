@@ -3,25 +3,25 @@
     <ion-row *ngFor="let varinstance of instances" class="ion-justify-content-center">
       <ion-col size="12" size-xl="8">
         <ion-card>
-          <form [formGroup]="varinstance.form" (ngSubmit)="submit(varinstance)">
+          <form [formGroup]="VARINSTANCE.FORM" (ngSubmit)="submit(varinstance)">
             <ion-item lines="full" color="primary">
               <ion-label>{{ appName }}</ion-label>
             </ion-item>
             <ion-card-content>
-              <formly-form [form]="varinstance.form" [fields]="varinstance.fields" [model]="varinstance.properties">
+              <formly-form [form]="VARINSTANCE.FORM" [fields]="VARINSTANCE.FIELDS" [model]="VARINSTANCE.PROPERTIES">
               </formly-form>
               <ion-item>
                 <ion-button type="submit" color="primary"
-                  [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
-                  translate> Edge.Config.App.updateApp
+                  [disabled]="(!((!VARINSTANCE.FORM.PRISTINE) && (VARINSTANCE.FORM.VALID))) || VARINSTANCE.IS_DELETING || VARINSTANCE.IS_UPDATING"
+                  translate> EDGE.CONFIG.APP.UPDATE_APP
                 </ion-button>
                 <ion-button (click)="submitDelete(varinstance)" color="primary"
-                  [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
-                  Edge.Config.App.deleteApp
+                  [disabled]="VARINSTANCE.IS_DELETING || VARINSTANCE.IS_UPDATING" translate>
+                  EDGE.CONFIG.APP.DELETE_APP
                 </ion-button>
-                <div *ngIf="varinstance.isDeleting || varinstance.isUpdating" style="min-height: 100px;">
+                <div *ngIf="VARINSTANCE.IS_DELETING || VARINSTANCE.IS_UPDATING" style="min-height: 100px;">
                 </div>
-                <ngx-spinner [name]="varinstance.instanceId"></ngx-spinner>
+                <ngx-spinner [name]="VARINSTANCE.INSTANCE_ID"></ngx-spinner>
               </ion-item>
             </ion-card-content>
           </form>

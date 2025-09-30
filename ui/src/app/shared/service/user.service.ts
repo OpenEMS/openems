@@ -3,19 +3,19 @@ import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
 import { ThemePopoverComponent } from "src/app/user/theme-selection-popup/theme-selection-popover";
 import { environment } from "src/environments";
-import { NavigationService } from "../components/navigation/service/navigation.service";
-import { UnimplementedInEdgeError } from "../errors.ts/errors";
+import { NavigationService } from "../components/navigation/service/NAVIGATION.SERVICE";
+import { UnimplementedInEdgeError } from "../ERRORS.TS/errors";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { UpdateUserSettingsRequest } from "../jsonrpc/request/updateUserSettingsRequest";
 import { User } from "../jsonrpc/shared";
-import { AssertionUtils } from "../utils/assertions/assertions.utils";
+import { AssertionUtils } from "../utils/assertions/ASSERTIONS.UTILS";
 import { Service } from "./service";
 
 @Directive()
 export class UserService {
 
-    public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
+    public static readonly DEFAULT_THEME: UserTheme = USER_THEME.LIGHT;
     public currentUser: WritableSignal<User | null> = signal(null);
 
     /** @deprecated determines if applying new ui or old*/
@@ -27,13 +27,13 @@ export class UserService {
     ) {
 
         // Prohibits switching colors on init
-        this.updateTheme(localStorage.getItem("THEME") as UserTheme);
+        THIS.UPDATE_THEME(LOCAL_STORAGE.GET_ITEM("THEME") as UserTheme);
         effect(() => {
-            const user = this.currentUser();
+            const user = THIS.CURRENT_USER();
 
             if (user != null) {
-                this.showThemeSelection(user);
-                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()));
+                THIS.SHOW_THEME_SELECTION(user);
+                THIS.IS_NEW_NAVIGATION.SET(NAVIGATION_SERVICE.IS_NEW_NAVIGATION(user, THIS.SERVICE.CURRENT_EDGE()));
             }
         });
     }
@@ -45,21 +45,21 @@ export class UserService {
      */
     public async selectTheme(theme: UserTheme): Promise<void> {
 
-        const currentUser: User | null = this.currentUser();
+        const currentUser: User | null = THIS.CURRENT_USER();
         if (currentUser == null || !theme) {
             return;
         }
 
-        currentUser.settings = { ...currentUser.settings, theme: theme };
-        this.finalizeThemeSelection(theme);
+        CURRENT_USER.SETTINGS = { ...CURRENT_USER.SETTINGS, theme: theme };
+        THIS.FINALIZE_THEME_SELECTION(theme);
     }
 
     public getValidBrowserTheme(userTheme: UserTheme | null): UserTheme {
 
-        const theme = userTheme === UserTheme.SYSTEM
-            ? window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? UserTheme.DARK
-                : UserTheme.LIGHT
+        const theme = userTheme === USER_THEME.SYSTEM
+            ? WINDOW.MATCH_MEDIA("(prefers-color-scheme: dark)").matches
+                ? USER_THEME.DARK
+                : USER_THEME.LIGHT
             : userTheme;
 
         return theme ?? UserService.DEFAULT_THEME;
@@ -72,15 +72,15 @@ export class UserService {
      * @param value the value for given key
      */
     public async updateUserSettingsWithProperty(key: string, value: boolean | string | number) {
-        const user = this.currentUser();
-        AssertionUtils.assertIsDefined(user);
-        const updatedSettings = { ...user.settings, [key]: value };
-        const [err, _result] = await this.updateUserSettings(updatedSettings);
+        const user = THIS.CURRENT_USER();
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(user);
+        const updatedSettings = { ...USER.SETTINGS, [key]: value };
+        const [err, _result] = await THIS.UPDATE_USER_SETTINGS(updatedSettings);
         if (err !== null) {
             throw err;
         }
 
-        this.currentUser.set(new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, updatedSettings));
+        THIS.CURRENT_USER.SET(new User(USER.ID, USER.NAME, USER.GLOBAL_ROLE, USER.LANGUAGE, USER.HAS_MULTIPLE_EDGES, updatedSettings));
     }
 
     /**
@@ -89,14 +89,14 @@ export class UserService {
      * @returns
      */
     private showThemeSelection(user: User): void {
-        const theme: UserTheme | null = this.getTheme(user);
+        const theme: UserTheme | null = THIS.GET_THEME(user);
 
         if (theme != null) {
-            this.updateTheme(theme);
+            THIS.UPDATE_THEME(theme);
             return;
         }
 
-        this.showModal();
+        THIS.SHOW_MODAL();
     }
 
     /**
@@ -106,8 +106,8 @@ export class UserService {
      * @returns the userTheme if existing, else null
      */
     private getTheme(user: User | null): UserTheme | null {
-        if (environment.backend === "OpenEMS Edge") {
-            return localStorage.getItem("THEME") as UserTheme ?? null;
+        if (ENVIRONMENT.BACKEND === "OpenEMS Edge") {
+            return LOCAL_STORAGE.GET_ITEM("THEME") as UserTheme ?? null;
         }
 
         return user?.getThemeFromSettings() ?? null;
@@ -119,18 +119,18 @@ export class UserService {
      * @param userTheme the new user theme
      */
     private updateTheme(userTheme: UserTheme | null): void {
-        const validTheme = this.getValidBrowserTheme(userTheme);
-        let attr: Exclude<`${UserTheme}`, UserTheme.SYSTEM> = validTheme;
+        const validTheme = THIS.GET_VALID_BROWSER_THEME(userTheme);
+        let attr: Exclude<`${UserTheme}`, USER_THEME.SYSTEM> = validTheme;
 
-        if (validTheme === UserTheme.SYSTEM) {
-            attr = window.matchMedia("(prefers-color-scheme: dark)").matches ? UserTheme.DARK : UserTheme.LIGHT;
+        if (validTheme === USER_THEME.SYSTEM) {
+            attr = WINDOW.MATCH_MEDIA("(prefers-color-scheme: dark)").matches ? USER_THEME.DARK : USER_THEME.LIGHT;
         }
 
         // Provide color to set before angular app inits
-        const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
-        localStorage.setItem("THEME_COLOR", backgroundColor);
+        const backgroundColor = getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-background-color");
+        LOCAL_STORAGE.SET_ITEM("THEME_COLOR", backgroundColor);
 
-        document.documentElement.setAttribute("data-theme", attr);
+        DOCUMENT.DOCUMENT_ELEMENT.SET_ATTRIBUTE("data-theme", attr);
     }
 
     /**
@@ -140,16 +140,16 @@ export class UserService {
     */
     private async showModal(): Promise<void> {
 
-        const modal = await this.modalCtrl.create({
+        const modal = await THIS.MODAL_CTRL.CREATE({
             component: ThemePopoverComponent,
         });
 
-        await modal.present();
+        await MODAL.PRESENT();
 
-        const { data } = await modal.onDidDismiss();
+        const { data } = await MODAL.ON_DID_DISMISS();
 
         const selectedTheme = data?.selectedTheme ?? UserService.DEFAULT_THEME;
-        this.finalizeThemeSelection(selectedTheme);
+        THIS.FINALIZE_THEME_SELECTION(selectedTheme);
     }
 
     /**
@@ -160,10 +160,10 @@ export class UserService {
     */
     private updateUserSettings(settings: object): Promise<[Error | null, JsonrpcResponseSuccess | null]> {
         const request = new UpdateUserSettingsRequest({ settings: settings });
-        if (environment.backend === "OpenEMS Edge") {
-            return Promise.resolve([new UnimplementedInEdgeError(request), null]);
+        if (ENVIRONMENT.BACKEND === "OpenEMS Edge") {
+            return PROMISE.RESOLVE([new UnimplementedInEdgeError(request), null]);
         }
-        return JsonRpcUtils.handle<JsonrpcResponseSuccess>(this.service.websocket.sendSafeRequest(request));
+        return JSON_RPC_UTILS.HANDLE<JsonrpcResponseSuccess>(THIS.SERVICE.WEBSOCKET.SEND_SAFE_REQUEST(request));
     }
 
     /**
@@ -172,13 +172,13 @@ export class UserService {
     * @param theme the new theme
     */
     private updateCurrentUser(theme: Theme): void {
-        this.currentUser.update((user: User | null) => {
+        THIS.CURRENT_USER.UPDATE((user: User | null) => {
             if (user == null) {
                 return user;
             }
 
-            user.settings = {
-                ...user.settings,
+            USER.SETTINGS = {
+                ...USER.SETTINGS,
                 theme: theme,
             };
             return user;
@@ -192,11 +192,11 @@ export class UserService {
     * @returns
     */
     private finalizeThemeSelection(theme: Theme): Promise<void> {
-        return this.updateUserSettings({ theme: theme })
+        return THIS.UPDATE_USER_SETTINGS({ theme: theme })
             .then(() => {
-                this.updateCurrentUser(theme as Theme);
-                localStorage.setItem("THEME", theme);
-                this.updateTheme(theme);
+                THIS.UPDATE_CURRENT_USER(theme as Theme);
+                LOCAL_STORAGE.SET_ITEM("THEME", theme);
+                THIS.UPDATE_THEME(theme);
             });
     }
 }

@@ -10,13 +10,13 @@ type AutomaticEnableMode = "automaticRecommendationCtrlEnabled" | "automaticForc
 
 @Component({
   selector: "heatpump-modal",
-  templateUrl: "./modal.component.html",
+  templateUrl: "./MODAL.COMPONENT.HTML",
   standalone: false,
 })
 export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
   @Input() public edge: Edge | null = null;
-  @Input() public component: EdgeConfig.Component | null = null;
+  @Input() public component: EDGE_CONFIG.COMPONENT | null = null;
 
   public formGroup: FormGroup | null = null;
   public loading: boolean = false;
@@ -30,78 +30,78 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.formGroup = this.formBuilder.group({
+    THIS.FORM_GROUP = THIS.FORM_BUILDER.GROUP({
       // Manual
-      manualState: new FormControl(this.component.properties.manualState),
+      manualState: new FormControl(THIS.COMPONENT.PROPERTIES.MANUAL_STATE),
       // Automatic
-      automaticForceOnCtrlEnabled: new FormControl(this.component.properties.automaticForceOnCtrlEnabled),
-      automaticForceOnSoc: new FormControl(this.component.properties.automaticForceOnSoc),
-      automaticForceOnSurplusPower: new FormControl(this.component.properties.automaticForceOnSurplusPower),
-      automaticLockCtrlEnabled: new FormControl(this.component.properties.automaticLockCtrlEnabled),
-      automaticLockGridBuyPower: new FormControl(this.component.properties.automaticLockGridBuyPower),
-      automaticLockSoc: new FormControl(this.component.properties.automaticLockSoc),
-      automaticRecommendationCtrlEnabled: new FormControl(this.component.properties.automaticRecommendationCtrlEnabled),
-      automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
-      minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
+      automaticForceOnCtrlEnabled: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_FORCE_ON_CTRL_ENABLED),
+      automaticForceOnSoc: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_FORCE_ON_SOC),
+      automaticForceOnSurplusPower: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_FORCE_ON_SURPLUS_POWER),
+      automaticLockCtrlEnabled: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_LOCK_CTRL_ENABLED),
+      automaticLockGridBuyPower: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_LOCK_GRID_BUY_POWER),
+      automaticLockSoc: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_LOCK_SOC),
+      automaticRecommendationCtrlEnabled: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_RECOMMENDATION_CTRL_ENABLED),
+      automaticRecommendationSurplusPower: new FormControl(THIS.COMPONENT.PROPERTIES.AUTOMATIC_RECOMMENDATION_SURPLUS_POWER),
+      minimumSwitchingTime: new FormControl(THIS.COMPONENT.PROPERTIES.MINIMUM_SWITCHING_TIME),
     });
   }
 
   public updateControllerMode(event: CustomEvent) {
-    const oldMode = this.component.properties["mode"];
-    const newMode = event.detail.value;
+    const oldMode = THIS.COMPONENT.PROPERTIES["mode"];
+    const newMode = EVENT.DETAIL.VALUE;
 
-    if (this.edge != null) {
-      this.edge.updateComponentConfig(this.websocket, this.component.id, [
+    if (THIS.EDGE != null) {
+      THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, [
         { name: "mode", value: newMode },
       ]).then(() => {
-        this.component.properties.mode = newMode;
-        this.formGroup.markAsPristine();
-        this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+        THIS.COMPONENT.PROPERTIES.MODE = newMode;
+        THIS.FORM_GROUP.MARK_AS_PRISTINE();
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
       }).catch(reason => {
-        this.component.properties.mode = oldMode;
-        this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-        console.warn(reason);
+        THIS.COMPONENT.PROPERTIES.MODE = oldMode;
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+        CONSOLE.WARN(reason);
       });
     }
   }
 
   public updateAutomaticEnableMode(isTrue: boolean, state: AutomaticEnableMode) {
-    this.formGroup.controls[state].setValue(isTrue);
-    this.formGroup.controls[state].markAsDirty();
+    THIS.FORM_GROUP.CONTROLS[state].setValue(isTrue);
+    THIS.FORM_GROUP.CONTROLS[state].markAsDirty();
   }
 
   public updateManualMode(state: ManualMode) {
-    this.formGroup.controls["manualState"].setValue(state);
-    this.formGroup.controls["manualState"].markAsDirty();
+    THIS.FORM_GROUP.CONTROLS["manualState"].setValue(state);
+    THIS.FORM_GROUP.CONTROLS["manualState"].markAsDirty();
   }
 
   public applyChanges() {
-    if (this.edge != null) {
-      if (this.edge.roleIsAtLeast("owner")) {
-        if (this.formGroup.controls["automaticRecommendationSurplusPower"].value < this.formGroup.controls["automaticForceOnSurplusPower"].value) {
+    if (THIS.EDGE != null) {
+      if (THIS.EDGE.ROLE_IS_AT_LEAST("owner")) {
+        if (THIS.FORM_GROUP.CONTROLS["automaticRecommendationSurplusPower"].value < THIS.FORM_GROUP.CONTROLS["automaticForceOnSurplusPower"].value) {
           const updateComponentArray = [];
-          Object.keys(this.formGroup.controls).forEach((element, index) => {
-            if (this.formGroup.controls[element].dirty) {
-              updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+          OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS).forEach((element, index) => {
+            if (THIS.FORM_GROUP.CONTROLS[element].dirty) {
+              UPDATE_COMPONENT_ARRAY.PUSH({ name: OBJECT.KEYS(THIS.FORM_GROUP.CONTROLS)[index], value: THIS.FORM_GROUP.CONTROLS[element].value });
             }
           });
-          this.loading = true;
-          this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-            this.component.properties.manualState = this.formGroup.value.manualState;
-            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
-            this.loading = false;
+          THIS.LOADING = true;
+          THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, updateComponentArray).then(() => {
+            THIS.COMPONENT.PROPERTIES.MANUAL_STATE = THIS.FORM_GROUP.VALUE.MANUAL_STATE;
+            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
+            THIS.LOADING = false;
           }).catch(reason => {
-            this.formGroup.controls["minTime"].setValue(this.component.properties.manualState);
-            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
-            this.loading = false;
-            console.warn(reason);
+            THIS.FORM_GROUP.CONTROLS["minTime"].setValue(THIS.COMPONENT.PROPERTIES.MANUAL_STATE);
+            THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
+            THIS.LOADING = false;
+            CONSOLE.WARN(reason);
           });
-          this.formGroup.markAsPristine();
+          THIS.FORM_GROUP.MARK_AS_PRISTINE();
         } else {
-          this.service.toast(this.translate.instant("Edge.Index.Widgets.HeatPump.relationError"), "danger");
+          THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT_PUMP.RELATION_ERROR"), "danger");
         }
       } else {
-        this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.INSUFFICIENT_RIGHTS"), "danger");
       }
     }
   }

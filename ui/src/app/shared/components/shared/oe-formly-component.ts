@@ -5,10 +5,10 @@ import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, take, takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
-import { SharedModule } from "../../shared.module";
+import { SharedModule } from "../../SHARED.MODULE";
 import { Role } from "../../type/role";
-import { AssertionUtils } from "../../utils/assertions/assertions.utils";
-import { FormUtils } from "../../utils/form/form.utils";
+import { AssertionUtils } from "../../utils/assertions/ASSERTIONS.UTILS";
+import { FormUtils } from "../../utils/form/FORM.UTILS";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
@@ -32,48 +32,48 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
   private subscription: EffectRef | null = null;
 
   constructor() {
-    const service = SharedModule.injector.get<Service>(Service);
-    this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
-    this.dataService = inject(DataService);
+    const service = SHARED_MODULE.INJECTOR.GET<Service>(Service);
+    THIS.TRANSLATE = SHARED_MODULE.INJECTOR.GET<TranslateService>(TranslateService);
+    THIS.DATA_SERVICE = inject(DataService);
     const websocket = inject(Websocket);
 
-    service.getCurrentEdge().then(async edge => {
+    SERVICE.GET_CURRENT_EDGE().then(async edge => {
 
       // Subscribe on channels only once
-      edge.getConfig(service.websocket)
+      EDGE.GET_CONFIG(SERVICE.WEBSOCKET)
         .pipe(filter(config => !!config), take(1))
-        .subscribe(() => this.subscribeChannels(service));
+        .subscribe(() => THIS.SUBSCRIBE_CHANNELS(service));
 
-      edge.getConfig(service.websocket)
-        .pipe(filter(config => !!config), takeUntil(this.stopOnDestroy))
+      EDGE.GET_CONFIG(SERVICE.WEBSOCKET)
+        .pipe(filter(config => !!config), takeUntil(THIS.STOP_ON_DESTROY))
         .subscribe((config) => {
-          const view = this.generateView(config, edge.role, this.translate);
-          this.form = this.getFormGroup();
+          const view = THIS.GENERATE_VIEW(config, EDGE.ROLE, THIS.TRANSLATE);
+          THIS.FORM = THIS.GET_FORM_GROUP();
 
-          this.fields = [{
+          THIS.FIELDS = [{
             type: "input",
             props: {
               attributes: {
-                title: view.title,
+                title: VIEW.TITLE,
               },
               required: true,
-              options: [{ lines: view.lines, component: view.component }],
+              options: [{ lines: VIEW.LINES, component: VIEW.COMPONENT }],
               onSubmit: (fg: FormGroup) => {
-                this.applyChanges(fg, service, websocket, view.component ?? null, view.edge ?? null);
+                THIS.APPLY_CHANGES(fg, service, websocket, VIEW.COMPONENT ?? null, VIEW.EDGE ?? null);
               },
             },
             className: "ion-full-height",
-            wrappers: [this.formlyWrapper],
-            form: this.form,
+            wrappers: [THIS.FORMLY_WRAPPER],
+            form: THIS.FORM,
           }];
         });
     });
   }
 
   public async ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-    this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
+    THIS.DATA_SERVICE?.unsubscribeFromChannels(await THIS.GET_CHANNEL_ADDRESSES());
   }
 
   /**
@@ -83,12 +83,12 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @returns {Promise<void>} A Promise that resolves without a value.
    */
   public async subscribeChannels(service: Service): Promise<void> {
-    const channelAddresses = await this.getChannelAddresses();
-    const edge = await service.getCurrentEdge();
-    AssertionUtils.assertIsDefined(edge);
+    const channelAddresses = await THIS.GET_CHANNEL_ADDRESSES();
+    const edge = await SERVICE.GET_CURRENT_EDGE();
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
-    this.dataService.getValues(channelAddresses, edge);
-    this.fetchCurrentData(service);
+    THIS.DATA_SERVICE.GET_VALUES(channelAddresses, edge);
+    THIS.FETCH_CURRENT_DATA(service);
   }
 
   /**
@@ -101,19 +101,19 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    */
   protected async fetchCurrentData(service: Service) {
     let skipCount = 0;
-    this.subscription = effect(() => {
-      const val = this.dataService.currentValue();
-      if (this.skipCurrentData && skipCount < this.SKIP_COUNT) {
+    THIS.SUBSCRIPTION = effect(() => {
+      const val = THIS.DATA_SERVICE.CURRENT_VALUE();
+      if (THIS.SKIP_CURRENT_DATA && skipCount < this.SKIP_COUNT) {
         skipCount++;
         return;
       }
 
-      this.skipCurrentData = false; // Reset after skipping 2 values
-      service.stopSpinner("formly-field-modal");
+      THIS.SKIP_CURRENT_DATA = false; // Reset after skipping 2 values
+      SERVICE.STOP_SPINNER("formly-field-modal");
       skipCount = 0;
-      this.onCurrentData(val);
+      THIS.ON_CURRENT_DATA(val);
 
-    }, { injector: this.injector });
+    }, { injector: THIS.INJECTOR });
   }
 
 
@@ -144,25 +144,25 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @param component the current component
    * @param edge the edge
    */
-  protected applyChanges(fg: FormGroup<any>, service: Service, websocket: Websocket, component: EdgeConfig.Component | null, edge: Edge | null) {
-    AssertionUtils.assertIsDefined(component);
-    AssertionUtils.assertIsDefined(edge);
+  protected applyChanges(fg: FormGroup<any>, service: Service, websocket: Websocket, component: EDGE_CONFIG.COMPONENT | null, edge: Edge | null) {
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
 
     const updateComponentArray: { name: string, value: any }[] = [];
-    service.startSpinner("formly-field-modal");
-    for (const key in fg.controls) {
-      const control = fg.controls[key];
-      fg.controls[key];
+    SERVICE.START_SPINNER("formly-field-modal");
+    for (const key in FG.CONTROLS) {
+      const control = FG.CONTROLS[key];
+      FG.CONTROLS[key];
 
       // Check if formControl-value didn't change
-      if (control.pristine) {
+      if (CONTROL.PRISTINE) {
         continue;
       }
 
-      updateComponentArray.push({
+      UPDATE_COMPONENT_ARRAY.PUSH({
         name: key,
-        value: fg.value[key],
+        value: FG.VALUE[key],
       });
     }
 
@@ -170,15 +170,15 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
       throw new Error("Either edge or component not provided");
     }
 
-    edge.updateComponentConfig(websocket, component.id, updateComponentArray)
+    EDGE.UPDATE_COMPONENT_CONFIG(websocket, COMPONENT.ID, updateComponentArray)
       .then(() => {
-        service.toast(this.translate.instant("General.changeAccepted"), "success");
+        SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
       }).catch(reason => {
-        service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+        SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
       }).finally(() => {
-        this.skipCurrentData = true;
-        fg.markAsPristine();
-        service.stopSpinner("formly-field-modal");
+        THIS.SKIP_CURRENT_DATA = true;
+        FG.MARK_AS_PRISTINE();
+        SERVICE.STOP_SPINNER("formly-field-modal");
       });
   }
 
@@ -203,16 +203,16 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @returns the new formGroup
    */
   protected setFormControlSafely<T>(fg: FormGroup, formControlName: string, currentData: CurrentData, channel: ChannelAddress | null) {
-    if (this.skipCurrentData || fg.dirty || fg.touched || !channel || currentData.allComponents[channel.toString()] == null) {
+    if (THIS.SKIP_CURRENT_DATA || FG.DIRTY || FG.TOUCHED || !channel || CURRENT_DATA.ALL_COMPONENTS[CHANNEL.TO_STRING()] == null) {
       return;
     }
 
-    const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
-    const currFormControlValue: T | null = currentData.allComponents[channel.toString()];
+    const prevFormControlValue: T | null = FORM_UTILS.FIND_FORM_CONTROLS_VALUE_SAFELY(fg, formControlName);
+    const currFormControlValue: T | null = CURRENT_DATA.ALL_COMPONENTS[CHANNEL.TO_STRING()];
 
     if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
-      fg.controls[formControlName].setValue(currFormControlValue);
-      fg.controls[formControlName].markAsTouched();
+      FG.CONTROLS[formControlName].setValue(currFormControlValue);
+      FG.CONTROLS[formControlName].markAsTouched();
     }
   }
 
@@ -229,20 +229,20 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 export type OeFormlyView = {
   title: string,
   lines: OeFormlyField[],
-  component?: EdgeConfig.Component,
+  component?: EDGE_CONFIG.COMPONENT,
   edge?: Edge,
 };
 
 export type OeFormlyField =
-  | OeFormlyField.InfoLine
-  | OeFormlyField.Item
-  | OeFormlyField.ChildrenLine
-  | OeFormlyField.ChannelLine
-  | OeFormlyField.HorizontalLine
-  | OeFormlyField.ValueFromChannelsLine
-  | OeFormlyField.ValueFromFormControlLine
-  | OeFormlyField.ButtonsFromFormControlLine
-  | OeFormlyField.RangeButtonFromFormControlLine;
+  | OE_FORMLY_FIELD.INFO_LINE
+  | OE_FORMLY_FIELD.ITEM
+  | OE_FORMLY_FIELD.CHILDREN_LINE
+  | OE_FORMLY_FIELD.CHANNEL_LINE
+  | OE_FORMLY_FIELD.HORIZONTAL_LINE
+  | OE_FORMLY_FIELD.VALUE_FROM_CHANNELS_LINE
+  | OE_FORMLY_FIELD.VALUE_FROM_FORM_CONTROL_LINE
+  | OE_FORMLY_FIELD.BUTTONS_FROM_FORM_CONTROL_LINE
+  | OE_FORMLY_FIELD.RANGE_BUTTON_FROM_FORM_CONTROL_LINE;
 
 export namespace OeFormlyField {
 

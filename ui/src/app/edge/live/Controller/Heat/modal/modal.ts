@@ -5,12 +5,12 @@ import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
 
 @Component({
-    templateUrl: "./modal.html",
+    templateUrl: "./MODAL.HTML",
     standalone: false,
 })
 export class ModalComponent extends AbstractModal implements OnInit {
 
-    protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
+    protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(THIS.TRANSLATE);
     protected readonly Mode = Mode;
     protected readonly WorkMode = WorkMode;
 
@@ -19,52 +19,52 @@ export class ModalComponent extends AbstractModal implements OnInit {
     protected isMyPV: boolean = false;
 
     protected override onIsInitialized(): void {
-        if (this == null || this.component == null) {
+        if (this == null || THIS.COMPONENT == null) {
             return;
         }
 
         // Check for specific factoryId
-        this.isMyPV = (this.component.factoryId === "Heat.MyPv.AcThor9s");
+        THIS.IS_MY_PV = (THIS.COMPONENT.FACTORY_ID === "HEAT.MY_PV.AC_THOR9S");
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        if (this == null || this.component == null) { return []; }
+        if (this == null || THIS.COMPONENT == null) { return []; }
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, "ActivePower"),
-            new ChannelAddress(this.component.id, "Temperature"),
-            new ChannelAddress(this.component.id, "Status"),
+            new ChannelAddress(THIS.COMPONENT.ID, "ActivePower"),
+            new ChannelAddress(THIS.COMPONENT.ID, "Temperature"),
+            new ChannelAddress(THIS.COMPONENT.ID, "Status"),
         ];
         return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        if (this != null && this.component != null) {
+        if (this != null && THIS.COMPONENT != null) {
 
             // for read-only and write
-            this.statusNumber = currentData.allComponents[this.component.id + "/" + "Status"] ?? Status.error;
+            THIS.STATUS_NUMBER = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + "Status"] ?? STATUS.ERROR;
 
-            switch (this.statusNumber) {
-                case Status.standby:
-                case Status.excess:
-                case Status.ControlNotAllowed:
-                    this.status = State.heating;
+            switch (THIS.STATUS_NUMBER) {
+                case STATUS.STANDBY:
+                case STATUS.EXCESS:
+                case STATUS.CONTROL_NOT_ALLOWED:
+                    THIS.STATUS = STATE.HEATING;
                     break;
-                case Status.temperatureReached:
-                    this.status = State.temperatureReached;
+                case STATUS.TEMPERATURE_REACHED:
+                    THIS.STATUS = STATE.TEMPERATURE_REACHED;
                     break;
-                case Status.noControlSignal:
-                    if (currentData.allComponents[this.component.id + "/" + "ActivePower"] > 0) {
-                        this.status = State.heating;
+                case STATUS.NO_CONTROL_SIGNAL:
+                    if (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + "ActivePower"] > 0) {
+                        THIS.STATUS = STATE.HEATING;
                     } else {
-                        this.status = State.noHeating;
+                        THIS.STATUS = STATE.NO_HEATING;
                     }
                     break;
-                case Status.error:
-                    this.status = State.noHeating;
+                case STATUS.ERROR:
+                    THIS.STATUS = STATE.NO_HEATING;
                     break;
                 default:
-                    this.status = State.noHeating;
+                    THIS.STATUS = STATE.NO_HEATING;
                     break;
             }
         }

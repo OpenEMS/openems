@@ -16,7 +16,7 @@ import { TextIndentation } from "./modal-line/modal-line";
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
 
-    @Input() public component: EdgeConfig.Component | null = null;
+    @Input() public component: EDGE_CONFIG.COMPONENT | null = null;
 
     /** Enum for User Role */
     public readonly Role = Role;
@@ -47,63 +47,63 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         @Inject(FormBuilder) public formBuilder: FormBuilder,
         public ref: ChangeDetectorRef,
     ) {
-        ref.detach();
+        REF.DETACH();
         setInterval(() => {
-            this.ref.detectChanges(); // manually trigger change detection
+            THIS.REF.DETECT_CHANGES(); // manually trigger change detection
         }, 0);
     }
 
     public ngOnDestroy() {
-        this.edge.unsubscribeFromChannels(this.websocket, this.getChannelAddresses());
-        this.subscription.unsubscribe();
+        THIS.EDGE.UNSUBSCRIBE_FROM_CHANNELS(THIS.WEBSOCKET, THIS.GET_CHANNEL_ADDRESSES());
+        THIS.SUBSCRIPTION.UNSUBSCRIBE();
 
         // Unsubscribe from CurrentData subject
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
+        THIS.STOP_ON_DESTROY.NEXT();
+        THIS.STOP_ON_DESTROY.COMPLETE();
     }
 
     public ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(async config => {
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.SERVICE.GET_CONFIG().then(async config => {
 
                 // store important variables publically
-                this.edge = edge;
-                this.config = config;
+                THIS.EDGE = edge;
+                THIS.CONFIG = config;
 
-                await this.updateComponent(config);
+                await THIS.UPDATE_COMPONENT(config);
 
                 // If component is passed
                 let channelAddresses: ChannelAddress[] = [];
 
                 // get the channel addresses that should be subscribed
-                channelAddresses = this.getChannelAddresses();
-                if (this.component != null) {
-                    this.component = EdgeConfig.Component.of(config.components[this.component.id]);
+                channelAddresses = THIS.GET_CHANNEL_ADDRESSES();
+                if (THIS.COMPONENT != null) {
+                    THIS.COMPONENT = EDGE_CONFIG.COMPONENT.OF(CONFIG.COMPONENTS[THIS.COMPONENT.ID]);
 
-                    const channelIds = this.getChannelIds();
+                    const channelIds = THIS.GET_CHANNEL_IDS();
                     for (const channelId of channelIds) {
-                        channelAddresses.push(new ChannelAddress(this.component.id, channelId));
+                        CHANNEL_ADDRESSES.PUSH(new ChannelAddress(THIS.COMPONENT.ID, channelId));
                     }
                 }
-                if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                if (CHANNEL_ADDRESSES.LENGTH != 0) {
+                    THIS.EDGE.SUBSCRIBE_CHANNELS(THIS.WEBSOCKET, THIS.SELECTOR, channelAddresses);
                 }
 
                 // call onCurrentData() with latest data
-                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                EDGE.CURRENT_DATA.PIPE(takeUntil(THIS.STOP_ON_DESTROY)).subscribe(currentData => {
                     const allComponents = {};
                     for (const channelAddress of channelAddresses) {
-                        const ca = channelAddress.toString();
-                        allComponents[ca] = currentData.channel[ca];
+                        const ca = CHANNEL_ADDRESS.TO_STRING();
+                        allComponents[ca] = CURRENT_DATA.CHANNEL[ca];
                     }
-                    this.onCurrentData({ allComponents: allComponents });
+                    THIS.ON_CURRENT_DATA({ allComponents: allComponents });
                 });
-                this.formGroup = this.getFormGroup();
+                THIS.FORM_GROUP = THIS.GET_FORM_GROUP();
 
                 // announce initialized
-                this.isInitialized = true;
+                THIS.IS_INITIALIZED = true;
 
-                this.onIsInitialized();
+                THIS.ON_IS_INITIALIZED();
             });
         });
     }

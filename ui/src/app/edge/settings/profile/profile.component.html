@@ -5,37 +5,37 @@
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-            <ion-label translate>Edge.Config.Index.GENERAL_DATA</ion-label>
+            <ion-label translate>EDGE.CONFIG.INDEX.GENERAL_DATA</ion-label>
           </ion-item>
           <ion-card-content>
             <ion-list class="ion-font-size-small">
-              <ion-item *ngIf="environment.backend === 'OpenEMS Backend'">
+              <ion-item *ngIf="ENVIRONMENT.BACKEND === 'OpenEMS Backend'">
                 <ion-label>Edge-ID</ion-label>
-                {{ edge.id }}
+                {{ EDGE.ID }}
               </ion-item>
-              <ion-item *ngIf="edge.comment">
-                <ion-label>{{ 'Edge.Config.Index.COMMENT' | translate }}</ion-label>
-                {{ edge.comment }}
+              <ion-item *ngIf="EDGE.COMMENT">
+                <ion-label>{{ 'EDGE.CONFIG.INDEX.COMMENT' | translate }}</ion-label>
+                {{ EDGE.COMMENT }}
               </ion-item>
-              <ion-item *ngIf="edge.producttype">
-                <ion-label>{{ 'Edge.Config.Index.PRODUCT_TYPE' | translate }}</ion-label>
-                {{ edge.producttype }}
+              <ion-item *ngIf="EDGE.PRODUCTTYPE">
+                <ion-label>{{ 'EDGE.CONFIG.INDEX.PRODUCT_TYPE' | translate }}</ion-label>
+                {{ EDGE.PRODUCTTYPE }}
               </ion-item>
               <ion-item>
-                <ion-label style="white-space: initial;">{{ environment.edgeShortName }}
+                <ion-label style="white-space: initial;">{{ ENVIRONMENT.EDGE_SHORT_NAME }}
                   Version</ion-label>
                 <a class="ion-link"
                   style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
-                  routerLinkActive="active" routerLink="/changelog">{{ edge.version |
-                  version:edge.role }}</a>
+                  routerLinkActive="active" routerLink="/changelog">{{ EDGE.VERSION |
+                  version:EDGE.ROLE }}</a>
               </ion-item>
               <ion-item>
-                <ion-label>{{ 'Edge.Config.Index.ROLE' | translate }}</ion-label>
-                {{ edge.getRoleString() }}
+                <ion-label>{{ 'EDGE.CONFIG.INDEX.ROLE' | translate }}</ion-label>
+                {{ EDGE.GET_ROLE_STRING() }}
               </ion-item>
-              <ion-item lines="none" *ngIf="edge.firstSetupProtocol">
-                <ion-label translate>Index.FIRST_SETUP_PROTOCOL</ion-label>
-                {{ edge.firstSetupProtocol | date:'dd.MM.YYYY HH:mm' }}
+              <ion-item lines="none" *ngIf="EDGE.FIRST_SETUP_PROTOCOL">
+                <ion-label translate>INDEX.FIRST_SETUP_PROTOCOL</ion-label>
+                {{ EDGE.FIRST_SETUP_PROTOCOL | date:'DD.MM.YYYY HH:mm' }}
               </ion-item>
             </ion-list>
           </ion-card-content>
@@ -43,7 +43,7 @@
       </ion-col>
     </ion-row>
 
-    <ion-row class="ion-justify-content-center" *ngIf="edge.firstSetupProtocol && isAtLeastOwner">
+    <ion-row class="ion-justify-content-center" *ngIf="EDGE.FIRST_SETUP_PROTOCOL && isAtLeastOwner">
       <ion-col size="12" size-md="8">
         <ion-card>
           <ion-item color="light" lines="full">
@@ -61,7 +61,7 @@
                 </ion-col>
                 <ion-col size-md="4" size-xs="6" class="ion-text-align-end ion-text-md-center">
                   <ion-label style="color:var(--ion-color-label)">
-                    {{latestSetupProtocolData.createDate | date:'dd.MM.YYYY HH:mm'}}
+                    {{LATEST_SETUP_PROTOCOL_DATA.CREATE_DATE | date:'DD.MM.YYYY HH:mm'}}
                   </ion-label>
                 </ion-col>
                 <ion-col size-md="4" class="ion-text-align-end" size-xs="12">
@@ -85,7 +85,7 @@
         <ion-card>
           <ion-item color="light" lines="full">
             <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-            <ion-label>{{ 'Edge.Config.Index.CONFIGURATION' | translate }}</ion-label>
+            <ion-label>{{ 'EDGE.CONFIG.INDEX.CONFIGURATION' | translate }}</ion-label>
           </ion-item>
 
           <ion-card-content>
@@ -94,85 +94,85 @@
               <ng-container *ngFor="let category of components">
                 <ion-item-group>
                   <ion-item lines="inset">
-                    <ion-icon class="normal-icon" name="{{ category.category.icon }}"></ion-icon>
+                    <ion-icon class="normal-icon" name="{{ CATEGORY.CATEGORY.ICON }}"></ion-icon>
                     <ion-label class="ion-padding-start">
-                      {{ category.category.title }}
+                      {{ CATEGORY.CATEGORY.TITLE }}
                     </ion-label>
                   </ion-item>
                 </ion-item-group>
-                <ion-item lines="none" *ngFor="let item of category.components">
+                <ion-item lines="none" *ngFor="let item of CATEGORY.COMPONENTS">
                   <ion-label class="ion-text-wrap">
                     <ion-text>
                       <ion-text color="primary">
-                        <h3>{{ item.alias }} <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
-                            [routerLink]="item.id" name="create-outline">
+                        <h3>{{ ITEM.ALIAS }} <ion-icon *ngIf="EDGE.ROLE_IS_AT_LEAST('owner')" style="cursor: pointer;"
+                            [routerLink]="ITEM.ID" name="create-outline">
                           </ion-icon>
                         </h3>
                       </ion-text>
-                      <ng-container *ngIf="config.factories[item.factoryId] as factory">
+                      <ng-container *ngIf="CONFIG.FACTORIES[ITEM.FACTORY_ID] as factory">
                         <p style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
                           <ion-icon *ngIf="!item['showProperties']" name="arrow-down-circle-outline">
                           </ion-icon>
                           <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">
                           </ion-icon>
-                          <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span><span
-                            *ngIf="!item.isEnabled"> - <span translate>General.componentInactive</span></span>
+                          <span>&nbsp;{{ ITEM.ID }}</span>&nbsp;<span style="color:gray">{{ FACTORY.NAME }}</span><span
+                            *ngIf="!ITEM.IS_ENABLED"> - <span translate>GENERAL.COMPONENT_INACTIVE</span></span>
                         </p>
                       </ng-container>
                     </ion-text>
                     <ng-container *ngIf="item['showProperties']">
                       <!-- Component details -->
                       <ul style="font-family: monospace; list-style-type: square">
-                        <ng-container *ngFor="let p of (item.properties | keys)">
+                        <ng-container *ngFor="let p of (ITEM.PROPERTIES | keys)">
                           <li
-                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':org.apache.felix.configadmin.revision:'].includes(p.key) && !p.key.endsWith('.target')">
-                            {{ p.key }}: {{ p.value }}
+                            *ngIf="!['alias', '_lastChangeBy', '_lastChangeAt', 'enabled', ':ORG.APACHE.FELIX.CONFIGADMIN.REVISION:'].includes(P.KEY) && !P.KEY.ENDS_WITH('.target')">
+                            {{ P.KEY }}: {{ P.VALUE }}
                           </li>
                         </ng-container>
                       </ul>
                       <!-- Additional information for specific Factory-IDs -->
-                      <ng-container *ngFor="let factoryId of [item.factoryId]" [ngSwitch]="factoryId">
-                        <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadOnly'">
-                          <ion-button (click)="getModbusProtocol(item.id,'tcp')">Download Protocol</ion-button>
+                      <ng-container *ngFor="let factoryId of [ITEM.FACTORY_ID]" [ngSwitch]="factoryId">
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.MODBUS_TCP.READ_ONLY'">
+                          <ion-button (click)="getModbusProtocol(ITEM.ID,'tcp')">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.ModbusRtu.ReadOnly'">
-                          <ion-button (click)="getModbusProtocol(item.id,'rtu')">Download Protocol</ion-button>
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.MODBUS_RTU.READ_ONLY'">
+                          <ion-button (click)="getModbusProtocol(ITEM.ID,'rtu')">Download Protocol</ion-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-                          <ion-button (click)="getModbusProtocol(item.id,'tcp')">Download Protocol</ion-button>
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.MODBUS_TCP.READ_WRITE'">
+                          <ion-button (click)="getModbusProtocol(ITEM.ID,'tcp')">Download Protocol</ion-button>
                           <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.ModbusRtu.ReadWrite'">
-                          <ion-button (click)="getModbusProtocol(item.id,'rtu')">Download Protocol</ion-button>
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.MODBUS_RTU.READ_WRITE'">
+                          <ion-button (click)="getModbusProtocol(ITEM.ID,'rtu')">Download Protocol</ion-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadOnly'">
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.REST.READ_ONLY'">
                           <oe-help-button key="CONTROLLER_API_REST_READ">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
-                        <ion-text *ngSwitchCase="'Controller.Api.Rest.ReadWrite'">
+                        <ion-text *ngSwitchCase="'CONTROLLER.API.REST.READ_WRITE'">
                           <oe-help-button key="CONTROLLER_API_REST_READWRITE">
                             <span translate>
-                              General.manual
+                              GENERAL.MANUAL
                             </span>
                           </oe-help-button>
                         </ion-text>
                       </ng-container>
                       <!-- Additional information for all Components -->
-                      <ng-container *ngIf="edge.roleIsAtLeast('admin') && edge.isVersionAtLeast('2021.10.10')">
-                        <ion-button (click)="getChannelExport(item.id)">
-                          {{ 'Edge.Config.Index.EXPORT_CHANNELS' | translate }}</ion-button>
+                      <ng-container *ngIf="EDGE.ROLE_IS_AT_LEAST('admin') && EDGE.IS_VERSION_AT_LEAST('2021.10.10')">
+                        <ion-button (click)="getChannelExport(ITEM.ID)">
+                          {{ 'EDGE.CONFIG.INDEX.EXPORT_CHANNELS' | translate }}</ion-button>
                       </ng-container>
                     </ng-container>
                   </ion-label>

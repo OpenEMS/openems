@@ -1,15 +1,15 @@
 <ion-item lines="none" class="ion-no-padding custom-item">
-    <ion-checkbox slot="start" [checked]="formControl.value" (ionChange)="onCheckboxChange($event)"
+    <ion-checkbox slot="start" [checked]="FORM_CONTROL.VALUE" (ionChange)="onCheckboxChange($event)"
         labelPlacement="end"></ion-checkbox>
 
     <!-- Label after checkbox -->
-    <span class="checkbox-label">{{ to.label }}</span>
+    <span class="checkbox-label">{{ TO.LABEL }}</span>
 
-    <ng-container *ngIf="props.buttonAvailable">
+    <ng-container *ngIf="PROPS.BUTTON_AVAILABLE">
 
-        <ion-button [disabled]="!formControl.value" class="ion-text-wrap button-with-icon" (click)="onButtonClick()"
+        <ion-button [disabled]="!FORM_CONTROL.VALUE" class="ion-text-wrap button-with-icon" (click)="onButtonClick()"
             size="small">
-            {{props.buttonText}}
+            {{PROPS.BUTTON_TEXT}}
             <ion-icon name="open-outline" slot="start"></ion-icon>
         </ion-button>
     </ng-container>

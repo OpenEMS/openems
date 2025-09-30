@@ -6,7 +6,7 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "Controller_Api_ModbusTcp",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -14,38 +14,38 @@ export class FlatComponent extends AbstractFlatWidget {
   protected overrideStatus: OverrideStatus | null = null;
 
   async presentModal() {
-    if (!this.isInitialized) {
+    if (!THIS.IS_INITIALIZED) {
       return;
     }
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: ModalComponent,
       componentProps: {
-        component: this.component,
+        component: THIS.COMPONENT,
       },
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
 
   protected override getChannelAddresses(): ChannelAddress[] {
 
     return [
-      new ChannelAddress(this.component.id, "OverrideStatus"),
+      new ChannelAddress(THIS.COMPONENT.ID, "OverrideStatus"),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.overrideStatus = this.getTranslatedState(currentData.allComponents[this.component.id + "/OverrideStatus"]);
+    THIS.OVERRIDE_STATUS = THIS.GET_TRANSLATED_STATE(CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/OverrideStatus"]);
   }
 
   private getTranslatedState(state: OverrideStatus) {
     switch (state) {
-      case OverrideStatus.ACTIVE:
-        return this.translate.instant("MODBUS_TCP_API_READ_WRITE.OVERRIDING");
-      case OverrideStatus.ERROR:
-        return this.translate.instant("EVCS.error");
+      case OVERRIDE_STATUS.ACTIVE:
+        return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.OVERRIDING");
+      case OVERRIDE_STATUS.ERROR:
+        return THIS.TRANSLATE.INSTANT("EVCS.ERROR");
       default:
-        return this.translate.instant("MODBUS_TCP_API_READ_WRITE.NOT_OVERRIDING");
+        return THIS.TRANSLATE.INSTANT("MODBUS_TCP_API_READ_WRITE.NOT_OVERRIDING");
     }
   }
 

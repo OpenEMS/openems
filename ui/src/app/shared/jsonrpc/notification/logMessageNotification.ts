@@ -24,7 +24,7 @@ export class LogMessageNotification extends JsonrpcNotification {
             msg: string
         },
     ) {
-        super(LogMessageNotification.METHOD, params);
+        super(LOG_MESSAGE_NOTIFICATION.METHOD, params);
     }
 
 }

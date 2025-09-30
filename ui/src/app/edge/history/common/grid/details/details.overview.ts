@@ -8,13 +8,13 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
-  templateUrl: "./details.overview.html",
+  templateUrl: "./DETAILS.OVERVIEW.HTML",
   standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];
   protected title: string | null = null;
-  protected gridMeters: EdgeConfig.Component[] = [];
+  protected gridMeters: EDGE_CONFIG.COMPONENT[] = [];
 
   constructor(
     public override service: Service,
@@ -27,26 +27,26 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   protected override afterIsInitialized() {
-    this.service.getCurrentEdge().then(edge => {
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
 
-      if (!this.component) {
+      if (!THIS.COMPONENT) {
         return;
       }
 
-      const gridMeter = this.config.isTypeGrid(this.component) ?? null;
+      const gridMeter = THIS.CONFIG.IS_TYPE_GRID(THIS.COMPONENT) ?? null;
       if (!gridMeter) {
         return;
       }
 
-      const gridMeters = Object.values(this.config.components)
-        .filter((comp) => comp.isEnabled && this.config.isTypeGrid(comp)) ?? null;
+      const gridMeters = OBJECT.VALUES(THIS.CONFIG.COMPONENTS)
+        .filter((comp) => COMP.IS_ENABLED && THIS.CONFIG.IS_TYPE_GRID(comp)) ?? null;
 
       if (gridMeters?.length == 1) {
-        this.title = this.translate.instant("General.grid");
+        THIS.TITLE = THIS.TRANSLATE.INSTANT("GENERAL.GRID");
       }
 
-      this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+      THIS.NAVIGATION_BUTTONS = [
+        { id: "currentVoltage", isEnabled: EDGE.ROLE_IS_AT_LEAST(ROLE.INSTALLER), alias: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { THIS.ROUTER.NAVIGATE(["./currentVoltage"], { relativeTo: THIS.ROUTE }); } }];
     });
   }
 }

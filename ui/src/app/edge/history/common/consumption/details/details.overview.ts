@@ -8,7 +8,7 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
-  templateUrl: "./details.overview.html",
+  templateUrl: "./DETAILS.OVERVIEW.HTML",
   standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
@@ -26,55 +26,55 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   }
 
   protected override afterIsInitialized() {
-    this.componentType = this.getComponentType();
-    this.service.getCurrentEdge().then(edge => {
+    THIS.COMPONENT_TYPE = THIS.GET_COMPONENT_TYPE();
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
 
-      if (!this.component) {
+      if (!THIS.COMPONENT) {
         return;
       }
 
-      if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)) {
+      if (THIS.CONFIG?.hasComponentNature("IO.OPENEMS.EDGE.EVCS.API.EVCS", THIS.COMPONENT.ID)) {
         return;
       }
 
-      if (this.component.factoryId === "Core.Sum") {
-        this.component.alias = this.translate.instant("General.TOTAL");
+      if (THIS.COMPONENT.FACTORY_ID === "CORE.SUM") {
+        THIS.COMPONENT.ALIAS = THIS.TRANSLATE.INSTANT("GENERAL.TOTAL");
         return;
       }
 
-      if (this.component.factoryId === "Heat.Askoma") {
+      if (THIS.COMPONENT.FACTORY_ID === "HEAT.ASKOMA") {
         return;
       }
 
-      this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+      THIS.NAVIGATION_BUTTONS = [
+        { id: "currentVoltage", isEnabled: EDGE.ROLE_IS_AT_LEAST(ROLE.INSTALLER), alias: THIS.TRANSLATE.INSTANT("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { THIS.ROUTER.NAVIGATE(["./currentVoltage"], { relativeTo: THIS.ROUTE }); } }];
     });
   }
 
-  private getComponentType(): typeof this.componentType {
-    if (!this.component) {
+  private getComponentType(): typeof THIS.COMPONENT_TYPE {
+    if (!THIS.COMPONENT) {
       return null;
     }
 
-    if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)
-      && (this.component.factoryId !== "Evcs.Cluster.SelfConsumption")
-      && this.component.factoryId !== "Evcs.Cluster.PeakShaving"
-      && this.component.isEnabled !== false) {
+    if (THIS.CONFIG?.hasComponentNature("IO.OPENEMS.EDGE.EVCS.API.EVCS", THIS.COMPONENT.ID)
+      && (THIS.COMPONENT.FACTORY_ID !== "EVCS.CLUSTER.SELF_CONSUMPTION")
+      && THIS.COMPONENT.FACTORY_ID !== "EVCS.CLUSTER.PEAK_SHAVING"
+      && THIS.COMPONENT.IS_ENABLED !== false) {
       return "evcs";
     }
 
-    if (this.config?.hasComponentNature("io.openems.edge.heat.api.Heat", this.component.id)
-      && (this.component.factoryId !== "Controller.Heat.Heatingelement")
-      && this.component.isEnabled !== false) {
+    if (THIS.CONFIG?.hasComponentNature("IO.OPENEMS.EDGE.HEAT.API.HEAT", THIS.COMPONENT.ID)
+      && (THIS.COMPONENT.FACTORY_ID !== "CONTROLLER.HEAT.HEATINGELEMENT")
+      && THIS.COMPONENT.IS_ENABLED !== false) {
       return "heat";
     }
 
-    if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)
-      && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
+    if (THIS.CONFIG?.hasComponentNature("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER", THIS.COMPONENT.ID)
+      && THIS.CONFIG.IS_TYPE_CONSUMPTION_METERED(THIS.COMPONENT) && THIS.COMPONENT.IS_ENABLED) {
       return "consumptionMeter";
     }
 
-    if (this.component.factoryId === "Core.Sum") {
+    if (THIS.COMPONENT.FACTORY_ID === "CORE.SUM") {
       return "sum";
     }
 

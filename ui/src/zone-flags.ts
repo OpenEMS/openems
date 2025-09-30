@@ -1,7 +1,7 @@
 /**
  * Prevents Angular change detection from
  * running with certain Web Component callbacks
- * https://ionicframework.com/docs/ja/troubleshooting/runtime#angular-change-detection
+ * https://IONICFRAMEWORK.COM/docs/ja/troubleshooting/runtime#angular-change-detection
  */
 
 

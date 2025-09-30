@@ -22,7 +22,7 @@ export class UpdateUserSettingsRequest extends JsonrpcRequest {
             settings: {}
         },
     ) {
-        super(UpdateUserSettingsRequest.METHOD, params);
+        super(UPDATE_USER_SETTINGS_REQUEST.METHOD, params);
     }
 
 }

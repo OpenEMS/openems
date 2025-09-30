@@ -1,11 +1,11 @@
 import { Component } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
-import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
+import { FormlySelectFieldModalComponent } from "./formly-select-field-MODAL.COMPONENT";
 
 @Component({
     selector: "formly-select-extended-wrapper",
-    templateUrl: "./formly-select-field.extended.html",
+    templateUrl: "./formly-select-FIELD.EXTENDED.HTML",
     standalone: false,
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
@@ -20,34 +20,34 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
     }
 
     protected onSelectItem() {
-        this.openModal();
+        THIS.OPEN_MODAL();
     }
 
     /**
      * Opens the model to select the option.
      */
     private async openModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: FormlySelectFieldModalComponent,
             componentProps: {
-                title: this.props.label,
-                options: this.props.options,
-                initialSelectedValue: this.formControl.value,
+                title: THIS.PROPS.LABEL,
+                options: THIS.PROPS.OPTIONS,
+                initialSelectedValue: THIS.FORM_CONTROL.VALUE,
             },
             cssClass: ["auto-height", "full-width"],
         });
-        modal.onDidDismiss().then(event => {
-            if (!event.data) {
+        MODAL.ON_DID_DISMISS().then(event => {
+            if (!EVENT.DATA) {
                 // nothing selected
                 return;
             }
-            const selectedValue = event.data.selectedValue;
+            const selectedValue = EVENT.DATA.SELECTED_VALUE;
             if (!selectedValue) {
                 return;
             }
-            this.formControl.setValue(selectedValue);
+            THIS.FORM_CONTROL.SET_VALUE(selectedValue);
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
 }

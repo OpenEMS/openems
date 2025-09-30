@@ -6,10 +6,10 @@
           <ion-item>
             <ion-icon size="large" slot="start" [name]="componentIcon" color="primary"></ion-icon>
             <ion-label>
-              <ion-card-title class="ion-text-wrap" style="color: var(--ion-text-color-reverse)">{{ factory.name }}
+              <ion-card-title class="ion-text-wrap" style="color: var(--ion-text-color-reverse)">{{ FACTORY.NAME }}
               </ion-card-title>
               <ion-card-subtitle class="ion-text-wrap" style="color: var(--ion-text-color-shade);">{{
-                factory.description
+                FACTORY.DESCRIPTION
                 }}</ion-card-subtitle>
             </ion-label>
           </ion-item>
@@ -18,7 +18,7 @@
               <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
             </form>
             <div style="padding-top: 10px">
-              <ion-button size="small" [disabled]="form.pristine" class="ion-float-left" (click)="submit()"
+              <ion-button size="small" [disabled]="FORM.PRISTINE" class="ion-float-left" (click)="submit()"
                 color="primary" translate>
                 SETTINGS.SYSTEM_UPDATE.UPDATE_COMPONENT
               </ion-button>

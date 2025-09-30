@@ -19,15 +19,15 @@ export class TimeUtils {
       return null;
     }
 
-    const decimalPipe: DecimalPipe = new DecimalPipe(locale ?? Language.DEFAULT.key);
+    const decimalPipe: DecimalPipe = new DecimalPipe(locale ?? LANGUAGE.DEFAULT.KEY);
     let minutes = value / 60;
-    const hours = Math.floor(minutes / 60);
+    const hours = MATH.FLOOR(minutes / 60);
     minutes -= hours * 60;
 
     if (hours <= 23 && minutes > 0) {
-      return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
+      return DECIMAL_PIPE.TRANSFORM(hours, "1.0-0") + "h" + " " + DECIMAL_PIPE.TRANSFORM(minutes, "1.0-0") + "m";
     } else {
-      return decimalPipe.transform(hours, "1.0-0") + "h";
+      return DECIMAL_PIPE.TRANSFORM(hours, "1.0-0") + "h";
     }
   }
 
@@ -48,26 +48,26 @@ export class TimeUtils {
     }
 
     const decimalPipe: DecimalPipe = new DecimalPipe(locale);
-    const minutes = Math.floor(seconds / 60);
+    const minutes = MATH.FLOOR(seconds / 60);
 
     if (minutes > 0) {
-      return decimalPipe.transform(minutes, "1.0-0") + " min";
+      return DECIMAL_PIPE.TRANSFORM(minutes, "1.0-0") + " min";
     } else {
-      return decimalPipe.transform(seconds, "1.0-0") + " s";
+      return DECIMAL_PIPE.TRANSFORM(seconds, "1.0-0") + " s";
     }
   }
 
   public static getDaysFromMilliSeconds(ms: number) {
-    return Utils.floorSafely(Utils.divideSafely(ms, 24 * 60 * 60 * 1000));
+    return UTILS.FLOOR_SAFELY(UTILS.DIVIDE_SAFELY(ms, 24 * 60 * 60 * 1000));
   }
   public static getHoursFromMilliSeconds(ms: number) {
-    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
+    return UTILS.FLOOR_SAFELY(UTILS.DIVIDE_SAFELY(ms, 60 * 60 * 1000));
   }
   public static getMinutesFromMilliSeconds(ms: number) {
-    return Utils.roundSafely(Utils.divideSafely(ms, 60 * 1000));
+    return UTILS.ROUND_SAFELY(UTILS.DIVIDE_SAFELY(ms, 60 * 1000));
   }
 
   public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
-    return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
+    return `${ms} ${TRANSLATE.INSTANT(ms > 1 ? plural : singular)}`;
   }
 }

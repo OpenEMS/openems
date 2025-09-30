@@ -62,17 +62,17 @@ export namespace NetworkUtils {
   export function getSubnetmaskAsString(cidr: number): string {
     const octets: number[] = [];
     for (let i = 0; i < 4; i++) {
-      const bits = Math.min(cidr, 8);
-      octets.push(256 - Math.pow(2, 8 - bits));
+      const bits = MATH.MIN(cidr, 8);
+      OCTETS.PUSH(256 - MATH.POW(2, 8 - bits));
       cidr -= bits;
     }
-    return octets.join(".");
+    return OCTETS.JOIN(".");
   }
 
   /**
    * Converts a subnet mask to its CIDR notation.
    *
-   * @param subnetmask - The subnet mask in dotted-decimal notation (e.g., "255.255.255.0").
+   * @param subnetmask - The subnet mask in dotted-decimal notation (E.G., "255.255.255.0").
    * @returns The CIDR notation as a number.
    *
    * @example
@@ -89,6 +89,6 @@ export namespace NetworkUtils {
       .join("");
 
     // return the number of '1's in the binary string to get the CIDR notation
-    return binaryString.split("1").length - 1;
+    return BINARY_STRING.SPLIT("1").length - 1;
   }
 }

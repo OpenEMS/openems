@@ -19,7 +19,7 @@ export class GetModbusProtocolExportXlsxRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetModbusProtocolExportXlsxRequest.METHOD, {});
+        super(GET_MODBUS_PROTOCOL_EXPORT_XLSX_REQUEST.METHOD, {});
     }
 
 }

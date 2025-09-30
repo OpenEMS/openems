@@ -7,7 +7,7 @@ import { Icon } from "src/app/shared/type/widget";
  */
 @Component({
     selector: "oe-flat-widget-line-divider",
-    templateUrl: "./flat-widget-line-divider.html",
+    templateUrl: "./flat-widget-line-DIVIDER.HTML",
     standalone: false,
 })
 export class FlatWidgetLineDividerComponent {

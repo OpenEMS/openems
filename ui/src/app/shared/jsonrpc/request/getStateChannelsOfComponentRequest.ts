@@ -9,7 +9,7 @@ export class GetStateChannelsOfComponentRequest extends JsonrpcRequest {
             componentId: string,
         },
     ) {
-        super(GetStateChannelsOfComponentRequest.METHOD, params);
+        super(GET_STATE_CHANNELS_OF_COMPONENT_REQUEST.METHOD, params);
     }
 
 }

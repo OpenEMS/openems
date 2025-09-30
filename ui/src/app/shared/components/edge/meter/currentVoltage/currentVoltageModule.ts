@@ -4,13 +4,13 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
-import { ChartModule } from "../../../chart/chart.module";
-import { HistoryDataErrorModule } from "../../../history-data-error/history-data-error.module";
-import { PickdateModule } from "../../../pickdate/pickdate.module";
+import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/FOOTER_NAVIGATION.MODULE";
+import { ChartModule } from "../../../chart/CHART.MODULE";
+import { HistoryDataErrorModule } from "../../../history-data-error/history-data-ERROR.MODULE";
+import { PickdateModule } from "../../../pickdate/PICKDATE.MODULE";
 import { CurrentVoltageAsymmetricChartComponent } from "./chart/asymmetricMeter";
 import { CurrentVoltageSymmetricChartComponent } from "./chart/symmetricMeter";
-import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
+import { CurrentAndVoltageOverviewComponent } from "./CURRENT_VOLTAGE.OVERVIEW";
 
 @NgModule({
   imports: [
@@ -21,7 +21,7 @@ import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
     BaseChartDirective,
     BaseChartDirective,
     HistoryDataErrorModule,
-    NgxSpinnerModule.forRoot({
+    NGX_SPINNER_MODULE.FOR_ROOT({
       type: "ball-clip-rotate-multiple",
     }),
     ChartModule,

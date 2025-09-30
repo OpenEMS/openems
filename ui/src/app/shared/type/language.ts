@@ -7,13 +7,13 @@ import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
 import { TranslateLoader, TranslateService } from "@ngx-translate/core";
 import { filter, Observable, of, take } from "rxjs";
-import cz from "src/assets/i18n/cz.json";
-import de from "src/assets/i18n/de.json";
-import en from "src/assets/i18n/en.json";
-import es from "src/assets/i18n/es.json";
-import fr from "src/assets/i18n/fr.json";
-import ja from "src/assets/i18n/ja.json";
-import nl from "src/assets/i18n/nl.json";
+import cz from "src/assets/i18n/CZ.JSON";
+import de from "src/assets/i18n/DE.JSON";
+import en from "src/assets/i18n/EN.JSON";
+import es from "src/assets/i18n/ES.JSON";
+import fr from "src/assets/i18n/FR.JSON";
+import ja from "src/assets/i18n/JA.JSON";
+import nl from "src/assets/i18n/NL.JSON";
 import { environment } from "src/environments";
 
 export interface Translation {
@@ -23,11 +23,11 @@ export interface Translation {
 export class MyTranslateLoader implements TranslateLoader {
 
     public getTranslation(key: string): Observable<Translation> {
-        const language = Language.getByKey(key);
+        const language = LANGUAGE.GET_BY_KEY(key);
         if (language) {
-            return of(language.json);
+            return of(LANGUAGE.JSON);
         }
-        return of(Language.DEFAULT.json);
+        return of(LANGUAGE.DEFAULT.JSON);
     }
 }
 
@@ -41,8 +41,8 @@ export class Language {
     public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR);
     public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
 
-    public static readonly ALL = [Language.DE, Language.EN, Language.CS, Language.NL, Language.ES, Language.FR, Language.JA];
-    public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
+    public static readonly ALL = [LANGUAGE.DE, LANGUAGE.EN, LANGUAGE.CS, LANGUAGE.NL, LANGUAGE.ES, LANGUAGE.FR, LANGUAGE.JA];
+    public static readonly DEFAULT = LANGUAGE.GET_BY_KEY(ENVIRONMENT.DEFAULT_LANGUAGE) as Language;
 
     constructor(
         public readonly title: string,
@@ -50,16 +50,16 @@ export class Language {
         public readonly i18nLocaleKey: string,
         public readonly json: any,
         // Angular is not providing common type for locale.
-        // https://github.com/angular/angular/issues/30506
+        // https://GITHUB.COM/angular/angular/issues/30506
 
         public readonly locale: any,
     ) {
     }
 
     public static getByKey(key: string): Language | null {
-        for (const language of Language.ALL) {
+        for (const language of LANGUAGE.ALL) {
 
-            if (language.key == key) {
+            if (LANGUAGE.KEY == key) {
                 return language;
             }
         }
@@ -68,29 +68,29 @@ export class Language {
 
     public static getByBrowserLang(browserLang: string): Language | null {
         switch (browserLang) {
-            case "de": return Language.DE;
+            case "de": return LANGUAGE.DE;
             case "en":
             case "en-US":
-                return Language.EN;
-            case "es": return Language.ES;
-            case "nl": return Language.NL;
-            case "cs": return Language.CS;
-            case "fr": return Language.FR;
-            case "ja": return Language.JA;
+                return LANGUAGE.EN;
+            case "es": return LANGUAGE.ES;
+            case "nl": return LANGUAGE.NL;
+            case "cs": return LANGUAGE.CS;
+            case "fr": return LANGUAGE.FR;
+            case "ja": return LANGUAGE.JA;
             default: return null;
         }
     }
 
     public static getLocale(language: string) {
         switch (language) {
-            case Language.DE.key: return Language.DE.locale;
-            case Language.EN.key: return Language.EN.locale;
-            case Language.ES.key: return Language.ES.locale;
-            case Language.NL.key: return Language.NL.locale;
-            case Language.CS.key: return Language.CS.locale;
-            case Language.FR.key: return Language.FR.locale;
-            case Language.JA.key: return Language.JA.locale;
-            default: return Language.DEFAULT.locale;
+            case LANGUAGE.DE.KEY: return LANGUAGE.DE.LOCALE;
+            case LANGUAGE.EN.KEY: return LANGUAGE.EN.LOCALE;
+            case LANGUAGE.ES.KEY: return LANGUAGE.ES.LOCALE;
+            case LANGUAGE.NL.KEY: return LANGUAGE.NL.LOCALE;
+            case LANGUAGE.CS.KEY: return LANGUAGE.CS.LOCALE;
+            case LANGUAGE.FR.KEY: return LANGUAGE.FR.LOCALE;
+            case LANGUAGE.JA.KEY: return LANGUAGE.JA.LOCALE;
+            default: return LANGUAGE.DEFAULT.LOCALE;
         }
     }
 
@@ -101,19 +101,19 @@ export class Language {
      * @returns the i18n locale
      */
     public static geti18nLocaleByKey(language: string) {
-        const lang = this.getByBrowserLang(language?.toLowerCase());
+        const lang = THIS.GET_BY_BROWSER_LANG(language?.toLowerCase());
 
         if (!lang) {
-            console.warn(`Key ${language} not part of ${Language.ALL.map(lang => lang.title + ":" + lang.key)}`);
+            CONSOLE.WARN(`Key ${language} not part of ${LANGUAGE.ALL.MAP(lang => LANG.TITLE + ":" + LANG.KEY)}`);
         }
 
-        return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+        return lang?.i18nLocaleKey ?? LANGUAGE.DEFAULT.I18N_LOCALE_KEY;
     }
 
     /**
      * Sets a additional translation file
      *
-     * e.g. AdvertismentModule
+     * E.G. AdvertismentModule
      *
      *  IMPORTANT: Translation keys will overwrite each other.
      *  Make sure to use a unique top level key.
@@ -122,19 +122,19 @@ export class Language {
      * @returns translations params
      */
     public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
-        const lang = translate.currentLang ?? (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
+        const lang = TRANSLATE.CURRENT_LANG ?? (await TRANSLATE.ON_LANG_CHANGE.PIPE(filter(lang => !!lang), take(1)).toPromise())?.lang ?? LANGUAGE.DEFAULT.KEY;
         let translationKey: string = lang;
 
-        if (!(Language.DEFAULT.key in translationFile)) {
-            throw new Error(`Translation for fallback ${Language.DEFAULT.key} is missing`);
+        if (!(LANGUAGE.DEFAULT.KEY in translationFile)) {
+            throw new Error(`Translation for fallback ${LANGUAGE.DEFAULT.KEY} is missing`);
         }
 
         if (!(lang in translationFile)) {
 
-            if (environment.debugMode) {
-                console.warn(`No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
+            if (ENVIRONMENT.DEBUG_MODE) {
+                CONSOLE.WARN(`No translation available for Language ${lang}. Implemented languages are: ${OBJECT.KEYS(translationFile)}`);
             }
-            translationKey = Language.EN.key;
+            translationKey = LANGUAGE.EN.KEY;
         }
         return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
     }

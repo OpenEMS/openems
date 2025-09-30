@@ -3,81 +3,81 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-heat-chart",
-    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    protected static getChartData(config: EdgeConfig, translate: TranslateService, component: EdgeConfig.Component | undefined, chartType: "line" | "bar"): HistoryUtils.ChartData {
+    protected static getChartData(config: EdgeConfig, translate: TranslateService, component: EDGE_CONFIG.COMPONENT | undefined, chartType: "line" | "bar"): HISTORY_UTILS.CHART_DATA {
 
-        let input: HistoryUtils.InputChannel[] = [];
+        let input: HISTORY_UTILS.INPUT_CHANNEL[] = [];
 
-        AssertionUtils.assertIsDefined(component);
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
 
         input = [
-            { name: "Temperature", powerChannel: new ChannelAddress(component.id, "Temperature") },
-            { name: "ActivePower", powerChannel: new ChannelAddress(component.id, "ActivePower") },
+            { name: "Temperature", powerChannel: new ChannelAddress(COMPONENT.ID, "Temperature") },
+            { name: "ActivePower", powerChannel: new ChannelAddress(COMPONENT.ID, "ActivePower") },
         ];
 
-        input.push({
-            name: component.id + "/Temperature",
-            powerChannel: new ChannelAddress(component.id, "Temperature"),
+        INPUT.PUSH({
+            name: COMPONENT.ID + "/Temperature",
+            powerChannel: new ChannelAddress(COMPONENT.ID, "Temperature"),
         });
 
-        input.push({
-            name: component.id + "/ActiveProductionEnergy",
-            energyChannel: new ChannelAddress(component.id, "ActiveProductionEnergy"),
+        INPUT.PUSH({
+            name: COMPONENT.ID + "/ActiveProductionEnergy",
+            energyChannel: new ChannelAddress(COMPONENT.ID, "ActiveProductionEnergy"),
         });
 
 
         return {
             input: input,
-            output: (data: HistoryUtils.ChannelData) => {
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
 
-                const output: HistoryUtils.DisplayValue[] = [];
+                const output: HISTORY_UTILS.DISPLAY_VALUE[] = [];
                 if (component != null) {
                     if (chartType === "line") {
-                        output.push({
-                            name: component.alias,
+                        OUTPUT.PUSH({
+                            name: COMPONENT.ALIAS,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
-                                energyQueryResponse?.result.data[component.id + "/ActiveProductionEnergy"] ?? null,
+                                energyQueryResponse?.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"] ?? null,
                             converter: () => data["ActivePower"]?.map((value) =>
                                 value,
                             ),
-                            yAxisId: ChartAxis.LEFT,
-                            color: ChartConstants.Colors.BLUE,
+                            yAxisId: CHART_AXIS.LEFT,
+                            color: CHART_CONSTANTS.COLORS.BLUE,
                             stack: 0,
                             order: 1,
                         });
 
-                        output.push({
-                            name: translate.instant("Edge.Index.Widgets.HEAT.TEMPERATURE_UNIT"),
+                        OUTPUT.PUSH({
+                            name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.HEAT.TEMPERATURE_UNIT"),
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => null,
                             converter: () => data["Temperature"]?.map((value) => {
-                                return Utils.multiplySafely(value, 100);
+                                return UTILS.MULTIPLY_SAFELY(value, 100);
                             },
                             ),
-                            yAxisId: ChartAxis.RIGHT,
-                            color: ChartConstants.Colors.RED,
+                            yAxisId: CHART_AXIS.RIGHT,
+                            color: CHART_CONSTANTS.COLORS.RED,
                             stack: 1,
                             order: 2,
                         });
                     }
 
                     if (chartType === "bar") {
-                        output.push({
-                            name: component.alias,
+                        OUTPUT.PUSH({
+                            name: COMPONENT.ALIAS,
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) =>
-                                energyQueryResponse?.result.data[component.id + "/ActiveProductionEnergy"] ?? null,
-                            converter: () => data[component.id + "/ActiveProductionEnergy"]
+                                energyQueryResponse?.RESULT.DATA[COMPONENT.ID + "/ActiveProductionEnergy"] ?? null,
+                            converter: () => data[COMPONENT.ID + "/ActiveProductionEnergy"]
                                 .map(val => val),
-                            color: ChartConstants.Colors.BLUE,
-                            yAxisId: ChartAxis.LEFT,
+                            color: CHART_CONSTANTS.COLORS.BLUE,
+                            yAxisId: CHART_AXIS.LEFT,
                             stack: 0,
                         });
                     }
@@ -86,23 +86,23 @@ export class ChartComponent extends AbstractHistoryChart {
 
             },
             tooltip: {
-                formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
+                formatNumber: CHART_CONSTANTS.NUMBER_FORMAT.ZERO_TO_TWO,
             },
             yAxes: [{
-                unit: YAxisType.ENERGY,
+                unit: YAXIS_TYPE.ENERGY,
                 position: "left",
-                yAxisId: ChartAxis.LEFT,
+                yAxisId: CHART_AXIS.LEFT,
             }, {
-                unit: YAxisType.TEMPERATURE,
+                unit: YAXIS_TYPE.TEMPERATURE,
                 position: "right",
-                yAxisId: ChartAxis.RIGHT,
+                yAxisId: CHART_AXIS.RIGHT,
                 displayGrid: false,
             },
             ],
         };
     }
-    protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.config, this.translate, this.component, this.chartType);
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+        return CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.TRANSLATE, THIS.COMPONENT, THIS.CHART_TYPE);
     }
 
 }

@@ -8,7 +8,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
 import { take } from "rxjs/operators";
 import { environment } from "src/environments";
-import { ChartConstants } from "../components/chart/chart.constants";
+import { ChartConstants } from "../components/chart/CHART.CONSTANTS";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { JsonrpcResponseError } from "../jsonrpc/base";
@@ -26,7 +26,7 @@ import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
 import { AbstractService } from "./abstractservice";
-import { RouteService } from "./route.service";
+import { RouteService } from "./ROUTE.SERVICE";
 import { Websocket } from "./websocket";
 
 @Injectable()
@@ -34,19 +34,19 @@ export class Service extends AbstractService {
 
   public static readonly TIMEOUT = 15_000;
 
-  public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+  public notificationEvent: Subject<DEFAULT_TYPES.NOTIFICATION> = new Subject<DEFAULT_TYPES.NOTIFICATION>();
 
   /**
  * Currently selected history period
  */
-  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
+  public historyPeriod: BehaviorSubject<DEFAULT_TYPES.HISTORY_PERIOD>;
 
   /**
    * Currently selected history period string
    *
    * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
+  public periodString: DEFAULT_TYPES.PERIOD_STRING = DEFAULT_TYPES.PERIOD_STRING.DAY;
 
   /**
    * Represents the resolution of used device
@@ -101,75 +101,75 @@ export class Service extends AbstractService {
 
     super();
     // add language
-    translate.addLangs(Language.ALL.map(l => l.key));
+    TRANSLATE.ADD_LANGS(LANGUAGE.ALL.MAP(l => L.KEY));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(Language.DEFAULT.key);
+    TRANSLATE.SET_DEFAULT_LANG(LANGUAGE.DEFAULT.KEY);
 
     // initialize history period
-    this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
+    THIS.HISTORY_PERIOD = new BehaviorSubject(new DEFAULT_TYPES.HISTORY_PERIOD(new Date(), new Date()));
 
     // React on Language Change and update language
-    translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByKey(event.lang));
+    TRANSLATE.ON_LANG_CHANGE.SUBSCRIBE((event: LangChangeEvent) => {
+      THIS.SET_LANG(LANGUAGE.GET_BY_KEY(EVENT.LANG));
     });
   }
 
   public setLang(language: Language) {
     if (language !== null) {
-      registerLocaleData(Language.getLocale(language.key));
-      this.translate.use(language.key);
+      registerLocaleData(LANGUAGE.GET_LOCALE(LANGUAGE.KEY));
+      THIS.TRANSLATE.USE(LANGUAGE.KEY);
     } else {
-      this.translate.use(Language.DEFAULT.key);
+      THIS.TRANSLATE.USE(LANGUAGE.DEFAULT.KEY);
     }
-    // TODO set locale for date-fns: https://date-fns.org/docs/I18n
+    // TODO set locale for date-fns: https://date-FNS.ORG/docs/I18n
   }
 
   public getDocsLang(): string {
-    if (this.translate.currentLang == "de") {
+    if (THIS.TRANSLATE.CURRENT_LANG == "de") {
       return "de";
     } else {
       return "en";
     }
   }
 
-  public notify(notification: DefaultTypes.Notification) {
-    this.notificationEvent.next(notification);
+  public notify(notification: DEFAULT_TYPES.NOTIFICATION) {
+    THIS.NOTIFICATION_EVENT.NEXT(notification);
   }
 
-  // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+  // https://V16.ANGULAR.IO/api/core/ErrorHandler#errorhandler
 
   public override handleError(error: any) {
-    console.error(error);
+    CONSOLE.ERROR(error);
     // TODO: show notification
     // let notification: Notification = {
     //     type: "error",
     //     message: error
     // };
-    // this.notify(notification);
+    // THIS.NOTIFY(notification);
   }
 
   public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
-      if (this.currentActivatedRoute != activatedRoute) {
+      if (THIS.CURRENT_ACTIVATED_ROUTE != activatedRoute) {
         if (typeof currentPageTitle === "string") {
           // Use given page title directly
-          if (currentPageTitle == null || currentPageTitle.trim() === "") {
-            this.currentPageTitle = environment.uiTitle;
+          if (currentPageTitle == null || CURRENT_PAGE_TITLE.TRIM() === "") {
+            THIS.CURRENT_PAGE_TITLE = ENVIRONMENT.UI_TITLE;
           } else {
-            this.currentPageTitle = currentPageTitle;
+            THIS.CURRENT_PAGE_TITLE = currentPageTitle;
           }
 
         } else {
           // Translate from key
-          this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
+          THIS.TRANSLATE.GET(CURRENT_PAGE_TITLE.LANGUAGE_KEY, CURRENT_PAGE_TITLE.INTERPOLATE_PARAMS).pipe(
             take(1),
-          ).subscribe(title => this.currentPageTitle = title);
+          ).subscribe(title => THIS.CURRENT_PAGE_TITLE = title);
         }
       }
-      this.currentActivatedRoute = activatedRoute;
+      THIS.CURRENT_ACTIVATED_ROUTE = activatedRoute;
 
-      this.getCurrentEdge().then(edge => {
+      THIS.GET_CURRENT_EDGE().then(edge => {
         resolve(edge);
       }).catch(reject);
     });
@@ -180,14 +180,14 @@ export class Service extends AbstractService {
       let isResolved = false; // Flag to ensure the Promise resolves only once
 
       // Use runInInjectionContext to provide the injector context
-      const dispose = runInInjectionContext(this.injector, () => {
+      const dispose = runInInjectionContext(THIS.INJECTOR, () => {
         return untracked(() => {
           return effect(() => {
-            const edge = this.currentEdge();
+            const edge = THIS.CURRENT_EDGE();
             if (edge != null && !isResolved) {
               isResolved = true; // Mark as resolved
               resolve(edge); // Resolve the Promise with the non-null value
-              dispose.destroy();
+              DISPOSE.DESTROY();
             }
           });
         });
@@ -197,8 +197,8 @@ export class Service extends AbstractService {
 
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
-      this.getCurrentEdge().then(edge => {
-        edge.getFirstValidConfig(this.websocket)
+      THIS.GET_CURRENT_EDGE().then(edge => {
+        EDGE.GET_FIRST_VALID_CONFIG(THIS.WEBSOCKET)
           .then(resolve)
           .catch(reject);
       }).catch(reason => reject(reason));
@@ -207,8 +207,8 @@ export class Service extends AbstractService {
 
   public getNextConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
-      this.getCurrentEdge().then(edge => {
-        edge.getFirstValidConfig(this.websocket)
+      THIS.GET_CURRENT_EDGE().then(edge => {
+        EDGE.GET_FIRST_VALID_CONFIG(THIS.WEBSOCKET)
           .then(resolve)
           .catch(reject);
       }).catch(reason => reject(reason));
@@ -216,11 +216,11 @@ export class Service extends AbstractService {
   }
 
   public onLogout() {
-    this.currentEdge.set(null);
+    THIS.CURRENT_EDGE.SET(null);
 
-    this.metadata.next(null);
-    this.websocket.state.set(States.NOT_AUTHENTICATED);
-    this.router.navigate(["/login"]);
+    THIS.METADATA.NEXT(null);
+    THIS.WEBSOCKET.STATE.SET(States.NOT_AUTHENTICATED);
+    THIS.ROUTER.NAVIGATE(["/login"]);
   }
 
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
@@ -231,23 +231,23 @@ export class Service extends AbstractService {
 
   public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
     // keep only the date, without time
-    fromDate.setHours(0, 0, 0, 0);
-    toDate.setHours(0, 0, 0, 0);
+    FROM_DATE.SET_HOURS(0, 0, 0, 0);
+    TO_DATE.SET_HOURS(0, 0, 0, 0);
     const promise = { resolve: null, reject: null };
     const response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
-      promise.resolve = resolve;
-      promise.reject = reject;
+      PROMISE.RESOLVE = resolve;
+      PROMISE.REJECT = reject;
     });
-    this.queryEnergyQueue.push({
+    THIS.QUERY_ENERGY_QUEUE.PUSH({
       fromDate: fromDate,
       toDate: toDate,
       channels: channels,
       promises: [promise],
     });
 
-    if (this.queryEnergyTimeout == null) {
-      this.queryEnergyTimeout = setTimeout(() => {
-        this.queryEnergyTimeout = null;
+    if (THIS.QUERY_ENERGY_TIMEOUT == null) {
+      THIS.QUERY_ENERGY_TIMEOUT = setTimeout(() => {
+        THIS.QUERY_ENERGY_TIMEOUT = null;
 
         const mergedRequests: {
           fromDate: Date,
@@ -257,34 +257,34 @@ export class Service extends AbstractService {
         }[] = [];
 
         let request;
-        while ((request = this.queryEnergyQueue.pop())) {
-          if (mergedRequests.length === 0) {
-            mergedRequests.push(request);
+        while ((request = THIS.QUERY_ENERGY_QUEUE.POP())) {
+          if (MERGED_REQUESTS.LENGTH === 0) {
+            MERGED_REQUESTS.PUSH(request);
           } else {
             let merged = false;
             for (const mergedRequest of mergedRequests) {
-              if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
-                && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
+              if (MERGED_REQUEST.FROM_DATE.VALUE_OF() === REQUEST.FROM_DATE.VALUE_OF()
+                && MERGED_REQUEST.TO_DATE.VALUE_OF() === REQUEST.TO_DATE.VALUE_OF()) {
                 // same date -> merge
-                mergedRequest.promises = mergedRequest.promises.concat(request.promises);
-                for (const newChannel of request.channels) {
-                  if (!mergedRequest.channels.some(existingChannel =>
-                    existingChannel.channelId === newChannel.channelId &&
-                    existingChannel.componentId === newChannel.componentId)) {
-                    mergedRequest.channels.push(newChannel);
+                MERGED_REQUEST.PROMISES = MERGED_REQUEST.PROMISES.CONCAT(REQUEST.PROMISES);
+                for (const newChannel of REQUEST.CHANNELS) {
+                  if (!MERGED_REQUEST.CHANNELS.SOME(existingChannel =>
+                    EXISTING_CHANNEL.CHANNEL_ID === NEW_CHANNEL.CHANNEL_ID &&
+                    EXISTING_CHANNEL.COMPONENT_ID === NEW_CHANNEL.COMPONENT_ID)) {
+                    MERGED_REQUEST.CHANNELS.PUSH(newChannel);
                   }
                 }
                 merged = true;
               }
             }
             if (!merged) {
-              mergedRequests.push(request);
+              MERGED_REQUESTS.PUSH(request);
             }
           }
         }
 
         // send merged requests
-        this.getCurrentEdge().then(edge => {
+        THIS.GET_CURRENT_EDGE().then(edge => {
           for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
@@ -293,34 +293,34 @@ export class Service extends AbstractService {
             }
 
             const request = new QueryHistoricTimeseriesEnergyRequest(
-              DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
-              source.toDate,
-              source.channels,
+              DATE_UTILS.MAX_DATE(SOURCE.FROM_DATE, edge?.firstSetupProtocol),
+              SOURCE.TO_DATE,
+              SOURCE.CHANNELS,
             );
 
-            this.activeQueryData = request.id;
-            edge.sendRequest(this.websocket, request)
+            THIS.ACTIVE_QUERY_DATA = REQUEST.ID;
+            EDGE.SEND_REQUEST(THIS.WEBSOCKET, request)
               .then(response => {
-                if (this.activeQueryData !== response.id) {
+                if (THIS.ACTIVE_QUERY_DATA !== RESPONSE.ID) {
                   return;
                 }
 
                 const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
 
-                if (Object.keys(result.data).length === 0) {
-                  for (const promise of source.promises) {
-                    promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                if (OBJECT.KEYS(RESULT.DATA).length === 0) {
+                  for (const promise of SOURCE.PROMISES) {
+                    PROMISE.REJECT(new JsonrpcResponseError(RESPONSE.ID, { code: 0, message: "Result was empty" }));
                   }
                   return;
                 }
 
-                for (const promise of source.promises) {
-                  promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+                for (const promise of SOURCE.PROMISES) {
+                  PROMISE.RESOLVE(response as QueryHistoricTimeseriesEnergyResponse);
                 }
               })
               .catch(async reason => {
-                for (const promise of source.promises) {
-                  promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
+                for (const promise of SOURCE.PROMISES) {
+                  PROMISE.REJECT(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
                 }
               });
           }
@@ -338,31 +338,31 @@ export class Service extends AbstractService {
    */
   public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
-      this.websocket.sendSafeRequest(req)
+      THIS.WEBSOCKET.SEND_SAFE_REQUEST(req)
         .then((response) => {
 
           const result = (response as GetEdgesResponse).result;
 
           // TODO change edges-map to array or other way around
-          const value = this.metadata.value;
+          const value = THIS.METADATA.VALUE;
           const mappedResult = [];
-          for (const edge of result.edges) {
+          for (const edge of RESULT.EDGES) {
             const mappedEdge = new Edge(
-              edge.id,
-              edge.comment,
-              edge.producttype,
+              EDGE.ID,
+              EDGE.COMMENT,
+              EDGE.PRODUCTTYPE,
               ("version" in edge) ? edge["version"] : "0.0.0",
-              Role.getRole(edge.role.toString()),
-              edge.isOnline,
-              edge.lastmessage,
-              edge.sumState,
-              DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
+              ROLE.GET_ROLE(EDGE.ROLE.TO_STRING()),
+              EDGE.IS_ONLINE,
+              EDGE.LASTMESSAGE,
+              EDGE.SUM_STATE,
+              DATE_UTILS.STRING_TO_DATE(EDGE.FIRST_SETUP_PROTOCOL?.toString()),
             );
-            value.edges[edge.id] = mappedEdge;
-            mappedResult.push(mappedEdge);
+            VALUE.EDGES[EDGE.ID] = mappedEdge;
+            MAPPED_RESULT.PUSH(mappedEdge);
           }
 
-          this.metadata.next(value);
+          THIS.METADATA.NEXT(value);
           resolve(mappedResult);
         }).catch((err) => {
           reject(err);
@@ -378,35 +378,35 @@ export class Service extends AbstractService {
    */
   public updateCurrentEdge(edgeId: string): Promise<Edge> {
     return new Promise<Edge>((resolve, reject) => {
-      const existingEdge = this.metadata.value?.edges[edgeId];
+      const existingEdge = THIS.METADATA.VALUE?.edges[edgeId];
       if (existingEdge) {
-        this.currentEdge.set(existingEdge);
+        THIS.CURRENT_EDGE.SET(existingEdge);
         resolve(existingEdge);
         return;
       }
-      this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-        const edgeData = (response as GetEdgeResponse).result.edge;
-        const value = this.metadata.value;
+      THIS.WEBSOCKET.SEND_SAFE_REQUEST(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
+        const edgeData = (response as GetEdgeResponse).RESULT.EDGE;
+        const value = THIS.METADATA.VALUE;
         const currentEdge = new Edge(
-          edgeData.id,
-          edgeData.comment,
-          edgeData.producttype,
+          EDGE_DATA.ID,
+          EDGE_DATA.COMMENT,
+          EDGE_DATA.PRODUCTTYPE,
           ("version" in edgeData) ? edgeData["version"] : "0.0.0",
-          Role.getRole(edgeData.role.toString()),
-          edgeData.isOnline,
-          edgeData.lastmessage,
-          edgeData.sumState,
-          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
-        this.currentEdge.set(currentEdge);
-        value.edges[edgeData.id] = currentEdge;
-        this.metadata.next(value);
+          ROLE.GET_ROLE(EDGE_DATA.ROLE.TO_STRING()),
+          EDGE_DATA.IS_ONLINE,
+          EDGE_DATA.LASTMESSAGE,
+          EDGE_DATA.SUM_STATE,
+          DATE_UTILS.STRING_TO_DATE(EDGE_DATA.FIRST_SETUP_PROTOCOL?.toString()));
+        THIS.CURRENT_EDGE.SET(currentEdge);
+        VALUE.EDGES[EDGE_DATA.ID] = currentEdge;
+        THIS.METADATA.NEXT(value);
         resolve(currentEdge);
       }).catch(reject);
     });
   }
 
   public startSpinner(selector: string) {
-    this.spinner.show(selector, {
+    THIS.SPINNER.SHOW(selector, {
       type: "ball-clip-rotate-multiple",
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0.8)",
@@ -416,7 +416,7 @@ export class Service extends AbstractService {
   }
 
   public startSpinnerTransparentBackground(selector: string) {
-    this.spinner.show(selector, {
+    THIS.SPINNER.SHOW(selector, {
       type: "ball-clip-rotate-multiple",
       fullScreen: false,
       bdColor: "rgba(0, 0, 0, 0)",
@@ -426,16 +426,16 @@ export class Service extends AbstractService {
   }
 
   public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
+    THIS.SPINNER.HIDE(selector);
   }
 
   public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
-    const toast = await this.toaster.create({
+    const toast = await THIS.TOASTER.CREATE({
       message: message,
       color: level,
       duration: duration ?? 2000,
       cssClass: "container",
     });
-    toast.present();
+    TOAST.PRESENT();
   }
 }

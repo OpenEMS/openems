@@ -12,7 +12,7 @@ import { Edge } from "../../edge/edge";
 
 @Component({
     selector: "pickdatepopover",
-    templateUrl: "./popover.component.html",
+    templateUrl: "./POPOVER.COMPONENT.HTML",
     standalone: false,
     styles: [
         `
@@ -24,11 +24,11 @@ import { Edge } from "../../edge/edge";
 })
 export class PickDatePopoverComponent implements OnInit {
 
-    @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
+    @Input() public setDateRange: (period: DEFAULT_TYPES.HISTORY_PERIOD) => void;
     @Input() public edge: Edge | null = null;
-    @Input() public historyPeriods: DefaultTypes.PeriodStringValues[] = [];
+    @Input() public historyPeriods: DEFAULT_TYPES.PERIOD_STRING_VALUES[] = [];
 
-    public locale: string = Language.DEFAULT.key;
+    public locale: string = LANGUAGE.DEFAULT.KEY;
     public showCustomDate: boolean = false;
 
     protected periods: string[] = [];
@@ -94,10 +94,10 @@ export class PickDatePopoverComponent implements OnInit {
             }
              `,
         },
-        calendarAnimation: { in: CalAnimation.FlipDiagonal, out: CalAnimation.ScaleCenter },
-        dateFormat: "dd.mm.yyyy",
+        calendarAnimation: { in: CAL_ANIMATION.FLIP_DIAGONAL, out: CAL_ANIMATION.SCALE_CENTER },
+        dateFormat: "DD.MM.YYYY",
         dateRange: true,
-        disableSince: this.toIMyDate(this.TOMORROW),
+        disableSince: THIS.TO_IMY_DATE(THIS.TOMORROW),
         disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the edge is available
         inline: true,
         selectorHeight: "14.063em",
@@ -114,19 +114,19 @@ export class PickDatePopoverComponent implements OnInit {
     ) { }
 
     public onDateChanged(event: IMyDateRangeModel) {
-        this.service.historyPeriod.next(new DefaultTypes.HistoryPeriod(event.beginJsDate, event.endJsDate));
-        this.service.periodString = DefaultTypes.PeriodString.CUSTOM;
-        this.popoverCtrl.dismiss();
+        THIS.SERVICE.HISTORY_PERIOD.NEXT(new DEFAULT_TYPES.HISTORY_PERIOD(EVENT.BEGIN_JS_DATE, EVENT.END_JS_DATE));
+        THIS.SERVICE.PERIOD_STRING = DEFAULT_TYPES.PERIOD_STRING.CUSTOM;
+        THIS.POPOVER_CTRL.DISMISS();
     }
 
     ngOnInit() {
 
-        this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
+        THIS.LOCALE = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).key;
         // Restrict user to pick date before ibn-date
-        this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 };
+        THIS.MY_DP_OPTIONS.DISABLE_UNTIL = { day: UTILS.SUBTRACT_SAFELY(getDate(THIS.EDGE?.firstSetupProtocol), 1) ?? 1, month: UTILS.ADD_SAFELY(getMonth(THIS.EDGE?.firstSetupProtocol), 1) ?? 1, year: THIS.EDGE?.firstSetupProtocol?.getFullYear() ?? 2013 };
 
         // Filter out custom due to different on click event
-        this.periods = EdgePermission.getAllowedHistoryPeriods(this.edge, this.historyPeriods).filter(period => period !== DefaultTypes.PeriodString.CUSTOM);
+        THIS.PERIODS = EDGE_PERMISSION.GET_ALLOWED_HISTORY_PERIODS(THIS.EDGE, THIS.HISTORY_PERIODS).filter(period => period !== DEFAULT_TYPES.PERIOD_STRING.CUSTOM);
     }
 
     /**
@@ -136,36 +136,36 @@ export class PickDatePopoverComponent implements OnInit {
      * @param from
      * @param to
      */
-    public setPeriod(period: DefaultTypes.PeriodString) {
+    public setPeriod(period: DEFAULT_TYPES.PERIOD_STRING) {
         switch (period) {
-            case DefaultTypes.PeriodString.DAY: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.TODAY, this.TODAY));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+            case DEFAULT_TYPES.PERIOD_STRING.DAY: {
+                THIS.SET_DATE_RANGE(new DEFAULT_TYPES.HISTORY_PERIOD(THIS.TODAY, THIS.TODAY));
+                THIS.SERVICE.PERIOD_STRING = period;
+                THIS.POPOVER_CTRL.DISMISS();
                 break;
             }
-            case DefaultTypes.PeriodString.WEEK: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfWeek(this.TODAY, { weekStartsOn: 1 }), endOfWeek(this.TODAY, { weekStartsOn: 1 })));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+            case DEFAULT_TYPES.PERIOD_STRING.WEEK: {
+                THIS.SET_DATE_RANGE(new DEFAULT_TYPES.HISTORY_PERIOD(startOfWeek(THIS.TODAY, { weekStartsOn: 1 }), endOfWeek(THIS.TODAY, { weekStartsOn: 1 })));
+                THIS.SERVICE.PERIOD_STRING = period;
+                THIS.POPOVER_CTRL.DISMISS();
                 break;
             }
-            case DefaultTypes.PeriodString.MONTH: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfMonth(this.TODAY), endOfMonth(this.TODAY)));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+            case DEFAULT_TYPES.PERIOD_STRING.MONTH: {
+                THIS.SET_DATE_RANGE(new DEFAULT_TYPES.HISTORY_PERIOD(startOfMonth(THIS.TODAY), endOfMonth(THIS.TODAY)));
+                THIS.SERVICE.PERIOD_STRING = period;
+                THIS.POPOVER_CTRL.DISMISS();
                 break;
             }
-            case DefaultTypes.PeriodString.YEAR: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(startOfYear(this.TODAY), endOfYear(this.TODAY)));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+            case DEFAULT_TYPES.PERIOD_STRING.YEAR: {
+                THIS.SET_DATE_RANGE(new DEFAULT_TYPES.HISTORY_PERIOD(startOfYear(THIS.TODAY), endOfYear(THIS.TODAY)));
+                THIS.SERVICE.PERIOD_STRING = period;
+                THIS.POPOVER_CTRL.DISMISS();
                 break;
             }
-            case DefaultTypes.PeriodString.TOTAL: {
-                this.setDateRange(new DefaultTypes.HistoryPeriod(this.edge?.firstSetupProtocol, endOfYear(this.TODAY)));
-                this.service.periodString = period;
-                this.popoverCtrl.dismiss();
+            case DEFAULT_TYPES.PERIOD_STRING.TOTAL: {
+                THIS.SET_DATE_RANGE(new DEFAULT_TYPES.HISTORY_PERIOD(THIS.EDGE?.firstSetupProtocol, endOfYear(THIS.TODAY)));
+                THIS.SERVICE.PERIOD_STRING = period;
+                THIS.POPOVER_CTRL.DISMISS();
                 break;
             }
             default:

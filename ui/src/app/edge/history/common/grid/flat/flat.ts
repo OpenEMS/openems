@@ -1,12 +1,12 @@
 import { Component } from "@angular/core";
-import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/grid.component";
+import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/GRID.COMPONENT";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { TimeUtils } from "src/app/shared/utils/time/timeutils";
 
 @Component({
   selector: "gridWidget",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -17,12 +17,12 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected restrictionTime: number | null = null;
   protected offGridTime: number | null = null;
-  protected TIME_CONVERTER = TimeUtils.formatSecondsToDuration;
+  protected TIME_CONVERTER = TIME_UTILS.FORMAT_SECONDS_TO_DURATION;
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const channelAddresses = [];
-    if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {
-      channelAddresses.push(
+    if (GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(THIS.CONFIG, "CONTROLLER.ESS.LIMITER14A")) {
+      CHANNEL_ADDRESSES.PUSH(
         FlatComponent.RESTRICTION_MODE,
         FlatComponent.RESTRICTION_TIME,
         FlatComponent.OFF_GRID_TIME,
@@ -32,7 +32,7 @@ export class FlatComponent extends AbstractFlatWidget {
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
-    this.restrictionTime = currentData.allComponents["ctrlEssLimiter14a0/CumulatedRestrictionTime"];
-    this.offGridTime = currentData.allComponents["_sum/GridModeOffGridTime"];
+    THIS.RESTRICTION_TIME = CURRENT_DATA.ALL_COMPONENTS["ctrlEssLimiter14a0/CumulatedRestrictionTime"];
+    THIS.OFF_GRID_TIME = CURRENT_DATA.ALL_COMPONENTS["_sum/GridModeOffGridTime"];
   }
 }

@@ -6,7 +6,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 
 @Component({
   selector: "oe-modal-value-line",
-  templateUrl: "./modal-value-line.html",
+  templateUrl: "./modal-value-LINE.HTML",
   standalone: false,
 })
 export class ModalValueLineComponent extends AbstractModalLine {
@@ -15,22 +15,22 @@ export class ModalValueLineComponent extends AbstractModalLine {
   @Input({ required: true }) protected leftColumnWidth!: number;
 
   /** Fixed indentation of the modal-line */
-  @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+  @Input() protected textIndent: TextIndentation = TEXT_INDENTATION.NONE;
 
   @Input({ required: true }) private valueCallback!: (currentData: CurrentData) => string;
 
   private channels: ChannelAddress[];
 
   @Input() set channelsToSubscribe(channels: ChannelAddress[]) {
-    this.channels = channels;
+    THIS.CHANNELS = channels;
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    return this.channels;
+    return THIS.CHANNELS;
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
-    this.displayValue = this.valueCallback(currentData);
+    THIS.DISPLAY_VALUE = THIS.VALUE_CALLBACK(currentData);
   }
 }
 

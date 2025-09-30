@@ -3,7 +3,7 @@ import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-input-serial-number",
-    templateUrl: "./input-serial-number-wrapper.html",
+    templateUrl: "./input-serial-number-WRAPPER.HTML",
     standalone: false,
     styles: [`
         .input-box {
@@ -58,14 +58,14 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
      * @param focused boolean value indicating the field is focused or not.
      */
     protected setFocus(focused: boolean): void {
-        this.isFocused = focused;
+        THIS.IS_FOCUSED = focused;
     }
 
     protected onCheckboxChange(checked: boolean): void {
-        this.props.checkbox.value = checked;
+        THIS.PROPS.CHECKBOX.VALUE = checked;
 
-        if (this.props.checkbox.updateFn) {
-            this.props.checkbox.updateFn(checked);
+        if (THIS.PROPS.CHECKBOX.UPDATE_FN) {
+            THIS.PROPS.CHECKBOX.UPDATE_FN(checked);
         }
     }
 }

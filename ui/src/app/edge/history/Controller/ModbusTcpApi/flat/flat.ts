@@ -5,18 +5,18 @@ import { ChannelAddress } from "src/app/shared/shared";
 
 @Component({
   selector: "modbusTcpApiWidget",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  protected TIME_CONVERTER = this.Converter.FORMAT_SECONDS_TO_DURATION("de");
+  protected TIME_CONVERTER = THIS.CONVERTER.FORMAT_SECONDS_TO_DURATION("de");
 
   protected override getChannelAddresses(): ChannelAddress[] {
 
     return [
-      new ChannelAddress(this.component.id, "CumulatedInactiveTime"),
-      new ChannelAddress(this.component.id, "CumulatedActiveTime"),
+      new ChannelAddress(THIS.COMPONENT.ID, "CumulatedInactiveTime"),
+      new ChannelAddress(THIS.COMPONENT.ID, "CumulatedActiveTime"),
     ];
   }
 }

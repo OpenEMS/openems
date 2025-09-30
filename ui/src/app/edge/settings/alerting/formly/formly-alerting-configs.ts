@@ -4,7 +4,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AlertingSettingResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
 import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
-import { AlertingType, DefaultValues, Delay } from "../alerting.component";
+import { AlertingType, DefaultValues, Delay } from "../ALERTING.COMPONENT";
 
 export const currentUserRows = (defaultValues: DefaultValues, translate: TranslateService, edgeRole: Role): FormlyFieldConfig[] => {
     return [
@@ -17,7 +17,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     name: "cloud-offline-outline",
                     position: "end",
                 },
-                title: translate.instant("ALERTING.ONLINE_STATUS"),
+                title: TRANSLATE.INSTANT("ALERTING.ONLINE_STATUS"),
             },
             fieldGroup: [
                 {
@@ -27,13 +27,13 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                 {
                     key: "offline-delay-selection",
                     type: "radio-buttons",
-                    name: translate.instant("ALERTING.DELAY"),
+                    name: TRANSLATE.INSTANT("ALERTING.DELAY"),
                     props: {
-                        options: defaultValues[AlertingType.OFFLINE],
+                        options: defaultValues[ALERTING_TYPE.OFFLINE],
                         disabledOnFormControl: "offline-toggle",
                     },
                     validators: {
-                        validation: [Validators.required],
+                        validation: [VALIDATORS.REQUIRED],
                     },
                 },
                 {
@@ -41,15 +41,15 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     type: "checkbox",
                     name: "E-Mail",
                     props: {
-                        help: translate.instant("ALERTING.CHECKBOX_HELP"),
+                        help: TRANSLATE.INSTANT("ALERTING.CHECKBOX_HELP"),
                         disabledOnFormControl: "offline-toggle",
                     },
-                    validators: [Validators.required],
+                    validators: [VALIDATORS.REQUIRED],
                 },
             ],
         },
 
-        ...(Role.isAtLeast(edgeRole, Role.INSTALLER) ?
+        ...(ROLE.IS_AT_LEAST(edgeRole, ROLE.INSTALLER) ?
             [{
                 key: "fault",
                 props: {
@@ -59,7 +59,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                         name: "alert-circle-outline",
                         position: "end",
                     },
-                    title: translate.instant("ALERTING.FAULT"),
+                    title: TRANSLATE.INSTANT("ALERTING.FAULT"),
                 },
                 fieldGroup: [
                     {
@@ -69,25 +69,25 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     {
                         key: "fault-delay-selection",
                         type: "radio-buttons",
-                        name: translate.instant("Edge.Config.ALERTING.DELAY"),
+                        name: TRANSLATE.INSTANT("EDGE.CONFIG.ALERTING.DELAY"),
 
                         props: {
-                            options: defaultValues[AlertingType.OFFLINE],
+                            options: defaultValues[ALERTING_TYPE.OFFLINE],
                             disabledOnFormControl: "fault-toggle",
                         },
-                        validators: [Validators.required],
+                        validators: [VALIDATORS.REQUIRED],
                     },
                     {
                         key: "fault-checkbox",
                         type: "checkbox",
                         name: "E-Mail",
                         props: {
-                            help: translate.instant("ALERTING.CHECKBOX_HELP"),
+                            help: TRANSLATE.INSTANT("ALERTING.CHECKBOX_HELP"),
                             required: true,
                             disabledOnFormControl: "fault-toggle",
                         },
                         validators: {
-                            validation: [Validators.required],
+                            validation: [VALIDATORS.REQUIRED],
                         },
                     },
                 ],
@@ -99,15 +99,15 @@ export const otherUserRows = (otherUsers: AlertingSettingResponse[], defaultValu
 
     function buildFormlyFieldConfig(el: AlertingSettingResponse, translate: TranslateService): FormlyFieldConfig {
         return {
-            key: el.userLogin,
+            key: EL.USER_LOGIN,
             fieldGroup: [
-                ...otherUserRow("offline", translate.instant("ALERTING.ONLINE_STATUS"), defaultValues[AlertingType.OFFLINE], { color: "danger", name: "cloud-offline-outline" }, translate),
-                ...otherUserRow("fault", translate.instant("ALERTING.FAULT"), defaultValues[AlertingType.FAULT], { color: "danger", name: "alert-circle-outline" }, translate),
+                ...otherUserRow("offline", TRANSLATE.INSTANT("ALERTING.ONLINE_STATUS"), defaultValues[ALERTING_TYPE.OFFLINE], { color: "danger", name: "cloud-offline-outline" }, translate),
+                ...otherUserRow("fault", TRANSLATE.INSTANT("ALERTING.FAULT"), defaultValues[ALERTING_TYPE.FAULT], { color: "danger", name: "alert-circle-outline" }, translate),
             ],
         };
     };
 
-    return otherUsers.map(el => buildFormlyFieldConfig(el, translate));
+    return OTHER_USERS.MAP(el => buildFormlyFieldConfig(el, translate));
 };
 
 
@@ -130,25 +130,25 @@ export const otherUserRow = (key: "fault" | "offline", name: string, delay: Dela
                 {
                     key: key + "-delay-selection",
                     type: "radio-buttons",
-                    name: translate.instant("Edge.Config.ALERTING.DELAY"),
+                    name: TRANSLATE.INSTANT("EDGE.CONFIG.ALERTING.DELAY"),
                     props: {
                         options: delay,
                         disabledOnFormControl: key + "-toggle",
                     },
                     expressions: {
-                        "props.disabled": field => !field.model[key + "-toggle"],
+                        "PROPS.DISABLED": field => !FIELD.MODEL[key + "-toggle"],
                     },
-                    validators: [Validators.required],
+                    validators: [VALIDATORS.REQUIRED],
                 },
                 {
                     key: key + "-checkbox",
                     type: "checkbox",
                     name: "E-Mail",
                     props: {
-                        help: translate.instant("ALERTING.CHECKBOX_HELP"),
+                        help: TRANSLATE.INSTANT("ALERTING.CHECKBOX_HELP"),
                         disabledOnFormControl: key + "-toggle",
                     },
-                    validators: [Validators.requiredTrue],
+                    validators: [VALIDATORS.REQUIRED_TRUE],
                 },
             ],
         },

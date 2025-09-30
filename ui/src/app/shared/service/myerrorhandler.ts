@@ -8,22 +8,22 @@ export class MyErrorHandler implements ErrorHandler {
         private injector: Injector,
     ) { }
 
-    // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+    // https://V16.ANGULAR.IO/api/core/ErrorHandler#errorhandler
 
     handleError(error: any) {
-        const logger = this.injector.get(Logger);
-        console.error(error);
-        if (error.message) {
+        const logger = THIS.INJECTOR.GET(Logger);
+        CONSOLE.ERROR(error);
+        if (ERROR.MESSAGE) {
             const json = {
                 error: {
-                    message: error.message,
+                    message: ERROR.MESSAGE,
                 },
                 metadata: {
-                    browser: navigator.userAgent,
+                    browser: NAVIGATOR.USER_AGENT,
                 },
             };
 
-            logger.error(JSON.stringify(json));
+            LOGGER.ERROR(JSON.STRINGIFY(json));
         }
     }
 }

@@ -1,12 +1,12 @@
 import { Component, effect, signal, ViewChild, WritableSignal } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
 import { ModalBreakpointChangeEventDetail } from "@ionic/core";
-import { NavigationService } from "./service/navigation.service";
+import { NavigationService } from "./service/NAVIGATION.SERVICE";
 import { NavigationTree } from "./shared";
 
 @Component({
     selector: "oe-navigation",
-    templateUrl: "./navigation.component.html",
+    templateUrl: "./NAVIGATION.COMPONENT.HTML",
     standalone: false,
 })
 export class NavigationComponent {
@@ -24,11 +24,11 @@ export class NavigationComponent {
         public navigationService: NavigationService,
     ) {
         effect(() => {
-            const currentNode = navigationService.currentNode();
+            const currentNode = NAVIGATION_SERVICE.CURRENT_NODE();
             if (!currentNode) {
-                this.navigationService.position.set("disabled");
+                THIS.NAVIGATION_SERVICE.POSITION.SET("disabled");
             }
-            this.isVisible = this.navigationService.position() === "bottom";
+            THIS.IS_VISIBLE = THIS.NAVIGATION_SERVICE.POSITION() === "bottom";
         });
     }
 
@@ -44,13 +44,13 @@ export class NavigationComponent {
             return;
         }
 
-        if (this.modal) {
-            this.modal.setCurrentBreakpoint(this.initialBreakPoint);
+        if (THIS.MODAL) {
+            THIS.MODAL.SET_CURRENT_BREAKPOINT(THIS.INITIAL_BREAK_POINT);
         }
-        this.navigationService.navigateTo(node);
+        THIS.NAVIGATION_SERVICE.NAVIGATE_TO(node);
     }
 
     protected onBreakpointDidChange(event: CustomEvent<ModalBreakpointChangeEventDetail>) {
-        NavigationComponent.breakPoint.set(event.detail.breakpoint);
+        NAVIGATION_COMPONENT.BREAK_POINT.SET(EVENT.DETAIL.BREAKPOINT);
     }
 }

@@ -25,7 +25,7 @@ export class ComponentJsonApiRequest extends JsonrpcRequest {
             payload: JsonrpcRequest
         },
     ) {
-        super(ComponentJsonApiRequest.METHOD, params);
+        super(COMPONENT_JSON_API_REQUEST.METHOD, params);
     }
 
 }

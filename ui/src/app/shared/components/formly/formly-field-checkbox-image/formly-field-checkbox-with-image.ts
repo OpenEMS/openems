@@ -3,8 +3,8 @@ import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-field-checkbox-with-image",
-    templateUrl: "./formly-field-checkbox-with-image.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: "./formly-field-checkbox-with-IMAGE.HTML",
+    changeDetection: CHANGE_DETECTION_STRATEGY.ON_PUSH,
     standalone: false,
 })
 export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implements OnInit {
@@ -13,13 +13,13 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
 
     public ngOnInit() {
         // If the default value is not set in beginning.
-        this.value = this.formControl.value ?? this.field.defaultValue;
+        THIS.VALUE = THIS.FORM_CONTROL.VALUE ?? THIS.FIELD.DEFAULT_VALUE;
 
         // Listen to form control status changes to reset steps if disabled
-        this.formControl.statusChanges.subscribe(status => {
-            if (status === "DISABLED" && this.value !== false) {
-                this.value = false;
-                this.formControl.setValue(this.value);
+        THIS.FORM_CONTROL.STATUS_CHANGES.SUBSCRIBE(status => {
+            if (status === "DISABLED" && THIS.VALUE !== false) {
+                THIS.VALUE = false;
+                THIS.FORM_CONTROL.SET_VALUE(THIS.VALUE);
             }
         });
     }
@@ -28,8 +28,8 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
      * Needs to be updated manually, because @Angular Formly-Form doesnt do it on its own
      */
     protected updateFormControl(event: CustomEvent) {
-        this.value = event.detail.checked;
-        this.formControl.setValue(this.value);
+        THIS.VALUE = EVENT.DETAIL.CHECKED;
+        THIS.FORM_CONTROL.SET_VALUE(THIS.VALUE);
     }
 
     /**
@@ -38,7 +38,7 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
      * @returns boolean value representing "show" or "hide".
      */
     protected showContent() {
-        return (!this.field.props?.disabled && !this.value) && this.field.props?.url !== undefined;
+        return (!THIS.FIELD.PROPS?.disabled && !THIS.VALUE) && THIS.FIELD.PROPS?.url !== undefined;
     }
 
 }

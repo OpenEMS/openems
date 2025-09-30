@@ -31,7 +31,7 @@ export class CreateComponentConfigRequest extends JsonrpcRequest {
             }[]
         },
     ) {
-        super(CreateComponentConfigRequest.METHOD, params);
+        super(CREATE_COMPONENT_CONFIG_REQUEST.METHOD, params);
     }
 
 }

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 @Component({
     selector: "oe-help-popover-button",
-    templateUrl: "./help-popover.html",
+    templateUrl: "./help-POPOVER.HTML",
     standalone: true,
     imports: [
         IonicModule,

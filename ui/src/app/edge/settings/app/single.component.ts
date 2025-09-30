@@ -10,25 +10,25 @@ import { filter, takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { environment } from "src/environments";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
-import { InstallAppComponent } from "./install.component";
+import { InstallAppComponent } from "./INSTALL.COMPONENT";
 import { GetApp } from "./jsonrpc/getApp";
 import { GetAppDescriptor } from "./jsonrpc/getAppDescriptor";
 import { GetApps } from "./jsonrpc/getApps";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterGetPossibleApps } from "./keypopup/appCenterGetPossibleApps";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
-import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
+import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/MODAL.COMPONENT";
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
 
 @Component({
-  selector: SingleAppComponent.SELECTOR,
-  templateUrl: "./single.component.html",
+  selector: SINGLE_APP_COMPONENT.SELECTOR,
+  templateUrl: "./SINGLE.COMPONENT.HTML",
   standalone: false,
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "app-single";
-  public readonly spinnerId: string = SingleAppComponent.SELECTOR;
+  public readonly spinnerId: string = SINGLE_APP_COMPONENT.SELECTOR;
 
   public form: FormGroup | null = null;
   public model: any | null = null;
@@ -41,8 +41,8 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   private appId: string | null = null;
   private appName: string | null = null;
-  private app: GetApps.App | null = null;
-  private descriptor: GetAppDescriptor.AppDescriptor | null = null;
+  private app: GET_APPS.APP | null = null;
+  private descriptor: GET_APP_DESCRIPTOR.APP_DESCRIPTOR | null = null;
   private isXL: boolean = true;
   // for stopping spinner when all responses are recieved
   private readonly requestCount: number = 3;
@@ -66,183 +66,183 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   @HostListener("window:resize", ["$event"])
   private onResize(event) {
-    this.updateIsXL();
+    THIS.UPDATE_IS_XL();
   }
 
   public ngOnInit() {
-    this.service.startSpinner(this.spinnerId);
-    this.updateIsXL();
+    THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+    THIS.UPDATE_IS_XL();
 
-    this.appId = this.route.snapshot.params["appId"];
-    this.appName = this.route.snapshot.queryParams["name"];
-    const appId = this.appId;
-    this.service.setCurrentComponent(this.appName, this.route).then(edge => {
-      this.edge = edge;
+    THIS.APP_ID = THIS.ROUTE.SNAPSHOT.PARAMS["appId"];
+    THIS.APP_NAME = THIS.ROUTE.SNAPSHOT.QUERY_PARAMS["name"];
+    const appId = THIS.APP_ID;
+    THIS.SERVICE.SET_CURRENT_COMPONENT(THIS.APP_NAME, THIS.ROUTE).then(edge => {
+      THIS.EDGE = edge;
 
-      this.edge.sendRequest(this.websocket,
-        new AppCenter.Request({
-          payload: new AppCenterIsAppFree.Request({
-            appId: this.appId,
+      THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
+        new APP_CENTER.REQUEST({
+          payload: new APP_CENTER_IS_APP_FREE.REQUEST({
+            appId: THIS.APP_ID,
           }),
         }),
       ).then(response => {
-        const result = (response as AppCenterIsAppFree.Response).result;
-        this.isFreeApp = result.isAppFree;
+        const result = (response as APP_CENTER_IS_APP_FREE.RESPONSE).result;
+        THIS.IS_FREE_APP = RESULT.IS_APP_FREE;
       }).catch(() => {
-        this.isFreeApp = false;
+        THIS.IS_FREE_APP = false;
       });
 
       // update if the app is free depending of the configured key in the edge config
-      if (hasKeyModel(this.edge)) {
-        this.edge.getConfig(this.websocket).pipe(
+      if (hasKeyModel(THIS.EDGE)) {
+        THIS.EDGE.GET_CONFIG(THIS.WEBSOCKET).pipe(
           filter(config => config !== null),
-          takeUntil(this.stopOnDestroy),
+          takeUntil(THIS.STOP_ON_DESTROY),
         ).subscribe(next => {
-          const appManager = next.getComponent("_appManager");
-          const newKeyForFreeApps = appManager.properties["keyForFreeApps"];
+          const appManager = NEXT.GET_COMPONENT("_appManager");
+          const newKeyForFreeApps = APP_MANAGER.PROPERTIES["keyForFreeApps"];
           if (!newKeyForFreeApps) {
             // no key in config
-            this.increaseReceivedResponse();
+            THIS.INCREASE_RECEIVED_RESPONSE();
           }
-          if (this.keyForFreeApps === newKeyForFreeApps) {
+          if (THIS.KEY_FOR_FREE_APPS === newKeyForFreeApps) {
             return;
           }
-          this.keyForFreeApps = newKeyForFreeApps;
+          THIS.KEY_FOR_FREE_APPS = newKeyForFreeApps;
           // update free apps
-          this.edge.sendRequest(this.websocket, new AppCenter.Request({
-            payload: new AppCenterGetPossibleApps.Request({
-              key: this.keyForFreeApps,
+          THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET, new APP_CENTER.REQUEST({
+            payload: new APP_CENTER_GET_POSSIBLE_APPS.REQUEST({
+              key: THIS.KEY_FOR_FREE_APPS,
             }),
           })).then(response => {
-            const result = (response as AppCenterGetPossibleApps.Response).result;
-            this.isPreInstalledApp = result.bundles.some(bundle => {
-              return bundle.some(app => {
-                return app.appId == this.appId;
+            const result = (response as APP_CENTER_GET_POSSIBLE_APPS.RESPONSE).result;
+            THIS.IS_PRE_INSTALLED_APP = RESULT.BUNDLES.SOME(bundle => {
+              return BUNDLE.SOME(app => {
+                return APP.APP_ID == THIS.APP_ID;
               });
             });
           }).finally(() => {
-            this.increaseReceivedResponse();
+            THIS.INCREASE_RECEIVED_RESPONSE();
           });
         });
       } else {
-        this.isPreInstalledApp = false;
-        this.increaseReceivedResponse();
+        THIS.IS_PRE_INSTALLED_APP = false;
+        THIS.INCREASE_RECEIVED_RESPONSE();
       }
 
-      this.service.metadata
-        .pipe(takeUntil(this.stopOnDestroy))
+      THIS.SERVICE.METADATA
+        .pipe(takeUntil(THIS.STOP_ON_DESTROY))
         .subscribe(entry => {
-          this.canEnterKey = canEnterKey(edge, entry.user);
-          this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
+          THIS.CAN_ENTER_KEY = canEnterKey(edge, ENTRY.USER);
+          THIS.HAS_PREDEFINED_KEY = hasPredefinedKey(edge, ENTRY.USER);
         });
 
       // set appname, image ...
       const state = history?.state;
-      if (state && "app" in history.state) {
-        if ("app" in history.state) {
-          this.setApp(history.state.app);
+      if (state && "app" in HISTORY.STATE) {
+        if ("app" in HISTORY.STATE) {
+          THIS.SET_APP(HISTORY.STATE.APP);
         }
-        if ("appKey" in history.state) {
-          this.key = history.state.appKey;
+        if ("appKey" in HISTORY.STATE) {
+          THIS.KEY = HISTORY.STATE.APP_KEY;
         }
-        if ("useMasterKey" in history.state) {
-          this.useMasterKey = history.state.useMasterKey;
+        if ("useMasterKey" in HISTORY.STATE) {
+          THIS.USE_MASTER_KEY = HISTORY.STATE.USE_MASTER_KEY;
         }
       } else {
-        edge.sendRequest(this.websocket,
+        EDGE.SEND_REQUEST(THIS.WEBSOCKET,
           new ComponentJsonApiRequest({
             componentId: "_appManager",
-            payload: new GetApp.Request({ appId: appId }),
+            payload: new GET_APP.REQUEST({ appId: appId }),
           })).then(response => {
-            const app = (response as GetApp.Response).result.app;
-            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
-            this.setApp(app);
+            const app = (response as GET_APP.RESPONSE).RESULT.APP;
+            APP.IMAGE_URL = ENVIRONMENT.LINKS.APP_CENTER.APP_IMAGE(THIS.TRANSLATE.CURRENT_LANG, APP.APP_ID);
+            THIS.SET_APP(app);
           }).catch(reason => {
-            console.error(reason.error);
-            this.service.toast("Error while receiving App[" + appId + "]: " + reason.error.message, "danger");
+            CONSOLE.ERROR(REASON.ERROR);
+            THIS.SERVICE.TOAST("Error while receiving App[" + appId + "]: " + REASON.ERROR.MESSAGE, "danger");
           });
       }
       // set app descriptor
-      edge.sendRequest(this.websocket,
+      EDGE.SEND_REQUEST(THIS.WEBSOCKET,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
-          payload: new GetAppDescriptor.Request({ appId: appId }),
+          payload: new GET_APP_DESCRIPTOR.REQUEST({ appId: appId }),
         })).then(response => {
-          const descriptor = (response as GetAppDescriptor.Response).result;
-          this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
+          const descriptor = (response as GET_APP_DESCRIPTOR.RESPONSE).result;
+          THIS.DESCRIPTOR = GET_APP_DESCRIPTOR.POSTPROCESS(descriptor, THIS.SANITIZER);
         })
-        .catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving AppDescriptor for App[" + appId + "]: " + error))
+        .catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => "Error while receiving AppDescriptor for App[" + appId + "]: " + error))
         .finally(() => {
-          this.increaseReceivedResponse();
+          THIS.INCREASE_RECEIVED_RESPONSE();
         });
     });
   }
 
   public ngOnDestroy(): void {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
   }
 
   protected iFrameStyle() {
     const styles = {
-      "height": (this.isXL) ? "100%" : window.innerHeight + "px",
+      "height": (THIS.IS_XL) ? "100%" : WINDOW.INNER_HEIGHT + "px",
     };
     return styles;
   }
 
   protected installApp(appId: string) {
-    if (this.key || this.useMasterKey) {
+    if (THIS.KEY || THIS.USE_MASTER_KEY) {
       // if key already set navigate directly to installation view
-      const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
-      this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]
-        , { queryParams: { name: this.appName }, state: state });
+      const state = THIS.USE_MASTER_KEY ? { useMasterKey: true } : { appKey: THIS.KEY };
+      THIS.ROUTER.NAVIGATE(["device/" + (THIS.EDGE.ID) + "/settings/app/install/" + THIS.APP_ID]
+        , { queryParams: { name: THIS.APP_NAME }, state: state });
       return;
     }
     // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-    if (!hasKeyModel(this.edge) || this.isFreeApp) {
-      this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]
-        , { queryParams: { name: this.appName } });
+    if (!hasKeyModel(THIS.EDGE) || THIS.IS_FREE_APP) {
+      THIS.ROUTER.NAVIGATE(["device/" + (THIS.EDGE.ID) + "/settings/app/install/" + THIS.APP_ID]
+        , { queryParams: { name: THIS.APP_NAME } });
       return;
     }
     // show modal to let the user enter a key
-    this.presentModal(appId, KeyValidationBehaviour.NAVIGATE);
+    THIS.PRESENT_MODAL(appId, KEY_VALIDATION_BEHAVIOUR.NAVIGATE);
   }
 
   protected registerKey(appId: string) {
-    this.presentModal(appId, KeyValidationBehaviour.REGISTER);
+    THIS.PRESENT_MODAL(appId, KEY_VALIDATION_BEHAVIOUR.REGISTER);
   }
 
   private updateIsXL() {
-    this.isXL = 1200 <= window.innerWidth;
+    THIS.IS_XL = 1200 <= WINDOW.INNER_WIDTH;
   }
 
-  private setApp(app: GetApps.App) {
-    this.app = app;
-    this.form = new FormGroup({});
-    this.increaseReceivedResponse();
+  private setApp(app: GET_APPS.APP) {
+    THIS.APP = app;
+    THIS.FORM = new FormGroup({});
+    THIS.INCREASE_RECEIVED_RESPONSE();
   }
 
   private increaseReceivedResponse() {
-    this.receivedResponse++;
-    if (this.receivedResponse == this.requestCount) {
-      this.receivedResponse = 0;
-      this.service.stopSpinner(this.spinnerId);
+    THIS.RECEIVED_RESPONSE++;
+    if (THIS.RECEIVED_RESPONSE == THIS.REQUEST_COUNT) {
+      THIS.RECEIVED_RESPONSE = 0;
+      THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
     }
   }
 
   // popup for key
   private async presentModal(appId: string, behaviour: KeyValidationBehaviour) {
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: KeyModalComponent,
       componentProps: {
-        edge: this.edge,
+        edge: THIS.EDGE,
         appId: appId,
         behaviour: behaviour,
-        appName: this.appName,
+        appName: THIS.APP_NAME,
       },
       cssClass: "auto-height",
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
 }

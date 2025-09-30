@@ -23,7 +23,7 @@ export class DeleteComponentConfigRequest extends JsonrpcRequest {
             componentId: string
         },
     ) {
-        super(DeleteComponentConfigRequest.METHOD, params);
+        super(DELETE_COMPONENT_CONFIG_REQUEST.METHOD, params);
     }
 
 }

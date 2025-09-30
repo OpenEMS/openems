@@ -1,27 +1,27 @@
 // @ts-strict-ignore
-import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
+import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/CHART.CONSTANTS.SPEC";
 
-import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { ChartAxis } from "src/app/shared/utils/utils";
-import { History, expectView } from "./chart.constants.spec";
+import { History, expectView } from "./CHART.CONSTANTS.SPEC";
 
 describe("History Heatpump", () => {
 
-    const config = DummyConfig.from(
-        DummyConfig.Component.HEAT_PUMP_SG_READY("ctrlIoHeatPump0", "Wärmepumpe"),
+    const config = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.HEAT_PUMP_SG_READY("ctrlIoHeatPump0", "Wärmepumpe"),
     );
 
     let TEST_CONTEXT: TestContext;
     beforeEach(async () =>
-        TEST_CONTEXT = await TestingUtils.sharedSetup(),
+        TEST_CONTEXT = await TESTING_UTILS.SHARED_SETUP(),
     );
 
     it("#getChartData()", () => {
         {
             // Line-Chart
-            expectView(config, Object.values(config.components)[0], TEST_CONTEXT, "line", History.DAY,
+            expectView(config, OBJECT.VALUES(CONFIG.COMPONENTS)[0], TEST_CONTEXT, "line", HISTORY.DAY,
                 {
                     datasets: {
                         data: [
@@ -29,16 +29,16 @@ describe("History Heatpump", () => {
                                 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 3, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
                             ]),
                         ],
-                        labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-                        options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", {
-                            [ChartAxis.LEFT]: { scale: { beginAtZero: true }, title: "Zustand" },
+                        labels: LABELS(HISTORY.DAY.DATA_CHANNEL_WITH_VALUES.RESULT.TIMESTAMPS),
+                        options: OE_TESTER.CHART_OPTIONS.LINE_CHART_OPTIONS("hour", "line", {
+                            [CHART_AXIS.LEFT]: { scale: { beginAtZero: true }, title: "Zustand" },
                         }),
                     },
                 });
         }
         {
             // Line-Chart
-            expectView(config, Object.values(config.components)[0], TEST_CONTEXT, "bar", History.MONTH,
+            expectView(config, OBJECT.VALUES(CONFIG.COMPONENTS)[0], TEST_CONTEXT, "bar", HISTORY.MONTH,
                 {
                     datasets: {
                         data: [
@@ -47,8 +47,8 @@ describe("History Heatpump", () => {
                             DATA("Einschaltempfehlung", [0, 0, 0, 0, 0, 5396, 0, 0, 0, 0, 5395, 0, 0, 0, 3597, 3597, 0, 0, 0, 0, 1798, 0, 0, 0, 7194, 0, 0, 0, 0, 0, null]),
                             DATA("Einschaltbefehl", [0, 0, 0, 0, 0, 9519, 0, 0, 0, 0, 3921, 0, 0, 0, 5795, 8510, 0, 0, 0, 0, 1798, 0, 0, 0, 5883, 0, 0, 0, 0, 0, null]),
                         ],
-                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("day", "bar", {}, "Aktive Zeit"),
+                        labels: LABELS(HISTORY.MONTH.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES.RESULT.TIMESTAMPS),
+                        options: OE_TESTER.CHART_OPTIONS.BAR_CHART_OPTIONS("day", "bar", {}, "Aktive Zeit"),
                     },
                 });
         }

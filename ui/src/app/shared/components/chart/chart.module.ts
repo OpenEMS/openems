@@ -7,9 +7,9 @@ import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 
-import { PipeComponentsModule, PipeModule } from "../../pipe/pipe.module";
-import { HistoryDataErrorModule } from "../history-data-error/history-data-error.module";
-import { PickdateComponentModule, PickdateModule } from "../pickdate/pickdate.module";
+import { PipeComponentsModule, PipeModule } from "../../pipe/PIPE.MODULE";
+import { HistoryDataErrorModule } from "../history-data-error/history-data-ERROR.MODULE";
+import { PickdateComponentModule, PickdateModule } from "../pickdate/PICKDATE.MODULE";
 import { ChartComponent } from "./chart";
 import { ChartLegendComponent } from "./legend/legend";
 
@@ -20,7 +20,7 @@ import { ChartLegendComponent } from "./legend/legend";
     TranslateModule,
     BaseChartDirective,
     CommonModule,
-    NgxSpinnerModule.forRoot({
+    NGX_SPINNER_MODULE.FOR_ROOT({
       type: "ball-clip-rotate-multiple",
     }),
     HistoryDataErrorModule,

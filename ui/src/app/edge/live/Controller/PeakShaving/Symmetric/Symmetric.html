@@ -1,11 +1,11 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias"
+<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="COMPONENT.ALIAS"
     [icon]="{name: 'trending-down-outline', color: 'normal'}">
 
-    <oe-flat-widget-line [name]="'General.measuredValue' | translate" [converter]="CONVERT_WATT_TO_KILOWATT"
+    <oe-flat-widget-line [name]="'GENERAL.MEASURED_VALUE' | translate" [converter]="CONVERT_WATT_TO_KILOWATT"
         [value]="activePower"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingPower'| translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER'| translate"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.rechargePower'| translate"
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER'| translate"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="rechargePower">
     </oe-flat-widget-line>
 </oe-flat-widget>

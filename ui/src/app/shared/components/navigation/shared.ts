@@ -33,28 +33,28 @@ export class NavigationTree {
         if (!navigationTree) {
             return null;
         }
-        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
+        return new NavigationTree(NAVIGATION_TREE.ID, NAVIGATION_TREE.ROUTER_LINK, NAVIGATION_TREE.ICON, NAVIGATION_TREE.LABEL, NAVIGATION_TREE.MODE, NAVIGATION_TREE.CHILDREN, NAVIGATION_TREE.PARENT);
     }
 
     public getChildren(): NavigationTree[] | null {
-        return this.children?.filter(el => el != null) ?? null;
+        return THIS.CHILDREN?.filter(el => el != null) ?? null;
     }
 
     public getParents(): NavigationTree[] | null {
 
 
-        let root: NavigationTree | null = this.parent;
+        let root: NavigationTree | null = THIS.PARENT;
         if (root == null) {
             return null;
         }
 
         const navigationParents: NavigationTree[] | null = [root];
         while (root?.parent) {
-            root = root.parent;
-            navigationParents.push(root);
+            root = ROOT.PARENT;
+            NAVIGATION_PARENTS.PUSH(root);
         }
 
-        return navigationParents.reverse();
+        return NAVIGATION_PARENTS.REVERSE();
     }
 
     /**
@@ -66,15 +66,15 @@ export class NavigationTree {
      * @param childNavigationTree the child navigation tree
      */
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
-        this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
+        THIS.CHILDREN = THIS.GET_UPDATED_NAVIGATION_TREE(this, parentNavigationId, childNavigationTree)?.children ?? [];
 
         function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
-            node.parent = parent;
+            NODE.PARENT = parent;
 
-            if (!node.children) {
+            if (!NODE.CHILDREN) {
                 return;
             }
-            for (const child of node.children) {
+            for (const child of NODE.CHILDREN) {
                 setParentRecursive(child, node);
             }
         }
@@ -91,19 +91,19 @@ export class NavigationTree {
         if (tree?.id === navigationId) {
 
             // Initialize
-            tree.children ??= [];
-            const currentChildren = tree.children.map(child => child.id == navigationId ? newNavigation : child);
+            TREE.CHILDREN ??= [];
+            const currentChildren = TREE.CHILDREN.MAP(child => CHILD.ID == navigationId ? newNavigation : child);
 
-            if (!currentChildren.some(el => el.id == newNavigation.id)) {
-                currentChildren.push(newNavigation);
+            if (!CURRENT_CHILDREN.SOME(el => EL.ID == NEW_NAVIGATION.ID)) {
+                CURRENT_CHILDREN.PUSH(newNavigation);
             }
-            tree.children = currentChildren;
+            TREE.CHILDREN = currentChildren;
             return tree;
         }
 
-        if (tree && tree.children && tree.children.length > 0) {
-            for (const child of tree.children) {
-                const result = this.getUpdatedNavigationTree(child, navigationId, newNavigation);
+        if (tree && TREE.CHILDREN && TREE.CHILDREN.LENGTH > 0) {
+            for (const child of TREE.CHILDREN) {
+                const result = THIS.GET_UPDATED_NAVIGATION_TREE(child, navigationId, newNavigation);
                 if (result) {
                     return result;
                 }

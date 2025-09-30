@@ -6,7 +6,7 @@ import { Option, OptionGroup, OptionGroupConfig, getTitleFromOptionConfig } from
 
 @Component({
     selector: "formly-option-group-picker",
-    templateUrl: "./formly-option-group-picker.component.html",
+    templateUrl: "./formly-option-group-PICKER.COMPONENT.HTML",
     standalone: false,
 })
 export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
@@ -22,55 +22,55 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig<
     protected optionGroups: OptionGroup[] = [];
 
     private static getOptionGroups(field: FormlyFieldConfig, optionGroupConfigs: OptionGroupConfig[]): OptionGroup[] {
-        return optionGroupConfigs.map<OptionGroup>(groupConfig => {
+        return OPTION_GROUP_CONFIGS.MAP<OptionGroup>(groupConfig => {
             return {
-                group: groupConfig.group,
-                title: groupConfig.title,
-                options: groupConfig.options
+                group: GROUP_CONFIG.GROUP,
+                title: GROUP_CONFIG.TITLE,
+                options: GROUP_CONFIG.OPTIONS
                     .filter(optionConfig => {
                         // Remove hidden Options
-                        return !(optionConfig.expressions?.hide?.(field) ?? optionConfig.hide ?? false);
+                        return !(OPTION_CONFIG.EXPRESSIONS?.hide?.(field) ?? OPTION_CONFIG.HIDE ?? false);
                     })
                     .map<Option>(optionConfig => {
                         return {
-                            value: optionConfig.value,
+                            value: OPTION_CONFIG.VALUE,
                             title: getTitleFromOptionConfig(optionConfig, field),
-                            disabled: optionConfig.expressions?.disabled?.(field) ?? optionConfig.disabled ?? false,
+                            disabled: OPTION_CONFIG.EXPRESSIONS?.disabled?.(field) ?? OPTION_CONFIG.DISABLED ?? false,
                             selected: false,
                         };
                     }),
             };
         }).filter(group => {
             // Remove empty OptionGroups
-            return group.options.length !== 0;
+            return GROUP.OPTIONS.LENGTH !== 0;
         });
     }
 
     public ngOnInit(): void {
-        this.multi = this.props.isMulti ?? false;
+        THIS.MULTI = THIS.PROPS.IS_MULTI ?? false;
 
         // initialize the default value
-        this.selectedValue = this.formControl.getRawValue();
-        if (this.multi && !Array.isArray(this.selectedValue)) {
-            this.selectedValue = [this.selectedValue as string];
+        THIS.SELECTED_VALUE = THIS.FORM_CONTROL.GET_RAW_VALUE();
+        if (THIS.MULTI && !ARRAY.IS_ARRAY(THIS.SELECTED_VALUE)) {
+            THIS.SELECTED_VALUE = [THIS.SELECTED_VALUE as string];
         }
-        this.invalidateOptionGroups();
+        THIS.INVALIDATE_OPTION_GROUPS();
 
-        this.optionGroups.forEach((group, i) => {
+        THIS.OPTION_GROUPS.FOR_EACH((group, i) => {
             let anySelections = false;
-            for (const option of group.options) {
-                if (this.isMulti(this.selectedValue)) {
-                    if (!this.selectedValue.some(v => v === option.value)) {
+            for (const option of GROUP.OPTIONS) {
+                if (THIS.IS_MULTI(THIS.SELECTED_VALUE)) {
+                    if (!THIS.SELECTED_VALUE.SOME(v => v === OPTION.VALUE)) {
                         continue;
                     }
                     anySelections = true;
-                    option.selected = true;
+                    OPTION.SELECTED = true;
                 } else {
-                    if (option.value !== this.selectedValue) {
+                    if (OPTION.VALUE !== THIS.SELECTED_VALUE) {
                         continue;
                     }
                     anySelections = true;
-                    option.selected = true;
+                    OPTION.SELECTED = true;
                 }
             }
 
@@ -79,41 +79,41 @@ export class FormlyOptionGroupPickerComponent extends FieldType<FieldTypeConfig<
             }
 
             // Set option as selected
-            this.selectedGroup = group;
-            this.selectedIndex = i;
+            THIS.SELECTED_GROUP = group;
+            THIS.SELECTED_INDEX = i;
         });
 
         // fallback default selected group
-        if (!this.selectedGroup && this.optionGroups.length > 0) {
-            this.selectedGroup = this.optionGroups[0];
-            this.selectedIndex = 0;
+        if (!THIS.SELECTED_GROUP && THIS.OPTION_GROUPS.LENGTH > 0) {
+            THIS.SELECTED_GROUP = THIS.OPTION_GROUPS[0];
+            THIS.SELECTED_INDEX = 0;
         }
     }
 
     protected valueChange() {
-        this.formControl.setValue(this.selectedValue);
-        this.form.markAsDirty();
+        THIS.FORM_CONTROL.SET_VALUE(THIS.SELECTED_VALUE);
+        THIS.FORM.MARK_AS_DIRTY();
     }
 
     protected valueChangeCheckbox(option: Option) {
-        if (!this.isMulti(this.selectedValue)) {
+        if (!THIS.IS_MULTI(THIS.SELECTED_VALUE)) {
             return;
         }
-        option.selected = !option.selected;
-        if (this.selectedValue.includes(option.value)) {
-            this.selectedValue.splice(this.selectedValue.indexOf(option.value), 1);
+        OPTION.SELECTED = !OPTION.SELECTED;
+        if (THIS.SELECTED_VALUE.INCLUDES(OPTION.VALUE)) {
+            THIS.SELECTED_VALUE.SPLICE(THIS.SELECTED_VALUE.INDEX_OF(OPTION.VALUE), 1);
         } else {
-            this.selectedValue.push(option.value);
+            THIS.SELECTED_VALUE.PUSH(OPTION.VALUE);
         }
-        this.valueChange();
+        THIS.VALUE_CHANGE();
     }
 
     private isMulti(selectedValue: string | string[]): selectedValue is string[] {
-        return this.multi;
+        return THIS.MULTI;
     }
 
     private invalidateOptionGroups() {
-        this.optionGroups = FormlyOptionGroupPickerComponent.getOptionGroups(this.field, this.props.options as OptionGroupConfig[]);
+        THIS.OPTION_GROUPS = FORMLY_OPTION_GROUP_PICKER_COMPONENT.GET_OPTION_GROUPS(THIS.FIELD, THIS.PROPS.OPTIONS as OptionGroupConfig[]);
     }
 
 }

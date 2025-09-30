@@ -17,17 +17,17 @@ export class CheckForUpdateService {
 export class LogUpdateService {
 
   constructor(updates: SwUpdate) {
-    updates.versionUpdates.subscribe(evt => {
-      switch (evt.type) {
+    UPDATES.VERSION_UPDATES.SUBSCRIBE(evt => {
+      switch (EVT.TYPE) {
         case "VERSION_DETECTED":
-          console.log(`Downloading new app version: ${evt.version.hash}`);
+          CONSOLE.LOG(`Downloading new app version: ${EVT.VERSION.HASH}`);
           break;
         case "VERSION_READY":
-          console.log(`Current app version: ${evt.currentVersion.hash}`);
-          console.log(`New app version ready for use: ${evt.latestVersion.hash}`);
+          CONSOLE.LOG(`Current app version: ${EVT.CURRENT_VERSION.HASH}`);
+          CONSOLE.LOG(`New app version ready for use: ${EVT.LATEST_VERSION.HASH}`);
           break;
         case "VERSION_INSTALLATION_FAILED":
-          console.log(`Failed to install app version '${evt.version.hash}': ${evt.error}`);
+          CONSOLE.LOG(`Failed to install app version '${EVT.VERSION.HASH}': ${EVT.ERROR}`);
           break;
         default:
           break;

@@ -28,7 +28,7 @@ export class AuthenticateWithPasswordRequest extends JsonrpcRequest {
             password: string
         },
     ) {
-        super(AuthenticateWithPasswordRequest.METHOD, params);
+        super(AUTHENTICATE_WITH_PASSWORD_REQUEST.METHOD, params);
     }
 
 }

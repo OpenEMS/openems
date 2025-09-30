@@ -10,7 +10,7 @@ export namespace ColorUtils {
    * @returns a string in rgba format
    */
   export function rgbStringToRgba(color: string, opacity: number): string {
-    return RGBColor.fromString(color).toRgba(opacity);
+    return RGBCOLOR.FROM_STRING(color).toRgba(opacity);
   }
 
   /**
@@ -21,6 +21,6 @@ export namespace ColorUtils {
    * @returns a string in rgba format
    */
   export function changeOpacityFromRGBA(color: string | null, opacity: number): string | null {
-    return RGBColor.fromString(color).toRgba(opacity);
+    return RGBCOLOR.FROM_STRING(color).toRgba(opacity);
   }
 }

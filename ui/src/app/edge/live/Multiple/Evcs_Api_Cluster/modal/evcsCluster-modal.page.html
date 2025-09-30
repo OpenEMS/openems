@@ -1,13 +1,13 @@
-<ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
+<ng-container *ngIf="(EDGE.CURRENT_DATA | async)['channel'] as currentData">
     <ion-header>
         <ion-toolbar class="ion-justify-content-center"
             style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
             <ion-title>
-                <ion-label *ngIf="config.properties.alias as alias">
+                <ion-label *ngIf="CONFIG.PROPERTIES.ALIAS as alias">
                     {{ alias }}
                 </ion-label>
-                <ion-label *ngIf="!config.properties.alias" translate>
-                    Edge.Index.Widgets.EVCS.chargingStationCluster
+                <ion-label *ngIf="!CONFIG.PROPERTIES.ALIAS" translate>
+                    EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER
                 </ion-label>
             </ion-title>
             <ion-buttons slot="end">
@@ -25,7 +25,7 @@
                     <ion-header>
                         <ion-toolbar ion-background="transparent">
                             <ion-title style="text-align: center" translate>
-                                Edge.Index.Widgets.EVCS.overviewChargingStations
+                                EDGE.INDEX.WIDGETS.EVCS.OVERVIEW_CHARGING_STATIONS
                             </ion-title>
                             <ion-icon size="large" slot="end" name="arrow-dropright-outline">
                             </ion-icon>
@@ -34,7 +34,7 @@
                     <ion-item padding-top class="normalFontSize" lines="none">
                         <table class="full_width">
                             <tr>
-                                <td style="width:50%" translate>Edge.Index.Widgets.EVCS.amountOfChargingStations
+                                <td style="width:50%" translate>EDGE.INDEX.WIDGETS.EVCS.AMOUNT_OF_CHARGING_STATIONS
                                 </td>
                                 <td style="width:5%"></td>
                                 <td style="width:45%" class="align_right">
@@ -44,7 +44,7 @@
                             <tr>
                                 <td style="width:50%">
                                     <ion-label translate>
-                                        Edge.Index.Widgets.EVCS.totalChargingPower
+                                        EDGE.INDEX.WIDGETS.EVCS.TOTAL_CHARGING_POWER
                                     </ion-label>
                                 </td>
                                 <td style="width:5%"></td>
@@ -60,13 +60,13 @@
                         </evcsChart>
                     </ion-item>
                     <ion-label>
-                        <ion-label translate>Edge.Index.Widgets.EVCS.prioritization</ion-label>:
+                        <ion-label translate>EDGE.INDEX.WIDGETS.EVCS.PRIORITIZATION</ion-label>:
                         <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
-                            <ion-item *ngFor="let evcs of prioritizedEvcsList; let i = index" [attr.data-index]="i"
+                            <ion-item *ngFor="let evcs of prioritizedEvcsList; let i = index" [ATTR.DATA-index]="i"
                                 lines="full">
                                 <ion-text>{{i+1}}.&nbsp;</ion-text>
                                 <ion-label *ngIf="evcsConfigMap[evcs] as evcsConfig">
-                                    {{ evcsConfig.properties.alias }}
+                                    {{ EVCS_CONFIG.PROPERTIES.ALIAS }}
                                 </ion-label>
                                 <ion-label *ngIf="!evcsConfigMap[evcs]">
                                     {{ evcs }}

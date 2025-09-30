@@ -5,44 +5,44 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../shared/s
 
 @Component({
     selector: "consumptionWidget",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-    protected evcsComponents: EdgeConfig.Component[] = [];
-    protected heatComponents: EdgeConfig.Component[] = [];
-    protected consumptionMeterComponents: EdgeConfig.Component[] = [];
+    protected evcsComponents: EDGE_CONFIG.COMPONENT[] = [];
+    protected heatComponents: EDGE_CONFIG.COMPONENT[] = [];
+    protected consumptionMeterComponents: EDGE_CONFIG.COMPONENT[] = [];
     protected totalOtherEnergy: number;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
 
-        this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+        THIS.EVCS_COMPONENTS = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.EVCS.API.EVCS")
             .filter(component => !(
-                component.factoryId == "Evcs.Cluster" ||
-                component.factoryId == "Evcs.Cluster.PeakShaving" ||
-                component.factoryId == "Evcs.Cluster.SelfConsumption") && this.config?.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id));
+                COMPONENT.FACTORY_ID == "EVCS.CLUSTER" ||
+                COMPONENT.FACTORY_ID == "EVCS.CLUSTER.PEAK_SHAVING" ||
+                COMPONENT.FACTORY_ID == "EVCS.CLUSTER.SELF_CONSUMPTION") && THIS.CONFIG?.hasComponentNature("IO.OPENEMS.EDGE.EVCS.API.DEPRECATED_EVCS", COMPONENT.ID));
         ;
 
-        this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+        THIS.HEAT_COMPONENTS = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.HEAT.API.HEAT")
             .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
-        channels.push(
-            ...this.heatComponents.map(
-                (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
+                !(COMPONENT.FACTORY_ID === "CONTROLLER.HEAT.HEATINGELEMENT") &&
+                !COMPONENT.IS_ENABLED === false);
+        CHANNELS.PUSH(
+            ...THIS.HEAT_COMPONENTS.MAP(
+                (component) => new ChannelAddress(COMPONENT.ID, "ActiveProductionEnergy")
             )
         );
 
-        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+        THIS.CONSUMPTION_METER_COMPONENTS = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")
             .filter(component => {
-                const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
-                const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
-                const isDeprecatedEvcs = natureIds.includes("io.openems.edge.evcs.api.DeprecatedEvcs");
-                const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
+                const natureIds = THIS.CONFIG?.getNatureIdsByFactoryId(COMPONENT.FACTORY_ID);
+                const isEvcs = NATURE_IDS.INCLUDES("IO.OPENEMS.EDGE.EVCS.API.EVCS");
+                const isDeprecatedEvcs = NATURE_IDS.INCLUDES("IO.OPENEMS.EDGE.EVCS.API.DEPRECATED_EVCS");
+                const isHeat = NATURE_IDS.INCLUDES("IO.OPENEMS.EDGE.HEAT.API.HEAT");
 
-                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+                return COMPONENT.IS_ENABLED && THIS.CONFIG?.isTypeConsumptionMetered(component) &&
                     (isEvcs === false || (isEvcs === true && isDeprecatedEvcs === false)) && isHeat === false;
             });
 
@@ -50,7 +50,7 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.totalOtherEnergy = this.getTotalOtherEnergy(currentData);
+        THIS.TOTAL_OTHER_ENERGY = THIS.GET_TOTAL_OTHER_ENERGY(currentData);
     }
 
     /**
@@ -63,15 +63,15 @@ export class FlatComponent extends AbstractFlatWidget {
 
         let otherEnergy: number = 0;
 
-        this.evcsComponents.forEach(component => {
-            otherEnergy += currentData.allComponents[component.id + "/ActiveConsumptionEnergy"] ?? 0;
+        THIS.EVCS_COMPONENTS.FOR_EACH(component => {
+            otherEnergy += CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ActiveConsumptionEnergy"] ?? 0;
         });
 
-        [...this.consumptionMeterComponents, ...this.heatComponents].forEach(component => {
-            otherEnergy += currentData.allComponents[component.id + "/ActiveProductionEnergy"] ?? 0;
+        [...THIS.CONSUMPTION_METER_COMPONENTS, ...THIS.HEAT_COMPONENTS].forEach(component => {
+            otherEnergy += CURRENT_DATA.ALL_COMPONENTS[COMPONENT.ID + "/ActiveProductionEnergy"] ?? 0;
         });
 
-        return currentData.allComponents["_sum/ConsumptionActiveEnergy"] - otherEnergy;
+        return CURRENT_DATA.ALL_COMPONENTS["_sum/ConsumptionActiveEnergy"] - otherEnergy;
 
     }
 }

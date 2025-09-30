@@ -6,8 +6,8 @@ const keyTestUsers: string[] = [
 ];
 
 function isTestUser(user: User): boolean {
-    return keyTestUsers.some((id) => {
-        return user.id === id;
+    return KEY_TEST_USERS.SOME((id) => {
+        return USER.ID === id;
     });
 }
 
@@ -15,7 +15,7 @@ export function canEnterKey(edge: Edge, user: User): boolean {
     if (isTestUser(user)) {
         return true;
     }
-    if (edge.roleIsAtLeast(Role.OWNER)) {
+    if (EDGE.ROLE_IS_AT_LEAST(ROLE.OWNER)) {
         return true;
     }
     return false;
@@ -25,11 +25,11 @@ export function hasPredefinedKey(edge: Edge, user: User): boolean {
     if (isTestUser(user)) {
         return false;
     }
-    return edge.roleIsAtLeast(Role.ADMIN);
+    return EDGE.ROLE_IS_AT_LEAST(ROLE.ADMIN);
 }
 
 export function hasKeyModel(edge: Edge): boolean {
-    return edge.isVersionAtLeast("2023.1.2");
+    return EDGE.IS_VERSION_AT_LEAST("2023.1.2");
 }
 
 /**
@@ -39,5 +39,5 @@ export function hasKeyModel(edge: Edge): boolean {
  * @returns true if the version is atleast '2025.1.2', false otherwise
  */
 export function hasUpdateAppVersion(edge: Edge): boolean {
-    return edge.isVersionAtLeast("2025.1.2");
+    return EDGE.IS_VERSION_AT_LEAST("2025.1.2");
 }

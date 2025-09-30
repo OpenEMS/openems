@@ -1,7 +1,7 @@
 // @ts-strict-ignore
-import * as Chart from "chart.js";
+import * as Chart from "CHART.JS";
 
-// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
+// cf. https://GITHUB.COM/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -87,11 +87,11 @@ export type ChartOptions = {
     maintainAspectRatio: boolean,
     legend: {
         labels: {
-            generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
-            filter?(legendItem: Chart.LegendItem, data: ChartData): any,
+            generateLabels?(chart: CHART.CHART): CHART.LEGEND_ITEM[],
+            filter?(legendItem: CHART.LEGEND_ITEM, data: ChartData): any,
         },
         position: "bottom"
-        onClick?(event: MouseEvent, legendItem: Chart.LegendItem): void
+        onClick?(event: MouseEvent, legendItem: CHART.LEGEND_ITEM): void
     },
     elements: {
         point: {
@@ -146,16 +146,16 @@ export type ChartOptions = {
         axis: string,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: Chart.TooltipItem<any>[], data: Data): string,
-            afterTitle?(item: Chart.TooltipItem<any>[], data: Data): string | string[],
-            footer?(item: Chart.TooltipItem<any>[], data: ChartData): string | string[]
+            title?(tooltipItems: CHART.TOOLTIP_ITEM<any>[], data: Data): string,
+            afterTitle?(item: CHART.TOOLTIP_ITEM<any>[], data: Data): string | string[],
+            footer?(item: CHART.TOOLTIP_ITEM<any>[], data: ChartData): string | string[]
         }
-        itemSort?(itemA: Chart.TooltipItem<any>, itemB: Chart.TooltipItem<any>, data?: ChartData): number,
+        itemSort?(itemA: CHART.TOOLTIP_ITEM<any>, itemB: CHART.TOOLTIP_ITEM<any>, data?: ChartData): number,
     },
-    legendCallback?(chart: Chart.Chart): string
+    legendCallback?(chart: CHART.CHART): string
 };
 
-export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
+export const DEFAULT_TIME_CHART_OPTIONS = (): CHART.CHART_OPTIONS => ({
     responsive: true,
 
     // Important for point style on chart hover for line chart
@@ -200,15 +200,15 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
                 boxWidth: 7,
                 boxHeight: 7,
 
-                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
-                generateLabels: (chart: Chart.Chart) => { return null; },
+                color: getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-primary"),
+                generateLabels: (chart: CHART.CHART) => { return null; },
             },
             onClick: (event, legendItem, legend) => { },
         },
         tooltip: {
             itemSort: (a, b) => {
                 // Force sorting by dataset index (same as legend order)
-                return a.datasetIndex - b.datasetIndex;
+                return A.DATASET_INDEX - B.DATASET_INDEX;
             },
             usePointStyle: true,
             intersect: false,
@@ -224,14 +224,14 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             caretSize: 0,
 
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
+                const value = ITEM.DATASET.DATA[ITEM.DATA_INDEX] as number;
                 return !isNaN(value) && value !== null;
             },
             callbacks: {
-                label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
-                afterTitle: (items: Chart.TooltipItem<any>[]) => { },
-                labelColor: (context: Chart.TooltipItem<any>) => { },
+                label: (item: CHART.TOOLTIP_ITEM<any>) => { },
+                title: (tooltipItems: CHART.TOOLTIP_ITEM<any>[]) => { },
+                afterTitle: (items: CHART.TOOLTIP_ITEM<any>[]) => { },
+                labelColor: (context: CHART.TOOLTIP_ITEM<any>) => { },
             },
         },
     },
@@ -331,22 +331,22 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
         intersect: false,
         axis: "x",
         callbacks: {
-            title(tooltipItems: Chart.TooltipItem<any>[], data: Data): string {
-                const date = DateUtils.stringToDate(tooltipItems[0]?.label);
-                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+            title(tooltipItems: CHART.TOOLTIP_ITEM<any>[], data: Data): string {
+                const date = DATE_UTILS.STRING_TO_DATE(tooltipItems[0]?.label);
+                return DATE.TO_LOCALE_DATE_STRING() + " " + DATE.TO_LOCALE_TIME_STRING();
             },
         },
     },
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse["result"]) {
-    const startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    const endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
+    const startDate = startOfDay(new Date(QUERY_RESULT.TIMESTAMPS[0]));
+    const endDate = new Date(QUERY_RESULT.TIMESTAMPS[QUERY_RESULT.TIMESTAMPS.LENGTH - 1]);
     let activeSum = 0;
-    queryResult.data[channel.toString()].forEach(value => {
+    QUERY_RESULT.DATA[CHANNEL.TO_STRING()].forEach(value => {
         activeSum += value;
     });
-    const activePercent = activeSum / queryResult.timestamps.length;
+    const activePercent = activeSum / QUERY_RESULT.TIMESTAMPS.LENGTH;
     return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
 }
 
@@ -360,60 +360,60 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    * @returns resolution and timeformat
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" } {
-    const days = Math.abs(differenceInDays(toDate, fromDate));
+    const days = MATH.ABS(differenceInDays(toDate, fromDate));
     let result: { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" };
 
     if (days <= 1) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Day
+        if (SERVICE.IS_SMARTPHONE_RESOLUTION) {
+            result = { resolution: { value: 15, unit: CHRONO_UNIT.TYPE.MINUTES }, timeFormat: "hour" }; // 1 Day
         } else {
-            result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 5 Minutes
+            result = { resolution: { value: 5, unit: CHRONO_UNIT.TYPE.MINUTES }, timeFormat: "hour" }; // 5 Minutes
         }
     } else if (days == 2) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "hour" }; // 1 Day
+        if (SERVICE.IS_SMARTPHONE_RESOLUTION) {
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.DAYS }, timeFormat: "hour" }; // 1 Day
         } else {
-            result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Hour
+            result = { resolution: { value: 10, unit: CHRONO_UNIT.TYPE.MINUTES }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 4) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
+        if (SERVICE.IS_SMARTPHONE_RESOLUTION) {
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.DAYS }, timeFormat: "day" }; // 1 Day
         } else {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "hour" }; // 1 Hour
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.HOURS }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 6) {
 
 
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
+        if (SERVICE.IS_SMARTPHONE_RESOLUTION) {
+            result = { resolution: { value: 8, unit: CHRONO_UNIT.TYPE.HOURS }, timeFormat: "day" }; // 1 Day
         } else {
             // >> show Hours
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.HOURS }, timeFormat: "day" }; // 1 Day
         }
 
 
-    } else if (days <= 31 && service.isSmartphoneResolution) {
+    } else if (days <= 31 && SERVICE.IS_SMARTPHONE_RESOLUTION) {
         // Smartphone-View: show 31 days in daily view
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
+        result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.DAYS }, timeFormat: "day" }; // 1 Day
 
     } else if (days <= 90) {
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
+        result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.DAYS }, timeFormat: "day" }; // 1 Day
 
     } else if (days <= 144) {
         // >> show Days
-        if (service.isSmartphoneResolution == true) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Month
+        if (SERVICE.IS_SMARTPHONE_RESOLUTION == true) {
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.MONTHS }, timeFormat: "month" }; // 1 Month
         } else {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
+            result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.DAYS }, timeFormat: "day" }; // 1 Day
         }
     } else if (days <= 365) {
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Day
+        result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.MONTHS }, timeFormat: "month" }; // 1 Day
 
     } else {
         // >> show Years
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: "year" }; // 1 Month
+        result = { resolution: { value: 1, unit: CHRONO_UNIT.TYPE.YEARS }, timeFormat: "year" }; // 1 Month
     }
 
     return result;
@@ -422,15 +422,15 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 /**
   * Returns true if Chart Label should be visible. Defaults to true.
   *
-  * Compares only the first part of the label string - without a value or ChronoUnit.Type.
+  * Compares only the first part of the label string - without a value or CHRONO_UNIT.TYPE.
   *
   * @param label the Chart label
   * @param orElse the default, in case no value was stored yet in Session-Storage
   * @returns true for visible labels; hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-    const labelWithoutUnit = "LABEL_" + label.split(":")[0];
-    const value = sessionStorage.getItem(labelWithoutUnit);
+    const labelWithoutUnit = "LABEL_" + LABEL.SPLIT(":")[0];
+    const value = SESSION_STORAGE.GET_ITEM(labelWithoutUnit);
     if (orElse != null && value == null) {
         return orElse;
     } else {
@@ -448,13 +448,13 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
     if (visible == null) {
         return;
     }
-    const labelWithoutUnit = "LABEL_" + label.split(":")[0];
-    sessionStorage.setItem(labelWithoutUnit, visible ? "true" : "false");
+    const labelWithoutUnit = "LABEL_" + LABEL.SPLIT(":")[0];
+    SESSION_STORAGE.SET_ITEM(labelWithoutUnit, visible ? "true" : "false");
 }
 
 export type Resolution = {
     value: number,
-    unit: ChronoUnit.Type
+    unit: CHRONO_UNIT.TYPE
 };
 
 export namespace ChronoUnit {
@@ -476,8 +476,8 @@ export namespace ChronoUnit {
      * @return true if "ChronoUnit 1" is equal or a bigger period than "ChronoUnit 2"
      */
     export function isAtLeast(unit1: Type, unit2: Type) {
-        const currentUnit = Object.values(Type).indexOf(unit1);
-        const unitToCompareTo = Object.values(Type).indexOf(unit2);
+        const currentUnit = OBJECT.VALUES(Type).indexOf(unit1);
+        const unitToCompareTo = OBJECT.VALUES(Type).indexOf(unit2);
         return currentUnit >= unitToCompareTo;
     }
 }
@@ -508,7 +508,7 @@ export type ChartData = {
     yAxisTitle: string,
 };
 
-export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.ChartOptions => ({
+export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): CHART.CHART_OPTIONS => ({
     responsive: true,
     maintainAspectRatio: false,
     elements: {
@@ -535,8 +535,8 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
 
             position: "bottom",
             labels: {
-                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
-                generateLabels: (chart: Chart.Chart) => { return null; },
+                color: getComputedStyle(DOCUMENT.DOCUMENT_ELEMENT).getPropertyValue("--ion-color-primary"),
+                generateLabels: (chart: CHART.CHART) => { return null; },
             },
             onClick: (event, legendItem, legend) => { },
         },
@@ -544,14 +544,14 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
             intersect: false,
             mode: "index",
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
+                const value = ITEM.DATASET.DATA[ITEM.DATA_INDEX] as number;
                 return !isNaN(value) && value !== null;
             },
             callbacks: {
-                label: (item: Chart.TooltipItem<any>) => { },
-                title: (tooltipItems: Chart.TooltipItem<any>[]) => { },
-                afterTitle: (items: Chart.TooltipItem<any>[]) => { },
-                labelColor: (context: Chart.TooltipItem<any>) => { },
+                label: (item: CHART.TOOLTIP_ITEM<any>) => { },
+                title: (tooltipItems: CHART.TOOLTIP_ITEM<any>[]) => { },
+                afterTitle: (items: CHART.TOOLTIP_ITEM<any>[]) => { },
+                labelColor: (context: CHART.TOOLTIP_ITEM<any>) => { },
             },
         },
         datalabels: {},
@@ -564,7 +564,7 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
             ticks: {
                 autoSkip: true,
                 callback: function (value, index, ticks) {
-                    if (index >= labels.length) {
+                    if (index >= LABELS.LENGTH) {
                         return "";
                     }
 

@@ -3,7 +3,7 @@
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
       <ion-title style="color: var(--ion-title-color);">{{title}}</ion-title>
       <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="end">
-        <ion-button [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history'">
+        <ion-button [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history'">
           <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
         </ion-button>
       </ion-buttons>
@@ -16,7 +16,7 @@
     <ion-toolbar color="secondary">
       <ion-buttons class="ion-justify-content-center">
         <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-        <pickdate *ngIf="!ref.children.length"></pickdate>
+        <pickdate *ngIf="!REF.CHILDREN.LENGTH"></pickdate>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>

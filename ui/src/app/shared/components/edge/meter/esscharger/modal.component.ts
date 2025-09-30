@@ -6,11 +6,11 @@ import { EdgeConfig } from "../../edgeconfig";
 
 @Component({
     selector: "oe-ess-charger",
-    templateUrl: "./modal.component.html",
+    templateUrl: "./MODAL.COMPONENT.HTML",
     standalone: false,
 })
 export class EssChargerComponent {
-    @Input({ required: true }) public component!: EdgeConfig.Component;
+    @Input({ required: true }) public component!: EDGE_CONFIG.COMPONENT;
     protected readonly Role = Role;
     protected readonly Utils = Utils;
     protected readonly Converter = Converter;

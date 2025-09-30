@@ -1,8 +1,8 @@
 <div *ngFor="let yearData of tariffData; let yi = index" class="year-section">
     <ion-item lines="full">
         <ion-label class="ion-text-center">
-            <h2>{{'FORMLY_FORM.TARIFF_TABLE.TITLE' | translate: {year: yearData.year} }}</h2>
-            <p>{{ props.description }}</p>
+            <h2>{{'FORMLY_FORM.TARIFF_TABLE.TITLE' | translate: {year: YEAR_DATA.YEAR} }}</h2>
+            <p>{{ PROPS.DESCRIPTION }}</p>
         </ion-label>
     </ion-item>
 
@@ -28,9 +28,9 @@
                 <ion-row class="ion-align-items-center tariff-price-row"
                     *ngFor="let tariff of yearData?.tariffs | keyvalue">
                     <ion-col>
-                        <ion-input type="number" [value]="yearData.tariffs[tariff.key]" labelPlacement="floating"
-                            [label]="tariffLabels[tariff.key] | translate"
-                            (ionChange)="updateTariffPrice(yi, tariff.key, $event.detail.value)" placeholder="0.00"
+                        <ion-input type="number" [value]="YEAR_DATA.TARIFFS[TARIFF.KEY]" labelPlacement="floating"
+                            [label]="tariffLabels[TARIFF.KEY] | translate"
+                            (ionChange)="updateTariffPrice(yi, TARIFF.KEY, $EVENT.DETAIL.VALUE)" placeholder="0.00"
                             class="tariff-input input-text-right">
                         </ion-input>
                     </ion-col>
@@ -42,37 +42,37 @@
         </div>
 
         <!-- Quarter Rows -->
-        <ion-row *ngFor="let quarterData of yearData.quarters; let qi = index; trackBy: trackByQuarterKey"
+        <ion-row *ngFor="let quarterData of YEAR_DATA.QUARTERS; let qi = index; trackBy: trackByQuarterKey"
             class="quarter-row">
             <ng-container *ngIf="quarterData">
-                <ion-col (click)="toggleQuarterVisibilityByKey(quarterData.key!)" class="quarter-label-col" size="12">
+                <ion-col (click)="toggleQuarterVisibilityByKey(QUARTER_DATA.KEY!)" class="quarter-label-col" size="12">
                     <ion-button fill="clear" size="small" class="expand-button">
                         <ion-icon slot="icon-only"
-                            [name]="isQuarterExpandedByKey(quarterData.key!) ? 'chevron-down-outline' : 'chevron-forward-outline'">
+                            [name]="isQuarterExpandedByKey(QUARTER_DATA.KEY!) ? 'chevron-down-outline' : 'chevron-forward-outline'">
                         </ion-icon>
                     </ion-button>
-                    Q{{ quarterData.quarter }} - {{ quarterData.formattedDateRange }}
+                    Q{{ QUARTER_DATA.QUARTER }} - {{ QUARTER_DATA.FORMATTED_DATE_RANGE }}
                 </ion-col>
 
-                <ion-col size="12" class="quarter-details-col" *ngIf="isQuarterExpandedByKey(quarterData.key!)">
+                <ion-col size="12" class="quarter-details-col" *ngIf="isQuarterExpandedByKey(QUARTER_DATA.KEY!)">
                     <!-- Low Tariff Schedules -->
                     <div class="tariff-section">
                         <h4>{{ 'FORMLY_FORM.TARIFF_TABLE.TARIFFS.LOW' | translate }} (NT)</h4>
-                        <div *ngFor="let schedule of quarterData.lowSchedules; trackBy: trackByScheduleOriginalIndex"
+                        <div *ngFor="let schedule of QUARTER_DATA.LOW_SCHEDULES; trackBy: trackByScheduleOriginalIndex"
                             class="time-range-row">
-                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="schedule.from | timedisplay"
+                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="SCHEDULE.FROM | timedisplay"
                                 [minuteValues]="'0,15,30,45'" [invalid]="isTimeRangeInvalid(schedule)"
-                                (timeChange)="updateTimeRange(yi, qi, schedule.originalIndex!, 'from', $event)"
+                                (timeChange)="updateTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!, 'from', $event)"
                                 class="ion-padding time-input">
                             </oe-pick-date-time-range>
                             <span class="time-separator">&nbsp;–&nbsp;</span>
-                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="schedule.to | timedisplay"
+                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="SCHEDULE.TO | timedisplay"
                                 [minuteValues]="'0,15,30,45'" [invalid]="isTimeRangeInvalid(schedule)"
-                                (timeChange)="updateTimeRange(yi, qi, schedule.originalIndex!, 'to', $event)"
+                                (timeChange)="updateTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!, 'to', $event)"
                                 class="ion-padding time-input">
                             </oe-pick-date-time-range>
                             <ion-button fill="clear" size="small" class="remove-time-btn"
-                                (click)="removeTimeRange(yi, qi, schedule.originalIndex!)">
+                                (click)="removeTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!)">
                                 <ion-icon name="trash-outline" slot="icon-only" color="danger"></ion-icon>
                             </ion-button>
                         </div>
@@ -86,21 +86,21 @@
                     <!-- High Tariff Schedules -->
                     <div class="tariff-section">
                         <h4>{{ 'FORMLY_FORM.TARIFF_TABLE.TARIFFS.HIGH' | translate }} (HT)</h4>
-                        <div *ngFor="let schedule of quarterData.highSchedules; trackBy: trackByScheduleOriginalIndex"
+                        <div *ngFor="let schedule of QUARTER_DATA.HIGH_SCHEDULES; trackBy: trackByScheduleOriginalIndex"
                             class="time-range-row">
-                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="schedule.from | timedisplay"
+                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="SCHEDULE.FROM | timedisplay"
                                 [minuteValues]="'0,15,30,45'" [invalid]="isTimeRangeInvalid(schedule)"
-                                (timeChange)="updateTimeRange(yi, qi, schedule.originalIndex!, 'from', $event)"
+                                (timeChange)="updateTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!, 'from', $event)"
                                 class="ion-padding time-input">
                             </oe-pick-date-time-range>
                             <span class="time-separator">&nbsp;–&nbsp;</span>
-                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="schedule.to | timedisplay"
+                            <oe-pick-date-time-range [mode]="'time'" [displayValue]="SCHEDULE.TO | timedisplay"
                                 [minuteValues]="'0,15,30,45'" [invalid]="isTimeRangeInvalid(schedule)"
-                                (timeChange)="updateTimeRange(yi, qi, schedule.originalIndex!, 'to', $event)"
+                                (timeChange)="updateTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!, 'to', $event)"
                                 class="ion-padding time-input">
                             </oe-pick-date-time-range>
                             <ion-button fill="clear" size="small" class="remove-time-btn"
-                                (click)="removeTimeRange(yi, qi, schedule.originalIndex!)">
+                                (click)="removeTimeRange(yi, qi, SCHEDULE.ORIGINAL_INDEX!)">
                                 <ion-icon name="trash-outline" slot="icon-only" color="danger"></ion-icon>
                             </ion-button>
                         </div>
@@ -119,11 +119,11 @@
     <div class="year-actions">
         <ion-toolbar>
             <ion-buttons slot="start">
-                <ion-button *ngIf="tariffData.length > 1" fill="clear" color="danger" (click)="removeYear(yi)">
-                    {{ 'FORMLY_FORM.TARIFF_TABLE.REMOVE_YEAR' | translate: { year: yearData.year } }}
+                <ion-button *ngIf="TARIFF_DATA.LENGTH > 1" fill="clear" color="danger" (click)="removeYear(yi)">
+                    {{ 'FORMLY_FORM.TARIFF_TABLE.REMOVE_YEAR' | translate: { year: YEAR_DATA.YEAR } }}
                 </ion-button>
-                <ion-button *ngIf="!(tariffData.length > 1)" fill="clear" color="success" (click)="addYear()">
-                    {{ 'FORMLY_FORM.TARIFF_TABLE.ADD_YEAR' | translate: { year: yearData.year + 1 } }}
+                <ion-button *ngIf="!(TARIFF_DATA.LENGTH > 1)" fill="clear" color="success" (click)="addYear()">
+                    {{ 'FORMLY_FORM.TARIFF_TABLE.ADD_YEAR' | translate: { year: YEAR_DATA.YEAR + 1 } }}
                 </ion-button>
             </ion-buttons>
         </ion-toolbar>

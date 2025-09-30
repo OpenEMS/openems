@@ -1,5 +1,5 @@
 <ng-container *ngIf="component">
-    <oe-modal-line [name]="component.alias ?? component.id" [channelAddress]="component.id + '/ActivePower'"
+    <oe-modal-line [name]="COMPONENT.ALIAS ?? COMPONENT.ID" [channelAddress]="COMPONENT.ID + '/ActivePower'"
         [converter]="Utils.CONVERT_TO_WATT">
     </oe-modal-line>
     <oe-modal-meter-phases [component]="component"></oe-modal-meter-phases>

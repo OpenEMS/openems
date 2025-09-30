@@ -15,8 +15,8 @@ export class EvcsUtils {
      * @returns - Returns "ActivePower" if the edge version is at least "2024.10.2" and
      * the component is not deprecated. Otherwise, returns "ChargePower".
      */
-    public static getEvcsPowerChannelId(component: EdgeConfig.Component, config: EdgeConfig, edge: Edge | null): "ActivePower" | "ChargePower" {
-        if (edge && component && config && (!config.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id) && edge.isVersionAtLeast("2024.10.2"))) {
+    public static getEvcsPowerChannelId(component: EDGE_CONFIG.COMPONENT, config: EdgeConfig, edge: Edge | null): "ActivePower" | "ChargePower" {
+        if (edge && component && config && (!CONFIG.HAS_COMPONENT_NATURE("IO.OPENEMS.EDGE.EVCS.API.DEPRECATED_EVCS", COMPONENT.ID) && EDGE.IS_VERSION_AT_LEAST("2024.10.2"))) {
             return "ActivePower";
         }
         return "ChargePower";

@@ -33,13 +33,13 @@ export class ExecuteSystemUpdate {
      */
     public start(): Promise<SystemUpdateState> {
         return new Promise<SystemUpdateState>((resolve, reject) => {
-            this.update()
+            THIS.UPDATE()
                 .then(updateState => {
-                    if (updateState.running && updateState.running?.percentCompleted != 100) {
+                    if (UPDATE_STATE.RUNNING && UPDATE_STATE.RUNNING?.percentCompleted != 100) {
                         resolve(updateState);
                         return;
                     }
-                    this.stopRefreshSystemUpdateState();
+                    THIS.STOP_REFRESH_SYSTEM_UPDATE_STATE();
                     resolve(updateState);
                 }).catch(error => {
                     reject(error);
@@ -53,25 +53,25 @@ export class ExecuteSystemUpdate {
      * @returns Promise<SystemUpdateState>
      */
     public executeSystemUpdate(): Promise<SystemUpdateState> {
-        this.systemUpdateState = { running: { percentCompleted: 0, logs: [] } };
+        THIS.SYSTEM_UPDATE_STATE = { running: { percentCompleted: 0, logs: [] } };
         return new Promise<SystemUpdateState>((resolve, reject) => {
-            this.edge.sendRequest(this.websocket,
+            THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
                 new ComponentJsonApiRequest({
                     componentId: "_host",
-                    payload: new ExecuteSystemUpdateRequest({ isDebug: environment.debugMode }),
+                    payload: new ExecuteSystemUpdateRequest({ isDebug: ENVIRONMENT.DEBUG_MODE }),
                 })).then(response => {
                     // Finished System Update (without restart of OpenEMS Edge)
                     const systemUpdateState = (response as GetSystemUpdateStateResponse).result;
-                    this.setSystemUpdateState(systemUpdateState);
+                    THIS.SET_SYSTEM_UPDATE_STATE(systemUpdateState);
                 }).catch(reason => {
                     reject(reason);
                 });
 
-            this.update()
+            THIS.UPDATE()
                 .then(updateState => {
-                    if (updateState.updated) {
-                        this.stopRefreshSystemUpdateState();
-                        resolve(this.systemUpdateState);
+                    if (UPDATE_STATE.UPDATED) {
+                        THIS.STOP_REFRESH_SYSTEM_UPDATE_STATE();
+                        resolve(THIS.SYSTEM_UPDATE_STATE);
                     }
                 }).catch(error => {
                     reject(error);
@@ -83,28 +83,28 @@ export class ExecuteSystemUpdate {
  * Stops asking the status.
  */
     public stop() {
-        this.stopRefreshSystemUpdateState();
-        this.ngUnsubscribe.complete();
+        THIS.STOP_REFRESH_SYSTEM_UPDATE_STATE();
+        THIS.NG_UNSUBSCRIBE.COMPLETE();
     }
 
     private refreshSystemUpdateState(): Promise<SystemUpdateState> {
         return new Promise<SystemUpdateState>((resolve, reject) => {
-            this.edge.sendRequest(this.websocket,
+            THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
                 new ComponentJsonApiRequest({
                     componentId: "_host",
                     payload: new GetSystemUpdateStateRequest(),
                 })).then(response => {
                     const result = (response as GetSystemUpdateStateResponse).result;
 
-                    this.setSystemUpdateState(result);
+                    THIS.SET_SYSTEM_UPDATE_STATE(result);
                     // Stop regular check if there is no Update available
-                    if (result.updated) {
-                        this.stopRefreshSystemUpdateState();
+                    if (RESULT.UPDATED) {
+                        THIS.STOP_REFRESH_SYSTEM_UPDATE_STATE();
                     }
-                    resolve(this.systemUpdateState);
+                    resolve(THIS.SYSTEM_UPDATE_STATE);
                 }).catch(error => {
-                    if (this.systemUpdateState.running) {
-                        this.isEdgeRestarting = true;
+                    if (THIS.SYSTEM_UPDATE_STATE.RUNNING) {
+                        THIS.IS_EDGE_RESTARTING = true;
                         return;
                     }
                     reject(error);
@@ -120,13 +120,13 @@ export class ExecuteSystemUpdate {
     private update(): Promise<SystemUpdateState> {
         return new Promise<SystemUpdateState>((resolve, reject) => {
             const source = timer(0, 15000);
-            source.pipe(
-                takeUntil(this.ngUnsubscribe),
+            SOURCE.PIPE(
+                takeUntil(THIS.NG_UNSUBSCRIBE),
             ).subscribe(ignore => {
-                if (!this.edge.isOnline) {
+                if (!THIS.EDGE.IS_ONLINE) {
                     return;
                 }
-                this.refreshSystemUpdateState()
+                THIS.REFRESH_SYSTEM_UPDATE_STATE()
                     .then(updateState => {
                         resolve(updateState);
                     }).catch(error => {
@@ -137,9 +137,9 @@ export class ExecuteSystemUpdate {
                         if (!errorMessage) {
                             return;
                         }
-                        if (errorMessage.includes("ExecuteSystemCommandRequest is not implemented for Windows")) {
-                            this.canNotBeUpdated = true;
-                            this.stopRefreshSystemUpdateState();
+                        if (ERROR_MESSAGE.INCLUDES("ExecuteSystemCommandRequest is not implemented for Windows")) {
+                            THIS.CAN_NOT_BE_UPDATED = true;
+                            THIS.STOP_REFRESH_SYSTEM_UPDATE_STATE();
                             reject(error);
                         }
                     });
@@ -148,11 +148,11 @@ export class ExecuteSystemUpdate {
     }
 
     private stopRefreshSystemUpdateState() {
-        this.ngUnsubscribe.next();
+        THIS.NG_UNSUBSCRIBE.NEXT();
     }
 
     private setSystemUpdateState(systemUpdateState: SystemUpdateState) {
-        this.systemUpdateState = systemUpdateState;
-        this.systemUpdateStateChange(systemUpdateState);
+        THIS.SYSTEM_UPDATE_STATE = systemUpdateState;
+        THIS.SYSTEM_UPDATE_STATE_CHANGE(systemUpdateState);
     }
 }

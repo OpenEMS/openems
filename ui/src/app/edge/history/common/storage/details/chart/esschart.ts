@@ -6,15 +6,15 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
-import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { ChartComponentsModule } from "src/app/shared/components/chart/CHART.MODULE";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-ERROR.MODULE";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../shared/shared";
 
 @Component({
     selector: "common-storage-details-ess-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: true,
     imports: [
         BaseChartDirective,
@@ -29,103 +29,103 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../sh
 })
 export class StorageEssChartComponent extends AbstractHistoryChart {
 
-    public static getChartData(translate: TranslateService, essComponent: EdgeConfig.Component, chartType: "line" | "bar", config: EdgeConfig): HistoryUtils.ChartData {
+    public static getChartData(translate: TranslateService, essComponent: EDGE_CONFIG.COMPONENT, chartType: "line" | "bar", config: EdgeConfig): HISTORY_UTILS.CHART_DATA {
 
-        const yAxes: HistoryUtils.yAxes[] = [{
-            unit: YAxisType.ENERGY,
+        const yAxes: HISTORY_UTILS.Y_AXES[] = [{
+            unit: YAXIS_TYPE.ENERGY,
             position: "left",
-            yAxisId: ChartAxis.LEFT,
+            yAxisId: CHART_AXIS.LEFT,
         }];
 
         if (chartType === "line") {
-            yAxes.push({
-                unit: YAxisType.PERCENTAGE,
+            Y_AXES.PUSH({
+                unit: YAXIS_TYPE.PERCENTAGE,
                 position: "right",
-                yAxisId: ChartAxis.RIGHT,
+                yAxisId: CHART_AXIS.RIGHT,
             });
         }
 
-        const input: HistoryUtils.InputChannel[] = [
+        const input: HISTORY_UTILS.INPUT_CHANNEL[] = [
             {
-                name: essComponent.id + "Charge",
-                powerChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargePower"),
-                energyChannel: ChannelAddress.fromString(essComponent.id + "/DcChargeEnergy"),
-                ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE }),
+                name: ESS_COMPONENT.ID + "Charge",
+                powerChannel: CHANNEL_ADDRESS.FROM_STRING(ESS_COMPONENT.ID + "/DcDischargePower"),
+                energyChannel: CHANNEL_ADDRESS.FROM_STRING(ESS_COMPONENT.ID + "/DcChargeEnergy"),
+                ...(chartType === "line" && { converter: HISTORY_UTILS.VALUE_CONVERTER.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE }),
             },
             {
-                name: essComponent.id + "Discharge",
-                powerChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargePower"),
-                energyChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargeEnergy"),
-                ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO }),
+                name: ESS_COMPONENT.ID + "Discharge",
+                powerChannel: CHANNEL_ADDRESS.FROM_STRING(ESS_COMPONENT.ID + "/DcDischargePower"),
+                energyChannel: CHANNEL_ADDRESS.FROM_STRING(ESS_COMPONENT.ID + "/DcDischargeEnergy"),
+                ...(chartType === "line" && { converter: HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO }),
             },
             {
                 name: "Soc",
-                powerChannel: ChannelAddress.fromString(essComponent.id + "/Soc"),
+                powerChannel: CHANNEL_ADDRESS.FROM_STRING(ESS_COMPONENT.ID + "/Soc"),
             },
         ];
 
-        const emergencyReserveComponent: EdgeConfig.Component | null = config
-            .getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve")
+        const emergencyReserveComponent: EDGE_CONFIG.COMPONENT | null = config
+            .getComponentsByFactory("CONTROLLER.ESS.EMERGENCY_CAPACITY_RESERVE")
             .filter(component =>
-                component != null && component.isEnabled && essComponent.hasPropertyValue("ess.id", essComponent.id))[0] ?? null;
-        const isReserveSocEnabled = config.getPropertyFromComponent<boolean>(emergencyReserveComponent, "isReserveSocEnabled");
+                component != null && COMPONENT.IS_ENABLED && ESS_COMPONENT.HAS_PROPERTY_VALUE("ESS.ID", ESS_COMPONENT.ID))[0] ?? null;
+        const isReserveSocEnabled = CONFIG.GET_PROPERTY_FROM_COMPONENT<boolean>(emergencyReserveComponent, "isReserveSocEnabled");
         if (emergencyReserveComponent && isReserveSocEnabled) {
-            input.push({
+            INPUT.PUSH({
                 name: "EmergencyReserve",
-                powerChannel: new ChannelAddress(emergencyReserveComponent.id, "ActualReserveSoc"),
+                powerChannel: new ChannelAddress(EMERGENCY_RESERVE_COMPONENT.ID, "ActualReserveSoc"),
             });
         }
 
         return {
             input: input,
-            output: (data: HistoryUtils.ChannelData) => {
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
 
-                const output: HistoryUtils.DisplayValue[] = [{
-                    name: translate.instant("General.CHARGE"),
-                    converter: () => data[essComponent.id + "Charge"],
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[essComponent.id + "/DcChargeEnergy"],
+                const output: HISTORY_UTILS.DISPLAY_VALUE[] = [{
+                    name: TRANSLATE.INSTANT("GENERAL.CHARGE"),
+                    converter: () => data[ESS_COMPONENT.ID + "Charge"],
+                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_RESPONSE.RESULT.DATA[ESS_COMPONENT.ID + "/DcChargeEnergy"],
                     stack: 0,
-                    color: ChartConstants.Colors.GREEN,
+                    color: CHART_CONSTANTS.COLORS.GREEN,
                 },
                 {
-                    name: translate.instant("General.DISCHARGE"),
-                    converter: () => data[essComponent.id + "Discharge"]?.map(el => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(el)),
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[essComponent.id + "/DcDischargeEnergy"],
+                    name: TRANSLATE.INSTANT("GENERAL.DISCHARGE"),
+                    converter: () => data[ESS_COMPONENT.ID + "Discharge"]?.map(el => HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO(el)),
+                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_RESPONSE.RESULT.DATA[ESS_COMPONENT.ID + "/DcDischargeEnergy"],
                     stack: 1,
-                    color: ChartConstants.Colors.RED,
+                    color: CHART_CONSTANTS.COLORS.RED,
                 },
                 ];
 
                 if (chartType === "line") {
-                    output.push({
-                        name: translate.instant("General.soc"),
-                        converter: () => data["Soc"].map(el => Utils.multiplySafely(el, 1000)),
-                        color: ChartConstants.Colors.GREY,
+                    OUTPUT.PUSH({
+                        name: TRANSLATE.INSTANT("GENERAL.SOC"),
+                        converter: () => data["Soc"].map(el => UTILS.MULTIPLY_SAFELY(el, 1000)),
+                        color: CHART_CONSTANTS.COLORS.GREY,
                         borderDash: [10, 10],
-                        yAxisId: ChartAxis.RIGHT,
+                        yAxisId: CHART_AXIS.RIGHT,
                     });
 
                 }
                 if (emergencyReserveComponent && isReserveSocEnabled) {
-                    output.push({
-                        name: translate.instant("Edge.Index.EmergencyReserve.EMERGENCY_RESERVE"),
-                        converter: () => data["EmergencyReserve"].map(el => Utils.multiplySafely(el, 1000)),
-                        color: ChartConstants.Colors.BLACK,
-                        yAxisId: ChartAxis.RIGHT,
+                    OUTPUT.PUSH({
+                        name: TRANSLATE.INSTANT("EDGE.INDEX.EMERGENCY_RESERVE.EMERGENCY_RESERVE"),
+                        converter: () => data["EmergencyReserve"].map(el => UTILS.MULTIPLY_SAFELY(el, 1000)),
+                        color: CHART_CONSTANTS.COLORS.BLACK,
+                        yAxisId: CHART_AXIS.RIGHT,
                         borderDash: [3, 3],
                     });
                 }
                 return output;
             },
             tooltip: {
-                formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
+                formatNumber: CHART_CONSTANTS.NUMBER_FORMAT.ZERO_TO_TWO,
             },
             yAxes: yAxes,
         };
     }
 
     public override getChartData() {
-        const component = this.config.getComponent(this.route.snapshot.params.componentId);
-        return StorageEssChartComponent.getChartData(this.translate, component, this.chartType, this.config);
+        const component = THIS.CONFIG.GET_COMPONENT(THIS.ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
+        return STORAGE_ESS_CHART_COMPONENT.GET_CHART_DATA(THIS.TRANSLATE, component, THIS.CHART_TYPE, THIS.CONFIG);
     }
 }

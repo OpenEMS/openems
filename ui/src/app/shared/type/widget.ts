@@ -16,34 +16,34 @@ export enum WidgetClass {
 }
 
 export enum WidgetNature {
-    "io.openems.edge.evcs.api.Evcs",
-    "io.openems.edge.heat.api.ManagedHeatElement",
-    "io.openems.impl.controller.channelthreshold.ChannelThresholdController", // TODO deprecated
-    "io.openems.edge.io.api.DigitalInput",
+    "IO.OPENEMS.EDGE.EVCS.API.EVCS",
+    "IO.OPENEMS.EDGE.HEAT.API.MANAGED_HEAT_ELEMENT",
+    "IO.OPENEMS.IMPL.CONTROLLER.CHANNELTHRESHOLD.CHANNEL_THRESHOLD_CONTROLLER", // TODO deprecated
+    "IO.OPENEMS.EDGE.IO.API.DIGITAL_INPUT",
 }
 
 export enum WidgetFactory {
-    "Evse.Controller.Single",
-    "Evse.Controller.Cluster",
-    "Controller.Api.ModbusTcp.ReadWrite",
-    "Controller.Asymmetric.PeakShaving",
-    "Controller.ChannelThreshold",
-    "Controller.CHP.SoC",
-    "Controller.Ess.DelayedSellToGrid",
-    "Controller.Ess.FixActivePower",
-    "Controller.Ess.GridOptimizedCharge",
-    "Controller.Ess.Time-Of-Use-Tariff.Discharge",
-    "Controller.Ess.Time-Of-Use-Tariff",
-    "Controller.IO.ChannelSingleThreshold",
-    "Controller.Io.FixDigitalOutput",
-    "Controller.IO.HeatingElement",
-    "Controller.IO.Heating.Room",
-    "Controller.Io.HeatPump.SgReady",
-    "Controller.Heat.Heatingelement",
-    "Controller.Symmetric.PeakShaving",
-    "Controller.TimeslotPeakshaving",
-    "Evcs.Cluster.PeakShaving",
-    "Evcs.Cluster.SelfConsumption",
+    "EVSE.CONTROLLER.SINGLE",
+    "EVSE.CONTROLLER.CLUSTER",
+    "CONTROLLER.API.MODBUS_TCP.READ_WRITE",
+    "CONTROLLER.ASYMMETRIC.PEAK_SHAVING",
+    "CONTROLLER.CHANNEL_THRESHOLD",
+    "CONTROLLER.CHP.SO_C",
+    "CONTROLLER.ESS.DELAYED_SELL_TO_GRID",
+    "CONTROLLER.ESS.FIX_ACTIVE_POWER",
+    "CONTROLLER.ESS.GRID_OPTIMIZED_CHARGE",
+    "CONTROLLER.ESS.TIME-Of-Use-TARIFF.DISCHARGE",
+    "CONTROLLER.ESS.TIME-Of-Use-Tariff",
+    "CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD",
+    "CONTROLLER.IO.FIX_DIGITAL_OUTPUT",
+    "CONTROLLER.IO.HEATING_ELEMENT",
+    "CONTROLLER.IO.HEATING.ROOM",
+    "CONTROLLER.IO.HEAT_PUMP.SG_READY",
+    "CONTROLLER.HEAT.HEATINGELEMENT",
+    "CONTROLLER.SYMMETRIC.PEAK_SHAVING",
+    "CONTROLLER.TIMESLOT_PEAKSHAVING",
+    "EVCS.CLUSTER.PEAK_SHAVING",
+    "EVCS.CLUSTER.SELF_CONSUMPTION",
 }
 
 export type Icon = {
@@ -81,18 +81,18 @@ export class Widgets {
     ) {
         // fill names
         for (const widget of list) {
-            const name: string = widget.name.toString();
-            if (!this.names.includes(name)) {
-                this.names.push(name);
+            const name: string = WIDGET.NAME.TO_STRING();
+            if (!THIS.NAMES.INCLUDES(name)) {
+                THIS.NAMES.PUSH(name);
             }
         }
     }
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
-        const classes: string[] = Object.values(WidgetClass) //
+        const classes: string[] = OBJECT.VALUES(WidgetClass) //
             .filter(v => typeof v === "string")
             .filter(clazz => {
-                if (!edge.isVersionAtLeast("2018.8")) {
+                if (!EDGE.IS_VERSION_AT_LEAST("2018.8")) {
 
                     // no filter for deprecated versions
                     return true;
@@ -100,70 +100,70 @@ export class Widgets {
                 switch (clazz) {
                     case "Common_Autarchy":
                     case "Grid":
-                        return config.hasMeter();
+                        return CONFIG.HAS_METER();
                     case "Energymonitor":
                     case "Consumption":
-                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
+                        if (CONFIG.HAS_METER() == true || CONFIG.HAS_PRODUCER() == true || CONFIG.HAS_STORAGE() == true) {
                             return true;
                         } else {
                             return false;
                         }
                     case "Storage":
-                        return config.hasStorage();
+                        return CONFIG.HAS_STORAGE();
                     case "Common_Production":
                     case "Common_Selfconsumption":
-                        return config.hasProducer();
+                        return CONFIG.HAS_PRODUCER();
                     case "Controller_ChannelThreshold":
-                        return config.getComponentIdsByFactory("Controller.ChannelThreshold")?.length > 0;
+                        return CONFIG.GET_COMPONENT_IDS_BY_FACTORY("CONTROLLER.CHANNEL_THRESHOLD")?.length > 0;
                     case "Controller_Io_Digital_Outputs":
-                        return config.getComponentIdsByFactories("Controller.Io.FixDigitalOutput", "Controller.IO.ChannelSingleThreshold")?.length > 0;
-                    case "Controller.Api.ModbusTcp.ReadWrite":
-                        return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+                        return CONFIG.GET_COMPONENT_IDS_BY_FACTORIES("CONTROLLER.IO.FIX_DIGITAL_OUTPUT", "CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD")?.length > 0;
+                    case "CONTROLLER.API.MODBUS_TCP.READ_WRITE":
+                        return EDGE_PERMISSION.IS_MODBUS_TCP_API_WIDGET_ALLOWED(edge);
                     default:
                         return false;
                 }
-            }).map(clazz => clazz.toString());
+            }).map(clazz => CLAZZ.TO_STRING());
         const list: Widget[] = [];
 
-        for (const nature of Object.values(WidgetNature).filter(v => typeof v === "string")) {
-            for (const componentId of config.getComponentIdsImplementingNature(nature.toString())) {
-                if (nature === "io.openems.edge.io.api.DigitalInput" && list.some(e => e.name === "io.openems.edge.io.api.DigitalInput")) {
+        for (const nature of OBJECT.VALUES(WidgetNature).filter(v => typeof v === "string")) {
+            for (const componentId of CONFIG.GET_COMPONENT_IDS_IMPLEMENTING_NATURE(NATURE.TO_STRING())) {
+                if (nature === "IO.OPENEMS.EDGE.IO.API.DIGITAL_INPUT" && LIST.SOME(e => E.NAME === "IO.OPENEMS.EDGE.IO.API.DIGITAL_INPUT")) {
                     continue;
                 }
-                const component = config.getComponent(componentId);
-                if (component.isEnabled) {
-                    list.push({ name: nature, componentId: componentId, alias: component.alias });
+                const component = CONFIG.GET_COMPONENT(componentId);
+                if (COMPONENT.IS_ENABLED) {
+                    LIST.PUSH({ name: nature, componentId: componentId, alias: COMPONENT.ALIAS });
                 }
             }
         }
-        for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
-            for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
-                const component = config.getComponent(componentId);
-                if (component.isEnabled) {
-                    list.push({ name: factory, componentId: componentId, alias: component.alias });
+        for (const factory of OBJECT.VALUES(WidgetFactory).filter(v => typeof v === "string")) {
+            for (const componentId of CONFIG.GET_COMPONENT_IDS_BY_FACTORY(FACTORY.TO_STRING())) {
+                const component = CONFIG.GET_COMPONENT(componentId);
+                if (COMPONENT.IS_ENABLED) {
+                    LIST.PUSH({ name: factory, componentId: componentId, alias: COMPONENT.ALIAS });
                 }
             }
         }
 
         // explicitely sort ChannelThresholdControllers by their outputChannelAddress
-        list.sort((w1, w2) => {
-            if (w1.name === "Controller.IO.ChannelSingleThreshold" && w2.name === "Controller.IO.ChannelSingleThreshold") {
-                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)["outputChannelAddress"];
+        LIST.SORT((w1, w2) => {
+            if (W1.NAME === "CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD" && W2.NAME === "CONTROLLER.IO.CHANNEL_SINGLE_THRESHOLD") {
+                let outputChannelAddress1: string | string[] = CONFIG.GET_COMPONENT_PROPERTIES(W1.COMPONENT_ID)["outputChannelAddress"];
                 if (typeof outputChannelAddress1 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress1 = outputChannelAddress1[0];
                 }
-                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)["outputChannelAddress"];
+                let outputChannelAddress2: string | string[] = CONFIG.GET_COMPONENT_PROPERTIES(W2.COMPONENT_ID)["outputChannelAddress"];
                 if (typeof outputChannelAddress2 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress2 = outputChannelAddress2[0];
                 }
                 if (outputChannelAddress1 && outputChannelAddress2) {
-                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
+                    return OUTPUT_CHANNEL_ADDRESS1.LOCALE_COMPARE(outputChannelAddress2);
                 }
             }
 
-            return w1.componentId.localeCompare(w1.componentId);
+            return W1.COMPONENT_ID.LOCALE_COMPARE(W1.COMPONENT_ID);
         });
         return new Widgets(list, classes);
     }

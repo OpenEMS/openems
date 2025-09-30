@@ -24,7 +24,7 @@ export class EdgeRpcNotification extends JsonrpcNotification {
             payload: JsonrpcNotification
         },
     ) {
-        super(EdgeRpcNotification.METHOD, params);
+        super(EDGE_RPC_NOTIFICATION.METHOD, params);
     }
 
 }

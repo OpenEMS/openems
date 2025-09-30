@@ -57,7 +57,7 @@ export namespace AddAppInstance {
             public override readonly id: string,
             public override readonly result: {
                 instanceId: string,
-                instance: GetAppInstances.AppInstance,
+                instance: GET_APP_INSTANCES.APP_INSTANCE,
                 warnings: string[]
             },
         ) {

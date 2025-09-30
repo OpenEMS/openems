@@ -2,9 +2,9 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { BoxAnnotationOptions } from "chartjs-plugin-annotation";
-import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/grid.component";
+import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/GRID.COMPONENT";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAnnotationState } from "src/app/shared/type/general";
@@ -12,68 +12,68 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "gridchart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, chartType: "line" | "bar", translate: TranslateService, showPhases: boolean): HistoryUtils.ChartData {
-    const input: HistoryUtils.InputChannel[] = [
+  public static getChartData(config: EdgeConfig, chartType: "line" | "bar", translate: TranslateService, showPhases: boolean): HISTORY_UTILS.CHART_DATA {
+    const input: HISTORY_UTILS.INPUT_CHANNEL[] = [
       {
         name: "GridSell",
-        powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-        energyChannel: ChannelAddress.fromString("_sum/GridSellActiveEnergy"),
-        ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE }),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridSellActiveEnergy"),
+        ...(chartType === "line" && { converter: HISTORY_UTILS.VALUE_CONVERTER.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE }),
       },
       {
         name: "GridBuy",
-        powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-        energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
-        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridBuyActiveEnergy"),
+        converter: HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO,
       },
     ];
 
-    if (GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a")) {
-      input.push({
+    if (GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(config, "CONTROLLER.ESS.LIMITER14A")) {
+      INPUT.PUSH({
         name: "Restriction",
-        powerChannel: ChannelAddress.fromString("ctrlEssLimiter14a0/RestrictionMode"),
-        energyChannel: ChannelAddress.fromString("ctrlEssLimiter14a0/CumulatedRestrictionTime"),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("ctrlEssLimiter14a0/RestrictionMode"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING("ctrlEssLimiter14a0/CumulatedRestrictionTime"),
       });
-      input.push({
+      INPUT.PUSH({
         name: "OffGrid",
-        powerChannel: ChannelAddress.fromString("_sum/GridMode"),
-        energyChannel: ChannelAddress.fromString("_sum/GridModeOffGridTime"),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridMode"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridModeOffGridTime"),
       });
     }
 
     if (showPhases) {
       ["L1", "L2", "L3"].forEach(phase => {
-        input.push({
+        INPUT.PUSH({
           name: "GridActivePower" + phase,
-          powerChannel: ChannelAddress.fromString("_sum/GridActivePower" + phase),
+          powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridActivePower" + phase),
         });
       });
     }
 
-    const yAxes: HistoryUtils.yAxes[] = [{
-      unit: YAxisType.ENERGY,
+    const yAxes: HISTORY_UTILS.Y_AXES[] = [{
+      unit: YAXIS_TYPE.ENERGY,
       position: "left",
-      yAxisId: ChartAxis.LEFT,
+      yAxisId: CHART_AXIS.LEFT,
     }];
 
-    if (GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a")) {
-      yAxes.push((chartType === "bar" ?
+    if (GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(config, "CONTROLLER.ESS.LIMITER14A")) {
+      Y_AXES.PUSH((chartType === "bar" ?
         {
-          unit: YAxisType.TIME,
+          unit: YAXIS_TYPE.TIME,
           position: "right",
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: CHART_AXIS.RIGHT,
           displayGrid: false,
         } :
         {
-          unit: YAxisType.RELAY,
+          unit: YAXIS_TYPE.RELAY,
           position: "right",
-          yAxisId: ChartAxis.RIGHT,
-          customTitle: translate.instant("General.state"),
+          yAxisId: CHART_AXIS.RIGHT,
+          customTitle: TRANSLATE.INSTANT("GENERAL.STATE"),
           displayGrid: false,
         }
       ));
@@ -81,75 +81,75 @@ export class ChartComponent extends AbstractHistoryChart {
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData, labels: Date[]) => {
+      output: (data: HISTORY_UTILS.CHANNEL_DATA, labels: Date[]) => {
 
         let restrictionData;
         let offGridData;
 
         if (chartType === "line") {
           // Convert values > 0 to 1 (=on)
-          restrictionData = data["Restriction"]?.map((value) => (value > 0 ? ChartAnnotationState.ON : ChartAnnotationState.OFF_HIDDEN));
+          restrictionData = data["Restriction"]?.map((value) => (value > 0 ? CHART_ANNOTATION_STATE.ON : ChartAnnotationState.OFF_HIDDEN));
           // Off-Grid (=2) to on (=1)
-          offGridData = data["OffGrid"]?.map((value) => (value * 1000 > 1 ? ChartAnnotationState.ON : ChartAnnotationState.OFF_HIDDEN));
+          offGridData = data["OffGrid"]?.map((value) => (value * 1000 > 1 ? CHART_ANNOTATION_STATE.ON : ChartAnnotationState.OFF_HIDDEN));
         } else {
           restrictionData = data["Restriction"]?.map((value) => value * 1000);
           offGridData = data["OffGrid"]?.map((value) => value * 1000);
         }
 
-        const datasets: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = [
+        const datasets: HISTORY_UTILS.DISPLAY_VALUE<HISTORY_UTILS.CUSTOM_OPTIONS>[] = [
           {
-            name: translate.instant("General.gridSellAdvanced"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["_sum/GridSellActiveEnergy"] ?? null,
+            name: TRANSLATE.INSTANT("GENERAL.GRID_SELL_ADVANCED"),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.RESULT.DATA["_sum/GridSellActiveEnergy"] ?? null,
             converter: () => data["GridSell"],
-            color: ChartConstants.Colors.PURPLE,
+            color: CHART_CONSTANTS.COLORS.PURPLE,
             stack: 1,
           },
           {
-            name: translate.instant("General.gridBuyAdvanced"),
+            name: TRANSLATE.INSTANT("GENERAL.GRID_BUY_ADVANCED"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null;
+              return energyValues?.RESULT.DATA["_sum/GridBuyActiveEnergy"] ?? null;
             },
             converter: () => data["GridBuy"],
-            color: ChartConstants.Colors.BLUE_GREY,
+            color: CHART_CONSTANTS.COLORS.BLUE_GREY,
             stack: 0,
           },
           offGridData ? ({
-            name: translate.instant("GRID_STATES.OFF_GRID"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["_sum/GridModeOffGridTime"],
+            name: TRANSLATE.INSTANT("GRID_STATES.OFF_GRID"),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.RESULT.DATA["_sum/GridModeOffGridTime"],
             converter: () => offGridData,
             color: "rgb(139,0,0)",
             stack: 2,
             custom: (
               chartType === "line" ? {
-                unit: YAxisType.RELAY,
+                unit: YAXIS_TYPE.RELAY,
                 pluginType: "box",
                 annotations: getAnnotations(offGridData, labels),
               } : {
-                unit: YAxisType.TIME,
+                unit: YAXIS_TYPE.TIME,
               }
             ),
-            yAxisId: ChartAxis.RIGHT,
-          } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>) : null,
+            yAxisId: CHART_AXIS.RIGHT,
+          } as HISTORY_UTILS.DISPLAY_VALUE<HISTORY_UTILS.BOX_CUSTOM_OPTIONS>) : null,
 
 
           // Show the controller data only if the controller is enabled and there was at least one limitation set(=1) on the current day.
-          GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a") ? ({
-            name: translate.instant("GRID_STATES.RESTRICTION"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["ctrlEssLimiter14a0/CumulatedRestrictionTime"],
+          GRID_SECTION_COMPONENT.IS_CONTROLLER_ENABLED(config, "CONTROLLER.ESS.LIMITER14A") ? ({
+            name: TRANSLATE.INSTANT("GRID_STATES.RESTRICTION"),
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.RESULT.DATA["ctrlEssLimiter14a0/CumulatedRestrictionTime"],
             converter: () => restrictionData,
             color: "rgb(255, 165, 0)",
             stack: 2,
             custom: (
               chartType === "line" ? {
-                unit: YAxisType.RELAY,
+                unit: YAXIS_TYPE.RELAY,
                 pluginType: "box",
                 annotations: getAnnotations(restrictionData, labels),
               } : {
-                unit: YAxisType.TIME,
+                unit: YAXIS_TYPE.TIME,
               }
             ),
-            yAxisId: ChartAxis.RIGHT,
-          } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>) : null,
+            yAxisId: CHART_AXIS.RIGHT,
+          } as HISTORY_UTILS.DISPLAY_VALUE<HISTORY_UTILS.BOX_CUSTOM_OPTIONS>) : null,
         ].filter(dataset => dataset !== null);
 
 
@@ -158,11 +158,11 @@ export class ChartComponent extends AbstractHistoryChart {
         }
 
         ["L1", "L2", "L3"].forEach((phase, index) => {
-          datasets.push({
+          DATASETS.PUSH({
             name: "Phase " + phase,
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["_sum/GridActivePower" + phase],
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.RESULT.DATA["_sum/GridActivePower" + phase],
             converter: () => data["GridActivePower" + phase] ?? null,
-            color: AbstractHistoryChart.phaseColors[index],
+            color: ABSTRACT_HISTORY_CHART.PHASE_COLORS[index],
             stack: 3,
           });
         });
@@ -184,15 +184,15 @@ export class ChartComponent extends AbstractHistoryChart {
     function getAnnotations(data: number[], labels: Date[]): BoxAnnotationOptions[] {
       if (data) {
         const limitationEpochs = getLimitationEpochs(data);
-        const restrictionAnnotations = limitationEpochs.map(e => ({
+        const restrictionAnnotations = LIMITATION_EPOCHS.MAP(e => ({
           type: "box",
           borderWidth: 1,
           xScaleID: "x",
           yMin: null,
           yMax: null,
-          xMin: labels[e.start].toISOString(),
-          xMax: labels[e.end].toISOString(),
-          yScaleID: ChartAxis.RIGHT,
+          xMin: labels[E.START].toISOString(),
+          xMax: labels[E.END].toISOString(),
+          yScaleID: CHART_AXIS.RIGHT,
         }));
         return restrictionAnnotations;
       }
@@ -208,20 +208,20 @@ export class ChartComponent extends AbstractHistoryChart {
       const epochs: { start: number, end: number; }[] = [];
       let start: number | null = null;
 
-      chartData.forEach((value, index) => {
+      CHART_DATA.FOR_EACH((value, index) => {
         // If the value is ON and there is not already an active period tracked, start a new period
-        if (value === ChartAnnotationState.ON && start === null) {
+        if (value === CHART_ANNOTATION_STATE.ON && start === null) {
           start = index;
           // If the value is OFF/null and there is already an active period tracked, end the current period
-        } else if ((value === ChartAnnotationState.OFF || value === null) && start !== null) {
-          epochs.push({ start, end: index - 1 });
+        } else if ((value === CHART_ANNOTATION_STATE.OFF || value === null) && start !== null) {
+          EPOCHS.PUSH({ start, end: index - 1 });
           start = null;
         }
       });
 
       // If there is an active value until the end of the data, close it
       if (start !== null) {
-        epochs.push({ start, end: chartData.length - 1 });
+        EPOCHS.PUSH({ start, end: CHART_DATA.LENGTH - 1 });
       }
 
       return epochs;
@@ -230,7 +230,7 @@ export class ChartComponent extends AbstractHistoryChart {
   }
 
   public override getChartData() {
-    return ChartComponent.getChartData(this.config, this.chartType, this.translate, this.showPhases);
+    return CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.CHART_TYPE, THIS.TRANSLATE, THIS.SHOW_PHASES);
   }
 
 }

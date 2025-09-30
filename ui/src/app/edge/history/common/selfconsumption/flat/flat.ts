@@ -5,7 +5,7 @@ import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 
 @Component({
     selector: "selfconsumptionWidget",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -13,9 +13,9 @@ export class FlatComponent extends AbstractFlatWidget {
     protected selfconsumptionValue: number | null;
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.selfconsumptionValue = Utils.calculateSelfConsumption(
-            currentData.allComponents["_sum/GridSellActiveEnergy"],
-            currentData.allComponents["_sum/ProductionActiveEnergy"],
+        THIS.SELFCONSUMPTION_VALUE = UTILS.CALCULATE_SELF_CONSUMPTION(
+            CURRENT_DATA.ALL_COMPONENTS["_sum/GridSellActiveEnergy"],
+            CURRENT_DATA.ALL_COMPONENTS["_sum/ProductionActiveEnergy"],
         );
     }
 

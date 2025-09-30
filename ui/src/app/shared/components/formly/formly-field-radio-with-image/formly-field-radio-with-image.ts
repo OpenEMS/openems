@@ -3,8 +3,8 @@ import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-field-radio-with-image",
-    templateUrl: "./formly-field-radio-with-image.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: "./formly-field-radio-with-IMAGE.HTML",
+    changeDetection: CHANGE_DETECTION_STRATEGY.ON_PUSH,
     standalone: false,
 })
 export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements OnInit {
@@ -12,9 +12,9 @@ export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements 
     protected value: any;
 
     public ngOnInit() {
-        this.value = this.field.defaultValue;
-        if (this.formControl.getRawValue()) {
-            this.value = this.formControl.getRawValue();
+        THIS.VALUE = THIS.FIELD.DEFAULT_VALUE;
+        if (THIS.FORM_CONTROL.GET_RAW_VALUE()) {
+            THIS.VALUE = THIS.FORM_CONTROL.GET_RAW_VALUE();
         }
     }
 
@@ -22,6 +22,6 @@ export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements 
      * Needs to be updated manually, because @Angular Formly-Form doesnt do it on its own
      */
     protected updateFormControl() {
-        this.formControl.setValue(this.value);
+        THIS.FORM_CONTROL.SET_VALUE(THIS.VALUE);
     }
 }

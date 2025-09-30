@@ -1,20 +1,20 @@
 <oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
-    [title]="'General.storageSystem'| translate" (click)="presentModal()" *ngIf="isInitialized">
+    [title]="'GENERAL.STORAGE_SYSTEM'| translate" (click)="presentModal()" *ngIf="isInitialized">
     <ng-container *ngFor="let component of essComponents, let i = index">
 
         <!-- Show Alias if there are more than one ESS -->
-        <ng-container *ngIf="essComponents.length > 1">
-            <oe-flat-widget-line [name]="component.alias">
+        <ng-container *ngIf="ESS_COMPONENTS.LENGTH > 1">
+            <oe-flat-widget-line [name]="COMPONENT.ALIAS">
             </oe-flat-widget-line>
         </ng-container>
 
         <!-- Shown if a Emergency-Capacity-Reserve-Controller is assigned to this ess -->
-        <ng-container *ngIf="this.emergencyReserveComponents[component.id] as reserve, else noReserve">
+        <ng-container *ngIf="THIS.EMERGENCY_RESERVE_COMPONENTS[COMPONENT.ID] as reserve, else noReserve">
 
-            <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+            <oe-flat-widget-percentagebar [channelAddress]="COMPONENT.ID + '/Soc'">
 
                 <!-- Shown if emergencyReserve is enabled for this ess -->
-                <ng-container *ngIf="isEmergencyReserveEnabled[component.id]">
+                <ng-container *ngIf="isEmergencyReserveEnabled[COMPONENT.ID]">
                     <svg *ngIf="reserve['currentReserveSoc'] as reserveSoc">
                         <rect y="2" rx="0" ry="0" width="1%" height="18"
                             [style]="'x: calc(' + (reserveSoc > 98 ? 98 : reserveSoc) + '% + 2px); fill: #0008;'" />
@@ -24,34 +24,34 @@
         </ng-container>
 
         <ng-template #noReserve>
-            <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
+            <oe-flat-widget-percentagebar [channelAddress]="COMPONENT.ID + '/Soc'">
             </oe-flat-widget-percentagebar>
         </ng-template>
 
-        <ng-container *ngIf="!isHybridEss[component.id], else HybridEss">
+        <ng-container *ngIf="!isHybridEss[COMPONENT.ID], else HybridEss">
             <!-- For AC system: show ActivePower channel -->
-            <oe-flat-widget-line [name]="'General.CHARGE' | translate" [channelAddress]="component.id + '/ActivePower'"
+            <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate" [channelAddress]="COMPONENT.ID + '/ActivePower'"
                 [converter]="convertChargePower">
             </oe-flat-widget-line>
-            <oe-flat-widget-line [name]="'General.DISCHARGE' | translate"
-                [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
+            <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
+                [channelAddress]="COMPONENT.ID + '/ActivePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-container>
 
         <ng-template #HybridEss>
             <!-- For DC/hybrid system: show DcDischargePower channel -->
-            <oe-flat-widget-line [name]="'General.CHARGE' | translate"
-                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
+            <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate"
+                [channelAddress]="COMPONENT.ID + '/DcDischargePower'" [converter]="convertChargePower">
             </oe-flat-widget-line>
-            <oe-flat-widget-line [name]="'General.DISCHARGE' | translate"
-                [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
+            <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
+                [channelAddress]="COMPONENT.ID + '/DcDischargePower'" [converter]="convertDischargePower">
             </oe-flat-widget-line>
         </ng-template>
 
-        <ng-container *ngIf="possibleBatteryExtensionMessage.get(component.id) as message">
+        <ng-container *ngIf="POSSIBLE_BATTERY_EXTENSION_MESSAGE.GET(COMPONENT.ID) as message">
             <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-            <oe-flat-widget-line [name]="message.text" leftColumnWidth="100"
-                [style.color]="message.color"></oe-flat-widget-line>
+            <oe-flat-widget-line [name]="MESSAGE.TEXT" leftColumnWidth="100"
+                [STYLE.COLOR]="MESSAGE.COLOR"></oe-flat-widget-line>
         </ng-container>
 
 

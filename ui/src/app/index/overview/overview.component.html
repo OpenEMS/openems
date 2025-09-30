@@ -2,21 +2,21 @@
     <ion-grid>
         <ion-row class="ion-justify-content-center">
             <ion-col size="12" size-md="8" size-lg="6">
-                <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
+                <ng-container *ngIf="ENVIRONMENT.BACKEND === 'OpenEMS Backend'">
                     <ng-container *ngIf="noEdges; else showEdges">
                         <ion-card class="ion-justify-content-center">
 
-                            <ng-container *ngIf="(service.metadata | async)?.user as user">
+                            <ng-container *ngIf="(SERVICE.METADATA | async)?.user as user">
                                 <ng-container
-                                    *ngIf="(user.globalRole === 'installer' || user.globalRole === 'admin'), else others">
+                                    *ngIf="(USER.GLOBAL_ROLE === 'installer' || USER.GLOBAL_ROLE === 'admin'), else others">
                                     <!-- No access to Edges -->
                                     <ion-item color="warning" lines="full">
                                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                                         <ion-label class="ion-text-wrap ion-text-center" translate
-                                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_AVAILABLE</ion-label>
+                                            [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">INDEX.NO_EDGE_AVAILABLE</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
-                                        <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
+                                        <p translate [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">
                                             INSTALLATION.CLICK_RECOMMENDATION</p>
                                     </ion-card-content>
                                 </ng-container>
@@ -24,11 +24,11 @@
                                     <ion-item color="warning" lines="full">
                                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                                         <ion-label class="ion-text-wrap ion-text-center" translate
-                                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.NO_EDGE_FOR_USER</ion-label>
+                                            [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">INDEX.NO_EDGE_FOR_USER</ion-label>
                                     </ion-item>
                                     <ion-card-content class="ion-text-center">
-                                        <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                                            Index.VISIBLE_HERE_AFTER_INSTALLATION</p>
+                                        <p translate [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">
+                                            INDEX.VISIBLE_HERE_AFTER_INSTALLATION</p>
                                     </ion-card-content>
                                 </ng-template>
                             </ng-container>
@@ -48,7 +48,7 @@
                             </ion-row>
 
                             <!-- Filter -->
-                            <ng-container *ngIf="(service.metadata | async)?.user as user">
+                            <ng-container *ngIf="(SERVICE.METADATA | async)?.user as user">
                                 <oe-filter (setSearchParams)="searchOnChange($event)"
                                     *ngIf="isAtLeastInstaller"></oe-filter>
                             </ng-container>
@@ -61,34 +61,34 @@
                                         </ion-item>
 
                                         <ng-container *ngFor="let edge of filteredEdges; let i=index">
-                                            <ion-item lines="inset" [routerLink]="['/device', edge.id]"
-                                                [color]="edge.isOnline ? null : 'light'"
+                                            <ion-item lines="inset" [routerLink]="['/device', EDGE.ID]"
+                                                [color]="EDGE.IS_ONLINE ? null : 'light'"
                                                 (click)="getAndSubscribeEdge(edge)">
                                                 <ion-label>
-                                                    <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
-                                                    <p *ngIf="!edge.isOnline" class="ion-text-wrap">
-                                                        <ion-text translate>Index.deviceOffline</ion-text>
-                                                        <ion-label *ngIf="edge.lastmessage">
-                                                            <ion-text translate>Index.OFFLINE_SINCE</ion-text>
-                                                            {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                                    <h2 class="ion-text-wrap">{{ EDGE.COMMENT }}</h2>
+                                                    <p *ngIf="!EDGE.IS_ONLINE" class="ion-text-wrap">
+                                                        <ion-text translate>INDEX.DEVICE_OFFLINE</ion-text>
+                                                        <ion-label *ngIf="EDGE.LASTMESSAGE">
+                                                            <ion-text translate>INDEX.OFFLINE_SINCE</ion-text>
+                                                            {{EDGE.LASTMESSAGE | date:'DD.MM.YYYY HH:mm'}}
                                                         </ion-label>
                                                     </p>
                                                 </ion-label>
                                                 <ion-label>
-                                                    <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
-                                                        <p class="custom-theme-text">ID: {{ edge.id }}</p>
+                                                    <ng-container *ngIf="ENVIRONMENT.BACKEND === 'OpenEMS Backend'">
+                                                        <p class="custom-theme-text">ID: {{ EDGE.ID }}</p>
                                                         <p class="ion-text-wrap" class="custom-theme-text">
-                                                            <ion-text translate>Index.TYPE</ion-text>: {{
-                                                            edge.producttype }}
+                                                            <ion-text translate>INDEX.TYPE</ion-text>: {{
+                                                            EDGE.PRODUCTTYPE }}
                                                         </p>
                                                     </ng-container>
                                                     <p class="ion-text-wrap" class="custom-theme-text">
-                                                        <ion-text translate>Index.LOGGED_IN_AS</ion-text>: {{
-                                                        edge.getRoleString() }}
+                                                        <ion-text translate>INDEX.LOGGED_IN_AS</ion-text>: {{
+                                                        EDGE.GET_ROLE_STRING() }}
                                                     </p>
                                                 </ion-label>
-                                                <oe-sum-state [sumState]="edge.sumState"
-                                                    [isEdgeOnline]="edge.isOnline"></oe-sum-state> </ion-item>
+                                                <oe-sum-state [sumState]="EDGE.SUM_STATE"
+                                                    [isEdgeOnline]="EDGE.IS_ONLINE"></oe-sum-state> </ion-item>
                                         </ng-container>
                                         <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
                                             [disabled]="limitReached">
@@ -106,27 +106,27 @@
 
                 <!-- Add-Button for desktop devices -->
                 <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
-                    testId="ibn-button" *ngIf="loggedInUserCanInstall && !this.service.isSmartphoneResolution">
+                    testId="ibn-button" *ngIf="loggedInUserCanInstall && !THIS.SERVICE.IS_SMARTPHONE_RESOLUTION">
                     <ion-fab-button size="large">
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
                     <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
                         <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
                             translate
-                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
+                            [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">INDEX.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
 
                 <!-- Add-Button for mobile devices -->
                 <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button"
-                    *ngIf="loggedInUserCanInstall && this.service.isSmartphoneResolution">
+                    *ngIf="loggedInUserCanInstall && THIS.SERVICE.IS_SMARTPHONE_RESOLUTION">
                     <ion-fab-button size="small">
                         <ion-icon name="add-outline"></ion-icon>
                     </ion-fab-button>
                     <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
                         <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
                             translate
-                            [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
+                            [translateParams]="{edgeShortName: ENVIRONMENT.EDGE_SHORT_NAME}">INDEX.ADD_EDGE</ion-button>
                     </ion-fab-list>
                 </ion-fab>
             </ion-col>

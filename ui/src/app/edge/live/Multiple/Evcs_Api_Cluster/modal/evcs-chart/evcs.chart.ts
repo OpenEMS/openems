@@ -2,31 +2,31 @@
 import { Component, Input, OnChanges, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import * as Chart from "chart.js";
+import * as Chart from "CHART.JS";
 import { Data } from "src/app/edge/history/shared";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
 
 @Component({
-  selector: EvcsChartComponent.SELECTOR,
-  templateUrl: "./evcs.chart.html",
+  selector: EVCS_CHART_COMPONENT.SELECTOR,
+  templateUrl: "./EVCS.CHART.HTML",
   standalone: false,
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
   private static readonly SELECTOR = "evcsChart";
 
-  @Input({ required: true }) private evcsMap!: { [sourceId: string]: EdgeConfig.Component };
+  @Input({ required: true }) private evcsMap!: { [sourceId: string]: EDGE_CONFIG.COMPONENT };
   @Input({ required: true }) private edge!: Edge;
   @Input({ required: true }) private currentData!: CurrentData;
-  @Input() private evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+  @Input() private evcsConfigMap: { [evcsId: string]: EDGE_CONFIG.COMPONENT } = {};
   @Input({ required: true }) private componentId!: string;
 
   public loading: boolean = true;
   public options: BarChartOptions;
   public labels: string[];
-  public datasets: Chart.ChartDataset[];
-  public chart: Chart.Chart; // This will hold our chart info
+  public datasets: CHART.CHART_DATASET[];
+  public chart: CHART.CHART; // This will hold our chart info
 
   constructor(
     protected translate: TranslateService,
@@ -35,21 +35,21 @@ export class EvcsChartComponent implements OnInit, OnChanges {
 
   getMaxPower() {
     const minPower = 22;
-    let maxHW = this.currentData[this.componentId + "/MaximumHardwarePower"];
-    let chargePower = this.currentData[this.componentId + "/ChargePower"];
+    let maxHW = THIS.CURRENT_DATA[THIS.COMPONENT_ID + "/MaximumHardwarePower"];
+    let chargePower = THIS.CURRENT_DATA[THIS.COMPONENT_ID + "/ChargePower"];
     maxHW = maxHW == null ? minPower : maxHW / 1000;
     chargePower = chargePower == null ? 0 : chargePower / 1000;
 
     const maxPower: number = chargePower < minPower || maxHW;
-    return Math.round(maxPower);
+    return MATH.ROUND(maxPower);
   }
 
   ngOnInit() {
-    this.options = DEFAULT_BAR_CHART_OPTIONS;
+    THIS.OPTIONS = DEFAULT_BAR_CHART_OPTIONS;
 
-    this.options.scales.yAxes[0].ticks.max = this.getMaxPower();
-    this.labels = ["Ladeleistung"];
-    this.datasets = [
+    THIS.OPTIONS.SCALES.Y_AXES[0].TICKS.MAX = THIS.GET_MAX_POWER();
+    THIS.LABELS = ["Ladeleistung"];
+    THIS.DATASETS = [
       { data: [], label: "" },
     ];
 
@@ -57,34 +57,34 @@ export class EvcsChartComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: import("@angular/core").SimpleChanges): void {
 
-    this.updateChart();
+    THIS.UPDATE_CHART();
   }
 
   private updateChart() {
-    if (this.datasets == null) {
-      this.loading = true;
+    if (THIS.DATASETS == null) {
+      THIS.LOADING = true;
       return;
     }
-    this.loading = true;
+    THIS.LOADING = true;
     let index = 0;
-    for (const evcsId in this.evcsMap) {
-      const chargePower = this.edge.currentData.value.channel[evcsId + "/ChargePower"];
+    for (const evcsId in THIS.EVCS_MAP) {
+      const chargePower = THIS.EDGE.CURRENT_DATA.VALUE.CHANNEL[evcsId + "/ChargePower"];
       const chargePowerKW = chargePower / 1000.0;
-      const alias = this.evcsConfigMap[evcsId].properties.alias;
-      if (this.datasets[index] == null) {
-        this.datasets.push({
+      const alias = THIS.EVCS_CONFIG_MAP[evcsId].PROPERTIES.ALIAS;
+      if (THIS.DATASETS[index] == null) {
+        THIS.DATASETS.PUSH({
           label: alias,
           data: [chargePowerKW != null ? chargePowerKW : 0],
         });
-      } else if (alias == "") { //this.datasets[index].label
-        this.datasets[index].label = evcsId;
+      } else if (alias == "") { //THIS.DATASETS[index].label
+        THIS.DATASETS[index].label = evcsId;
       } else {
-        this.datasets[index].label = alias;
-        this.datasets[index].data = [chargePowerKW != null ? chargePowerKW : 0];
+        THIS.DATASETS[index].label = alias;
+        THIS.DATASETS[index].data = [chargePowerKW != null ? chargePowerKW : 0];
       }
       index++;
     }
-    this.loading = false;
+    THIS.LOADING = false;
   }
 
 }
@@ -132,10 +132,10 @@ export const DEFAULT_BAR_CHART_OPTIONS: BarChartOptions = {
     title: "Ladeleistung",
     callbacks: {
       label(tooltipItems: BarChartTooltipItem, data: Data): string {
-        let value: number = tooltipItems.yLabel; //.toFixed(2);
-        value = parseFloat(value.toFixed(2));
-        const label = data.datasets[tooltipItems.datasetIndex].label;
-        return label + ": " + value.toLocaleString("de-DE") + " kW";
+        let value: number = TOOLTIP_ITEMS.Y_LABEL; //.toFixed(2);
+        value = parseFloat(VALUE.TO_FIXED(2));
+        const label = DATA.DATASETS[TOOLTIP_ITEMS.DATASET_INDEX].label;
+        return label + ": " + VALUE.TO_LOCALE_STRING("de-DE") + " kW";
       },
     },
   },

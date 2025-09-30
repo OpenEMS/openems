@@ -1,28 +1,28 @@
 // @ts-strict-ignore
 import { ActivatedRoute } from "@angular/router";
-import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { DummyConfig } from "src/app/shared/components/edge/EDGECONFIG.SPEC";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
-import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/UTILS.SPEC";
 import { EdgeConfig } from "src/app/shared/shared";
-import { DATA, LABELS } from "../../../energy/chart/chart.constants.spec";
-import { History } from "./channels.spec";
+import { DATA, LABELS } from "../../../energy/chart/CHART.CONSTANTS.SPEC";
+import { History } from "./CHANNELS.SPEC";
 import { ProductionMeterChartDetailsComponent } from "./productionMeter";
 
 describe("History Production Details - productionMeters", () => {
-    const defaultEMS = DummyConfig.from(
-        DummyConfig.Component.SOLAR_EDGE_PV_INVERTER("meter0", "Whirlpool"),
+    const defaultEMS = DUMMY_CONFIG.FROM(
+        DUMMY_CONFIG.COMPONENT.SOLAR_EDGE_PV_INVERTER("meter0", "Whirlpool"),
     );
 
 
     let TEST_CONTEXT: TestContext & { route: ActivatedRoute };
     beforeEach(async () => {
-        TEST_CONTEXT = await TestingUtils.setupWithActivatedRoute("meter0");
+        TEST_CONTEXT = await TESTING_UTILS.SETUP_WITH_ACTIVATED_ROUTE("meter0");
     });
 
     it("#getChartData()", () => {
         {
-            expectView(defaultEMS, TEST_CONTEXT, "line", History.DAY,
+            expectView(defaultEMS, TEST_CONTEXT, "line", HISTORY.DAY,
                 {
                     datasets: {
                         data: [
@@ -31,32 +31,32 @@ describe("History Production Details - productionMeters", () => {
                             DATA("Phase L2", [0.041, 0, null, 0, 0.058, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0.037, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.048, 0, 0, 0, 0, 0, 0, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, null, 0.038, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0.043, 0, 0, 0, 0, 0, null, null, null, null, 0, 0, 0, 0, 0, null, 0, null, 0.047, null, null, null, 0.709, 0.058, 0.059, null, 0.06, 0.06, 0.062, 0.06, null, 0.062, 0.063, 0.06, 0.06, 0.059, 0.059, 0.057, 0.058, 0.057, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
                             DATA("Phase L3", [0.041, 0, null, 0, 0.058, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0.037, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.048, 0, 0, 0, 0, 0, 0, null, null, null, 0, 0, 0, 0, 0, 0, 0, 0, 0.038, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, null, 0.038, 0, 0, null, 0, 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, 0, 0, 0.043, 0, 0, 0, 0, 0, null, null, null, null, 0, 0, 0, 0, 0, null, 0, null, 0.047, null, null, null, 0.709, 0.058, 0.059, null, 0.06, 0.06, 0.062, 0.06, null, 0.062, 0.063, 0.06, 0.06, 0.059, 0.059, 0.057, 0.058, 0.057, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]),
                         ],
-                        labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
-                        options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", { "left": { scale: { beginAtZero: true } } },
+                        labels: LABELS(HISTORY.DAY.DATA_CHANNEL_WITH_VALUES.RESULT.TIMESTAMPS),
+                        options: OE_TESTER.CHART_OPTIONS.LINE_CHART_OPTIONS("hour", "line", { "left": { scale: { beginAtZero: true } } },
                         ),
                     },
                 });
         }
         {
-            expectView(defaultEMS, TEST_CONTEXT, "bar", History.MONTH,
+            expectView(defaultEMS, TEST_CONTEXT, "bar", HISTORY.MONTH,
                 {
                     datasets: {
                         data: [
                             DATA("Whirlpool: 21,6 kWh", [0.016, 0.014, 0.016, 0.015, 0.016, 0.015, 0.015, 0.015, 0.016, 0.017, 0.018, 0.014, 0.016, 0.017, 0.016, 0.015, 0.014, 0.017, 0.015, 0.016, 0.017, 0.016, 0.015, 0.016, 0.014, 0.015, 0.014, 0.016, 0.014, null, null]),
                         ],
-                        labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("day", "bar", {}),
+                        labels: LABELS(HISTORY.MONTH.ENERGY_PER_PERIOD_CHANNEL_WITH_VALUES.RESULT.TIMESTAMPS),
+                        options: OE_TESTER.CHART_OPTIONS.BAR_CHART_OPTIONS("day", "bar", {}),
                     },
                 });
         }
     });
 });
 
-export function expectView(config: EdgeConfig, testContext: TestContext & { route: ActivatedRoute }, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-    expect(TestingUtils.removeFunctions(OeChartTester
+export function expectView(config: EdgeConfig, testContext: TestContext & { route: ActivatedRoute }, chartType: "line" | "bar", channels: OE_TESTER.TYPES.CHANNELS, view: OE_CHART_TESTER.VIEW): void {
+    expect(TESTING_UTILS.REMOVE_FUNCTIONS(OeChartTester
         .apply(ProductionMeterChartDetailsComponent
             .getChartData(
-                DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), testContext.route,
-                testContext.translate), chartType, channels, testContext, config)))
-        .toEqual(TestingUtils.removeFunctions(view));
+                DUMMY_CONFIG.CONVERT_DUMMY_EDGE_CONFIG_TO_REAL_EDGE_CONFIG(config), TEST_CONTEXT.ROUTE,
+                TEST_CONTEXT.TRANSLATE), chartType, channels, testContext, config)))
+        .toEqual(TESTING_UTILS.REMOVE_FUNCTIONS(view));
 }

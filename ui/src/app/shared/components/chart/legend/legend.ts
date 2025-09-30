@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 
 @Component({
     selector: "oe-chart-legend",
-    templateUrl: "./legend.html",
+    templateUrl: "./LEGEND.HTML",
     standalone: false,
 })
 export class ChartLegendComponent {

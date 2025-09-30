@@ -10,8 +10,8 @@ import { Edges, User } from "../shared";
  *   "id": UUID,
  *   "result": {
  *     "token": string,
- *     "user": shared.User,
- *     "edges": shared.Edges
+ *     "user": SHARED.USER,
+ *     "edges": SHARED.EDGES
  *   }
  * }
  * </pre>

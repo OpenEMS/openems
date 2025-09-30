@@ -7,7 +7,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
-import { InstallAppComponent } from "./install.component";
+import { InstallAppComponent } from "./INSTALL.COMPONENT";
 import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
@@ -23,14 +23,14 @@ interface MyInstance {
 }
 
 @Component({
-  selector: UpdateAppComponent.SELECTOR,
-  templateUrl: "./update.component.html",
+  selector: UPDATE_APP_COMPONENT.SELECTOR,
+  templateUrl: "./UPDATE.COMPONENT.HTML",
   standalone: false,
 })
 export class UpdateAppComponent implements OnInit {
 
   private static readonly SELECTOR = "app-update";
-  public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
+  public readonly spinnerId: string = UPDATE_APP_COMPONENT.SELECTOR;
 
   protected instances: MyInstance[] = [];
   protected appName: string | null = null;
@@ -49,99 +49,99 @@ export class UpdateAppComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.service.startSpinner(this.spinnerId);
-    const appId = this.route.snapshot.params["appId"];
-    const appName = this.route.snapshot.queryParams["name"];
-    this.service.setCurrentComponent(appName, this.route).then(edge => {
-      this.edge = edge;
-      edge.sendRequest(this.websocket,
+    THIS.SERVICE.START_SPINNER(THIS.SPINNER_ID);
+    const appId = THIS.ROUTE.SNAPSHOT.PARAMS["appId"];
+    const appName = THIS.ROUTE.SNAPSHOT.QUERY_PARAMS["name"];
+    THIS.SERVICE.SET_CURRENT_COMPONENT(appName, THIS.ROUTE).then(edge => {
+      THIS.EDGE = edge;
+      EDGE.SEND_REQUEST(THIS.WEBSOCKET,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
-          payload: new GetAppInstances.Request({ appId: appId }),
+          payload: new GET_APP_INSTANCES.REQUEST({ appId: appId }),
         })).then(getInstancesResponse => {
-          const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
+          const recInstances = (getInstancesResponse as GET_APP_INSTANCES.RESPONSE).RESULT.INSTANCES;
 
-          edge.sendRequest(this.websocket,
+          EDGE.SEND_REQUEST(THIS.WEBSOCKET,
             new ComponentJsonApiRequest({
               componentId: "_appManager",
-              payload: new GetAppAssistant.Request({ appId: appId }),
+              payload: new GET_APP_ASSISTANT.REQUEST({ appId: appId }),
             })).then(getAppAssistantResponse => {
-              const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
-              this.appName = appAssistant.name;
-              this.instances = [];
+              const appAssistant = (getAppAssistantResponse as GET_APP_ASSISTANT.RESPONSE).result;
+              THIS.APP_NAME = APP_ASSISTANT.NAME;
+              THIS.INSTANCES = [];
               for (const instance of recInstances) {
                 const form = new FormGroup({});
                 const model = {
-                  "ALIAS": instance.alias,
-                  ...instance.properties,
+                  "ALIAS": INSTANCE.ALIAS,
+                  ...INSTANCE.PROPERTIES,
                 };
-                this.instances.push({
-                  instanceId: instance.instanceId,
+                THIS.INSTANCES.PUSH({
+                  instanceId: INSTANCE.INSTANCE_ID,
                   form: form,
                   isDeleting: false,
                   isUpdating: false,
-                  fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
+                  fields: GET_APP_ASSISTANT.SET_INITIAL_MODEL(GET_APP_ASSISTANT.POSTPROCESS(structuredClone(appAssistant)).fields, structuredClone(model)),
                   properties: model,
                 });
               }
 
-              this.service.stopSpinner(this.spinnerId);
-            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
-        }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
+              THIS.SERVICE.STOP_SPINNER(THIS.SPINNER_ID);
+            }).catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
+        }).catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
     });
   }
 
   protected submit(instance: MyInstance) {
-    this.service.startSpinnerTransparentBackground(instance.instanceId);
-    instance.isUpdating = true;
+    THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(INSTANCE.INSTANCE_ID);
+    INSTANCE.IS_UPDATING = true;
     // remove alias field from properties
-    const alias = instance.form.value["ALIAS"];
+    const alias = INSTANCE.FORM.VALUE["ALIAS"];
     const clonedFields = {};
-    for (const item in instance.form.value) {
+    for (const item in INSTANCE.FORM.VALUE) {
       if (item != "ALIAS") {
-        clonedFields[item] = instance.form.value[item];
+        clonedFields[item] = INSTANCE.FORM.VALUE[item];
       }
     }
-    instance.form.markAsPristine();
-    this.edge.sendRequest(this.websocket,
+    INSTANCE.FORM.MARK_AS_PRISTINE();
+    THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
       new ComponentJsonApiRequest({
         componentId: "_appManager",
-        payload: new UpdateAppInstance.Request({
-          instanceId: instance.instanceId,
+        payload: new UPDATE_APP_INSTANCE.REQUEST({
+          instanceId: INSTANCE.INSTANCE_ID,
           alias: alias,
           properties: clonedFields,
         }),
       })).then(response => {
-        const result = (response as UpdateAppInstance.Response).result;
+        const result = (response as UPDATE_APP_INSTANCE.RESPONSE).result;
 
-        if (result.warnings && result.warnings.length > 0) {
-          this.service.toast(result.warnings.join(";"), "warning");
+        if (RESULT.WARNINGS && RESULT.WARNINGS.LENGTH > 0) {
+          THIS.SERVICE.TOAST(RESULT.WARNINGS.JOIN(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant("Edge.Config.App.successUpdate"), "success");
+          THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
         }
-        instance.properties = result.instance.properties;
-        instance.properties["ALIAS"] = result.instance.alias;
+        INSTANCE.PROPERTIES = RESULT.INSTANCE.PROPERTIES;
+        INSTANCE.PROPERTIES["ALIAS"] = RESULT.INSTANCE.ALIAS;
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failUpdate", { error: error })))
+      .catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.FAIL_UPDATE", { error: error })))
       .finally(() => {
-        instance.isUpdating = false;
-        this.service.stopSpinner(instance.instanceId);
+        INSTANCE.IS_UPDATING = false;
+        THIS.SERVICE.STOP_SPINNER(INSTANCE.INSTANCE_ID);
       });
   }
 
   protected async submitDelete(instance: MyInstance) {
-    const translate = this.translate;
+    const translate = THIS.TRANSLATE;
 
-    const alert = this.alertCtrl.create({
-      subHeader: translate.instant("Edge.Config.App.DELETE_CONFIRM_HEADLINE"),
-      message: translate.instant("Edge.Config.App.DELETE_CONFIRM_DESCRIPTION"),
+    const alert = THIS.ALERT_CTRL.CREATE({
+      subHeader: TRANSLATE.INSTANT("EDGE.CONFIG.APP.DELETE_CONFIRM_HEADLINE"),
+      message: TRANSLATE.INSTANT("EDGE.CONFIG.APP.DELETE_CONFIRM_DESCRIPTION"),
       buttons: [{
-        text: translate.instant("General.cancel"),
+        text: TRANSLATE.INSTANT("GENERAL.CANCEL"),
         role: "cancel",
       },
       {
-        text: translate.instant("Edge.Config.App.DELETE_CONFIRM"),
-        handler: () => this.delete(instance),
+        text: TRANSLATE.INSTANT("EDGE.CONFIG.APP.DELETE_CONFIRM"),
+        handler: () => THIS.DELETE(instance),
       }],
       cssClass: "alertController",
     });
@@ -149,24 +149,24 @@ export class UpdateAppComponent implements OnInit {
   }
 
   protected delete(instance: MyInstance) {
-    this.service.startSpinnerTransparentBackground(instance.instanceId);
-    instance.isDeleting = true;
-    this.edge.sendRequest(this.websocket,
+    THIS.SERVICE.START_SPINNER_TRANSPARENT_BACKGROUND(INSTANCE.INSTANCE_ID);
+    INSTANCE.IS_DELETING = true;
+    THIS.EDGE.SEND_REQUEST(THIS.WEBSOCKET,
       new ComponentJsonApiRequest({
         componentId: "_appManager",
-        payload: new DeleteAppInstance.Request({
-          instanceId: instance.instanceId,
+        payload: new DELETE_APP_INSTANCE.REQUEST({
+          instanceId: INSTANCE.INSTANCE_ID,
         }),
       })).then(response => {
-        this.instances.splice(this.instances.indexOf(instance), 1);
-        this.service.toast(this.translate.instant("Edge.Config.App.successDelete"), "success");
+        THIS.INSTANCES.SPLICE(THIS.INSTANCES.INDEX_OF(instance), 1);
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
         const navigationExtras = { state: { appInstanceChange: true } };
-        this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+        THIS.ROUTER.NAVIGATE(["device/" + (THIS.EDGE.ID) + "/settings/app/"], navigationExtras);
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failDelete", { error: error })))
+      .catch(INSTALL_APP_COMPONENT.ERROR_TOAST(THIS.SERVICE, error => THIS.TRANSLATE.INSTANT("EDGE.CONFIG.APP.FAIL_DELETE", { error: error })))
       .finally(() => {
-        instance.isDeleting = false;
-        this.service.stopSpinner(instance.instanceId);
+        INSTANCE.IS_DELETING = false;
+        THIS.SERVICE.STOP_SPINNER(INSTANCE.INSTANCE_ID);
       });
   }
 }

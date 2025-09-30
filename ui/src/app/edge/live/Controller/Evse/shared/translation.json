@@ -1,5 +1,5 @@
 {
-  "de": {
+  "DE": {
     "EVSE_SINGLE": {
       "SETTINGS": {
         "ENERGY_LIMIT": "Energielimit"
@@ -17,7 +17,7 @@
       }
     }
   },
-  "en": {
+  "EN": {
     "EVSE_SINGLE": {
       "SETTINGS": {
         "ENERGY_LIMIT": "Energy limit"

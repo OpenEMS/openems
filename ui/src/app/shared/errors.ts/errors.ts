@@ -3,9 +3,9 @@ import { JsonrpcRequest } from "../jsonrpc/base";
 export class UnimplementedError<T extends JsonrpcRequest> extends Error {
     constructor(request: T, msg?: string) {
 
-        super(request.constructor.name);
+        super(REQUEST.CONSTRUCTOR.NAME);
         if (msg) {
-            this.message = this.message + " " + msg;
+            THIS.MESSAGE = THIS.MESSAGE + " " + msg;
         }
     }
 }

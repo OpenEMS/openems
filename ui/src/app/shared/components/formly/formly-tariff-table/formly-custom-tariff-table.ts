@@ -33,9 +33,9 @@ interface DailySchedule {
 
 @Component({
   selector: "formly-tariff-table",
-  templateUrl: "./formly-custom-tariff-table.html",
+  templateUrl: "./formly-custom-tariff-TABLE.HTML",
   standalone: false,
-  styleUrls: ["./tariff-table.scss"],
+  styleUrls: ["./tariff-TABLE.SCSS"],
 })
 export class FormlyTariffTableTypeComponent extends FieldType implements OnInit, OnChanges {
 
@@ -58,62 +58,62 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
   }
 
   ngOnInit() {
-    this.parseInitialData();
-    this.initializeForm();
+    THIS.PARSE_INITIAL_DATA();
+    THIS.INITIALIZE_FORM();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.props) {
+    if (CHANGES.PROPS) {
       // Re-parse data if props change, ensuring new data is processed
-      this.parseInitialData();
+      THIS.PARSE_INITIAL_DATA();
     }
   }
 
   protected addYear() {
-    const lastYear = this.tariffData[this.tariffData.length - 1]?.year || this.currentYear - 1;
+    const lastYear = THIS.TARIFF_DATA[THIS.TARIFF_DATA.LENGTH - 1]?.year || THIS.CURRENT_YEAR - 1;
     const newYear = lastYear + 1;
 
-    this.tariffData.push({
+    THIS.TARIFF_DATA.PUSH({
       year: newYear,
       tariffs: { low: 0, standard: 0, high: 0 },
-      quarters: this.createQuartersForYear(newYear),
+      quarters: THIS.CREATE_QUARTERS_FOR_YEAR(newYear),
     });
 
     // After adding a new year, ensure all its schedules (even if empty initially) are filtered
-    this.tariffData[this.tariffData.length - 1].quarters.forEach(q => this.updateFilteredSchedules(q));
+    THIS.TARIFF_DATA[THIS.TARIFF_DATA.LENGTH - 1].QUARTERS.FOR_EACH(q => THIS.UPDATE_FILTERED_SCHEDULES(q));
 
-    this.updateFormControl();
+    THIS.UPDATE_FORM_CONTROL();
   }
 
   protected removeYear(yearIndex: number) {
-    if (this.tariffData.length > 1) {
-      this.tariffData.splice(yearIndex, 1);
-      this.updateFormControl();
+    if (THIS.TARIFF_DATA.LENGTH > 1) {
+      THIS.TARIFF_DATA.SPLICE(yearIndex, 1);
+      THIS.UPDATE_FORM_CONTROL();
     }
   }
 
   /**
    * Toggles the visibility state of a quarter's daily schedule section using its pre-calculated key.
    *
-   * @param quarterKey The unique key for the quarter (e.g., "y2024_q1").
+   * @param quarterKey The unique key for the quarter (E.G., "y2024_q1").
    */
   protected toggleQuarterVisibilityByKey(quarterKey: string) {
-    this.expandedQuarters[quarterKey] = !this.expandedQuarters[quarterKey];
+    THIS.EXPANDED_QUARTERS[quarterKey] = !THIS.EXPANDED_QUARTERS[quarterKey];
   }
 
   /**
    * Checks if a quarter's daily schedule section is expanded using its pre-calculated key.
    *
-   * @param quarterKey The unique key for the quarter (e.g., "y2024_q1").
+   * @param quarterKey The unique key for the quarter (E.G., "y2024_q1").
    * @returns True if the quarter is expanded, false otherwise.
    */
   protected isQuarterExpandedByKey(quarterKey: string): boolean {
-    return !!this.expandedQuarters[quarterKey];
+    return !!THIS.EXPANDED_QUARTERS[quarterKey];
   }
 
   protected updateTariffPrice(yearIndex: number, tariffKey: keyof YearData["tariffs"], value: number) {
-    this.tariffData[yearIndex].tariffs[tariffKey] = value;
-    this.updateFormControl();
+    THIS.TARIFF_DATA[yearIndex].tariffs[tariffKey] = value;
+    THIS.UPDATE_FORM_CONTROL();
   }
 
   /**
@@ -125,35 +125,35 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    * @param scheduleIndex The index of the schedule item to remove within the dailySchedule array.
    */
   protected removeTimeRange(yearIndex: number, quarterIndex: number, scheduleIndex: number) {
-    const yearData = this.tariffData[yearIndex];
+    const yearData = THIS.TARIFF_DATA[yearIndex];
     if (!yearData) {
-      console.error(`Attempted to remove time range from non-existent year: Index ${yearIndex}`);
-      this.service.toast("Error: Year data not found for removal.", "danger");
+      CONSOLE.ERROR(`Attempted to remove time range from non-existent year: Index ${yearIndex}`);
+      THIS.SERVICE.TOAST("Error: Year data not found for removal.", "danger");
       return;
     }
 
-    const quarterData = yearData.quarters[quarterIndex];
+    const quarterData = YEAR_DATA.QUARTERS[quarterIndex];
     if (!quarterData) {
-      console.error(`Attempted to remove time range from non-existent quarter: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
-      this.service.toast("Error: Quarter data not found for removal.", "danger");
+      CONSOLE.ERROR(`Attempted to remove time range from non-existent quarter: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
+      THIS.SERVICE.TOAST("Error: Quarter data not found for removal.", "danger");
       return;
     }
 
-    const dailyScheduleArray = quarterData.dailySchedule;
-    if (!dailyScheduleArray || !Array.isArray(dailyScheduleArray)) {
-      console.error(`Attempted to remove time range from missing or invalid daily schedule array: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
-      this.service.toast("Error: Daily schedule not found or is invalid.", "danger");
+    const dailyScheduleArray = QUARTER_DATA.DAILY_SCHEDULE;
+    if (!dailyScheduleArray || !ARRAY.IS_ARRAY(dailyScheduleArray)) {
+      CONSOLE.ERROR(`Attempted to remove time range from missing or invalid daily schedule array: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
+      THIS.SERVICE.TOAST("Error: Daily schedule not found or is invalid.", "danger");
       return;
     }
 
     // Check if the scheduleIndex is valid before splicing
-    if (scheduleIndex >= 0 && scheduleIndex < dailyScheduleArray.length) {
-      dailyScheduleArray.splice(scheduleIndex, 1);
-      this.updateFilteredSchedules(quarterData);
-      this.updateFormControl();
+    if (scheduleIndex >= 0 && scheduleIndex < DAILY_SCHEDULE_ARRAY.LENGTH) {
+      DAILY_SCHEDULE_ARRAY.SPLICE(scheduleIndex, 1);
+      THIS.UPDATE_FILTERED_SCHEDULES(quarterData);
+      THIS.UPDATE_FORM_CONTROL();
     } else {
-      console.error(`Attempted to remove time range with invalid schedule index: Index ${scheduleIndex}, Array Length ${dailyScheduleArray.length}`);
-      this.service.toast("Error: Invalid time slot index for removal.", "danger");
+      CONSOLE.ERROR(`Attempted to remove time range with invalid schedule index: Index ${scheduleIndex}, Array Length ${DAILY_SCHEDULE_ARRAY.LENGTH}`);
+      THIS.SERVICE.TOAST("Error: Invalid time slot index for removal.", "danger");
     }
   }
 
@@ -164,33 +164,33 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
     field: "from" | "to",
     value: string
   ) {
-    const quarter = this.tariffData[yearIndex]?.quarters[quarterIndex];
-    if (!quarter || !quarter.dailySchedule) {
-      console.error(`Cannot update time range: Quarter or dailySchedule missing. Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
-      this.service.toast("Error: Could not update time slot.", "danger");
+    const quarter = THIS.TARIFF_DATA[yearIndex]?.quarters[quarterIndex];
+    if (!quarter || !QUARTER.DAILY_SCHEDULE) {
+      CONSOLE.ERROR(`Cannot update time range: Quarter or dailySchedule missing. Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
+      THIS.SERVICE.TOAST("Error: Could not update time slot.", "danger");
       return;
     }
 
-    const scheduleToUpdate = quarter.dailySchedule[scheduleIndex];
+    const scheduleToUpdate = QUARTER.DAILY_SCHEDULE[scheduleIndex];
     if (scheduleToUpdate) {
       scheduleToUpdate[field] = value;
       // No need to re-filter here, as only the content of an existing schedule changed, not its tariff type or addition/removal
-      this.updateFormControl();
+      THIS.UPDATE_FORM_CONTROL();
     } else {
-      console.error(`Cannot update time range: Schedule not found at index ${scheduleIndex}.`);
-      this.service.toast("Error: Time slot not found for update.", "danger");
+      CONSOLE.ERROR(`Cannot update time range: Schedule not found at index ${scheduleIndex}.`);
+      THIS.SERVICE.TOAST("Error: Time slot not found for update.", "danger");
     }
   }
 
   protected isTimeRangeInvalid(schedule: DailySchedule): boolean {
     // Ensuring direct value check as pipe converts it to HH:mm string
-    const fromTime = schedule.from.includes("T") ? schedule.from.substring(11, 16) : schedule.from;
-    const toTime = schedule.to.includes("T") ? schedule.to.substring(11, 16) : schedule.to;
+    const fromTime = SCHEDULE.FROM.INCLUDES("T") ? SCHEDULE.FROM.SUBSTRING(11, 16) : SCHEDULE.FROM;
+    const toTime = SCHEDULE.TO.INCLUDES("T") ? SCHEDULE.TO.SUBSTRING(11, 16) : SCHEDULE.TO;
 
-    if (fromTime && toTime && fromTime.includes(":") && toTime.includes(":")) {
+    if (fromTime && toTime && FROM_TIME.INCLUDES(":") && TO_TIME.INCLUDES(":")) {
       const inValid = (fromTime >= toTime) && (toTime !== "00:00");
       if (inValid) {
-        this.service.toast(this.translate.instant("FORMLY_FORM.TARIFF_TABLE.ERROR_MESSAGES.INVALID_TIME_INPUT"), "danger", 5000);
+        THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("FORMLY_FORM.TARIFF_TABLE.ERROR_MESSAGES.INVALID_TIME_INPUT"), "danger", 5000);
       }
       return inValid;
     }
@@ -214,7 +214,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
   }
 
   protected getSchedulesForTariff(schedules: DailySchedule[], tariff: string): DailySchedule[] {
-    return schedules.filter(s => s.tariff === tariff);
+    return SCHEDULES.FILTER(s => S.TARIFF === tariff);
   }
 
   /**
@@ -226,26 +226,26 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    * @param tariff The tariff type ('low', 'standard', 'high') for the new time range.
    */
   protected addTimeRange(yearIndex: number, quarterIndex: number, tariff: string) {
-    const quarter = this.tariffData[yearIndex]?.quarters[quarterIndex];
+    const quarter = THIS.TARIFF_DATA[yearIndex]?.quarters[quarterIndex];
 
     if (quarter) {
-      if (!quarter.dailySchedule) {
-        quarter.dailySchedule = [];
+      if (!QUARTER.DAILY_SCHEDULE) {
+        QUARTER.DAILY_SCHEDULE = [];
       }
 
-      quarter.dailySchedule.push(
-        this.createDailySchedule(
+      QUARTER.DAILY_SCHEDULE.PUSH(
+        THIS.CREATE_DAILY_SCHEDULE(
           tariff,
-          this.translate.instant("General.FROM"),
-          this.translate.instant("General.TO"),
-          quarter.dailySchedule.length // Assign originalIndex as current length
+          THIS.TRANSLATE.INSTANT("GENERAL.FROM"),
+          THIS.TRANSLATE.INSTANT("GENERAL.TO"),
+          QUARTER.DAILY_SCHEDULE.LENGTH // Assign originalIndex as current length
         )
       );
-      this.updateFilteredSchedules(quarter);
-      this.updateFormControl();
+      THIS.UPDATE_FILTERED_SCHEDULES(quarter);
+      THIS.UPDATE_FORM_CONTROL();
     } else {
-      console.error(`Attempted to add time range to non-existent quarter: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
-      this.service.toast("Error: Could not find quarter", "danger", 3000);
+      CONSOLE.ERROR(`Attempted to add time range to non-existent quarter: Year Index ${yearIndex}, Quarter Index ${quarterIndex}`);
+      THIS.SERVICE.TOAST("Error: Could not find quarter", "danger", 3000);
     }
   }
 
@@ -258,7 +258,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    * @returns The originalIndex of the schedule.
    */
   protected trackByScheduleOriginalIndex(index: number, schedule: DailySchedule): number {
-    return schedule.originalIndex!; // Use the unique originalIndex
+    return SCHEDULE.ORIGINAL_INDEX!; // Use the unique originalIndex
   }
 
   /**
@@ -270,29 +270,29 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    * @returns The unique key of the quarter.
    */
   protected trackByQuarterKey(index: number, quarter: Quarter): string {
-    return quarter.key!; // Use the unique key
+    return QUARTER.KEY!; // Use the unique key
   }
 
   private updateFormControl() {
-    this.formControl.setValue(this.tariffData);
-    this.formControl.markAsDirty();
+    THIS.FORM_CONTROL.SET_VALUE(THIS.TARIFF_DATA);
+    THIS.FORM_CONTROL.MARK_AS_DIRTY();
   }
 
   private createQuartersForYear(year: number): Quarter[] {
     const quarters: Quarter[] = [];
     for (let i = 1; i <= 4; i++) {
-      const [startDate, endDate] = this.getQuarterDates(year, i);
+      const [startDate, endDate] = THIS.GET_QUARTER_DATES(year, i);
       const quarterKey = `y${year}_q${i}`;
       const newQuarter: Quarter = { // Explicitly create the object
         quarter: i,
         dailySchedule: [], // Initialize as empty array
-        formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat")),
+        formattedDateRange: DATE_UTILS.FORMAT_QUARTER_DATE_RANGE(startDate, endDate, THIS.TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")),
         key: quarterKey,
       };
 
       // No need to call updateFilteredSchedules here, as dailySchedule is empty.
       // It will be called in parseInitialData for existing data, or in addTimeRange for new schedules.
-      quarters.push(newQuarter);
+      QUARTERS.PUSH(newQuarter);
     }
     return quarters;
   }
@@ -302,67 +302,67 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
   }
 
   private parseInitialData() {
-    const rawValue = this.formControl.value;
+    const rawValue = THIS.FORM_CONTROL.VALUE;
 
-    if (Array.isArray(rawValue) && rawValue.every(item => typeof item === "object" && item !== null && "year" in item && "tariffs" in item && "quarters" in item)) {
-      this.tariffData = rawValue;
+    if (ARRAY.IS_ARRAY(rawValue) && RAW_VALUE.EVERY(item => typeof item === "object" && item !== null && "year" in item && "tariffs" in item && "quarters" in item)) {
+      THIS.TARIFF_DATA = rawValue;
     } else {
-      console.warn("Initial form control value is not in the expected tariffData format. Initializing with default year.");
-      this.tariffData = [];
+      CONSOLE.WARN("Initial form control value is not in the expected tariffData format. Initializing with default year.");
+      THIS.TARIFF_DATA = [];
     }
 
-    if (this.tariffData.length === 0) {
-      this.addYear(); // This path ensures quarters are created with `dailySchedule` and `key`
+    if (THIS.TARIFF_DATA.LENGTH === 0) {
+      THIS.ADD_YEAR(); // This path ensures quarters are created with `dailySchedule` and `key`
     } else {
-      this.tariffData.forEach(yearData => {
-        yearData.quarters = yearData.quarters || []; // Ensure quarters array exists
+      THIS.TARIFF_DATA.FOR_EACH(yearData => {
+        YEAR_DATA.QUARTERS = YEAR_DATA.QUARTERS || []; // Ensure quarters array exists
 
         // Use a map to rebuild quarters to ensure no nulls/undefineds and consistency
-        yearData.quarters = yearData.quarters.map(quarter => {
+        YEAR_DATA.QUARTERS = YEAR_DATA.QUARTERS.MAP(quarter => {
           // If a quarter from rawValue is null/undefined, replace it with a default empty one
           if (!quarter) {
-            console.warn(`Found null/undefined quarter for year ${yearData.year}. Replacing with default.`);
+            CONSOLE.WARN(`Found null/undefined quarter for year ${YEAR_DATA.YEAR}. Replacing with default.`);
             // Create a default quarter if the parsed one is invalid
             const defaultQuarterNum = 1; // Or try to infer if possible, but 1 is safe fallback
-            const [startDate, endDate] = this.getQuarterDates(yearData.year, defaultQuarterNum);
+            const [startDate, endDate] = THIS.GET_QUARTER_DATES(YEAR_DATA.YEAR, defaultQuarterNum);
             return {
               quarter: defaultQuarterNum,
               dailySchedule: [],
-              formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat")),
-              key: `y${yearData.year}_q${defaultQuarterNum}`,
+              formattedDateRange: DATE_UTILS.FORMAT_QUARTER_DATE_RANGE(startDate, endDate, THIS.TRANSLATE.INSTANT("GENERAL.DATE_FORMAT")),
+              key: `y${YEAR_DATA.YEAR}_q${defaultQuarterNum}`,
             };
           }
 
           // Ensure key is set
-          quarter.key = `y${yearData.year}_q${quarter.quarter}`;
+          QUARTER.KEY = `y${YEAR_DATA.YEAR}_q${QUARTER.QUARTER}`;
 
           // Ensure formattedDateRange is set
-          const [startDate, endDate] = this.getQuarterDates(yearData.year, quarter.quarter);
-          quarter.formattedDateRange = DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat"));
+          const [startDate, endDate] = THIS.GET_QUARTER_DATES(YEAR_DATA.YEAR, QUARTER.QUARTER);
+          QUARTER.FORMATTED_DATE_RANGE = DATE_UTILS.FORMAT_QUARTER_DATE_RANGE(startDate, endDate, THIS.TRANSLATE.INSTANT("GENERAL.DATE_FORMAT"));
 
           // Ensure dailySchedule array exists
-          quarter.dailySchedule = quarter.dailySchedule || [];
-          quarter.dailySchedule.forEach((schedule, index) => {
-            if (schedule.originalIndex === undefined || schedule.originalIndex === null) {
-              schedule.originalIndex = index;
+          QUARTER.DAILY_SCHEDULE = QUARTER.DAILY_SCHEDULE || [];
+          QUARTER.DAILY_SCHEDULE.FOR_EACH((schedule, index) => {
+            if (SCHEDULE.ORIGINAL_INDEX === undefined || SCHEDULE.ORIGINAL_INDEX === null) {
+              SCHEDULE.ORIGINAL_INDEX = index;
             }
           });
 
           // !!! Crucial: Filter schedules once after parsing/initialization !!!
-          this.updateFilteredSchedules(quarter); // Filter immediately after populating dailySchedule
+          THIS.UPDATE_FILTERED_SCHEDULES(quarter); // Filter immediately after populating dailySchedule
 
           return quarter; // Return the processed quarter
         });
       });
     }
-    this.initializeForm(); // Initialize expanded quarters states
+    THIS.INITIALIZE_FORM(); // Initialize expanded quarters states
   }
   private initializeForm() {
-    this.tariffData.forEach(yearData => {
-      yearData.quarters.forEach(q => {
+    THIS.TARIFF_DATA.FOR_EACH(yearData => {
+      YEAR_DATA.QUARTERS.FOR_EACH(q => {
         // Use the pre-calculated key for initialization
-        if (q.key) { // Defensive check
-          this.expandedQuarters[q.key] = false;
+        if (Q.KEY) { // Defensive check
+          THIS.EXPANDED_QUARTERS[Q.KEY] = false;
         }
       });
     });
@@ -370,14 +370,14 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
 
   /**
    * Helper method to update the pre-filtered schedule arrays for a given quarter.
-   * Call this whenever quarter.dailySchedule is modified (add/remove).
+   * Call this whenever QUARTER.DAILY_SCHEDULE is modified (add/remove).
    * @param quarter The quarter object whose schedules need to be updated.
    */
   private updateFilteredSchedules(quarter: Quarter) {
     // Ensure dailySchedule is an array before filtering
-    const schedulesToFilter = quarter.dailySchedule || [];
-    quarter.lowSchedules = schedulesToFilter.filter(s => s.tariff === "low");
-    quarter.highSchedules = schedulesToFilter.filter(s => s.tariff === "high");
+    const schedulesToFilter = QUARTER.DAILY_SCHEDULE || [];
+    QUARTER.LOW_SCHEDULES = SCHEDULES_TO_FILTER.FILTER(s => S.TARIFF === "low");
+    QUARTER.HIGH_SCHEDULES = SCHEDULES_TO_FILTER.FILTER(s => S.TARIFF === "high");
   }
 
 }

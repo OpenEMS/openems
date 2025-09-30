@@ -8,7 +8,7 @@ import { Subject } from "rxjs";
 
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Service } from "../../service/service";
-import { UserService } from "../../service/user.service";
+import { UserService } from "../../service/USER.SERVICE";
 import { Websocket } from "../../service/websocket";
 import { Converter } from "../shared/converter";
 import { DataService } from "../shared/dataservice";
@@ -23,12 +23,12 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public readonly Converter = Converter;
 
     /**
-     * True after this.edge, this.config and this.component are set.
+     * True after THIS.EDGE, THIS.CONFIG and THIS.COMPONENT are set.
      */
     public isInitialized: boolean = false;
     public edge: Edge = null;
     public config: EdgeConfig = null;
-    public component: EdgeConfig.Component = null;
+    public component: EDGE_CONFIG.COMPONENT = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
@@ -54,46 +54,46 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     ) {
 
         effect(() => {
-            const isNewNavigation = this.userService.isNewNavigation();
-            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+            const isNewNavigation = THIS.USER_SERVICE.IS_NEW_NAVIGATION();
+            THIS.NEW_NAVIGATION_URL_SEGMENT = isNewNavigation ? "/live" : "";
         });
     }
 
     public ngOnInit() {
 
-        this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(config => {
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+            THIS.SERVICE.GET_CONFIG().then(config => {
                 // store important variables publically
-                this.edge = edge;
-                this.config = config;
-                this.component = EdgeConfig.Component.of(config.components[this.componentId]);
+                THIS.EDGE = edge;
+                THIS.CONFIG = config;
+                THIS.COMPONENT = EDGE_CONFIG.COMPONENT.OF(CONFIG.COMPONENTS[THIS.COMPONENT_ID]);
 
                 // announce initialized
-                this.isInitialized = true;
-                this.afterIsInitialized();
+                THIS.IS_INITIALIZED = true;
+                THIS.AFTER_IS_INITIALIZED();
                 // get the channel addresses that should be subscribed
-                const channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
-                const channelIds = this.getChannelIds();
+                const channelAddresses: Set<ChannelAddress> = new Set(THIS.GET_CHANNEL_ADDRESSES());
+                const channelIds = THIS.GET_CHANNEL_IDS();
                 for (const channelId of channelIds) {
-                    channelAddresses.add(new ChannelAddress(this.componentId, channelId));
+                    CHANNEL_ADDRESSES.ADD(new ChannelAddress(THIS.COMPONENT_ID, channelId));
                 }
-                this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
-                this.subscription.push(effect(() => {
-                    const value = this.dataService.currentValue();
-                    this.onCurrentData(value);
-                    this.afterOnCurrentData();
-                }, { injector: this.injector }));
+                THIS.DATA_SERVICE.GET_VALUES(ARRAY.FROM(channelAddresses), THIS.EDGE, THIS.COMPONENT_ID);
+                THIS.SUBSCRIPTION.PUSH(effect(() => {
+                    const value = THIS.DATA_SERVICE.CURRENT_VALUE();
+                    THIS.ON_CURRENT_DATA(value);
+                    THIS.AFTER_ON_CURRENT_DATA();
+                }, { injector: THIS.INJECTOR }));
 
-                this.formGroup = this.getFormGroup();
+                THIS.FORM_GROUP = THIS.GET_FORM_GROUP();
             });
         });
     }
 
     public ngOnDestroy() {
-        this.dataService.unsubscribeFromChannels(this.getChannelAddresses());
-        this.stopOnDestroy.next();
-        this.stopOnDestroy.complete();
-        this.subscription.every(el => el.destroy());
+        THIS.DATA_SERVICE.UNSUBSCRIBE_FROM_CHANNELS(THIS.GET_CHANNEL_ADDRESSES());
+        THIS.STOP_ON_DESTROY.NEXT();
+        THIS.STOP_ON_DESTROY.COMPLETE();
+        THIS.SUBSCRIPTION.EVERY(el => EL.DESTROY());
     }
 
     /**
@@ -105,11 +105,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     protected async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T> {
         return new Promise<any>((res) => {
             const subscription = effect(() => {
-                const val = this.dataService.currentValue();
-                res(val.allComponents[channelAddress.toString()]);
-            }, { injector: this.injector });
+                const val = THIS.DATA_SERVICE.CURRENT_VALUE();
+                res(VAL.ALL_COMPONENTS[CHANNEL_ADDRESS.TO_STRING()]);
+            }, { injector: THIS.INJECTOR });
 
-            subscription.destroy();
+            SUBSCRIPTION.DESTROY();
         });
     }
 
@@ -120,13 +120,13 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * @returns a non null/undefined value
      */
     protected async subscribeAndGetFirstValidValueForChannel(channelAddress: ChannelAddress): Promise<any> {
-        this.dataService.getValues([channelAddress], this.edge, this.componentId);
+        THIS.DATA_SERVICE.GET_VALUES([channelAddress], THIS.EDGE, THIS.COMPONENT_ID);
         return new Promise<any>((res) => {
             const subscription = effect(() => {
-                const val = this.dataService.currentValue();
-                res(val.allComponents[channelAddress.toString()]);
-            }, { injector: this.injector });
-            subscription.destroy();
+                const val = THIS.DATA_SERVICE.CURRENT_VALUE();
+                res(VAL.ALL_COMPONENTS[CHANNEL_ADDRESS.TO_STRING()]);
+            }, { injector: THIS.INJECTOR });
+            SUBSCRIPTION.DESTROY();
         });
     }
 

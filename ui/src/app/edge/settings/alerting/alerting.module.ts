@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { RouterModule, Routes } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { AlertingComponent } from "./alerting.component";
+import { AlertingComponent } from "./ALERTING.COMPONENT";
 
 const routes: Routes = [
     {
@@ -15,7 +15,7 @@ const routes: Routes = [
 
 @NgModule({
     imports: [
-        RouterModule.forChild(routes),
+        ROUTER_MODULE.FOR_CHILD(routes),
         AlertingComponent,
         ReactiveFormsModule,
         CommonModule,

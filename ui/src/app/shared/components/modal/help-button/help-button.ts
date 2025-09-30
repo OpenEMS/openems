@@ -6,7 +6,7 @@ import { environment } from "src/environments";
 
 @Component({
     selector: "oe-help-button",
-    templateUrl: "./help-button.html",
+    templateUrl: "./help-BUTTON.HTML",
     standalone: true,
     imports: [
         CommonModule,
@@ -17,7 +17,7 @@ export class HelpButtonComponent implements OnChanges {
 
     /** Overwrites default docs link */
     @Input() public useDefaultPrefix: boolean = false;
-    @Input() public key: keyof typeof environment.links | null = null;
+    @Input() public key: keyof typeof ENVIRONMENT.LINKS | null = null;
 
     protected link: string | null = null;
 
@@ -25,24 +25,24 @@ export class HelpButtonComponent implements OnChanges {
 
     ngOnChanges(changes: { key: SimpleChange, useDocsPrefix: SimpleChange }) {
         if (changes["key"] || changes["useDocsPrefix"]) {
-            this.setLink(changes.key.currentValue, changes.useDocsPrefix.currentValue);
+            THIS.SET_LINK(CHANGES.KEY.CURRENT_VALUE, CHANGES.USE_DOCS_PREFIX.CURRENT_VALUE);
         }
     }
 
     private setLink(key: HelpButtonComponent["key"], docsBaseLink?: HelpButtonComponent["useDefaultPrefix"]) {
-        const docsLink = this.useDefaultPrefix ? "" : environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang());
-        if (key == null || !(key in environment.links)) {
-            console.error("Key [" + key + "] not found in Environment Links");
-            this.link = null;
+        const docsLink = THIS.USE_DEFAULT_PREFIX ? "" : ENVIRONMENT.DOCS_URL_PREFIX.REPLACE("{language}", THIS.SERVICE.GET_DOCS_LANG());
+        if (key == null || !(key in ENVIRONMENT.LINKS)) {
+            CONSOLE.ERROR("Key [" + key + "] not found in Environment Links");
+            THIS.LINK = null;
             return;
         }
 
-        const link = environment.links[key];
+        const link = ENVIRONMENT.LINKS[key];
         if (link === null || link === "") {
-            this.link = null;
+            THIS.LINK = null;
 
         } else {
-            this.link = docsLink + environment.links[key];
+            THIS.LINK = docsLink + ENVIRONMENT.LINKS[key];
         }
     }
 

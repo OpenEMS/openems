@@ -16,7 +16,7 @@ export enum Status {
 
 @Component({
     selector: "oe-modal",
-    templateUrl: "./modal.html",
+    templateUrl: "./MODAL.HTML",
     styles: [`
         :host {
             height: 100%;
@@ -30,7 +30,7 @@ export class ModalComponent {
     /** Title in Header */
     @Input({ required: true }) public title!: string | null;
 
-    @Input() protected component: EdgeConfig.Component | null = null;
+    @Input() protected component: EDGE_CONFIG.COMPONENT | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
@@ -49,36 +49,36 @@ export class ModalComponent {
         private service: Service,
         private translate: TranslateService,
     ) {
-        this.service.getCurrentEdge().then(edge => this.edge = edge);
+        THIS.SERVICE.GET_CURRENT_EDGE().then(edge => THIS.EDGE = edge);
     }
 
     // Changes applied together
     public async applyChanges() {
         const updateComponentArray: { name: string, value: any }[] = [];
-        this.service.startSpinner("spinner");
-        for (const key in this.formGroup.controls) {
-            const control = this.formGroup.controls[key];
-            this.formGroup.controls[key];
+        THIS.SERVICE.START_SPINNER("spinner");
+        for (const key in THIS.FORM_GROUP.CONTROLS) {
+            const control = THIS.FORM_GROUP.CONTROLS[key];
+            THIS.FORM_GROUP.CONTROLS[key];
 
             // Check if formControl-value didn't change
-            if (control.pristine) {
+            if (CONTROL.PRISTINE) {
                 continue;
             }
 
-            updateComponentArray.push({
+            UPDATE_COMPONENT_ARRAY.PUSH({
                 name: key,
-                value: this.formGroup.value[key],
+                value: THIS.FORM_GROUP.VALUE[key],
             });
         }
 
-        if (this.edge) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
+        if (THIS.EDGE) {
+            THIS.EDGE.UPDATE_COMPONENT_CONFIG(THIS.WEBSOCKET, THIS.COMPONENT.ID, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                }).finally(() => this.service.stopSpinner("spinner"));
+                    THIS.SERVICE.TOAST(THIS.TRANSLATE.INSTANT("GENERAL.CHANGE_FAILED") + "\n" + REASON.ERROR.MESSAGE, "danger");
+                }).finally(() => THIS.SERVICE.STOP_SPINNER("spinner"));
         }
-        this.formGroup.markAsPristine();
+        THIS.FORM_GROUP.MARK_AS_PRISTINE();
     }
 }

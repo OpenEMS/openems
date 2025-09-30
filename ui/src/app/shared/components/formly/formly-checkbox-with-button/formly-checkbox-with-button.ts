@@ -3,7 +3,7 @@ import { FieldType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-checkbox-button",
-    templateUrl: "./formly-checkbox-with-button.html",
+    templateUrl: "./formly-checkbox-with-BUTTON.HTML",
     styles: [`
       .custom-item {
         padding-top: 50px; /* Adjust padding for proper spacing */
@@ -42,17 +42,17 @@ import { FieldType } from "@ngx-formly/core";
         }
     }
     `],
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: CHANGE_DETECTION_STRATEGY.ON_PUSH,
     standalone: false,
 })
 export class CheckboxButtonTypeComponent extends FieldType {
     onCheckboxChange(event: any) {
-        this.formControl.setValue(event.detail.checked);
+        THIS.FORM_CONTROL.SET_VALUE(EVENT.DETAIL.CHECKED);
     }
 
     onButtonClick() {
-        if (this.props.onButtonClick) {
-            this.props.onButtonClick();
+        if (THIS.PROPS.ON_BUTTON_CLICK) {
+            THIS.PROPS.ON_BUTTON_CLICK();
         }
     }
 }

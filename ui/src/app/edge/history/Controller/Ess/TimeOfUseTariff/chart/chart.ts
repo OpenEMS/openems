@@ -2,23 +2,23 @@
 import { ChangeDetectorRef, Component, effect } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import * as Chart from "chart.js";
+import * as Chart from "CHART.JS";
 import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants } from "src/app/shared/components/chart/CHART.CONSTANTS";
 import { ChannelAddress, Currency, EdgeConfig, Logger, Service, Websocket } from "src/app/shared/shared";
-import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ColorUtils } from "src/app/shared/utils/color/COLOR.UTILS";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "scheduleChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    private currencyUnit: Currency.Unit | null = null;
-    private currencyLabel: Currency.Label; // Default
+    private currencyUnit: CURRENCY.UNIT | null = null;
+    private currencyLabel: CURRENCY.LABEL; // Default
 
     constructor(
         private websocket: Websocket,
@@ -30,89 +30,89 @@ export class ChartComponent extends AbstractHistoryChart {
     ) {
         super(service, cdRef, translate, route, logger);
         effect(() => {
-            const edge = this.service.currentEdge();
+            const edge = THIS.SERVICE.CURRENT_EDGE();
 
             if (!edge) {
                 return;
             }
 
-            edge.getFirstValidConfig(this.websocket).then(config => {
-                const meta: EdgeConfig.Component = config?.getComponent("_meta");
+            EDGE.GET_FIRST_VALID_CONFIG(THIS.WEBSOCKET).then(config => {
+                const meta: EDGE_CONFIG.COMPONENT = config?.getComponent("_meta");
                 const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
-                this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
+                THIS.CURRENCY_UNIT = CURRENCY.GET_CHART_CURRENCY_UNIT_LABEL(currency);
             });
         });
     }
 
-    protected override getChartData(): HistoryUtils.ChartData {
+    protected override getChartData(): HISTORY_UTILS.CHART_DATA {
         // Assigning the component to be able to use the id.
-        const componentId: string = this.config.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff")[0];
-        this.component = this.config.components[componentId];
+        const componentId: string = THIS.CONFIG.GET_COMPONENT_IDS_BY_FACTORY("CONTROLLER.ESS.TIME-Of-Use-Tariff")[0];
+        THIS.COMPONENT = THIS.CONFIG.COMPONENTS[componentId];
 
-        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
-        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
-        this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
-        this.chartType = "bar";
+        const meta: EDGE_CONFIG.COMPONENT = THIS.CONFIG?.getComponent("_meta");
+        const currency: string = THIS.CONFIG?.getPropertyFromComponent<string>(meta, "currency");
+        THIS.CURRENCY_LABEL = CURRENCY.GET_CURRENCY_LABEL_BY_CURRENCY(currency);
+        THIS.CHART_TYPE = "bar";
 
         return {
             input: [
                 {
                     name: "QuarterlyPrice",
-                    powerChannel: ChannelAddress.fromString(this.component.id + "/QuarterlyPrices"),
+                    powerChannel: CHANNEL_ADDRESS.FROM_STRING(THIS.COMPONENT.ID + "/QuarterlyPrices"),
                 },
                 {
                     name: "StateMachine",
-                    powerChannel: ChannelAddress.fromString(this.component.id + "/StateMachine"),
+                    powerChannel: CHANNEL_ADDRESS.FROM_STRING(THIS.COMPONENT.ID + "/StateMachine"),
                 },
                 {
                     name: "Soc",
-                    powerChannel: ChannelAddress.fromString("_sum/EssSoc"),
+                    powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/EssSoc"),
                 },
                 {
                     name: "GridBuy",
-                    powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-                    converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+                    powerChannel: CHANNEL_ADDRESS.FROM_STRING("_sum/GridActivePower"),
+                    converter: HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO,
                 },
             ],
-            output: (data: HistoryUtils.ChannelData) => {
+            output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
                 return [{
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
-                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
+                    name: THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
+                    converter: () => THIS.GET_DATASET(data, TIME_OF_USE_TARIFF_UTILS.STATE.BALANCING),
                     color: "rgb(51,102,0)",
                     stack: 1,
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
-                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
+                    name: THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
+                    converter: () => THIS.GET_DATASET(data, TIME_OF_USE_TARIFF_UTILS.STATE.CHARGE_GRID),
                     color: "rgb(0, 204, 204)",
                     stack: 1,
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
-                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
+                    name: THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+                    converter: () => THIS.GET_DATASET(data, TIME_OF_USE_TARIFF_UTILS.STATE.DELAY_DISCHARGE),
                     color: "rgb(0,0,0)",
                     stack: 1,
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("General.soc"),
-                    converter: () => data["Soc"]?.map(value => Utils.multiplySafely(value, 1000)),
+                    name: THIS.TRANSLATE.INSTANT("GENERAL.SOC"),
+                    converter: () => data["Soc"]?.map(value => UTILS.MULTIPLY_SAFELY(value, 1000)),
                     color: "rgb(189, 195, 199)",
                     borderDash: [10, 10],
-                    yAxisId: ChartAxis.RIGHT,
+                    yAxisId: CHART_AXIS.RIGHT,
                     custom: {
                         type: "line",
-                        unit: YAxisType.PERCENTAGE,
+                        unit: YAXIS_TYPE.PERCENTAGE,
                         formatNumber: "1.0-0",
                     },
                     order: 1,
                 },
                 {
-                    name: this.translate.instant("General.gridBuyAdvanced"),
+                    name: THIS.TRANSLATE.INSTANT("GENERAL.GRID_BUY_ADVANCED"),
                     converter: () => data["GridBuy"],
-                    color: ChartConstants.Colors.BLUE_GREY,
+                    color: CHART_CONSTANTS.COLORS.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
                     custom: {
                         type: "line",
@@ -128,22 +128,22 @@ export class ChartComponent extends AbstractHistoryChart {
                 formatNumber: "1.0-4",
             },
             yAxes: [{
-                unit: YAxisType.CURRENCY,
+                unit: YAXIS_TYPE.CURRENCY,
                 position: "left",
-                yAxisId: ChartAxis.LEFT,
-                customTitle: Currency.getChartCurrencyUnitLabel(currency),
+                yAxisId: CHART_AXIS.LEFT,
+                customTitle: CURRENCY.GET_CHART_CURRENCY_UNIT_LABEL(currency),
                 scale: {
                     dynamicScale: true,
                 },
             },
             {
-                unit: YAxisType.PERCENTAGE,
+                unit: YAXIS_TYPE.PERCENTAGE,
                 position: "right",
-                yAxisId: ChartAxis.RIGHT,
+                yAxisId: CHART_AXIS.RIGHT,
                 displayGrid: false,
             },
             {
-                unit: YAxisType.POWER,
+                unit: YAXIS_TYPE.POWER,
                 position: "right",
                 yAxisId: ChartAxis.RIGHT_2,
                 displayGrid: false,
@@ -153,58 +153,58 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override async loadChart() {
-        this.labels = [];
-        this.errorResponse = null;
+        THIS.LABELS = [];
+        THIS.ERROR_RESPONSE = null;
 
-        const unit: Resolution = { unit: ChronoUnit.Type.MINUTES, value: 15 };
-        this.queryHistoricTimeseriesData(this.service.historyPeriod.value.from, this.service.historyPeriod.value.to, unit)
+        const unit: Resolution = { unit: CHRONO_UNIT.TYPE.MINUTES, value: 15 };
+        THIS.QUERY_HISTORIC_TIMESERIES_DATA(THIS.SERVICE.HISTORY_PERIOD.VALUE.FROM, THIS.SERVICE.HISTORY_PERIOD.VALUE.TO, unit)
             .then((dataResponse) => {
-                this.chartType = "line";
-                this.chartObject = this.getChartData();
+                THIS.CHART_TYPE = "line";
+                THIS.CHART_OBJECT = THIS.GET_CHART_DATA();
 
-                const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
-                this.datasets = displayValues.datasets;
-                this.legendOptions = displayValues.legendOptions;
-                this.labels = displayValues.labels;
-                this.setChartLabel();
+                const displayValues = ABSTRACT_HISTORY_CHART.FILL_CHART(THIS.CHART_TYPE, THIS.CHART_OBJECT, dataResponse);
+                THIS.DATASETS = DISPLAY_VALUES.DATASETS;
+                THIS.LEGEND_OPTIONS = DISPLAY_VALUES.LEGEND_OPTIONS;
+                THIS.LABELS = DISPLAY_VALUES.LABELS;
+                THIS.SET_CHART_LABEL();
 
-                this.chartObject.yAxes.forEach((element) => {
-                    this.options = AbstractHistoryChart.getYAxisOptions(this.options, element, this.translate, this.chartType, this.datasets, true, this.chartObject.tooltip.formatNumber,);
+                THIS.CHART_OBJECT.Y_AXES.FOR_EACH((element) => {
+                    THIS.OPTIONS = ABSTRACT_HISTORY_CHART.GET_YAXIS_OPTIONS(THIS.OPTIONS, element, THIS.TRANSLATE, THIS.CHART_TYPE, THIS.DATASETS, true, THIS.CHART_OBJECT.TOOLTIP.FORMAT_NUMBER,);
                 });
 
-                this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
-                this.options.scales.x.ticks["source"] = "auto";
-                this.options.scales.x.grid = { offset: false };
-                this.options.plugins.tooltip.mode = "index";
-                this.options.scales.x.ticks.maxTicksLimit = 30;
-                this.options.scales[ChartAxis.LEFT].min = this.getMinimumAxisValue(this.datasets);
+                THIS.OPTIONS.SCALES.X["time"].unit = calculateResolution(THIS.SERVICE, THIS.SERVICE.HISTORY_PERIOD.VALUE.FROM, THIS.SERVICE.HISTORY_PERIOD.VALUE.TO).timeFormat;
+                THIS.OPTIONS.SCALES.X.TICKS["source"] = "auto";
+                THIS.OPTIONS.SCALES.X.GRID = { offset: false };
+                THIS.OPTIONS.PLUGINS.TOOLTIP.MODE = "index";
+                THIS.OPTIONS.SCALES.X.TICKS.MAX_TICKS_LIMIT = 30;
+                THIS.OPTIONS.SCALES[CHART_AXIS.LEFT].min = THIS.GET_MINIMUM_AXIS_VALUE(THIS.DATASETS);
 
-                this.options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
+                THIS.OPTIONS.PLUGINS.TOOLTIP.CALLBACKS.LABEL_COLOR = (item: CHART.TOOLTIP_ITEM<any>) => {
                     return {
-                        borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
-                        backgroundColor: item.dataset.backgroundColor,
+                        borderColor: COLOR_UTILS.CHANGE_OPACITY_FROM_RGBA(ITEM.DATASET.BORDER_COLOR, 1),
+                        backgroundColor: ITEM.DATASET.BACKGROUND_COLOR,
                     };
                 };
-                this.options.scales.x["bounds"] = "ticks";
+                THIS.OPTIONS.SCALES.X["bounds"] = "ticks";
 
-                this.options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
-                    const label = item.dataset.label;
-                    const value = item.dataset.data[item.dataIndex];
+                THIS.OPTIONS.PLUGINS.TOOLTIP.CALLBACKS.LABEL = (item: CHART.TOOLTIP_ITEM<any>) => {
+                    const label = ITEM.DATASET.LABEL;
+                    const value = ITEM.DATASET.DATA[ITEM.DATA_INDEX];
 
-                    return TimeOfUseTariffUtils.getLabel(value, label, this.translate, this.currencyLabel);
+                    return TIME_OF_USE_TARIFF_UTILS.GET_LABEL(value, label, THIS.TRANSLATE, THIS.CURRENCY_LABEL);
                 };
 
-                this.options.scales[ChartAxis.LEFT]["title"].text = this.currencyUnit;
-                this.datasets = this.datasets.map((el) => {
-                    const opacity = el.type === "line" ? 0.2 : 0.5;
+                THIS.OPTIONS.SCALES[CHART_AXIS.LEFT]["title"].text = THIS.CURRENCY_UNIT;
+                THIS.DATASETS = THIS.DATASETS.MAP((el) => {
+                    const opacity = EL.TYPE === "line" ? 0.2 : 0.5;
 
-                    el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
-                    el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
+                    EL.BACKGROUND_COLOR = COLOR_UTILS.CHANGE_OPACITY_FROM_RGBA(EL.BACKGROUND_COLOR.TO_STRING(), opacity);
+                    EL.BORDER_COLOR = COLOR_UTILS.CHANGE_OPACITY_FROM_RGBA(EL.BORDER_COLOR.TO_STRING(), 1);
                     return el;
                 });
 
-                this.options.scales.x["offset"] = false;
-                this.options["animation"] = false;
+                THIS.OPTIONS.SCALES.X["offset"] = false;
+                THIS.OPTIONS["animation"] = false;
             });
     }
 
@@ -215,11 +215,11 @@ export class ChartComponent extends AbstractHistoryChart {
      * @param desiredState The desired state data from the whole dataset.
      * @returns the desired state array data.
      */
-    private getDataset(data: HistoryUtils.ChannelData, desiredState): any[] {
+    private getDataset(data: HISTORY_UTILS.CHANNEL_DATA, desiredState): any[] {
         const prices = data["QuarterlyPrice"]
-            .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
+            .map(val => TIME_OF_USE_TARIFF_UTILS.FORMAT_PRICE(UTILS.MULTIPLY_SAFELY(val, 1000)));
         const states = data["StateMachine"]
-            .map(val => Utils.multiplySafely(val, 1000))
+            .map(val => UTILS.MULTIPLY_SAFELY(val, 1000))
             .map(val => {
                 if (val === null) {
                     return null;
@@ -231,7 +231,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     return 1; // Balancing
                 }
             });
-        const length = prices.length;
+        const length = PRICES.LENGTH;
         const dataset = Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
@@ -252,26 +252,26 @@ export class ChartComponent extends AbstractHistoryChart {
      * @param datasets The chart datasets.
      * @returns the minumum axis value.
      */
-    private getMinimumAxisValue(datasets: Chart.ChartDataset[]): number {
+    private getMinimumAxisValue(datasets: CHART.CHART_DATASET[]): number {
 
         const labels = [
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+            THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
+            THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
+            THIS.TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
         ];
 
         const finalArray: number[] = labels
             .map(label => {
-                const dataArray = datasets.find(dataset => dataset.label === label)?.data as number[];
-                return dataArray ? dataArray.filter(price => price !== null) as number[] : [];
+                const dataArray = DATASETS.FIND(dataset => DATASET.LABEL === label)?.data as number[];
+                return dataArray ? DATA_ARRAY.FILTER(price => price !== null) as number[] : [];
             })
-            .reduce((acc, curr) => acc.concat(curr), []);
+            .reduce((acc, curr) => ACC.CONCAT(curr), []);
 
-        if (finalArray.length === 0) {
+        if (FINAL_ARRAY.LENGTH === 0) {
             return 0;
         }
 
-        const min = Math.floor(Math.min(...finalArray));
-        return Math.floor(min - (min * 0.05));
+        const min = MATH.FLOOR(MATH.MIN(...finalArray));
+        return MATH.FLOOR(min - (min * 0.05));
     }
 }

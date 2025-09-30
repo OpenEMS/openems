@@ -19,7 +19,7 @@ export namespace Flags {
             return undefined;
         }
 
-        return flags.find(f => f.name === type.name) as Type;
+        return FLAGS.FIND(f => F.NAME === TYPE.NAME) as Type;
     }
 
 }

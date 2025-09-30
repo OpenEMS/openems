@@ -23,7 +23,7 @@ export interface SystemUpdateState {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     // State is unknown (e.g. internet connection limited by firewall)
+ *     // State is unknown (E.G. internet connection limited by firewall)
  *      // TODO remove unknown? Throw exception instead
  *     "unknown"?: {
  *     }

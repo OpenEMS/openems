@@ -11,19 +11,19 @@ export namespace Role {
      * @param name of the role
      */
     export function getRole(name: string): Role {
-        name = name.toLowerCase();
+        name = NAME.TO_LOWER_CASE();
         switch (name) {
             case "admin":
-                return Role.ADMIN;
+                return ROLE.ADMIN;
             case "owner":
-                return Role.OWNER;
+                return ROLE.OWNER;
             case "installer":
-                return Role.INSTALLER;
+                return ROLE.INSTALLER;
             case "guest":
-                return Role.GUEST;
+                return ROLE.GUEST;
             default:
-                console.warn("Role [" + name + "] not found.");
-                return Role.GUEST;
+                CONSOLE.WARN("Role [" + name + "] not found.");
+                return ROLE.GUEST;
         }
     }
 
@@ -36,10 +36,10 @@ export namespace Role {
      */
     export function isAtLeast(role1: Role | string, role2: Role | string): boolean {
         if (typeof role1 === "string") {
-            role1 = Role.getRole(role1);
+            role1 = ROLE.GET_ROLE(role1);
         }
         if (typeof role2 === "string") {
-            role2 = Role.getRole(role2);
+            role2 = ROLE.GET_ROLE(role2);
         }
         return role1 <= role2;
     }

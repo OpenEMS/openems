@@ -7,14 +7,14 @@ import { NavigationOption } from "src/app/shared/components/footer/subnavigation
 import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
-    templateUrl: "./overview.html",
+    templateUrl: "./OVERVIEW.HTML",
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
     protected navigationButtons: NavigationOption[] = [];
-    protected evcsComponents: EdgeConfig.Component[] = [];
-    protected consumptionMeterComponents: EdgeConfig.Component[] = [];
+    protected evcsComponents: EDGE_CONFIG.COMPONENT[] = [];
+    protected consumptionMeterComponents: EDGE_CONFIG.COMPONENT[] = [];
 
     constructor(
         public override service: Service,
@@ -28,27 +28,27 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
 
     protected override getChannelAddresses(): ChannelAddress[] {
 
-        this.evcsComponents = this.config?.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+        THIS.EVCS_COMPONENTS = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.EVCS.API.EVCS")
             .filter(component =>
-                !(component.factoryId === "Evcs.Cluster.SelfConsumption") &&
-                !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
-                !component.isEnabled === false);
+                !(COMPONENT.FACTORY_ID === "EVCS.CLUSTER.SELF_CONSUMPTION") &&
+                !(COMPONENT.FACTORY_ID === "EVCS.CLUSTER.PEAK_SHAVING") &&
+                !COMPONENT.IS_ENABLED === false);
 
-        const heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+        const heatComponents = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.HEAT.API.HEAT")
             .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
+                !(COMPONENT.FACTORY_ID === "CONTROLLER.HEAT.HEATINGELEMENT") &&
+                !COMPONENT.IS_ENABLED === false);
 
-        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs")
-                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
+        THIS.CONSUMPTION_METER_COMPONENTS = THIS.CONFIG?.getComponentsImplementingNature("IO.OPENEMS.EDGE.METER.API.ELECTRICITY_METER")
+            .filter(component => COMPONENT.IS_ENABLED && THIS.CONFIG.IS_TYPE_CONSUMPTION_METERED(component)
+                && !THIS.CONFIG.GET_NATURE_IDS_BY_FACTORY_ID(COMPONENT.FACTORY_ID).includes("IO.OPENEMS.EDGE.EVCS.API.EVCS")
+                && !THIS.CONFIG.GET_NATURE_IDS_BY_FACTORY_ID(COMPONENT.FACTORY_ID).includes("IO.OPENEMS.EDGE.HEAT.API.HEAT"));
 
-        const sum: EdgeConfig.Component = this.config.getComponent("_sum");
-        sum.alias = this.translate.instant("Edge.History.PHASE_ACCURATE");
+        const sum: EDGE_CONFIG.COMPONENT = THIS.CONFIG.GET_COMPONENT("_sum");
+        SUM.ALIAS = THIS.TRANSLATE.INSTANT("EDGE.HISTORY.PHASE_ACCURATE");
 
-        this.navigationButtons = [sum, ...this.evcsComponents, ...heatComponents, ...this.consumptionMeterComponents].map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
+        THIS.NAVIGATION_BUTTONS = [sum, ...THIS.EVCS_COMPONENTS, ...heatComponents, ...THIS.CONSUMPTION_METER_COMPONENTS].map(el => (
+            { id: EL.ID, alias: EL.ALIAS, callback: () => { THIS.ROUTER.NAVIGATE(["./" + EL.ID], { relativeTo: THIS.ROUTE }); } }
         ));
 
         return [];

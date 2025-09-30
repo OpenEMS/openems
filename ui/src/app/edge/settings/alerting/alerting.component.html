@@ -19,14 +19,14 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
             <ion-label>
-              <span>{{user.name}}</span>
+              <span>{{USER.NAME}}</span>
             </ion-label>
             <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
           <ion-card-content class="ion-no-padding">
             <form>
-              <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
-                [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
+              <formly-form [model]="CURRENT_USER_FORM.MODEL" [fields]="CURRENT_USER_FORM.FIELDS"
+                [options]="CURRENT_USER_FORM.OPTIONS" [form]="CURRENT_USER_FORM.FORM_GROUP">
               </formly-form>
             </form>
           </ion-card-content>
@@ -45,8 +45,8 @@
           </ion-item>
           <ion-card-content class="ion-no-padding-left-right">
             <form>
-              <formly-form [model]="{}" [fields]="otherUserForm.fields" [options]="otherUserForm.options"
-                [form]="otherUserForm.formGroup">
+              <formly-form [model]="{}" [fields]="OTHER_USER_FORM.FIELDS" [options]="OTHER_USER_FORM.OPTIONS"
+                [form]="OTHER_USER_FORM.FORM_GROUP">
               </formly-form>
             </form>
           </ion-card-content>
@@ -62,7 +62,7 @@
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="6">
         <ion-button expand="block" type="submit" color="primary" (click)="setUsersAlertingConfig()" translate>
-          General.save
+          GENERAL.SAVE
         </ion-button>
       </ion-col>
     </ion-row>

@@ -21,7 +21,7 @@ export class GetScheduleRequest extends JsonrpcRequest {
 
     public constructor(
     ) {
-        super(GetScheduleRequest.METHOD, {});
+        super(GET_SCHEDULE_REQUEST.METHOD, {});
     }
 
 }

@@ -30,7 +30,7 @@ type Entry = {
 
 @Component({
   selector: "powerassistant",
-  templateUrl: "./powerassistant.html",
+  templateUrl: "./POWERASSISTANT.HTML",
   providers: [{
     useClass: LiveDataService,
     provide: DataService,
@@ -42,98 +42,98 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
 
   protected entries: Entry[] = [];
   protected ignoredControllers: OpenemsComponent[] = [];
-  protected date: string = this.service?.historyPeriod?.value?.getText(this.translate, this.service) ?? "";
+  protected date: string = THIS.SERVICE?.historyPeriod?.value?.getText(THIS.TRANSLATE, THIS.SERVICE) ?? "";
 
   protected override afterIsInitialized() {
     // Create map of ESSs to Controllers, ordered by Scheduler
-    const esss: { [essId: string]: OpenemsComponent[] } = this.config.getComponentsByFactory("Scheduler.AllAlphabetically")[0]?.properties["controllers.ids"]
+    const esss: { [essId: string]: OpenemsComponent[] } = THIS.CONFIG.GET_COMPONENTS_BY_FACTORY("SCHEDULER.ALL_ALPHABETICALLY")[0]?.properties["CONTROLLERS.IDS"]
       .reduce((result, id) => {
-        const component = this.config.components[id];
-        const ctrl = this.mapController(component);
+        const component = THIS.CONFIG.COMPONENTS[id];
+        const ctrl = THIS.MAP_CONTROLLER(component);
         if (!ctrl) {
           return result;
         }
         // Create Controller Component
         return {
           ...result,
-          [ctrl.essId]: [...(result[ctrl.essId] || []), {
+          [CTRL.ESS_ID]: [...(result[CTRL.ESS_ID] || []), {
             id: id,
-            alias: component.alias,
-            factory: component.factoryId,
-            channels: ctrl.channels,
+            alias: COMPONENT.ALIAS,
+            factory: COMPONENT.FACTORY_ID,
+            channels: CTRL.CHANNELS,
           }],
         };
       },
         // Initialize ESS Keys
-        this.config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+        THIS.CONFIG.GET_COMPONENTS_IMPLEMENTING_NATURE("IO.OPENEMS.EDGE.ESS.API.SYMMETRIC_ESS")
           .reduce((result, ess) => {
             return {
               ...result,
-              [ess.id]: [],
+              [ESS.ID]: [],
             };
           }, {}),
       );
 
-    this.entries = Object.entries(esss) //
+    THIS.ENTRIES = OBJECT.ENTRIES(esss) //
       .map(e => {
-        const ess = this.config.components[e[0]];
+        const ess = THIS.CONFIG.COMPONENTS[e[0]];
         const result = {
           // Create ESS Component
           ess: {
-            id: ess.id,
-            alias: ess.alias,
-            factoryId: ess.factoryId,
+            id: ESS.ID,
+            alias: ESS.ALIAS,
+            factoryId: ESS.FACTORY_ID,
             channels: [
-              { title: "Allowed Charge Power", address: ess.id + "/AllowedChargePower", converter: Converter.unit("W") },
-              { title: "Allowed Discharge Power", address: ess.id + "/AllowedDischargePower", converter: Converter.unit("W") },
-              { title: "Max Apparent Power", address: ess.id + "/MaxApparentPower", converter: Converter.unit("W") },
+              { title: "Allowed Charge Power", address: ESS.ID + "/AllowedChargePower", converter: CONVERTER.UNIT("W") },
+              { title: "Allowed Discharge Power", address: ESS.ID + "/AllowedDischargePower", converter: CONVERTER.UNIT("W") },
+              { title: "Max Apparent Power", address: ESS.ID + "/MaxApparentPower", converter: CONVERTER.UNIT("W") },
               null,
-              { title: "Result: Set Active Power", address: ess.id + "/DebugSetActivePower", converter: Converter.unit("W") },
-              { title: "Result: Actual Active Power", address: ess.id + "/ActivePower", converter: Converter.unit("W") },
-              { title: "Result: Set Reactive Power", address: ess.id + "/DebugSetReactivePower", converter: Converter.unit("var") },
-              { title: "Result: Actual Reactive Power", address: ess.id + "/ReactivePower", converter: Converter.unit("var") },
+              { title: "Result: Set Active Power", address: ESS.ID + "/DebugSetActivePower", converter: CONVERTER.UNIT("W") },
+              { title: "Result: Actual Active Power", address: ESS.ID + "/ActivePower", converter: CONVERTER.UNIT("W") },
+              { title: "Result: Set Reactive Power", address: ESS.ID + "/DebugSetReactivePower", converter: CONVERTER.UNIT("var") },
+              { title: "Result: Actual Reactive Power", address: ESS.ID + "/ReactivePower", converter: CONVERTER.UNIT("var") },
             ],
           },
           controllers: e[1],
         };
-        if (ess.factoryId === "Ess.Generic.ManagedSymmetric") {
+        if (ESS.FACTORY_ID === "ESS.GENERIC.MANAGED_SYMMETRIC") {
           // Create optional Battery Component
-          const battery = this.config.components[ess.properties["battery.id"]];
+          const battery = THIS.CONFIG.COMPONENTS[ESS.PROPERTIES["BATTERY.ID"]];
           result["battery"] = {
-            id: battery.id,
-            alias: battery.alias,
-            factoryId: battery.factoryId,
+            id: BATTERY.ID,
+            alias: BATTERY.ALIAS,
+            factoryId: BATTERY.FACTORY_ID,
             channels: [
-              { title: "Charge Max Current", address: battery.id + "/ChargeMaxCurrent", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from BMS", address: battery.id + "/BpChargeBms", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from Min-Voltage", address: battery.id + "/BpChargeMinVoltage", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from Max-Voltage", address: battery.id + "/BpChargeMaxVoltage", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from Min-Temperature", address: battery.id + "/BpChargeMinTemperature", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from Max-Temperature", address: battery.id + "/BpChargeMaxTemperature", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Charge-Limit from Increase-Ramp", address: battery.id + "/BpChargeIncrease", converter: Converter.unit("A") },
+              { title: "Charge Max Current", address: BATTERY.ID + "/ChargeMaxCurrent", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from BMS", address: BATTERY.ID + "/BpChargeBms", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from Min-Voltage", address: BATTERY.ID + "/BpChargeMinVoltage", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from Max-Voltage", address: BATTERY.ID + "/BpChargeMaxVoltage", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from Min-Temperature", address: BATTERY.ID + "/BpChargeMinTemperature", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from Max-Temperature", address: BATTERY.ID + "/BpChargeMaxTemperature", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Charge-Limit from Increase-Ramp", address: BATTERY.ID + "/BpChargeIncrease", converter: CONVERTER.UNIT("A") },
               null,
-              { title: "Discharge Max Current", address: battery.id + "/DischargeMaxCurrent", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from BMS", address: battery.id + "/BpDischargeBms", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from Min-Voltage", address: battery.id + "/BpDischargeMinVoltage", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from Max-Voltage", address: battery.id + "/BpDischargeMaxVoltage", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from Min-Temperature", address: battery.id + "/BpDischargeMinTemperature", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from Max-Temperature", address: battery.id + "/BpDischargeMaxTemperature", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Discharge-Limit from Increase-Ramp", address: battery.id + "/BpDischargeIncrease", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Force-Charge", address: battery.id + "/BpForceCharge", converter: Converter.unit("A") },
-              { title: "Battery-Protection: Force-Discharge", address: battery.id + "/BpForceDischarge", converter: Converter.unit("A") },
+              { title: "Discharge Max Current", address: BATTERY.ID + "/DischargeMaxCurrent", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from BMS", address: BATTERY.ID + "/BpDischargeBms", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from Min-Voltage", address: BATTERY.ID + "/BpDischargeMinVoltage", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from Max-Voltage", address: BATTERY.ID + "/BpDischargeMaxVoltage", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from Min-Temperature", address: BATTERY.ID + "/BpDischargeMinTemperature", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from Max-Temperature", address: BATTERY.ID + "/BpDischargeMaxTemperature", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Discharge-Limit from Increase-Ramp", address: BATTERY.ID + "/BpDischargeIncrease", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Force-Charge", address: BATTERY.ID + "/BpForceCharge", converter: CONVERTER.UNIT("A") },
+              { title: "Battery-Protection: Force-Discharge", address: BATTERY.ID + "/BpForceDischarge", converter: CONVERTER.UNIT("A") },
               null,
-              { title: "Min-Cell-Voltage", address: battery.id + "/MinCellVoltage", converter: Converter.unit("mV") },
-              { title: "Max-Cell-Voltage", address: battery.id + "/MaxCellVoltage", converter: Converter.unit("mV") },
-              { title: "Min-Cell-Temperature", address: battery.id + "/MinCellTemperature", converter: Converter.unit("°C") },
-              { title: "Max-Cell-Temperature", address: battery.id + "/MaxCellTemperature", converter: Converter.unit("°C") },
+              { title: "Min-Cell-Voltage", address: BATTERY.ID + "/MinCellVoltage", converter: CONVERTER.UNIT("mV") },
+              { title: "Max-Cell-Voltage", address: BATTERY.ID + "/MaxCellVoltage", converter: CONVERTER.UNIT("mV") },
+              { title: "Min-Cell-Temperature", address: BATTERY.ID + "/MinCellTemperature", converter: CONVERTER.UNIT("°C") },
+              { title: "Max-Cell-Temperature", address: BATTERY.ID + "/MaxCellTemperature", converter: CONVERTER.UNIT("°C") },
             ],
           };
           // Create optional Battery-Inverter Component
-          const batteryInverter = this.config.components[ess.properties["batteryInverter.id"]];
+          const batteryInverter = THIS.CONFIG.COMPONENTS[ESS.PROPERTIES["BATTERY_INVERTER.ID"]];
           result["batteryInverter"] = {
-            id: batteryInverter.id,
-            alias: batteryInverter.alias,
-            factoryId: batteryInverter.factoryId,
+            id: BATTERY_INVERTER.ID,
+            alias: BATTERY_INVERTER.ALIAS,
+            factoryId: BATTERY_INVERTER.FACTORY_ID,
             channels: [],
           };
         }
@@ -142,76 +142,76 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    return this.allChannels()
-      .map(c => ChannelAddress.fromString(c.address));
+    return THIS.ALL_CHANNELS()
+      .map(c => CHANNEL_ADDRESS.FROM_STRING(C.ADDRESS));
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    this.allChannels()
+    THIS.ALL_CHANNELS()
       .reduce((arr, c) => {
-        c.value = currentData.allComponents[c.address];
-        arr.push(c);
+        C.VALUE = CURRENT_DATA.ALL_COMPONENTS[C.ADDRESS];
+        ARR.PUSH(c);
         return arr;
       }, []);
   }
 
   private allChannels(): Channel[] {
-    return this.entries
-      .flatMap(e => e.ess.channels
-        .concat(e.battery?.channels || [])
-        .concat(e.batteryInverter?.channels || [])
-        .concat(e.controllers.flatMap(c => c.channels)))
+    return THIS.ENTRIES
+      .flatMap(e => E.ESS.CHANNELS
+        .concat(E.BATTERY?.channels || [])
+        .concat(E.BATTERY_INVERTER?.channels || [])
+        .concat(E.CONTROLLERS.FLAT_MAP(c => C.CHANNELS)))
       .filter(c => c != null);
   }
 
-  private mapController(controller: EdgeConfig.Component): { essId: string, channels: Channel[] } | null {
-    const ctrlId = controller.id;
-    const essId = controller.properties["ess.id"];
+  private mapController(controller: EDGE_CONFIG.COMPONENT): { essId: string, channels: Channel[] } | null {
+    const ctrlId = CONTROLLER.ID;
+    const essId = CONTROLLER.PROPERTIES["ESS.ID"];
 
-    const channels: Channel[] | null = [{ title: "Enabled", address: ctrlId + "/_PropertyEnabled", converter: Converter.enabled() }];
+    const channels: Channel[] | null = [{ title: "Enabled", address: ctrlId + "/_PropertyEnabled", converter: CONVERTER.ENABLED() }];
 
-    switch (controller.factoryId) {
-      case "Controller.Ess.FixActivePower":
-        channels.push(
-          { title: "Mode", address: ctrlId + "/_PropertyMode", converter: Utils.CONVERT_MANUAL_ON_OFF(this.translate) },
-          { title: "Set-Point", address: ctrlId + "/_PropertyPower", converter: Converter.unit("W") },
+    switch (CONTROLLER.FACTORY_ID) {
+      case "CONTROLLER.ESS.FIX_ACTIVE_POWER":
+        CHANNELS.PUSH(
+          { title: "Mode", address: ctrlId + "/_PropertyMode", converter: Utils.CONVERT_MANUAL_ON_OFF(THIS.TRANSLATE) },
+          { title: "Set-Point", address: ctrlId + "/_PropertyPower", converter: CONVERTER.UNIT("W") },
         );
         break;
 
-      case "Controller.Ess.EmergencyCapacityReserve":
-        channels.push(
-          { title: "Mode", address: ctrlId + "/_PropertyIsReserveSocEnabled", converter: Converter.enabled() },
-          { title: "Set-Point", address: ctrlId + "/DebugSetActivePowerLessOrEquals", converter: Converter.unit("W") },
+      case "CONTROLLER.ESS.EMERGENCY_CAPACITY_RESERVE":
+        CHANNELS.PUSH(
+          { title: "Mode", address: ctrlId + "/_PropertyIsReserveSocEnabled", converter: CONVERTER.ENABLED() },
+          { title: "Set-Point", address: ctrlId + "/DebugSetActivePowerLessOrEquals", converter: CONVERTER.UNIT("W") },
         );
         break;
 
-      case "Controller.Ess.Time-Of-Use-Tariff":
-        channels.push(
+      case "CONTROLLER.ESS.TIME-Of-Use-Tariff":
+        CHANNELS.PUSH(
           { title: "StateMachine", address: ctrlId + "/StateMachine", converter: (value) => value },
         );
         break;
 
-      case "Controller.Ess.GridOptimizedCharge":
-        channels.push(
-          { title: "Charge Limit", address: ctrlId + "/SellToGridLimitMinimumChargeLimit", converter: Converter.unit("W") },
+      case "CONTROLLER.ESS.GRID_OPTIMIZED_CHARGE":
+        CHANNELS.PUSH(
+          { title: "Charge Limit", address: ctrlId + "/SellToGridLimitMinimumChargeLimit", converter: CONVERTER.UNIT("W") },
         );
         break;
 
-      case "Controller.Symmetric.Balancing":
-      case "Controller.Ess.Hybrid.Surplus-Feed-To-Grid":
+      case "CONTROLLER.SYMMETRIC.BALANCING":
+      case "CONTROLLER.ESS.HYBRID.SURPLUS-Feed-To-Grid":
         break;
 
-      case "Controller.Evcs":
+      case "CONTROLLER.EVCS":
         return null;
 
       default:
-        this.ignoredControllers.push({
-          id: controller.id,
-          alias: controller.alias,
-          factoryId: controller.factoryId,
+        THIS.IGNORED_CONTROLLERS.PUSH({
+          id: CONTROLLER.ID,
+          alias: CONTROLLER.ALIAS,
+          factoryId: CONTROLLER.FACTORY_ID,
           channels: [],
         });
-        console.log("Ignore Controller: " + controller.id + " (" + controller.factoryId + ")", controller.properties);
+        CONSOLE.LOG("Ignore Controller: " + CONTROLLER.ID + " (" + CONTROLLER.FACTORY_ID + ")", CONTROLLER.PROPERTIES);
         return null;
     }
 
@@ -223,7 +223,7 @@ export class PowerAssistantComponent extends AbstractFlatWidget {
 export namespace Converter {
   export function unit(unit: string): (value: any) => string {
     return function (value: any): string {
-      const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+      const locale: string = (LANGUAGE.GET_BY_KEY(LOCAL_STORAGE.LANGUAGE) ?? LANGUAGE.DEFAULT).i18nLocaleKey;
       if (value == null) {
         return "-";
       } else if (value >= 0) {

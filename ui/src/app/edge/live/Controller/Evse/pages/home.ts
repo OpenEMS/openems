@@ -8,12 +8,12 @@ import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { ControllerEvseSingleShared } from "../shared/shared";
 
 @Component({
     selector: "oe-controller-evse-single-home",
-    templateUrl: "./home.html",
+    templateUrl: "./HOME.HTML",
     standalone: false,
     styles: [
         `
@@ -30,11 +30,11 @@ export class ModalComponent extends AbstractModal {
 
     protected showNewFooter: boolean = true;
     protected label: string | null = null;
-    protected chargePoint: EdgeConfig.Component | null = null;
+    protected chargePoint: EDGE_CONFIG.COMPONENT | null = null;
 
     protected img: OeImageComponent["img"] | null = null;
 
-    protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(THIS.TRANSLATE);
 
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
@@ -50,27 +50,27 @@ export class ModalComponent extends AbstractModal {
 
     public override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                this.chargePoint = config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
+            THIS.ROUTE.PARAMS.PIPE(filter(params => params != null), take(1)).subscribe((params) => {
+                THIS.COMPONENT = CONFIG.GET_COMPONENT(PARAMS.COMPONENT_ID);
+                THIS.CHARGE_POINT = CONFIG.GET_COMPONENT_FROM_OTHER_COMPONENTS_PROPERTY(THIS.COMPONENT.ID, "CHARGE_POINT.ID") ?? null;
                 res();
             });
         });
     }
 
     protected override onIsInitialized(): void {
-        const url = ControllerEvseSingleShared.getImgUrlByFactoryId(this.chargePoint.factoryId);
-        this.img = url === null ? null : { url, height: 300, width: 300 };
+        const url = CONTROLLER_EVSE_SINGLE_SHARED.GET_IMG_URL_BY_FACTORY_ID(THIS.CHARGE_POINT.FACTORY_ID);
+        THIS.IMG = url === null ? null : { url, height: 300, width: 300 };
     }
 
     protected override getFormGroup(): FormGroup {
-        AssertionUtils.assertIsDefined(this.component);
-        return this.formBuilder.group({
-            mode: new FormControl(this.component.properties.mode),
+        ASSERTION_UTILS.ASSERT_IS_DEFINED(THIS.COMPONENT);
+        return THIS.FORM_BUILDER.GROUP({
+            mode: new FormControl(THIS.COMPONENT.PROPERTIES.MODE),
         });
     }
 
     protected hideFooter() {
-        this.showNewFooter = !this.showNewFooter;
+        THIS.SHOW_NEW_FOOTER = !THIS.SHOW_NEW_FOOTER;
     }
 }

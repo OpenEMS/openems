@@ -9,30 +9,30 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "sumChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: false,
 })
 export class SumChartDetailsComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
 
-    const component = config?.getComponent(route.snapshot.params.componentId);
+    const component = config?.getComponent(ROUTE.SNAPSHOT.PARAMS.COMPONENT_ID);
     return {
       input: [{
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ConsumptionActivePower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ConsumptionActiveEnergy"),
+        name: COMPONENT.ID,
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ConsumptionActivePower"),
+        energyChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ConsumptionActiveEnergy"),
       },
 
       ...Phase.THREE_PHASE.map(phase => ({
         name: "ConsumptionActivePower" + phase,
-        powerChannel: ChannelAddress.fromString(component.id + "/ConsumptionActivePower" + phase),
+        powerChannel: CHANNEL_ADDRESS.FROM_STRING(COMPONENT.ID + "/ConsumptionActivePower" + phase),
       }))],
 
-      output: (data: HistoryUtils.ChannelData) => [{
-        name: component.alias,
-        nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ConsumptionActiveEnergy"],
-        converter: () => data[component.id],
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => [{
+        name: COMPONENT.ALIAS,
+        nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => ENERGY_QUERY_RESPONSE.RESULT.DATA[COMPONENT.ID + "/ConsumptionActiveEnergy"],
+        converter: () => data[COMPONENT.ID],
         color: "rgb(0,152,204)",
         hiddenOnInit: false,
         stack: 2,
@@ -42,22 +42,22 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
         name: "Phase " + phase,
         converter: () =>
           data["ConsumptionActivePower" + phase],
-        color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+        color: "rgb(" + ABSTRACT_HISTORY_CHART.PHASE_COLORS[i] + ")",
         stack: 3,
       }))],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: TRANSLATE.INSTANT("GENERAL.TOTAL"),
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       }],
     };
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return SumChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    return SUM_CHART_DETAILS_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.ROUTE, THIS.TRANSLATE);
   }
 }

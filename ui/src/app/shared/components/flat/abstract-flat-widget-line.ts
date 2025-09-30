@@ -54,8 +54,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
 
   @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
     if (typeof value === "object") {
-      this.subscribe(value.channel);
-      this._name = value.converter;
+      THIS.SUBSCRIBE(VALUE.CHANNEL);
+      this._name = VALUE.CONVERTER;
     } else {
       this._name = value;
     }
@@ -64,12 +64,12 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   /** Channel defines the channel, you need for this line */
   @Input()
   set channelAddress(channelAddress: string) {
-    this._channelAddress = ChannelAddress.fromString(channelAddress);
-    this.subscribe(ChannelAddress.fromString(channelAddress));
+    this._channelAddress = CHANNEL_ADDRESS.FROM_STRING(channelAddress);
+    THIS.SUBSCRIBE(CHANNEL_ADDRESS.FROM_STRING(channelAddress));
   }
 
   /**
-   * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+   * Use `converter` to convert/map a CurrentData value to another value, E.G. an Enum number to a text.
   *
   * @param value the value from CurrentData
   * @returns converter function
@@ -77,41 +77,41 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   @Input() public converter = (value: any): string => { return value; };
 
   public ngOnChanges() {
-    this.setValue(this.value);
+    THIS.SET_VALUE(THIS.VALUE);
   }
 
   public ngOnDestroy() {
 
     // Unsubscribe from CurrentData subject
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-    this.subscription?.destroy();
+    THIS.STOP_ON_DESTROY.NEXT();
+    THIS.STOP_ON_DESTROY.COMPLETE();
+    THIS.SUBSCRIPTION?.destroy();
   }
 
   protected setValue(value: any) {
     if (typeof this._name == "function") {
-      this.displayName = this._name(value);
+      THIS.DISPLAY_NAME = this._name(value);
 
     } else {
-      this.displayName = this._name;
+      THIS.DISPLAY_NAME = this._name;
     }
-    this.displayValue = this.converter(value);
+    THIS.DISPLAY_VALUE = THIS.CONVERTER(value);
 
-    if (this.filter) {
-      this.show = this.filter(value);
+    if (THIS.FILTER) {
+      THIS.SHOW = THIS.FILTER(value);
     }
   }
 
   protected subscribe(channelAddress: ChannelAddress) {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
+    THIS.SERVICE.GET_CURRENT_EDGE().then(edge => {
+      THIS.EDGE = edge;
 
-      this.dataService.getValues([channelAddress], this.edge);
+      THIS.DATA_SERVICE.GET_VALUES([channelAddress], THIS.EDGE);
 
-      this.subscription = effect(() => {
-        const val = this.dataService.currentValue();
-        this.setValue(val.allComponents[channelAddress.toString()]);
-      }, { injector: this.injector });
+      THIS.SUBSCRIPTION = effect(() => {
+        const val = THIS.DATA_SERVICE.CURRENT_VALUE();
+        THIS.SET_VALUE(VAL.ALL_COMPONENTS[CHANNEL_ADDRESS.TO_STRING()]);
+      }, { injector: THIS.INJECTOR });
     });
   }
 }

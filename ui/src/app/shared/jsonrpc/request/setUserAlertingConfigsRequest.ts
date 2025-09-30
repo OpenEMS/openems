@@ -38,6 +38,6 @@ export class SetUserAlertingConfigsRequest extends JsonrpcRequest {
       userSettings: UserSettingRequest[],
     },
   ) {
-    super(SetUserAlertingConfigsRequest.METHOD, params);
+    super(SET_USER_ALERTING_CONFIGS_REQUEST.METHOD, params);
   }
 }

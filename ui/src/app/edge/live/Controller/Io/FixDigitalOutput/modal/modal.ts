@@ -7,10 +7,10 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 
 @Component({
-  templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
+  templateUrl: "../../../../../../shared/components/formly/formly-field-modal/TEMPLATE.HTML",
   standalone: false,
   providers: [
     { provide: DataService, useClass: LiveDataService },
@@ -18,32 +18,32 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  @Input() public component: EdgeConfig.Component | null = null;
+  @Input() public component: EDGE_CONFIG.COMPONENT | null = null;
   @Input() public edge: Edge | null = null;
 
   protected isOnChannel: ChannelAddress | null = null;
 
-  public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
-    AssertionUtils.assertIsDefined(component);
-    AssertionUtils.assertIsDefined(edge);
+  public static generateView(translate: TranslateService, component: EDGE_CONFIG.COMPONENT | null, edge: Edge | null): OeFormlyView {
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(edge);
 
     const lines: OeFormlyField[] = [
       {
         type: "info-line",
-        name: translate.instant("General.mode"),
+        name: TRANSLATE.INSTANT("GENERAL.MODE"),
       },
       {
         type: "buttons-from-form-control-line",
-        name: translate.instant("General.mode"),
+        name: TRANSLATE.INSTANT("GENERAL.MODE"),
         controlName: "isOn",
         buttons: [
           {
-            name: translate.instant("General.on"),
+            name: TRANSLATE.INSTANT("GENERAL.ON"),
             value: 1,
             icon: { color: "success", name: "power-outline", size: "medium" },
           },
           {
-            name: translate.instant("General.off"),
+            name: TRANSLATE.INSTANT("GENERAL.OFF"),
             value: 0,
             icon: { color: "danger", name: "power-outline", size: "medium" },
           },
@@ -60,26 +60,26 @@ export class ModalComponent extends AbstractFormlyComponent {
 
 
   protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-    const componentId = this.component?.id ?? null;
+    const componentId = THIS.COMPONENT?.id ?? null;
     if (!componentId) {
-      return Promise.resolve([]);
+      return PROMISE.RESOLVE([]);
     }
-    this.isOnChannel = new ChannelAddress(componentId, "_PropertyIsOn");
-    return Promise.resolve([this.isOnChannel]);
+    THIS.IS_ON_CHANNEL = new ChannelAddress(componentId, "_PropertyIsOn");
+    return PROMISE.RESOLVE([THIS.IS_ON_CHANNEL]);
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
 
-    if (this.form.dirty || !this.isOnChannel || currentData.allComponents[this.isOnChannel.toString()] == null) {
+    if (THIS.FORM.DIRTY || !THIS.IS_ON_CHANNEL || CURRENT_DATA.ALL_COMPONENTS[THIS.IS_ON_CHANNEL.TO_STRING()] == null) {
       return;
     }
 
-    const isOn = currentData.allComponents[this.isOnChannel.toString()];
-    this.form.controls["isOn"].setValue(isOn);
+    const isOn = CURRENT_DATA.ALL_COMPONENTS[THIS.IS_ON_CHANNEL.TO_STRING()];
+    THIS.FORM.CONTROLS["isOn"].setValue(isOn);
   }
 
   protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(this.translate, this.component, this.edge);
+    return MODAL_COMPONENT.GENERATE_VIEW(THIS.TRANSLATE, THIS.COMPONENT, THIS.EDGE);
   }
 
   protected override getFormGroup(): FormGroup {

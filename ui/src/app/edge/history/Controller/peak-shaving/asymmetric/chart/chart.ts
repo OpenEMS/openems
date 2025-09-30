@@ -8,16 +8,16 @@ import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { calculateResolution, ChronoUnit } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
-import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { ChartComponentsModule } from "src/app/shared/components/chart/CHART.MODULE";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-ERROR.MODULE";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { ChannelAddress, ChartConstants, EdgeConfig, Utils } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/ASSERTIONS.UTILS";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "oe-controller-peakshaving-asymmetric-chart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/ABSTRACTHISTORYCHART.HTML",
   standalone: true,
   imports: [
     BaseChartDirective,
@@ -32,16 +32,16 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
+  public static getChartData(config: EdgeConfig, component: EDGE_CONFIG.COMPONENT, translate: TranslateService): HISTORY_UTILS.CHART_DATA {
 
-    AssertionUtils.assertIsDefined(component);
-    const meterId = config.getPropertyFromComponent<string>(component, "meter.id");
+    ASSERTION_UTILS.ASSERT_IS_DEFINED(component);
+    const meterId = CONFIG.GET_PROPERTY_FROM_COMPONENT<string>(component, "METER.ID");
 
-    const input: HistoryUtils.InputChannel[] = [
+    const input: HISTORY_UTILS.INPUT_CHANNEL[] = [
       ...(Phase.THREE_PHASE.map(phase => ({
         name: "ActivePower" + phase,
         powerChannel: new ChannelAddress(meterId, "ActivePower" + phase),
-        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+        converter: HISTORY_UTILS.VALUE_CONVERTER.NEGATIVE_AS_ZERO,
       }))),
       {
         name: "EssSoc",
@@ -50,62 +50,62 @@ export class ChartComponent extends AbstractHistoryChart {
       {
         name: "Charge",
         powerChannel: new ChannelAddress("_sum", "EssActivePower"),
-        converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE,
+        converter: HISTORY_UTILS.VALUE_CONVERTER.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE,
       },
       {
         name: "Discharge",
         powerChannel: new ChannelAddress("_sum", "EssActivePower"),
-        converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
+        converter: HISTORY_UTILS.VALUE_CONVERTER.NON_NULL_OR_NEGATIVE,
 
       },
       {
         name: "CHARGE_UNDER",
-        powerChannel: new ChannelAddress(component.id, "_PropertyRechargePower"),
+        powerChannel: new ChannelAddress(COMPONENT.ID, "_PropertyRechargePower"),
       },
       {
         name: "DISCHARGE_OVER",
-        powerChannel: new ChannelAddress(component.id, "_PropertyPeakShavingPower"),
+        powerChannel: new ChannelAddress(COMPONENT.ID, "_PropertyPeakShavingPower"),
       },
     ];
 
     return {
       input: input,
-      output: (data: HistoryUtils.ChannelData) => {
-        const output: HistoryUtils.DisplayValue[] = [
+      output: (data: HISTORY_UTILS.CHANNEL_DATA) => {
+        const output: HISTORY_UTILS.DISPLAY_VALUE[] = [
           ...(Phase.THREE_PHASE.map((phase, i) => ({
             name: "Phase " + phase,
-            color: ChartConstants.Colors.DEFAULT_PHASES_COLORS[i],
+            color: CHART_CONSTANTS.COLORS.DEFAULT_PHASES_COLORS[i],
             converter: () => data["ActivePower" + phase],
           }))),
           {
-            name: translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
-            color: ChartConstants.Colors.GREEN,
+            name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
+            color: CHART_CONSTANTS.COLORS.GREEN,
             converter: () => data["CHARGE_UNDER"],
             hideShadow: true,
             borderDash: [3, 3],
           },
           {
-            name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
-            color: ChartConstants.Colors.RED,
+            name: TRANSLATE.INSTANT("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
+            color: CHART_CONSTANTS.COLORS.RED,
             converter: () => data["DISCHARGE_OVER"],
             hideShadow: true,
             borderDash: [3, 3],
           },
           {
-            name: translate.instant("General.CHARGE"),
-            color: ChartConstants.Colors.GREEN,
+            name: TRANSLATE.INSTANT("GENERAL.CHARGE"),
+            color: CHART_CONSTANTS.COLORS.GREEN,
             converter: () => data["Charge"],
           },
           {
-            name: translate.instant("General.DISCHARGE"),
-            color: ChartConstants.Colors.RED,
+            name: TRANSLATE.INSTANT("GENERAL.DISCHARGE"),
+            color: CHART_CONSTANTS.COLORS.RED,
             converter: () => data["Discharge"],
           },
           {
-            name: translate.instant("General.soc"),
-            color: ChartConstants.Colors.GREY,
-            converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
-            yAxisId: ChartAxis.RIGHT,
+            name: TRANSLATE.INSTANT("GENERAL.SOC"),
+            color: CHART_CONSTANTS.COLORS.GREY,
+            converter: () => data["EssSoc"]?.map(value => UTILS.MULTIPLY_SAFELY(value, 1000)),
+            yAxisId: CHART_AXIS.RIGHT,
             hideShadow: true,
             borderDash: [10, 10],
           },
@@ -113,30 +113,30 @@ export class ChartComponent extends AbstractHistoryChart {
         return output;
       },
       tooltip: {
-        formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
+        formatNumber: CHART_CONSTANTS.NUMBER_FORMAT.ZERO_TO_TWO,
       },
       yAxes: [{
-        unit: YAxisType.ENERGY,
+        unit: YAXIS_TYPE.ENERGY,
         position: "left",
-        yAxisId: ChartAxis.LEFT,
+        yAxisId: CHART_AXIS.LEFT,
       },
 
       {
-        unit: YAxisType.PERCENTAGE,
+        unit: YAXIS_TYPE.PERCENTAGE,
         position: "right",
-        yAxisId: ChartAxis.RIGHT,
+        yAxisId: CHART_AXIS.RIGHT,
       },
       ],
     };
   }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return ChartComponent.getChartData(this.config, this.component, this.translate);
+  protected override getChartData(): HISTORY_UTILS.CHART_DATA {
+    return CHART_COMPONENT.GET_CHART_DATA(THIS.CONFIG, THIS.COMPONENT, THIS.TRANSLATE);
   }
 
   protected override loadChart(): Promise<void> {
-    const unit: ChronoUnit.Type = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).resolution.unit;
-    this.loadLineChart(unit);
+    const unit: CHRONO_UNIT.TYPE = calculateResolution(THIS.SERVICE, THIS.SERVICE.HISTORY_PERIOD.VALUE.FROM, THIS.SERVICE.HISTORY_PERIOD.VALUE.TO).RESOLUTION.UNIT;
+    THIS.LOAD_LINE_CHART(unit);
     return;
   }
 }

@@ -4,7 +4,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
 @Component({
-    templateUrl: "./popover.html",
+    templateUrl: "./POPOVER.HTML",
     standalone: false,
 })
 

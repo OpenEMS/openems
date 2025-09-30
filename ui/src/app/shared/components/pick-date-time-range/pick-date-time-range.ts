@@ -4,7 +4,7 @@ import { IonPopover } from "@ionic/angular";
 
 @Component({
     selector: "oe-pick-date-time-range",
-    templateUrl: "./pick-date-time-range.html",
+    templateUrl: "./pick-date-time-RANGE.HTML",
     standalone: false,
     styles: [`
         .time-display-item {
@@ -33,14 +33,14 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
 
     public ngOnChanges(changes: SimpleChanges) {
         if ("displayValue" in changes || "invalid" in changes || "mode" in changes) {
-            this.updateDisplayText();
-            this.updateBorderColor();
+            THIS.UPDATE_DISPLAY_TEXT();
+            THIS.UPDATE_BORDER_COLOR();
         }
     }
 
     public ngAfterViewInit() {
         // Border color update just in case the display value was present at init
-        this.updateBorderColor();
+        THIS.UPDATE_BORDER_COLOR();
     }
 
     public isValidTime(time: string | null | undefined): boolean {
@@ -52,28 +52,28 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
     }
 
     protected presentPopover() {
-        if (this.triggerItem?.nativeElement) {
-            this.popoverEvent = {
-                target: this.triggerItem.nativeElement,
+        if (THIS.TRIGGER_ITEM?.nativeElement) {
+            THIS.POPOVER_EVENT = {
+                target: THIS.TRIGGER_ITEM.NATIVE_ELEMENT,
             };
-            this.popoverInstance.present();
+            THIS.POPOVER_INSTANCE.PRESENT();
         }
     }
 
     protected handleTimeChange(event: CustomEvent) {
-        const value = event.detail.value;
-        this.timeChange.emit(this.formatValue(value));
-        this.popoverInstance.dismiss();
-        this.updateBorderColor();
+        const value = EVENT.DETAIL.VALUE;
+        THIS.TIME_CHANGE.EMIT(THIS.FORMAT_VALUE(value));
+        THIS.POPOVER_INSTANCE.DISMISS();
+        THIS.UPDATE_BORDER_COLOR();
     }
 
     private updateDisplayText(): void {
-        if (this.displayValue === null || this.displayValue === "") {
-            this.displayText = this.mode === "date"
+        if (THIS.DISPLAY_VALUE === null || THIS.DISPLAY_VALUE === "") {
+            THIS.DISPLAY_TEXT = THIS.MODE === "date"
                 ? "TT.MM.JJJJ"
                 : "00:00";
         } else {
-            this.displayText = this.displayValue;
+            THIS.DISPLAY_TEXT = THIS.DISPLAY_VALUE;
         }
     }
 
@@ -81,33 +81,33 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
         // broder color generation is valid for "time" mode. seperate valid functions required for other modes.
         let newBorderColor = "var(--ion-color-medium-tint)";
 
-        if (this.mode === "time") {
-            const isValidTime = this.isValidTime(this.displayValue);
+        if (THIS.MODE === "time") {
+            const isValidTime = THIS.IS_VALID_TIME(THIS.DISPLAY_VALUE);
 
             if (isValidTime) {
-                newBorderColor = this.invalid
+                newBorderColor = THIS.INVALID
                     ? "var(--highlight-color-invalid, var(--ion-color-danger))"
                     : "var(--highlight-color-valid, var(--ion-color-success))";
             }
         }
 
-        this.borderColor = newBorderColor;
+        THIS.BORDER_COLOR = newBorderColor;
     }
 
 
     private formatValue(value: string | Date | null): string {
         if (value === null || value === "") {
-            return this.mode === "date" ? "TT.MM.JJJJ" : "00:00";
+            return THIS.MODE === "date" ? "TT.MM.JJJJ" : "00:00";
         }
 
         const date = new Date(value);
 
-        if (this.mode === "date") {
-            return date.toLocaleDateString("default");
-        } else if (this.mode === "datetime") {
-            return `${date.toLocaleTimeString("deafult", { hour: "2-digit", minute: "2-digit" })} ${date.toLocaleDateString("deafult")}`;
+        if (THIS.MODE === "date") {
+            return DATE.TO_LOCALE_DATE_STRING("default");
+        } else if (THIS.MODE === "datetime") {
+            return `${DATE.TO_LOCALE_TIME_STRING("deafult", { hour: "2-digit", minute: "2-digit" })} ${DATE.TO_LOCALE_DATE_STRING("deafult")}`;
         } else {
-            return date.toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit" });
+            return DATE.TO_LOCALE_TIME_STRING("default", { hour: "2-digit", minute: "2-digit" });
         }
     }
 }

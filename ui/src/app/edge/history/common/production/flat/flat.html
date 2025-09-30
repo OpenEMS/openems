@@ -1,13 +1,13 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="'General.production' | translate"
+<oe-flat-widget *ngIf="isInitialized" [title]="'GENERAL.PRODUCTION' | translate"
     [icon]="{name: 'oe-production', color: 'production'}" button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/productionchart'">
+    [routerLink]="'/device/' + EDGE.ID + newNavigationUrlSegment + '/history/productionchart'">
     <ng-container *ngFor="let component of productionMeterComponents, let i = index">
-        <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActiveProductionEnergy'"
+        <oe-flat-widget-line [name]="COMPONENT.ALIAS" [channelAddress]="COMPONENT.ID + '/ActiveProductionEnergy'"
             [converter]="CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
     </ng-container>
     <ng-container *ngFor="let component of chargerComponents">
-        <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActualEnergy'"
+        <oe-flat-widget-line [name]="COMPONENT.ALIAS" [channelAddress]="COMPONENT.ID + '/ActualEnergy'"
             [converter]="CONVERT_TO_KILO_WATTHOURS">
         </oe-flat-widget-line>
     </ng-container>

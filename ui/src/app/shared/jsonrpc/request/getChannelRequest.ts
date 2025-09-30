@@ -10,7 +10,7 @@ export class GetChannelRequest extends JsonrpcRequest {
             channelId: string,
         },
     ) {
-        super(GetChannelRequest.METHOD, params);
+        super(GET_CHANNEL_REQUEST.METHOD, params);
     }
 
 }

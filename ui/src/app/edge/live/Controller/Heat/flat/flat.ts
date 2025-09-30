@@ -6,39 +6,39 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
   selector: "Controller_Heat",
-  templateUrl: "./flat.html",
+  templateUrl: "./FLAT.HTML",
   standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
   protected readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-  protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
+  protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(THIS.TRANSLATE);
 
   protected statusNumber: number | null = null;
   protected status: State | null = null;
 
   protected async presentModal() {
-    if (!this.isInitialized) {
+    if (!THIS.IS_INITIALIZED) {
       return;
     }
-    const modal = await this.modalController.create({
+    const modal = await THIS.MODAL_CONTROLLER.CREATE({
       component: ModalComponent,
       componentProps: {
-        component: this.component,
+        component: THIS.COMPONENT,
       },
     });
-    return await modal.present();
+    return await MODAL.PRESENT();
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
     if (this == null) { return []; }
 
-    if (this.component == null) { return []; }
+    if (THIS.COMPONENT == null) { return []; }
 
     const channelAddresses: ChannelAddress[] = [
-      new ChannelAddress(this.component.id, "Status"),
-      new ChannelAddress(this.component.id, "ControlNotAllowed"),
-      new ChannelAddress(this.component.id, "ActivePower"),
-      new ChannelAddress(this.component.id, "Temperature"),
+      new ChannelAddress(THIS.COMPONENT.ID, "Status"),
+      new ChannelAddress(THIS.COMPONENT.ID, "ControlNotAllowed"),
+      new ChannelAddress(THIS.COMPONENT.ID, "ActivePower"),
+      new ChannelAddress(THIS.COMPONENT.ID, "Temperature"),
     ];
 
     return channelAddresses;
@@ -46,31 +46,31 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected override onCurrentData(currentData: CurrentData) {
 
-    if (this.component != null && this.component != undefined) {
+    if (THIS.COMPONENT != null && THIS.COMPONENT != undefined) {
 
-      this.statusNumber = currentData.allComponents[this.component.id + "/Status"] ?? Status.error;
+      THIS.STATUS_NUMBER = CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/Status"] ?? STATUS.ERROR;
 
-      switch (this.statusNumber) {
-        case Status.standby:
-        case Status.excess:
-        case Status.ControlNotAllowed:
-          this.status = State.heating;
+      switch (THIS.STATUS_NUMBER) {
+        case STATUS.STANDBY:
+        case STATUS.EXCESS:
+        case STATUS.CONTROL_NOT_ALLOWED:
+          THIS.STATUS = STATE.HEATING;
           break;
-        case Status.temperatureReached:
-          this.status = State.temperatureReached;
+        case STATUS.TEMPERATURE_REACHED:
+          THIS.STATUS = STATE.TEMPERATURE_REACHED;
           break;
-        case Status.noControlSignal:
-          if (currentData.allComponents[this.component.id + "/" + "ActivePower"] > 0) {
-            this.status = State.heating;
+        case STATUS.NO_CONTROL_SIGNAL:
+          if (CURRENT_DATA.ALL_COMPONENTS[THIS.COMPONENT.ID + "/" + "ActivePower"] > 0) {
+            THIS.STATUS = STATE.HEATING;
           } else {
-            this.status = State.noHeating;
+            THIS.STATUS = STATE.NO_HEATING;
           }
           break;
-        case Status.error:
-          this.status = State.noHeating;
+        case STATUS.ERROR:
+          THIS.STATUS = STATE.NO_HEATING;
           break;
         default:
-          this.status = State.noHeating;
+          THIS.STATUS = STATE.NO_HEATING;
           break;
       }
     }

@@ -6,11 +6,11 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { environment } from "src/environments";
 import { Service } from "../../../shared/shared";
 import { Role } from "../../../shared/type/role";
-import { Changelog } from "./changelog.constants";
+import { Changelog } from "./CHANGELOG.CONSTANTS";
 
 @Component({
   selector: "changelog",
-  templateUrl: "./changelog.component.html",
+  templateUrl: "./CHANGELOG.COMPONENT.HTML",
   standalone: true,
   imports: [IonicModule, CommonModule, TranslateModule],
 })
@@ -18,16 +18,16 @@ export class ChangelogComponent {
 
   public environment = environment;
 
-  public readonly roleIsAtLeast = Role.isAtLeast;
+  public readonly roleIsAtLeast = ROLE.IS_AT_LEAST;
   public readonly changelogs: {
     title?: string,
     version?: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: "x.y.z",
+        version: "X.Y.Z",
         changes: [
-          Changelog.link("OpenEMS Releases", "https://github.com/OpenEMS/openems/releases"),
+          CHANGELOG.LINK("OpenEMS Releases", "https://GITHUB.COM/OpenEMS/openems/releases"),
         ],
       },
     ];

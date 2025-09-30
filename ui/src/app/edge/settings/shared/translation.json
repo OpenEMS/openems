@@ -1,20 +1,20 @@
 {
-    "de": {
-        "PROFILE": {
-            "SYSTEM_PROTOCOL": {
-                "LABEL": "Systemprotokoll",
-                "DOWNLOAD": "Download",
-                "TITLE": "Aktuelles"
-            }
-        }
-    },
-    "en": {
-        "PROFILE": {
-            "SYSTEM_PROTOCOL": {
-                "LABEL": "System protocol",
-                "DOWNLOAD": "Download",
-                "TITLE": "Currently"
-            }
-        }
+  "DE": {
+    "PROFILE": {
+      "SYSTEM_PROTOCOL": {
+        "LABEL": "Systemprotokoll",
+        "DOWNLOAD": "Download",
+        "TITLE": "Aktuelles"
+      }
     }
+  },
+  "EN": {
+    "PROFILE": {
+      "SYSTEM_PROTOCOL": {
+        "LABEL": "System protocol",
+        "DOWNLOAD": "Download",
+        "TITLE": "Currently"
+      }
+    }
+  }
 }

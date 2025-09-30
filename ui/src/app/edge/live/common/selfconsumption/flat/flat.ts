@@ -7,7 +7,7 @@ import { ModalComponent } from "../modal/modal";
 
 @Component({
     selector: "Common_Selfconsumption",
-    templateUrl: "./flat.html",
+    templateUrl: "./FLAT.HTML",
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -15,10 +15,10 @@ export class FlatComponent extends AbstractFlatWidget {
     public calculatedSelfConsumption: number;
 
     async presentModal() {
-        const modal = await this.modalController.create({
+        const modal = await THIS.MODAL_CONTROLLER.CREATE({
             component: ModalComponent,
         });
-        return await modal.present();
+        return await MODAL.PRESENT();
     }
 
     protected override getChannelAddresses() {
@@ -29,12 +29,12 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.calculatedSelfConsumption = Utils.calculateSelfConsumption(
-            Utils.multiplySafely(
-                currentData.allComponents["_sum/GridActivePower"],
+        THIS.CALCULATED_SELF_CONSUMPTION = UTILS.CALCULATE_SELF_CONSUMPTION(
+            UTILS.MULTIPLY_SAFELY(
+                CURRENT_DATA.ALL_COMPONENTS["_sum/GridActivePower"],
                 -1,
             ),
-            currentData.allComponents["_sum/ProductionActivePower"],
+            CURRENT_DATA.ALL_COMPONENTS["_sum/ProductionActivePower"],
         );
     }
 
