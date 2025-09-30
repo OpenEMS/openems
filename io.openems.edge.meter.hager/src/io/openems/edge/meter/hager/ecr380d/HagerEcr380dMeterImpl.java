@@ -98,7 +98,7 @@ public class HagerEcr380dMeterImpl extends AbstractOpenemsModbusComponent //
 	}
 
 	/**
-	 * Calculate a List of Registers, this modbus slave provides to the
+	 * Calculate a List of registers, this modbus slave provides to the
 	 * outside world.
 	 * 
 	 * @param accessMode the filter which registers are available
