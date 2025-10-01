@@ -23,9 +23,9 @@ export class HelpButtonComponent implements OnChanges {
 
     constructor(private service: Service) { }
 
-    ngOnChanges(changes: { key: SimpleChange, useDocsPrefix: SimpleChange }) {
-        if (changes["key"] || changes["useDocsPrefix"]) {
-            this.setLink(changes.key.currentValue, changes.useDocsPrefix.currentValue);
+    ngOnChanges(changes: { key: SimpleChange, useDefaultPrefix: SimpleChange }) {
+        if (changes["key"] || changes["useDefaultPrefix"]) {
+            this.setLink(changes.key.currentValue, changes.useDefaultPrefix.currentValue);
         }
     }
 
