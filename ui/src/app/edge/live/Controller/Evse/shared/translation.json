@@ -13,7 +13,8 @@
           "FORCE": "Schnell"
         },
         "POWER": "Power",
-        "ENERGY_SINCE_START": "Energie seit Ladebeginn"
+        "ENERGY_SINCE_START": "Energie seit Ladebeginn",
+        "VEHICLES": "App Center Fahrzeuge"
       }
     }
   },
@@ -31,7 +32,8 @@
           "FORCE": "Fast"
         },
         "POWER": "Leistung",
-        "ENERGY_SINCE_START": "Energy since the last charge start"
+        "ENERGY_SINCE_START": "Energy since the last charge start",
+        "VEHICLES": "App Center Vehicles"
       }
     }
   }

@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
+import { AppModule } from "src/app/edge/settings/app/app.module";
 import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -17,6 +18,7 @@ import { ChartComponent as StatusChartComponent } from "./pages/history/chart/st
 import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/history";
 import { ModalComponent } from "./pages/home";
 import { EvseSettingsComponent } from "./pages/settings/settings";
+import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-config";
 
 
 @NgModule({
@@ -27,6 +29,7 @@ import { EvseSettingsComponent } from "./pages/settings/settings";
     ModalModule,
     NgOptimizedImage,
     OeImageComponent,
+    AppModule,
   ],
   declarations: [
     FlatComponent,
@@ -38,9 +41,11 @@ import { EvseSettingsComponent } from "./pages/settings/settings";
     SchedulePowerChartComponent,
     ChartComponent,
     StatusChartComponent,
+    UpdateAppConfigComponent,
   ],
   exports: [
     FlatComponent,
+    UpdateAppConfigComponent,
   ],
 })
 export class ControllerEvseSingle {

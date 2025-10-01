@@ -1,13 +1,12 @@
 <ion-app>
   <app-header></app-header>
-  <ion-content>
-    <ng-container *ngIf="navigationService.position() === 'disabled'">
-      <ng-template *ngTemplateOutlet="sidemenu">
+
+  <ion-content *ngIf="navigationService.position() !== null">
+    <ng-container *ngIf=" navigationService.position()==='disabled'">
+      <ng-template *ngTemplateOutlet=" sidemenu">
       </ng-template>
-      <ion-content>
-        <ng-template *ngTemplateOutlet="content">
-        </ng-template>
-      </ion-content>
+      <ng-template *ngTemplateOutlet="content">
+      </ng-template>
     </ng-container>
     <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
       *ngIf="navigationService.position() === 'left'">

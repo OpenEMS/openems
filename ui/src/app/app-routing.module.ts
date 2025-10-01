@@ -29,13 +29,13 @@ import { ModalComponent as EvseForecastComponent } from "./edge/live/Controller/
 import { ModalComponent as EvseHistoryComponent } from "./edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "./edge/live/Controller/Evse/pages/home";
 import { EvseSettingsComponent } from "./edge/live/Controller/Evse/pages/settings/settings";
+import { UpdateAppConfigComponent } from "./edge/live/Controller/Evse/pages/update-app-config/update-app-config";
 import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { IndexComponent as EdgeSettingsAppIndex } from "./edge/settings/app/index.component";
 import { InstallAppComponent as EdgeSettingsAppInstall } from "./edge/settings/app/install.component";
 import { SingleAppComponent as EdgeSettingsAppSingle } from "./edge/settings/app/single.component";
-import { UpdateAppComponent as EdgeSettingsAppUpdate } from "./edge/settings/app/update.component";
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from "./edge/settings/channels/channels.component";
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from "./edge/settings/component/install/index.component";
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from "./edge/settings/component/install/install.component";
@@ -43,7 +43,6 @@ import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } 
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from "./edge/settings/component/update/update.component";
 import { JsonrpcTestComponent } from "./edge/settings/jsonrpctest/jsonrpctest";
 import { NetworkComponent as EdgeSettingsNetworkComponent } from "./edge/settings/network/network.component";
-import { PowerAssistantComponent } from "./edge/settings/powerassistant/powerassistant";
 import { AliasUpdateComponent } from "./edge/settings/profile/aliasupdate.component";
 import { ProfileComponent as EdgeSettingsProfileComponent } from "./edge/settings/profile/profile.component";
 import { SettingsComponent as EdgeSettingsComponent } from "./edge/settings/settings.component";
@@ -126,6 +125,11 @@ export const routes: Routes = [
           { path: "evse/:componentId/history", component: EvseHistoryComponent },
           { path: "evse/:componentId/settings", component: EvseSettingsComponent },
           { path: "evse/:componentId/forecast", component: EvseForecastComponent },
+          {
+            path: "evse/:componentId/car/update/:appId",
+            component: UpdateAppConfigComponent,
+            canActivate: [hasEdgeRole(Role.OWNER)],
+          },
           { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
           ...history(true),
         ],
@@ -146,11 +150,10 @@ export const routes: Routes = [
       { path: "settings/system", component: EdgeSettingsSystemComponent, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.SYSTEM" } },
       { path: "settings/app", canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitle: environment.edgeShortName + " Apps" }, component: EdgeSettingsAppIndex },
       { path: "settings/app/install/:appId", component: EdgeSettingsAppInstall, canActivate: [hasEdgeRole(Role.OWNER)] },
-      { path: "settings/app/update/:appId", component: EdgeSettingsAppUpdate, canActivate: [hasEdgeRole(Role.OWNER)] },
+      // { path: "settings/app/update/:appId", component: EdgeSettingsAppUpdate, canActivate: [hasEdgeRole(Role.OWNER)] },
       { path: "settings/app/single/:appId", component: EdgeSettingsAppSingle, canActivate: [hasEdgeRole(Role.OWNER)] },
       { path: "settings/alerting", loadChildren: () => import("./edge/settings/alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.alerting" } },
       { path: "settings/jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
-      { path: "settings/powerAssistant", component: PowerAssistantComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Power-Assistant" } },
       { path: "settings/app", data: { navbarTitle: environment.edgeShortName + "Apps" }, component: EdgeSettingsAppIndex },
     ],
   },

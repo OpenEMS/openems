@@ -51,7 +51,7 @@ export class UpdateAppComponent implements OnInit {
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     const appId = this.route.snapshot.params["appId"];
-    const appName = this.route.snapshot.queryParams["name"];
+    const appName = this.route.snapshot.queryParams["name"] ?? this.service.currentPageTitle;
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,

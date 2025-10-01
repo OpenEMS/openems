@@ -92,12 +92,12 @@ export class NavigationService {
         AssertionUtils.assertIsDefined(currentUrl);
 
         const currentSegments = currentUrl.split("/");
-        const newSegments = link.routerLink.split("/");
+        const newSegments = link.routerLink.baseString.split("/");
 
         if (ArrayUtils.containsAllStrings(currentSegments, newSegments)) {
 
             // Navigate backward
-            const prevRoute = this.getPrevRoute(currentSegments, link.routerLink);
+            const prevRoute = this.getPrevRoute(currentSegments, link.routerLink.baseString);
             this.router.navigate(prevRoute);
         } else {
 
@@ -187,11 +187,11 @@ export class NavigationService {
                 const segments: (string | null)[] = [];
                 const current: NavigationTree | null = node;
 
-                segments.unshift(current.routerLink);
-                segments.unshift(current?.parent?.routerLink ?? null);
+                segments.unshift(current.routerLink.baseString);
+                segments.unshift(current?.parent?.routerLink.baseString ?? null);
 
                 const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
-                node.routerLink = routerLink;
+                node.routerLink.baseString = routerLink;
                 return node;
             }
 
@@ -232,7 +232,7 @@ export class NavigationService {
             }
 
             const some = url.split("/").slice().reverse();
-            const urlSegments = tree.routerLink.split("/").slice().reverse();
+            const urlSegments = tree.routerLink.baseString.split("/").slice().reverse();
 
             const foundNode = ArrayUtils.containsAllStrings(some.slice(0, urlSegments.length), urlSegments);
             if (foundNode) {
