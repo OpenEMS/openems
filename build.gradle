@@ -1,8 +1,8 @@
 plugins {
 	id 'base'
 	id 'java'
-	id 'jacoco'
 	id 'com.github.node-gradle.node'
+	id 'org.barfuin.gradle.jacocolog'
 }
 
 repositories {
