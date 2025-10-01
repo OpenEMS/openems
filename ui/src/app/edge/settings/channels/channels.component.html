@@ -14,8 +14,9 @@
             <ion-list>
               <ion-item lines="none">
                 <ion-select justify="space-between" style="white-space: initial;width: 100%;" #selectedComponentId
-                  interface="alert" labelPlacement="start" [label]="'CHANNELS.Component'| translate"
-                  (ionChange)="onSelectedComponentChanged($event)" class="ion-text-align-left">
+                  interface="popover" labelPlacement="start" [label]="'CHANNELS.Component'| translate"
+                  (ionChange)="onSelectedComponentChanged($event)" class="ion-text-align-left custom-ion-popover"
+                  [interfaceOptions]="{cssClass: 'custom-ion-popover'}" aria-modal="true">
                   <ion-select-option style="white-space: normal !important;"
                     *ngFor="let entry of (config.components | keys)" [value]="entry.key">
                     {{ entry.value.id }} ({{ entry.value.alias }})</ion-select-option>
@@ -24,9 +25,10 @@
               <ion-item lines="none">
                 <ngx-spinner [name]="selectedComponentId.value"
                   class="custom-theme-text custom-ion-popover"></ngx-spinner>
-                <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="alert"
+                <ion-select style="white-space: initial;width: 100%;" #selectedChannelId interface="popover"
                   [disabled]="!selectedComponentId?.value" [label]="'CHANNELS.CHANNEL'| translate"
-                  justify="space-between">
+                  justify="space-between" [multiple]="true" class="custom-ion-popover"
+                  [interfaceOptions]="{cssClass: 'custom-ion-popover'}" aria-modal="true">
                   <ng-container *ngIf="selectedComponentId?.value">
                     <ion-select-option
                       *ngFor="let entry of channelsPerComponent.get(selectedComponentId.value).channels | keyvalue"
@@ -40,7 +42,7 @@
             <ion-button style="white-space: initial; line-break: strict;"
               *ngIf="selectedComponentId && selectedComponentId.value && selectedChannelId && selectedChannelId.value"
               expand="block"
-              (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
+              (click)="subscribeChannels(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
                 translate>CHANNELS.ADD</span>
             </ion-button>
           </ion-card-content>
@@ -157,8 +159,9 @@
                   </ion-card-content>
                 </ng-container>
                 <ion-item lines="none">
-                  <ion-label color="primary" translate>CHANNELS.MORE_CHANNELS</ion-label>
-                  <ion-select interface="alert" #selectedChannelId>
+                  <ion-select [multiple]="true" [interfaceOptions]="{cssClass: 'custom-ion-popover'}"
+                    interface="popover" #selectedChannelId [label]="'CHANNELS.MORE_CHANNELS' | translate"
+                    aria-modal="true">
                     <ng-container *ngIf="component.key">
                       <ion-select-option color="danger"
                         *ngFor="let entry of channelsPerComponent.get(component.key).channels | keyvalue"
@@ -169,10 +172,9 @@
                   </ion-select>
                 </ion-item>
                 <ion-button *ngIf="selectedChannelId?.value" expand="block"
-                  (click)="subscribeChannel(component.key, selectedChannelId.value); selectedChannelId.value = null"
+                  (click)="subscribeChannels(component.key, selectedChannelId.value); selectedChannelId.value = null"
                   translate>
                   CHANNELS.ADD</ion-button>
-
               </ion-list>
             </ion-card-content>
           </ion-card>
