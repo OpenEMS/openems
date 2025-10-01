@@ -67,7 +67,7 @@ subprojects {
 		}
 	
 		checkstyle {
-			toolVersion = '10.18.2'
+			toolVersion = '11.1.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures = false
