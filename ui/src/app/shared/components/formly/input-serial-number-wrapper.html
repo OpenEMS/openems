@@ -14,12 +14,7 @@
         </ion-col>
         <ion-col size="12" size-md="6">
             <ion-item lines="none" class="ion-no-padding input-box" [ngClass]="{'input-box': props.boxBorder}"
-                [ngStyle]="{
-                    'border-bottom-color': formControl.invalid && formControl.touched
-                    ? 'var(--highlight-color-invalid)'
-                    : (formControl.valid ? 'var(--highlight-color-valid)' : (isFocused ? 'var(--highlight-color-focused)' : 'hidden')),
-                    'border-bottom-style': (formControl.invalid && formControl.touched) || formControl.valid || isFocused ? 'solid' : 'hidden'
-                }">
+                [ngStyle]="borderBottomColor">
                 <span *ngIf="to.prefix" [style.color]="'var(--ion-color-text)'">{{to.prefix}}</span>
                 <ion-input [formControl]="formControl" (ionFocus)="setFocus(true)" (ionBlur)="setFocus(false)"
                     [type]="props.type || 'text'" [formlyAttributes]="field" text-left></ion-input>

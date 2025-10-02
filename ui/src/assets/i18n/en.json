@@ -713,15 +713,15 @@
       "GRID_OPTIMIZED_CHARGE": "Grid-optimized charge",
       "TIME_OF_USE_TARIFF": "Time-of-use tariff",
       "LEGEND": "Legend",
-      "NOT_YET_CONFIGURED": "Not yet configured/checked",
+      "NOT_YET_CONFIGURED": "Not yet configured / checked",
       "PARTIAL_CONFIGURATION": "Not all components could be configured correctly.",
-      "PRE_CONFIGURED": "Preconfigured/Warning",
+      "PRE_CONFIGURED": "Preconfigured / Warning",
       "PROGNOSIS": "Prognosis",
       "RELAY_BOARD": "Relay board",
       "SELF_CONSUMPTION": "Self-consumption optimization",
       "START": "Start configuration",
       "STORAGE_SYSTEM": "Energy storage system",
-      "SUCCESSFULLY_CONFIGURED": "Successfully configured/checked",
+      "SUCCESSFULLY_CONFIGURED": "Successfully configured / checked",
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
@@ -739,7 +739,14 @@
       "COMMUNICATION_WITH_RELAY": "Communication with Relay",
       "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration.",
       "START_FUNCTION_TEST": "Initiated function tests for the installed components",
-      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components"
+      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components",
+      "ESS_LIMITER_ALIAS": "ESS Limiter for §14a",
+      "IP_ADDRESS_ERROR": "An IP address required for the {{ system}} could not be added to the network configuration.",
+      "PREPARE_BATTERY_EXTENSION": "Battery retrofitting",
+      "COMMERCIAL_BATTERY_NOTE": "If you now click on “NEXT ->”, you have around 15 minutes to complete the rest of the commissioning process. After that, the BMS goes into a “time-out” set for safety reasons. Normally, this time is sufficient to complete the last steps of the commissioning in peace.\nIf there is still not enough time, you can start the commissioning again from the beginning.",
+      "NOTE": "Please note:",
+      "UNDEFINED_COMPONENT_CONFIGURATOR": "Component configurator is undefined",
+      "IS_BEING_CONFIGURED": "is being configured"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -828,7 +835,11 @@
       "PLACE_HOLDER": "Select option",
       "NO_LIMITATION": "No limitation",
       "NA_PROTECTION": "Activate remote shutdown (central NS protection)",
-      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'"
+      "DYNAMIC_LIMITATION_WITH_RIPPLE_CONTROLLER": "Dynamic limitation of feed-in & ripple control receiver",
+      "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Value of the dynamic limitation (max feed-in value, e.g. 60% of kWp) [W]",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'",
+      "INFO_TEXT": "Your energy storage system attempts to avoid curtailing the PV system through intelligent charging.",
+      "WARNING_TEXT": "This does not replace the proper configuration of the PV inverter!"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -950,7 +961,90 @@
       },
       "CONVERTER_RATIO": "Converter ratio (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Limiting according to §14a EnWG",
+      "IS_ACTIVATE": "Activate limiting option according to §14a EnWG",
+      "INFO_NOTE": "In order to avoid overloading the network, the network operator will in future have the option of dimming all consumption devices installed since January 1, 2024 to an output of 4.2 kW.",
+      "IS_ACTIVATE_LABEL": "The wiring must be installed in accordance with the installation instructions."
+    },
+    "PROTOCOL_CHECKLIST_PAGE_TITLE": "KACO - Connect inverter",
+    "PROTOCOL_CHECKLIST": {
+      "CONNECT_INVERTER": "A) Connect the computer to the inverter using a network cable (upper LAN socket)",
+      "CHANGE_NETWORK_SETTINGS": "B) Change network settings on computer (IP address)",
+      "IP_ADDRESS": "C) Enter IP address in browser",
+      "ENTER_PASSWORD": "D) Enter password",
+      "START_CONFIGURATION": "E) Start KACO configuration with the Installation Wizard",
+      "MULTI_STEP": "{{listPosition}}) Perform steps 1 to {{totalSteps}}",
+      "STEP": "Step {{currStep}}/{{totalStep}} - {{description}}",
+      "STEP_1": "Select language",
+      "STEP_2": "Specify country / network type",
+      "STEP_3": "Power limitation",
+      "STEP_4": "IP setting",
+      "STEP_5": "Localization",
+      "STEP_6": "Modbus",
+      "STEP_7": "Other (optional parameters)",
+      "STEP_8": "Finalize",
+      "MIN_VOLTAGE": "G) Addition: Set minimum voltage limit to 600 V",
+      "MIN_VOLTAGE_DESCRIPTION": "Only works with installer password (own password for FENECON or preconfigured)\n\n<ul><li>Minimum Voltage limit:<b> {{voltageLimit}} V</b> (-> Grid setting: <b>{{gridSetting}}</b>)</li></ul>",
+      "POWER_CONTROL": "H) Set power control (Cos-Phi, etc.)",
+      "POWER_CONTROL_DESCRIPTION": "-> which settings are necessary here can be found in the network operator's data\n-> Changes can only be made with the installer password",
+      "NETWORK_SETTINGS": "IP-Address: 169.254.1.12\nSubnet mask: 255.255.255.0",
+      "NETWORK_SETTINGS_NOTE": "In order to access the inverter via its fixed IP address, the device connected to the inverter must be manually assigned a static IP that is within the same network range",
+      "PASSWORD_DESCRIPTION": "Service Password:\n\nUser: service\nPassword: Ye_r0d4w0P!",
+      "IP_ADDRESS_DESCRIPTION": "IP-Address: 169.254.1.1",
+      "STEP_3_DESCRIPTION": "-> Accept default settings as they are.",
+      "STEP_5_DESCRIPTION": "Please synchronize the time here with the “Sync” button",
+      "STEP_8_DESCRIPTION": "Enter the name of the installer",
+      "STEP_6_DESCRIPTION": "The Modbus setting should be set to 502",
+      "STEP_4_DESCRIPTION": "IP Address: 172.16.0.100\nSubnet mask: 255.255.255.0\nDefault gateway: 172.16.0.1",
+      "NETWORK_SETTINGS_INFO": "Please note that the steps and illustrations for setting a static IP address may vary depending on the device used. For other devices, such as Apple devices, the procedures may differ.",
+      "TIMEOUT_NOTE": "The following process can take up to {{timeoutInMinutes}} minutes.",
+      "STEP_2_DESCRIPTION": "Please select your Grid setting here:\n\n<ul><li>Germany <b>{{gridSetting}}</b> (-> under G) set \"Minimum Voltage limit\" to <b>{{voltageLimit}} V </b>)"
+    },
+    "CONFIGURATION_SUB_SYSTEM": {
+      "NOTE": {
+        "COMMERCIAL_92": "Before you continue, make sure that you use the following device(s) to ensure that the next steps - especially for configuring the KACO inverter - run smoothly:\n\na laptop with “LAN-WLAN parallel” function\nor\ntwo mobile devices, each with a WLAN and a LAN function"
+      }
+    },
+    "PROTOCOL_AVU_BOX": {
+      "TITLE": "Does the installation package include an AVU box (automatic consumer switch)?",
+      "SERIAL_NUMBER": "Serial number",
+      "LABEL": "AVU"
+    },
+    "CONFIGURATION_GRID_SETTING": {
+      "TITLE": "Grid setting"
+    },
+    "PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_FILED_LABEL": "Please enter the number of Slaves to be configured",
+      "SLAVES_TITLE": "Slave {{number}}",
+      "SLAVE_INSTALLATION": {
+        "CONNECTION_STATUS": {
+          "NOT_YET_CONNECTED": "Not yet connected",
+          "CONNECTED": "Connected",
+          "NOT_FOUND": "Slave not found",
+          "AUTHENTICATING": "Authenticating"
+        },
+        "LOG_MESSAGE": {
+          "STARTING_AUTHENTICATION": "Starting authentication...",
+          "AUTHENTICATION_SUCCESSFUL": "Authentication successful. Updating system...",
+          "UPDATE_COMPLETED": "System update completed. Configuring app...",
+          "PARTIALLY_CONFIGURED": "Configuration partially completed.",
+          "CONFIGURED_SUCCESSFULLY": "Application configured successfully.",
+          "FUNCTION_TESTS_FAILED": "Function test failed: {{ error }}",
+          "CONFIGURATION_FAILED": "Configuration failed: {{ error }}",
+          "SLAVE_STATUS ERROR": "Error fetching status for Slave {{ slaveNr }}"
+        }
+      }
+    },
+    "CONFIGURATION_PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_COUNT_TITLE": "Information about the number of slaves",
+      "SLAVE_INSTALLATION_TITLE": "Installation of individual storage units (slaves)"
+    },
+    "SHARED": {
+      "NOTE": "Note",
+      "WARNING": "Warning"
+    }
   },
   "LIVE": {
     "PULL_TO_REFRESH": "Pull this banner to refresh"

@@ -28,22 +28,23 @@ import { FieldType } from "@ngx-formly/core";
   styles: [`
       :host {
         formly-custom-select {
-                width: 100%;
-              }
-          }
-        .custom-ion-alert{
-            .alert-checkbox-label{
-              color: var(--ion-text-color) !important;
-            }
+          width: 100%;
         }
-        ion-select::part(label) {
-          max-width: 100% !important;
-          white-space: normal !important;
+      }
+      ion-select::part(placeholder),
+      ion-select::part(label) {
+        max-width: 100% !important;
+        white-space: normal !important;
+        font-size: initial !important;
+      }
+      ion-select::part(text) {
+        flex: 1;
+      }
+      .custom-ion-alert {
+        .alert-checkbox-label{
+          color: var(--ion-text-color) !important;
         }
-
-        ion-select::part(text) {
-          flex: 1;
-        }
-      `],
+      }
+  `],
 })
 export class FormlySelectComponent extends FieldType { }

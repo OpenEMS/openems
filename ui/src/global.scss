@@ -495,19 +495,27 @@ formly-input-section {
     }
 
     ion-toggle {
-        --track-background: var(--ion-color-toggle-background);
-        --handle-background: var(--ion-color-toggle-unchecked-handle);
-        --handle-background-checked: white;
-        --track-background-checked: var(--ion-color-primary);
-        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
         padding: 0.8em;
         padding-right: 0.2em;
         padding-left: 0.2em;
         overflow: visible;
-        scale: 0.95;
+
+        --track-background: var(--ion-color-toggle-background);
+        --track-background-checked: var(--ion-color-primary);
+
+        --handle-width: 1.5rem;
+        --handle-height: 1.5rem;
+        --handle-max-width: 1.5rem;
+        --handle-max-height: 1.5rem;
+        --handle-min-width: 1.5rem;
+        --handle-min-height: 1.5rem;
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
     }
 
     ion-toggle::part(handle) {
+        box-sizing: border-box !important;
         border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
     }
 
