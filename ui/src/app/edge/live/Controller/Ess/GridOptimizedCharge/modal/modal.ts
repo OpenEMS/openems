@@ -2,7 +2,8 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
@@ -16,9 +17,7 @@ export class ModalComponent extends AbstractModal {
     public isAtLeastAdmin: boolean = false;
     public refreshChart: boolean;
 
-    public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
-    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = Utils.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate);
-    public readonly CONVERT_TO_WATTHOURS = Utils.CONVERT_TO_WATTHOURS;
+    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = this.Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate, Language.geti18nLocale());
     public readonly DelayChargeState = DelayChargeState;
     public state: string = "";
     public chargeLimit: { name: string, value: number };
@@ -28,6 +27,8 @@ export class ModalComponent extends AbstractModal {
     public delayChargeMaximumChargeLimit: number | null = null;
     public targetEpochSeconds: number | null = null;
     public chargeStartEpochSeconds: number | null = null;
+
+    protected chargingEndTime: string | null = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
@@ -55,6 +56,8 @@ export class ModalComponent extends AbstractModal {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+
+        this.chargingEndTime = this.targetMinute !== null ? this.CONVERT_MINUTE_TO_TIME_OF_DAY(this.targetMinute) : null;
 
         // If the gridfeed in Limit is avoided
         if (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == SellToGridLimitState.ACTIVE_LIMIT_FIXED ||

@@ -84,7 +84,7 @@
           "considerGridFeedInLimit": "Maximale Netzeinspeisung berücksichtigen",
           "endTime": "Endzeit",
           "endTimeDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.",
-          "endTimeDetailedDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{ value1 }} bis {{ value2 }} Uhr.",
+          "endTimeDetailedDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{ maxChargingPowerW }} bis {{ endTime }}.",
           "endTimeLong": "Endzeitpunkt der beschränkten Beladung",
           "expectedSoc": "Erwarteter Ladezustand",
           "expectedSocWithoutSellToGridLimit": "Ohne Vermeidung der maximalen Netzeinspeisung",
@@ -643,6 +643,9 @@
     "SUM_STATE": "Systemzustand",
     "SYSTEM": "System",
     "RESTART": "Neu starten",
+    "SUFFIX": {
+      "HOUR": "Uhr"
+    },
     "TIME": {
       "HOUR": "Stunde",
       "HOURS": "Stunden",

@@ -111,6 +111,15 @@ export class Language {
     }
 
     /**
+     * Gets the i18n locale key without passed key
+     *
+     * @returns the i18n locale key
+     */
+    public static geti18nLocale() {
+        return Language.getByKey(localStorage.LANGUAGE)?.i18nLocaleKey ?? Language.getByBrowserLang(navigator.language)?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+    }
+
+    /**
      * Sets a additional translation file
      *
      * e.g. AdvertismentModule

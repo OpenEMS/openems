@@ -84,7 +84,7 @@
           "considerGridFeedInLimit": "Consider maximum grid feed-in",
           "endTime": "End time",
           "endTimeDescription": "The charging does not take place with the maximum amount for a few hours, but steadily over a longer period of time.",
-          "endTimeDetailedDescription": "The charging does not take place with the maximum amount for a few hours, but steadily with a maximum of {{ value1 }} to {{ value2 }} o'clock.",
+          "endTimeDetailedDescription": "The charging does not take place with the maximum amount for a few hours, but steadily with a maximum of {{ maxChargingPowerW }} until {{ endTime }}.",
           "endTimeLong": "End time of restricted loading",
           "expectedSoc": "Expected state of charge",
           "expectedSocWithoutSellToGridLimit": "Without avoiding the maximum grid feed-in",

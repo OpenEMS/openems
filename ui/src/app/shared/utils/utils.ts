@@ -398,20 +398,6 @@ export class Utils {
   };
 
   /**
-   * Converts Minute from start of day to daytime in 'HH:mm' format.
-   *
-   * @returns converted value
-   */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
-    return (value: number): string => {
-      const date: Date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setMinutes(value);
-      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: "2-digit", minute: "2-digit" });
-    };
-  };
-
-  /**
    * Converts Price to Cent per kWh [currency / kWh]
    *
    * @param decimal number of decimals after fraction

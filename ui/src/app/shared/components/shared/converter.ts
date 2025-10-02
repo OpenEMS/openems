@@ -413,4 +413,8 @@ export namespace Converter {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_HOUR(value));
   };
+
+  export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
+    return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
+  };
 }
