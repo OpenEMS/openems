@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { EvcsComponent } from "../components/edge/components/evcsComponent";
 import { DummyConfig } from "../components/edge/edgeconfig.spec";
 import { TestingUtils } from "../components/shared/testing/utils.spec";
 import { Currency, EdgeConfig } from "../shared";
@@ -37,11 +38,7 @@ describe("Utils", () => {
     "heat1/ActivePower": [null, null, null, 0, 0, 0, 100],
   };
 
-  const evcsComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-    .filter(component => !(
-      component.factoryId == "Evcs.Cluster" ||
-      component.factoryId == "Evcs.Cluster.PeakShaving" ||
-      component.factoryId == "Evcs.Cluster.SelfConsumption"));
+  const evcsComponents: EvcsComponent[] = EvcsComponent.getComponents(dummyConfig, null);
 
   const heatComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
     .filter(component =>

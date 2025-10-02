@@ -113,6 +113,8 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
+									.addProperty("readOnly", false)//
+									.addProperty("mode", "OFF")//
 									.build()));
 
 			return AppConfiguration.create() //

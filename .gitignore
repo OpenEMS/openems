@@ -228,5 +228,9 @@ gradle-app.setting
 io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
 
+/io.openems.*/bin/
+/io.openems.*/bin_test/
+/io.openems.*/generated/
+
 ### Debian ###
 !tools/debian/**

@@ -1,20 +1,20 @@
-<ng-container *ngIf="edge?.currentData | async as currentData">
+@if (edge?.currentData | async; as currentData) {
   @if (navigationService.position() === 'bottom') {
-  <!-- Hide ion-card with bottom navigation -->
-  <ion-item lines="none">
-    <energymonitor-chart class="ion-margin-bottom" [currentData]="currentData"></energymonitor-chart>
-  </ion-item>
-  } @else {
-  <ion-card>
-    <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
-      <ion-icon size="large" slot="start" name="laptop-outline" color="normal"></ion-icon>
-      <ion-label translate>
-        Edge.Index.Energymonitor.title
-      </ion-label>
+    <!-- Hide ion-card with bottom navigation -->
+    <ion-item lines="none">
+      <energymonitor-chart class="ion-margin-bottom" [currentData]="currentData"></energymonitor-chart>
     </ion-item>
-    <ion-card-content>
-      <energymonitor-chart [currentData]="currentData"></energymonitor-chart>
-    </ion-card-content>
-  </ion-card>
+  } @else {
+    <ion-card>
+      <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
+        <ion-icon size="large" slot="start" name="laptop-outline" color="normal"></ion-icon>
+        <ion-label>
+          {{"Edge.Index.Energymonitor.title" | translate}}
+        </ion-label>
+      </ion-item>
+      <ion-card-content>
+        <energymonitor-chart [currentData]="currentData"></energymonitor-chart>
+      </ion-card-content>
+    </ion-card>
   }
-</ng-container>
+}

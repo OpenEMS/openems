@@ -27,6 +27,7 @@ public class IoShellyPlugImplTest {
 						.setPhase(L1) //
 						.setIp("127.0.0.1") //
 						.setType(PRODUCTION) //
+						.setInvert(false) //
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
@@ -62,7 +63,7 @@ public class IoShellyPlugImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1200L) //
 						.output(IoShellyPlug.ChannelId.RELAY, null) //
 						.output(IoShellyPlug.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
@@ -86,7 +87,7 @@ public class IoShellyPlugImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1200L) //
 						.output(IoShellyPlug.ChannelId.RELAY, null) //
 						.output(IoShellyPlug.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
@@ -108,5 +109,58 @@ public class IoShellyPlugImplTest {
 						})) //
 
 				.deactivate();//
+	}
+
+	@Test
+	public void testInvert() throws Exception {
+		final var sut = new IoShellyPlugImpl();
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.activate(MyConfig.create() //
+						.setId("io0") //
+						.setPhase(L1) //
+						.setIp("127.0.0.1") //
+						.setType(PRODUCTION) //
+						.setInvert(true) //
+						.build()) //
+
+				.next(new TestCase("Successful read response") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "relays": [
+									    {
+									      "ison": true
+									    }
+									  ],
+									  "meters": [
+									    {
+									      "power": 789.1,
+									      "total": 72000
+									    }
+									  ]
+									}
+									"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("x|-789 W", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, -789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, -789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 1200L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
+						.output(IoShellyPlug.ChannelId.RELAY, null) //
+						.output(IoShellyPlug.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }

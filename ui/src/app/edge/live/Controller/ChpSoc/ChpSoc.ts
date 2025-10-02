@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Icon } from "src/app/shared/type/widget";
 
 import { ChannelAddress, CurrentData } from "../../../../shared/shared";
@@ -27,6 +28,18 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         name: "",
         size: "large",
         color: "primary",
+    };
+
+    protected get modalComponent(): Modal {
+        return {
+            component: Controller_ChpSocModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+                outputChannel: this.outputChannel,
+                inputChannel: this.inputChannel,
+            },
+        };
     };
 
     protected get thresholdDelta() {

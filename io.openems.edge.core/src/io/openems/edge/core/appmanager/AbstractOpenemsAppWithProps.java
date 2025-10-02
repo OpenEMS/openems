@@ -190,7 +190,8 @@ public abstract class AbstractOpenemsAppWithProps<//
 							t.name(), //
 							this.mapDefaultValue(t, parameter.get()), //
 							t.def().isAllowedToSave(), //
-							this.mapBidirectionalValue(t, parameter.get()) //
+							this.mapBidirectionalValue(t, parameter.get()), //
+							this.mapValueMapper(t, parameter.get()) //
 					);
 				}) //
 				.toArray(OpenemsAppPropertyDefinition[]::new);
@@ -257,6 +258,19 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return this.functionMapper(property, AppDef::getBidirectionalValue, bidirectionalValue -> {
 			return config -> {
 				return bidirectionalValue.apply(this.getApp(), property, //
+						Language.DEFAULT, parameter, config //
+				);
+			};
+		});
+	}
+
+	private Function<JsonObject, JsonElement> mapValueMapper(//
+			final PROPERTY property, //
+			final PARAMETER parameter //
+	) {
+		return this.functionMapper(property, AppDef::getValueMapper, valueMapper -> {
+			return config -> {
+				return valueMapper.apply(this.getApp(), property, //
 						Language.DEFAULT, parameter, config //
 				);
 			};

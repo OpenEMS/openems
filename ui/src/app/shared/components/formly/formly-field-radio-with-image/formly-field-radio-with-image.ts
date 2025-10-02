@@ -10,8 +10,10 @@ import { FieldWrapper } from "@ngx-formly/core";
 export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements OnInit {
 
     protected value: any;
+    protected some: any[] = [];
 
     public ngOnInit() {
+        this.some = this.props.options as any[];
         this.value = this.field.defaultValue;
         if (this.formControl.getRawValue()) {
             this.value = this.formControl.getRawValue();

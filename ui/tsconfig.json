@@ -6,9 +6,8 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "plugins": [
       {
         "name": "typescript-strict-plugin"
@@ -26,6 +25,9 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "useDefineForClassFields": false,
+    "paths": {
+      "chart.js/dist/types/utils": ["node_modules/chart.js/dist/types/utils.d.ts"] // wait for ng2-charts to support angular 20
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

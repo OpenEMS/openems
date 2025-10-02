@@ -2,7 +2,7 @@
 import { LOCALE_ID, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -37,20 +37,26 @@ describe("OverviewComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+            imports: [
+                TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
+                IonicModule.forRoot(),
+                RouterModule,
             ],
             declarations: [OverViewComponent],
             providers: [
                 { provide: Service, useValue: serviceSpyObject },
                 { provide: UserService, useValue: userServiceSpyObj },
-                Websocket,
-                TranslateService,
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
                 { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+                Websocket,
+                TranslateService,
                 Pagination,
                 Utils,
-                IonicModule,
                 Router,
+                {
+                    provide: ActivatedRoute,
+                    useValue: {},
+                },
             ],
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(OverViewComponent);

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -34,7 +33,6 @@ import com.google.common.base.Objects;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OptionsEnum;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
@@ -42,7 +40,6 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201ControlMode;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
-import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201StVnd;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64202.S64202EnLimit;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.Context;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine;
@@ -219,9 +216,6 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
 
-		// Set if there is grid disconnection failure
-		this.handleGridDisconnection();
-
 		// Calculate the Energy values from ActivePower.
 		this.calculateEnergy();
 
@@ -260,40 +254,6 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private record HandleFaultChannels(//
-			SunSpecPoint model, //
-			OptionsEnum stateEnum, //
-			Consumer<Boolean> method//
-	) {
-
-	}
-
-	private void handleGridDisconnection() {
-		Stream.of(
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.POWADORPROTECT_DISCONNECTION,
-						this::_setGridDisconnection), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.GRID_FAILURE_PHASETOPHASE,
-						this::_setGridFailureLineToLine), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.LINE_FAILURE_UNDERFREQ,
-						this::_setLineFailureUnderFreq), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.LINE_FAILURE_OVERFREQ,
-						this::_setLineFailureOverFreq), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_1,
-						this::_setProtectionShutdownLine1), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_2,
-						this::_setProtectionShutdownLine2), //
-				new HandleFaultChannels(KacoSunSpecModel.S64201.ST_VND, S64201StVnd.PROTECTION_SHUTDOWN_LINE_3,
-						this::_setProtectionShutdownLine3))//
-				.forEach(t -> {
-					try {
-						var channel = this.getSunSpecChannelOrError(t.model);
-						t.method.accept(Objects.equal(channel.value().get(), t.stateEnum));
-					} catch (OpenemsException e) {
-						this.logWarn(this.log, e.getMessage());
-					}
-				});
 	}
 
 	@Override

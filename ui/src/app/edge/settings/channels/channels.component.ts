@@ -32,7 +32,7 @@ export class ChannelsComponent {
   protected channelsPerComponent = new Map<string, ComponentChannels>();
   protected selectedComponentChannels = new Map<string, Map<string, { showPersistencePriority: boolean }>>();
   // TODO should be a simple SET but equality checking in SETs is currently not changeable and therefore not very useful for objects
-  private subscribedChannels = new Map<string, ChannelAddress>();
+  private subscribedChannels = new Map<string, ChannelAddress[]>();
   private persistencePriority: string = PersistencePriority.DEFAULT_GLOBAL_PRIORITY;
 
   constructor(
@@ -73,6 +73,18 @@ export class ChannelsComponent {
   }
 
   /**
+ * Subscribes to channels.
+ *
+ * @param componentId the componentId
+ * @param channelIds the channelIds
+ */
+  protected async subscribeChannels(componentId: string, channelIds: string[]): Promise<void> {
+    channelIds.forEach(async (channel) => {
+      this.subscribeChannel(componentId, channel);
+    });
+  }
+
+  /**
    * Subscribes a channel.
    *
    * @param componentId the componentId
@@ -94,9 +106,12 @@ export class ChannelsComponent {
 
     if (channelData.accessMode != "WO") {
       const channelAddress = new ChannelAddress(componentId, channelId);
-      this.subscribedChannels.set(channelAddress.toString(), channelAddress);
+      const key = channelAddress.toString();
+      if (!(this.subscribedChannels.has(key))) {
+        this.subscribedChannels.set(key, [channelAddress]);
+      }
       if (this.edge) {
-        this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()));
+        this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()).flat());
       }
     }
     this.saveChannelsInUrl();
@@ -119,7 +134,7 @@ export class ChannelsComponent {
 
     const channelAddress = new ChannelAddress(componentId, channelId);
     if (this.subscribedChannels.delete(channelAddress.toString())) {
-      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()));
+      this.edge.subscribeChannels(this.websocket, ChannelsComponent.SELECTOR, Array.from(this.subscribedChannels.values()).flat());
     }
 
     this.saveChannelsInUrl();
@@ -195,13 +210,6 @@ export class ChannelsComponent {
     if (address) {
       const channels = address.split(",")?.map(element => ChannelAddress.fromString(element));
       try {
-        const existingComponents = channels.filter(el => el.componentId in this.config.components);
-
-        if (existingComponents.length > 1) {
-          this.isAtLeastOneChannelExistingInEdgeConfig = true;
-          return "No component matches this edges components";
-        }
-
         await Promise.all(channels.map(el => this.subscribeChannel(el.componentId, el.channelId)));
         return "Successfully loaded saved channels from url";
       } catch (reason) {

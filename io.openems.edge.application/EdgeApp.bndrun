@@ -86,6 +86,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.linearpowerband',\
 	bnd.identity;id='io.openems.edge.controller.ess.mindischargeperiod',\
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
+	bnd.identity;id='io.openems.edge.controller.ess.ripplecontrolreceiver',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.ess.standby',\
 	bnd.identity;id='io.openems.edge.controller.ess.timeofusetariff',\
@@ -119,7 +120,6 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.samsung',\
-	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
 	bnd.identity;id='io.openems.edge.evcs.goe',\
@@ -133,6 +133,7 @@
 	bnd.identity;id='io.openems.edge.evcs.spelsberg',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
@@ -179,6 +180,7 @@
 	bnd.identity;id='io.openems.edge.predictor.lstm',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.production.linearmodel',\
+	bnd.identity;id='io.openems.edge.predictor.profileclusteringmodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
@@ -194,6 +196,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.ancillarycosts',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
@@ -204,7 +207,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.82.0,1.82.1)',\
@@ -271,6 +274,7 @@
 	io.openems.edge.controller.ess.linearpowerband;version=snapshot,\
 	io.openems.edge.controller.ess.mindischargeperiod;version=snapshot,\
 	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
+	io.openems.edge.controller.ess.ripplecontrolreceiver;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.ess.standby;version=snapshot,\
 	io.openems.edge.controller.ess.timeofusetariff;version=snapshot,\
@@ -306,7 +310,6 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.samsung;version=snapshot,\
-	io.openems.edge.evcs.alpitronic.hypercharger;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
@@ -322,6 +325,7 @@
 	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.evse.api;version=snapshot,\
+	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
 	io.openems.edge.evse.chargepoint.hardybarth;version=snapshot,\
 	io.openems.edge.evse.chargepoint.heidelberg;version=snapshot,\
 	io.openems.edge.evse.chargepoint.keba;version=snapshot,\
@@ -372,6 +376,7 @@
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.predictor.production.linearmodel;version=snapshot,\
+	io.openems.edge.predictor.profileclusteringmodel;version=snapshot,\
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
@@ -391,6 +396,7 @@
 	io.openems.edge.timedata.api;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.edge.timedata.rrd4j;version=snapshot,\
+	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot,\
 	io.openems.edge.timeofusetariff.api;version=snapshot,\
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
