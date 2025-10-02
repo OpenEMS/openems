@@ -12,6 +12,16 @@
           "SURPLUS": "PV",
           "FORCE": "Schnell"
         },
+        "STATE_MACHINE": {
+          "LABEL": "Status",
+          "EV_NOT_CONNECTED": "EV nicht verbunden",
+          "EV_CONNECTED": "EV verbunden",
+          "CHARGING": "Lädt",
+          "FINISHED_EV_STOP": "Ladevorgang beendet durch EV",
+          "FINISHED_ENERGY_SESSION_LIMIT": "Ladevorgang beendet durch Energielimit",
+          "PHASE_SWITCH_TO_THREE_PHASE": "Wechsel auf 3-phasig",
+          "PHASE_SWITCH_TO_SINGLE_PHASE": "Wechsel auf 1-phasig"
+        },
         "POWER": "Leistung",
         "ENERGY_SINCE_START": "Energie seit Ladebeginn",
         "VEHICLES": "App Center Fahrzeuge"
@@ -30,6 +40,16 @@
           "MINIMUM": "Minimal",
           "SURPLUS": "PV",
           "FORCE": "Fast"
+        },
+        "STATE_MACHINE": {
+          "LABEL": "State",
+          "EV_NOT_CONNECTED": "EV not connected",
+          "EV_CONNECTED": "EV connected",
+          "CHARGING": "Charging",
+          "FINISHED_EV_STOP": "Charging finished by EV",
+          "FINISHED_ENERGY_SESSION_LIMIT": "Charging finished by energy limit",
+          "PHASE_SWITCH_TO_THREE_PHASE": "Switch to 3-phase",
+          "PHASE_SWITCH_TO_SINGLE_PHASE": "Switch to 1-phase"
         },
         "POWER": "Power",
         "ENERGY_SINCE_START": "Energy since the last charge start",
