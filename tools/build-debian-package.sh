@@ -61,6 +61,8 @@ prepare_deb_template() {
         [ -f $script ] && chmod 755 $script
     done
 
+    find tools/debian/ -name "*.conf" -exec chmod -x {} \;
+
     echo "## Add OpenEMS Edge"
     if [ -f "$DEBIAN_EDGE_LOCATION/openems.jar" ]; then
         echo "openems.jar exists. Skipping common_build_edge."
