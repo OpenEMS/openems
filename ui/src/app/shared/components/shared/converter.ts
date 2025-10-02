@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
-import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
+import { CurrentData, EdgeConfig, GridMode, Limiter14aRestriction, RippleControlReceiverRestrictionLevel, Utils } from "../../shared";
 import { EnabledDisabledState } from "../../type/general";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
@@ -123,9 +123,9 @@ export namespace Converter {
   };
 
   /**
-   * Formats a Power value as Watt [W].
+   * Formats a Power value as Watt [kW].
    *
-   * Value 1000 -> "1.000 W".
+   * Value 1000 -> "1 kW".
    * Value null -> "-".
    *
    * @param value the power value
@@ -302,14 +302,26 @@ export namespace Converter {
 
   export const GRID_STATE_TO_MESSAGE = (translate: TranslateService, currentData: CurrentData): string => {
     const gridMode = currentData.allComponents["_sum/GridMode"];
-    const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];
+    const restrictionMode14a = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"] ?? Limiter14aRestriction.NO_RESTRICTION;
+    const restrictionModeRcr = currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"] ?? RippleControlReceiverRestrictionLevel.NO_RESTRICTION;
     if (gridMode === GridMode.OFF_GRID) {
       return translate.instant("GRID_STATES.OFF_GRID");
     }
-    if (restrictionMode === 1) {
-      return translate.instant("GRID_STATES.RESTRICTION");
+    if (restrictionMode14a) {
+      return translate.instant(restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION
+        ? "GRID_STATES.GRID_LIMITATION"
+        : "GRID_STATES.CONSUMPTION_LIMITATION");
     }
+
+    if (restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION) {
+      return translate.instant("GRID_STATES.FEED_IN_LIMITATION");
+    }
+
     return translate.instant("GRID_STATES.NO_EXTERNAL_LIMITATION");
+  };
+
+  export const RCR_RESTRICTION_LEVEL_TO_MESSAGE = (currentData: CurrentData): string => {
+    return `${currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"]} %`;
   };
 
   export const ON_OFF = (translate: TranslateService) => {

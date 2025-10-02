@@ -182,6 +182,18 @@ export namespace DummyConfig {
             ],
         };
 
+        export const ESS_RCR = {
+            id: "Controller.Ess.RippleControlReceiver",
+            natureIds: [
+                "io.openems.edge.common.meta.Meta",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.controller.ess.ripplecontrolreceiver",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+
+            ],
+        };
+
         export const SOLAR_EDGE_PV_INVERTER = {
             id: "SolarEdge.PV-Inverter",
             natureIds: [
@@ -417,6 +429,17 @@ export namespace DummyConfig {
             id: id,
             alias: alias ?? id,
             factory: Factory.ESS_LIMITER_14A,
+            properties: {
+                enabled: "true",
+                ["ess.id"]: "ess0",
+            },
+            channels: {},
+        });
+
+        export const ESS_RCR = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.ESS_RCR,
             properties: {
                 enabled: "true",
                 ["ess.id"]: "ess0",

@@ -7,11 +7,11 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
-import { buildAnnotations, createLimiter14aAxis, createRcrAxis, hasData, processRestrictionDatasets } from "../shared-grid";
+import { buildAnnotations, createLimiter14aAxis, createRcrAxis, hasData, processRestrictionDatasets } from "../../../shared-grid";
 
 @Component({
-  selector: "gridchart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  selector: "common-grid-details-external-limitation-chart",
+  templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
@@ -20,26 +20,11 @@ export class ChartComponent extends AbstractHistoryChart {
 
     const isLimiter14aInstalled: boolean = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
     const isRcrInstalled: boolean = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");
-    const isGoodWeInstalled: boolean = GridSectionComponent.isControllerEnabled(config, "GoodWe.BatteryInverter");
-    const isEmergencyCapacityEnabled: boolean = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.EmergencyCapacityReserve");
 
     const controller14a = config.getComponentIdsByFactory("Controller.Ess.Limiter14a")[0] ?? null;
     const controllerRcr = config.getComponentIdsByFactory("Controller.Ess.RippleControlReceiver")[0] ?? null;
 
-    const input: HistoryUtils.InputChannel[] = [
-      {
-        name: "GridSell",
-        powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-        energyChannel: ChannelAddress.fromString("_sum/GridSellActiveEnergy"),
-        ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE }),
-      },
-      {
-        name: "GridBuy",
-        powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-        energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
-        converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
-      },
-    ];
+    const input: HistoryUtils.InputChannel[] = [];
 
     if (isLimiter14aInstalled) {
       input.push({
@@ -48,7 +33,7 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(controller14a + "/CumulatedRestrictionTime"),
       });
     }
-    if (isEmergencyCapacityEnabled) {
+    if (GridSectionComponent.isControllerEnabled(config, "Controller.Ess.EmergencyCapacityReserve")) {
       input.push({
         name: "OffGrid",
         powerChannel: ChannelAddress.fromString("_sum/GridMode"),
@@ -62,85 +47,20 @@ export class ChartComponent extends AbstractHistoryChart {
         energyChannel: ChannelAddress.fromString(controllerRcr + "/CumulatedRestrictionTime"),
       });
     }
-    if (isGoodWeInstalled) {
-      const energyChannel = ChannelAddress.fromString(controllerRcr + "/CumulatedRestrictionTime") ?? null;
-      input.push({
-        name: "FeedInLimit",
-        powerChannel: ChannelAddress.fromString("batteryInverter0/FeedPowerParaSet"),
-        energyChannel: energyChannel,
-      });
-    }
-    if (showPhases) {
-      ["L1", "L2", "L3"].forEach(phase => {
-        input.push({
-          name: "GridActivePower" + phase,
-          powerChannel: ChannelAddress.fromString("_sum/GridActivePower" + phase),
-        });
-      });
-    }
 
-    const yAxes: HistoryUtils.yAxes[] = [{
-      unit: YAxisType.ENERGY,
-      position: "left",
-      yAxisId: ChartAxis.LEFT,
-    }];
-
-    if (isLimiter14aInstalled) {
-      yAxes.push(createLimiter14aAxis(chartType, translate));
-    }
-
-    if (isRcrInstalled) {
-      yAxes.push(createRcrAxis(chartType));
-    }
+    const yAxes: HistoryUtils.yAxes[] = [];
 
 
     return {
       input: input,
       output: (data: HistoryUtils.ChannelData, labels: Date[]) => {
 
-        const { restrictionData14a, restrictionDataRcr, offGridData } = processRestrictionDatasets(data, chartType);
-
-        const datasets: HistoryUtils.DisplayValue<HistoryUtils.CustomOptions>[] = [
-          {
-            name: translate.instant("General.gridSellAdvanced"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
-              energyValues?.result.data["_sum/GridSellActiveEnergy"] ?? null,
-            converter: () => data["GridSell"],
-            color: ChartConstants.Colors.PURPLE,
-            stack: 1,
-          },
-          {
-            name: translate.instant("General.gridBuyAdvanced"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
-              energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null,
-            converter: () => data["GridBuy"],
-            color: ChartConstants.Colors.BLUE_GREY,
-            stack: 0,
-          },
-        ];
+        const { restrictionData14a, restrictionDataRcr } = processRestrictionDatasets(data, chartType);
 
         const has14aData = hasData(isLimiter14aInstalled, restrictionData14a);
         const hasRcrData = hasData(isRcrInstalled, restrictionDataRcr);
-        const hasOffGridData = hasData(isEmergencyCapacityEnabled, offGridData);
 
-        if (hasOffGridData) {
-          datasets.push({
-            name: translate.instant("GRID_STATES.OFF_GRID"),
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
-              energyValues?.result.data["_sum/GridModeOffGridTime"],
-            converter: () => offGridData,
-            color: ChartConstants.Colors.RED,
-            stack: 2,
-            custom: chartType === "line"
-              ? {
-                unit: YAxisType.RELAY,
-                pluginType: "box",
-                annotations: buildAnnotations(offGridData, labels, "offGrid", ChartAxis.RIGHT),
-              }
-              : { unit: YAxisType.TIME },
-            yAxisId: ChartAxis.RIGHT,
-          } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>);
-        }
+        const datasets: HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>[] = [];
 
         if (has14aData) {
           yAxes.push(createLimiter14aAxis(chartType, translate));
@@ -182,24 +102,15 @@ export class ChartComponent extends AbstractHistoryChart {
           } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>);
         }
 
+
         if (!showPhases) {
           return datasets;
         }
 
-        ["L1", "L2", "L3"].forEach((phase, index) => {
-          datasets.push({
-            name: "Phase " + phase,
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data["_sum/GridActivePower" + phase],
-            converter: () => data["GridActivePower" + phase] ?? null,
-            color: AbstractHistoryChart.phaseColors[index],
-            stack: 3,
-          });
-        });
-
         return datasets;
       },
       tooltip: {
-        formatNumber: "1.0-2",
+        formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
       },
       yAxes: yAxes,
     };
@@ -208,5 +119,4 @@ export class ChartComponent extends AbstractHistoryChart {
   public override getChartData() {
     return ChartComponent.getChartData(this.config, this.chartType, this.translate, this.showPhases);
   }
-
 }

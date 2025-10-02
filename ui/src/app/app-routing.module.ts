@@ -5,7 +5,8 @@ import { EdgeComponent } from "./edge/edge.component";
 import { OverviewComponent as AutarchyChartOverviewComponent } from "./edge/history/common/autarchy/overview/overview";
 import { DetailsOverviewComponent as ConsumptionDetailsOverviewComponent } from "./edge/history/common/consumption/details/details.overview";
 import { OverviewComponent as ConsumptionChartOverviewComponent } from "./edge/history/common/consumption/overview/overview";
-import { DetailsOverviewComponent as GridDetailsOverviewComponent } from "./edge/history/common/grid/details/details.overview";
+import { DetailsOverviewComponent as ExternalLimitationOverviewComponent } from "./edge/history/common/grid/details/external-limitation/details.overview";
+import { DetailsOverviewComponent as GridDetailsOverviewComponent } from "./edge/history/common/grid/details/phase-accurate/details.overview";
 import { OverviewComponent as GridChartOverviewComponent } from "./edge/history/common/grid/overview/overview";
 import { DetailsOverviewComponent } from "./edge/history/common/production/details/details.overview";
 import { OverviewComponent as ProductionChartOverviewComponent } from "./edge/history/common/production/overview/overview";
@@ -68,6 +69,7 @@ export const history: (customHeaders: boolean) => Routes = (customHeaders) => [{
     { path: "consumptionchart/:componentId", component: ConsumptionDetailsOverviewComponent },
     { path: "consumptionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
     { path: "gridchart", component: GridChartOverviewComponent },
+    { path: "gridchart/externalLimitation", component: ExternalLimitationOverviewComponent },
     { path: "gridchart/:componentId", component: GridDetailsOverviewComponent },
     { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
     { path: "productionchart", component: ProductionChartOverviewComponent },

@@ -324,6 +324,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.TIME:
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         return "%";
       case YAxisType.REACTIVE:
@@ -634,6 +635,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -769,6 +771,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             return baseName + ": " + formatNumber(suffix / 1000, locale, "1.0-1") + " kWh";
           case YAxisType.PERCENTAGE:
             return baseName + ": " + formatNumber(suffix, locale, "1.0-1") + " %";
+          case YAxisType.RESTRICTION:
           case YAxisType.RELAY:
           case YAxisType.HEAT_PUMP:
           case YAxisType.ENERIX_CONTROL:
@@ -812,6 +815,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
         suffix = Currency.getCurrencyLabelByCurrency(currency); break;
       }
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         suffix = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate); break;
       case YAxisType.VOLTAGE:
@@ -923,6 +927,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return Converter.ON_OFF(translate)(value);
       case YAxisType.TIME:
         return "h";
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         return "%";
       case YAxisType.VOLTAGE:

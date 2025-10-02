@@ -324,6 +324,7 @@
     },
     "History": {
       "PHASE_ACCURATE": "Phasengenau",
+      "EXTERNAL_LIMITATION": "Externe Limitierung",
       "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
@@ -1255,9 +1256,13 @@
   },
   "GRID_STATES": {
     "OFF_GRID": "Netzausfall",
-    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "NO_EXTERNAL_LIMITATION": "keine Limitierung",
     "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
-    "RESTRICTION": "Dimmung nach §14a EnWG"
+    "CONSUMPTION_LIMITATION": "Bezugslimitierung",
+    "FEED_IN_LIMITATION": "Einspeiselimitierung",
+    "FEED_IN_DESCRIPITON": "Speicherbezug Limit (§14a EnWG)",
+    "GRID_LIMITATION": "Netzlimitierung",
+    "§14a": "Dimmung nach §14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."

@@ -9,8 +9,8 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-  selector: "gridDetailsChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  selector: "common-grid-details-phase-accurate-chart",
+  templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {

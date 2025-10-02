@@ -666,6 +666,7 @@ export enum YAxisType {
   VOLTAGE,
   HEAT_PUMP,
   HEATING_ELEMENT,
+  RESTRICTION,
   ENERIX_CONTROL,
 }
 
