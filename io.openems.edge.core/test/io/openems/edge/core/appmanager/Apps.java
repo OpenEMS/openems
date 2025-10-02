@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -67,6 +66,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial50Gen3;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterSlave;
@@ -93,6 +93,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4s;
 import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
+import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -198,8 +199,18 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link FeneconCommercial50Gen3}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial50Gen3 feneconCommercial50Gen3(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial50Gen3::new, "App.FENECON.Commercial.50.Gen3");
+	}
+
+	/**
 	 * Test method for creating a {@link FeneconCommercial92}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */

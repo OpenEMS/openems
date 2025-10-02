@@ -111,6 +111,39 @@ public final class FeneconHomeComponents {
 			final String feedInSetting, //
 			final boolean naProtectionEnabled //
 	) {
+		return batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
+				modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, null);
+	}
+
+	/**
+	 * Creates a default battery inverter component for a FENECON Home.
+	 *
+	 * @param bundle                   the translation bundle
+	 * @param batteryInverterId        the id of the battery inverter
+	 * @param hasEmergencyReserve      if the system has emergency reserve enabled
+	 * @param feedInType               the {@link FeedInType}
+	 * @param maxFeedInPower           the max feed in power
+	 * @param modbusIdExternal         the id of the external modbus bridge
+	 * @param shadowManagementDisabled if shadowmanagement is disabled
+	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param feedInSetting            the feedInSetting
+	 * @param naProtectionEnabled      if NA-protection is enabled
+	 * @param gridCode                 thr grid code
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component batteryInverter(//
+			final ResourceBundle bundle, //
+			final String batteryInverterId, //
+			final boolean hasEmergencyReserve, //
+			final FeedInType feedInType, //
+			final int maxFeedInPower, //
+			final String modbusIdExternal, //
+			final boolean shadowManagementDisabled, //
+			final SafetyCountry safetyCountry, //
+			final String feedInSetting, //
+			final boolean naProtectionEnabled, //
+			final String gridCode //
+	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
 				"GoodWe.BatteryInverter", JsonUtils.buildJsonObject() //
@@ -131,6 +164,7 @@ public final class FeneconHomeComponents {
 												? "ENABLE"
 												: "DISABLE") //
 						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
+						.addPropertyIfNotNull("gridCode", gridCode) //
 						.build());
 	}
 

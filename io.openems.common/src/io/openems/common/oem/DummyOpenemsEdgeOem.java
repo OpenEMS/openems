@@ -93,6 +93,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Commercial.50.Gen3", "https://fenecon.de/fenecon-commercial-50/") //
 			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
 			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
 			.put("App.FENECON.Commercial.92.ClusterSlave", "") //

@@ -190,8 +190,10 @@ public final class IntegratedSystemProps {
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
-							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					if (gridMeterType != null) {
+						field.onlyShowIf(Exp.currentModelValue(gridMeterType)
+								.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					}
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.onlyPositiveNumbers();
@@ -213,6 +215,15 @@ public final class IntegratedSystemProps {
 		}), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
 				.setDefaultValue(200));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst() {
+		return ctRatioFirst(null);
 	}
 
 	/**
