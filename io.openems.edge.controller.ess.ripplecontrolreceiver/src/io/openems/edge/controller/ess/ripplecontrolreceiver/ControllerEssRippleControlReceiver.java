@@ -3,6 +3,8 @@ package io.openems.edge.controller.ess.ripplecontrolreceiver;
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.types.OpenemsType.LONG;
 
+import java.util.OptionalInt;
+
 import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -14,11 +16,11 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		RESTRICTION_MODE(Doc.of(EssRestrictionLevel.values()) //
+		RESTRICTION_MODE(Doc.of(EssRestrictionLevel.values())//
 				.persistencePriority(HIGH)), //
 
-		CUMULATED_RESTRICTION_TIME(Doc.of(LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		CUMULATED_RESTRICTION_TIME(Doc.of(LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)); //
 
 		private final Doc doc;
@@ -64,16 +66,29 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 	/**
 	 * Returns the current limitation factor as a decimal value between 0 and 1.
 	 * 
+	 * <p>
+	 * While 1 means no limitation, 0 means a full limitation (no feed-in at all).
+	 * </p>
+	 * 
 	 * @return the limitation factor as a double.
 	 */
-	double limitationFactor();
+	/**
+	 * Represents the current {@link EssRestrictionLevel}.
+	 * 
+	 * <p>
+	 * This is determined by the external ripple control signals.
+	 * </p>
+	 * 
+	 * @return the current restriction level.
+	 */
+	EssRestrictionLevel essRestrictionLevel();
 
 	/**
-	 * Returns the raw current limitation value between 0 and 100.
+	 * Represents the raw grid feed in limitation value of the meta component.
 	 * 
 	 * @return the limitation value.
 	 */
-	int limitationValue();
+	OptionalInt maximumGridFeedInLimit();
 
 	/**
 	 * Calculates the currently allowed grid feed-in power. This is determined as
@@ -86,7 +101,9 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 	 * @param maxApparentPower the maximum apparent power in VA.
 	 * @return the allowed grid feed-in power in VA.
 	 */
-	default int getGridFeedInValue(int maxApparentPower) {
-		return (int) Math.min(maxApparentPower * this.limitationFactor(), this.limitationValue());
+	default int getDynamicGridFeedInLimit(int maxApparentPower) {
+		
+		return (int) Math.min(maxApparentPower * this.essRestrictionLevel().getLimitationFactor(),
+				this.maximumGridFeedInLimit().orElse(maxApparentPower));
 	}
 }

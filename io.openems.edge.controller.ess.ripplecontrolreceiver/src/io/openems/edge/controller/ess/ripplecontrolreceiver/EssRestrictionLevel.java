@@ -37,4 +37,33 @@ public enum EssRestrictionLevel implements OptionsEnum {
 	public double getLimitationFactor() {
 		return this.limitationFactor / 100.0;
 	}
+
+	/**
+	 * Returns the highest priority restriction level that is active.
+	 * 
+	 * <p>
+	 * Priority: 0% > 30% > 60%
+	 * </p>
+	 * 
+	 * @param zeroPercentActive   input for 0% restriction active (true means
+	 *                            external signal is active)
+	 * @param thirtyPercentActive input for 30% restriction active (true means
+	 *                            external signal is active)
+	 * @param sixtyPercentActive  input for 60% restriction active (true means
+	 *                            external signal is active)
+	 * @return the highest priority active restriction level
+	 */
+	public static EssRestrictionLevel getRestrictionLevelByPriority(boolean zeroPercentActive,
+			boolean thirtyPercentActive, boolean sixtyPercentActive) {
+		if (zeroPercentActive) {
+			return ZERO_PERCENT;
+		}
+		if (thirtyPercentActive) {
+			return THIRTY_PERCENT;
+		}
+		if (sixtyPercentActive) {
+			return SIXTY_PERCENT;
+		}
+		return NO_RESTRICTION;
+	}
 }

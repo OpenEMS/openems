@@ -481,11 +481,11 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			this.maximumSellToGridPower = 0;
 			return;
 		}
-		var rippleControlReceiver = this.rcr;
-		if (this.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
-			this.maximumSellToGridPower = (rippleControlReceiver != null && rippleControlReceiver.isEnabled())
-					? this.rcr.getGridFeedInValue(this.ess.getMaxApparentPower().get())
-					: this.meta.getMaximumGridFeedInLimit();
+		var maxApparentPower = this.ess.getMaxApparentPower().get();
+		if (this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
+			this.maximumSellToGridPower = (this.rcr != null && this.rcr.isEnabled())
+					? this.rcr.getDynamicGridFeedInLimit(maxApparentPower)
+					: this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
 		}
 	}
 

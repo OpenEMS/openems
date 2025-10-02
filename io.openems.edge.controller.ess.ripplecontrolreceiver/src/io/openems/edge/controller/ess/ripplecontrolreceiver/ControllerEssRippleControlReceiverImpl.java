@@ -1,9 +1,8 @@
 package io.openems.edge.controller.ess.ripplecontrolreceiver;
 
 import static io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel.NO_RESTRICTION;
-import static io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel.SIXTY_PERCENT;
-import static io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel.THIRTY_PERCENT;
-import static io.openems.edge.controller.ess.ripplecontrolreceiver.EssRestrictionLevel.ZERO_PERCENT;
+
+import java.util.OptionalInt;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,9 +20,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
@@ -41,8 +42,6 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsComponent implements //
 		ControllerEssRippleControlReceiver, Controller, OpenemsComponent, TimedataProvider {
 
-	private static final double NO_LIMITATION_FACTOR = 1.0;
-
 	@Reference
 	private Sum sum;
 
@@ -58,14 +57,10 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 	@Reference
 	private Meta meta;
 
-	// 1 = 100% (no limit)
-	private double currentLimitationFactor = NO_LIMITATION_FACTOR;
-	// 0% limit
-	private ChannelAddress inputChannelAddress1;
-	// 30% limit
-	private ChannelAddress inputChannelAddress2;
-	// 60% limit
-	private ChannelAddress inputChannelAddress3;
+	private EssRestrictionLevel currentRestriction = NO_RESTRICTION;
+	private ChannelAddress zeroPercentChannelAddress;
+	private ChannelAddress thirtyPercentChannelAddress;
+	private ChannelAddress sixtyPercentChannelAddress;
 
 	private final CalculateActiveTime cumulatedRestrictionTime = new CalculateActiveTime(this,
 			ControllerEssRippleControlReceiver.ChannelId.CUMULATED_RESTRICTION_TIME);
@@ -98,44 +93,43 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		boolean limitationApplied = false;
-		limitationApplied |= this.applyRestriction(this.inputChannelAddress3, SIXTY_PERCENT);
-		limitationApplied |= this.applyRestriction(this.inputChannelAddress2, THIRTY_PERCENT);
-		limitationApplied |= this.applyRestriction(this.inputChannelAddress1, ZERO_PERCENT);
-		if (!limitationApplied) {
-			this._setRestrictionMode(NO_RESTRICTION); //
-			this.cumulatedRestrictionTime.update(false);
-			this.currentLimitationFactor = NO_LIMITATION_FACTOR; //
+		var currentRestriction = NO_RESTRICTION;
+		if (this.sum.getGridMode().equals(GridMode.ON_GRID)) {
+			currentRestriction = EssRestrictionLevel.getRestrictionLevelByPriority(//
+					this.isRestrictionActive(this.zeroPercentChannelAddress), //
+					this.isRestrictionActive(this.thirtyPercentChannelAddress), //
+					this.isRestrictionActive(this.sixtyPercentChannelAddress));
 		}
-	}
 
-	protected boolean applyRestriction(ChannelAddress inputChannelAddress, EssRestrictionLevel restrictionLevel)
-			throws OpenemsNamedException {
-		if (!this.isRestrictionActive(inputChannelAddress)) {
-			return false;
+		switch (currentRestriction) {
+		case NO_RESTRICTION -> {
+			this.cumulatedRestrictionTime.update(false);
 		}
-		this._setRestrictionMode(restrictionLevel);
-		this.currentLimitationFactor = restrictionLevel.getLimitationFactor();
-		this.cumulatedRestrictionTime.update(true);
-		return true;
+		case ZERO_PERCENT, THIRTY_PERCENT, SIXTY_PERCENT -> {
+			// This may split into different cumulated times for each restriction level
+			this.cumulatedRestrictionTime.update(true);
+		}
+		}
+
+		this.currentRestriction = currentRestriction;
+		this._setRestrictionMode(currentRestriction);
 	}
 
 	protected boolean isRestrictionActive(ChannelAddress inputChannelAddress) throws OpenemsNamedException {
 		BooleanReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		var onGrid = this.sum.getGridMode().equals(GridMode.ON_GRID);
 		// 0/1 is reversed on relays board
-		var isActive = !inputChannel.value().orElse(true);
-		return onGrid && isActive;
+		return !inputChannel.value().orElse(true);
 	}
 
 	@Override
-	public double limitationFactor() {
-		return this.currentLimitationFactor;
+	public EssRestrictionLevel essRestrictionLevel() {
+		return this.currentRestriction;
 	}
 
 	@Override
-	public int limitationValue() {
-		return this.meta.getMaximumGridFeedInLimit();
+	public OptionalInt maximumGridFeedInLimit() {
+		return feedInLimitFromMetaLimits(this.meta.getGridFeedInLimitationType(),
+				this.meta.getMaximumGridFeedInLimitValue());
 	}
 
 	@Override
@@ -144,9 +138,9 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 	}
 
 	private void applyConfig(Config config) throws OpenemsNamedException {
-		this.inputChannelAddress1 = ChannelAddress.fromString(config.inputChannelAddress1());
-		this.inputChannelAddress2 = ChannelAddress.fromString(config.inputChannelAddress2());
-		this.inputChannelAddress3 = ChannelAddress.fromString(config.inputChannelAddress3());
+		this.zeroPercentChannelAddress = ChannelAddress.fromString(config.inputChannelAddress1());
+		this.thirtyPercentChannelAddress = ChannelAddress.fromString(config.inputChannelAddress2());
+		this.sixtyPercentChannelAddress = ChannelAddress.fromString(config.inputChannelAddress3());
 	}
 
 	@Override
@@ -154,4 +148,24 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 		return "Current limitation: " + this.getRestrictionMode().getName();
 	}
 
+	/**
+	 * Calculates the feed-in limit from the meta component's grid feed-in
+	 * limitation.
+	 * 
+	 * @param type  the type of grid feed-in limitation
+	 * @param limit the limit value (in W) if type is DYNAMIC_LIMITATION
+	 * @return the dynamic feed-in limit as OptionalInt
+	 */
+	public static OptionalInt feedInLimitFromMetaLimits(GridFeedInLimitationType type, Value<Integer> limit) {
+		return switch (type) {
+		case DYNAMIC_LIMITATION -> {
+			if (limit.isDefined()) {
+				yield OptionalInt.of(limit.get());
+			}
+			yield OptionalInt.empty();
+		}
+		case NO_LIMITATION -> OptionalInt.empty();
+		case UNDEFINED -> OptionalInt.empty();
+		};
+	}
 }

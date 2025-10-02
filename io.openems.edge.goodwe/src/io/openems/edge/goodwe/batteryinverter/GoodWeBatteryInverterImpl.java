@@ -739,7 +739,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
 		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
 
-		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType().asEnum());
+		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType());
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
@@ -781,14 +781,26 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	private void handleGridFeed(Config config, GridFeedInLimitationType limitType) throws OpenemsNamedException {
 
-		var enableFeedInLimit = limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION;
-		var gridFeedInLimit = this.meta.getMaximumGridFeedInLimit();
+		if (!this.getMaxApparentPower().isDefined()) {
+			return;
+		}
 
-		if (this.rcr != null && this.rcr.isEnabled() && this.getMaxApparentPower().isDefined()) {
-			gridFeedInLimit = this.rcr.getGridFeedInValue(this.getMaxApparentPower().get());
+		var maxApparentPower = this.getMaxApparentPower().get();
+		var enableFeedInLimit = false;
+		var gridFeedInLimit = maxApparentPower;
+
+		// Limit from general Feed-In Limitation
+		if (limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
+			enableFeedInLimit = true;
+			gridFeedInLimit = this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
+		}
+
+		// Limit from Ripple Control Receiver (Minimum of both limits)
+		if (this.rcr != null && this.rcr.isEnabled()) {
+			enableFeedInLimit = true;
+			gridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower);
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
-
 	}
 }
