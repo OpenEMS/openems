@@ -14,6 +14,8 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.function.IntFunction;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -53,7 +55,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements IoShellyPlusPlugs, DigitalOutput,
+public class IoShellyPlusPlugSImpl extends AbstractOpenemsComponent implements IoShellyPlusPlugs, DigitalOutput,
 		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
@@ -61,11 +63,12 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-	private final Logger log = LoggerFactory.getLogger(IoShellyPlusPlugsImpl.class);
+	private final Logger log = LoggerFactory.getLogger(IoShellyPlusPlugSImpl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
+	private boolean invert = false;
 	private String baseUrl;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
@@ -75,7 +78,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
 
-	public IoShellyPlusPlugsImpl() {
+	public IoShellyPlusPlugSImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
@@ -96,6 +99,7 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
@@ -141,6 +145,8 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
 		Boolean relayStatus = null;
 		Boolean updatesAvailable = false;
 		Integer activePower = null;
@@ -158,8 +164,8 @@ public class IoShellyPlusPlugsImpl extends AbstractOpenemsComponent implements I
 				updatesAvailable = update != null && !update.entrySet().isEmpty();
 
 				var relays = getAsJsonObject(response, "switch:0");
-				activePower = round(getAsFloat(relays, "apower"));
-				current = round(getAsFloat(relays, "current") * 1000);
+				activePower = invert.apply(round(getAsFloat(relays, "apower")));
+				current = invert.apply(round(getAsFloat(relays, "current") * 1000));
 				voltage = round(getAsFloat(relays, "voltage") * 1000);
 				relayStatus = getAsBoolean(relays, "output");
 

@@ -15,12 +15,12 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class IoShellyPlusPlugImplTest {
+public class IoShellyPlusPlugSImplTest {
 
 	@Test
 	public void test() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-		final var sut = new IoShellyPlusPlugsImpl();
+		final var sut = new IoShellyPlusPlugSImpl();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -29,6 +29,7 @@ public class IoShellyPlusPlugImplTest {
 						.setPhase(L1) //
 						.setIp("127.0.0.1") //
 						.setType(PRODUCTION) //
+						.setInvert(false) //
 						.build()) //
 
 				.next(new TestCase("Successful read response") //
@@ -108,5 +109,59 @@ public class IoShellyPlusPlugImplTest {
 						})) //
 
 				.deactivate();//
+	}
+
+	@Test
+	public void testInvert() throws Exception {
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var sut = new IoShellyPlusPlugSImpl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.activate(MyConfig.create() //
+						.setId("io0") //
+						.setPhase(L1) //
+						.setIp("127.0.0.1") //
+						.setType(PRODUCTION) //
+						.setInvert(true) //
+						.build()) //
+
+				.next(new TestCase("Successful read response") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									    "available_updates": {
+									      "foo": "bar"
+									    }
+									  },
+									  "switch:0": {
+									    "current": 1.234,
+									    "voltage": 231.5,
+									    "output": false,
+									    "apower": 789.1
+									  }
+									}
+									"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("-|-789 W", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, -789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, -789) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 231500) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 231500) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, -1234) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, -1234) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
+						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }
