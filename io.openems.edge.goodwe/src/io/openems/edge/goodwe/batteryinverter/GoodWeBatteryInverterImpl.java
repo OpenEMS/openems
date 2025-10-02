@@ -705,13 +705,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	protected static Integer calculateSurplusPower(BatteryData battery, Integer productionPower, int maxDcCurrent) {
-		// Is DC Charge Current available?
-		if (battery.chargeMaxCurrent == null || battery.chargeMaxCurrent >= maxDcCurrent) {
-			return null;
-		}
+		if (battery.chargeMaxCurrent == null /* Charge Max Current is not available */
+				|| battery.chargeMaxCurrent >= maxDcCurrent /* Charge Max Current is higher than inverter limit */
+				|| battery.chargeMaxCurrent < 0 /* Battery is in Force-Discharge mode */
 
-		// Is DC PV Production available?
-		if (productionPower == null || productionPower <= 0) {
+				|| battery.voltage == null /* Battery Voltage is not available */
+				|| battery.voltage < 0 /* Battery Voltage is negative */
+
+				|| productionPower == null /* Production Power is not available */
+				|| productionPower <= 0 /* Production Power is zero or negative */
+		) {
 			return null;
 		}
 
@@ -736,7 +739,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
-		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
 
 		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType().asEnum());
 
