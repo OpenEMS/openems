@@ -10,6 +10,21 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 public class VehicleProps {
 
 	/**
+	 * Creates a {@link AppDef} for the min power single phase for a vehicle.
+	 * 
+	 * @param <P> the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> minPowerSinglePhase() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
+			def.setTranslatedLabel("App.Vehicle.minPowerSinglePhase.label");
+			def.setDefaultValue(1380);
+			def.setField(JsonFormlyUtil::buildInputFromNameable);
+		});
+	}
+
+	
+	/**
 	 * Creates a {@link AppDef} for the max power single phase for a vehicle.
 	 * 
 	 * @param <P> the type of the parameters
@@ -19,6 +34,20 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.maxPowerSinglePhase.label");
 			def.setDefaultValue(7360);
+			def.setField(JsonFormlyUtil::buildInputFromNameable);
+		});
+	}
+	
+	/**
+	 * Creates a {@link AppDef} for the min power single phase for a vehicle.
+	 * 
+	 * @param <P> the type of the parameters
+	 * @return the {@link AppDef}
+	 */
+	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> minPowerThreePhase() {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
+			def.setTranslatedLabel("App.Vehicle.minPowerThreePhase.label");
+			def.setDefaultValue(4140);
 			def.setField(JsonFormlyUtil::buildInputFromNameable);
 		});
 	}
