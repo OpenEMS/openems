@@ -519,13 +519,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		// ToDo: make it work for single and 3 phase
 
 		// ActivePower is the actual AC output including battery discharging
-		var acPowerInputL1 = this.getActivePowerInputL1().orElse(null);
-		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null);
-		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null);
+		var acPowerInputL1 = this.getActivePowerInputL1().orElse(null); // 12 int 16 signed, SF1 (*10)
+		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null); // 13
+		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null); // 14
 
-		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
-		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
-		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0); // 817 uint16
+		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0); // 818
+		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0); // 819
 		// var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
 		// var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
 
