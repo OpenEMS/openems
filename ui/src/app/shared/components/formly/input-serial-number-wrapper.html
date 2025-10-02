@@ -13,11 +13,13 @@
             </ion-item>
         </ion-col>
         <ion-col size="12" size-md="6">
-            <ion-item lines="none" class="ion-no-padding input-box-wrapper" [ngClass]="{'input-box': props.boxBorder}"
-                [ngStyle]="borderBottomColor">
+
+            <ion-item lines="none" style="align-items: baseline;" class="ion-no-padding input-box-wrapper"
+                [ngClass]="{'input-box': props.boxBorder}" [ngStyle]="borderBottomColor">
                 <span *ngIf="to.prefix" [style.color]="'var(--ion-color-text)'">{{to.prefix}}</span>
                 <ion-input [formControl]="formControl" (ionFocus)="setFocus(true)" (ionBlur)="setFocus(false)"
-                    [type]="props.type || 'text'" [formlyAttributes]="field" text-left></ion-input>
+                    [type]="props.type || 'text'" [formlyAttributes]="field" text-left>
+                </ion-input>
             </ion-item>
 
             <ion-item lines="none" *ngIf="showError">

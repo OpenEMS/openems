@@ -688,7 +688,7 @@
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
       "EMERGENCY_RESERVE_VALUE": "Emergency reserve value",
       "EMERGENCY_RESERVE": "Emergency power reserve {{ symbol }}",
-      "IS_ACTIVATED": "Activate Emergency power reserve?",
+      "IS_ACTIVATED": "Emergency power reserve active?",
       "IS_ENABLED": "Should the Emergency power function be activated?",
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
@@ -1052,8 +1052,9 @@
     },
     "CONFIGURATION_STS_BOX": {
       "HELP_TEXT": "The serial number of the STS box is located on the type plate on the side of the STS box",
-      "STS_BOX_AVAILABLE": "Is an STS box installed for emergency power capability:",
-      "LABEL": "STS Box"
+      "STS_BOX_AVAILABLE": "STS box installed",
+      "LABEL": "STS Box",
+      "STS_BOX_FIELD_LABEL": "Is an STS box installed for emergency power capability:"
     },
     "SHARED": {
       "NOTE": "Note",

@@ -709,9 +709,9 @@
     "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "Wenn diese Funktion aktiviert ist, kann der Ladezustand der Batterie nicht unter den eingestellten Wert fallen.",
-      "EMERGENCY_RESERVE_VALUE": "Notstrom wert",
+      "EMERGENCY_RESERVE_VALUE": "Notstromwert",
       "EMERGENCY_RESERVE": "Notstromreserve {{ symbol }}",
-      "IS_ACTIVATED": "Notstromreserve aktivieren?",
+      "IS_ACTIVATED": "Notstromreserve aktiv?",
       "IS_ENABLED": "Soll die Notstromfunktion aktiviert werden?",
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
@@ -858,8 +858,8 @@
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Limitierung",
-      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
+      "NO_LIMITATION": "Keine Limitierung",
+      "NA_PROTECTION": "Fernabschaltung aktiviert (Zentraler NA-Schutz)",
       "DYNAMIC_LIMITATION_WITH_RIPPLE_CONTROLLER": "Dynamische Begrenzung der Einspeisung & Rundsteuerempfänger",
       "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Wert der dynamischen Begrenzung (max Einspeisewert, z.B. 60 % der kWp) [W]",
       "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an",
@@ -1076,8 +1076,9 @@
     },
     "CONFIGURATION_STS_BOX": {
       "HELP_TEXT": "Die Seriennummer der STS-Box befindet sich auf dem Typenschild seitlich der STS-Box",
-      "STS_BOX_AVAILABLE": "Ist eine STS-Box für Notstromfähigkeit installiert:",
-      "LABEL": "STS Box"
+      "STS_BOX_AVAILABLE": "STS-Box installiert",
+      "LABEL": "STS Box",
+      "STS_BOX_FIELD_LABEL": "Ist eine STS-Box für Notstromfähigkeit installiert:"
     },
     "SHARED": {
       "NOTE": "Hinweis",
