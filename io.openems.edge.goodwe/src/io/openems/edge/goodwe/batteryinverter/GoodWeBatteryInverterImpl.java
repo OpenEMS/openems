@@ -438,16 +438,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		}
 	}
 
-
 	private void handleFixedPowerFactor(GoodWeType goodweType, EnableCurve fixedPowerFactorEnable,
 			FixedPowerFactor fixedPowerFactor) throws IllegalArgumentException, OpenemsNamedException {
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
 		case FENECON_50K -> {
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2), fixedPowerFactorEnable);
-			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2),
-					fixedPowerFactor != null);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2), fixedPowerFactorEnable);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2), fixedPowerFactor);
 		}
 		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
 				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
@@ -786,7 +784,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var enableFeedInLimit = limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION;
 		var gridFeedInLimit = this.meta.getMaximumGridFeedInLimit();
 
-		if (this.rcr != null && this.rcr.isEnabled()) {
+		if (this.rcr != null && this.rcr.isEnabled() && this.getMaxApparentPower().isDefined()) {
 			gridFeedInLimit = this.rcr.getGridFeedInValue(this.getMaxApparentPower().get());
 		}
 

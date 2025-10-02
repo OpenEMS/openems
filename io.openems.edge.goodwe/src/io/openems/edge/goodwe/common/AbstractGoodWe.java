@@ -1450,13 +1450,13 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		protocol.addTask(//
 				new FC3ReadRegistersTask(45539, Priority.LOW, //
 						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedDoublewordElement(45540)) //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
 				) //
 		);
 		protocol.addTask(//
 				new FC16WriteRegistersTask(45539,
 						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
-						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedDoublewordElement(45540)) //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
 				) //
 		);
 	}
