@@ -1,14 +1,15 @@
-Bundle-Name: OpenEMS Edge Predictor Api
+Bundle-Name: OpenEMS Edge Predictor Profile Clustering Model
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
-Bundle-Description: \
-	This bundle contains the Predictor API. It provides abstract access to prediction of production and consumption.
 
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.predictor.api,\
+	io.openems.edge.timedata.api,\
 	org.apache.commons.math3,\
 
 -testpath: \
