@@ -1,0 +1,7 @@
+<oe-chart *ngIf="isInitialized" [title]="component.alias">
+    <enerixControlChart [isOnlyChart]="true" (setChartConfig)="setChartConfig($event)" [component]="component">
+    </enerixControlChart>
+    @if (chartType === "line") {
+    <oe-chart-legend [description]="STATES" [header]="'LEGEND_DESCRIPTION' | translate"></oe-chart-legend>
+    }
+</oe-chart>

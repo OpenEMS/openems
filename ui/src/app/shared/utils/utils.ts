@@ -666,6 +666,7 @@ export enum YAxisType {
   VOLTAGE,
   HEAT_PUMP,
   HEATING_ELEMENT,
+  ENERIX_CONTROL,
 }
 
 export enum ChartAxis {

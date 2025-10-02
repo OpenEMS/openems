@@ -29,6 +29,7 @@ export enum WidgetFactory {
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",
     "Controller.CHP.SoC",
+    "Controller.Clever-PV",
     "Controller.Ess.DelayedSellToGrid",
     "Controller.Ess.FixActivePower",
     "Controller.Ess.GridOptimizedCharge",
@@ -138,7 +139,14 @@ export class Widgets {
             }
         }
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
+            // Widget should be shown only when readonly property is set to true
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
+                if (factory === "Controller.Clever-PV") {
+                    const value = config.getComponentProperties(componentId)["readOnly"];
+                    if (value === true || value === undefined || value === null) {
+                        continue;
+                    }
+                }
                 const component = config.getComponent(componentId);
                 if (component.isEnabled) {
                     list.push({ name: factory, componentId: componentId, alias: component.alias });

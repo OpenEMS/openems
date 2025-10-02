@@ -337,6 +337,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.POWER:
         return "kW";
       case YAxisType.HEAT_PUMP:
+      case YAxisType.ENERIX_CONTROL:
         return translate.instant("General.state");
       case YAxisType.VOLTAGE:
         return "V";
@@ -688,6 +689,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         };
       }
         break;
+      case YAxisType.ENERIX_CONTROL: {
+        const { callback, ...rest } = baseConfig.ticks;
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          min: 1,
+          // set to 3 for next release
+          max: 2,
+          beginAtZero: true,
+          ticks: {
+            ...rest,
+            stepSize: 1,
+          },
+        };
+      }
+        break;
       case YAxisType.HEATING_ELEMENT: {
         const { callback, ...rest } = baseConfig.ticks;
         options.scales[element.yAxisId] = {
@@ -755,6 +771,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             return baseName + ": " + formatNumber(suffix, locale, "1.0-1") + " %";
           case YAxisType.RELAY:
           case YAxisType.HEAT_PUMP:
+          case YAxisType.ENERIX_CONTROL:
           case YAxisType.TIME: {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
@@ -784,6 +801,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return prefix + ": " + Converter.ON_OFF(translate)(value);
       case YAxisType.HEAT_PUMP:
         return prefix + ": " + ChartConstants.Plugins.ToolTips.HEAT_PUMP_SUFFIX(translate, value);
+      case YAxisType.ENERIX_CONTROL:
+        return prefix + ": " + ChartConstants.Plugins.ToolTips.ENERIX_CONTROL_SUFFIX(translate, value);
       case YAxisType.TIME: {
         const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(locale));
         return prefix + ": " + pipe.transform(value, true);

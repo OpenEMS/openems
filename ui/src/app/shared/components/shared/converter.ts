@@ -394,6 +394,31 @@ export namespace Converter {
     };
   };
 
+  /**
+  * Converts Power2Heat-State
+  *
+  * @param translate the current language to be translated to
+  * @returns converted value
+  */
+  export const CONVERT_ENERIX_CONTROL_STATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case State.ON:
+          return translate.instant("General.on");
+        case State.NO_DISCHARGE:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_DISCHARGE");
+        case State.FORCE_CHARGE:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.FORCE_CHARGE");
+        case State.DISCONNECTED:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.DISCONNECTED");
+        case State.CONNECTED:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.CONNECTED");
+        default:
+          return translate.instant("General.off");
+      }
+    };
+  };
+
   export const CONVERT_TO_BAR: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_BAR(value));
@@ -417,4 +442,13 @@ export namespace Converter {
   export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
     return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
   };
+}
+
+export enum State {
+  ON = 0,
+  OFF = 1,
+  NO_DISCHARGE = 2,
+  FORCE_CHARGE = 3,
+  DISCONNECTED = 4,
+  CONNECTED = 5,
 }

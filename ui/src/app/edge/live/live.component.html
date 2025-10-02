@@ -151,6 +151,10 @@
                 <Io_Api_DigitalInput></Io_Api_DigitalInput>
               </ion-col>
 
+              <ion-col size="12" *ngSwitchCase="'Controller.Clever-PV'" size-lg="6" class="ion-no-padding">
+                <Controller_EnerixControl [componentId]="widget.componentId"></Controller_EnerixControl>
+              </ion-col>
+
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
                 <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
