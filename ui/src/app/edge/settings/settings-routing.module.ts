@@ -8,13 +8,9 @@ import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent }
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from "./component/install/install.component";
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from "./component/update/index.component";
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from "./component/update/update.component";
-import { BatteryExtensionComponent } from "./energy-journey/pages/battery-extension/battery-extension";
-import { ElectricityPriceSelectionComponent } from "./energy-journey/pages/electricity-price-choice/electricity-price-selection";
 import { JsonrpcTestComponent } from "./jsonrpctest/jsonrpctest";
-import { NetworkOldComponent as EdgeSettingsNetworkOldComponent } from "./network.old/network.old.component";
 import { SettingsComponent } from "./settings.component";
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from "./systemexecute/systemexecute.component";
-import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from "./systemupdate.old/systemupdate.old.component";
 
 export const settingsRoutes: Routes = [
     { path: "", data: { navbarTitleToBeTranslated: "Menu.edgeSettings" }, component: SettingsComponent },
