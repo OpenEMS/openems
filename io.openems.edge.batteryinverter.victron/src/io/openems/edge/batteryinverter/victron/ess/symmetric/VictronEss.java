@@ -15,7 +15,9 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.ShortWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -820,6 +822,32 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	    return this.channel(ChannelId.DC_DISCHARGE_POWER);
 	}	
 	
+	// Set DC Discharge Energy
+	public default void _setDcDischargeEnergy(Long value) {
+	    this.getDcDischargeEnergyChannel().setNextValue(value);
+	}
+
+	public default Value<Long> getDcDischargeEnergy() {
+	    return this.getDcDischargeEnergyChannel().value();
+	}
+
+	public default LongReadChannel getDcDischargeEnergyChannel() {
+	    return this.channel(ChannelId.DC_DISCHARGE_ENERGY);
+	}
+	
+	// Set DC Charge Energy
+	public default void _setDcChargeEnergy(Long value) {
+	    this.getDcChargeEnergyChannel().setNextValue(value);
+	}
+
+	public default Value<Long> getDcChargeEnergy() {
+	    return this.getDcChargeEnergyChannel().value();
+	}
+
+	public default LongReadChannel getDcChargeEnergyChannel() {
+	    return this.channel(ChannelId.DC_CHARGE_ENERGY);
+	}		
+	
 	// SetPoint Channel L1
 	public default void _setSymmetricEssActivePowerL1(Short value) throws OpenemsNamedException {
 		this.getChargePowerChannelL1().setNextWriteValue(value);
@@ -858,6 +886,46 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	public default ShortWriteChannel getChargePowerChannelL3() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_L3);
 	}
+	
+	// 0 -> Charging enabled
+	// 1 -> Charging DISABLED
+	public default void _setDisableChargeFlag(EnableDisable value)throws OpenemsNamedException {
+		this.setDisableChargeFlagChannel().setNextWriteValue(value);
+	}
+
+	public default EnableDisable getDisableChargeFlag() {
+		return this.getDisableChargeFlagChannel().value().asEnum();
+	}
+
+	public default Channel<EnableDisable> getDisableChargeFlagChannel() {
+		return this.channel(ChannelId.ESS_DISABLE_CHARGE_FLAG);
+	}	
+	
+	public default WriteChannel<EnableDisable> setDisableChargeFlagChannel() {
+		return this.channel(ChannelId.ESS_DISABLE_CHARGE_FLAG);
+	}		
+	
+	
+	
+	// 0 -> Discharging enabled
+	// 1 -> Discharging DISABLED
+	public default void _setDisableDischargeFlag(EnableDisable value)throws OpenemsNamedException {
+		this.setDisableDischargeFlagChannel().setNextWriteValue(value);
+	}
+
+	public default EnableDisable getDisableDischargeFlag() {
+		return this.getDisableDischargeFlagChannel().value().asEnum();
+	}
+
+	public default Channel<EnableDisable> getDisableDischargeFlagChannel() {
+		return this.channel(ChannelId.ESS_DISABLE_FEEDBACK_FLAG);
+	}	
+	
+	public default WriteChannel<EnableDisable> setDisableDischargeFlagChannel() {
+		return this.channel(ChannelId.ESS_DISABLE_FEEDBACK_FLAG);
+	}		
+	
+	
 
 	// Getter for VE Bus State
 	public default VEBusState getVEBusState() {

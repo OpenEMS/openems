@@ -472,7 +472,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						this.m(VictronBatteryInverter.ChannelId.DC_BATTERY_CURRENT, new SignedWordElement(841),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842),
+						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842),  // this is actually the value for DC power!!
 								ElementToChannelConverter.INVERT),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_SOC, new UnsignedWordElement(843)),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_STATE, new UnsignedWordElement(844)),

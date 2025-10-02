@@ -7,6 +7,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -166,10 +167,10 @@ public interface VictronBattery extends Battery, OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.VOLT) //
 		), //
-		DISCHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) //
+		DC_DISCHARGED_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
-		), CHARGED_ENERGY(Doc.of(OpenemsType.INTEGER) //
+		), DC_CHARGED_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.unit(Unit.WATT_HOURS).persistencePriority(PersistencePriority.HIGH) // ) //
 		), TIME_TO_GO(Doc.of(OpenemsType.INTEGER) //
@@ -304,6 +305,24 @@ public interface VictronBattery extends Battery, OpenemsComponent {
 			return this.doc;
 		}
 	}
+	
+	// Set DC Discharge Energy
+	public default Value<Long> getDcDischargeEnergy() {
+	    return this.getDcDischargeEnergyChannel().value();
+	}
+
+	public default LongReadChannel getDcDischargeEnergyChannel() {
+	    return this.channel(ChannelId.DC_DISCHARGED_ENERGY);
+	}
+	
+	// Set DC Charge Energy
+	public default Value<Long> getDcChargeEnergy() {
+	    return this.getDcChargeEnergyChannel().value();
+	}
+
+	public default LongReadChannel getDcChargeEnergyChannel() {
+	    return this.channel(ChannelId.DC_CHARGED_ENERGY);
+	}	
 
 	public default IntegerReadChannel getCapacityInAmphoursChannel() {
 		return this.channel(ChannelId.CAPACITY_IN_AMPHOURS);
@@ -334,8 +353,8 @@ public interface VictronBattery extends Battery, OpenemsComponent {
 	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(VictronBattery.class, accessMode, 100) //
 				.channel(0, ChannelId.CHARGE_CYCLES, ModbusType.UINT16) //
-				.channel(1, ChannelId.CHARGED_ENERGY, ModbusType.UINT16) //
-				.channel(2, ChannelId.DISCHARGED_ENERGY, ModbusType.UINT16) //
+				.channel(1, ChannelId.DC_CHARGED_ENERGY, ModbusType.UINT16) //
+				.channel(2, ChannelId.DC_DISCHARGED_ENERGY, ModbusType.UINT16) //
 				.channel(3, ChannelId.INTERNAL_FAILURE_ALARM, ModbusType.UINT16) //
 				.channel(4, ChannelId.ERROR, ModbusType.UINT16) //
 				.channel(5, ChannelId.BALANCING, ModbusType.UINT16) //

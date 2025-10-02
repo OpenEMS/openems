@@ -51,6 +51,7 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.victron.enums.AllowDisallow;
+import io.openems.edge.victron.enums.EnableDisable;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -113,11 +114,14 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 
 	// DC-side
-	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
-			VictronEss.ChannelId.DC_DISCHARGE_ENERGY);
-
-	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
-			VictronEss.ChannelId.DC_CHARGE_ENERGY);
+	/**
+	 * We take internal meter values private final CalculateEnergyFromPower
+	 * calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+	 * VictronEss.ChannelId.DC_DISCHARGE_ENERGY);
+	 * 
+	 * private final CalculateEnergyFromPower calculateDcChargeEnergy = new
+	 * CalculateEnergyFromPower(this, VictronEss.ChannelId.DC_CHARGE_ENERGY);
+	 */
 
 	public VictronEssImpl() {
 		super(//
@@ -224,11 +228,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 	// Asymmetric systems
 	@Override
-	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
-			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
+	public void applyPower(int activePowerTargetL1, int reactivePowerTargetL1, int activePowerTargetL2,
+			int reactivePowerTargetL2, int activePowerTargetL3, int reactivePowerTargetL3)
+			throws OpenemsNamedException {
 
-		this.logDebug(this.log,
-				"Asymm. PowerWanted L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
+		this.logDebug(this.log, "Asymm. PowerWanted L1: " + activePowerTargetL1 + "|L2: " + activePowerTargetL2
+				+ "|L3: " + activePowerTargetL3);
 
 		if (this.batteryInverter == null) {
 			this.logDebug(this.log,
@@ -284,116 +289,151 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this._setAllowedDischargePower(MaxChargePower);
 
 		this.logDebug(this.log,
-				"OpenEMS Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3
-						+ " \n Substract AC Out Power " + this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
-						+ "|L2: " + this.batteryInverter.getAcConsumptionPowerL2().orElse(0) + "|L3: "
+				"OpenEMS Apply Power L1: " + activePowerTargetL1 + "|L2: " + activePowerTargetL2 + "|L3: "
+						+ activePowerTargetL3 + " \n Substract AC Out Power "
+						+ this.batteryInverter.getAcConsumptionPowerL1().orElse(0) + "|L2: "
+						+ this.batteryInverter.getAcConsumptionPowerL2().orElse(0) + "|L3: "
 						+ this.batteryInverter.getAcConsumptionPowerL3().orElse(0));
 		// at this point we add AC Out power values
 		// i.e. -300W (charge battery)
 		// 100W AC Out we have to draw 300W from grid
-		activePowerL1 -= this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
-		activePowerL2 -= this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
-		activePowerL3 -= this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+
+		if (activePowerTargetL1 == 0 && activePowerTargetL2 == 0 && activePowerTargetL3 == 0) {
+			this.logDebug(this.log, "\n Disabling Charging / Discharging");
+			this._setDisableChargeFlag(EnableDisable.ENABLE);
+			this._setDisableDischargeFlag(EnableDisable.ENABLE);
+		} else {
+			if (this.getDisableChargeFlag() != EnableDisable.DISABLE
+					|| this.getDisableDischargeFlag() != EnableDisable.DISABLE) {
+				this._setDisableChargeFlag(EnableDisable.DISABLE);
+				this._setDisableDischargeFlag(EnableDisable.DISABLE);
+			}
+		}
+
+		if (activePowerTargetL1 < 0) {
+			// CHARGE: AC-Out draws power from battery additionally
+			activePowerTargetL1 -= this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
+		} 
+		//else if (activePowerTargetL1 > 0) {
+		//	activePowerTargetL1 += this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
+		//}
+
+		if (activePowerTargetL2 < 0) {
+			// CHARGE: AC-Out draws power from battery additionally
+			activePowerTargetL2 -= this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
+		} 
+		//else if (activePowerTargetL2 > 0) {
+		//	activePowerTargetL2 += this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
+		//}
+
+		if (activePowerTargetL3 < 0) {
+			// CHARGE: AC-Out draws power from battery additionally
+			activePowerTargetL3 -= this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+		} 
+		//else if (activePowerTargetL3 > 0) {
+		//	activePowerTargetL3 += this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+		//}
 
 		switch (config.phase()) {
 		case ALL:
-			int MaxChargePowerSum = activePowerL1 + activePowerL2 + activePowerL3;
+			int MaxChargePowerSum = activePowerTargetL1 + activePowerTargetL2 + activePowerTargetL3;
 			// Check if desired Power value is within limits
 
-			activePowerL1 = limitPhasePower(activePowerL1, MaxChargePower, MaxDischargePower);
-			activePowerL2 = limitPhasePower(activePowerL2, MaxChargePower, MaxDischargePower);
-			activePowerL3 = limitPhasePower(activePowerL3, MaxChargePower, MaxDischargePower);
+			activePowerTargetL1 = limitPhasePower(activePowerTargetL1, MaxChargePower, MaxDischargePower);
+			activePowerTargetL2 = limitPhasePower(activePowerTargetL2, MaxChargePower, MaxDischargePower);
+			activePowerTargetL3 = limitPhasePower(activePowerTargetL3, MaxChargePower, MaxDischargePower);
 
 			// limit phases according to scaling factor
 			if (MaxChargePowerSum < 0 && Math.abs(MaxChargePowerSum) > MaxChargePower) {
 
 				double scalingFactor = (double) MaxChargePower / Math.abs(MaxChargePowerSum);
-				activePowerL1 = (int) Math.round(activePowerL1 * scalingFactor);
-				activePowerL2 = (int) Math.round(activePowerL2 * scalingFactor);
-				activePowerL3 = (int) Math.round(activePowerL3 * scalingFactor);
-				this.logDebug(this.log, "Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerL1
-						+ "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
+				activePowerTargetL1 = (int) Math.round(activePowerTargetL1 * scalingFactor);
+				activePowerTargetL2 = (int) Math.round(activePowerTargetL2 * scalingFactor);
+				activePowerTargetL3 = (int) Math.round(activePowerTargetL3 * scalingFactor);
+				this.logDebug(this.log, "Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerTargetL1
+						+ "|L2: " + activePowerTargetL2 + "|L3: " + activePowerTargetL3);
 			}
 			if (MaxChargePowerSum > 0 && MaxChargePowerSum > MaxDischargePower) {
 
 				double scalingFactor = (double) MaxDischargePower / Math.abs(MaxChargePowerSum);
-				activePowerL1 = (int) Math.round(activePowerL1 * scalingFactor);
-				activePowerL2 = (int) Math.round(activePowerL2 * scalingFactor);
-				activePowerL3 = (int) Math.round(activePowerL3 * scalingFactor);
-				this.logDebug(this.log, "Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerL1
-						+ "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
+				activePowerTargetL1 = (int) Math.round(activePowerTargetL1 * scalingFactor);
+				activePowerTargetL2 = (int) Math.round(activePowerTargetL2 * scalingFactor);
+				activePowerTargetL3 = (int) Math.round(activePowerTargetL3 * scalingFactor);
+				this.logDebug(this.log, "Asymmetric Ess. ALL PHASE LIMITATION. Apply Power L1: " + activePowerTargetL1
+						+ "|L2: " + activePowerTargetL2 + "|L3: " + activePowerTargetL3);
 			}
 
 			break;
 		case L1:
 			// Check if desired Power value is within limits
-			if (activePowerL1 < 0 && Math.abs(activePowerL1) > MaxChargePower) {
-				activePowerL1 = MaxChargePower * -1;
+			if (activePowerTargetL1 < 0 && Math.abs(activePowerTargetL1) > MaxChargePower) {
+				activePowerTargetL1 = MaxChargePower * -1;
 			}
-			if (activePowerL1 > 0 && activePowerL1 > MaxDischargePower) {
-				activePowerL1 = MaxDischargePower;
+			if (activePowerTargetL1 > 0 && activePowerTargetL1 > MaxDischargePower) {
+				activePowerTargetL1 = MaxDischargePower;
 			}
-			activePowerL2 = 0;
-			activePowerL3 = 0;
-			this._setActivePowerL1((short) (activePowerL1 * -1));
+			activePowerTargetL2 = 0;
+			activePowerTargetL3 = 0;
+			this._setActivePowerL1((short) (activePowerTargetL1 * -1));
 
 			break;
 		case L2:
 			// Check if desired Power value is within limits
-			if (activePowerL2 < 0 && Math.abs(activePowerL2) > MaxChargePower) {
-				activePowerL2 = MaxChargePower * -1;
+			if (activePowerTargetL2 < 0 && Math.abs(activePowerTargetL2) > MaxChargePower) {
+				activePowerTargetL2 = MaxChargePower * -1;
 			}
-			if (activePowerL2 > 0 && activePowerL2 > MaxChargePower) {
-				activePowerL2 = MaxChargePower;
+			if (activePowerTargetL2 > 0 && activePowerTargetL2 > MaxChargePower) {
+				activePowerTargetL2 = MaxChargePower;
 			}
-			activePowerL1 = 0;
-			activePowerL3 = 0;
-			this._setActivePowerL2((short) (activePowerL2 * -1));
+			activePowerTargetL1 = 0;
+			activePowerTargetL3 = 0;
+			this._setActivePowerL2((short) (activePowerTargetL2 * -1));
 
 			break;
 		case L3:
 			// Check if desired Power value is within limits
-			if (activePowerL3 < 0 && Math.abs(activePowerL3) > MaxChargePower) {
-				activePowerL3 = MaxChargePower * -1;
+			if (activePowerTargetL3 < 0 && Math.abs(activePowerTargetL3) > MaxChargePower) {
+				activePowerTargetL3 = MaxChargePower * -1;
 			}
-			if (activePowerL3 > 0 && activePowerL3 > MaxChargePower) {
-				activePowerL3 = MaxChargePower;
+			if (activePowerTargetL3 > 0 && activePowerTargetL3 > MaxChargePower) {
+				activePowerTargetL3 = MaxChargePower;
 			}
-			activePowerL1 = 0;
-			activePowerL2 = 0;
-			this._setActivePowerL3((short) (activePowerL3 * -1));
+			activePowerTargetL1 = 0;
+			activePowerTargetL2 = 0;
+			this._setActivePowerL3((short) (activePowerTargetL3 * -1));
 
 			break;
 		}
 
-		this.batteryInverter.run(battery, activePowerL1 + activePowerL2 + activePowerL3,
-				reactivePowerL1 + reactivePowerL2 + reactivePowerL3); //
+		this.batteryInverter.run(battery, activePowerTargetL1 + activePowerTargetL2 + activePowerTargetL3,
+				reactivePowerTargetL1 + reactivePowerTargetL2 + reactivePowerTargetL3); //
 
 		if (this.config.readOnlyMode()) {
 			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
 			return;
 		}
-		this.logDebug(this.log, "Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3);
+		this.logDebug(this.log, "Apply Power L1: " + activePowerTargetL1 + "|L2: " + activePowerTargetL2 + "|L3: "
+				+ activePowerTargetL3);
 
 		// Victron: Negative values for Discharge
 		// OpenEMS: Negative values for Charge
 		// Write values to ESS
 		if (this.getPhase() == null) { // no single Phase
 
-			this._setSymmetricEssActivePowerL1((short) (activePowerL1 * -1));
+			this._setSymmetricEssActivePowerL1((short) (activePowerTargetL1 * -1));
 			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
 			// channel for that
 
-			this._setSymmetricEssActivePowerL2((short) (activePowerL2 * -1));
+			this._setSymmetricEssActivePowerL2((short) (activePowerTargetL2 * -1));
 			// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
 			// channel for that
 
-			this._setSymmetricEssActivePowerL3((short) (activePowerL3 * -1));
+			this._setSymmetricEssActivePowerL3((short) (activePowerTargetL3 * -1));
 			// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
 			// channel for that
 
 		} else { // On a single phase ESS, power is applied to L1
-			this._setSymmetricEssActivePowerL1((short) (activePowerL1 * -1));
+			this._setSymmetricEssActivePowerL1((short) (activePowerTargetL1 * -1));
 			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
 			// channel for that
 		}
@@ -447,9 +487,35 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		// (this.getActivePowerOutputL1().orElse(0) +
 		// this.getActivePowerOutputL2().orElse(0) +
 		// this.getActivePowerOutputL3().orElse(0));
-		activePowerTarget = activePowerTarget - (this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
+		// activePowerTarget = activePowerTarget -
+		// (this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
+		// + this.batteryInverter.getAcConsumptionPowerL2().orElse(0)
+		// + this.batteryInverter.getAcConsumptionPowerL3().orElse(0));
+
+		int acConsumptionPowerSum = this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
 				+ this.batteryInverter.getAcConsumptionPowerL2().orElse(0)
-				+ this.batteryInverter.getAcConsumptionPowerL3().orElse(0));
+				+ this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
+
+		if (activePowerTarget == 0) {
+			this.logDebug(this.log, "\n Disabling Charging / Discharging");
+			this._setDisableChargeFlag(EnableDisable.ENABLE);
+			this._setDisableDischargeFlag(EnableDisable.ENABLE);
+		} else {
+			if (this.getDisableChargeFlag() != EnableDisable.DISABLE
+					|| this.getDisableDischargeFlag() != EnableDisable.DISABLE) {
+				this._setDisableChargeFlag(EnableDisable.DISABLE);
+				this._setDisableDischargeFlag(EnableDisable.DISABLE);
+			}
+		}
+
+		if (activePowerTarget < 0) {
+			// CHARGE: AC-Out zieht Leistung ab -> mehr (negativ) ziehen
+			activePowerTarget -= acConsumptionPowerSum;
+		} 
+		//else if (activePowerTarget > 0) {
+		//	activePowerTarget += acConsumptionPowerSum;
+		//}
+
 
 		this.logDebug(this.log, "Symm. PowerWanted after subtraction of AC Out: " + activePowerTarget);
 
@@ -518,11 +584,61 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	public void _setMyActivePower() {
 		// ToDo: make it work for single and 3 phase
 
+		/*
+		 * AC Power in includes Power to AC-Out 1/2 and self consumption
+		 * 
+		 * 
+		 */
+
 		// ActivePower is the actual AC output including battery discharging
 		var acPowerInputL1 = this.getActivePowerInputL1().orElse(null); // 12 int 16 signed, SF1 (*10)
 		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null); // 13
 		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null); // 14
 
+		if (acPowerInputL1 != null && acPowerInputL2 != null && acPowerInputL3 != null) {
+			this._setActivePowerL1(acPowerInputL1); // Asymmetric ESS nature
+			this._setActivePowerL2(acPowerInputL2); // Asymmetric ESS nature
+			this._setActivePowerL3(acPowerInputL3); // Asymmetric ESS nature
+
+			int acPowerSum = acPowerInputL1 + acPowerInputL2 + acPowerInputL3;
+			this._setActivePower(acPowerSum);
+		} else {
+			this.logDebug(this.log, "Unable to calculate active power as at least one phase is NULL");
+		}
+
+		var acVoltageInputL1 = this.getVoltageInputL1().orElse(null);
+		var acVoltageInputL2 = this.getVoltageInputL2().orElse(null);
+		var acVoltageInputL3 = this.getVoltageInputL3().orElse(null);
+
+		var acCurrentInputL1 = this.getCurrentInputL1().orElse(null);
+		var acCurrentInputL2 = this.getCurrentInputL2().orElse(null);
+		var acCurrentInputL3 = this.getCurrentInputL3().orElse(null);
+
+		if (acVoltageInputL1 != null && acVoltageInputL2 != null && acVoltageInputL3 != null && acCurrentInputL1 != null
+				&& acCurrentInputL2 != null && acCurrentInputL3 != null) {
+			int apparentePowerSum = (acVoltageInputL1 * acCurrentInputL1) + (acVoltageInputL2 * acCurrentInputL2)
+					+ (acVoltageInputL3 * acCurrentInputL3);
+			this._setApparentPower(apparentePowerSum);
+		}
+
+	}
+
+	public void _setMyActivePower_deprecated() {
+		// ToDo: make it work for single and 3 phase
+
+		/*
+		 * Totally wrong! AC Power in includes Power to AC-Out 1/2 and self consumption.
+		 * It was a mistake to add these values
+		 * 
+		 * 
+		 */
+
+		// ActivePower is the actual AC output including battery discharging
+		var acPowerInputL1 = this.getActivePowerInputL1().orElse(null); // 12 int 16 signed, SF1 (*10)
+		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null); // 13
+		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null); // 14
+
+		// Cosumption includes self-consumption and is always positive
 		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0); // 817 uint16
 		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0); // 818
 		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0); // 819
@@ -632,23 +748,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this._setDcDischargePower(dcPower);
 		}
 
-		if (dcPower == null) {
-			// Not available
-			this.calculateDcChargeEnergy.update(null);
-			this.calculateDcDischargeEnergy.update(null); //
-		} else if (dcPower > 0) {
-			// Discharge
-			this.calculateDcChargeEnergy.update(0);
-			this.calculateDcDischargeEnergy.update(dcPower);
-		} else if (dcPower < 0) {
-			// Charge
-			this.calculateDcChargeEnergy.update(dcPower * -1);
-			this.calculateDcDischargeEnergy.update(0);
-		} else {
-			// Undefined
-			this.calculateDcChargeEnergy.update(0);
-			this.calculateDcDischargeEnergy.update(0);
-		}
+		this._setDcDischargeEnergy(this.battery.getDcDischargeEnergy().get());
+		this._setDcChargeEnergy(this.battery.getDcChargeEnergy().get());
 
 	}
 
@@ -838,7 +939,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 				new FC16WriteRegistersTask(37, //
 						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-						new DummyRegisterElement(38, 39),
+						this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+						this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
 						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
 						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
 
