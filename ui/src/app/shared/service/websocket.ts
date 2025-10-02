@@ -9,6 +9,7 @@ import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 
+import { EdgeNotSetError } from "../errors.ts/errors";
 import { WebsocketInterface } from "../interface/websocketInterface";
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
@@ -392,24 +393,30 @@ export class Websocket implements WebsocketInterface {
     const edgeId = edgeRpcNotification.params.edgeId;
     const message = edgeRpcNotification.params.payload;
 
-    const edges = this.service.metadata.value?.edges ?? {};
-    if (edgeId in edges) {
-      const edge = edges[edgeId];
+    const edge = this.service.currentEdge();
 
-      switch (message.method) {
-        case EdgeConfigNotification.METHOD:
-          edge.isOnline = true; // Mark Edge as online
-          edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
-          break;
+    if (edge == null) {
+      throw new EdgeNotSetError();
+    }
 
-        case CurrentDataNotification.METHOD:
-          edge.handleCurrentDataNotification(message as CurrentDataNotification);
-          break;
+    if (edge.id !== edgeId) {
+      console.error("EdgeId doesnt match");
+      return;
+    }
 
-        case SystemLogNotification.METHOD:
-          edge.handleSystemLogNotification(message as SystemLogNotification);
-          break;
-      }
+    switch (message.method) {
+      case EdgeConfigNotification.METHOD:
+        edge.isOnline = true; // Mark Edge as online
+        edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
+        break;
+
+      case CurrentDataNotification.METHOD:
+        edge.handleCurrentDataNotification(message as CurrentDataNotification);
+        break;
+
+      case SystemLogNotification.METHOD:
+        edge.handleSystemLogNotification(message as SystemLogNotification);
+        break;
     }
   }
 }
