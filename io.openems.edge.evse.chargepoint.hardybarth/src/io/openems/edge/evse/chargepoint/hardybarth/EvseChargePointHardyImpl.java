@@ -148,9 +148,15 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 					.build();
 		}
 
+		final var isEvConnected = switch (this.getChargePointStatus()) {
+		case UNDEFINED, A, E, F -> false;
+		case B, C, D -> true;
+		};
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
-				.setIsReadyForCharging(this.getIsReadyForCharging()).build();
+				.setIsEvConnected(isEvConnected) //
+				.setIsReadyForCharging(this.getIsReadyForCharging()) //
+				.build();
 	}
 
 	@Override
