@@ -131,12 +131,18 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 	private ChannelAddress channelAddress;
 	private ModelSerializer modelSerializer;
+	private PredictionPersistenceService predictionPersistenceService;
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.sourceChannel().channelAddress);
 
+		this.predictionPersistenceService = new PredictionPersistenceService(//
+				this, //
+				this.timedata, //
+				() -> this.componentManager.getClock());
+		
 		if (!config.enabled()) {
 			return;
 		}
@@ -156,6 +162,8 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 				this.localConfig.trainingIntervalInDays(), //
 				TimeUnit.DAYS //
 		);
+
+		this.predictionPersistenceService.startShiftingJob();
 	}
 
 	@Override
@@ -163,6 +171,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 	protected void deactivate() {
 		super.deactivate();
 		shutdownAndAwaitTermination(this.executor, 5);
+		this.predictionPersistenceService.deactivateShiftingJob();
 	}
 
 	@Override
@@ -212,6 +221,8 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		case NONE, REQUESTED_PREDICTIONS -> FunctionUtils.doNothing();
 		case ARCHIVE_LOCALLY -> this.archivePrediction(prediction);
 		}
+
+		this.predictionPersistenceService.updatePredictionAheadChannels(prediction);
 
 		return prediction;
 	}
@@ -283,17 +294,6 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		return predictions;
 	}
 
-	@Override
-	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetPrediction(), //
-				endpoint -> {
-					endpoint.setGuards(roleIsAtleast(Role.OWNER));
-				}, call -> {
-					var prediction = this.createNewPrediction(this.channelAddress);
-					return new GetPrediction.Response(prediction);
-				});
-	}
-
 	private void archivePrediction(Prediction prediction) {
 		var datetime = prediction.getFirstTime();
 		var data = prediction.asArray();
@@ -316,6 +316,17 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		} catch (IOException e) {
 			this.log.error("Failed to archive prediction", e);
 		}
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetPrediction(), //
+				endpoint -> {
+					endpoint.setGuards(roleIsAtleast(Role.OWNER));
+				}, call -> {
+					var prediction = this.createNewPrediction(this.channelAddress);
+					return new GetPrediction.Response(prediction);
+				});
 	}
 
 	public interface LocalConfig {
