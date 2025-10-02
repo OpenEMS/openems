@@ -14,6 +14,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestFilter;
 import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
@@ -40,8 +41,8 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
-import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
@@ -469,6 +470,16 @@ public final class Apps {
 	 */
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+
+	/**
+	 * Test method for creating a {@link TestFilter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestFilter testFilter(AppManagerTestBundle t) {
+		return app(t, TestFilter::new, "App.Test.TestFilter");
 	}
 
 	/**

@@ -4,12 +4,13 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Request;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Response;
 
 /**
  * Updates an {@link OpenemsAppInstance}.
@@ -43,7 +44,7 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppConfig.Request;
  * }
  * </pre>
  */
-public class UpdateAppConfig implements EndpointRequestType<Request, EmptyObject> {
+public class UpdateAppConfig implements EndpointRequestType<Request, Response> {
 
 	@Override
 	public String getMethod() {
@@ -51,13 +52,13 @@ public class UpdateAppConfig implements EndpointRequestType<Request, EmptyObject
 	}
 
 	@Override
-	public JsonSerializer<Request> getRequestSerializer() {
-		return Request.serializer();
+	public JsonSerializer<Response> getResponseSerializer() {
+		return Response.serializer();
 	}
 
 	@Override
-	public JsonSerializer<EmptyObject> getResponseSerializer() {
-		return EmptyObject.serializer();
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
 	}
 
 	public record Request(//
@@ -83,4 +84,27 @@ public class UpdateAppConfig implements EndpointRequestType<Request, EmptyObject
 
 	}
 
+	public record Response(//
+			OpenemsAppInstance appInstance //
+	) {
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link UpdateAppInstance.Response}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<UpdateAppConfig.Response> serializer() {
+			return jsonObjectSerializer(UpdateAppConfig.Response.class, //
+					json -> {
+						return new UpdateAppConfig.Response(//
+								json.getObject("appInstance", OpenemsAppInstance.serializer()));
+					}, //
+					obj -> {
+						return JsonUtils.buildJsonObject()
+								.onlyIf(obj.appInstance != null,
+										json -> json.add("appInstance",
+												OpenemsAppInstance.serializer().serialize(obj.appInstance))) //
+								.build();
+					});
+		}
+	}
 }

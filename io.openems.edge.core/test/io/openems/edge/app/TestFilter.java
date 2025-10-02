@@ -10,6 +10,7 @@ import java.util.function.Function;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
@@ -19,12 +20,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.TestPermissions.Property;
-import io.openems.edge.app.TestPermissions.TestPermissionsParameter;
-import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.TestFilter.Property;
+import io.openems.edge.app.TestFilter.TestPermissionsParameter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -38,15 +36,12 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder;
-import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 
 /**
- * Tests AppPropertyPermissions.
+ * Tests GetAppByFilter.
  */
-@org.osgi.service.component.annotations.Component(name = "App.Test.TestPermissions")
-public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions, Property, TestPermissionsParameter>
+@Component(name = "App.Test.TestFilter")
+public class TestFilter extends AbstractOpenemsAppWithProps<TestFilter, Property, TestPermissionsParameter>
 		implements OpenemsApp {
 
 	public record TestPermissionsParameter(//
@@ -55,47 +50,28 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 
 	}
 
-	public static enum Property implements Type<Property, TestPermissions, TestPermissionsParameter> {
+	public static enum Property implements Type<Property, TestFilter, TestPermissionsParameter> {
 		ID(AppDef.componentId("id0")), //
-		ADMIN_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setMinRole(Role.ADMIN))), //
-		INSTALLER_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setMinRole(Role.INSTALLER))), //
-		EVERYONE(AppDef.copyOfGeneric(CommonProps.defaultDef())), //
-		UPDATE_ARRAY(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("component.id.plural") //
-				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.setPopupInput(property, DisplayType.STRING);
+		COMPONENT_FACTORY_ID(AppDef.copyOfGeneric(defaultDef()));//
 
-					final var arrayBuilder = new ReorderArrayBuilder(property); //
-					final var fields = JsonUtils.buildJsonArray() //
-							.add(arrayBuilder.build());
+		private final AppDef<? super TestFilter, ? super Property, ? super TestPermissionsParameter> def;
 
-					field.setFieldGroup(fields.build());
-				})).setDefaultValue((app, property, l, parameter) -> {
-					return JsonUtils.buildJsonArray().add("val1").add("val2").build();
-				})),
-
-		;//
-
-		private final AppDef<? super TestPermissions, ? super Property, ? super TestPermissionsParameter> def;
-
-		private Property(AppDef<? super TestPermissions, ? super Property, ? super TestPermissionsParameter> def) {
+		private Property(AppDef<? super TestFilter, ? super Property, ? super TestPermissionsParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public Type<Property, TestPermissions, TestPermissionsParameter> self() {
+		public Type<Property, TestFilter, TestPermissionsParameter> self() {
 			return this;
 		}
 
 		@Override
-		public AppDef<? super TestPermissions, ? super Property, ? super TestPermissionsParameter> def() {
+		public AppDef<? super TestFilter, ? super Property, ? super TestPermissionsParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<TestPermissions>, TestPermissionsParameter> getParamter() {
+		public Function<GetParameterValues<TestFilter>, TestPermissionsParameter> getParamter() {
 			return t -> {
 				return new TestPermissionsParameter(//
 						createResourceBundle(t.language) //
@@ -106,7 +82,7 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 	}
 
 	@Activate
-	public TestPermissions(//
+	public TestFilter(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
@@ -118,15 +94,10 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-
+			final var id = this.getId(t, p, Property.ID);
+			final var factoryId = this.getString(p, Property.COMPONENT_FACTORY_ID);
 			final var components = new ArrayList<EdgeConfig.Component>();
-			// final var updateArray = this.getJsonArray(p, Property.UPDATE_ARRAY);
-			components.add(new EdgeConfig.Component(this.getId(t, p, Property.ADMIN_ONLY, "id0"), "alias", "factoryId", //
-					new JsonObject()));
-			components.add(
-					new EdgeConfig.Component(this.getId(t, p, Property.INSTALLER_ONLY, "id0"), "alias", "factoryId", //
-							new JsonObject()));
-			components.add(new EdgeConfig.Component(this.getId(t, p, Property.EVERYONE, "id0"), "alias", "factoryId", //
+			components.add(new EdgeConfig.Component(id, "alias", factoryId, //
 					new JsonObject()));
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
@@ -148,11 +119,11 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	@Override
-	protected TestPermissions getApp() {
+	protected TestFilter getApp() {
 		return this;
 	}
 
