@@ -70,6 +70,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 
 	private HistoricalWeatherService historicalWeatherService;
 	private WeatherForecastService weatherForecastService;
+	private WeatherForecastPersistenceService weatherForecastPersistenceService;
 
 	private Meta meta;
 	private Coordinates coordinates;
@@ -146,13 +147,20 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 				new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
 				this.meta.getCoordinates(), //
 				() -> this.componentManager.getClock());
+
+		this.weatherForecastPersistenceService = new WeatherForecastPersistenceService(//
+				this, //
+				() -> this.componentManager.getClock());
+		this.weatherForecastPersistenceService.startHourlyPersistenceJob();
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.weatherForecastService.deactivateForecastSubscription();
 		this.httpBridgeFactory.unget(this.httpBridge);
 		this.httpBridge = null;
+		this.weatherForecastPersistenceService.deactivateHourlyPersistenceJob();
 	}
 
 	@Override
@@ -239,13 +247,6 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new HourlyWeatherForecastEndpoint(), endpoint -> {
-			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
-		}, call -> {
-			return new HourlyWeatherForecastEndpoint.Response(//
-					this.getHourlyWeatherForecast(call.getRequest().forecastHours()));
-		});
-
 		builder.handleRequest(new DailyWeatherForecastEndpoint(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
 		}, call -> {

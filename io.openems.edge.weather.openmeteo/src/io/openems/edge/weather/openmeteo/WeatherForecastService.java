@@ -93,6 +93,17 @@ public class WeatherForecastService {
 						error));
 	}
 
+	/**
+	 * Deactivates the weather forecast subscription, if it exists. This stops
+	 * receiving forecast updates from the HTTP bridge.
+	 */
+	public void deactivateForecastSubscription() {
+		if (this.subscription != null) {
+			this.httpBridge.removeTimeEndpoint(this.subscription);
+			this.subscription = null;
+		}
+	}
+
 	public List<QuarterlyWeatherSnapshot> getQuarterlyWeatherForecast() {
 		return this.quarterlyWeatherForecast == null //
 				? null //
