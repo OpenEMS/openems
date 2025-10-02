@@ -1479,30 +1479,31 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Block 1: PV1 - PV4 voltage & current
 		 */
+		protocol.addTask(//
+				new FC3ReadRegistersTask(35103, Priority.HIGH, //
+						m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 
-		new FC3ReadRegistersTask(35103, Priority.HIGH, //
-				m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
-						ElementToChannelConverter.SCALE_FACTOR_2),
+						// Power having wrong values for two-string charger
+						new DummyRegisterElement(35105, 35106),
 
-				// Power having wrong values for two-string charger
-				new DummyRegisterElement(35105, 35106),
-
-				m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				new DummyRegisterElement(35109, 35110),
-				m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				new DummyRegisterElement(35113, 35114),
-				m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
-						ElementToChannelConverter.SCALE_FACTOR_2),
-				m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
-						ElementToChannelConverter.SCALE_FACTOR_2)); //
+						m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(35109, 35110),
+						m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						new DummyRegisterElement(35113, 35114),
+						m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
+								ElementToChannelConverter.SCALE_FACTOR_2)) //
+		);
 
 		/*
 		 * Block 2: PV5 - PV6 voltage & current (would continue till PV16) and MPPT
