@@ -17,7 +17,7 @@
     <oe-flat-widget [title]="'Edge.Index.Energymonitor.title'| translate"
         [icon]="{name: 'laptop-outline', color: 'normal'}" *ngIf="isInitialized" [style.height.px]="getChartHeight()"
         class="no-all-edges-shadow">
-        <ion-button slot="end" (click)="exportToXlxs()">
+        <ion-button slot="end" class="ion-float-right" (click)="exportToXlxs()">
             <ion-icon [name]="'download-outline'">
             </ion-icon>
         </ion-button>

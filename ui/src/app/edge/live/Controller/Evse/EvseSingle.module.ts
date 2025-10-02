@@ -4,6 +4,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
 import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
 import { AppModule } from "src/app/edge/settings/app/app.module";
+import { UpdateAppComponent } from "src/app/edge/settings/app/update.component";
 import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -30,6 +31,7 @@ import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-c
     NgOptimizedImage,
     OeImageComponent,
     AppModule,
+    UpdateAppComponent,
   ],
   declarations: [
     FlatComponent,
@@ -46,6 +48,7 @@ import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-c
   exports: [
     FlatComponent,
     UpdateAppConfigComponent,
+    UpdateAppComponent,
   ],
 })
 export class ControllerEvseSingle {
