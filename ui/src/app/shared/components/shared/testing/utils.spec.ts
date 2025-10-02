@@ -15,7 +15,7 @@ import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 export type TestContext = { translate: TranslateService, service: Service };
 export const BASE_TEST_BED: TestModuleMetadata = {
     imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key}),
     ],
     providers: [
         TranslateService,

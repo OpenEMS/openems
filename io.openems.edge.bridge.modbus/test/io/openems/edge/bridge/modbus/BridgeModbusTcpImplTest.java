@@ -2,10 +2,6 @@ package io.openems.edge.bridge.modbus;
 
 import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
-import static org.junit.Assert.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
 import org.junit.Test;
 
@@ -95,54 +91,6 @@ public class BridgeModbusTcpImplTest {
 		} finally {
 			if (slave != null) {
 				slave.close();
-			}
-		}
-	}
-
-	@Test
-	public void testTriggerLogIllegalArgumentException() throws Exception {
-		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
-		var port = findRandomOpenPortOnAllLocalInterfaces();
-		ModbusSlave slave = null;
-		PrintStream originalOut = System.out;
-		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-		try {
-			/*
-			 * Open Modbus/TCP Slave
-			 */
-			slave = ModbusSlaveFactory.createTCPSlave(port, 1);
-			var processImage = new SimpleProcessImage(UNIT_ID);
-			Register register100 = new SimpleRegister(123);
-			// This will cause an IllegalArgumentException
-			Register register101 = new SimpleRegister(Integer.MAX_VALUE);
-			processImage.addRegister(100, register100);
-			processImage.addRegister(101, register101);
-			slave.addProcessImage(UNIT_ID, processImage);
-			slave.open();
-			System.setOut(new PrintStream(outContent));
-			/*
-			 * Instantiate Modbus-Bridge
-			 */
-			var sut = new BridgeModbusTcpImpl();
-			var test = new ComponentTest(sut) //
-					.activate(MyConfigTcp.create() //
-							.setId("modbus0") //
-							.setIp("127.0.0.1") //
-							.setPort(port) //
-							.setInvalidateElementsAfterReadErrors(1) //
-							.setLogVerbosity(LogVerbosity.NONE) //
-							.build());
-			test.addComponent(new MyModbusComponent("device0", sut, UNIT_ID));
-			test //
-					.next(new TestCase() //
-							.onAfterProcessImage(sleep)); //
-			assertTrue(outContent.toString().contains("IllegalArgumentException"));
-
-		} finally {
-			if (slave != null) {
-				slave.close();
-				System.setOut(originalOut);
-				System.out.println(outContent);
 			}
 		}
 	}

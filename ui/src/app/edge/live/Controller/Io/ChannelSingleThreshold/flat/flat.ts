@@ -2,6 +2,7 @@
 import { Component, signal, WritableSignal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -37,6 +38,19 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   protected switchState: string;
   protected switchValue: string;
   protected switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
+  protected get modalComponent(): Modal {
+    return {
+      component: Controller_Io_ChannelSingleThresholdModalComponent,
+      componentProps: {
+        component: this.component,
+        config: this.config,
+        edge: this.edge,
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel,
+        inputChannelUnit: this.unitOfInputChannel,
+      },
+    };
+  };
 
   /**
    * Gets the current value label in the form of e.g. "1000 W"

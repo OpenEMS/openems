@@ -10,10 +10,11 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @NgModule({
   imports: [
-    AngularMyDatePickerModule,
     CommonModule,
     IonicModule,
     TranslateModule,
+    AngularMyDatePickerModule,
+    ReactiveFormsModule,
   ],
   declarations: [
     PickDateComponent,
@@ -28,7 +29,6 @@ export class PickdateComponentModule { }
   imports: [
     BrowserModule,
     IonicModule,
-    ReactiveFormsModule,
     TranslateModule,
     PickdateComponentModule,
   ],

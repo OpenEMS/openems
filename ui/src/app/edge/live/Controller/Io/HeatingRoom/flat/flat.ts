@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
@@ -8,6 +9,15 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
+
+    protected get modalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        };
+    };
 
     async presentModal() {
         const modal = await this.modalController.create({

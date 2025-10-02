@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../../shared/shared";
 import { Evcs_Api_ClusterModalComponent } from "./modal/evcsCluster-modal.page";
 
@@ -20,6 +21,18 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public isConnectionSuccessful: boolean;
   public alias: string;
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+
+  protected get modalComponent(): Modal {
+    return {
+      component: Evcs_Api_ClusterModalComponent,
+      componentProps: {
+        config: this.component,
+        edge: this.edge,
+        componentId: this.componentId,
+        evcsMap: this.evcsMap,
+      },
+    };
+  }
 
   async presentModal() {
     const modal = await this.modalController.create({

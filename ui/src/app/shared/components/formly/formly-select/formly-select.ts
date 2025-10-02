@@ -5,7 +5,14 @@ import { FieldType } from "@ngx-formly/core";
   selector: "formly-custom-select",
   encapsulation: ViewEncapsulation.None,
   template: `
-    <ion-select
+    @if (selectOptions?.length === 1) {
+      <ion-item lines="none">
+        <ion-label>{{ props.label }}</ion-label>
+        <ion-text>{{ selectOptions[0]?.label }}</ion-text>
+      </ion-item>
+      <input type="hidden" [formControl]="formControl" [value]="selectOptions[0]?.value" />
+    } @else {
+      <ion-select
         [id]="id"
         [label]="props.label + (to.required ? '*' : '')"
         interface="alert"
@@ -15,35 +22,46 @@ import { FieldType } from "@ngx-formly/core";
         [formControl]="formControl"
         [formlyAttributes]="field"
         [multiple]="props.multiple ?? false"
-    >
-      <ng-container *ngFor="let option of props.options">
-        <ion-select-option [value]="option.value">
-          {{ option.label }}
-        </ion-select-option>
-      </ng-container>
-    </ion-select>
-    <p *ngIf="to.description" style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">{{ to.description }}</p>
-  `,
+        >
+        @for (option of selectOptions; track option) {
+          <ion-select-option [value]="option.value">
+            {{ option.label }}
+          </ion-select-option>
+        }
+      </ion-select>
+    }
+
+    @if (to.description) {
+      <p style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">
+        {{ to.description }}
+      </p>
+    }
+    `,
   standalone: false,
   styles: [`
       :host {
         formly-custom-select {
-                width: 100%;
-              }
-          }
-        .custom-ion-alert{
-            .alert-checkbox-label{
-              color: var(--ion-text-color) !important;
-            }
+          width: 100%;
         }
-        ion-select::part(label) {
-          max-width: 100% !important;
-          white-space: normal !important;
+      }
+      ion-select::part(placeholder),
+      ion-select::part(label) {
+        max-width: 100% !important;
+        white-space: normal !important;
+        font-size: initial !important;
+      }
+      ion-select::part(text) {
+        flex: 1;
+      }
+      .custom-ion-alert {
+        .alert-checkbox-label{
+          color: var(--ion-text-color) !important;
         }
-
-        ion-select::part(text) {
-          flex: 1;
-        }
-      `],
+      }
+  `],
 })
-export class FormlySelectComponent extends FieldType { }
+export class FormlySelectComponent extends FieldType {
+  get selectOptions(): any[] {
+    return this.props.options as any[] || [];
+  }
+}

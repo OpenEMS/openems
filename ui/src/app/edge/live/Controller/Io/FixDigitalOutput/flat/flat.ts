@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
 
@@ -14,6 +15,15 @@ export class FlatComponent extends AbstractFlatWidget {
 
   public state: string = "-";
   public outputChannel: string;
+  protected get modalComponent(): Modal {
+    return {
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+        edge: this.edge,
+      },
+    };
+  };
 
   async presentModal() {
     if (!this.isInitialized) {

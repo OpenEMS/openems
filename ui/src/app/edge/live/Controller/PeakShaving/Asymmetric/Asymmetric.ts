@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
 import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.component";
 
@@ -18,6 +19,16 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     public peakShavingPower: number;
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    protected get modalComponent(): Modal {
+        return {
+            component: Controller_Asymmetric_PeakShavingModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+                mostStressedPhase: this.mostStressedPhase,
+            },
+        };
+    }
 
     async presentModal() {
         const modal = await this.modalController.create({

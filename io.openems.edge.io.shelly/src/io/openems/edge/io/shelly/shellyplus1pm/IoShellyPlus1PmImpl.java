@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
@@ -14,6 +15,7 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Objects;
+import java.util.function.IntFunction;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -68,6 +70,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
+	private boolean invert = false;
 	private String baseUrl;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
@@ -98,6 +101,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
@@ -143,6 +147,8 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
 		Integer power = null;
 		Integer voltage = null;
 		Integer current = null;
@@ -156,9 +162,9 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			try {
 				var jsonResponse = getAsJsonObject(result.data());
 				var switch0 = getAsJsonObject(jsonResponse, "switch:0");
-				power = round(getAsFloat(switch0, "apower"));
+				power = invert.apply(round(getAsFloat(switch0, "apower")));
 				voltage = round(getAsFloat(switch0, "voltage") * 1000);
-				current = round(getAsFloat(switch0, "current") * 1000);
+				current = invert.apply(round(getAsFloat(switch0, "current") * 1000));
 				relay0 = getAsBoolean(switch0, "output");
 
 				var sys = getAsJsonObject(jsonResponse, "sys");
@@ -173,7 +179,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		this._setActivePower(power);
 		this._setCurrent(current);
 		this._setVoltage(voltage);
-		this.channel(IoShellyPlus1Pm.ChannelId.NEEDS_RESTART).setNextValue(restartRequired);
+		setValue(this, IoShellyPlus1Pm.ChannelId.NEEDS_RESTART, restartRequired);
 	}
 
 	/**

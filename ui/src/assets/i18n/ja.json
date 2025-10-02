@@ -80,7 +80,7 @@
           "considerGridFeedInLimit": "最大グリッドフィードインを検討してください",
           "endTime": "終了時間",
           "endTimeDescription": "充電は、数時間最大量では行われませんが、長期間にわたって着実に行われます。",
-          "endTimeDetailedDescription": "充電は数時間で最大量で行われませんが、最大{{value1}}から{{value2}}時の最大で着実に行われます。",
+          "endTimeDetailedDescription": "充電は数時間で最大量で行われませんが、最大{{maxChargingPowerW}}から{{endTime}}時の最大で着実に行われます。",
           "endTimeLong": "制限された負荷の終了時間",
           "expectedSoc": "予想される充電状態",
           "expectedSocWithoutSellToGridLimit": "最大グリッドフィードインを避けることなく",

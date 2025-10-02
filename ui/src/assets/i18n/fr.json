@@ -84,6 +84,9 @@
       "december": "December"
     },
     "save": "sauvegarder",
+    "SUFFIX": {
+      "HOUR": "h"
+    },
     "TIME": {
       "HOUR": "Heure",
       "HOURS": "Heures",
@@ -233,7 +236,7 @@
           "considerGridFeedInLimit": "Tenir compte de l'injection maximale du réseau",
           "endTime": "Heure de fin",
           "endTimeDescription": "La charge n'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.",
-          "endTimeDetailedDescription": "Le chargement n'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{ value1 }} à {{ value2 }} heures.",
+          "endTimeDetailedDescription": "Le chargement n'a pas lieu avec la puissance maximale pendant quelques heures, mais régulièrement avec un maximum de {{ maxChargingPowerW }} à {{ endTime }}.",
           "endTimeLong": "Heure de fin du chargement restreint",
           "expectedSoc": "État de charge prévu",
           "expectedSocWithoutSellToGridLimit": "Sans éviter l'injection maximale du réseau",

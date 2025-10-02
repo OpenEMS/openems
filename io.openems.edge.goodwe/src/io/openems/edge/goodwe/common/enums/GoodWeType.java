@@ -20,19 +20,19 @@ public enum GoodWeType implements OptionsEnum {
 	GOODWE_8K_ET(21, "GoodWe GW8K-ET", Series.ET, 25), //
 	GOODWE_5K_ET(22, "GoodWe GW5K-ET", Series.ET, 25), //
 	FENECON_FHI_10_DAH(30, "FENECON FHI 10 DAH", Series.ET, //
-			authorisedLimit(25, 25, 0), serialNrFilter("010K", "ETU"), notHomeBattery52Ah()), //
+			authorisedLimit(25, 25, 0), serialNrFilter("010K", "ETU"), notHomeBattery52Ah(), 10_000, 10_000), //
 	FENECON_FHI_20_DAH(120, "FENECON FHI 20 DAH", Series.ETT, //
-			authorisedLimit(50, 0, 50), serialNrFilter("020K", "ETT"), notHomeBattery64Ah()), //
+			authorisedLimit(50, 0, 50), serialNrFilter("020K", "ETT"), notHomeBattery64Ah(), 20_000, 20_000), //
 	FENECON_FHI_29_9_DAH(130, "FENECON FHI 30 DAH", Series.ETT, //
-			authorisedLimit(50, 0, 50), home30Filter("29K9", "030K"), notHomeBattery64Ah()),
+			authorisedLimit(50, 0, 50), home30Filter("29K9", "030K"), notHomeBattery64Ah(), 30_000, 30_000), //
 	FENECON_GEN2_6K(140, "FENECON ET Gen2 6K", Series.EUB, //
-			authorisedLimit(40, 25, 40), serialNrFilter("6000", "EUB"), notHomeBattery52Or64Ah()),
+			authorisedLimit(40, 25, 40), serialNrFilter("6000", "EUB"), notHomeBattery52Or64Ah(), 9_000, 6_600), //
 	FENECON_GEN2_10K(150, "FENECON ET Gen2 10K", Series.EUB, //
-			authorisedLimit(40, 25, 40), serialNrFilter("010K", "EUB"), notHomeBattery52Or64Ah()),
+			authorisedLimit(40, 25, 40), serialNrFilter("010K", "EUB"), notHomeBattery52Or64Ah(), 16_000, 11_000), //
 	FENECON_GEN2_15K(160, "FENECON ET Gen2 15K", Series.EUB, //
-			authorisedLimit(40, 25, 40), serialNrFilter("015K", "EUB"), notHomeBattery52Or64Ah()),
+			authorisedLimit(40, 25, 40), serialNrFilter("015K", "EUB"), notHomeBattery52Or64Ah(), 24_000, 16_500), //
 	FENECON_50K(170, "FENECON 50K", Series.ETF, //
-			authorisedLimit(100, 0, 100), serialNrFilter("050K", "ETF"), notHomeBattery64Ah()); //
+			authorisedLimit(100, 0, 100), serialNrFilter("050K", "ETF"), notHomeBattery64Ah(), 55_000, 55_000); //
 
 	public static enum Series {
 		UNDEFINED("Undefined"), //
@@ -55,22 +55,26 @@ public enum GoodWeType implements OptionsEnum {
 	public final Function<BatteryFeneconHomeHardwareType, Integer> maxDcCurrent;
 	public final ThrowingFunction<String, Boolean, Exception> serialNrFilter;
 	public final Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery;
+	public final int maxBatChargeP;
+	public final int maxBatDischargeP;
 
 	private GoodWeType(int value, String option, Series series,
 			Function<BatteryFeneconHomeHardwareType, Integer> maxDcCurrent,
 			ThrowingFunction<String, Boolean, Exception> serialNrFilter,
-			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery) {
+			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery, int maxBatChargeP, int maxBatDischargeP) {
 		this.value = value;
 		this.option = option;
 		this.series = series;
 		this.maxDcCurrent = maxDcCurrent;
 		this.serialNrFilter = serialNrFilter;
 		this.isInvalidBattery = isInvalidBattery;
+		this.maxBatChargeP = maxBatChargeP;
+		this.maxBatDischargeP = maxBatDischargeP;
 	}
 
 	private GoodWeType(int value, String option, Series series, int maxDcCurrent) {
 		// No serial number filter and battery dependency
-		this(value, option, series, (notUsed) -> maxDcCurrent, (t) -> false, (t) -> false);
+		this(value, option, series, (notUsed) -> maxDcCurrent, (t) -> false, (t) -> false, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 
 	@Override

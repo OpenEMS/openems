@@ -40,7 +40,7 @@ export class ModalComponent extends AbstractFormlyComponent {
           {
             name: translate.instant("General.on"),
             value: 1,
-            icon: { color: "success", name: "power-outline", size: "medium" },
+            icon: { color: "success", name: "play-outline", size: "medium" },
           },
           {
             name: translate.instant("General.off"),
