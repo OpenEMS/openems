@@ -160,6 +160,10 @@
                 <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">
                 </Controller_Ess_GridOptimizedCharge>
               </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'Weather.OpenMeteo'" size-lg="6" class="ion-hide-sm-up ion-no-padding">
+                <weather [componentId]="widget.componentId"></weather>
+              </ion-col>
             </ng-container>
 
           </ion-row>

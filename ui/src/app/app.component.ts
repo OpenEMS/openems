@@ -71,8 +71,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.appService.listen();
     SplashScreen.hide();
-
-    this.checkMessages();
   }
 
   ngOnDestroy() {
@@ -140,31 +138,5 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.isSmartphoneResolutionSubject.next(false);
       }
     }
-  }
-
-  private checkMessages(): void {
-    const header = this.translate.instant("TOAST.MIGRATION.HEADER");
-    const content = this.translate.instant("TOAST.MIGRATION.CONTENT");
-    const linkText = this.translate.instant("TOAST.MIGRATION.LINK_TEXT");
-    const link = this.translate.instant("TOAST.MIGRATION.LINK");
-    this.latestIncident = {
-      message: `
-      <ion-grid class="ion-justify-content-center ion-padding full_width">
-        <ion-row>
-          <ion-col>
-            <span>
-              ${header}
-            </span>
-            <br>
-            <br>
-            ${content}  
-            <a class="link" href="${link}" target="_blank">
-              ${linkText}
-            </a>
-          </ion-col>
-        </ion-row>
-      </ion-grid>`,
-      id: "odoo-migration",
-    };
   }
 }
