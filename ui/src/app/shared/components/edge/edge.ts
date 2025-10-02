@@ -443,6 +443,10 @@ export class Edge {
     const conf = await this.config.getValue();
     const baseMode: NavigationTree["mode"] = "label";
     for (const [componentId, component] of Object.entries(conf.components)) {
+      if (component.isEnabled == false) {
+        continue;
+      }
+
       switch (component.factoryId) {
         case "Evse.Controller.Single":
           navigationTree.setChild(NavigationId.LIVE,
