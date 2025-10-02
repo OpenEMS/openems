@@ -1,9 +1,13 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.bridge.modbus.sunspec.Point;
+import io.openems.edge.bridge.modbus.sunspec.Point.EnumBooleanPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.EnumFieldPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.EnumFieldPoint.SunSpecEnumPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.EnumPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ScaleFactorPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
@@ -57,8 +61,8 @@ public enum KacoSunSpecModel implements SunSpecModel {
 		RESERVED_11(new ReservedPoint("S64201_RESERVED_11")), //
 		RESERVED_12(new ReservedPoint("S64201_RESERVED_12")), //
 		RESERVED_13(new ReservedPoint("S64201_RESERVED_13")), //
-		ST_VND(new EnumPoint("S64201_ST_VND", "PrologState", "", //
-				EnumPoint.Type.ENUM16, false, AccessMode.READ_ONLY, S64201StVnd.values())),
+		ST_VND(new EnumFieldPoint("S64201_ST_VND", "PrologState", "", //
+				EnumFieldPoint.Type.ENUMFIELD16, false, AccessMode.READ_ONLY, S64201StVnd.values())),
 		ST_PU(new EnumPoint("S64201_ST_PU", "Power Unit State (DSP)", "", //
 				EnumPoint.Type.ENUM16, true, AccessMode.READ_ONLY, S64201StPu.values())),
 		ST_PCU(new EnumPoint("S64201_ST_PCU", "Precharge unit state", "", //
@@ -226,7 +230,7 @@ public enum KacoSunSpecModel implements SunSpecModel {
 			}
 		}
 
-		public static enum S64201StVnd implements OptionsEnum {
+		public static enum S64201StVnd implements SunSpecEnumPoint {
 			UNDEFINED(-1, "Undefined"), //
 			WAITING_FOR_FEED_IN(1, "waitingForFeedIn", Level.INFO), //
 			INSUFFICIENT_BATTERY_VOLTAGE(2, "insufficientBatteryVoltage"),
@@ -307,108 +311,43 @@ public enum KacoSunSpecModel implements SunSpecModel {
 			DC_VOLTAGE_ERROR(229, "dcVoltageError", Level.WARNING)//
 			;
 
-			LINE_FAILURE_UNDERFREQ(48,
-					"Line failure: underfreq. Grid frequency is too low. This fault may be gridrelated."), //
-			LINE_FAILURE_OVERFREQ(49,
-					"Line failure: overfreq. Grid frequency is too high. This fault may be gridrelated."), //
-			LINE_FAILURE_AVERAGE(50,
-					"Line failure: average voltage The grid voltage measurement according to EN 50160 has exceeded the maximum permitted limit value. This fault may be grid-related."), //
-			WAITING_FOR_REACTIVATION(57,
-					"Waiting for reactivation Waiting time of the device following an error. The devices switches on after a countryspecific waiting period."), //
-			CONTROL_BOARD_OVERTEMP(58,
-					"Control board overtemp. The temperature inside the unit was too high. The device shuts down to avoid hardware damage. "), //
-			SELF_TEST_ERROR_A_FAULT(59,
-					"Self test error A fault occurred during a self-test. Contact a qualified electrician."), //
-			GENERATOR_VOLTAGE_TOO(60, "Generator voltage too high Battery voltage too high"), //
-			EXTERNAL_LIMIT_X_THE(61,
-					"External limit x% The grid operator has activated the external PowerControl limit. The inverter limits the power."), //
-			P_F_FREQUENCYDEPENDENT(63,
-					"P(f)/frequency-dependent power reduction: When certain country settings are activated, the frequency-dependent power reduction is activated."), //
-			OUTPUT_CURRENT_LIMITING(64,
-					"Output current limiting: The AC current is limited once the specified maximum value has been reached."), //
-			FAULT_AT_POWER_SECTION(67,
-					"Fault at power section 1 There is a fault in the power section. Contact a qualified electrician."), //
-			FAN_1_ERROR_THE_FAN_IS(70,
-					"Fan 1 error The fan is malfunctioning. Replace defective fan See Maintenance and troubleshooting chapter."), //
-			STANDALONE_GRID_ERR_STANDALONE(73, "Standalone grid err. Standalone mode was detected."), //
-			EXTERNAL_IDLE_POWER_REQUIREMENT(74,
-					"External idle power requirement The grid operator limits the feed-in power of the device via the transmitted reactive power factor."), //
-			SELFTEST(75, "Selftest in progress"), //
-			INSULATION_MEASUREMENT(79, "Insulation measurement PV generator's insulation is being measured"), //
-			INSULATION_MEAS_NOT_POSSIBLE(80,
-					"Insulation meas. not possible The insulation measurement cannot be performed because the generator voltage is too volatile. - "), //
-			PROTECTION_SHUTDOWN_LINE_1(81,
-					"Protection shutdown line volt. L1 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician."), //
-			PROTECTION_SHUTDOWN_LINE_2(82,
-					"Protection shutdown line volt. L2 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician."), //
-			PROTECTION_SHUTDOWN_LINE_3(83,
-					"Protection shutdown line volt. L3 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician."), //
-			PROTECTION_SHUTDOWN_UNDERVOLT(84,
-					"Protection shutdown undervolt. DC link A voltage deviation has been found in the DC link. An internal protective mechanism has disconnected the device to protect it against damage. In a TN-C-S grid, the PE must be connected to the device and at the same time the PEN bridge in the device must be removed. In case of repeated occurrence: Contact a qualified electrician."), //
-			PROTECT_SHUTDOWN_OVERVOLT(85, "Protect. shutdown overvolt. DC link"), //
-			PROTECT_SHUTDOWN_DC_LINK(86, "Protect. shutdown DC link asymmetry"), //
-			PROTECT_SHUTDOWN_OVERCURRENT_1(87, "Protect. shutdown overcurrent L1"), //
-			PROTECT_SHUTDOWN_OVERCURRENT_2(88, "Protect. shutdown overcurrent L2"), //
-			PROTECT_SHUTDOWN_OVERCURRENT_3(89, "Protect. shutdown overcurrent L3"), //
-			BUFFER_1_SELF_TEST_ERROR(93,
-					"Buffer 1 self test error The control board is defective. Please inform your electrician/system manufacturer's service department."), //
-			SELF_TEST_ERROR_BUFFER(94,
-					"Self test error buffer 2 The control board is defective. Notify authorised electrician / KACO Service!"), //
-			RELAY_1_SELF_TEST_ERROR(95, "Relay 1 self test error The power section is defective. Notify KACO Service"), //
-			RELAY_2_SELF_TEST_ERROR(96,
-					"Relay 2 self test error The power section is defective. Please inform your electrician/system manufacturer's service department."), //
-			PROTECTION_SHUTDOWN_OVERCURRENT(97,
-					"Protection shutdown overcurrent HW Too much power has been fed into the grid. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department."), //
-			PROTECT_SHUTDOWN_HW_GATE(98,
-					"Protect. shutdown HW gate driver An internal protective mechanism has disconnected the device to protect it against damage. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department."), //
-			PROTECT_SHUTDOWN_HW_BUFFER(99,
-					"Protect. shutdown HW buffer free An internal protective mechanism has disconnected the device to protect it against damage. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department."), //
-			PROTECT_SHUTDOWN_HW_OVERHEATING(100,
-					"Protect. shutdown HW overheating The device has been switched off because the temperatures in the housing were too high. Check to make sure that the fans are working. Replace fan if necessary."), //
-			PLAUSIBILITY_FAULT_AFI(104,
-					"Plausibility fault AFI module The unit has shut down because of implausible internal measured values. Please inform your system manufacturer's service department!"), //
-			PLAUSIBILITY_FAULT_RELAY(105,
-					"Plausibility fault relay The unit has shut down because of implausible internal measured values. Please inform your system manufacturer's service department!"), //
-			PLAUSIBILITY_ERROR_DCDC(106, "Plausibility error DCDC converter"), //
-			CHECK_SURGE_PROTECTION(107,
-					"Check surge protection device Surge protection device (if present in the device) has tripped and must be reset if appropriate."), //
-			EXTERNAL_COMMUNICATION(196, "External communication error"), //
-			SYMMETRY_ERROR_PARALLEL(197,
-					"Symmetry error parallel connection Circuit currents too high for two or more parallel connected bidirectional feed-in inverters. Synchronise intermediate circuit of the parallel connected devices and synchronise the symmetry."), //
-			BATTERY_DISCONNECTED(198,
-					"Battery disconnected Connection to the battery disconnected. Check connection. The battery voltage may be outside the parameterised battery limits."), //
-			BATTERY_CONSTRAINTS_MISSING(199, "Battery constraints are missing // Batteriegrenzen nicht vorhanden"), //
-			WAITING_FOR_FAULT_ACKNOWLEDGEMENT(215, "Waiting for fault acknowledgement by EMS"), //
-			PRECHARGE_UNIT_FAULT(218, "Precharge unit fault Precharge unit: Group fault for precharge unit"), //
-			READY_FOR_PRECHARGING(219, "Ready for precharging Precharge unit: Ready for precharging"), //
-			PRECHARGE_PRECHARGE_UNIT(220, "Precharge Precharge unit: Precharge process being carried out"), //
-			WAIT_FOR_COOLDOWN_TIME(221,
-					"Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down"), //
-			CURRENTLY_UNKNOWN(222, "State is currently unknown"), //
-			CHARGE_RANGES_REACHEDX(223, "Charge ranges are reached");
+			private final EnumBooleanPoint point;
 
-			private final int value;
-			private final String name;
+			private S64201StVnd(int value, String channelKey, Level level) {
+				this.point = new EnumBooleanPoint(//
+						value, //
+						this.getClass().getSimpleName().toUpperCase() + "_" + this.name(), //
+						level, //
+						KacoSunSpecModel.class, //
+						channelKey);
+			}
 
-			private S64201StVnd(int value, String name) {
-				this.value = value;
-				this.name = name;
+			private S64201StVnd(int value, String text) {
+				this.point = new EnumBooleanPoint(//
+						value, //
+						this.getClass().getSimpleName().toUpperCase() + "_" + this.name());
 			}
 
 			@Override
 			public int getValue() {
-				return this.value;
+				return this.point.value;
 			}
 
 			@Override
 			public String getName() {
-				return this.name;
+				return this.point.name;
 			}
 
 			@Override
 			public OptionsEnum getUndefined() {
 				return UNDEFINED;
 			}
+
+			@Override
+			public EnumBooleanPoint get() {
+				return this.point;
+			}
+
 		}
 
 		public static enum S64201StPu implements OptionsEnum {
