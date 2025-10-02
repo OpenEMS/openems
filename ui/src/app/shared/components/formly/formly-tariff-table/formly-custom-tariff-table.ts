@@ -111,8 +111,12 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
     return !!this.expandedQuarters[quarterKey];
   }
 
-  protected updateTariffPrice(yearIndex: number, tariffKey: keyof YearData["tariffs"], value: number) {
-    this.tariffData[yearIndex].tariffs[tariffKey] = value;
+  protected updateTariffPrice(yearIndex: number, tariffKey: keyof YearData["tariffs"], value: string | number) {
+
+    // Convert to number and ensure non-negative
+    const numericValue = Math.max(0, Number(value));
+
+    this.tariffData[yearIndex].tariffs[tariffKey] = numericValue;
     this.updateFormControl();
   }
 
@@ -271,6 +275,20 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    */
   protected trackByQuarterKey(index: number, quarter: Quarter): string {
     return quarter.key!; // Use the unique key
+  }
+
+  // removes Negative inputs
+  protected sanitizeInput(event: CustomEvent) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+
+    // Remove negative signs and non-numeric characters
+    const sanitized = value.replace(/[^\d.]/g, "");
+
+    // Update value if modified
+    if (sanitized !== value) {
+      input.value = sanitized;
+    }
   }
 
   private updateFormControl() {

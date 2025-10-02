@@ -28,10 +28,10 @@
                 <ion-row class="ion-align-items-center tariff-price-row"
                     *ngFor="let tariff of yearData?.tariffs | keyvalue">
                     <ion-col>
-                        <ion-input type="number" [value]="yearData.tariffs[tariff.key]" labelPlacement="floating"
-                            [label]="tariffLabels[tariff.key] | translate"
+                        <ion-input type="number" min="0" [value]="yearData.tariffs[tariff.key]"
+                            labelPlacement="floating" [label]="tariffLabels[tariff.key] | translate"
                             (ionChange)="updateTariffPrice(yi, tariff.key, $event.detail.value)" placeholder="0.00"
-                            class="tariff-input input-text-right">
+                            (ionInput)="sanitizeInput($event)" class="tariff-input input-text-right">
                         </ion-input>
                     </ion-col>
                     <ion-col size="auto" class="input-unit">

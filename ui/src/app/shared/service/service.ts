@@ -433,7 +433,7 @@ export class Service extends AbstractService {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: duration ?? 2000,
+      duration: duration ?? 4000,
       cssClass: "container",
     });
     toast.present();
