@@ -140,7 +140,9 @@ public class AncillaryCosts extends
 				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
 				
 				// parsing here to throw any exceptions.
-				parseSchedule(tariffTable);
+				if (!t.isDeleteOrTest()) {
+					parseSchedule(tariffTable);
+				}
 
 				ancillaryCosts = buildJsonObject() //
 						.addProperty("dso", germanDso.name()) //

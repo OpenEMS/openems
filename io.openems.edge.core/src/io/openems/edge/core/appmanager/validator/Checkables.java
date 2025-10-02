@@ -31,7 +31,17 @@ public final class Checkables {
 
 	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is a
-	 * Commercial.
+	 * Commercial 50 Gen 3.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCommercial50Gen3() {
+		return empty(CheckCommercial50Gen3.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is a
+	 * Commercial 92.
 	 *
 	 * @return the {@link CheckableConfig}
 	 */
