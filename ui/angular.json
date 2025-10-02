@@ -26,7 +26,8 @@
             "index": "src/index.html",
             "namedChunks": false,
             "outputPath": {
-              "base": "target"
+              "base": "target",
+              "browser": ""
             },
             "polyfills": [
               "src/polyfills.ts"
