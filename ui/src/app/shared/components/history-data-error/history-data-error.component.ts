@@ -6,7 +6,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     selector: "oe-history-data-error",
     template: `
     <ion-item lines="full" color="warning" *ngIf="type !== null">
-    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
+    <ion-icon size="large" slot="start" name="warning-outline"></ion-icon>
     <ion-label class="ion-text-wrap" style="text-align: center">
         <ng-container [ngSwitch]="type">
             <span *ngSwitchCase="'TOO_LONG'" [innerHTML]="'Edge.Index.Energymonitor.ERROR_TOO_LONG' | translate"></span>
