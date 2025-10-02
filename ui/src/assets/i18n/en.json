@@ -381,7 +381,7 @@
         "PRODUCT_TYPE": "Product type",
         "ROLE": "Role",
         "CONFIGURATION": "Configuration",
-        "EXPORT_CHANNELS": "Export channels"
+        "EXPORT_CHANNELS": "Export Channels"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"

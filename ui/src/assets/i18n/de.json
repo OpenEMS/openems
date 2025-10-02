@@ -393,7 +393,7 @@
         "systemProfile": "Anlagenprofil",
         "PRODUCT_TYPE": "Produkt-Typ",
         "networkConfiguration": "Netzwerkkonfiguration",
-        "EXPORT_CHANNELS": "Export-Kanäle"
+        "EXPORT_CHANNELS": "Export Kanäle"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
