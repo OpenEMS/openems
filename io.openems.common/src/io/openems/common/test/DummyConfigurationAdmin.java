@@ -1,4 +1,4 @@
-package io.openems.edge.common.test;
+package io.openems.common.test;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,8 +13,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import io.openems.common.test.AbstractComponentConfig;
 
 /**
  * Simulates a ConfigurationAdmin for the OpenEMS Component test framework.

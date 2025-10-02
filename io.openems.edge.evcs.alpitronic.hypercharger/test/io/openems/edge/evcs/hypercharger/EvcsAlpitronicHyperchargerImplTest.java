@@ -2,9 +2,9 @@ package io.openems.edge.evcs.hypercharger;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
 
 public class EvcsAlpitronicHyperchargerImplTest {

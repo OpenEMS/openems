@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.dummy.DummyEvseChargePoint;

@@ -13,9 +13,6 @@ repositories {
 dependencies {
 	// Use JUnit test framework.
 	testImplementation 'junit:junit:4.13.2'
-	
-	// This dependency is used by the application. 
-	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
 }
 
 java {
@@ -43,8 +40,7 @@ subprojects {
 	}
 	
 	tasks.withType(Test) {
-		maxParallelForks = 2
-		failOnNoDiscoveredTests = false
+		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
 			junitXml.required = false
