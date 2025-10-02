@@ -59,8 +59,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				VictronAcOutPowerMeter.ChannelId.values(),
-				ModbusComponent.ChannelId.values() //
+				VictronAcOutPowerMeter.ChannelId.values(), ModbusComponent.ChannelId.values() //
 		);
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
@@ -95,16 +94,17 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 
 	private void setEnergyValues() {
 		// Both values should sum up to total energy
-		Integer energyFromAcInToAcOut = this.getEnergyFromAcInToAcOut().get();
-		Integer energyFromBatteryToAcOut = this.getEnergyFromBatteryToAcOut().get();
-		
+		Long energyFromAcIn1ToAcOut = this.getEnergyFromAcIn1ToAcOut().get();
+		Long energyFromAcIn2ToAcOut = this.getEnergyFromAcIn2ToAcOut().get();
+		Long energyFromBatteryToAcOut = this.getEnergyFromBatteryToAcOut().get();
+
 		// ToDo: both values are equal! They should not be...
 
-		if (energyFromAcInToAcOut == null || energyFromBatteryToAcOut == null) {
+		if (energyFromAcIn1ToAcOut == null || energyFromAcIn2ToAcOut  == null || energyFromBatteryToAcOut == null) {
 			return;
 		}
-		this._setActiveConsumptionEnergy(energyFromAcInToAcOut );
-
+		this._setActiveProductionEnergy(
+				energyFromAcIn1ToAcOut + energyFromAcIn2ToAcOut + energyFromBatteryToAcOut);		
 	}
 
 	@Override
@@ -154,10 +154,14 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						new DummyRegisterElement(26, 73),
 
-						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT, new UnsignedDoublewordElement(74),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						new DummyRegisterElement(76, 89), this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT,
-								new UnsignedDoublewordElement(90), ElementToChannelConverter.SCALE_FACTOR_2)
+						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT,
+								new UnsignedDoublewordElement(74), ElementToChannelConverter.SCALE_FACTOR_1),
+						new DummyRegisterElement(76, 77),
+						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_2_TO_AC_OUT,
+								new UnsignedDoublewordElement(78), ElementToChannelConverter.SCALE_FACTOR_1),
+						new DummyRegisterElement(80, 89),
+						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT,
+								new UnsignedDoublewordElement(90), ElementToChannelConverter.SCALE_FACTOR_1)
 
 				));
 	}

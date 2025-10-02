@@ -14,6 +14,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.ShortWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -172,6 +173,50 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		CURRENT_INPUT_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_WRITE)),
+		
+		/**
+		 * DC Discharge Power.
+		 *
+		 * <ul>
+		 * <li>Interface: HybridEss
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>This is the
+		 * {@link io.openems.edge.ess.api.SymmetricEss.ChannelId#ACTIVE_POWER} minus
+		 * {@link io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId#ACTUAL_POWER},
+		 * i.e. the power that is actually charged to or discharged from the battery.
+		 * </ul>
+		 */
+		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text("Actual AC-side battery discharge power of Energy Storage System. " //
+						+ "Negative values for charge; positive for discharge")),
+		/**
+		 * DC Charge Energy.
+		 *
+		 * <ul>
+		 * <li>Interface: HybridEss
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		/**
+		 * DC Discharge Energy.
+		 *
+		 * <ul>
+		 * <li>Interface: HybridEss
+		 * <li>Type: Long
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.CUMULATED_WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),		
 
 		PHASE_COUNT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
@@ -762,6 +807,19 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		return this.channel(ChannelId.SET_ACTIVE_POWER);
 	}
 
+	// Set DC Power
+	public default void _setDcDischargePower(Integer value) {
+	    this.getDcDischargePowerChannel().setNextValue(value);
+	}
+
+	public default Value<Integer> getDcDischargePower() {
+	    return this.getDcDischargePowerChannel().value();
+	}
+
+	public default IntegerReadChannel getDcDischargePowerChannel() {
+	    return this.channel(ChannelId.DC_DISCHARGE_POWER);
+	}	
+	
 	// SetPoint Channel L1
 	public default void _setSymmetricEssActivePowerL1(Short value) throws OpenemsNamedException {
 		this.getChargePowerChannelL1().setNextWriteValue(value);

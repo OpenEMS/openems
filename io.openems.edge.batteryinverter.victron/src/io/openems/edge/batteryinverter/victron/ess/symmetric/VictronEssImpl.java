@@ -112,6 +112,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 
+	// DC-side
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			VictronEss.ChannelId.DC_DISCHARGE_ENERGY);
+
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			VictronEss.ChannelId.DC_CHARGE_ENERGY);
+
 	public VictronEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -275,9 +282,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				"Setting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");
 		this._setAllowedChargePower(MaxChargePower * -1);
 		this._setAllowedDischargePower(MaxChargePower);
-		
-		this.logDebug(this.log, "OpenEMS Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3 +
-		" \n Substract AC Out Power " + this.batteryInverter.getAcConsumptionPowerL1().orElse(0) + "|L2: " + this.batteryInverter.getAcConsumptionPowerL2().orElse(0) + "|L3: " + this.batteryInverter.getAcConsumptionPowerL3().orElse(0));		
+
+		this.logDebug(this.log,
+				"OpenEMS Apply Power L1: " + activePowerL1 + "|L2: " + activePowerL2 + "|L3: " + activePowerL3
+						+ " \n Substract AC Out Power " + this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
+						+ "|L2: " + this.batteryInverter.getAcConsumptionPowerL2().orElse(0) + "|L3: "
+						+ this.batteryInverter.getAcConsumptionPowerL3().orElse(0));
 		// at this point we add AC Out power values
 		// i.e. -300W (charge battery)
 		// 100W AC Out we have to draw 300W from grid
@@ -285,8 +295,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		activePowerL2 -= this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
 		activePowerL3 -= this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
 
-		
-		
 		switch (config.phase()) {
 		case ALL:
 			int MaxChargePowerSum = activePowerL1 + activePowerL2 + activePowerL3;
@@ -435,11 +443,16 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		// at this point we add AC Out power values
 		// i.e. -300W (charge battery)
 		// 100W AC Out we have to draw 300W from grid
-		//activePowerTarget = activePowerTarget - (this.getActivePowerOutputL1().orElse(0) + this.getActivePowerOutputL2().orElse(0) + this.getActivePowerOutputL3().orElse(0));
-		activePowerTarget = activePowerTarget - (this.batteryInverter.getAcConsumptionPowerL1().orElse(0) +this.batteryInverter.getAcConsumptionPowerL2().orElse(0)   +this.batteryInverter.getAcConsumptionPowerL3().orElse(0)     );		
-		
-		this.logDebug(this.log, "Symm. PowerWanted after subtraction of AC Out: " + activePowerTarget);		
-		
+		// activePowerTarget = activePowerTarget -
+		// (this.getActivePowerOutputL1().orElse(0) +
+		// this.getActivePowerOutputL2().orElse(0) +
+		// this.getActivePowerOutputL3().orElse(0));
+		activePowerTarget = activePowerTarget - (this.batteryInverter.getAcConsumptionPowerL1().orElse(0)
+				+ this.batteryInverter.getAcConsumptionPowerL2().orElse(0)
+				+ this.batteryInverter.getAcConsumptionPowerL3().orElse(0));
+
+		this.logDebug(this.log, "Symm. PowerWanted after subtraction of AC Out: " + activePowerTarget);
+
 		// Check if desired Power value is within limits
 		if (activePowerTarget < 0 && Math.abs(activePowerTarget) > MaxChargePower) {
 			activePowerTarget = MaxChargePower * -1;
@@ -457,8 +470,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			return;
 		}
 
-
-		
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase
 		int powerPerPhase = activePowerTarget;
@@ -503,7 +514,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	public Power getPower() {
 		return this.power;
 	}
-	
+
 	public void _setMyActivePower() {
 		// ToDo: make it work for single and 3 phase
 
@@ -515,8 +526,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0);
 		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0);
 		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
-		//var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
-		//var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
+		// var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
+		// var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
 
 		if (acPowerInputL1 != null && acPowerInputL2 != null && acPowerInputL3 != null && acPowerOutputL1 != null
 				&& acPowerOutputL2 != null && acPowerOutputL3 != null) {
@@ -566,7 +577,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this._setMyActivePower();
-			//this.calculateEnergy();
+			// this.calculateEnergy();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this._setMyActivePower();
@@ -614,6 +625,29 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		if (this.battery != null) {
 			this._setCapacity(this.battery.getCapacity().get());
 			// this._setUseableCapacity(this.battery.getUseableCapacity().get());
+		}
+
+		var dcPower = this.batteryInverter.getActivePower().get();
+		if (dcPower != null) {
+			this._setDcDischargePower(dcPower);
+		}
+
+		if (dcPower == null) {
+			// Not available
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null); //
+		} else if (dcPower > 0) {
+			// Discharge
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(dcPower);
+		} else if (dcPower < 0) {
+			// Charge
+			this.calculateDcChargeEnergy.update(dcPower * -1);
+			this.calculateDcDischargeEnergy.update(0);
+		} else {
+			// Undefined
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(0);
 		}
 
 	}
@@ -772,25 +806,25 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 						this.m(VictronEss.ChannelId.SUSTAIN_ACTIVE, new UnsignedWordElement(73)),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT, new UnsignedDoublewordElement(74),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_BATTERY, new UnsignedDoublewordElement(76),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_AC_OUT, new UnsignedDoublewordElement(78),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_BATTERY, new UnsignedDoublewordElement(80),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_1, new UnsignedDoublewordElement(82),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_2, new UnsignedDoublewordElement(84),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_1, new UnsignedDoublewordElement(86),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_2, new UnsignedDoublewordElement(88),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT, new UnsignedDoublewordElement(90),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_BATTERY, new UnsignedDoublewordElement(92),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.LOW_CELL_VOLTAGE_IMMINENT, new UnsignedWordElement(94)),
 						this.m(VictronEss.ChannelId.CHARGE_STATE, new UnsignedWordElement(95)),
 
@@ -801,7 +835,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.PREFER_RENEWABLE_ENERGY, new UnsignedWordElement(102)),
 						this.m(VictronEss.ChannelId.SELECT_REMOTE_GENERATOR, new UnsignedWordElement(103)),
 						this.m(VictronEss.ChannelId.REMOTE_GENERATOR_SELECTED, new UnsignedWordElement(104))),
-				
+
 				new FC16WriteRegistersTask(37, //
 						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
 						new DummyRegisterElement(38, 39),
