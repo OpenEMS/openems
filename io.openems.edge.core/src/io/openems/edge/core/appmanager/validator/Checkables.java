@@ -12,7 +12,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is a
 	 * Home.
-	 * 
+	 *
 	 * @return the {@link CheckableConfig}
 	 */
 	public static CheckableConfig checkHome() {
@@ -32,7 +32,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is a
 	 * Commercial.
-	 * 
+	 *
 	 * @return the {@link CheckableConfig}
 	 */
 	public static CheckableConfig checkCommercial92() {
@@ -42,7 +42,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if at least one of the checks
 	 * is successful.
-	 * 
+	 *
 	 * @param check1 the first check
 	 * @param check2 the second check
 	 * @return the {@link CheckableConfig}
@@ -58,7 +58,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if the relay with the given
 	 * name has at least the given amount of ports available.
-	 * 
+	 *
 	 * @param io      the name of the relay or null if any relay
 	 * @param count   the number of available ports
 	 * @param filters additional relay filter
@@ -76,7 +76,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if any installed relay has at
 	 * least the given amount of ports available.
-	 * 
+	 *
 	 * @param count   the number of available ports
 	 * @param filters additional relay filter
 	 * @return the {@link CheckableConfig}
@@ -88,7 +88,7 @@ public final class Checkables {
 	/**
 	 * Creates a {@link CheckableConfig} which checks if an app is installed which
 	 * matches any of the given appIds.
-	 * 
+	 *
 	 * @param appIds the apps which should not be installed
 	 * @return the {@link CheckableConfig}
 	 */
@@ -99,7 +99,7 @@ public final class Checkables {
 						.build());
 	}
 
-	private static final CheckableConfig empty(String checkableName) {
+	private static CheckableConfig empty(String checkableName) {
 		return new CheckableConfig(checkableName, Collections.emptyMap());
 	}
 

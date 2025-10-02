@@ -4,8 +4,6 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
 import java.util.Map;
@@ -221,7 +219,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

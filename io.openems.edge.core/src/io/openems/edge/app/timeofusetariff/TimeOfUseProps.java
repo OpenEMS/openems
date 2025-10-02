@@ -23,6 +23,8 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public final class TimeOfUseProps {
 
@@ -116,6 +118,15 @@ public final class TimeOfUseProps {
 				new EdgeConfig.Component(timeOfUseTariffProviderId, providerAlias, providerFactoryId,
 						providerProperties.build())//
 		);
+	}
+
+	/**
+	 * Gets all possible systems for {@link ValidatorConfig}.
+	 * 
+	 * @return a {@link ValidatorConfig.CheckableConfig} of all possible systems.
+	 */
+	public static ValidatorConfig.CheckableConfig getAllCheckableSystems() {
+		return Checkables.checkHome().or(Checkables.checkCommercial92()).or(Checkables.checkIndustrial());
 	}
 
 }
