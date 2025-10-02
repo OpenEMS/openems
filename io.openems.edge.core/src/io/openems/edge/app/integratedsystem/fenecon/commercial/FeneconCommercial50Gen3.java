@@ -7,9 +7,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ess;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
@@ -53,6 +56,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
@@ -282,8 +286,10 @@ public class FeneconCommercial50Gen3 extends
 					prepareBatteryExtension() //
 			);
 
+			final var gpioId = FunctionUtils
+					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
-				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();
@@ -293,6 +299,11 @@ public class FeneconCommercial50Gen3 extends
 			}
 			schedulerComponents.add(new SchedulerByCentralOrderConfiguration.SchedulerComponent(
 					"ctrlEssSurplusFeedToGrid0", "Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
+			if (feedInType == ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) {
+				components.add(dynamicRippleControlReceiverComponent(bundle, gpioId.get()));
+				schedulerComponents.add(dynamicRippleControlReceiverScheduler(this.getAppId()));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

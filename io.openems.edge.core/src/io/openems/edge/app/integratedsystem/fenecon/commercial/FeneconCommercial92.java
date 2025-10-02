@@ -61,7 +61,8 @@ public class FeneconCommercial92
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
-		FEED_IN_TYPE(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION) //
+		FEED_IN_TYPE(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION,
+				ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) //
 				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 

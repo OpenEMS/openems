@@ -35,6 +35,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.core.meta.geocoding.GeoResult;
 import io.openems.edge.core.meta.geocoding.OpenCageGeocodingService;
@@ -43,6 +44,7 @@ public class GeocodingTest {
 
 	@Test
 	public void testGeocodeRequest_ShouldReturnCorrectResults() throws Exception {
+		final var meta = new DummyMeta("_meta");
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -51,9 +53,7 @@ public class GeocodingTest {
 
 		final var clock = createDummyClock();
 		final var fetcher = dummyEndpointFetcher();
-		fetcher.addEndpointHandler(t -> {
-			return HttpResponse.ok(OPEN_CAGE_API_RESPONSE);
-		});
+		fetcher.addEndpointHandler(t -> HttpResponse.ok(OPEN_CAGE_API_RESPONSE));
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//
@@ -65,7 +65,8 @@ public class GeocodingTest {
 		final var sut = new MetaImpl();
 
 		final var config = MyConfig.create()//
-				.setCurrency(CurrencyConfig.EUR)//
+				.setMeta(meta) //
+				.setCurrency(CurrencyConfig.EUR) //
 				.build();
 		new ComponentTest(sut)//
 				.addReference("cm", cm)//

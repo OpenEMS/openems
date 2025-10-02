@@ -55,6 +55,7 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.update.Updateable;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
@@ -129,6 +130,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference
 	private Meta meta;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile ControllerEssRippleControlReceiver rcr;
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -156,7 +160,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 */
 	private BatteryData latestBatteryData = new BatteryData(null, null);
 
-	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
+	protected record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
 	}
 
 	private Config config = null;
@@ -342,7 +346,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 * @param config         Configuration parameters.
 	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
 	 *                       run()
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
@@ -433,6 +437,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
 		}
 	}
+
 
 	private void handleFixedPowerFactor(GoodWeType goodweType, EnableCurve fixedPowerFactorEnable,
 			FixedPowerFactor fixedPowerFactor) throws IllegalArgumentException, OpenemsNamedException {
@@ -638,7 +643,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	/**
 	 * Set general values.
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
@@ -778,8 +783,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var enableFeedInLimit = limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION;
 		var gridFeedInLimit = this.meta.getMaximumGridFeedInLimit();
 
+		if (this.rcr != null && this.rcr.isEnabled()) {
+			gridFeedInLimit = this.rcr.getGridFeedInValue(this.getMaxApparentPower().get());
+		}
+
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
 
-		// TODO: include RippleControlReceiver logic in near future
 	}
 }

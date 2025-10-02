@@ -76,6 +76,7 @@ public final class IntegratedSystemProps {
 								case NO_LIMITATION, DYNAMIC_LIMITATION -> ExternalLimitationType.NO_LIMITATION;
 								case EXTERNAL_LIMITATION, DYNAMIC_AND_EXTERNAL_LIMITATION ->
 									ExternalLimitationType.EXTERNAL_LIMITATION;
+								case DYNAMIC_EXTERNAL_LIMITATION -> ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION;
 								};
 							}) //
 							.map(Enum::name) //
