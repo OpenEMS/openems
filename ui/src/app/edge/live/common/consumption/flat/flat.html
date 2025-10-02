@@ -5,7 +5,7 @@
         <!-- Evcss -->
         <ng-container *ngIf="evcss.length > 0">
             <ng-container *ngFor="let component of evcss, let i = index">
-                <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ChargePower'"
+                <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.powerChannel.toString()"
                     [converter]="CONVERT_WATT_TO_KILOWATT">
                 </oe-flat-widget-line>
             </ng-container>

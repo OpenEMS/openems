@@ -44,8 +44,14 @@ export class FlatComponent extends AbstractFlatWidget {
     ];
 
     // Get consumptionMeterComponents
-    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-      .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
+    this.consumptionMeters = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+      .filter(component => {
+        const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
+        const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+
+        return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+          isEvcs === false;
+      });
 
     for (const component of this.consumptionMeters) {
       channelAddresses.push(
@@ -76,7 +82,7 @@ export class FlatComponent extends AbstractFlatWidget {
     // TODO move sums to Model
     // Iterate over evcsComponents to get ChargePower for every component
     for (const component of this.evcss) {
-      if (currentData.allComponents[component.id + "/ChargePower"]) {
+      if (currentData.allComponents[component.powerChannel.toString()]) {
         this.evcsSumOfChargePower += currentData.allComponents[component.powerChannel.toString()];
       }
     }
