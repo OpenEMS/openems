@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.hypercharger;
+package io.openems.edge.evcs.alpitronic;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -50,6 +49,8 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.evse.chargepoint.alpitronic.common.Alpitronic;
+import io.openems.edge.evse.chargepoint.alpitronic.enums.AvailableState;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -65,11 +66,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusComponent
+public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		implements Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter, OpenemsComponent, ModbusComponent, EventHandler,
-		EvcsAlpitronicHypercharger, TimedataProvider {
+		Alpitronic, EvcsAlpitronic, TimedataProvider {
 
-	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicHyperchargerImpl.class);
+	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicImpl.class);
 	/** Modbus offset for multiple connectors. */
 	private final IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
 
@@ -105,7 +106,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	/** Processes the controller's writes to this evcs component. */
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
-	public EvcsAlpitronicHyperchargerImpl() {
+	public EvcsAlpitronicImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
@@ -113,7 +114,9 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				DeprecatedEvcs.ChannelId.values(), //
-				EvcsAlpitronicHypercharger.ChannelId.values());
+				EvcsAlpitronic.ChannelId.values(), //
+				Alpitronic.ChannelId.values());
+
 		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
 
 		// Automatically calculate L1/l2/L3 values from sum
@@ -162,11 +165,6 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return MeterType.MANAGED_CONSUMPTION_METERED;
-	}
-
-	@Override
 	public PhaseRotation getPhaseRotation() {
 		// TODO implement handling for rotated Phases
 		return PhaseRotation.L1_L2_L3;
@@ -195,35 +193,31 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		var modbusProtocol = new ModbusProtocol(this,
 
 				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
-						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER_SET,
+						m(Alpitronic.ChannelId.RAW_CHARGE_POWER_SET,
 								new UnsignedDoublewordElement(this.offset.apply(0)))),
 
 				new FC16WriteRegistersTask(this.offset.apply(0),
-						m(EvcsAlpitronicHypercharger.ChannelId.APPLY_CHARGE_POWER_LIMIT,
+						m(Alpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT,
 								new UnsignedDoublewordElement(this.offset.apply(0))),
-						m(EvcsAlpitronicHypercharger.ChannelId.SETPOINT_REACTIVE_POWER,
+						m(Alpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(2)))),
 
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
-						m(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS,
-								new UnsignedWordElement(this.offset.apply(0))),
+						m(EvcsAlpitronic.ChannelId.RAW_STATUS, new UnsignedWordElement(this.offset.apply(0))),
 						// TODO consider ElectricityMeter VOLTAGE
-						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_VOLTAGE,
+						m(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE,
 								new UnsignedDoublewordElement(this.offset.apply(1)), SCALE_FACTOR_MINUS_2),
 						// TODO consider ElectricityMeter CURRENT
-						m(EvcsAlpitronicHypercharger.ChannelId.CHARGING_CURRENT,
-								new UnsignedWordElement(this.offset.apply(3)), SCALE_FACTOR_MINUS_2),
+						m(EvcsAlpitronic.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(this.offset.apply(3)),
+								SCALE_FACTOR_MINUS_2),
 						/*
 						 * TODO: Test charge power register with newer firmware versions. Register value
 						 * was always 0 with versions < 1.7.2.
 						 */
-						m(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER,
-								new UnsignedDoublewordElement(this.offset.apply(4))),
-						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_TIME,
-								new UnsignedWordElement(this.offset.apply(6))),
-						m(EvcsAlpitronicHypercharger.ChannelId.CHARGED_ENERGY,
-								new UnsignedWordElement(this.offset.apply(7)), SCALE_FACTOR_MINUS_2)
-								.onUpdateCallback(e -> {
+						m(Alpitronic.ChannelId.RAW_CHARGE_POWER, new UnsignedDoublewordElement(this.offset.apply(4))),
+						m(Alpitronic.ChannelId.CHARGED_TIME, new UnsignedWordElement(this.offset.apply(6))),
+						m(Alpitronic.ChannelId.CHARGED_ENERGY, new UnsignedWordElement(this.offset.apply(7)),
+								SCALE_FACTOR_MINUS_2).onUpdateCallback(e -> {
 									if (e == null) {
 										return;
 									}
@@ -252,24 +246,22 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 									this._setEnergySession(e * 10);
 								}),
 						// TODO: Implement SocEvcs Nature & map SoC register
-						m(EvcsAlpitronicHypercharger.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
+						m(Alpitronic.ChannelId.EV_SOC, new UnsignedWordElement(this.offset.apply(8)),
 								SCALE_FACTOR_MINUS_2),
-						m(EvcsAlpitronicHypercharger.ChannelId.CONNECTOR_TYPE,
-								new UnsignedWordElement(this.offset.apply(9))),
+						m(Alpitronic.ChannelId.CONNECTOR_TYPE, new UnsignedWordElement(this.offset.apply(9))),
 
 						/*
 						 * Not equals MaximumPower or MinimumPower e.g. EvMaxChargingPower is 99kW, but
 						 * ChargePower is 40kW because of temperature, current SoC or
 						 * MaximumHardwareLimit.
 						 */
-						m(EvcsAlpitronicHypercharger.ChannelId.EV_MAX_CHARGING_POWER,
+						m(Alpitronic.ChannelId.EV_MAX_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(10))),
-						m(EvcsAlpitronicHypercharger.ChannelId.EV_MIN_CHARGING_POWER,
+						m(Alpitronic.ChannelId.EV_MIN_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(12))),
-						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MAX,
-								new UnsignedDoublewordElement(this.offset.apply(14))),
-						m(EvcsAlpitronicHypercharger.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT))
+						m(Alpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(this.offset.apply(14))),
+						m(Alpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(this.offset.apply(16)),
+								INVERT))
 
 		);
 
@@ -300,7 +292,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	private void addStatusListener() {
-		this.channel(EvcsAlpitronicHypercharger.ChannelId.RAW_STATUS).onSetNextValue(s -> {
+		this.channel(EvcsAlpitronic.ChannelId.RAW_STATUS).onSetNextValue(s -> {
 			AvailableState rawState = s.asEnum();
 			/**
 			 * Maps the raw state into a {@link Status}.

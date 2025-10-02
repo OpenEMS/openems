@@ -1,7 +1,9 @@
-package io.openems.edge.evcs.hypercharger;
+package io.openems.edge.evcs.alpitronic;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
 
 @ObjectClassDefinition(//
 		name = "EVCS Alpitronic Hypercharger", //
@@ -24,7 +26,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int modbusUnitId() default 1;
 
 	@AttributeDefinition(name = "Connector", description = "Slot of physical charging connector")
-	EvcsAlpitronicHypercharger.Connector connector() default EvcsAlpitronicHypercharger.Connector.SLOT_0;
+	Connector connector() default Connector.SLOT_0;
 
 	@AttributeDefinition(name = "Minimum hardware power", description = "Minimum charging power of the Charger in W.", required = true)
 	int minHwPower() default 5000;

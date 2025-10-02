@@ -1,17 +1,17 @@
-package io.openems.edge.evcs.hypercharger;
+package io.openems.edge.evcs.alpitronic;
 
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.evcs.hypercharger.EvcsAlpitronicHypercharger.Connector;
+import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
 
 public class EvcsAlpitronicHyperchargerImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new EvcsAlpitronicHyperchargerImpl()) //
+		new ComponentTest(new EvcsAlpitronicImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //

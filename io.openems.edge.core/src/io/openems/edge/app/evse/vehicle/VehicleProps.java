@@ -18,7 +18,7 @@ public class VehicleProps {
 	public static final <P extends BundleProvider> AppDef<OpenemsApp, Nameable, P> maxPowerSinglePhase() {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedLabel("App.Vehicle.maxPowerSinglePhase.label");
-			def.setDefaultValue(32000);
+			def.setDefaultValue(7360);
 			def.setField(JsonFormlyUtil::buildInputFromNameable);
 		});
 	}
@@ -33,7 +33,7 @@ public class VehicleProps {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setTranslatedDescription("App.Vehicle.maxPowerThreePhase.description");
 			def.setTranslatedLabel("App.Vehicle.maxPowerThreePhase.label");
-			def.setDefaultValue(0);
+			def.setDefaultValue(11040);
 			def.setField(JsonFormlyUtil::buildInputFromNameable);
 		});
 	}

@@ -114,12 +114,18 @@ public class EvseKebaUtils {
 	 * @return the value
 	 */
 	public ChargePointAbilities getChargePointAbilities(CommonConfig config) {
-		if (config == null || config.readOnly()) {
+		if (config == null) {
 			return null;
 		}
 		final var phases = this.getWiring(config);
-		if (config == null || config.readOnly() || phases == null) {
+		if (config == null || phases == null) {
 			return null;
+		}
+
+		// Cluster Controller throws exception when abilities are null
+		if (config.readOnly()) {
+			return ChargePointAbilities.create()//
+					.build();
 		}
 
 		final var keba = this.parent;

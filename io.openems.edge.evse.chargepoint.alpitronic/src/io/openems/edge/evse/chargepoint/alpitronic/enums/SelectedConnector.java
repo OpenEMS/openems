@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.hypercharger;
+package io.openems.edge.evse.chargepoint.alpitronic.enums;
 
 import io.openems.common.types.OptionsEnum;
 
