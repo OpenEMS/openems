@@ -228,49 +228,84 @@ public enum KacoSunSpecModel implements SunSpecModel {
 
 		public static enum S64201StVnd implements OptionsEnum {
 			UNDEFINED(-1, "Undefined"), //
-			WAITING_FOR_FEED_IN(1, "Self-test: Grid parameters and generator voltage are being checked"), //
-			BATTERY_VOLTAGE_TOO_LOW(2, "Battery Voltage too low! Transition from or to 'Standby'"), //
-			YIELD_COUNTER_FOR_DAILY(4, "Yield counter for daily and annual yields are displayed"), //
-			SELF_TEST_IN_PROGR_CHECK(8,
-					"Self test in progr. Check the shutdown of the power electronics as well as the shutdown of the grid relay before the charge process."), //
-			TEMPERATURE_IN_UNIT_TOO(10,
-					"Temperature in unit too high In the event of overheating, the device shuts down. Possible causes: ambient temperature too high, fan covered, device fault."), //
-			POWER_LIMITATION_IF_THE(11,
-					"Power limitation: If the generator power is too high, the device limits itself to the maximum power (e.g. around noon if the generator capacity is too large). "), //
-			POWADORPROTECT_DISCONNECTION(17,
-					"Powador-protect disconnection The activated grid and system protection has been tripped."), //
-			RESID_CURRENT_SHUTDOWN(18,
-					"Resid. current shutdown Residual current was detected. The feed-in was interrupted."), //
-			GENERATOR_INSULATION(19,
-					"Generator insulation fault Insulation fault Insulation resistance from DC-/DC + to PE too low"), //
-			ACTIVE_RAMP_LIMITATION(20,
-					"Active ramp limitation The result when the power is increased with a ramp is country-specific."), //
-			VOLTAGE_TRANS_FAULT_CURRENT(30,
-					"Voltage trans. fault Current and voltage measurement in the device are not plausible."), //
-			SELF_TEST_ERROR_THE_INTERNAL(32,
-					"Self test error The internal grid separation relay test has failed. Notify your authorised electrician if the fault occurs repeatedly!"), //
-			DC_FEEDIN_ERROR_THE_DC(33,
-					"DC feed-in error The DC feed-in has exceeded the permitted value. This DC feed-in can be caused in the device by grid conditions and may not necessarily indicate a fault."), //
-			INTERNAL_COMMUNICATION(34,
-					"Internal communication error A communication error has occurred in the internal data transmission. "), //
-			PROTECTION_SHUTDOWN_SW(35,
-					"Protection shutdown SW Protective shutdown of the software (AC overvoltage, AC overcurrent, DC link overvoltage, DC overvoltage, DC overtemperature). "), //
-			PROTECTION_SHUTDOWN_HW(36,
-					"Protection shutdown HW Protective shutdown of the software (AC overvoltage, AC overcurrent, DC link overvoltage, DC overvoltage, DC overtemperature). "), //
-			ERROR_GENERATOR_VOLTAGE(38, "Error: Generator Voltage too high Error: Battery overvoltage"), //
-			LINE_FAILURE_UNDERVOLTAGE_1(41,
-					"Line failure undervoltage L1 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			LINE_FAILURE_OVERVOLTAGE_1(42,
-					"Line failure overvoltage L1 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			LINE_FAILURE_UNDERVOLTAGE_2(43,
-					"Line failure undervoltage L2 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			LINE_FAILURE_OVERVOLTAGE_2(44,
-					"Line failure overvoltage L2 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			LINE_FAILURE_UNDERVOLTAGE_3(45,
-					"Line failure undervoltage L3 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			LINE_FAILURE_OVERVOLTAGE_3(46,
-					"Line failure overvoltage L3 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed."), //
-			GRID_FAILURE_PHASETOPHASE(47, "Grid failure phase-to-phase voltage"), //
+			WAITING_FOR_FEED_IN(1, "waitingForFeedIn", Level.INFO), //
+			INSUFFICIENT_BATTERY_VOLTAGE(2, "insufficientBatteryVoltage"),
+			YIELD_COUNTER_FOR_DAILY(4, "yieldCounterForDaily"), //
+			SELF_TEST_IN_PROGR_CHECK(8, "selfTestInProgrCheck", Level.INFO), //
+			TEMPERATURE_IN_UNIT_TOO(10, "temperatureInUnitToo", Level.WARNING), //
+			POWER_LIMITATION_IF_THE(11, "powerLimitationIfThe", Level.INFO), //
+			POWADORPROTECT_DISCONNECTION(17, "powadorprotectDisconnection", Level.WARNING), //
+			RESID_CURRENT_SHUTDOWN(18, "residCurrentShutdown", Level.FAULT), //
+			GENERATOR_INSULATION(19, "generatorInsulation", Level.FAULT), //
+			ACTIVE_RAMP_LIMITATION(20, "activeRampLimitation", Level.INFO), //
+			VOLTAGE_TRANS_FAULT_CURRENT(30, "voltageTransFaultCurrent", Level.INFO), //
+			SELF_TEST_ERROR_THE_INTERNAL(32, "selfTestErrorTheInternal", Level.FAULT), //
+			DC_FEEDIN_ERROR_THE_DC(33, "dcFeedinErrorTheDc"),
+			INTERNAL_COMMUNICATION(34, "internalCommunication", Level.FAULT), //
+			PROTECTION_SHUTDOWN_SW(35, "protectionShutdownSw", Level.FAULT), //
+			PROTECTION_SHUTDOWN_HW(36, "protectionShutdownHw", Level.FAULT), //
+			ERROR_GENERATOR_VOLTAGE(38, "errorGeneratorVoltage"), //
+			LINE_FAILURE_UNDERVOLTAGE_1(41, "lineFailureUndervoltage1", Level.FAULT), //
+			LINE_FAILURE_OVERVOLTAGE_1(42, "lineFailureOvervoltage1", Level.FAULT), //
+			LINE_FAILURE_UNDERVOLTAGE_2(43, "lineFailureUndervoltage2", Level.FAULT), //
+			LINE_FAILURE_OVERVOLTAGE_2(44, "lineFailureOvervoltage2", Level.FAULT), //
+			LINE_FAILURE_UNDERVOLTAGE_3(45, "lineFailureUndervoltage3", Level.FAULT), //
+			LINE_FAILURE_OVERVOLTAGE_3(46, "lineFailureOvervoltage3", Level.FAULT), //
+			GRID_FAILURE_PHASETOPHASE(47, "gridFailurePhaseToPhase", Level.FAULT), //
+			LINE_FAILURE_UNDERFREQ(48, "lineFailureUnderfreq", Level.FAULT), //
+			LINE_FAILURE_OVERFREQ(49, "lineFailureOverfreq", Level.FAULT), //
+			LINE_FAILURE_AVERAGE(50, "lineFailureAverage", Level.WARNING), //
+			WAITING_FOR_REACTIVATION(57, "waitingForReactivation"), //
+			CONTROL_BOARD_OVERTEMP(58, "controlBoardOvertemp", Level.FAULT), //
+			SELF_TEST_ERROR_A_FAULT(59, "selfTestErrorAFault", Level.FAULT), //
+			GENERATOR_VOLTAGE_TOO(60, "generatorVoltageToo"), //
+			EXTERNAL_LIMIT_X_THE(61, "externalLimitXThe"), //
+			P_F_FREQUENCYDEPENDENT(63, "pFFrequencydependent"), //
+			OUTPUT_CURRENT_LIMITING(64, "outputCurrentLimiting"), //
+			FAULT_AT_POWER_SECTION(67, "faultAtPowerSection", Level.FAULT), //
+			FAN_1_ERROR_THE_FAN_IS(70, "fan1ErrorTheFanIs", Level.FAULT), //
+			STANDALONE_GRID_ERR_STANDALONE(73, "standaloneGridErrStandalone"), //
+			EXTERNAL_IDLE_POWER_REQUIREMENT(74, "externalIdlePowerRequirement"), //
+			SELFTEST(75, "selftest"), //
+			INSULATION_MEASUREMENT(79, "insulationMeasurement"), //
+			INSULATION_MEAS_NOT_POSSIBLE(80, "insulationMeasNotPossible"), //
+			PROTECTION_SHUTDOWN_LINE_1(81, "protectionShutdownLine1", Level.FAULT), //
+			PROTECTION_SHUTDOWN_LINE_2(82, "protectionShutdownLine2", Level.FAULT), //
+			PROTECTION_SHUTDOWN_LINE_3(83, "protectionShutdownLine3", Level.FAULT), //
+			PROTECTION_SHUTDOWN_UNDERVOLT(84, "protectionShutdownUndervolt", Level.FAULT), //
+			PROTECT_SHUTDOWN_OVERVOLT(85, "protectShutdownOvervolt", Level.FAULT), //
+			PROTECT_SHUTDOWN_DC_LINK(86, "protectShutdownDcLink", Level.FAULT), //
+			PROTECT_SHUTDOWN_OVERCURRENT_1(87, "protectShutdownOvercurrent1", Level.FAULT), //
+			PROTECT_SHUTDOWN_OVERCURRENT_2(88, "protectShutdownOvercurrent2", Level.FAULT), //
+			PROTECT_SHUTDOWN_OVERCURRENT_3(89, "protectShutdownOvercurrent3", Level.FAULT), //
+			BUFFER_1_SELF_TEST_ERROR(93, "buffer1SelfTestError", Level.FAULT), //
+			SELF_TEST_ERROR_BUFFER(94, "selfTestErrorBuffer", Level.FAULT), //
+			RELAY_1_SELF_TEST_ERROR(95, "relay1SelfTestError", Level.FAULT), //
+			RELAY_2_SELF_TEST_ERROR(96, "relay2SelfTestError", Level.FAULT), //
+			PROTECTION_SHUTDOWN_OVERCURRENT(97, "protectionShutdownOvercurrent", Level.FAULT), //
+			PROTECT_SHUTDOWN_HW_GTE(98, "protectShutdownHwGte", Level.FAULT), //
+			PROTECT_SHUTDOWN_HW_BUFFER(99, "protectShutdownHwBuffer", Level.FAULT), //
+			PROTECT_SHUTDOWN_HW_OVERHEATING(100, "protectShutdownHwOverheating", Level.FAULT), //
+			PLAUSIBILITY_FAULT_AFI(104, "plausibilityFaultAfi", Level.FAULT), //
+			PLAUSIBILITY_FAULT_RELAY(105, "plausibilityFaultRelay", Level.FAULT), //
+			PLAUSIBILITY_ERROR_DCDC(106, "plausibilityErrorDcdc"), //
+			CHECK_SURGE_PROTECTION(107, "checkSurgeProtection"), //
+			EXTERNAL_COMMUNICATION(196, "externalCommunication", Level.WARNING), //
+			SYMMETRY_ERROR_PARALLEL(197, "symmetryErrorParallel"), //
+			BATTERY_DISCONNECTED(198, "batteryDisconnected"), //
+			BATTERY_CONSTRAINTS_MISSING(199, "batteryConstraintsMissing"), //
+			WAITING_FOR_FAULT_ACKNOWLEDGEMENT(215, "waitingForFaultAcknowledgement", Level.WARNING), //
+			PRECHARGE_UNIT_FAULT(218, "prechargeUnitFault", Level.FAULT), //
+			READY_FOR_PRECHARGING(219, "readyForPrecharging"), //
+			PRECHARGE_PRECHARGE_UNIT(220, "prechargePrechargeUnit"), //
+			WAIT_FOR_COOLDOWN_TIME(221, "waitForCooldownTime"), //
+			DISCHARGE_LIMITS_REACHED(222, "dischargeLimitsReached"), //
+			CHARGING_LIMITS_REACHED(223, "chargeLimitsReached"), //
+			BATTERY_VOLTAGE_TOO_LOW(225, "batteryVoltageTooLow", Level.WARNING), //
+			PROTECTIVE_SHUTDOWN_CURRENT_ASYMMETRY(227, "protectiveShutdownCurrentAsymmetry", Level.WARNING), //
+			PROTECTIVE_SHUTDOWN_VOLTAGE_ASYMMETRY(228, "protectiveShutdownVoltageAsymmetry", Level.WARNING), //
+			DC_VOLTAGE_ERROR(229, "dcVoltageError", Level.WARNING)//
+			;
 
 			LINE_FAILURE_UNDERFREQ(48,
 					"Line failure: underfreq. Grid frequency is too low. This fault may be gridrelated."), //

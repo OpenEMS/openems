@@ -63,10 +63,19 @@ common_update_version_in_code() {
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
 }
 
+common_print_banner() {
+    local text="$1"
+    local len="${#text}"
+    printf "\n"
+    printf ' %*s \n' "$len" '' | tr ' ' '='
+    printf ' %s \n' "$text"
+    printf ' %*s \n' "$len" '' | tr ' ' '='
+}
+
 # Build OpenEMS Backend
 common_build_backend() {
-    echo "# Build OpenEMS Backend"
-    ./gradlew $@ --build-cache build buildBackend resolve.BackendApp
+    common_print_banner "Build OpenEMS Backend"
+    ./gradlew "$@" --build-cache build buildBackend resolve.BackendApp
     git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
@@ -77,22 +86,23 @@ common_build_edge_and_ui_in_parallel() {
     common_build_ui
 }
 
+
 # Build OpenEMS Edge
 common_build_edge() {
-    echo "# Build OpenEMS Edge"
-    ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
-    git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+    common_print_banner "Build OpenEMS Edge"
+    ./gradlew "$@" --build-cache build buildEdge resolve.EdgeApp
+    git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 }
 
 # Run OpenEMS Checkstyle
 common_run_checkstyle() {
-    echo "# Run Checkstyle"
-    ./gradlew $@ checkstyleAll
+    common_print_banner "Run Checkstyle"
+    ./gradlew "$@" checkstyleAll
 }
 
 # Build OpenEMS UI
 common_build_ui() {
-    echo "# Build OpenEMS UI"
+    common_print_banner "Build OpenEMS UI"
     if [ "${NODE_MODULES_CACHE}" != "" -a -d "$NODE_MODULES_CACHE" ]; then
         echo "## Use cached node_modules"
         mv -f "${NODE_MODULES_CACHE}" "ui/node_modules"
@@ -196,4 +206,13 @@ common_save_environment() {
     export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
     export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
     " | tee $file
+}
+
+common_check_file() {
+    local file=$1
+    local error_message=${2:-"File not found!"}
+    if [ ! -f "$file" ]; then
+        echo "Error: $error_message"
+        exit 1
+    fi
 }

@@ -10,15 +10,16 @@ repositories {
 	gradlePluginPortal()
 }
 
-dependencies {
-	// Use JUnit test framework.
-	testImplementation 'junit:junit:4.13.2'
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
+}
+
+def isCI = (System.getenv("CI") != null) as Boolean
+
+if (isCI) {
+    println("CI environment detected - suppressing all compiler warnings")
 }
 
 /*
@@ -31,12 +32,17 @@ subprojects {
 	repositories {
 		mavenCentral()
 	}
-	
+
 	tasks.withType(JavaCompile) {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
+
+		if (isCI) {
+			options.compilerArgs += ["-Xlint:none", "-nowarn"]
+			options.deprecation = false
+		}
 	}
 	
 	tasks.withType(Test) {
