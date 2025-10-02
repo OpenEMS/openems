@@ -1,4 +1,4 @@
-<ion-card button (click)="presentModal()" *ngIf="component">
+<ion-card button (click)="presentModal()" (keydown.enter)="presentModal()" tabindex="0" *ngIf="component">
     <ion-item lines="full" color="light">
         <ion-icon slot="start" size="large" color="normal" name="trending-down-outline"></ion-icon>
 

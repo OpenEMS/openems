@@ -23,7 +23,7 @@
             <!-- 'Input' Line, name and changeable value -->
             <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT'" [formGroup]="formGroup">
                 <ion-item>
-                    <ion-input class="regularFont" type="number" style="text-align: right;"
+                    <ion-input class="regularFont" type="number" style="text-align: right;" tabindex="0"
                         [formControlName]="controlName" label-placement="floating"
                         label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;">
                     </ion-input>
@@ -33,7 +33,8 @@
             <!-- 'TOGGLE' Line, provides toggle option -->
             <td *ngIf="control.type === 'TOGGLE'" [formGroup]="formGroup"
                 [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
-                <ion-toggle mode="md" [formControlName]="controlName">
+                <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md"
+                    [formControlName]="controlName">
                 </ion-toggle>
             </td>
 

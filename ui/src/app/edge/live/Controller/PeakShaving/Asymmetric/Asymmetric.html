@@ -1,4 +1,4 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias"
+<oe-flat-widget button [modalComponent]="modalComponent" *ngIf="isInitialized" [title]="component.alias"
     [icon]="{name: 'trending-down-outline', color: 'normal'}">
 
     <oe-flat-widget-line

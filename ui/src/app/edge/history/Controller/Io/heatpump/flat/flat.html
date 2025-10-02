@@ -1,5 +1,5 @@
 <oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
-    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatpumpchart'">
+    [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatpumpchart'">
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.HeatPump.normalOperation' | translate"
         [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RegularStateTime'"
         [converter]="FORMAT_SECONDS_TO_DURATION">

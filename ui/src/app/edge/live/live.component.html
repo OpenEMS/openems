@@ -15,7 +15,7 @@
             <ion-col size="12">
               <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
                 <!-- Energymonitor -->
-                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+                <energymonitor *ngSwitchCase="'Energymonitor'" [attr.tabindex]="0"></energymonitor>
               </ng-container>
             </ion-col>
           </ion-row>
@@ -27,7 +27,8 @@
         <ion-grid class="ion-no-padding">
           <ion-row>
             <!-- Regular Widgets -->
-            <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+            <ng-container *ngFor="let clazz of widgets.classes; let i = index" [ngSwitch]="clazz">
+
 
               <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-lg="6" class="ion-no-padding">
                 <Common_Autarchy></Common_Autarchy>
@@ -56,10 +57,9 @@
             </ng-container>
 
             <!-- Widgets depending on the configuration of the OpenEMS Edge -->
-            <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+            <ng-container *ngFor="let widget of widgets.list; let i = index" [ngSwitch]="widget.name">
 
               <!-- Widgets that are likely to be configured frequently -->
-
               <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
                 <ng-container
                   *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">

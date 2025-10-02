@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
@@ -47,6 +48,14 @@ export class FlatComponent extends AbstractFlatWidget {
   protected isReadWrite: boolean;
   private chargePoint: EvcsComponent;
 
+  protected get modalComponent(): Modal {
+    return {
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+      },
+    };
+  };
   formatNumber(i: number) {
     const round = Math.ceil(i / 100) * 100;
     return round;
@@ -62,6 +71,7 @@ export class FlatComponent extends AbstractFlatWidget {
     });
     return await modal.present();
   }
+
 
   protected override getChannelAddresses(): ChannelAddress[] {
     this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);

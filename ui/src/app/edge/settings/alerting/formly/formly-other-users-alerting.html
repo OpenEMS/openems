@@ -27,8 +27,10 @@
                   @switch (userCol.type) {
                   @case ("toggle") {
                   <ion-item lines="none" class="ion-background-transparent">
-                    <ion-toggle label-placement="start" slot="end" [formControlName]="userCol.key"
-                      (ionChange)="changeEditMode(user.key, userCol.key)"></ion-toggle>
+                    <ion-toggle tabindex="0" label-placement="start" slot="end" [formControlName]="userCol.key"
+                      (keydown.enter)="changeEditMode(user.key, userCol.key, true)"
+                      (ionChange)="changeEditMode(user.key, userCol.key, null)">
+                    </ion-toggle>
                   </ion-item>
                   }
                   }

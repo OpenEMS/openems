@@ -19,8 +19,9 @@
             @switch (col.type) {
             @case ("toggle") {
             <ion-item lines="none" class="ion-background-transparent">
-              <ion-toggle label-placement="start" slot="end" [formControlName]="col.key"
-                (ionChange)="changeEditMode(col.key)"></ion-toggle>
+              <ion-toggle tabindex="0" label-placement="start" slot="end" [formControlName]="col.key"
+                (keydown.enter)="changeEditMode(col.key, form?.controls[col.key] ?? null)"
+                (ionChange)="changeEditMode(col.key,null)"></ion-toggle>
             </ion-item>
             }
             }

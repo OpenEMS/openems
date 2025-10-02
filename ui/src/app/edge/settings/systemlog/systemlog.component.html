@@ -12,7 +12,7 @@
             <ion-grid class="ion-no-padding">
               <ion-row>
                 <ion-col>
-                  <ion-item lines="none">
+                  <ion-item lines="none" (keydown.enter)="toggleSubscribe($event)" (click)="toggleSubscribe($event)">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
                       {{'Edge.Config.Log.automaticUpdating' | translate}}
@@ -21,7 +21,7 @@
                 </ion-col>
                 <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
                   <ion-item lines="none">
-                    <ion-toggle mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
+                    <ion-toggle tabindex="0" mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
                       [(ngModel)]="isCondensedOutput">
                     </ion-toggle>
                     <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
@@ -33,7 +33,8 @@
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
                       <ng-container *ngFor="let filter of filters.options">
-                        <ion-select-option [value]="filter.value">{{filter.name}}
+                        <ion-select-option (keydown.enter)="searchOnChange($event)" button
+                          [value]="filter.value">{{filter.name}}
                         </ion-select-option>
                       </ng-container>
                     </ion-select>

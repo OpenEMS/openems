@@ -1,4 +1,4 @@
-<oe-flat-widget button (click)="presentModal()" style="cursor: pointer;" *ngIf="isInitialized && evcsComponent"
+<oe-flat-widget [modalComponent]="modalComponent" style="cursor: pointer;" *ngIf="isInitialized && evcsComponent"
     [title]="evcsComponent.alias" [icon]="{name: 'oe-evcs', color: 'normal'}">
 
     <!-- Show if Connection is Successful -->

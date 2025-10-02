@@ -45,4 +45,5 @@ export class SettingsComponent implements OnInit {
       this.canSeeJsonrpcTest = JsonrpcTestPermission.canSee(user, edge);
     });
   }
+
 }

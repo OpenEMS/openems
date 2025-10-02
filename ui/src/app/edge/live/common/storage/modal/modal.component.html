@@ -117,7 +117,8 @@
                                                 <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                                                 <ng-container
                                                     *ngIf="formGroup.controls[component.id].value['emergencyReserveController'].hasOwnProperty('isReserveSocEnabled')">
-                                                    <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'">
+                                                    <ion-toggle tabindex="0" mode="md"
+                                                        [formControlName]="'isReserveSocEnabled'">
                                                     </ion-toggle>
                                                 </ng-container>
                                             </td>

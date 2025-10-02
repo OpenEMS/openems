@@ -3,9 +3,9 @@
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
       <ion-title style="color: var(--ion-title-color);">{{title}}</ion-title>
       <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="end">
-        <ion-button [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history'">
+        <oe-flat-button [link]="{ text: '/device/' + edge.id + newNavigationUrlSegment + '/history'}" color="light">
           <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
-        </ion-button>
+        </oe-flat-button>
       </ion-buttons>
       <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="start" *ngIf="showPopover">
         <ion-button (click)="presentPopover()">

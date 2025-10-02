@@ -1,4 +1,4 @@
-<oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
+<oe-flat-widget *ngIf="isInitialized" [modalComponent]="modalComponent" [title]="component.alias"
     [icon]="{color: 'normal', name:'flame'}">
 
     <oe-flat-widget-line [name]="'General.STATUS' | translate" [value]="status | translate"

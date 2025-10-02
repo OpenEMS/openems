@@ -5,7 +5,7 @@
       <!-- Additional Toolbarbuttons -->
       <ng-container *ngIf="toolbarButtons !== null">
         <ng-container *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
-          <ion-button *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">
+          <ion-button tabindex="0" *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">
             <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
               [size]="button.icon?.size ??'medium'">
             </ion-icon>
@@ -13,7 +13,7 @@
         </ng-container>
 
         <ng-template #singleButton>
-          <ion-button [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
+          <ion-button tabindex="0" [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
             <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
               [color]="toolbarButtons.icon?.color ?? 'dark'" [size]="toolbarButtons.icon?.size ??'medium'">
             </ion-icon>
@@ -24,7 +24,7 @@
       <ng-content select="[button]"></ng-content>
       <oe-help-button *ngIf="helpKey" [key]="helpKey" [useDefaultPrefix]="useDefaultPrefix"></oe-help-button>
 
-      <ion-button (click)="modalController.dismiss()">
+      <ion-button (keydown.enter)="modalController.dismiss()" tabindex="0" (click)="modalController.dismiss()">
         <ion-icon name="close-outline" size="medium" style="color: var(--ion-title-color);"></ion-icon>
       </ion-button>
     </ion-buttons>

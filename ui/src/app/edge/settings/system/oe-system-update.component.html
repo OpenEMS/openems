@@ -71,7 +71,7 @@
                 <!-- Debug Logs -->
                 <ng-container *ngIf="environment.debugMode && systemUpdateState.running as state">
                     <div *ngIf="state.logs.length > 0">
-                        <p style="cursor: pointer" (click)="showLog = !showLog">
+                        <p style="cursor: pointer" (keydown.enter)="showLog = !showLog" (click)="showLog = !showLog">
                             <ion-icon *ngIf="!showLog" name="arrow-down-circle-outline">
                             </ion-icon>
                             <ion-icon *ngIf="showLog" name="arrow-up-circle-outline">

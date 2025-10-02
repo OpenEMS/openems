@@ -104,13 +104,17 @@
                   <ion-label class="ion-text-wrap">
                     <ion-text>
                       <ion-text color="primary">
-                        <h3>{{ item.alias }} <ion-icon *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
-                            [routerLink]="item.id" name="create-outline">
-                          </ion-icon>
+                        <h3>{{ item.alias }}
+                          <a button tabindex="0" *ngIf="edge.roleIsAtLeast('owner')" style="cursor: pointer;"
+                            [routerLink]="item.id">
+                            <ion-icon name="create-outline"></ion-icon>
+                          </a>
                         </h3>
                       </ion-text>
                       <ng-container *ngIf="config.factories[item.factoryId] as factory">
-                        <p style="cursor: pointer" (click)="item['showProperties'] = !item['showProperties']">
+                        <p style="cursor: pointer" button tabindex="0"
+                          (keydown.enter)="item['showProperties'] = !item['showProperties']"
+                          (click)="item['showProperties'] = !item['showProperties']" class="ion-font-size-smaller">
                           <ion-icon *ngIf="!item['showProperties']" name="arrow-down-circle-outline">
                           </ion-icon>
                           <ion-icon *ngIf="item['showProperties']" name="arrow-up-circle-outline">

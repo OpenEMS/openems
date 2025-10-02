@@ -535,6 +535,23 @@ formly-input-section {
     ion-buttons {
         color: var(--ion-color-toggle-background) !important;
     }
+
+    // Accessibility 2.1.2
+    .oe-focused {
+        border: 0.1em solid var(--ion-color-dark);
+        outline: var(--ion-focus-outline-width) solid var(--ion-focus-outline-color);
+        outline-offset: var(--ion-focus-outline-offset);
+    }
+
+    ion-button.ion-focused,
+    ion-segment-button.ion-focused,
+    ion-toggle.ion-focused,
+    ion-item.ion-focused,
+    ion-input.ion-focused,
+    ion-chip:focus-within,
+    ion-toggle:focus-within {
+        @extend .oe-focused;
+    }
 }
 
 // auto height for modals

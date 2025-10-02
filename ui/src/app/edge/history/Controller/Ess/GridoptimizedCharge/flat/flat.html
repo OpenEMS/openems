@@ -1,5 +1,5 @@
 <oe-flat-widget *ngIf="isInitialized" [title]="component.alias" button
-  [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/gridOptimizedChargeChart'"
+  [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/gridOptimizedChargeChart'"
   [icon]="{name: 'oe-grid-storage', size: 'large', color: 'normal'}">
   <oe-flat-widget-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed' | translate"
     [channelAddress]="component.id + '/AvoidLowChargingTime'" [converter]="FORMAT_SECONDS_TO_DURATION"

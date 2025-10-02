@@ -1,4 +1,4 @@
-<oe-flat-widget [icon]="icon" [title]="'General.grid' | translate" (click)="presentModal()">
+<oe-flat-widget [icon]="icon" [title]="'General.grid' | translate" [modalComponent]="modalComponent">
     <ng-container *ngIf="isActivated">
         <oe-flat-widget-line [name]="'General.state'| translate" [value]="gridState" [leftColumnWidth]="10">
         </oe-flat-widget-line>

@@ -1,4 +1,5 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
+<oe-flat-widget tabindex="0" button [modalComponent]="modalComponent" *ngIf="isInitialized" [title]="component.alias"
+    [icon]="{name:
     'flame-outline', color: 'normal'}">
     <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
     <oe-flat-widget-line *ngIf="icon.name === '', else noValue" [name]="'General.state' | translate" [value]="state">

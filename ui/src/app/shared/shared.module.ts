@@ -14,6 +14,7 @@ import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/fo
 import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
+import { FlatButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
 import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
 import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
@@ -121,6 +122,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     RouterModule,
     TranslateModule,
     HelpPopoverButtonComponent,
+    FlatButtonComponent,
   ],
   declarations: [
     AppHeaderComponent,

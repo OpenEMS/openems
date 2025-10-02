@@ -1,4 +1,4 @@
-<oe-flat-widget [title]="component.alias" button (click)="presentModal()"
+<oe-flat-widget [title]="component.alias" [modalComponent]="modalComponent"
     [icon]="{name: 'oe-grid-storage', color: 'dark'}" *ngIf="isInitialized">
 
     <!--Selected mode-->

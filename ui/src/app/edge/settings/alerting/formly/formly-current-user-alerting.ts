@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
-import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/view-component/help-popover/help-popover";
@@ -41,7 +41,14 @@ export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements 
         }
     }
 
-    protected changeEditMode(controlName: string) {
+    protected changeEditMode(controlName: string, control?: FormControl | null) {
+
+        /** If formControl provided, use it directly */
+        if (control !== null) {
+            this.form.get(controlName).setValue(!control.value);
+            this.form.get(controlName).markAsDirty();
+        }
+
         const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(this.form as FormGroup, controlName);
         const normalizedFormGroup = (this.props.options as FormlyFieldConfig[])
             .map(el => el.fieldGroup

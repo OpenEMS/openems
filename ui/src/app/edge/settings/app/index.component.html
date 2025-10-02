@@ -12,7 +12,7 @@
       <ion-card-content>
         <div>
           <div style="display: flex; align-items: center; justify-content: center; cursor: pointer;"
-            (click)="onAppClicked(app)"
+            (click)="onAppClicked(app)" (keydown.enter)="onAppClicked(app)"
             [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
             <img *ngIf="app.image; else noImage" [src]="app.image" />
             <ng-template #noImage>

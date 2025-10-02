@@ -74,7 +74,8 @@
   <ion-menu menuId="main-menu" [contentId]="navigationService.position === 'left' ? 'main': 'content'"
     [type]="navigationService.position === 'left' ? '': 'overlay'" side="start">
     <ion-list>
-      <ion-item *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active"
+      <ion-item tabindex="0" button *ngIf="(service.metadata | async)?.user as user" routerLinkActive="active"
+        (keydown.enter)="navCtrl.navigateRoot('/user');menu.close()"
         (click)="navCtrl.navigateRoot('/user');menu.close()">
         <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
         </ion-icon>

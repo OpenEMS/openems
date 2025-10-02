@@ -1,5 +1,5 @@
 <ng-container *ngIf="isInitialized">
-    <oe-flat-widget (click)="presentModal()" [icon]="{name:'swap-vertical-outline', color:'normal'}"
+    <oe-flat-widget [modalComponent]="modalComponent" [icon]="{name:'swap-vertical-outline', color:'normal'}"
         [title]="component.alias">
         <oe-flat-widget-line [name]="'General.state' | translate" [value]="propertyMode"
             [converter]="CONVERT_MANUAL_ON_OFF">

@@ -1,5 +1,5 @@
 <oe-flat-widget button *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
-    'cloud-outline', color: 'normal'}" (click)="presentModal()">
+    'cloud-outline', color: 'normal'}" [modalComponent]="modalComponent">
 
     <oe-flat-widget-line [name]="'General.mode' | translate" [channelAddress]="component.id + '/_PropertyMode'"
         [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>

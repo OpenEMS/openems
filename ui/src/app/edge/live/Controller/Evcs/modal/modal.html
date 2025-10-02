@@ -1,7 +1,7 @@
 <oe-modal [title]="this.component.alias" [component]="controller" [formGroup]="formGroup"
   *ngIf="isInitialized && formGroup" helpKey="EVCS" [useDefaultPrefix]="useDefaultPrefix">
 
-  <ion-button *ngIf="isReadWrite" button (click)="presentModal()">
+  <ion-button *ngIf="isReadWrite" button (click)="presentModal()" (keydown.enter)="presentModal()" tabindex="0">
     <ion-icon name="car"></ion-icon>
   </ion-button>
 
