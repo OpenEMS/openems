@@ -43,7 +43,10 @@ export namespace DateUtils {
    * @param date the date
    * @returns the date if valid, else null
    */
-  export function stringToDate(date: string): Date | null {
+  export function stringToDate(date: string | null): Date | null {
+    if (date == null) {
+      return null;
+    }
     return isNaN(new Date(date)?.getTime()) ? null : new Date(date);
   }
 

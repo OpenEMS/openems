@@ -458,7 +458,10 @@ export class Edge {
 
               new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
               new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
-              new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null),
+
+              ...(this.roleIsAtLeast(Role.OWNER)
+                ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                : []),
             ], navigationTree));
           break;
         case "Controller.IO.Heating.Room":

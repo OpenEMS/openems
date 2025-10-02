@@ -4,6 +4,7 @@ import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
   protected isUserAllowedToSeeOverview: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
   protected isHistoryDetailView: boolean = false;
+  protected latestIncident: { message: string | null, id: string } | null = null;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private subscription: Subscription = new Subscription();
@@ -49,7 +51,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private title: Title,
     private stateService: AppStateTracker,
     protected navigationService: NavigationService,
-    protected navCtrl: NavController
+    protected navCtrl: NavController,
+    private translate: TranslateService,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
@@ -68,6 +71,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.appService.listen();
     SplashScreen.hide();
+
+    this.checkMessages();
   }
 
   ngOnDestroy() {
@@ -135,5 +140,31 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.isSmartphoneResolutionSubject.next(false);
       }
     }
+  }
+
+  private checkMessages(): void {
+    const header = this.translate.instant("TOAST.MIGRATION.HEADER");
+    const content = this.translate.instant("TOAST.MIGRATION.CONTENT");
+    const linkText = this.translate.instant("TOAST.MIGRATION.LINK_TEXT");
+    const link = this.translate.instant("TOAST.MIGRATION.LINK");
+    this.latestIncident = {
+      message: `
+      <ion-grid class="ion-justify-content-center ion-padding full_width">
+        <ion-row>
+          <ion-col>
+            <span>
+              ${header}
+            </span>
+            <br>
+            <br>
+            ${content}  
+            <a class="link" href="${link}" target="_blank">
+              ${linkText}
+            </a>
+          </ion-col>
+        </ion-row>
+      </ion-grid>`,
+      id: "odoo-migration",
+    };
   }
 }

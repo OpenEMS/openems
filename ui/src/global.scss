@@ -359,12 +359,6 @@ ion-checkbox {
     font-family: $font-family;
 }
 
-// 360px is approximate min. width of mobile devices
-ion-toast.container {
-    text-align: center;
-    --min-width: 360px;
-}
-
 .no-scroll {
     overflow-y: hidden;
     overflow-x: hidden;

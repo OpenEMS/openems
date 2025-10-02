@@ -2,8 +2,8 @@
   <app-header></app-header>
 
   <ion-content *ngIf="navigationService.position() !== null">
-    <ng-container *ngIf=" navigationService.position()==='disabled'">
-      <ng-template *ngTemplateOutlet=" sidemenu">
+    <ng-container *ngIf="navigationService.position() === 'disabled'">
+      <ng-template *ngTemplateOutlet="sidemenu">
       </ng-template>
       <ng-template *ngTemplateOutlet="content">
       </ng-template>
@@ -61,6 +61,8 @@
   </ng-container>
 
   <systemLog *ngIf="isSystemLogEnabled"></systemLog>
+  <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message" [id]="latestIncident.id">
+  </oe-notification>
 
   <!-- Show Sub-Views -->
   <ion-router-outlet id="content"></ion-router-outlet>
