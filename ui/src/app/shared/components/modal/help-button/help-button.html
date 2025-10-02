@@ -2,5 +2,6 @@
     <div #ref>
         <ng-content></ng-content>
     </div>
-    <ion-icon *ngIf="ref?.children?.length === 0" name="help-circle-outline"></ion-icon>
+    <ion-icon style="color: var(--ion-title-color);" *ngIf="ref?.children?.length === 0"
+        name="help-circle-outline"></ion-icon>
 </ion-button>

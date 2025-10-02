@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, SimpleChange, OnChanges } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
-import { environment } from "src/environments";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { Environment, environment } from "src/environments";
 
 @Component({
     selector: "oe-help-button",
@@ -30,19 +31,19 @@ export class HelpButtonComponent implements OnChanges {
     }
 
     private setLink(key: HelpButtonComponent["key"], docsBaseLink?: HelpButtonComponent["useDefaultPrefix"]) {
-        const docsLink = this.useDefaultPrefix ? "" : environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang());
-        if (key == null || !(key in environment.links)) {
+        const flattenedKeys = ObjectUtils.flattenObjectWithValues<Environment["links"]>(environment.links);
+        if (key == null || !(key in flattenedKeys)) {
             console.error("Key [" + key + "] not found in Environment Links");
             this.link = null;
             return;
         }
 
-        const link = environment.links[key];
+        const link = flattenedKeys[key];
         if (link === null || link === "") {
             this.link = null;
 
         } else {
-            this.link = docsLink + environment.links[key];
+            this.link = link;
         }
     }
 
