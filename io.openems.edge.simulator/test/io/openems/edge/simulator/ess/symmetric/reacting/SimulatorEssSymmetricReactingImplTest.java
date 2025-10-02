@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.test.TimeLeapClock;
+import io.openems.common.test.TestUtils;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -15,10 +15,8 @@ import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
 public class SimulatorEssSymmetricReactingImplTest {
 
-	private static final String ESS_ID = "ess0";
-
-	private static final ChannelAddress ESS_SOC = new ChannelAddress(ESS_ID, "Soc");
-	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
+	private static final ChannelAddress ESS_SOC = new ChannelAddress("ess0", "Soc");
+	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress("ess0",
 			"SetActivePowerEquals");
 
 	@Test
@@ -29,7 +27,7 @@ public class SimulatorEssSymmetricReactingImplTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //
-						.setId(ESS_ID) //
+						.setId("ess0") //
 						.setCapacity(10_000) //
 						.setMaxApparentPower(10_000) //
 						.setMaxChargePower(10_000) //
