@@ -14,14 +14,12 @@ import { IndexComponent as ComponentInstallIndexComponent } from "./component/in
 import { ComponentInstallComponent } from "./component/install/install.component";
 import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/index.component";
 import { ComponentUpdateComponent } from "./component/update/update.component";
-import { ServiceAssistantModule } from "./serviceassistant/serviceassistant.module";
 import { SystemExecuteComponent } from "./systemexecute/systemexecute.component";
 
 @NgModule({
   imports: [
     AppModule,
     SharedModule,
-    ServiceAssistantModule,
     ChangelogComponent,
     ComponentsModule,
     HelpButtonComponent,

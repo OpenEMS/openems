@@ -1,35 +1,34 @@
 <ion-content>
-  <ng-container [ngSwitch]="backendState">
-
-    <ngx-spinner [name]="spinnerId" *ngSwitchCase="'loading'">
-      <p style="color: white" translate><span translate>
+  @switch (backendState) {
+    @case ('loading') {
+      <ngx-spinner [name]="spinnerId">
+        <p style="color: white" translate><span translate>
           LOADING_SCREEN.LOADING
         </span>
         ...
       </p>
     </ngx-spinner>
-
-    <ng-container *ngSwitchCase="'failed'">
-      <ng-container>
-        <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
-          <ion-row class="ion-justify-content-center">
-            <ion-col size="12" size-md="6" size-lg="4">
-              <ion-card>
-                <ion-card-content>
-                  @if (environment.backend === 'OpenEMS Backend') {
+  }
+  @case ('failed') {
+    <ng-container>
+      <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card>
+              <ion-card-content>
+                @if (environment.backend === 'OpenEMS Backend') {
                   <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
                   }@else {
                   <ng-container *ngTemplateOutlet="connectionToEdgeFailed"></ng-container>
-                  }
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ng-container>
-
+                }
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ng-container>
-  </ng-container>
+  }
+}
 </ion-content>
 
 
@@ -39,7 +38,7 @@
       style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
       <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
       <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
-        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
+      {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
     </ion-col>
   </ion-row>
 
