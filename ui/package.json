@@ -13,7 +13,7 @@
     "@angular/router": "20.3.2",
     "@angular/service-worker": "20.3.2",
     "@awesome-cordova-plugins/core": "^8.0.2",
-    "@awesome-cordova-plugins/file-opener": "^8.0.2",
+    "@awesome-cordova-plugins/file-opener": "^8.1.0",
     "@capacitor-community/file-opener": "^7.0.1",
     "@capacitor/android": "^7.4.2",
     "@capacitor/app": "^7.0.1",
