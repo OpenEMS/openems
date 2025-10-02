@@ -1,5 +1,6 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
+import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
@@ -12,7 +13,7 @@ import { ModalComponent } from "../modal/modal";
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public evcss: EdgeConfig.Component[] | null = null;
+  public evcss: EvcsComponent[] | null = null;
   public consumptionMeters: EdgeConfig.Component[] | null = null;
   public sumActivePower: number = 0;
   public evcsSumOfChargePower: number;
@@ -56,16 +57,11 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     // Get EVCSs
-    this.evcss = this.config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-      .filter(component =>
-        !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-        !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
-        !(this.config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
-        !component.isEnabled == false);
+    this.evcss = EvcsComponent.getComponents(this.config, this.edge);
 
     for (const component of this.evcss) {
       channelAddresses.push(
-        new ChannelAddress(component.id, "ChargePower"),
+        component.powerChannel,
       );
     }
     return channelAddresses;
@@ -81,7 +77,7 @@ export class FlatComponent extends AbstractFlatWidget {
     // Iterate over evcsComponents to get ChargePower for every component
     for (const component of this.evcss) {
       if (currentData.allComponents[component.id + "/ChargePower"]) {
-        this.evcsSumOfChargePower += currentData.allComponents[component.id + "/ChargePower"];
+        this.evcsSumOfChargePower += currentData.allComponents[component.powerChannel.toString()];
       }
     }
 
