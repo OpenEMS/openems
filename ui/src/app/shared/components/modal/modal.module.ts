@@ -47,10 +47,10 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ModalComponentsModule { }
-
 @NgModule({
   imports: [
     BrowserModule,
+    CommonModule,
     IonicModule,
     ReactiveFormsModule,
     RouterModule,
@@ -64,5 +64,6 @@ export class ModalComponentsModule { }
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
+
 export class ModalModule { }
 

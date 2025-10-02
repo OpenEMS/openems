@@ -1,10 +1,9 @@
-import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { IonicModule } from "@ionic/angular";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
@@ -18,11 +17,9 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../share
     templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
+        CommonUiModule,
         BaseChartDirective,
         ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
         ChartComponentsModule,
         HistoryDataErrorModule,
         NgxSpinnerModule,

@@ -1,11 +1,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { AlertController } from "@ionic/angular";
-import { FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { InstallAppComponent } from "./install.component";
 import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
@@ -25,7 +28,15 @@ interface MyInstance {
 @Component({
   selector: UpdateAppComponent.SELECTOR,
   templateUrl: "./update.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    ReactiveFormsModule,
+    RouterModule,
+    FormlyModule,
+  ],
 })
 export class UpdateAppComponent implements OnInit {
 

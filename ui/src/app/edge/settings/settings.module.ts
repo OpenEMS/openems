@@ -12,44 +12,27 @@ import { IndexComponent as ComponentInstallIndexComponent } from "./component/in
 import { ComponentInstallComponent } from "./component/install/install.component";
 import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/index.component";
 import { ComponentUpdateComponent } from "./component/update/update.component";
-import { JsonrpcTestComponent } from "./jsonrpctest/jsonrpctest";
-import { NetworkComponent } from "./network/network.component";
-import { PowerAssistantModule } from "./powerassistant/powerassistant.module";
-import { AliasUpdateComponent } from "./profile/aliasupdate.component";
-import { ProfileComponent } from "./profile/profile.component";
-import { SettingsComponent } from "./settings.component";
-import { MaintenanceComponent } from "./system/maintenance/maintenance";
-import { OeSystemUpdateComponent } from "./system/oe-system-update.component";
-import { SystemComponent } from "./system/system.component";
+import { ServiceAssistantModule } from "./serviceassistant/serviceassistant.module";
 import { SystemExecuteComponent } from "./systemexecute/systemexecute.component";
 
 @NgModule({
   imports: [
     AppModule,
     SharedModule,
+    ServiceAssistantModule,
     ChangelogComponent,
-    PowerAssistantModule,
     ComponentsModule,
     HelpButtonComponent,
   ],
   declarations: [
-    AliasUpdateComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
-    JsonrpcTestComponent,
-    MaintenanceComponent,
-    NetworkComponent,
-    OeSystemUpdateComponent,
-    ProfileComponent,
-    SettingsComponent,
-    SystemComponent,
     SystemExecuteComponent,
   ],
   exports: [
-    OeSystemUpdateComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

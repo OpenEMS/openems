@@ -17,7 +17,6 @@ import { AppComponent } from "./app.component";
 import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
-import { SystemLogComponent } from "./edge/settings/systemlog/systemlog.component";
 import { IndexModule } from "./index/index.module";
 import { RegistrationModule } from "./index/registration/registration.module";
 import { PlatFormService } from "./platform.service";
@@ -39,7 +38,6 @@ import { UserModule } from "./user/user.module";
     AppComponent,
     ChartOptionsPopoverComponent,
     StatusSingleComponent,
-    SystemLogComponent,
     NavigationComponent,
   ],
   imports: [

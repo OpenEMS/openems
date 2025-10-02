@@ -33,23 +33,6 @@ import { UpdateAppConfigComponent } from "./edge/live/Controller/Evse/pages/upda
 import { ModalComponent as IoHeatingRoomComponent } from "./edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "./edge/live/live.component";
 import { LiveDataService } from "./edge/live/livedataservice";
-import { IndexComponent as EdgeSettingsAppIndex } from "./edge/settings/app/index.component";
-import { InstallAppComponent as EdgeSettingsAppInstall } from "./edge/settings/app/install.component";
-import { SingleAppComponent as EdgeSettingsAppSingle } from "./edge/settings/app/single.component";
-import { UpdateAppComponent as EdgeSettingsAppUpdate } from "./edge/settings/app/update.component";
-import { ChannelsComponent as EdgeSettingsChannelsComponent } from "./edge/settings/channels/channels.component";
-import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from "./edge/settings/component/install/index.component";
-import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from "./edge/settings/component/install/install.component";
-import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from "./edge/settings/component/update/index.component";
-import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from "./edge/settings/component/update/update.component";
-import { JsonrpcTestComponent } from "./edge/settings/jsonrpctest/jsonrpctest";
-import { NetworkComponent as EdgeSettingsNetworkComponent } from "./edge/settings/network/network.component";
-import { AliasUpdateComponent } from "./edge/settings/profile/aliasupdate.component";
-import { ProfileComponent as EdgeSettingsProfileComponent } from "./edge/settings/profile/profile.component";
-import { SettingsComponent as EdgeSettingsComponent } from "./edge/settings/settings.component";
-import { SystemComponent as EdgeSettingsSystemComponent } from "./edge/settings/system/system.component";
-import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from "./edge/settings/systemexecute/systemexecute.component";
-import { SystemLogComponent as EdgeSettingsSystemLogComponent } from "./edge/settings/systemlog/systemlog.component";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
 import { LoadingScreenComponent } from "./index/shared/loading-screen";
@@ -135,27 +118,8 @@ export const routes: Routes = [
           ...history(true),
         ],
       },
-
+      { path: "settings", loadChildren: () => import("./edge/settings/settings-routing.module").then(m => m.SettingsRoutingModule) },
       ...history(false),
-      { path: "settings", data: { navbarTitleToBeTranslated: "Menu.edgeSettings" }, component: EdgeSettingsComponent },
-      { path: "settings/channels", component: EdgeSettingsChannelsComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Channels" } },
-      { path: "settings/component.install", component: EdgeSettingsComponentInstallIndexComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.addComponents" } },
-      { path: "settings/component.install/:factoryId", component: EdgeSettingsComponentInstallComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.addComponents" } },
-      { path: "settings/component.update", component: EdgeSettingsComponentUpdateIndexComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.adjustComponents" } },
-      { path: "settings/component.update/:componentId", component: EdgeSettingsComponentUpdateComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.adjustComponents" } },
-      { path: "settings/network", component: EdgeSettingsNetworkComponent, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.networkConfiguration" } },
-      { path: "settings/profile", component: EdgeSettingsProfileComponent, data: { navbarTitleToBeTranslated: "Edge.Config.Index.systemProfile" } },
-      { path: "settings/profile/:componentId", component: AliasUpdateComponent, data: { navbarTitleToBeTranslated: "Edge.Config.Index.renameComponents" } },
-      { path: "settings/systemexecute", component: EdgeSettingsSystemExecuteComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.systemExecute" } },
-      { path: "settings/systemlog", component: EdgeSettingsSystemLogComponent, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.liveLog" } },
-      { path: "settings/system", component: EdgeSettingsSystemComponent, canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.SYSTEM" } },
-      { path: "settings/app", canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitle: environment.edgeShortName + " Apps" }, component: EdgeSettingsAppIndex },
-      { path: "settings/app/install/:appId", component: EdgeSettingsAppInstall, canActivate: [hasEdgeRole(Role.OWNER)] },
-      { path: "settings/app/update/:appId", component: EdgeSettingsAppUpdate, canActivate: [hasEdgeRole(Role.OWNER)] },
-      { path: "settings/app/single/:appId", component: EdgeSettingsAppSingle, canActivate: [hasEdgeRole(Role.OWNER)] },
-      { path: "settings/alerting", loadChildren: () => import("./edge/settings/alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "Edge.Config.Index.alerting" } },
-      { path: "settings/jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
-      { path: "settings/app", data: { navbarTitle: environment.edgeShortName + "Apps" }, component: EdgeSettingsAppIndex },
     ],
   },
 

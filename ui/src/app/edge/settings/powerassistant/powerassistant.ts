@@ -1,11 +1,14 @@
 // @ts-strict-ignore
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { DataService } from "src/app/shared/components/shared/dataservice";
+import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Language } from "src/app/shared/type/language";
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../shared/shared";
-import { LiveDataService } from "../../live/livedataservice";
+import { CommonUiModule } from "../../../../shared/common-ui.module";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../../shared/shared";
 
 type Channel = {
   title: string,
@@ -31,11 +34,14 @@ type Entry = {
 @Component({
   selector: "powerassistant",
   templateUrl: "./powerassistant.html",
-  providers: [{
-    useClass: LiveDataService,
-    provide: DataService,
-  }],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    LiveDataServiceProvider,
+    LocaleProvider,
+    PickdateComponentModule,
+    ComponentsBaseModule,
+  ],
 })
 export class PowerAssistantComponent extends AbstractFlatWidget {
 

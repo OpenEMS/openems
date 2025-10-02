@@ -11,11 +11,7 @@ import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/f
 import { FormlyReorderArrayComponent } from "./formly/reorder-select/formly-reorder-array.component";
 import { FormlySafeInputModalComponent } from "./formly/safe-input/formly-safe-input-modal.component";
 import { FormlySafeInputWrapperComponent } from "./formly/safe-input/formly-safe-input.extended";
-import { IndexComponent } from "./index.component";
-import { InstallAppComponent } from "./install.component";
 import { KeyModalComponent } from "./keypopup/modal.component";
-import { SingleAppComponent } from "./single.component";
-import { UpdateAppComponent } from "./update.component";
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { "key": true };
@@ -57,10 +53,6 @@ export function registerTranslateExtension(translate: TranslateService) {
     }),
   ],
   declarations: [
-    IndexComponent,
-    InstallAppComponent,
-    SingleAppComponent,
-    UpdateAppComponent,
     KeyModalComponent,
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
@@ -71,10 +63,6 @@ export function registerTranslateExtension(translate: TranslateService) {
     FormlyReorderArrayComponent,
   ],
   exports: [
-    IndexComponent,
-    InstallAppComponent,
-    SingleAppComponent,
-    UpdateAppComponent,
   ],
   providers: [
     // Use factory for formly. This allows us to use translations in validationMessages.

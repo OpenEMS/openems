@@ -10,7 +10,6 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @NgModule({
   imports: [
-    AngularMyDatePickerModule,
     CommonModule,
     IonicModule,
     TranslateModule,
@@ -21,6 +20,7 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
   ],
   exports: [
     PickDateComponent,
+    AngularMyDatePickerModule,
   ],
 })
 export class PickdateComponentModule { }

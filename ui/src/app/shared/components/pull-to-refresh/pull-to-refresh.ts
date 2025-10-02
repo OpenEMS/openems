@@ -1,12 +1,11 @@
-import { CommonModule } from "@angular/common";
 import { Component, effect, ElementRef, Input, Renderer2 } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { IonicModule, RefresherCustomEvent } from "@ionic/angular";
-import { TranslateModule } from "@ngx-translate/core";
+import { RefresherCustomEvent } from "@ionic/angular";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 
 /**
  * Component used to indicate if live data is still updated
@@ -49,11 +48,9 @@ import { PlatFormService } from "src/app/platform.service";
         }
     `,
     imports: [
+        CommonUiModule,
         BrowserModule,
         BrowserAnimationsModule,
-        IonicModule,
-        TranslateModule,
-        CommonModule,
         NgxSpinnerModule,
         ReactiveFormsModule,
     ],
