@@ -4,14 +4,21 @@
     @if (offGridTime > 0) {
       <oe-flat-widget-line [name]="'GRID_STATES.OFF_GRID' | translate"
         channelAddress="_sum/GridModeOffGridTime" [converter]="TIME_CONVERTER">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="restrictionTime14a > 0" [name]="'GRID_STATES.CONSUMPTION_LIMITATION' | translate"
+      </oe-flat-widget-line>
+    }
+    @if (restrictionTime14a > 0) {
+      <oe-flat-widget-line [name]="'GRID_STATES.CONSUMPTION_LIMITATION' | translate"
         channelAddress="ctrlEssLimiter14a0/CumulatedRestrictionTime" [converter]="TIME_CONVERTER">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="restrictionTimeRcr > 0" [name]="'GRID_STATES.FEED_IN_LIMITATION' | translate"
+      </oe-flat-widget-line>
+    }
+    @if (restrictionTimeRcr > 0) {
+      <oe-flat-widget-line [name]="'GRID_STATES.FEED_IN_LIMITATION' | translate"
         channelAddress="ctrlEssRippleControlReceiver0/CumulatedRestrictionTime" [converter]="TIME_CONVERTER">
-    </oe-flat-widget-line>
-    <oe-flat-widget-horizontal-line *ngIf="restrictionTimeRcr > 0 || offGridTime > 0  || restrictionTime14a  > 0"></oe-flat-widget-horizontal-line>
+      </oe-flat-widget-line>
+    }
+    @if (restrictionTimeRcr > 0 || offGridTime > 0 || restrictionTime14a > 0) {
+      <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+    }
     <oe-flat-widget-line [name]="'General.gridSellAdvanced' | translate" channelAddress="_sum/GridSellActiveEnergy"
       [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
     </oe-flat-widget-line>
