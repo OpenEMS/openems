@@ -7,8 +7,8 @@
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
 
     <ng-template #meters>
-        <ng-container *ngFor="let component of evcsComponents">
-            <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActiveConsumptionEnergy'"
+        <ng-container *ngFor="let evcs of evcsComponents">
+            <oe-flat-widget-line [name]="evcs.alias" [channelAddress]="evcs.energyChannel.toString()"
                 [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
         </ng-container>
 
