@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -481,6 +482,17 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	/**
+	 * Sets the value as the description.
+	 *
+	 * @param description the description to set
+	 * @return this
+	 */
+	public final AppDef<APP, PROPERTY, PARAMETER> setDescription(String description) {
+		this.description = (app, property, language, parameter) -> description;
+		return this;
+	}
+
+	/**
 	 * Sets the value of the translation as the description.
 	 * 
 	 * <p>
@@ -704,6 +716,21 @@ public class AppDef<APP extends OpenemsApp, //
 
 	/**
 	 * Sets the field of the input.
+	 *
+	 * @param <T>                the type of the input
+	 * @param fieldSupplier      the supplier to get the {@link FormlyBuilder}
+	 * @param additionalSettings the additional settings on the input
+	 * @return this
+	 */
+	public final <T extends FormlyBuilder<?>> AppDef<APP, PROPERTY, PARAMETER> setField(//
+			final Supplier<T> fieldSupplier, //
+			final FieldValuesConsumer<APP, PROPERTY, PARAMETER, T> additionalSettings //
+	) {
+		return this.setField(ignore -> fieldSupplier.get(), additionalSettings);
+	}
+
+	/**
+	 * Sets the field of the input.
 	 * 
 	 * @param <T>           the type of the input
 	 * @param fieldSupplier the supplier to get the {@link FormlyBuilder}
@@ -713,6 +740,19 @@ public class AppDef<APP extends OpenemsApp, //
 			final Function<PROPERTY, T> fieldSupplier //
 	) {
 		return this.setField(fieldSupplier, null);
+	}
+
+	/**
+	 * Sets the field of the input.
+	 *
+	 * @param <T>           the type of the input
+	 * @param fieldSupplier the supplier to get the {@link FormlyBuilder}
+	 * @return this
+	 */
+	public final <T extends FormlyBuilder<?>> AppDef<APP, PROPERTY, PARAMETER> setField(//
+			final Supplier<T> fieldSupplier //
+	) {
+		return this.setField(ignore -> fieldSupplier.get(), null);
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {

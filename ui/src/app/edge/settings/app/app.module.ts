@@ -4,6 +4,7 @@ import { FormControl, ValidationErrors } from "@angular/forms";
 import { FORMLY_CONFIG, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
+import { FormlyLinkComponent } from "./formly/formly-link";
 import { FormlyTextComponent } from "./formly/formly-text";
 import { FormlyInputWithUnitComponent } from "./formly/input-with-unit";
 import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/formly-option-group-picker.component";
@@ -43,6 +44,7 @@ export function registerTranslateExtension(translate: TranslateService) {
       ],
       types: [
         { name: "text", component: FormlyTextComponent },
+        { name: "link", component: FormlyLinkComponent },
         { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent },
         { name: "reorder-array", component: FormlyReorderArrayComponent },
       ],
@@ -62,6 +64,7 @@ export function registerTranslateExtension(translate: TranslateService) {
     KeyModalComponent,
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
+    FormlyLinkComponent,
     FormlyTextComponent,
     FormlyInputWithUnitComponent,
     FormlyOptionGroupPickerComponent,
