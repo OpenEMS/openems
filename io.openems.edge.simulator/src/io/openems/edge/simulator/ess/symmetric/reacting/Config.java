@@ -22,6 +22,12 @@ import io.openems.edge.common.sum.GridMode;
 	@AttributeDefinition(name = "Max Apparent Power [VA]")
 	int maxApparentPower() default 10000;
 
+	@AttributeDefinition(name = "Max charge power [W]")
+	int maxChargePower() default 10000;
+
+	@AttributeDefinition(name = "Max discharge power [W]")
+	int maxDischargePower() default 10000;
+
 	@AttributeDefinition(name = "Capacity [Wh]")
 	int capacity() default 10000;
 
