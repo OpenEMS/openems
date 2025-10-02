@@ -712,13 +712,13 @@ export namespace HistoryUtils {
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
   } & ({
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel?: undefined
   } | {
-    energyChannel: ChannelAddress,
     powerChannel?: undefined
+    energyChannel: ChannelAddress,
   } | {
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel: ChannelAddress
   });
 

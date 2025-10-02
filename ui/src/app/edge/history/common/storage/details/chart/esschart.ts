@@ -8,7 +8,10 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { TRequiredBy } from "src/app/shared/type/utility";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../shared/shared";
 
@@ -30,7 +33,11 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../sh
 export class StorageEssChartComponent extends AbstractHistoryChart {
 
     public static getChartData(translate: TranslateService, essComponent: EdgeConfig.Component, chartType: "line" | "bar", config: EdgeConfig): HistoryUtils.ChartData {
+        AssertionUtils.assertIsDefined(essComponent);
 
+        const isHybridEss = config?.hasComponentNature("io.openems.edge.ess.api.HybridEss", essComponent.id);
+        const powerEnergyChannels: HistoryUtils.InputChannel[] =
+            StorageEssChartComponent.getChargeDischargeInputChannel(isHybridEss, essComponent.id, chartType, config, translate);
         const yAxes: HistoryUtils.yAxes[] = [{
             unit: YAxisType.ENERGY,
             position: "left",
@@ -46,18 +53,7 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
         }
 
         const input: HistoryUtils.InputChannel[] = [
-            {
-                name: essComponent.id + "Charge",
-                powerChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargePower"),
-                energyChannel: ChannelAddress.fromString(essComponent.id + "/DcChargeEnergy"),
-                ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE }),
-            },
-            {
-                name: essComponent.id + "Discharge",
-                powerChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargePower"),
-                energyChannel: ChannelAddress.fromString(essComponent.id + "/DcDischargeEnergy"),
-                ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO }),
-            },
+            ...powerEnergyChannels,
             {
                 name: "Soc",
                 powerChannel: ChannelAddress.fromString(essComponent.id + "/Soc"),
@@ -82,19 +78,25 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
 
                 const output: HistoryUtils.DisplayValue[] = [{
                     name: translate.instant("General.CHARGE"),
-                    converter: () => data[essComponent.id + "Charge"],
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[essComponent.id + "/DcChargeEnergy"],
+                    ...StorageEssChartComponent.getChargeDisplayValues(essComponent.id, data, isHybridEss, chartType),
                     stack: 0,
                     color: ChartConstants.Colors.GREEN,
                 },
                 {
                     name: translate.instant("General.DISCHARGE"),
-                    converter: () => data[essComponent.id + "Discharge"]?.map(el => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(el)),
-                    nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[essComponent.id + "/DcDischargeEnergy"],
+                    ...StorageEssChartComponent.getDischargeDisplayValues(essComponent.id, data, isHybridEss),
                     stack: 1,
                     color: ChartConstants.Colors.RED,
-                },
-                ];
+                }];
+
+                if (config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)) {
+                    output.push(...Phase.THREE_PHASE.map((phase, i) => ({
+                        name: translate.instant("General.phase") + " " + phase,
+                        converter: () => data[essComponent.id + "/ActivePower" + phase],
+                        stack: 1,
+                        color: ChartConstants.Colors.DEFAULT_PHASES_COLORS[i],
+                    })));
+                }
 
                 if (chartType === "line") {
                     output.push({
@@ -124,8 +126,65 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
         };
     }
 
+    private static getChargeDischargeInputChannel(isHybridEss: boolean, componentId: string, chartType: "bar" | "line", config: EdgeConfig, translate: TranslateService): HistoryUtils.InputChannel[] {
+
+        const inputChannel: HistoryUtils.InputChannel[] = [{
+            name: componentId + "Charge",
+            ...StorageEssChartComponent.getChargeInputChannels(isHybridEss, componentId, chartType),
+        },
+        {
+            name: componentId + "Discharge",
+            ...StorageEssChartComponent.getDischargeInputChannels(isHybridEss, componentId),
+            ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO }),
+        }];
+
+        if (config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", componentId)) {
+            inputChannel.push(...Phase.THREE_PHASE.map(phase => ({
+                name: translate.instant("General.phase") + " " + phase,
+                powerChannel: new ChannelAddress(componentId, "ActivePower" + phase),
+                ...(chartType === "line" && { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE }),
+            })));
+        }
+
+        return inputChannel;
+    }
+
+    private static getChargeInputChannels(isHybridEss: boolean, componentId: string, chartType: "bar" | "line"): RequiredChannels {
+        return {
+            energyChannel: new ChannelAddress(componentId, isHybridEss ? "DcChargeEnergy" : "ActiveChargeEnergy"),
+            powerChannel: new ChannelAddress(componentId, isHybridEss ? "DcDischargePower" : "ActivePower"),
+            ...(chartType === "line" ? { converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE } : {}),
+        };
+    }
+
+    private static getDischargeInputChannels(isHybridEss: boolean, componentId: string): RequiredChannels {
+        return {
+            energyChannel: new ChannelAddress(componentId, isHybridEss ? "DcDischargeEnergy" : "ActiveDischargeEnergy"),
+            powerChannel: new ChannelAddress(componentId, isHybridEss ? "DcDischargePower" : "ActivePower"),
+        };
+    }
+
+    private static getChargeDisplayValues(essComponentId: string, data: HistoryUtils.ChannelData, isHybridEss: boolean, chartType: "bar" | "line"): StrippedDisplayValue {
+        const chargeChannels = StorageEssChartComponent.getChargeInputChannels(isHybridEss, essComponentId, chartType);
+        return {
+            converter: () => data[essComponentId + "Charge"],
+            nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[chargeChannels.energyChannel.toString()],
+        };
+    }
+
+    private static getDischargeDisplayValues(essComponentId: string, data: HistoryUtils.ChannelData, isHybridEss: boolean): StrippedDisplayValue {
+        const dischargeChannels = StorageEssChartComponent.getDischargeInputChannels(isHybridEss, essComponentId);
+        return {
+            converter: () => data[essComponentId + "Discharge"],
+            nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[dischargeChannels.energyChannel.toString()],
+        };
+    }
+
     public override getChartData() {
         const component = this.config.getComponent(this.route.snapshot.params.componentId);
         return StorageEssChartComponent.getChartData(this.translate, component, this.chartType, this.config);
     }
 }
+
+type RequiredChannels = TRequiredBy<Pick<HistoryUtils.InputChannel, "powerChannel" | "energyChannel">, "energyChannel" | "powerChannel"> & Pick<HistoryUtils.InputChannel, "converter">;
+type StrippedDisplayValue = Pick<HistoryUtils.DisplayValue, "converter" | "nameSuffix">;

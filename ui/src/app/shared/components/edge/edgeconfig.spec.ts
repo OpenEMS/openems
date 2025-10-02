@@ -160,6 +160,17 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = {
+            id: "Edge2Edge.Websocket.Ess",
+            natureIds: [
+                "io.openems.edge.edge2edge.websocket.Edge2EdgeWebsocket",
+                "io.openems.edge.ess.api.SymmetricEss",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.ess.api.ManagedSymmetricEss",
+                "io.openems.edge.ess.api.AsymmetricEss",
+                "io.openems.edge.edge2edge.websocket.ess.Edge2EdgeEss",
+            ],
+        };
 
         export const ESS_LIMITER_14A = {
             id: "Controller.Ess.Limiter14a",
@@ -383,6 +394,18 @@ export namespace DummyConfig {
             alias: alias ?? id,
             factoryId: "Ess.Generic.ManagedSymmetric",
             factory: Factory.ESS_GENERIC_MANAGEDSYMMETRIC,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+            },
+            channels: {},
+        });
+
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: Factory.EDGE_2_EDGE_WEBSOCKET_ESS.id,
+            factory: Factory.EDGE_2_EDGE_WEBSOCKET_ESS,
             properties: {
                 invert: false,
                 modbusUnitId: 5,
