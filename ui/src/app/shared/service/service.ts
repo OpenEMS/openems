@@ -103,14 +103,15 @@ export class Service extends AbstractService {
     // add language
     translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(Language.DEFAULT.key);
+    translate.setFallbackLang(Language.DEFAULT.key);
+    translate.use(Language.DEFAULT.key);
 
     // initialize history period
     this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByKey(event.lang));
+      registerLocaleData(Language.getLocale(Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key));
     });
   }
 
@@ -433,7 +434,7 @@ export class Service extends AbstractService {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: duration ?? 2000,
+      duration: duration ?? 4000,
       cssClass: "container",
     });
     toast.present();

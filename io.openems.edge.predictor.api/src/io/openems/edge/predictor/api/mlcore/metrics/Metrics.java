@@ -7,47 +7,54 @@ import io.openems.edge.predictor.api.mlcore.datastructures.Series;
 public final class Metrics {
 
 	/**
-	 * Computes the mean absolute error (MAE) between two Series.
+	 * Computes the squared error between two {@link Series}.
 	 *
 	 * @param actual   the actual values
 	 * @param expected the expected values
-	 * @return the MAE
+	 * @return the squared error
 	 * @throws IllegalArgumentException if the indices differ
 	 */
-	public static double meanAbsoluteError(Series<?> actual, Series<?> expected) {
+	public static double squaredError(Series<?> actual, Series<?> expected) {
 		if (!actual.getIndex().equals(expected.getIndex())) {
 			throw new IllegalArgumentException("Series must have the same index");
 		}
 
-		return meanAbsoluteError(actual.getValues(), expected.getValues());
+		return squaredError(actual.getValues(), expected.getValues());
 	}
 
 	/**
-	 * Computes the mean absolute error (MAE) between two lists of values.
+	 * Computes the squared error between two lists of values.
 	 *
 	 * @param actual   the actual values
 	 * @param expected the expected values
-	 * @return the MAE, or NaN if no valid pairs exist
-	 * @throws IllegalArgumentException if the lists differ in size
+	 * @return the squared error
+	 * @throws IllegalArgumentException if one of the lists is {@code null} or
+	 *                                  differ in size
 	 */
-	public static double meanAbsoluteError(List<Double> actual, List<Double> expected) {
+	public static double squaredError(List<Double> actual, List<Double> expected) {
+		if (actual == null || expected == null) {
+			throw new IllegalArgumentException("Input lists must not be null");
+		}
+
 		if (actual.size() != expected.size()) {
 			throw new IllegalArgumentException("Lists must have the same length");
 		}
 
 		double sum = 0.0;
-		int count = 0;
 
-		for (int i = 0; i < expected.size(); i++) {
-			double actualValue = actual.get(i);
-			double expectedValue = expected.get(i);
-			if (!Double.isNaN(actualValue) && !Double.isNaN(expectedValue)) {
-				sum += Math.abs(actualValue - expectedValue);
-				count++;
+		for (int i = 0; i < actual.size(); i++) {
+			double a = actual.get(i);
+			double e = expected.get(i);
+
+			if (Double.isNaN(a) || Double.isNaN(e)) {
+				continue;
 			}
+
+			double diff = a - e;
+			sum += diff * diff;
 		}
 
-		return count > 0 ? sum / count : Double.NaN;
+		return sum;
 	}
 
 	private Metrics() {

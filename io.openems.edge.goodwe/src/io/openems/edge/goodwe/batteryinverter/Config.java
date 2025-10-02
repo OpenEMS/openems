@@ -8,6 +8,7 @@ import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
+import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @ObjectClassDefinition(//
@@ -58,6 +59,9 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 	@AttributeDefinition(name = "Feed-To-Grid Settings", description = "This is the selection of inverter power settings")
 	FeedInPowerSettings setfeedInPowerSettings() default FeedInPowerSettings.UNDEFINED;
+
+	@AttributeDefinition(name = "GridCode Setting", description = "GridCode Setting e.g. VDE-AR-N 4105 for germay.")
+	GridCode gridCode() default GridCode.VDE_4105;
 
 	@AttributeDefinition(name = "Enable/disable Ripple Control Receiver", description = "Enable/disable Ripple Control Receiver (RCR) function")
 	EnableDisable rcrEnable() default EnableDisable.DISABLE;

@@ -168,7 +168,7 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

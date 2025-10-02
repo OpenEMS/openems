@@ -5,6 +5,7 @@ import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
+import { EvcsComponent } from "../components/edge/components/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -397,20 +398,6 @@ export class Utils {
   };
 
   /**
-   * Converts Minute from start of day to daytime in 'HH:mm' format.
-   *
-   * @returns converted value
-   */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
-    return (value: number): string => {
-      const date: Date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setMinutes(value);
-      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: "2-digit", minute: "2-digit" });
-    };
-  };
-
-  /**
    * Converts Price to Cent per kWh [currency / kWh]
    *
    * @param decimal number of decimals after fraction
@@ -588,7 +575,7 @@ export class Utils {
  * @param consumptionMeterComponents the consumptionMeterComponents
  * @returns the other consumption
  */
-  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EvcsComponent[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;
     let totalHeatConsumption: number = 0;
@@ -598,8 +585,8 @@ export class Utils {
       totalHeatConsumption = this.addSafely(totalHeatConsumption, energyValues.result.data[component.id + "/ActiveProductionEnergy"]);
     });
 
-    [...evcsComponents].forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + "/ActiveConsumptionEnergy"]);
+    [...evcsComponents].forEach(evcs => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[evcs.energyChannel.toString()]);
     });
 
     consumptionMeterComponents.forEach(meter => {
@@ -624,14 +611,14 @@ export class Utils {
    * @param consumptionMeterComponents the consumptionMeterComponents
    * @returns the other consumption
    */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EvcsComponent[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
     const totalEvcsConsumption: number[] = [];
     const totalHeatConsumption: number[] = [];
     const totalMeteredConsumption: number[] = [];
 
-    evcsComponents.forEach(component => {
-      channelData[component.id + "/ChargePower"]?.forEach((value, index) => {
+    evcsComponents.forEach(evcs => {
+      channelData[evcs.powerChannel.toString()]?.forEach((value, index) => {
         totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
@@ -679,6 +666,8 @@ export enum YAxisType {
   VOLTAGE,
   HEAT_PUMP,
   HEATING_ELEMENT,
+  RESTRICTION,
+  ENERIX_CONTROL,
 }
 
 export enum ChartAxis {
@@ -711,13 +700,13 @@ export namespace HistoryUtils {
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
   } & ({
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel?: undefined
   } | {
-    energyChannel: ChannelAddress,
     powerChannel?: undefined
+    energyChannel: ChannelAddress,
   } | {
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel: ChannelAddress
   });
 

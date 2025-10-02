@@ -139,3 +139,15 @@
     @extend .ion-max-width-max-content;
     white-space: pre-wrap;
 }
+
+.ion-display-flex {
+    display: flex !important;
+}
+
+.ion-flex-column {
+    flex-direction: column !important;
+}
+
+.ion-text-bold {
+    font-weight: bold !important;
+}

@@ -6,15 +6,17 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static java.lang.Math.round;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.function.IntFunction;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -33,7 +35,6 @@ import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
@@ -45,11 +46,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "IO.Shelly.PlusPMMini", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-		TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements IoShellyPlusPmMini, SinglePhaseMeter,
 		ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -62,6 +62,7 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
+	private boolean invert = false;
 	private String baseUrl;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
@@ -88,6 +89,7 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
@@ -128,6 +130,8 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		setValue(this, IoShellyPlusPmMini.ChannelId.SLAVE_COMMUNICATION_FAILED, result == null);
 
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
 		Integer power = null;
 		Integer voltage = null;
 		Integer current = null;
@@ -140,9 +144,9 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 			try {
 				var jsonResponse = getAsJsonObject(result.data());
 				var pm1 = getAsJsonObject(jsonResponse, "pm1:0");
-				power = round(getAsFloat(pm1, "apower"));
+				power = invert.apply(round(getAsFloat(pm1, "apower")));
 				voltage = round(getAsFloat(pm1, "voltage") * 1000);
-				current = round(getAsFloat(pm1, "current") * 1000);
+				current = invert.apply(round(getAsFloat(pm1, "current") * 1000));
 
 				var sys = getAsJsonObject(jsonResponse, "sys");
 				restartRequired = getAsBoolean(sys, "restart_required");

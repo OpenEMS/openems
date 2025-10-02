@@ -351,6 +351,11 @@
 			<version>1.21.2</version>
 		</dependency>
 		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter-api</artifactId>
+		    <version>5.13.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
 			<version>8.1.0</version>
@@ -469,6 +474,24 @@
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>4.32.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mockito</groupId>
+		  <artifactId>mockito-core</artifactId>
+		  <version>5.18.0</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>net.bytebuddy</groupId>
+		  <artifactId>byte-buddy</artifactId>
+		  <version>1.17.6</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.objenesis</groupId>
+		  <artifactId>objenesis</artifactId>
+		  <version>3.4</version>
+		  <scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

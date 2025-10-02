@@ -79,6 +79,9 @@
       "december": "December"
     },
     "save": "Opslaan",
+    "SUFFIX": {
+      "HOUR": "uur"
+    },
     "TIME": {
       "HOUR": "Uur",
       "HOURS": "Uur",
@@ -221,7 +224,7 @@
           "considerGridFeedInLimit": "Houd rekening met de maximale teruglevering van het net",
           "endTime": "Eindtijd",
           "endTimeDescription": "Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.",
-          "endTimeDetailedDescription": "Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{ value1 }} tot {{ value2 }} uur.",
+          "endTimeDetailedDescription": "Het laden vindt niet plaats met de maximale output voor een paar uur, maar gestaag met een maximum van {{ maxChargingPowerW }} tot {{ endTime }}.",
           "endTimeLong": "Eindtijd van beperkt laden",
           "expectedSoc": "Verwachte laadstatus",
           "expectedSocWithoutSellToGridLimit": "Zonder de maximale teruglevering aan het net te vermijden",
