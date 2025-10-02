@@ -1,13 +1,14 @@
-<oe-flat-widget button [modalComponent]="modalComponent" *ngIf="isInitialized" [title]="component.alias"
+@if (isInitialized) {
+  <oe-flat-widget button [modalComponent]="modalComponent" [title]="component.alias"
     [icon]="{name: 'trending-down-outline', color: 'normal'}">
-
     <oe-flat-widget-line
-        [name]="('Edge.Index.Widgets.Peakshaving.mostStressedPhase' | translate) + '&nbsp;' + (mostStressedPhase | async)?.name"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="(mostStressedPhase | async)?.value">
+      [name]="('Edge.Index.Widgets.Peakshaving.mostStressedPhase' | translate) + '&nbsp;' + (mostStressedPhase | async)?.name"
+      [converter]="CONVERT_WATT_TO_KILOWATT" [value]="(mostStressedPhase | async)?.value">
     </oe-flat-widget-line>
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingPower'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower"></oe-flat-widget-line>
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower"></oe-flat-widget-line>
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.rechargePower' | translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="rechargePower">
+      [converter]="CONVERT_WATT_TO_KILOWATT" [value]="rechargePower">
     </oe-flat-widget-line>
-</oe-flat-widget>
+  </oe-flat-widget>
+}

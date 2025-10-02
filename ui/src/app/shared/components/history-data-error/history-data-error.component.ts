@@ -5,15 +5,21 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 @Component({
     selector: "oe-history-data-error",
     template: `
-    <ion-item lines="full" color="warning" *ngIf="type !== null">
-    <ion-icon size="large" slot="start" name="warning-outline"></ion-icon>
-    <ion-label class="ion-text-wrap" style="text-align: center">
-        <ng-container [ngSwitch]="type">
-            <span *ngSwitchCase="'TOO_LONG'" [innerHTML]="'Edge.Index.Energymonitor.ERROR_TOO_LONG' | translate"></span>
-            <span *ngSwitchCase="'TEMPORARY'" translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
-        </ng-container>
-    </ion-label>
-</ion-item>`,
+    @if (type !== null) {
+      <ion-item lines="full" color="warning">
+        <ion-icon size="large" slot="start" name="warning-outline"></ion-icon>
+        <ion-label class="ion-text-wrap" style="text-align: center">
+          @switch (type) {
+            @case ('TOO_LONG') {
+              <span [innerHTML]="'Edge.Index.Energymonitor.ERROR_TOO_LONG' | translate"></span>
+            }
+            @case ('TEMPORARY') {
+              <span translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
+            }
+          }
+        </ion-label>
+      </ion-item>
+    }`,
     standalone: false,
 })
 export class HistoryDataErrorComponent {

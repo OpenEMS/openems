@@ -15,7 +15,7 @@ export class FlatComponent extends AbstractFlatWidget {
     protected displayName: Map<string, string> = new Map();
 
     protected activeSecondsOverPeriod: number | null = null;
-    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.currentLang);
+    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
 
     protected controllers: EdgeConfig.Component[] | null = [];
 

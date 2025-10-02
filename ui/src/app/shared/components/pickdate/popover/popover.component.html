@@ -1,31 +1,45 @@
 <ion-list lines="none" inset="false">
-    <ng-container *ngFor="let period of periods">
-        <ion-item [ngSwitch]="period" mode="md" [class.active]="service.periodString === period"
-            (click)="setPeriod(period)" class="ion-text-center" lines="none" button>
-            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.DAY" translate>
-                Edge.History.day
-            </ion-label>
-            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.WEEK" translate>
-                Edge.History.week
-            </ion-label>
-            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.MONTH" translate>
-                Edge.History.month
-            </ion-label>
-            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.YEAR" translate>
-                Edge.History.year
-            </ion-label>
-            <ion-label *ngSwitchCase="DefaultTypes.PeriodString.TOTAL" translate>
-                Edge.History.TOTAL
-            </ion-label>
-        </ion-item>
-    </ng-container>
-    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.CUSTOM"
-        (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
-        lines="none" button testId="popover-button">
-        <ion-label translate>
-            Edge.History.otherPeriod
-        </ion-label>
+  @for (period of periods; track period) {
+    <ion-item mode="md" [class.active]="service.periodString === period"
+      (click)="setPeriod(period)" class="ion-text-center" lines="none" button>
+      @switch (period) {
+        @case (DefaultTypes.PeriodString.DAY) {
+          <ion-label>
+            {{"Edge.History.day" | translate}}
+          </ion-label>
+        }
+        @case (DefaultTypes.PeriodString.WEEK) {
+          <ion-label>
+            {{"Edge.History.week" | translate}}
+          </ion-label>
+        }
+        @case (DefaultTypes.PeriodString.MONTH) {
+          <ion-label>
+            {{"Edge.History.month" | translate}}
+          </ion-label>
+        }
+        @case (DefaultTypes.PeriodString.YEAR) {
+          <ion-label>
+            {{"Edge.History.year" | translate}}
+          </ion-label>
+        }
+        @case (DefaultTypes.PeriodString.TOTAL) {
+          <ion-label>
+            {{"Edge.History.TOTAL" | translate}}
+          </ion-label>
+        }
+      }
     </ion-item>
+  }
+  <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.CUSTOM"
+    (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
+    lines="none" button testId="popover-button">
+    <ion-label>
+      {{"Edge.History.otherPeriod" | translate}}
+    </ion-label>
+  </ion-item>
 </ion-list>
-<input *ngIf="showCustomDate" (dateChanged)="onDateChanged($event.dateRange)" type="hidden" [locale]="locale"
+@if (showCustomDate) {
+  <input (dateChanged)="onDateChanged($event.dateRange)" type="hidden" [locale]="locale"
     angular-mydatepicker name="mydate" [options]="myDpOptions" />
+}

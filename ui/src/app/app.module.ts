@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
 import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
-import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideTranslateLoader, TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
 import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
@@ -32,6 +32,7 @@ import { SharedModule } from "./shared/shared.module";
 import { registerTranslateExtension } from "./shared/translate.extension";
 import { Language, MyTranslateLoader } from "./shared/type/language";
 import { UserModule } from "./user/user.module";
+provideTranslateLoader(MyTranslateLoader);
 
 @NgModule({
   declarations: [

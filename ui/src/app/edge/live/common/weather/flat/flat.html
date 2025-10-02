@@ -1,9 +1,11 @@
-<ion-card *ngIf="currentHourlyForecast && currentDailyForecast">
+@if (currentHourlyForecast && currentDailyForecast) {
+<ion-card>
   <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
     <ion-icon slot="start" size="large" color="normal"
       [name]="currentHourlyForecast.weatherCode | weatherCodeIcon:currentHourlyForecast.isDay">
     </ion-icon>
-    <ion-label [translate]="'TITLE_WITH_LOCATION'" [translateParams]="{ location: placeName }">
+    <ion-label>
+      {{'TITLE_WITH_LOCATION' | translate: { location: placeName } }}
     </ion-label>
   </ion-item>
   <ion-card-content class="ion-no-padding">
@@ -47,8 +49,8 @@
           </ion-row>
           <div class="thin-divider"></div>
           <ion-row class="ion-justify-content-between">
-            <ion-col *ngFor="let forecast of upcomingHourlyForecasts | slice:0:(isSmartphone ? 5 : 6)" size="auto"
-              class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
+            @for (forecast of upcomingHourlyForecasts | slice:0:(isSmartphone ? 5 : 6); track forecast) {
+            <ion-col size="auto" class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
               <ion-text color="normal" style="font-size: 0.7rem; margin-bottom:0.15rem;">
                 {{ forecast.datetime | hourFormat }}
               </ion-text>
@@ -58,13 +60,14 @@
                 {{ forecast.temperature | number:'1.0-0' }}°
               </ion-text>
             </ion-col>
+            }
           </ion-row>
         </ion-card-content>
       </ion-card>
       <ion-card style="--background: var(--ion-background-color); box-shadow: none;">
         <ion-card-content style="padding-top: 0; padding-bottom: 0;">
-          <ion-row *ngFor="let forecast of upcomingDailyForecasts" class="ion-align-items-center"
-            style="margin-top: 0px;">
+          @for (forecast of upcomingDailyForecasts; track forecast) {
+          <ion-row class="ion-align-items-center" style="margin-top: 0px;">
             <ion-col size="2" size-sm="1" class="ion-text-start ion-text-bold">
               {{ forecast.date | weekdayFormat }}
             </ion-col>
@@ -96,8 +99,10 @@
               </ion-text>
             </ion-col>
           </ion-row>
+          }
         </ion-card-content>
       </ion-card>
     </ion-grid>
   </ion-card-content>
 </ion-card>
+}

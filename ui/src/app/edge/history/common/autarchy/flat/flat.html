@@ -1,5 +1,7 @@
-<oe-flat-widget [title]="'General.autarchy' | translate" [icon]="{name: 'oe-grid', color:'normal'}" button
-  [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/autarchychart'" *ngIf="isInitialized">
-  <oe-flat-widget-percentagebar [value]="autarchyValue">
-  </oe-flat-widget-percentagebar>
-</oe-flat-widget>
+@if (isInitialized) {
+  <oe-flat-widget [title]="'General.autarchy' | translate" [icon]="{name: 'oe-grid', color:'normal'}" button
+    [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/autarchychart'">
+    <oe-flat-widget-percentagebar [value]="autarchyValue">
+    </oe-flat-widget-percentagebar>
+  </oe-flat-widget>
+}

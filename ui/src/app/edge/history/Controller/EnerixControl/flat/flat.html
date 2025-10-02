@@ -1,14 +1,16 @@
-<oe-flat-widget button *ngIf="isInitialized" [title]="component.alias" button
+@if (isInitialized) {
+  <oe-flat-widget button [title]="component.alias" button
     [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/enerixcontrolchart'"
     [icon]="{name:'swap-vertical-outline', color:'normal'}">
     <oe-flat-widget-line [name]="'CumulatedNoDischargeTime'"
-        [channelAddress]="this.component.id + '/CumulatedNoDischargeTime'" [converter]="TIME_CONVERTER"
-        [leftColumnWidth]="80"></oe-flat-widget-line>
+      [channelAddress]="this.component.id + '/CumulatedNoDischargeTime'" [converter]="TIME_CONVERTER"
+    [leftColumnWidth]="80"></oe-flat-widget-line>
     <oe-flat-widget-line [name]="'CumulatedInactiveTime'"
-        [channelAddress]="this.component.id + '/CumulatedInactiveTime'" [converter]="TIME_CONVERTER"
-        [leftColumnWidth]="80"></oe-flat-widget-line>
+      [channelAddress]="this.component.id + '/CumulatedInactiveTime'" [converter]="TIME_CONVERTER"
+    [leftColumnWidth]="80"></oe-flat-widget-line>
     <!-- Disabled till next release -->
     <!-- <oe-flat-widget-line [name]="'CumulatedForceChargeTime'"
-        [channelAddress]="this.component.id + '/CumulatedForceChargeTime'" [converter]="TIME_CONVERTER"
-        [leftColumnWidth]="80"></oe-flat-widget-line> -->
+    [channelAddress]="this.component.id + '/CumulatedForceChargeTime'" [converter]="TIME_CONVERTER"
+  [leftColumnWidth]="80"></oe-flat-widget-line> -->
 </oe-flat-widget>
+}

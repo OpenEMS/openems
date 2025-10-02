@@ -1,3 +1,5 @@
-<oe-navigation-view [title]="component.alias" [component]="component" *ngIf="isInitialized">
+@if (isInitialized) {
+  <oe-navigation-view [title]="component.alias" [component]="component">
     <app-update></app-update>
-</oe-navigation-view>
+  </oe-navigation-view>
+}

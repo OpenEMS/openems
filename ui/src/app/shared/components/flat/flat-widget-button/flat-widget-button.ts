@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -9,10 +8,9 @@ import { Icon } from "src/app/shared/type/widget";
     templateUrl: "./flat-widget-button.html",
     standalone: true,
     imports: [
-        IonicModule,
-        CommonModule,
-        RouterModule,
-    ],
+    IonicModule,
+    RouterModule,
+],
 })
 export class FlatButtonComponent {
 

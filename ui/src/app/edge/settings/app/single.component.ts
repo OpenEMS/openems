@@ -165,7 +165,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             payload: new GetApp.Request({ appId: appId }),
           })).then(response => {
             const app = (response as GetApp.Response).result.app;
-            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
             this.setApp(app);
           }).catch(reason => {
             console.error(reason.error);

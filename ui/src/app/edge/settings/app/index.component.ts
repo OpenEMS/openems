@@ -91,7 +91,7 @@ export class IndexComponent implements OnInit, OnDestroy {
       switchMap(() => this.route.url),
       takeUntil(this.stopOnDestroy),
     ).subscribe(() => {
-      const navigationExtras = this.router.getCurrentNavigation()?.extras as NavigationExtras;
+      const navigationExtras = this.router.currentNavigation()?.extras as NavigationExtras;
       const appInstanceChange = navigationExtras?.state?.appInstanceChange;
       if (appInstanceChange != null && appInstanceChange) {
         this.init();
@@ -313,7 +313,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           this.service.stopSpinner(this.spinnerId);
 
           this.apps = (response as GetApps.Response).result.apps.map(app => {
-            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
             return app;
           });
 

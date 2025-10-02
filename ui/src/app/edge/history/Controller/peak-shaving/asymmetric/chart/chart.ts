@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -22,13 +22,12 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
   imports: [
     BaseChartDirective,
     ReactiveFormsModule,
-    CommonModule,
     IonicModule,
     TranslateModule,
     ChartComponentsModule,
     HistoryDataErrorModule,
     NgxSpinnerModule,
-  ],
+],
 })
 export class ChartComponent extends AbstractHistoryChart {
 

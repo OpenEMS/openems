@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
@@ -10,9 +9,8 @@ import { Environment, environment } from "src/environments";
     templateUrl: "./help-button.html",
     standalone: true,
     imports: [
-        CommonModule,
-        IonicModule,
-    ],
+    IonicModule,
+],
 })
 export class HelpButtonComponent implements OnChanges {
 

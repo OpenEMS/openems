@@ -1,91 +1,104 @@
 <ion-grid class="ion-no-padding">
-    <ng-container *ngIf="props.imagePositionToLeft; else imageToPlaceBelow" class="ion-padding-bottom">
-        <ion-row class="ion-align-items-center">
-            <ion-col size="auto">
-                <ion-item lines="none">
-                    <img class="center-image" [src]="props.url">
-                </ion-item>
-            </ion-col>
+  @if (props.imagePositionToLeft) {
+    <ng-container class="ion-padding-bottom">
+      <ion-row class="ion-align-items-center">
+        <ion-col size="auto">
+          <ion-item lines="none">
+            <img class="center-image" [src]="props.url">
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-row>
             <ion-col>
-                <ion-row>
-                    <ion-col>
-                        <ion-item lines="none">
-                            <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
-                                (ionChange)="updateFormControl($event)">
-                                <span style="white-space:pre-wrap;">{{props.label}}</span>
-                            </ion-checkbox>
-                        </ion-item>
-                    </ion-col>
-                </ion-row>
-                <ion-row *ngIf="props.serialNumberField" class="ion-padding-top"
-                    [ngClass]="{'disabled-sub-field': serialNumberFormControl?.disabled}">
-                    <ion-col>
-                        <ion-item lines="none">
-                            <ion-label>
-                                {{ props.serialNumberField.label }}
-                                <span *ngIf="props.serialNumberField.required">*</span>
-                                <ng-container *ngIf="props.serialNumberField.helpText">
-                                    <ion-icon name="help-circle" id="sn-help-icon" class="help-icon">
-                                    </ion-icon>
-                                    <ion-popover trigger="sn-help-icon" triggerAction="hover" size="auto"
-                                        [dismissOnSelect]="true">
-                                        <ng-template>
-                                            <ion-content class="ion-padding">{{ props.serialNumberField.helpText
-                                                }}</ion-content>
-                                        </ng-template>
-                                    </ion-popover>
-                                </ng-container>
-                            </ion-label>
-                        </ion-item>
-                    </ion-col>
-                    <ion-col>
-                        <ion-item lines="none" class="ion-no-padding input-box" [ngStyle]="borderColor">
-                            <span *ngIf="props.serialNumberField.prefix" class="ion-padding-start">{{
-                                props.serialNumberField.prefix }}</span>
-                            <ion-input [formControl]="serialNumberFormControl" (ionFocus)="isSerialNumberFocused = true"
-                                (ionBlur)="isSerialNumberFocused = false"
-                                [placeholder]="props.serialNumberField.placeholder">
-                            </ion-input>
-                        </ion-item>
-                    </ion-col>
-                </ion-row>
-                <ion-row>
-                    <ion-col>
-                        <ion-item lines="none" *ngIf="formControl.hasError('serialNumberRequired')"
-                            class="ion-no-padding">
-                            <ion-text class="ion-font-size-smaller" color="danger">
-                                <formly-validation-message [field]="field"></formly-validation-message>
-                            </ion-text>
-                        </ion-item>
-                    </ion-col>
-                </ion-row>
+              <ion-item lines="none">
+                <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
+                  (ionChange)="updateFormControl($event)">
+                  <span style="white-space:pre-wrap;">{{props.label}}</span>
+                </ion-checkbox>
+              </ion-item>
             </ion-col>
-        </ion-row>
-    </ng-container>
-    <ng-template #imageToPlaceBelow>
-        <ion-card>
-            <ion-row>
-                <ion-col>
-                    <ion-item>
-                        <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
-                            (ionChange)="updateFormControl($event)" justify="space-between">
-                            <span style="white-space:pre-wrap;">{{props.label}}</span>
-                        </ion-checkbox>
-                    </ion-item>
-                </ion-col>
-            </ion-row>
-            <ion-row *ngIf="props.description && showContent()">
-                <ion-col>
-                    <ion-item [class.disabled]="props.disabled" lines="none" class="ion-padding-top">
-                        <ion-text style="white-space: pre-line;" [innerHTML]="props.description"></ion-text>
-                    </ion-item>
-                </ion-col>
-            </ion-row>
-            <ion-row class="ion-justify-content-center ion-padding-top" *ngIf="showContent()">
+          </ion-row>
+          @if (props.serialNumberField) {
+            <ion-row class="ion-padding-top"
+              [ngClass]="{'disabled-sub-field': serialNumberFormControl?.disabled}">
+              <ion-col>
                 <ion-item lines="none">
-                    <img class="center" [src]="props.url">
+                  <ion-label>
+                    {{ props.serialNumberField.label }}
+                    @if (props.serialNumberField.required) {
+                      <span>*</span>
+                    }
+                    @if (props.serialNumberField.helpText) {
+                      <ion-icon name="help-circle" id="sn-help-icon" class="help-icon">
+                      </ion-icon>
+                      <ion-popover trigger="sn-help-icon" triggerAction="hover" size="auto"
+                        [dismissOnSelect]="true">
+                        <ng-template>
+                          <ion-content class="ion-padding">{{ props.serialNumberField.helpText
+                          }}</ion-content>
+                        </ng-template>
+                      </ion-popover>
+                    }
+                  </ion-label>
                 </ion-item>
+              </ion-col>
+              <ion-col>
+                <ion-item lines="none" class="ion-no-padding input-box" [ngStyle]="borderColor">
+                  @if (props.serialNumberField.prefix) {
+                    <span class="ion-padding-start">{{
+                    props.serialNumberField.prefix }}</span>
+                  }
+                  <ion-input [formControl]="serialNumberFormControl" (ionFocus)="isSerialNumberFocused = true"
+                    (ionBlur)="isSerialNumberFocused = false"
+                    [placeholder]="props.serialNumberField.placeholder">
+                  </ion-input>
+                </ion-item>
+              </ion-col>
             </ion-row>
-        </ion-card>
-    </ng-template>
+          }
+          <ion-row>
+            <ion-col>
+              @if (formControl.hasError('serialNumberRequired')) {
+                <ion-item lines="none"
+                  class="ion-no-padding">
+                  <ion-text class="ion-font-size-smaller" color="danger">
+                    <formly-validation-message [field]="field"></formly-validation-message>
+                  </ion-text>
+                </ion-item>
+              }
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ng-container>
+  } @else {
+    <ion-card>
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
+              (ionChange)="updateFormControl($event)" justify="space-between">
+              <span style="white-space:pre-wrap;">{{props.label}}</span>
+            </ion-checkbox>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      @if (props.description && showContent()) {
+        <ion-row>
+          <ion-col>
+            <ion-item [class.disabled]="props.disabled" lines="none" class="ion-padding-top">
+              <ion-text style="white-space: pre-line;" [innerHTML]="props.description"></ion-text>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      }
+      @if (showContent()) {
+        <ion-row class="ion-justify-content-center ion-padding-top">
+          <ion-item lines="none">
+            <img class="center" [src]="props.url">
+          </ion-item>
+        </ion-row>
+      }
+    </ion-card>
+  }
 </ion-grid>

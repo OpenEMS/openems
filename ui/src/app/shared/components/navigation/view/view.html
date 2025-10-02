@@ -1,41 +1,43 @@
 <ion-header (ngDomChange)="onDomChange()">
-    <oe-navigation-breadcrumbs *ngIf="navigationService.position() === 'left'"
-        (navigate)="navigationService.navigateTo($event)"></oe-navigation-breadcrumbs>
-    <ng-content select="[header]"></ng-content>
+  @if (navigationService.position() === 'left') {
+    <oe-navigation-breadcrumbs
+    (navigate)="navigationService.navigateTo($event)"></oe-navigation-breadcrumbs>
+  }
+  <ng-content select="[header]"></ng-content>
 </ion-header>
-<ion-content style="font-size: 1em;" *ngIf="contentHeight !== null">
-
+@if (contentHeight !== null) {
+  <ion-content style="font-size: 1em;">
     <!-- If FromGroup is used -->
-    <form [formGroup]="formGroup" *ngIf="formGroup && contentHeight !== null"
+    @if (formGroup && contentHeight !== null) {
+      <form [formGroup]="formGroup"
         style="position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
         [style.height]="contentHeight + 'px'" class="ion-padding">
-
         <!-- For gap between header and content  -->
         <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
         <ng-container *ngTemplateOutlet="contentTpl">
         </ng-container>
-
         <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-        <ion-fab *ngIf="formGroup?.dirty" vertical="bottom" class="ion-padding-bottom"
+        @if (formGroup?.dirty) {
+          <ion-fab vertical="bottom" class="ion-padding-bottom"
             [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'" style="display: flex">
             <ion-fab-button (click)="applyChanges()">
-                <ion-icon size="large" name="checkmark-circle-outline">
-                </ion-icon>
+              <ion-icon size="large" name="checkmark-circle-outline">
+              </ion-icon>
             </ion-fab-button>
-        </ion-fab>
-    </form>
-
+          </ion-fab>
+        }
+      </form>
+    }
     <!-- If FormGroup not used -->
-    <ng-container *ngIf="!formGroup">
-        <div style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
-            [style.height]="contentHeight + 'px'">
-            <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-        </div>
-    </ng-container>
-
+    @if (!formGroup) {
+      <div style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
+        [style.height]="contentHeight + 'px'">
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+      </div>
+    }
     <!-- Workaround because multiple ng-content cant be used -->
     <ng-template #contentTpl>
-        <ng-content class="ion-padding"></ng-content>
+      <ng-content class="ion-padding"></ng-content>
     </ng-template>
-
-</ion-content>
+  </ion-content>
+}

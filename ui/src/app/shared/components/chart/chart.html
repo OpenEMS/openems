@@ -1,4 +1,4 @@
-<ng-container *ngIf="edge">
+@if (edge) {
   <ion-header>
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
       <ion-title style="color: var(--ion-title-color);">{{title}}</ion-title>
@@ -7,20 +7,24 @@
           <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
         </oe-flat-button>
       </ion-buttons>
-      <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="start" *ngIf="showPopover">
-        <ion-button (click)="presentPopover()">
-          <ion-icon name="options-outline" style="color: var(--ion-title-color);"></ion-icon>
-        </ion-button>
-      </ion-buttons>
+      @if (showPopover) {
+        <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="start">
+          <ion-button (click)="presentPopover()">
+            <ion-icon name="options-outline" style="color: var(--ion-title-color);"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      }
     </ion-toolbar>
     <ion-toolbar color="secondary">
       <ion-buttons class="ion-justify-content-center">
         <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-        <pickdate *ngIf="!ref.children.length"></pickdate>
+        @if (!ref.children.length) {
+          <pickdate></pickdate>
+        }
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
   <ion-content style="position: absolute;height: 87%; width: 100%;">
     <ng-content></ng-content>
   </ion-content>
-</ng-container>
+}
