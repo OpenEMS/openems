@@ -14,11 +14,13 @@ import { IndexComponent as ComponentInstallIndexComponent } from "./component/in
 import { ComponentInstallComponent } from "./component/install/install.component";
 import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/index.component";
 import { ComponentUpdateComponent } from "./component/update/update.component";
+import { JsonrpcTestModule } from "./jsonrpctest/jsonrpctest.module";
 import { SystemExecuteComponent } from "./systemexecute/systemexecute.component";
 
 @NgModule({
   imports: [
     AppModule,
+    JsonrpcTestModule,
     SharedModule,
     ChangelogComponent,
     ComponentsModule,

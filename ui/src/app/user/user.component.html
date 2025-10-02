@@ -158,18 +158,6 @@
           }
         </ion-select>
       </ion-item>
-      @if (environment.theme === 'FENECON') {
-        <ion-item id="theme-switcher" lines="none" class="page-content">
-          <ion-select #themeSelect (ionChange)="setTheme(themeSelect.value)" [value]="userTheme" interface="popover"
-            [interfaceOptions]="{ cssClass: 'custom-ion-popover' }" label="Theme">
-            @for (theme of themes; track theme) {
-              <ion-select-option [value]="theme.value">
-                {{ theme.key }}
-              </ion-select-option>
-            }
-          </ion-select>
-        </ion-item>
-      }
       @if (isAtLeastAdmin) {
         <ion-item lines="none">
           <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode
