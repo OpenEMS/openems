@@ -42,6 +42,7 @@ import { HistoryDataErrorModule } from "./components/history-data-error/history-
 import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
+import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
@@ -70,6 +71,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    PickdateComponentModule,
     BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,

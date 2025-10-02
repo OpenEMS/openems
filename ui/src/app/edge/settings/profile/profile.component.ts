@@ -5,6 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetLatestSetupProtocolCoreInfoRequest } from "src/app/shared/jsonrpc/request/getLatestSetupProtocolCoreInfoRequest";
@@ -32,6 +33,7 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
     RouterModule,
     LiveDataServiceProvider,
     LocaleProvider,
+    HelpButtonComponent,
   ],
 })
 export class ProfileComponent implements OnInit {
