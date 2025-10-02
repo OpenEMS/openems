@@ -9,7 +9,6 @@ import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 
-import { EdgeNotSetError } from "../errors.ts/errors";
 import { WebsocketInterface } from "../interface/websocketInterface";
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
@@ -21,6 +20,7 @@ import { AuthenticateWithTokenRequest } from "../jsonrpc/request/authenticateWit
 import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
 import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
+import { SubscribeChannelsRequest } from "../jsonrpc/request/subscribeChannelsRequest";
 import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
 import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
@@ -396,7 +396,9 @@ export class Websocket implements WebsocketInterface {
     const edge = this.service.currentEdge();
 
     if (edge == null) {
-      throw new EdgeNotSetError();
+      const unsubscribeFromChannelsRequest = new EdgeRpcRequest({ edgeId: edgeId, payload: new SubscribeChannelsRequest([]) });
+      this.sendRequest(unsubscribeFromChannelsRequest);
+      return;
     }
 
     if (edge.id !== edgeId) {
