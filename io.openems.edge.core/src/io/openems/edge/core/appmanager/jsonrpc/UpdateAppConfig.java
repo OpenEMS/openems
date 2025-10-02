@@ -4,7 +4,6 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
