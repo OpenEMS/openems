@@ -49,16 +49,16 @@
               (click)="presentSingleStatusModal()" *ngIf="sum.state !== null" fill="solid" shape="round">
               <ng-container [ngSwitch]="sum.state">
                 <ion-icon *ngSwitchCase="0" color="success"
-                  style="font-size: 20px; filter: drop-shadow(0 1px 1px var(--ion-color-success));"
+                  style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
                   name="checkmark-circle-outline"></ion-icon>
                 <ion-icon *ngSwitchCase="1" color="success"
-                  style="font-size: 20px; filter: drop-shadow(0 1px 1px var(--ion-color-success));"
+                  style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
                   [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"
                   size="medium"></ion-icon>
-                <ion-icon *ngSwitchCase="2" color="warning" name="alert-outline"
-                  style="font-size: 20px; filter: drop-shadow(0 1px 1px var(--ion-color-warning));"></ion-icon>
+                <ion-icon *ngSwitchCase="2" color="warning" name="warning-outline"
+                  style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"></ion-icon>
                 <ion-icon *ngSwitchCase="3" color="danger" name="alert-circle-outline"
-                  style="font-size: 20px; filter: drop-shadow(0 1px 1px var(--ion-color-danger));"></ion-icon>
+                  style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-danger));"></ion-icon>
               </ng-container>
             </ion-button>
           </ng-container>

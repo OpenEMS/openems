@@ -29,7 +29,7 @@ export enum SumState {
           <ng-container [ngSwitch]="sumState" class="sum-state-icon">
             <ion-icon *ngSwitchCase="SUM_STATE.OK" color="success" name="checkmark-circle-outline"></ion-icon>
             <ion-icon *ngSwitchCase="SUM_STATE.INFO" color="success" name="information-circle-outline"></ion-icon>
-            <ion-icon *ngSwitchCase="SUM_STATE.WARNING" color="warning" name="alert-circle-outline"></ion-icon>
+            <ion-icon *ngSwitchCase="SUM_STATE.WARNING" color="warning" name="warning-outline"></ion-icon>
             <ion-icon *ngSwitchCase="SUM_STATE.FAULT" color="danger" name="alert-circle-outline"></ion-icon>
             <ion-icon *ngSwitchDefault color="primary" name="play-outline"></ion-icon>
           </ng-container>
