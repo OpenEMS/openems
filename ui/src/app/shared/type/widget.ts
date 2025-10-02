@@ -139,15 +139,15 @@ export class Widgets {
             }
         }
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
-            // Widget should be shown only when readonly property is set to true
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
+                const component = config.getComponent(componentId);
                 if (factory === "Controller.Clever-PV") {
-                    const value = config.getComponentProperties(componentId)["readOnly"];
-                    if (value === true || value === undefined || value === null) {
+                    // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
+                    const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
+                    if (readOnly !== false) {
                         continue;
                     }
                 }
-                const component = config.getComponent(componentId);
                 if (component.isEnabled) {
                     list.push({ name: factory, componentId: componentId, alias: component.alias });
                 }
