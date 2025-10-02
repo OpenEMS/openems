@@ -13,7 +13,7 @@
             </ion-item>
         </ion-col>
         <ion-col size="12" size-md="6">
-            <ion-item lines="none" class="ion-no-padding input-box" [ngClass]="{'input-box': props.boxBorder}"
+            <ion-item lines="none" class="ion-no-padding input-box-wrapper" [ngClass]="{'input-box': props.boxBorder}"
                 [ngStyle]="borderBottomColor">
                 <span *ngIf="to.prefix" [style.color]="'var(--ion-color-text)'">{{to.prefix}}</span>
                 <ion-input [formControl]="formControl" (ionFocus)="setFocus(true)" (ionBlur)="setFocus(false)"

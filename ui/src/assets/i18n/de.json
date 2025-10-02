@@ -824,7 +824,8 @@
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
       "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt.",
-      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat"
+      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat",
+      "STS_SERIAL_NUMBER_REQUIREMENT": "Die Seriennummer wird benötigt, wenn eine STS-Box vorhanden ist."
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",
@@ -857,13 +858,15 @@
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Einspeisemanagement",
+      "NO_LIMITATION": "Kein Limitierung",
       "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
       "DYNAMIC_LIMITATION_WITH_RIPPLE_CONTROLLER": "Dynamische Begrenzung der Einspeisung & Rundsteuerempfänger",
       "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Wert der dynamischen Begrenzung (max Einspeisewert, z.B. 60 % der kWp) [W]",
       "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an",
       "INFO_TEXT": "Ihr Energiespeicher versucht durch intelligentes Laden, eine Abregelung der PV-Anlage zu vermeiden.",
-      "WARNING_TEXT": "Dies ersetzt nicht die ordnungsgemäße Konfiguration des PV-Wechselrichters!"
+      "WARNING_TEXT": "Dies ersetzt nicht die ordnungsgemäße Konfiguration des PV-Wechselrichters!",
+      "DYNAMIC_LIMITATION_TYPE": "Einspeiselimitierung",
+      "EXTERNAL_LIMITATION_TYPE": "Externe Limitierung"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -949,8 +952,8 @@
       "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
       "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
-      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
-      "DOUBLE_SOCKET": "Doppelsockel"
+      "DOUBLE_SOCKET_LABEL": "Splitsockel verbaut",
+      "DOUBLE_SOCKET": "Splitsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -986,7 +989,8 @@
         "TYPE": {
           "STANDARD": "Standardlieferumfang",
           "OPTIONAL": "Optional"
-        }
+        },
+        "WITHOUT_CT_STANDARD_DELIVERY": "3-Phasensensor ohne Stromwandler (Standardlieferumfang)"
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
@@ -1069,6 +1073,11 @@
     "CONFIGURATION_PROTOCOL_COMMERCIAL_CLUSTER": {
       "SLAVE_COUNT_TITLE": "Informationen zur Anzahl der Slaves",
       "SLAVE_INSTALLATION_TITLE": "Installation einzelner Speichereinheiten (Slaves)"
+    },
+    "CONFIGURATION_STS_BOX": {
+      "HELP_TEXT": "Die Seriennummer der STS-Box befindet sich auf dem Typenschild seitlich der STS-Box",
+      "STS_BOX_AVAILABLE": "Ist eine STS-Box für Notstromfähigkeit installiert:",
+      "LABEL": "STS Box"
     },
     "SHARED": {
       "NOTE": "Hinweis",

@@ -7,6 +7,10 @@ import { FormlyUtils } from "./formly-utils";
     templateUrl: "./input-serial-number-wrapper.html",
     standalone: false,
     styles: [`
+        .input-box-wrapper {
+            border-bottom: 1px solid var(--ion-color-dark);
+        }
+
         .input-box {
             border: 1px solid var(--ion-color-dark);
             border-bottom: 1px solid var(--ion-color-dark);

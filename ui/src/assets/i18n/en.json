@@ -800,7 +800,8 @@
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
       "POSITIVE_INTEGER": "Only positive integer numbers are allowed.",
-      "INVALID_ZIPCODE": "Invalid zip code format"
+      "INVALID_ZIPCODE": "Invalid zip code format",
+      "STS_SERIAL_NUMBER_REQUIREMENT": "The serial number is required if an STS box is present."
     },
     "FORWARD": "continue",
     "LOAD": "load",
@@ -839,7 +840,9 @@
       "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Value of the dynamic limitation (max feed-in value, e.g. 60% of kWp) [W]",
       "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'",
       "INFO_TEXT": "Your energy storage system attempts to avoid curtailing the PV system through intelligent charging.",
-      "WARNING_TEXT": "This does not replace the proper configuration of the PV inverter!"
+      "WARNING_TEXT": "This does not replace the proper configuration of the PV inverter!",
+      "DYNAMIC_LIMITATION_TYPE": "Feed-in limitation",
+      "EXTERNAL_LIMITATION_TYPE": "External Limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -925,8 +928,8 @@
       "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
       "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes.",
-      "DOUBLE_SOCKET_LABEL": "Installed in the double socket",
-      "DOUBLE_SOCKET": "Double socket"
+      "DOUBLE_SOCKET_LABEL": "Split socket installed",
+      "DOUBLE_SOCKET": "Split socket"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -957,7 +960,13 @@
       "METER": {
         "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
         "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
-        "LABEL": "Meter"
+        "LABEL": "Meter",
+        "INTEGRATED": "Integrated Home 3 phase sensor with current transformer ({{type}})",
+        "TYPE": {
+          "STANDARD": "standard scope of delivery",
+          "OPTIONAL": "Optional"
+        },
+        "WITHOUT_CT_STANDARD_DELIVERY": "3-phase sensor without current transformer (Standard delivery)"
       },
       "CONVERTER_RATIO": "Converter ratio (200–5000A)"
     },
@@ -1040,6 +1049,11 @@
     "CONFIGURATION_PROTOCOL_COMMERCIAL_CLUSTER": {
       "SLAVE_COUNT_TITLE": "Information about the number of slaves",
       "SLAVE_INSTALLATION_TITLE": "Installation of individual storage units (slaves)"
+    },
+    "CONFIGURATION_STS_BOX": {
+      "HELP_TEXT": "The serial number of the STS box is located on the type plate on the side of the STS box",
+      "STS_BOX_AVAILABLE": "Is an STS box installed for emergency power capability:",
+      "LABEL": "STS Box"
     },
     "SHARED": {
       "NOTE": "Note",
