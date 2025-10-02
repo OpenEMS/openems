@@ -39,6 +39,7 @@ import { RepeatTypeComponent } from "./components/formly/repeat";
 import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
+import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
@@ -167,6 +168,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
+    ModalComponentsModule,
     BaseChartDirective,
     NgxSpinnerModule,
     PercentageBarComponent,
