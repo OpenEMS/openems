@@ -16,6 +16,3 @@ Bundle-Version: 1.0.0.${tstamp}
 	${testpath},\
 	io.openems.edge.common,\
 	io.openems.edge.predictor.api,\
-	org.mockito.mockito-core,\
-	net.bytebuddy.byte-buddy,\
-    org.objenesis,\

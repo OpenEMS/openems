@@ -116,7 +116,7 @@ public interface PredictorProductionLinearModel extends Predictor, OpenemsCompon
 				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Forecasted production power from the linear prediction model realized at the predicted time (predicted 36h ago).")),
-		
+
 		;
 
 		private final Doc doc;

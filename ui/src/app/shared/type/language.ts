@@ -147,4 +147,13 @@ export class Language {
         }
         return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
     }
+
+    /**
+     * Gets the i18n locale key without passed key
+     *
+     * @returns the i18n locale key
+     */
+    public static getCurrentLanguage() {
+        return Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT;
+    }
 }

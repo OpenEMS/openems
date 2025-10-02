@@ -13,6 +13,7 @@ import { Common_Production } from "./common/production/Common_Production";
 import { Common_Selfconsumption } from "./common/selfconsumption/Common_Selfconsumption";
 import { StorageModalComponent } from "./common/storage/modal/modal.component";
 import { StorageComponent } from "./common/storage/storage.component";
+import { WeatherModule } from "./common/weather/weather.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
 import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
 import { Controller_ChpSocModalComponent } from "./Controller/ChpSoc/modal/modal.component";
@@ -69,6 +70,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     ControllerIoFixDigitalOutput,
     EdgeOfflineModule,
     EnergymonitorModule,
+    WeatherModule,
     ModalModule,
     SharedModule,
     PullToRefreshComponent,

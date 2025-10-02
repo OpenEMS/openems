@@ -6,6 +6,7 @@ import { de } from "date-fns/locale";
 import { ChronoUnit } from "src/app/edge/history/shared";
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
+import { Language } from "../../type/language";
 import { DateUtils } from "../date/dateutils";
 
 export const DATE_TIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/;
@@ -108,5 +109,20 @@ export class DateTimeUtils {
       throw new Error(DateTimeUtils.INVALID_DATE_TIME_STRING);
     }
     return new TZDate(datetime, timeZone).toISOString();
+  }
+
+  /**
+   * Formats the given date to display only the hour, respecting the 12-hour or 24-hour
+   * format based on the given language. If the selected language typically uses a suffix
+   * for hours (e.g., "Uhr" in German), it will be included automatically by the formatter.
+   *
+   * @param date - The date to format.
+   * @param language - The selected language containing locale information.
+   * @returns The formatted hour string (e.g., "8 PM" in English, "20 Uhr" in German).
+   */
+  public static formatHour(date: Date, language: Language): string {
+    return new Intl.DateTimeFormat(language.i18nLocaleKey, {
+      hour: "numeric",
+    }).format(date);
   }
 }
