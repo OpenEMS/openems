@@ -8,7 +8,7 @@ docker build -t openems-bash:latest -f - . <<EOF
 FROM bash:latest
 
 RUN apk update \
-        && apk add --no-cache bash nodejs git wget curl unzip xz
+        && apk add --no-cache bash nodejs git wget curl unzip xz shellcheck
 
 # Add simple cmd to cp and create destination directory
 RUN echo "mkdir -p \$(dirname \"\${@: -1}\") && cp \$@" > /usr/bin/copy \

@@ -143,9 +143,20 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 
 	@Override
 	public ChargePointAbilities getChargePointAbilities() {
+		if (this.isReadOnly()) {
+			return ChargePointAbilities.create()//
+					.build();
+		}
+
+		final var isEvConnected = switch (this.getChargePointStatus()) {
+		case UNDEFINED, A, E, F -> false;
+		case B, C, D -> true;
+		};
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
-				.setIsReadyForCharging(this.getIsReadyForCharging()).build();
+				.setIsEvConnected(isEvConnected) //
+				.setIsReadyForCharging(this.getIsReadyForCharging()) //
+				.build();
 	}
 
 	@Override
@@ -166,7 +177,6 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 
 	@Override
 	public boolean isReadOnly() {
-		// TODO implement read-only
-		return false;
+		return this.config.readOnly();
 	}
 }

@@ -15,18 +15,20 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
@@ -37,9 +39,8 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.predictor.production.linearmodel.PredictorProductionLinearModelImpl.LocalConfig;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 import io.openems.edge.weather.api.Weather;
-import io.openems.edge.weather.api.WeatherData;
-import io.openems.edge.weather.api.WeatherSnapshot;
 
 public class ModelFitRunnable implements Runnable {
 
@@ -95,7 +96,7 @@ public class ModelFitRunnable implements Runnable {
 	}
 
 	private TrainingData fetchTrainingData(ZonedDateTime from, ZonedDateTime to) throws Exception {
-		final WeatherData weatherData;
+		final List<QuarterlyWeatherSnapshot> weatherData;
 		try {
 			weatherData = this.fetchHistoricalWeatherData(from, to);
 		} catch (Exception e) {
@@ -115,11 +116,11 @@ public class ModelFitRunnable implements Runnable {
 		return new TrainingData(retained.getFirst(), retained.getSecond());
 	}
 
-	private WeatherData fetchHistoricalWeatherData(ZonedDateTime from, ZonedDateTime to)
+	private List<QuarterlyWeatherSnapshot> fetchHistoricalWeatherData(ZonedDateTime from, ZonedDateTime to)
 			throws InterruptedException, ExecutionException, OpenemsException {
-		var weatherData = this.weather.getHistoricalWeather(from, to).get();
+		var weatherData = this.weather.getHistoricalWeather(from.toLocalDate(), to.toLocalDate(), from.getZone()).get();
 
-		if (weatherData == null || WeatherData.EMPTY_WEATHER_DATA.equals(weatherData)) {
+		if (weatherData == null || weatherData.isEmpty()) {
 			throw new OpenemsException("Weather data is null or empty");
 		}
 
@@ -190,20 +191,26 @@ public class ModelFitRunnable implements Runnable {
 		}
 	}
 
-	private static Pair<WeatherData, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>> retainCommonTimestamps(
-			WeatherData weatherData, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> productionData) {
-		var commonTimestamps = new HashSet<>(weatherData.toMap().keySet());
+	private static Pair<List<QuarterlyWeatherSnapshot>, SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>> retainCommonTimestamps(
+			List<QuarterlyWeatherSnapshot> weatherData,
+			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> productionData) {
+		var weatherMap = weatherData.stream()//
+				.collect(Collectors.toMap(//
+						QuarterlyWeatherSnapshot::datetime, //
+						Function.identity(), //
+						(first, duplicate) -> first));
+
+		var commonTimestamps = new TreeSet<>(weatherMap.keySet());
 		commonTimestamps.retainAll(productionData.keySet());
 
-		var retainedWeatherDataBuilder = ImmutableSortedMap.<ZonedDateTime, WeatherSnapshot>naturalOrder();
+		var retainedWeather = commonTimestamps.stream()//
+				.map(weatherMap::get)//
+				.toList();
+
 		var retainedProduction = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
+		commonTimestamps.forEach(ts -> retainedProduction.put(ts, productionData.get(ts)));
 
-		for (var timestamp : commonTimestamps) {
-			retainedWeatherDataBuilder.put(timestamp, weatherData.getAt(timestamp));
-			retainedProduction.put(timestamp, productionData.get(timestamp));
-		}
-
-		return new Pair<>(WeatherData.from(retainedWeatherDataBuilder.build()), retainedProduction);
+		return new Pair<>(retainedWeather, retainedProduction);
 	}
 
 	private static double[] getTargetVector(
@@ -288,7 +295,7 @@ public class ModelFitRunnable implements Runnable {
 		return new WeightedData(weightedFeatures, weightedTargets);
 	}
 
-	private record TrainingData(WeatherData weatherData,
+	private record TrainingData(List<QuarterlyWeatherSnapshot> weatherData,
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> productionData) {
 	}
 

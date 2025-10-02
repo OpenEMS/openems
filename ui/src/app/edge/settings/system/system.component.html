@@ -2,147 +2,155 @@
   <ion-grid>
     <ion-row class="ion-justify-content-center">
 
-      <ion-col size="12" size-sm="8" *ngIf="canSeeSystemRestart">
-        <oe-maintenance></oe-maintenance>
-      </ion-col>
-
+      @if (canSeeSystemRestart) {
+        <ion-col size="12" size-sm="8">
+          <oe-maintenance></oe-maintenance>
+        </ion-col>
+      }
       <ion-col size="12" size-sm="8">
         <ion-card>
           <ngx-spinner [name]="spinnerId"></ngx-spinner>
-          <ng-container *ngIf="edge">
+          @if (edge) {
             <ion-item color="light">
               <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
               <ion-label>
                 <span>{{ 'Edge.Index.SYSTEMUPDATE'| translate}}</span>
-                <span *ngIf="environment.backend === 'OpenEMS Backend'"> {{ 'General.FOR' | translate }}
+                @if (environment.backend === 'OpenEMS Backend') {
+                  <span> {{ 'General.FOR' | translate }}
                   {{ edge.id }}</span>
+                }
               </ion-label>
             </ion-item>
             <ion-card-content>
               <oe-system-update [edge]="edge"></oe-system-update>
             </ion-card-content>
-          </ng-container>
+          }
         </ion-card>
 
         @if (canSeeAdditionalUpdates && updateables.length !== 0) {
-        <ion-item-divider>
-          <ion-label translate>General.VISIBLE_FOR_ADMINS_ONLY</ion-label>
-        </ion-item-divider>
-        @for (updateableState of updateables; track updateableState.updateable.id) {
-        <ion-card>
-          <ion-item color="light">
-            <ion-label>
-              {{ updateableState.updateable.name }}
-            </ion-label>
-          </ion-item>
-          <ion-card-content>
-            {{ updateableState.updateable.description }}
-            @switch (updateableState.updateState?.type) {
-            @case ("unknown") {
-            <!-- Update State is unknown  -->
-            <ion-item lines="none">
-              <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_SEARCH'| translate}}</ion-label>
-            </ion-item>
-            }
-            @case ("updated") {
-            <!-- Latest update is installed -->
-            <ion-grid>
-              <ion-row>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
-                  </ion-item>
-                </ion-col>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.version }}</ion-label>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col size="12">
-                  <ion-item lines="none">
-                    <ion-label color="success" class="ion-text-wrap">
-                      {{ 'SETTINGS.SYSTEM_UPDATE.LATEST_VERISON'| translate}}
-                    </ion-label>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-            }
-            @case ("available") {
-            <!-- Update is available -->
-            <ion-grid>
-              <ion-row>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
-                  </ion-item>
-                </ion-col>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.currentVersion }}</ion-label>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION'| translate}}</ion-label>
-                  </ion-item>
-                </ion-col>
-                <ion-col>
-                  <ion-item lines="none">
-                    <ion-label>{{ updateableState.updateState.latestVersion }}</ion-label>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col></ion-col>
-                <ion-col>
-                  <ion-item lines="none" class="ion-float-right">
-                    <ion-button (click)="executeUpdate(updateableState)">
-                      {{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate }}
-                    </ion-button>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-            }
-            @case ("running") {
-            <!-- Update is running -->
-            <ion-item lines="none">
-              <ion-label>
-                {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS'| translate}}
-                <br />
-                {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}
-              </ion-label>
-            </ion-item>
-            <ion-item lines="none">
-              <percentagebar [value]="updateableState.updateState.percentCompleted"></percentagebar>
-            </ion-item>
-            <!-- Debug Logs -->
-            @if (environment.debugMode && updateableState.updateState.logs.length > 0) {
-            <div>
-              <p style="cursor: pointer" (click)="showLog = !showLog">
-                <ion-icon *ngIf="!showLog" name="arrow-down-circle-outline">
-                </ion-icon>
-                <ion-icon *ngIf="showLog" name="arrow-up-circle-outline">
-                </ion-icon>
-                <span>&nbsp;Details</span>
-              </p>
-              @if (showLog) {
-              @for (log of updateableState.updateState.logs; track $index) {
-              <small>{{ log }}</small><br />
-              }
-              }
-            </div>
-            }
-            }
-            }
-          </ion-card-content>
-        </ion-card>
-        }
+          <ion-item-divider>
+            <ion-label>{{"General.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
+          </ion-item-divider>
+          @for (updateableState of updateables; track updateableState.updateable.id) {
+            <ion-card>
+              <ion-item color="light">
+                <ion-label>
+                  {{ updateableState.updateable.name }}
+                </ion-label>
+              </ion-item>
+              <ion-card-content>
+                {{ updateableState.updateable.description }}
+                @switch (updateableState.updateState?.type) {
+                  @case ("unknown") {
+                    <!-- Update State is unknown  -->
+                    <ion-item lines="none">
+                      <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_SEARCH'| translate}}</ion-label>
+                    </ion-item>
+                  }
+                  @case ("updated") {
+                    <!-- Latest update is installed -->
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ updateableState.updateState.version }}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col size="12">
+                          <ion-item lines="none">
+                            <ion-label color="success" class="ion-text-wrap">
+                              {{ 'SETTINGS.SYSTEM_UPDATE.LATEST_VERISON'| translate}}
+                            </ion-label>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  }
+                  @case ("available") {
+                    <!-- Update is available -->
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.INSTALLED_VERSION'| translate}}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ updateableState.updateState.currentVersion }}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION'| translate}}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col>
+                          <ion-item lines="none">
+                            <ion-label>{{ updateableState.updateState.latestVersion }}</ion-label>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col></ion-col>
+                        <ion-col>
+                          <ion-item lines="none" class="ion-float-right">
+                            <ion-button (click)="executeUpdate(updateableState)">
+                              {{ 'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate }}
+                            </ion-button>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  }
+                  @case ("running") {
+                    <!-- Update is running -->
+                    <ion-item lines="none">
+                      <ion-label>
+                        {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS'| translate}}
+                        <br />
+                        {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}
+                      </ion-label>
+                    </ion-item>
+                    <ion-item lines="none">
+                      <oe-flat-widget-percentagebar
+                      [value]="updateableState.updateState.percentCompleted"></oe-flat-widget-percentagebar>
+                    </ion-item>
+                    <!-- Debug Logs -->
+                    @if (environment.debugMode && updateableState.updateState.logs.length > 0) {
+                      <div>
+                        <p style="cursor: pointer" (keydown.enter)="showLog = !showLog" (click)="showLog = !showLog">
+                          @if (!showLog) {
+                            <ion-icon name="arrow-down-circle-outline">
+                            </ion-icon>
+                          }
+                          @if (showLog) {
+                            <ion-icon name="arrow-up-circle-outline">
+                            </ion-icon>
+                          }
+                          <span>&nbsp;Details</span>
+                        </p>
+                        @if (showLog) {
+                          @for (log of updateableState.updateState.logs; track $index) {
+                            <small>{{ log }}</small><br />
+                          }
+                        }
+                      </div>
+                    }
+                  }
+                }
+              </ion-card-content>
+            </ion-card>
+          }
         }
       </ion-col>
     </ion-row>

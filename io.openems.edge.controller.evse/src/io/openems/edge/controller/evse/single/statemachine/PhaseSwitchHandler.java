@@ -65,10 +65,9 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<State, Cont
 				yield PhaseSwitchSubState.PHASE_SWITCH;
 			}
 
-			context.apply(Profile.ChargePointActions.copy(context.actions) //
+			context.applyAdjustedActions(b -> b //
 					.setApplyZeroSetPoint() //
-					.setPhaseSwitch(null) //
-					.build());
+					.setPhaseSwitch(null));
 			yield PhaseSwitchSubState.STOP_CHARGE;
 		}
 
@@ -82,17 +81,15 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<State, Cont
 				yield PhaseSwitchSubState.START_CHARGE;
 			}
 
-			context.apply(Profile.ChargePointActions.copy(context.actions) //
+			context.applyAdjustedActions(b -> b //
 					.setApplyZeroSetPoint() //
-					.setPhaseSwitch(this.action) //
-					.build());
+					.setPhaseSwitch(this.action));
 			yield PhaseSwitchSubState.PHASE_SWITCH;
 		}
 
 		case START_CHARGE -> {
-			context.apply(Profile.ChargePointActions.copy(context.actions) //
-					.setPhaseSwitch(null) //
-					.build());
+			context.applyAdjustedActions(b -> b //
+					.setPhaseSwitch(null));
 			yield PhaseSwitchSubState.FINISHED;
 		}
 

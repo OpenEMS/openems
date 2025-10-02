@@ -280,7 +280,7 @@ export namespace OeFormlyField {
     value: (data: CurrentData) => string,
     channelsToSubscribe: ChannelAddress[],
     indentation?: TextIndentation,
-    filter?: (value: number[] | null) => boolean,
+    filter?: (currentData: CurrentData) => boolean,
   };
 
   export type ButtonsFromFormControlLine = {

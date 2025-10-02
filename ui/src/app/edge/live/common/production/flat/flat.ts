@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { EdgeConfig, Utils } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
 
@@ -13,6 +14,9 @@ export class FlatComponent extends AbstractFlatWidget {
     public productionMeterComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    protected get modalComponent(): Modal {
+        return { component: ModalComponent };
+    };
 
     async presentModal() {
         const modal = await this.modalController.create({

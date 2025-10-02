@@ -1,6 +1,7 @@
 package io.openems.edge.app.evse;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import java.util.Arrays;
 
@@ -39,7 +40,7 @@ public class EvseProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> wiring() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.wiring.label") //
-				.setDefaultValue(Wiring.SINGLE_PHASE) //
+				.setDefaultValue(Wiring.THREE_PHASE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Wiring.optionsFactory(), l);
 				}));
@@ -80,5 +81,15 @@ public class EvseProps {
 				.setTranslatedDescription("App.Evse.readOnly.description") //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 				.setDefaultValue(false);
+	}
+	
+	/**
+	 * Creates a {@link AppDef} for configuring the unit id of the charging station.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> unitId() {
+		return AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+				.setDefaultValue(255)); //
 	}
 }

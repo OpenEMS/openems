@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { format, isBefore } from "date-fns";
+import { Language } from "../../type/language";
 
 export namespace DateUtils {
 
@@ -43,7 +44,10 @@ export namespace DateUtils {
    * @param date the date
    * @returns the date if valid, else null
    */
-  export function stringToDate(date: string): Date | null {
+  export function stringToDate(date: string | null): Date | null {
+    if (date == null) {
+      return null;
+    }
     return isNaN(new Date(date)?.getTime()) ? null : new Date(date);
   }
 
@@ -122,5 +126,34 @@ export namespace DateUtils {
       return null;
     }
     return format(fromDate, translate.instant("General.dateFormat")) + " - " + format(toDate, translate.instant("General.dateFormat"));
+  }
+
+  /**
+   * Formats the given date to return the abbreviated weekday name
+   * according to the specified language's locale rules.
+   *
+   * @param date the date to format
+   * @param language the selected language containing locale information
+   * @returns the abbreviated weekday string (e.g., "Mo" in German, "Mon" in English)
+   */
+  export function formatWeekday(date: Date, language: Language): string {
+    return new Intl.DateTimeFormat(language.i18nLocaleKey, {
+      weekday: "short",
+    }).format(date);
+  }
+
+  /**
+   * Formats the given date to return the day and month in two-digit format,
+   * following the conventions of the provided language's locale.
+   *
+   * @param date the date to format
+   * @param language the selected language containing locale information
+   * @returns the formatted day and month string (e.g., "14.08." in German, "08/14" in English)
+   */
+  export function formatDayMonth(date: Date, language: Language): string {
+    return new Intl.DateTimeFormat(language.i18nLocaleKey, {
+      day: "2-digit",
+      month: "2-digit",
+    }).format(date);
   }
 }

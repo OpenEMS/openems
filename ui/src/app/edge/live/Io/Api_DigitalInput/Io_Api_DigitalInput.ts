@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { EdgeConfig } from "src/app/shared/shared";
 
 import { Io_Api_DigitalInput_ModalComponent } from "./modal/modal.component";
@@ -14,6 +15,16 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
 
     public ioComponents: EdgeConfig.Component[] | null = null;
     public ioComponentCount = 0;
+
+    protected get modalComponent(): Modal {
+        return {
+            component: Io_Api_DigitalInput_ModalComponent,
+            componentProps: {
+                ioComponents: this.ioComponents,
+                edge: this.edge,
+            },
+        };
+    }
 
     async presentModal() {
         const modal = await this.modalController.create({

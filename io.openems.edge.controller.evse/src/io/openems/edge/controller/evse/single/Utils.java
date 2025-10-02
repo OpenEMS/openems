@@ -75,7 +75,7 @@ public final class Utils {
 		};
 	}
 
-	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
+	protected static boolean isSessionLimitReached(Mode mode, Integer energy, int limit) {
 		if (mode == Mode.SMART) {
 			return false;
 		}

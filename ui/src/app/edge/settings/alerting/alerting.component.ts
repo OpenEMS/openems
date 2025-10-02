@@ -1,11 +1,9 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { Component, LOCALE_ID, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, FormsModule, Validators } from "@angular/forms";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { IonicModule } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyFormOptions, FormlyModule } from "@ngx-formly/core";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { Subscription } from "rxjs";
 import tr from "src/app/edge/settings/alerting/shared/translation.json";
@@ -14,12 +12,14 @@ import { GetUserAlertingConfigsRequest } from "src/app/shared/jsonrpc/request/ge
 import { SetUserAlertingConfigsRequest, UserSettingRequest } from "src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest";
 import { AlertingSettingResponse, GetUserAlertingConfigsResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
 import { User } from "src/app/shared/jsonrpc/shared";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { currentUserRows, otherUserRows } from "./formly/formly-alerting-configs";
 
 export enum AlertingType {
@@ -39,16 +39,11 @@ type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isF
   templateUrl: "./alerting.component.html",
   standalone: true,
   imports: [
-    CommonModule,
+    CommonUiModule,
+    LocaleProvider,
+    HelpButtonComponent,
     NgxSpinnerModule,
     FormlyModule,
-    TranslateModule,
-    IonicModule,
-    HelpButtonComponent,
-    FormsModule,
-  ],
-  providers: [
-    { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
   ],
 })
 export class AlertingComponent implements OnInit, OnDestroy {

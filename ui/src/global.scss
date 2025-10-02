@@ -25,6 +25,7 @@
 @use "node_modules/@ionic/angular/css/text-alignment.css" as *;
 @use "node_modules/@ionic/angular/css/text-transformation.css" as *;
 @use "node_modules/@ionic/angular/css/typography.css" as *;
+
 /* ngx-spinner */
 @use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
 @use "./environments/index.scss" as *;
@@ -359,12 +360,6 @@ ion-checkbox {
     font-family: $font-family;
 }
 
-// 360px is approximate min. width of mobile devices
-ion-toast.container {
-    text-align: center;
-    --min-width: 360px;
-}
-
 .no-scroll {
     overflow-y: hidden;
     overflow-x: hidden;
@@ -495,19 +490,27 @@ formly-input-section {
     }
 
     ion-toggle {
-        --track-background: var(--ion-color-toggle-background);
-        --handle-background: var(--ion-color-toggle-unchecked-handle);
-        --handle-background-checked: white;
-        --track-background-checked: var(--ion-color-primary);
-        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
         padding: 0.8em;
         padding-right: 0.2em;
         padding-left: 0.2em;
         overflow: visible;
-        scale: 0.95;
+
+        --track-background: var(--ion-color-toggle-background);
+        --track-background-checked: var(--ion-color-primary);
+
+        --handle-width: 1.5rem;
+        --handle-height: 1.5rem;
+        --handle-max-width: 1.5rem;
+        --handle-max-height: 1.5rem;
+        --handle-min-width: 1.5rem;
+        --handle-min-height: 1.5rem;
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
     }
 
     ion-toggle::part(handle) {
+        box-sizing: border-box !important;
         border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
     }
 
@@ -532,6 +535,23 @@ formly-input-section {
 
     ion-buttons {
         color: var(--ion-color-toggle-background) !important;
+    }
+
+    // Accessibility 2.1.2
+    .oe-focused {
+        border: 0.1em solid var(--ion-color-dark);
+        outline: var(--ion-focus-outline-width) solid var(--ion-focus-outline-color);
+        outline-offset: var(--ion-focus-outline-offset);
+    }
+
+    ion-button.ion-focused,
+    ion-segment-button.ion-focused,
+    ion-toggle.ion-focused,
+    ion-item.ion-focused,
+    ion-input.ion-focused,
+    ion-chip:focus-within,
+    ion-toggle:focus-within {
+        @extend .oe-focused;
     }
 }
 

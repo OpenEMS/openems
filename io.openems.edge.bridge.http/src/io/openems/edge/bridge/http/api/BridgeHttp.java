@@ -154,6 +154,28 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	}
 
 	/**
+	 * Fetches the url once with {@link HttpMethod#POST}.
+	 *
+	 * @param url  the url to fetch
+	 * @param body the request body to send
+	 * @return the result response future
+	 */
+	public default CompletableFuture<HttpResponse<String>> postAsJson(String url, JsonElement body) {
+		var map = Map.of(//
+				"Content-Type", "application/json");
+
+		final var endpoint = new Endpoint(//
+				url, //
+				HttpMethod.POST, //
+				DEFAULT_CONNECT_TIMEOUT, //
+				DEFAULT_READ_TIMEOUT, //
+				body.toString(), //
+				map //
+		);
+		return this.request(endpoint);
+	}
+
+	/**
 	 * Fetches the url once with {@link HttpMethod#POST} and expects the result to
 	 * be in json format.
 	 * 
@@ -162,7 +184,7 @@ public interface BridgeHttp extends BridgeHttpCycle, BridgeHttpTime {
 	 * @return the result response future
 	 */
 	public default CompletableFuture<HttpResponse<JsonElement>> postJson(String url, JsonElement body) {
-		return mapFuture(this.post(url, body.toString()), BridgeHttp::mapToJson);
+		return mapFuture(this.postAsJson(url, body), BridgeHttp::mapToJson);
 	}
 
 	/**

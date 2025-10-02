@@ -1,11 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
-import { TranslateModule } from "@ngx-translate/core";
 
+import { TranslateModule } from "@ngx-translate/core";
 import { PipeComponentsModule } from "../../pipe/pipe.module";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { HelpButtonComponent } from "./help-button/help-button";
@@ -20,7 +19,7 @@ import { ModalValueLineComponent } from "./modal-value-line/modal-value-line";
 import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-horizontal-line";
 
 @NgModule({
-  imports: [ReactiveFormsModule, FormsModule, CommonModule, IonicModule, PipeComponentsModule, TranslateModule, HelpButtonComponent, OeImageComponent],
+  imports: [ReactiveFormsModule, FormsModule, IonicModule, CommonModule, PipeComponentsModule, TranslateModule, HelpButtonComponent, OeImageComponent],
   declarations: [
     ModalButtonsComponent,
     ModalInfoLineComponent,
@@ -47,10 +46,9 @@ import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-hori
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ModalComponentsModule { }
-
 @NgModule({
   imports: [
-    BrowserModule,
+    CommonModule,
     IonicModule,
     ReactiveFormsModule,
     RouterModule,
@@ -64,5 +62,6 @@ export class ModalComponentsModule { }
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
+
 export class ModalModule { }
 
