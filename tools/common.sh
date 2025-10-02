@@ -20,6 +20,7 @@ common_initialize_environment() {
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
     VERSION_PATCH=$(echo $tmp_version | cut -d'.' -f3)
     VERSION_STRING=$(echo $VERSION | cut -s -d'-' -f2)
+    VERSION_FULL=$tmp_version
 }
 
 common_build_snapshot_version() {
@@ -28,7 +29,7 @@ common_build_snapshot_version() {
         # Ref: https://unix.stackexchange.com/a/23673
         VERSION_DEV_BRANCH="$(git branch --show-current)"
         VERSION_DEV_COMMIT=""
-        git diff --exit-code --quiet;
+        git diff --exit-code --quiet
         if [ $? -ne 0 ]; then
             VERSION_DEV_COMMIT="dirty"
         else
@@ -111,7 +112,7 @@ common_build_ui() {
 
     # Install dependencies from package.json
     npm ci
-    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then 
+    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then
         echo "## Angular Cache: $NG_CLI_CACHE_PATH"
         node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
     fi
@@ -136,7 +137,7 @@ common_build_android_app() {
 
     # Install dependencies from package.json
     npm ci
-    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then 
+    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then
         echo "## Angular Cache: $NG_CLI_CACHE_PATH"
         node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
     fi
@@ -205,6 +206,7 @@ common_save_environment() {
     export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
     export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
     export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
+    export VERSION_FULL=\"$VERSION_FULL\"
     " | tee $file
 }
 

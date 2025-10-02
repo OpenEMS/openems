@@ -1,8 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 

@@ -10,7 +10,6 @@
     </ngx-spinner>
   }
   @case ('failed') {
-    <ng-container>
       <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
         <ion-row class="ion-justify-content-center">
           <ion-col size="12" size-md="6" size-lg="4">
@@ -26,7 +25,6 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-    </ng-container>
   }
 }
 </ion-content>
@@ -38,7 +36,7 @@
       style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
       <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
       <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
-      {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
+        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
     </ion-col>
   </ion-row>
 

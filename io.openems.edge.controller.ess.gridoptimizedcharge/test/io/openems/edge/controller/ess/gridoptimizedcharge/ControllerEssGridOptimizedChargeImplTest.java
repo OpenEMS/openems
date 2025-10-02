@@ -34,7 +34,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 
-import io.openems.edge.common.meta.GridFeedInLimitationType;
 import org.junit.Ignore;
 import org.junit.Test;
 

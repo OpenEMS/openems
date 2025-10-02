@@ -629,11 +629,21 @@
       "czech": "Czech Republic",
       "sweden": "Sweden",
       "netherlands": "Netherlands",
-      "switzerland": "Switzerland"
+      "switzerland": "Switzerland",
+      "GREECE": "Greece",
+      "LITHUANIA": "Lithuania"
     },
     "yes": "Yes",
     "no": "No",
     "value": "value",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stopping...",
+      "GO_RUNNING": "Starting...",
+      "RUNNING": "Started",
+      "STOPPED": "Stopped",
+      "UNDEFINED": "Unknown",
+      "ERROR": "Error"
+    },
     "SUM_STATE": "System state",
     "SYSTEM": "system",
     "RESTART": "Restart",
@@ -756,7 +766,8 @@
       "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
       "TITLE_HOME": "Circuit breaker at the grid connection point",
       "VALUE": "Value [A]",
-      "METER_LABEL": "Grid connection point meter type"
+      "METER_LABEL": "Grid connection point meter type",
+      "METER": "Meter"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "BESS Location",
@@ -783,7 +794,7 @@
       "BOTH_SELECTED_LABEL": "Both pv-ports (\"PV{{ pv1 }}\" and \"PV{{ pv2 }}\") connected",
       "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
       "ENERGY_FLOW_METER": {
-        "LABEL": "Installed Grid-Meter"
+        "LABEL": "Grid"
       }
     },
     "CONFIGURATION_SYSTEM": {
@@ -818,8 +829,10 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Choose",
-      "LIMITATION": "Limitation",
       "CONSTANT_VALUE": "Cos φ value",
+      "INDUCTIVE": "inductive",
+      "CAPACITIVE": "capacitive",
+      "LIMITATION": "Limitation",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
       "EXTERNAL_CONTROLLER_CHECK": "The external control receiver was installed properly and completely according to the instructions.",
@@ -946,7 +959,7 @@
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Self-Consumption optmization"
+      "BALANCING": "Self-Consumption optimization"
     },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -959,7 +972,7 @@
     "CONFIGURATION_ENERGY_FLOW_METER": {
       "TITLE": "Selection of energy flow direction meter",
       "METER": {
-        "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
+        "WITH_CT": "Home 3-phase sensor with current transformer 120A ({{type}})",
         "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
         "LABEL": "Meter",
         "INTEGRATED": "Integrated Home 3 phase sensor with current transformer ({{type}})",

@@ -138,7 +138,7 @@ public class AncillaryCosts extends
 
 			if (germanDso == GermanDSO.OTHER) {
 				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
-				
+
 				// parsing here to throw any exceptions.
 				if (!t.isDeleteOrTest()) {
 					parseSchedule(tariffTable);

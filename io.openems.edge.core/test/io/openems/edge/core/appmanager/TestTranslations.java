@@ -15,7 +15,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -26,7 +25,6 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
-import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTranslations {
@@ -112,12 +110,6 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_TIMEOUT", 60) //
 					.add("COMPONENT_IDS", new JsonArray()) //
-					.build()));
-			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadOnly(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("PORT_NAME", "port") //
-					.build()));
-			this.apps.add(new TestTranslation(Apps.modbusRtuApiReadWrite(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("PORT_NAME", "port") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.restJsonApiReadWrite(t), true, JsonUtils.buildJsonObject() //
@@ -277,7 +269,7 @@ public class TestTranslations {
 		for (var entry : this.apps) {
 			final var app = entry.app();
 			if (entry.validateAppAssistant()) {
-				app.getAppAssistant(new User("admin", "admin", l, Role.ADMIN));
+				app.getAppAssistant(DUMMY_ADMIN);
 			}
 			if (entry.config() != null) {
 				app.getAppConfiguration(ConfigurationTarget.ADD, entry.config(), l);

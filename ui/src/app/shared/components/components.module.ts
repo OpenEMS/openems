@@ -4,6 +4,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
+import { IonicModule } from "@ionic/angular";
 import { PipeComponentsModule, PipeModule } from "src/app/shared/pipe/pipe.module";
 import { CommonUiModule } from "../common-ui.module";
 import { DomChangeDirective } from "../directive/oe-dom-change";
@@ -28,10 +29,12 @@ import { NotificationComponent } from "./shared/notification/notification";
 @NgModule({
     imports: [
         CommonModule,
+        IonicModule,
         PipeComponentsModule,
         ReactiveFormsModule,
         DomChangeDirective,
         RouterModule,
+        ModalModule,
         PickdateComponentModule,
         ChartComponentsModule,
     ],
@@ -67,7 +70,7 @@ import { NotificationComponent } from "./shared/notification/notification";
         NavigationViewComponent,
         NavigationChipsComponent,
         NavigationBreadCrumbsComponent,
-
+        ModalModule,
         FooterNavigationComponentsModule,
         PickdateComponentModule,
         ChartComponentsModule,
