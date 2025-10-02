@@ -68,6 +68,7 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable;
@@ -361,10 +362,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Should be updated according to back up power
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.AUTO_START_BACKUP), config.backupEnable().booleanValue);
 
-		// Feed-in limitation on / off
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE),
-				this.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.DYNAMIC_LIMITATION);
-
 		// Feed-in limitation
 		if (config.feedPowerPara() != -1) {
 			// Moves set value to Meta app.
@@ -379,6 +376,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var cosPhiPEnableDisable = EnableCurve.DISABLE;
 		var pfEnableDisable = EnableCurve.DISABLE;
 		var fixedPowerFactor = FixedPowerFactor.LEADING_1_OR_NONE;
+		var fixedPowerFactorEnable = EnableCurve.DISABLE;
 
 		switch (setFeedInPowerSettings) {
 
@@ -403,6 +401,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				LEADING_0_95, LEADING_0_96, LEADING_0_97, LEADING_0_98, LEADING_0_99, LEADING_1 -> {
 
 			fixedPowerFactor = setFeedInPowerSettings.fixedPowerFactor;
+			fixedPowerFactorEnable = EnableCurve.ENABLE;
 		}
 		case PF_ENABLE_CURVE -> {
 			pfEnableDisable = EnableCurve.ENABLE;
@@ -422,7 +421,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_COS_PHI_P), cosPhiPEnableDisable);
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PU_CURVE), puEnableDisable);
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PF_CURVE), pfEnableDisable);
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR), fixedPowerFactor);
+		this.handleFixedPowerFactor(this.getGoodweType(), fixedPowerFactorEnable, fixedPowerFactor);
 
 		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
@@ -432,6 +431,50 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (onConfigUpdate) { //
 			// Mppt Shadow enable / disable
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
+		}
+	}
+
+	private void handleFixedPowerFactor(GoodWeType goodweType, EnableCurve fixedPowerFactorEnable,
+			FixedPowerFactor fixedPowerFactor) throws IllegalArgumentException, OpenemsNamedException {
+
+		// TODO: Add individual handling related to each GoodWeType
+		switch (goodweType) {
+		case FENECON_50K -> {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2), fixedPowerFactorEnable);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2),
+					fixedPowerFactor != null);
+		}
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
+				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
+				GOODWE_8K_ET -> {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR), fixedPowerFactor);
+		}
+		case UNDEFINED -> doNothing();
+		}
+	}
+
+	private void handleFeedInSetting(boolean feedPowerEnable, int feedPowerPara, GoodWeType goodweType)
+			throws IllegalArgumentException, OpenemsNamedException {
+
+		// TODO: Add individual handling related to each GoodWeType
+		switch (goodweType) {
+		case FENECON_50K -> {
+			// Feed-in limitation on / off
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
+			// Feed-in limitation
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
+		}
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
+				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
+				GOODWE_8K_ET -> {
+			// Feed-in limitation on / off
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
+
+			// Feed-in limitation
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), feedPowerPara);
+		}
+		case UNDEFINED -> doNothing();
 		}
 	}
 
@@ -690,9 +733,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
 		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
 
-		if (this.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
-			this.handleGridFeed(this.config);
-		}
+		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType().asEnum());
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
@@ -732,9 +773,13 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
 
-	private void handleGridFeed(Config config) throws OpenemsNamedException {
+	private void handleGridFeed(Config config, GridFeedInLimitationType limitType) throws OpenemsNamedException {
+
+		var enableFeedInLimit = limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION;
 		var gridFeedInLimit = this.meta.getMaximumGridFeedInLimit();
+
+		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
+
 		// TODO: include RippleControlReceiver logic in near future
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), gridFeedInLimit);
 	}
 }

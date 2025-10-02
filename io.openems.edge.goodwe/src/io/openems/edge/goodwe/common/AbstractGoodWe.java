@@ -263,7 +263,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.CPLD_WARNING_CODE, new UnsignedWordElement(35213)), //
 						new DummyRegisterElement(35214, 35217), //
 						new UnsignedDoublewordElement(35218).onUpdateCallback(code -> detectDiagStatesH(code) //
-                                .forEach((channel, value) -> this.channel(channel).setNextValue(value))),
+								.forEach((channel, value) -> this.channel(channel).setNextValue(value))),
 
 						m(new BitsWordElement(35220, this) //
 								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BMS_OVER_TEMPERATURE)//
@@ -1351,6 +1351,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									case FENECON_50K -> {
 										this.handleMultipleStringChargers(protocol);
 										this.handleStsBox(protocol);
+										this.handleExtendedFeedPower(protocol);
+										this.handleNewFixPfRegisters(protocol);
 									}
 									case FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH ->
 										this.handleMultipleStringChargers(protocol);
@@ -1428,6 +1430,37 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				.orElse(GoodWeType.UNDEFINED);
 	}
 
+	private void handleExtendedFeedPower(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(42003, Priority.LOW, //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, new UnsignedWordElement(42003)), //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, new SignedDoublewordElement(42004)) //
+				) //
+		);
+		protocol.addTask(//
+				new FC16WriteRegistersTask(42003,
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, new UnsignedWordElement(42003)), //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, new SignedDoublewordElement(42004)) //
+				) //
+		);
+
+	}
+
+	private void handleNewFixPfRegisters(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(45539, Priority.LOW, //
+						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedDoublewordElement(45540)) //
+				) //
+		);
+		protocol.addTask(//
+				new FC16WriteRegistersTask(45539,
+						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new SignedDoublewordElement(45540)) //
+				) //
+		);
+	}
+
 	/**
 	 * Handle multiple string chargers.
 	 *
@@ -1446,32 +1479,30 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Block 1: PV1 - PV4 voltage & current
 		 */
-		protocol.addTask(//
 
-				new FC3ReadRegistersTask(35103, Priority.HIGH, //
-						m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+		new FC3ReadRegistersTask(35103, Priority.HIGH, //
+				m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(GoodWe.ChannelId.TWO_S_PV1_I, new UnsignedWordElement(35104),
+						ElementToChannelConverter.SCALE_FACTOR_2),
 
-						// Power having wrong values for two-string charger
-						new DummyRegisterElement(35105, 35106),
+				// Power having wrong values for two-string charger
+				new DummyRegisterElement(35105, 35106),
 
-						m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						new DummyRegisterElement(35109, 35110),
-						m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						new DummyRegisterElement(35113, 35114),
-						m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
-								ElementToChannelConverter.SCALE_FACTOR_2)) //
-		);
+				m(GoodWe.ChannelId.TWO_S_PV2_V, new UnsignedWordElement(35107),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(GoodWe.ChannelId.TWO_S_PV2_I, new UnsignedWordElement(35108),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				new DummyRegisterElement(35109, 35110),
+				m(GoodWe.ChannelId.TWO_S_PV3_V, new UnsignedWordElement(35111),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(GoodWe.ChannelId.TWO_S_PV3_I, new UnsignedWordElement(35112),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				new DummyRegisterElement(35113, 35114),
+				m(GoodWe.ChannelId.TWO_S_PV4_V, new UnsignedWordElement(35115),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(GoodWe.ChannelId.TWO_S_PV4_I, new UnsignedWordElement(35116),
+						ElementToChannelConverter.SCALE_FACTOR_2)); //
 
 		/*
 		 * Block 2: PV5 - PV6 voltage & current (would continue till PV16) and MPPT
@@ -1553,9 +1584,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.MPPT7_I, new UnsignedWordElement(35351), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT8_I, new UnsignedWordElement(35352), //
-								ElementToChannelConverter.SCALE_FACTOR_2)
-				)
-		);
+								ElementToChannelConverter.SCALE_FACTOR_2)));
 	}
 
 	// TODO: Can be removed when GoodWeChargerTwoStringImpl has been deleted
