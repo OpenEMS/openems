@@ -1,9 +1,9 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.germanDso;
+import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
@@ -24,13 +24,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
-import io.openems.edge.app.enums.OptionsFactory;
-import io.openems.edge.app.enums.TranslatableEnum;
+import io.openems.edge.app.timeofusetariff.AncillaryCosts.Property;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
-import io.openems.edge.app.timeofusetariff.EntsoE.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -43,27 +42,24 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
- * Describes a App for ENTSO-E.
+ * Describes a App for AncillaryCosts.
  *
  * <pre>
   {
-    "appId":"App.TimeOfUseTariff.ENTSO-E",
-    "alias":"ENTSO-E",
+    "appId":"App.TimeOfUseTariff.AncillaryCosts",
+    "alias":"Ancillary Costs",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"BIDDING_ZONE": {@link BiddingZone},
     	"CONTROL_MODE": {@link ControlMode}
     },
     "appDescriptor": {
@@ -72,57 +68,37 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
   }
  * </pre>
  */
-@Component(name = "App.TimeOfUseTariff.ENTSO-E")
-public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.Parameter.BundleParameter>
-		implements OpenemsApp {
-	// TODO provide image in folder
+@Component(name = "App.TimeOfUseTariff.AncillaryCosts")
+public class AncillaryCosts extends
+		AbstractOpenemsAppWithProps<AncillaryCosts, Property, Type.Parameter.BundleParameter> implements OpenemsApp {
 
-	public static enum Property implements Type<Property, EntsoE, Type.Parameter.BundleParameter>, Nameable {
+	public static enum Property implements Type<Property, AncillaryCosts, Type.Parameter.BundleParameter>, Nameable {
 		// Component-IDs
 		CTRL_ESS_TIME_OF_USE_TARIFF_ID(AppDef.componentId("ctrlEssTimeOfUseTariff0")), //
 		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		// TODO make this an Enum
-		BIDDING_ZONE(AppDef.of(EntsoE.class)//
-				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
-				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //
-				.setRequired(true)
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(BiddingZone.optionsFactory(), l);
-				})),
 
-		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".resolution.label") //
-				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
-				.setRequired(true)//
-				.setDefaultValue(Resolution.HOURLY)//
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Resolution.optionsFactory(), l);
-					final var isInBiddingZone = Exp
-							.array(Exp.staticValue(BiddingZone.GERMANY), Exp.staticValue(BiddingZone.AUSTRIA))
-							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
-					field.onlyShowIf(isInBiddingZone);
-				}))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 
-		PARAGRAPH_14A_CHECK(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".14aCheck.label") //
-				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
-					final var isInBiddingZone = Exp.staticValue(BiddingZone.GERMANY)
-							.equal(Exp.currentModelValue(BIDDING_ZONE));
-					field.onlyShowIf(isInBiddingZone);
+		FIXED_ELECTRICITY_TARIFF(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".fixedTariff.label") //
+				.setTranslatedDescriptionWithAppPrefix(".fixedTariff.description") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					field.setInputType(NUMBER);
+					field.setMin(0);
+					field.setUnit(CurrencyConfig.EUR.getUnderPart() + "/kWh");
 				}))),
 
-		GERMAN_DSO(AncillaryCostsProps.germanDso(PARAGRAPH_14A_CHECK)),
+		GERMAN_DSO(germanDso()),
 
 		TARIFF_TABLE(AncillaryCostsProps.tariffTable(GERMAN_DSO, TIME_OF_USE_TARIFF_PROVIDER_ID));
 
-		private final AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def;
+		private final AppDef<? super AncillaryCosts, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
-		private Property(AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def) {
+		private Property(AppDef<? super AncillaryCosts, ? super Property, ? super Type.Parameter.BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -132,18 +108,18 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		}
 
 		@Override
-		public AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def() {
+		public AppDef<? super AncillaryCosts, ? super Property, ? super Type.Parameter.BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<EntsoE>, Type.Parameter.BundleParameter> getParamter() {
+		public Function<GetParameterValues<AncillaryCosts>, Type.Parameter.BundleParameter> getParamter() {
 			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
 
 	@Activate
-	public EntsoE(@Reference ComponentManager componentManager, ComponentContext context,
+	public AncillaryCosts(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
 	}
@@ -155,15 +131,16 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var biddingZone = this.getString(p, l, Property.BIDDING_ZONE);
+
 			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
-			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
-			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
-			var ancillaryCosts = paragraph14aCheck ? germanDso.getAncillaryCosts() : null;
+			final var germanDso = this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO);
+			final var fixedTariff = this.getDouble(p, Property.FIXED_ELECTRICITY_TARIFF);
+
+			final String ancillaryCosts;
 
 			if (germanDso == GermanDSO.OTHER) {
 				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
-
+				
 				// parsing here to throw any exceptions.
 				parseSchedule(tariffTable);
 
@@ -172,6 +149,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 						.add("schedule", tariffTable) //
 						.build() //
 						.toString(); //
+			} else {
+				ancillaryCosts = germanDso.getAncillaryCosts();
 			}
 
 			var components = Lists.newArrayList(//
@@ -180,9 +159,9 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 									.addProperty("ess.id", "ess0") //
 									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
-							JsonUtils.buildJsonObject() //
-									.addPropertyIfNotNull("biddingZone", biddingZone) //
+					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l),
+							"TimeOfUseTariff.AncillaryCosts", JsonUtils.buildJsonObject() //
+									.addProperty("fixedTariff", fixedTariff) //
 									.addPropertyIfNotNull("ancillaryCosts", ancillaryCosts) //
 									.build()) //
 			);
@@ -225,71 +204,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 	}
 
 	@Override
-	protected EntsoE getApp() {
+	protected AncillaryCosts getApp() {
 		return this;
-	}
-
-	public enum BiddingZone implements TranslatableEnum {
-		GERMANY("germany"), //
-		AUSTRIA("austria"), //
-		SWEDEN_SE1("sweden_se1"), //
-		SWEDEN_SE2("sweden_se2"), //
-		SWEDEN_SE3("sweden_se3"), //
-		SWEDEN_SE4("sweden_se4"), //
-		BELGIUM("belgium"), //
-		NETHERLANDS("netherlands"), //
-		;
-
-		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.biddingZone.option.";
-
-		private final String translationKey;
-
-		private BiddingZone(String translationKey) {
-			this.translationKey = TRANSLATION_PREFIX + translationKey;
-		}
-
-		@Override
-		public final String getTranslation(Language l) {
-			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
-			return TranslationUtil.getTranslation(bundle, this.translationKey);
-		}
-
-		/**
-		 * Creates a {@link OptionsFactory} of this enum.
-		 * 
-		 * @return the {@link OptionsFactory}
-		 */
-		public static final OptionsFactory optionsFactory() {
-			return OptionsFactory.of(values());
-		}
-	}
-
-	public enum Resolution implements TranslatableEnum {
-		HOURLY("hourly"), //
-		QUARTERLY("quarterly");
-
-		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.resolution.option.";
-
-		private final String translationKey;
-
-		private Resolution(String translationKey) {
-			this.translationKey = TRANSLATION_PREFIX + translationKey;
-		}
-
-		@Override
-		public final String getTranslation(Language l) {
-			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
-			return TranslationUtil.getTranslation(bundle, this.translationKey);
-		}
-
-		/**
-		 * Creates a {@link OptionsFactory} of this enum.
-		 * 
-		 * @return the {@link OptionsFactory}
-		 */
-		public static final OptionsFactory optionsFactory() {
-			return OptionsFactory.of(values());
-		}
 	}
 
 }

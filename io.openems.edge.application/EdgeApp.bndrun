@@ -194,6 +194,7 @@
 	bnd.identity;id='io.openems.edge.tesla.powerwall2',\
 	bnd.identity;id='io.openems.edge.timedata.influxdb',\
 	bnd.identity;id='io.openems.edge.timedata.rrd4j',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.ancillarycosts',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
@@ -391,6 +392,7 @@
 	io.openems.edge.timedata.api;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.edge.timedata.rrd4j;version=snapshot,\
+	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot,\
 	io.openems.edge.timeofusetariff.api;version=snapshot,\
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\

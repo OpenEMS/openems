@@ -101,6 +101,7 @@ import io.openems.edge.app.pvinverter.SmaPvInverter;
 import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
+import io.openems.edge.app.timeofusetariff.AncillaryCosts;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.GroupeE;
@@ -279,6 +280,16 @@ public final class Apps {
 	}
 
 	// TimeOfUseTariff
+
+	/**
+	 * Test method for creating a {@link AncillaryCosts}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AncillaryCosts ancillaryCosts(AppManagerTestBundle t) {
+		return app(t, AncillaryCosts::new, "App.TimeOfUseTariff.AncillaryCosts");
+	}
 
 	/**
 	 * Test method for creating a {@link AwattarHourly}.
@@ -1139,8 +1150,8 @@ public final class Apps {
 				t.componentUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t,
-			DefaultAppConstructorWithAppUtilAndHost<T> constructor, String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtilAndHost<T> constructor,
+			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.appManagerUtil, t.host);
 	}
