@@ -8,6 +8,7 @@
       <ng-template *ngTemplateOutlet="content">
       </ng-template>
     </ng-container>
+
     <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
       *ngIf="navigationService.position() === 'left'">
       <ng-container *ngTemplateOutlet="sidemenu">
@@ -27,6 +28,9 @@
   </ion-content>
 
   <oe-navigation></oe-navigation>
+  <oe-notification *ngIf="latestIncident !== null" color="warning" [text]="latestIncident.message"
+    [id]="latestIncident.id">
+  </oe-notification>
   <ng-container *ngTemplateOutlet="footer"></ng-container>
 </ion-app>
 
@@ -61,8 +65,6 @@
   </ng-container>
 
   <systemLog *ngIf="isSystemLogEnabled"></systemLog>
-  <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message" [id]="latestIncident.id">
-  </oe-notification>
 
   <!-- Show Sub-Views -->
   <ion-router-outlet id="content"></ion-router-outlet>
