@@ -2,6 +2,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { hasMaximumGridFeedInLimitInMeta } from "src/app/shared/permissions/edgePermissions";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
@@ -15,6 +16,7 @@ export class ModalComponent extends AbstractModal {
 
     public channelCapacity: number;
     public isAtLeastAdmin: boolean = false;
+    public hasMaximumGridFeedInLimitInMeta: boolean = false;
     public refreshChart: boolean;
 
     public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = this.Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate, Language.geti18nLocale());
@@ -41,17 +43,24 @@ export class ModalComponent extends AbstractModal {
                 );
             }
         }
+        this.hasMaximumGridFeedInLimitInMeta = hasMaximumGridFeedInLimitInMeta(this.edge);
         channels.push(
             new ChannelAddress(this.component.id, "SellToGridLimitState"),
             new ChannelAddress(this.component.id, "DelayChargeState"),
             new ChannelAddress(this.component.id, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"),
             new ChannelAddress(this.component.id, "_PropertySellToGridLimitEnabled"),
             new ChannelAddress(this.component.id, "TargetEpochSeconds"),
             new ChannelAddress(this.component.id, "TargetMinute"),
             new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds"),
         );
+
+        if (hasMaximumGridFeedInLimitInMeta(this.edge)) {
+            channels.push(new ChannelAddress("_meta", "_PropertyMaximumGridFeedInLimit"));
+        } else {
+            channels.push(new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"));
+        }
+
         return channels;
     }
 
@@ -109,7 +118,11 @@ export class ModalComponent extends AbstractModal {
             this.channelCapacity = currentData.allComponents[this.component.properties["ess.id"] + "/Capacity"];
         }
 
-        this.maximumSellToGridPower = currentData.allComponents[this.component.id + "/_PropertyMaximumSellToGridPower"];
+        if (this.hasMaximumGridFeedInLimitInMeta) {
+            this.maximumSellToGridPower = currentData.allComponents["_meta/_PropertyMaximumGridFeedInLimit"];
+        } else {
+            this.maximumSellToGridPower = currentData.allComponents[this.component.id + "/_PropertyMaximumSellToGridPower"];
+        }
         this.targetMinute = currentData.allComponents[this.component.id + "/TargetMinute"];
         this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
         this.targetEpochSeconds = currentData.allComponents[this.component.id + "/TargetEpochSeconds"];

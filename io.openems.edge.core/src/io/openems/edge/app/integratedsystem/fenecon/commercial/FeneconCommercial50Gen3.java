@@ -23,11 +23,10 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfCon
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 
@@ -54,7 +53,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.enums.TranslatableEnum;
@@ -101,8 +100,11 @@ public class FeneconCommercial50Gen3 extends
 					field.onlyShowIf(Exp.currentModelValue(Property.SAFETY_COUNTRY)
 							.equal(Exp.staticValue(SafetyCountry.GERMANY)));
 				}))), //
-		FEED_IN_TYPE(feedInType()), //
-		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+
+		LINK_FEED_IN(feedInLink()), //
+		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
 		FEED_IN_SETTING(feedInSetting()), //
 
 		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
@@ -226,12 +228,8 @@ public class FeneconCommercial50Gen3 extends
 				gridCode = "UNDEFINED";
 			}
 
-			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
+			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
-			final var maxFeedInPower = (feedInType == FeedInType.DYNAMIC_LIMITATION
-					|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION)
-							? this.getInt(p, Property.MAX_FEED_IN_POWER)
-							: 0;
 
 			final var gridMeterCategory = GoodWeGridMeterCategory.COMMERCIAL_METER;
 			final var ctRatioFirst = this.getInt(p, Property.CT_RATIO_FIRST);
@@ -249,9 +247,8 @@ public class FeneconCommercial50Gen3 extends
 
 			final var components = Lists.newArrayList(//
 					battery(bundle, batteryId, modbusIdInternal), //
-					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection,
-							gridCode), //
+					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection, gridCode), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
 					io(bundle, modbusIdInternal), //
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
@@ -280,7 +277,7 @@ public class FeneconCommercial50Gen3 extends
 			}
 
 			final var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension() //
 			);

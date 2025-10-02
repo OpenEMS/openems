@@ -111,8 +111,8 @@ public final class FeneconHomeComponents {
 			final String feedInSetting, //
 			final boolean naProtectionEnabled //
 	) {
-		return batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, maxFeedInPower,
-				modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, null);
+		return batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
+				shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, null);
 	}
 
 	/**
@@ -121,22 +121,20 @@ public final class FeneconHomeComponents {
 	 * @param bundle                   the translation bundle
 	 * @param batteryInverterId        the id of the battery inverter
 	 * @param hasEmergencyReserve      if the system has emergency reserve enabled
-	 * @param feedInType               the {@link FeedInType}
-	 * @param maxFeedInPower           the max feed in power
+	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
 	 * @param safetyCountry            the {@link SafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
-	 * @param gridCode                 thr grid code
+	 * @param gridCode                 the grid code
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component batteryInverter(//
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
 			final boolean hasEmergencyReserve, //
-			final FeedInType feedInType, //
-			final int maxFeedInPower, //
+			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
 			final SafetyCountry safetyCountry, //

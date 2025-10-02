@@ -197,6 +197,18 @@ public class AppDef<APP extends OpenemsApp, //
 	private FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> bidirectionalValue;
 
 	/**
+	 * Function to map the existing value to a new value.
+	 * 
+	 * <p>
+	 * May be used to migrate existing values to a new format or type, without
+	 * updating the configuration.
+	 * </p>
+	 *
+	 * {@link ComponentManager} and in the {@link OpenemsApp}.
+	 */
+	private FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> valueMapper;
+
+	/**
 	 * Function to get the {@link ResourceBundle} for translations.
 	 */
 	private Function<? super PARAMETER, ResourceBundle> translationBundleSupplier;
@@ -1164,6 +1176,24 @@ public class AppDef<APP extends OpenemsApp, //
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;
 		return this.self();
+	}
+
+	/**
+	 * Sets a value mapper which is used to map the original persisted value to a
+	 * value which is used.
+	 * 
+	 * @param mapper the {@link FieldValuesFunction} to map the value
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> valueMapper(//
+			final FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> mapper //
+	) {
+		this.valueMapper = mapper;
+		return this.self();
+	}
+
+	public FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> getValueMapper() {
+		return this.valueMapper;
 	}
 
 	public String getBidirectionalPropertyName() {

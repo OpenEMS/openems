@@ -24,10 +24,19 @@
         </oe-modal-line>
 
         <!--Sell to grid limit-->
+        @if(formGroup.value.sellToGridLimitEnabled) {
+        @if(hasMaximumGridFeedInLimitInMeta) {
+        <oe-modal-line *ngIf="formGroup.value.sellToGridLimitEnabled"
+            [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate" leftColumnWidth="70"
+            [converter]="CONVERT_TO_WATT" [channelAddress]="'_meta/_PropertyMaximumGridFeedInLimit'">
+        </oe-modal-line>
+        } @else {
         <oe-modal-line *ngIf="formGroup.value.sellToGridLimitEnabled"
             [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate" leftColumnWidth="70"
             [converter]="Utils.CONVERT_TO_WATT" [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
         </oe-modal-line>
+        }
+        }
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
     </ng-container>
 

@@ -16,6 +16,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
@@ -54,16 +55,32 @@ public final class IntegratedSystemProps {
 	 * 
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> externalLimitationType(ExternalLimitationType... exclude) {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> externalLimitationType(
+			ExternalLimitationType... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.externalLimitationType.label") //
 				.setDefaultValue(ExternalLimitationType.NO_LIMITATION) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 
-					final var excludeCombinedArray = ArrayUtils.concat(exclude, new ExternalLimitationType[] {
-							ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION, ExternalLimitationType.DYNAMIC_LIMITATION });
+					final var excludeCombinedArray = ArrayUtils.concat(exclude,
+							new ExternalLimitationType[] { ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION,
+									ExternalLimitationType.DYNAMIC_LIMITATION });
 
 					field.setOptions(OptionsFactory.of(ExternalLimitationType.class, excludeCombinedArray), l);
+				}) //
+				.valueMapper((app, property, l, parameter, props) -> {
+					final var currentValue = props.get(property.name());
+					return JsonUtils.getAsOptionalEnum(ExternalLimitationType.class, currentValue) //
+							.map(externalLimitationType -> {
+								return switch (externalLimitationType) {
+								case NO_LIMITATION, DYNAMIC_LIMITATION -> ExternalLimitationType.NO_LIMITATION;
+								case EXTERNAL_LIMITATION, DYNAMIC_AND_EXTERNAL_LIMITATION ->
+									ExternalLimitationType.EXTERNAL_LIMITATION;
+								};
+							}) //
+							.map(Enum::name) //
+							.map(JsonPrimitive::new) //
+							.orElse(null);
 				}));
 	}
 

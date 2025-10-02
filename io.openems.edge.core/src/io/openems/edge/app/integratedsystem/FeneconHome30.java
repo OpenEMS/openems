@@ -25,6 +25,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeter
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
@@ -145,6 +146,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
+		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(externalLimitationType()), //
 		FEED_IN_SETTING(feedInSetting()), //
 

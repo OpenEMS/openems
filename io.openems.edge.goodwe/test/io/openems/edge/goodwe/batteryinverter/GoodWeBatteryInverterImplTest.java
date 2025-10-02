@@ -54,6 +54,7 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;

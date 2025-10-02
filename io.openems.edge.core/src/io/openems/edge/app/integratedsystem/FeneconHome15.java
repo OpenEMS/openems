@@ -9,6 +9,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusF
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
@@ -62,6 +63,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
+		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
 		@Deprecated
