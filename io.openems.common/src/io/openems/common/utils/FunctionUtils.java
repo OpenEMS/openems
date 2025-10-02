@@ -249,6 +249,7 @@ public final class FunctionUtils {
 			private T value;
 			private Exception exception;
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public T get() throws E {
 				if (!this.isInitialized) {
