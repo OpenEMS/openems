@@ -19,7 +19,9 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
 
-		ACTUAL_MODE(Doc.of(Mode.Actual.values())), //
+		ACTUAL_MODE(Doc.of(Mode.Actual.values())//
+				.persistencePriority(HIGH)), //
+
 		SESSION_ENERGY(Doc.of(INTEGER)//
 				.unit(WATT_HOURS)//
 				.persistencePriority(HIGH)) //
