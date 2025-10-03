@@ -62,7 +62,7 @@ export namespace GetAppInstances {
         appId: string,
         alias: string,
         instanceId: string,
-        properties: {},
+        properties: Record<string, unknown>,
         dependencies: Dependency[]
     }
 

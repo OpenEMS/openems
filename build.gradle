@@ -10,15 +10,16 @@ repositories {
 	gradlePluginPortal()
 }
 
-dependencies {
-	// Use JUnit test framework.
-	testImplementation 'junit:junit:4.13.2'
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
+}
+
+def isCI = (System.getenv("CI") != null) as Boolean
+
+if (isCI) {
+    println("CI environment detected - suppressing all compiler warnings")
 }
 
 /*
@@ -31,20 +32,57 @@ subprojects {
 	repositories {
 		mavenCentral()
 	}
-	
+
 	tasks.withType(JavaCompile) {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
+
+		if (isCI) {
+			options.compilerArgs += ["-Xlint:none", "-nowarn"]
+			options.deprecation = false
+		}
 	}
 	
 	tasks.withType(Test) {
-		maxParallelForks = 2
-		failOnNoDiscoveredTests = false
+		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
 			junitXml.required = false
+		}
+
+		if (isCI) {
+			testLogging {
+				events = ["failed"]
+				exceptionFormat = 'full'
+				showExceptions = true
+				showStackTraces = true
+				showCauses = true
+			}
+			afterSuite { desc, result ->
+				if (!desc.parent) {
+					def shortName = path.takeRight(36)
+					def padded = String.format("%36s", shortName) 
+					def icon = switch(result.resultType) {
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ"
+						default -> ""
+					}
+					println "> [${padded}] Test summary: ${result.resultType} ${icon} " +
+							"(${result.testCount} tests, " +
+							"${result.successfulTestCount} passed, " +
+							"${result.failedTestCount} failed, " +
+							"${result.skippedTestCount} skipped)"
+				}
+			}
+			afterTest { descriptor, result ->
+				if (result.failedTestCount > 0) {
+					println "\n${descriptor.className}.${descriptor.name} FAILED"
+					result.exception?.printStackTrace(System.out)
+				}
+			}
 		}
 	}
 	

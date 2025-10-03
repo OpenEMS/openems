@@ -10,9 +10,9 @@ import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeI
 import org.junit.Test;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class MetaImplTest {
 

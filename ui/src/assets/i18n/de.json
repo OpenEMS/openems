@@ -84,7 +84,7 @@
           "considerGridFeedInLimit": "Maximale Netzeinspeisung berücksichtigen",
           "endTime": "Endzeit",
           "endTimeDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.",
-          "endTimeDetailedDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{ value1 }} bis {{ value2 }} Uhr.",
+          "endTimeDetailedDescription": "Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig mit maximal {{ maxChargingPowerW }} bis {{ endTime }}.",
           "endTimeLong": "Endzeitpunkt der beschränkten Beladung",
           "expectedSoc": "Erwarteter Ladezustand",
           "expectedSocWithoutSellToGridLimit": "Ohne Vermeidung der maximalen Netzeinspeisung",
@@ -232,6 +232,19 @@
           "MESSAGE_UNREACHABLE": "Das Energielimit kann nicht in der Zeit erreicht werden",
           "ENERGY_SINCE_BEGINNING": "Energie seit Beginn"
         },
+        "ENERIX_CONTROL": {
+          "OVERWRITE": "aktive Übersteuerung",
+          "NO_OVERWRITE": "keine Übersteuerung",
+          "OVERWRITE_MODE": "Übersteuerungsmodus",
+          "NO_DISCHARGE": "Keine Entladung",
+          "NO_INPUT": "Kein Befehl",
+          "DISCONNECTED": "Keine Verbindung",
+          "CONNECTED": "Verbunden",
+          "FORCE_CHARGE": "Beladung erzwungen",
+          "READ_ONLY": "Lesend",
+          "NOTE": "Bitte beachten Sie:",
+          "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist."
+        },
         "HEAT": {
           "TEMPERATURE": "Wassertemperatur",
           "TEMPERATURE_UNIT": "Wassertemperatur in °C",
@@ -311,6 +324,7 @@
     },
     "History": {
       "PHASE_ACCURATE": "Phasengenau",
+      "EXTERNAL_LIMITATION": "Externe Limitierung",
       "CURRENT_AND_VOLTAGE": "Strom & Spannung",
       "beginDate": "Startdatum wählen",
       "day": "Tag",
@@ -380,7 +394,7 @@
         "systemProfile": "Anlagenprofil",
         "PRODUCT_TYPE": "Produkt-Typ",
         "networkConfiguration": "Netzwerkkonfiguration",
-        "EXPORT_CHANNELS": "Export-Kanäle"
+        "EXPORT_CHANNELS": "Export Kanäle"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
@@ -627,7 +641,8 @@
       "sweden": "Schweden",
       "switzerland": "Schweiz",
       "czech": "Tschechische Republik",
-      "GREECE": "Griechenland"
+      "GREECE": "Griechenland",
+      "LITHUANIA": "Litauen"
     },
     "yes": "Ja",
     "no": "Nein",
@@ -643,6 +658,9 @@
     "SUM_STATE": "Systemzustand",
     "SYSTEM": "System",
     "RESTART": "Neu starten",
+    "SUFFIX": {
+      "HOUR": "Uhr"
+    },
     "TIME": {
       "HOUR": "Stunde",
       "HOURS": "Stunden",
@@ -693,9 +711,9 @@
     "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
       "EMERGENCY_RESERVE_NOTE": "Wenn diese Funktion aktiviert ist, kann der Ladezustand der Batterie nicht unter den eingestellten Wert fallen.",
-      "EMERGENCY_RESERVE_VALUE": "Notstrom wert",
+      "EMERGENCY_RESERVE_VALUE": "Notstromwert",
       "EMERGENCY_RESERVE": "Notstromreserve {{ symbol }}",
-      "IS_ACTIVATED": "Notstromreserve aktivieren?",
+      "IS_ACTIVATED": "Notstromreserve aktiv?",
       "IS_ENABLED": "Soll die Notstromfunktion aktiviert werden?",
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
@@ -720,7 +738,7 @@
       "GRID_OPTIMIZED_CHARGE": "Netzdienliche Beladung",
       "TIME_OF_USE_TARIFF": "Dynamischer Stromtarif",
       "LEGEND": "Legende",
-      "NOT_YET_CONFIGURED": "noch nicht konfiguriert/ausgeführt",
+      "NOT_YET_CONFIGURED": "noch nicht konfiguriert / ausgeführt",
       "PARTIAL_CONFIGURATION": "Es konnten nicht alle Komponenten richtig konfiguriert werden.",
       "PRE_CONFIGURED": "vorkonfiguriert / Warnung",
       "PROGNOSIS": "Prognose",
@@ -746,7 +764,14 @@
       "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais",
       "IP_ADDRESS_WARNING": "Eine für den Koppler erforderliche IP-Adresse konnte der Netzwerkkonfiguration nicht hinzugefügt werden.",
       "START_FUNCTION_TEST": "Funktionstests für die installierten Komponenten gestartet",
-      "FINISH_FUNCTION_TEST": "Funktionstests für die verbauten Komponenten abgeschlossen"
+      "FINISH_FUNCTION_TEST": "Funktionstests für die verbauten Komponenten abgeschlossen",
+      "ESS_LIMITER_ALIAS": "ESS Limiter für §14a",
+      "IP_ADDRESS_ERROR": "Eine für die {{ system }} notwendige IP-Adresse konnte nicht zur Netzwerkkonfiguration hinzugefügt werden.",
+      "PREPARE_BATTERY_EXTENSION": "Batterienachrüstung",
+      "COMMERCIAL_BATTERY_NOTE": "\nWenn Sie nun auf “WEITER ->” klicken, stehen Ihnen ca. 15  Minuten zur vollständigen Durchführung der restlichen Inbetriebnahme (IBN) zur Verfügung. Danach geht die BMS in einen zur Sicherheit eingestellten “Time-Out”. Normalerweise ist diese Zeit ausreichend, um die letzten Schritte der IBN in Ruhe abzuschließen. \nSollte die Zeit trotzdem nicht genügen, können Sie die IBN erneut von vorne starten.",
+      "NOTE": "Bitte beachten Sie:",
+      "UNDEFINED_COMPONENT_CONFIGURATOR": "Komponentenkonfigurator ist nicht definiert",
+      "IS_BEING_CONFIGURED": "wird konfiguriert"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -801,7 +826,8 @@
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
       "POSITIVE_INTEGER": "Nur positive Ganzzahlen erlaubt.",
-      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat"
+      "INVALID_ZIPCODE": "Ungültiges Postleitzahlenformat",
+      "STS_SERIAL_NUMBER_REQUIREMENT": "Die Seriennummer wird benötigt, wenn eine STS-Box vorhanden ist."
     },
     "FORWARD": "weiter",
     "LOAD": "laden...",
@@ -819,6 +845,8 @@
       "CHOOSE": "Typ",
       "LIMITATION": "Limitierung",
       "CONSTANT_VALUE": "Cos φ Festwert",
+      "INDUCTIVE": "induktiv",
+      "CAPACITIVE": "kapazitiv",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamische Begrenzung der Einspeisung aktiviert?",
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
       "EXTERNAL_CONTROLLER_CHECK": "Der Rundsteuerempfänger wurde lt. Anleitung ordnungsgemäß und vollständig installiert.",
@@ -834,9 +862,15 @@
       "TITLE": "Einspeisemanagement",
       "EXTERNAL_CONTROLLER_RECEIVER": "Rundsteuerempfänger",
       "PLACE_HOLDER": "Wähle eine Option",
-      "NO_LIMITATION": "Kein Einspeisemanagement",
-      "NA_PROTECTION": "Fernabschaltung aktivieren (Zentraler NA-Schutz)",
-      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an"
+      "NO_LIMITATION": "Keine Limitierung",
+      "NA_PROTECTION": "Fernabschaltung aktiviert (Zentraler NA-Schutz)",
+      "DYNAMIC_LIMITATION_WITH_RIPPLE_CONTROLLER": "Dynamische Begrenzung der Einspeisung & Rundsteuerempfänger",
+      "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Wert der dynamischen Begrenzung (max Einspeisewert, z.B. 60 % der kWp) [W]",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "In der Regel gibt der Netzbetreiber einen festen Verschiebungsfaktor von '1' an",
+      "INFO_TEXT": "Ihr Energiespeicher versucht durch intelligentes Laden, eine Abregelung der PV-Anlage zu vermeiden.",
+      "WARNING_TEXT": "Dies ersetzt nicht die ordnungsgemäße Konfiguration des PV-Wechselrichters!",
+      "DYNAMIC_LIMITATION_TYPE": "Einspeiselimitierung",
+      "EXTERNAL_LIMITATION_TYPE": "Externe Limitierung"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -922,8 +956,8 @@
       "BATTERY_TOWER_CLUSTER": "Batterie {{ batteryNumber }} turm {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Bitte überprüfen Sie die {{ key }} Seriennummer in {{ header }}",
       "REFRESH_NOTE": "Falls nicht alle Seriennummern angezeigt werden, aktualisieren Sie bitte Ihren Browser.\nDas Auslesen der Seriennummern kann einige Minuten in Anspruch nehmen.",
-      "DOUBLE_SOCKET_LABEL": "Im Doppelsockel verbaut",
-      "DOUBLE_SOCKET": "Doppelsockel"
+      "DOUBLE_SOCKET_LABEL": "Splitsockel verbaut",
+      "DOUBLE_SOCKET": "Splitsockel"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -959,7 +993,8 @@
         "TYPE": {
           "STANDARD": "Standardlieferumfang",
           "OPTIONAL": "Optional"
-        }
+        },
+        "WITHOUT_CT_STANDARD_DELIVERY": "3-Phasensensor ohne Stromwandler (Standardlieferumfang)"
       },
       "CONVERTER_RATIO": "Primärstrom (200–5000A)"
     },
@@ -969,6 +1004,89 @@
       "IS_ACTIVATE": "Möglichkeit der Dimmung nach §14a EnWG aktivieren",
       "INFO_NOTE": "Um eine Überlastung des Netzes zu vermeiden, erhält der Netzbetreiber bei allen, seit dem 01.01.2024 installierten Verbrauchseinrichtungen, zukünftig die Möglichkeit, diese auf eine Netzbezugsleistung des Stromspeichers von 4,2 kW zu dimmen.",
       "IS_ACTIVATE_LABEL": "Die Verdrahtung ist entsprechend der Montageanleitung anzubringen."
+    },
+    "PROTOCOL_CHECKLIST_PAGE_TITLE": "KACO - Wechselrichter einbinden",
+    "PROTOCOL_CHECKLIST": {
+      "CONNECT_INVERTER": "A) Computer per Netzwerkkabel mit Wechselrichter verbinden (obere LAN Buchse)",
+      "CHANGE_NETWORK_SETTINGS": "B) Netzwerkeinstellungen am Computer ändern (IP-Adresse)",
+      "IP_ADDRESS": "C) IP-Adresse im Browser eingeben",
+      "ENTER_PASSWORD": "D) Passwort eingeben",
+      "START_CONFIGURATION": "E) KACO-Konfiguration starten mit dem Installation Wizard",
+      "MULTI_STEP": "{{listPosition}}) Steps 1 bis {{totalSteps}} durchführen",
+      "STEP": "Step {{currStep}}/{{totalStep}} - {{description}}",
+      "STEP_1": "Sprache wählen",
+      "STEP_2": "Land / Netztyp festlegen",
+      "STEP_3": "Leistungsbegrenzung",
+      "STEP_4": "IP Einstellung",
+      "STEP_5": "Lokalisierung",
+      "STEP_6": "Modbus",
+      "STEP_7": "Sonstiges (optionale Parameter)",
+      "STEP_8": "Finalisieren",
+      "MIN_VOLTAGE": "G) Zusatz: Minimale Spannungsgrenze einstellen",
+      "MIN_VOLTAGE_DESCRIPTION": "Funktioniert nur mit einem Installationskennwort (eigenes Passwort für Fenecon oder vorkonfiguriert).\n<ul> <li> Mindestspannungsgrenze:<b> {{voltageLimit}} V</b> (-> Netzform: <b>{{gridSetting}}</b>) </li> </ul>",
+      "POWER_CONTROL": "H) Leistungsregelung einstellen (Cos-Phi, usw.)",
+      "POWER_CONTROL_DESCRIPTION": "-> welche Einstellungen hier notwendig sind, ist aus den Daten des Netzbetreibers zu entnehmen\n-> Änderungen können nur mit Installer-Passwort vorgenommen werden",
+      "NETWORK_SETTINGS": "IP-Adresse: 169.254.1.12\nSubnetzmaske: 255.255.255.0",
+      "NETWORK_SETTINGS_NOTE": "Um den Wechselrichter über seine feste IP-Adresse zu erreichen, muss dem Gerät, das mit dem Wechselrichter verbunden ist, manuell eine statische IP zugewiesen werden, die sich im selben Netzwerkbereich befindet.",
+      "PASSWORD_DESCRIPTION": "Service Passwort:\n\nUser: service\nPassword: Ye_r0d4w0P!",
+      "IP_ADDRESS_DESCRIPTION": "IP-Adresse: 169.254.1.1",
+      "STEP_3_DESCRIPTION": "-> Standardeinstellungen so übernehmen.",
+      "STEP_5_DESCRIPTION": "Bitte synchronisieren Sie hier mit dem “Sync”-Button die Zeit",
+      "STEP_8_DESCRIPTION": "Name des Installateurs eintragen",
+      "STEP_6_DESCRIPTION": "Die Modbus-Einstellung sollte auf 502 gestellt sein",
+      "STEP_4_DESCRIPTION": "IP Adresse: 172.16.0.100\nSubnetzmaske: 255.255.255.0\nDefault gateway: 172.16.0.1",
+      "NETWORK_SETTINGS_INFO": "Bitte beachten Sie, dass die Schritte und Abbildungen zur Einstellung der statischen IP-Adresse je nach verwendetem Gerät abweichen können. Für andere Geräte, wie z. B. Apple-Geräte, können die Vorgehensweisen unterschiedlich sein.",
+      "TIMEOUT_NOTE": "Folgender Vorgang kann bis zu {{timeoutInMinutes}} Minuten dauern.",
+      "STEP_2_DESCRIPTION": "Bitte wählen Sie an dieser Stelle Ihre Netzform aus:\n<ul> <li> Deutschland <b> {{gridSetting}} </b> (-> unter G) \"Minimale Spannungsgrenze\" auf <b>{{voltageLimit}} V</b> setzen)"
+    },
+    "CONFIGURATION_SUB_SYSTEM": {
+      "NOTE": {
+        "COMMERCIAL_92": "Bevor Sie weiter fortfahren, stellen Sie sicher, dass Sie für die reibungslose Durchführung der kommenden Schritte - insbesondere zur Konfiguration des KACO-Wechselrichters - folgende/-s Endgerät verwenden:\n\neinen Laptop mit “LAN-WLAN-parallel” Funktion \noder\nzwei mobile Endgeräte, mit jeweils einer WLAN und einer LAN-Funktion"
+      }
+    },
+    "PROTOCOL_AVU_BOX": {
+      "TITLE": "Beinhaltet der Installationsumfang eine AVU-Box (Automatische Verbraucher-Umschaltung)?",
+      "SERIAL_NUMBER": "Seriennummer",
+      "LABEL": "AVU"
+    },
+    "CONFIGURATION_GRID_SETTING": {
+      "TITLE": "Netzform"
+    },
+    "PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_FILED_LABEL": "Bitte geben Sie die Anzahl der zu konfigurierenden Slaves ein",
+      "SLAVES_TITLE": "Slave {{number}}",
+      "SLAVE_INSTALLATION": {
+        "CONNECTION_STATUS": {
+          "NOT_YET_CONNECTED": "Noch nicht verbunden",
+          "CONNECTED": "Verbunden",
+          "NOT_FOUND": "Slave Nicht gefunden",
+          "AUTHENTICATING": "Authentifizierung"
+        },
+        "LOG_MESSAGE": {
+          "STARTING_AUTHENTICATION": "Authentifizierung wird gestartet...",
+          "AUTHENTICATION_SUCCESSFUL": "Authentifizierung erfolgreich. System wird aktualisiert …",
+          "UPDATE_COMPLETED": "Systemaktualisierung abgeschlossen. App wird konfiguriert …",
+          "PARTIALLY_CONFIGURED": "Konfiguration teilweise abgeschlossen.",
+          "CONFIGURED_SUCCESSFULLY": "Anwendung erfolgreich konfiguriert.",
+          "FUNCTION_TESTS_FAILED": "Funktionstest fehlgeschlagen: {{ error }}",
+          "CONFIGURATION_FAILED": "Konfiguration fehlgeschlagen: {{ error }}",
+          "SLAVE_STATUS ERROR": "Fehler beim Abrufen des Status für Slave {{ slaveNr }}"
+        }
+      }
+    },
+    "CONFIGURATION_PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_COUNT_TITLE": "Informationen zur Anzahl der Slaves",
+      "SLAVE_INSTALLATION_TITLE": "Installation einzelner Speichereinheiten (Slaves)"
+    },
+    "CONFIGURATION_STS_BOX": {
+      "HELP_TEXT": "Die Seriennummer der STS-Box befindet sich auf dem Typenschild seitlich der STS-Box",
+      "STS_BOX_AVAILABLE": "STS-Box installiert",
+      "LABEL": "STS Box",
+      "STS_BOX_FIELD_LABEL": "Ist eine STS-Box für Notstromfähigkeit installiert:"
+    },
+    "SHARED": {
+      "NOTE": "Hinweis",
+      "WARNING": "Warnung"
     }
   },
   "LIVE": {
@@ -1141,9 +1259,13 @@
   },
   "GRID_STATES": {
     "OFF_GRID": "Netzausfall",
-    "NO_EXTERNAL_LIMITATION": "keine externe Limitierung",
+    "NO_EXTERNAL_LIMITATION": "keine Limitierung",
     "RIPPLE_CONTROL_RECEIVER": "Rundsteuerempfänger",
-    "RESTRICTION": "Dimmung nach §14a EnWG"
+    "CONSUMPTION_LIMITATION": "Bezugslimitierung",
+    "FEED_IN_LIMITATION": "Einspeiselimitierung",
+    "FEED_IN_DESCRIPITON": "Speicherbezug Limit (§14a EnWG)",
+    "GRID_LIMITATION": "Netzlimitierung",
+    "§14a": "Dimmung nach §14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."

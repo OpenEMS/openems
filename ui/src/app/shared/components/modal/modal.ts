@@ -38,7 +38,7 @@ export class ModalComponent {
     } | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 
-    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
+    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = true;
     public readonly Role = Role;
 
     private edge: Edge | null = null;

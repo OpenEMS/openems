@@ -97,6 +97,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		public ProductionSchedulerOrderDefinition() {
 			this//
 					.thenByFactoryId("Controller.Ess.Limiter14a") //
+					.thenByFactoryId("Controller.Ess.RippleControlReceiver") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
 					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //

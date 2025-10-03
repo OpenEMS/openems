@@ -14,7 +14,9 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.EdgeConfig;
+import org.junit.Ignore;
 
+@Ignore("Not a test, but a performance test application")
 public class WebsocketPerformanceTestApp {
 
 	/**

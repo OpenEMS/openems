@@ -1,13 +1,13 @@
-import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { IonicModule } from "@ionic/angular";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../shared/shared";
@@ -17,11 +17,9 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../share
     templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
+        CommonUiModule,
         BaseChartDirective,
         ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
         ChartComponentsModule,
         HistoryDataErrorModule,
         NgxSpinnerModule,
@@ -34,6 +32,8 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
 
         const essComponents = config?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
             .filter(component => !component.factoryId.includes("Ess.Cluster"));
+
+        const essComponent: EdgeConfig.Component | null = essComponents?.length === 1 ? essComponents[0] : null;
 
         const yAxes: HistoryUtils.yAxes[] = [{
             unit: YAxisType.ENERGY,
@@ -86,6 +86,12 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
             });
         }
 
+        if (essComponent !== null && config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)) {
+            input.push(...Phase.THREE_PHASE.map((phase, i) => ({
+                name: translate.instant("General.phase") + " " + phase,
+                powerChannel: new ChannelAddress(essComponent.id, "ActivePower" + phase),
+            })));
+        }
         return {
             input: input,
             output: (data: HistoryUtils.ChannelData) => {
@@ -118,6 +124,15 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
                     color: ChartConstants.Colors.RED,
                     stack: 1,
                 }];
+
+                if (essComponent !== null && config.hasComponentNature("io.openems.edge.ess.api.AsymmetricEss", essComponent.id)) {
+                    output.push(...Phase.THREE_PHASE.map((phase, i) => ({
+                        name: translate.instant("General.phase") + " " + phase,
+                        converter: () => data[essComponent.id + "/ActivePower" + phase],
+                        stack: 1,
+                        color: ChartConstants.Colors.DEFAULT_PHASES_COLORS[i],
+                    })));
+                }
 
                 if (chartType === "line") {
                     output.push({

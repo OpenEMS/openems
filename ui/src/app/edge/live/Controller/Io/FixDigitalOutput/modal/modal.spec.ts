@@ -28,7 +28,7 @@ describe("FixDigitalOutput - Modal", () => {
                     LINE_BUTTONS_FROM_FORM_CONTROL("Modus", "isOn", [{
                         name: TEST_CONTEXT.translate.instant("General.on"),
                         value: 1,
-                        icon: { color: "success", name: "power-outline", size: "medium" },
+                        icon: { color: "success", name: "play-outline", size: "medium" },
                     },
                     {
                         name: TEST_CONTEXT.translate.instant("General.off"),
