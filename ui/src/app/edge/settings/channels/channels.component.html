@@ -43,7 +43,7 @@
               @if (selectedComponentId && selectedComponentId.value && selectedChannelId && selectedChannelId.value) {
                 <ion-button style="white-space: initial; line-break: strict;"
                   expand="block"
-                  (click)="subscribeChannels(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
+                  (click)="subscribeChannel(selectedComponentId.value, selectedChannelId.value); selectedComponentId.value = null;selectedChannelId.value = null"><span
                 translate>CHANNELS.ADD</span>
               </ion-button>
             }
@@ -192,7 +192,7 @@
                 </ion-item>
                 @if (selectedChannelId?.value) {
                   <ion-button expand="block"
-                    (click)="subscribeChannels(component.key, selectedChannelId.value); selectedChannelId.value = null"
+                    (click)="subscribeChannel(component.key, selectedChannelId.value); selectedChannelId.value = null"
                     translate>
                   CHANNELS.ADD</ion-button>
                 }
