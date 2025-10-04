@@ -1,8 +1,5 @@
 package io.openems.edge.app.timeofusetariff.manual;
 
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
-
 import java.util.Map;
 import java.util.function.Function;
 
