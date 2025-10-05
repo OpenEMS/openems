@@ -23,7 +23,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Standard Price", description = "The standard price [Cent/kWh]")
 	double standardPrice();
 
-	@AttributeDefinition(name = "Low Price", description = "The low price, active from 02 to 06 am and 12 am to 16 pm [Cent/kWh]")
+	@AttributeDefinition(name = "Low Price", description = "The low price, active from 02 to 06 am and 12 am to 04 pm [Cent/kWh]")
 	double lowPrice();
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Octopus Heat [{id}]";
