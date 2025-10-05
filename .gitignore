@@ -234,3 +234,7 @@ io.openems.edge.application/c:/
 
 ### Debian ###
 !tools/debian/**
+*.
+.project
+.gitignore
+.classpath
