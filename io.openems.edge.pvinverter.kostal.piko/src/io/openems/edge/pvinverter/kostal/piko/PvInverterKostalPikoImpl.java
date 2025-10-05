@@ -115,6 +115,7 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 		try {
 			this.parseHtmlResponse(result.data());
+			this._setSlaveCommunicationFailed(false);
 		} catch (Exception e) {
 			this.logError(this.log, "Failed to parse HTML response: " + e.getMessage());
 			this.channel(PvInverterKostalPiko.ChannelId.DEBUG_HTML)
