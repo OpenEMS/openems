@@ -13,7 +13,12 @@ import { ModalComponent } from "../modal/modal";
 export class FlatComponent extends AbstractFlatWidget {
 
   protected overrideStatus: OverrideStatus | null = null;
-  protected get modalComponent(): Modal {
+  protected modalComponent: Modal | null = null;
+
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+  protected getModalComponent(): Modal {
     return {
       component: ModalComponent,
       componentProps: {
@@ -21,20 +26,6 @@ export class FlatComponent extends AbstractFlatWidget {
       },
     };
   };
-
-  async presentModal() {
-    if (!this.isInitialized) {
-      return;
-    }
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
-
 
   protected override getChannelAddresses(): ChannelAddress[] {
 

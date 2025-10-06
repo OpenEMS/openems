@@ -13,7 +13,9 @@ import { ModalComponent } from "../modal/modal";
 export class FlatComponent extends AbstractFlatWidget {
 
   public percentageValue: number;
-  protected get modalComponent(): Modal {
+  protected modalComponent: Modal | null = null;
+
+  protected getModalComponent(): Modal {
     return { component: ModalComponent };
   };
 
@@ -29,6 +31,10 @@ export class FlatComponent extends AbstractFlatWidget {
       currentData.allComponents["_sum/GridActivePower"],
       currentData.allComponents["_sum/ConsumptionActivePower"],
     );
+  }
+
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
   }
 
 }

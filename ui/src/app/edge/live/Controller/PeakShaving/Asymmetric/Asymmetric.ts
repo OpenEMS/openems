@@ -19,7 +19,13 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
     public peakShavingPower: number;
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-    protected get modalComponent(): Modal {
+
+    protected modalComponent: Modal | null = null;
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+    protected getModalComponent(): Modal {
         return {
             component: Controller_Asymmetric_PeakShavingModalComponent,
             componentProps: {
@@ -28,18 +34,6 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
                 mostStressedPhase: this.mostStressedPhase,
             },
         };
-    }
-
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: Controller_Asymmetric_PeakShavingModalComponent,
-            componentProps: {
-                component: this.component,
-                edge: this.edge,
-                mostStressedPhase: this.mostStressedPhase,
-            },
-        });
-        return await modal.present();
     }
 
     protected override getChannelAddresses() {
