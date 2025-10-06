@@ -19,6 +19,16 @@
               </ng-container>
             </ion-col>
           </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+                <!-- Weather-->
+                <weather [componentId]="widget.componentId" *ngSwitchCase="'Weather.OpenMeteo'"
+                  class="ion-hide-sm-down">
+                </weather>
+              </ng-container>
+            </ion-col>
+          </ion-row>
         </ion-grid>
       </ion-col>
 
@@ -28,7 +38,6 @@
           <ion-row>
             <!-- Regular Widgets -->
             <ng-container *ngFor="let clazz of widgets.classes; let i = index" [ngSwitch]="clazz">
-
 
               <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-lg="6" class="ion-no-padding">
                 <Common_Autarchy></Common_Autarchy>
