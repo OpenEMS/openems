@@ -10,21 +10,22 @@
                   <!-- No access to Edges -->
                   <ion-item color="warning" lines="full">
                     <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                    <ion-label class="ion-text-wrap ion-text-center">{{"Index.NO_EDGE_AVAILABLE" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                    <ion-label
+                      class="ion-text-wrap ion-text-center">{{"Index.NO_EDGE_AVAILABLE" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
                     <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                    INSTALLATION.CLICK_RECOMMENDATION</p>
+                      INSTALLATION.CLICK_RECOMMENDATION</p>
                   </ion-card-content>
                 } @else {
                   <ion-item color="warning" lines="full">
                     <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                     <ion-label class="ion-text-wrap ion-text-center"
-                    [translateParams]="{edgeShortName: environment.edgeShortName}">{{"Index.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                      [translateParams]="{edgeShortName: environment.edgeShortName}">{{"Index.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
                     <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
-                    Index.VISIBLE_HERE_AFTER_INSTALLATION</p>
+                      Index.VISIBLE_HERE_AFTER_INSTALLATION</p>
                   </ion-card-content>
                 }
               }
@@ -43,8 +44,7 @@
               <!-- Filter -->
               @if ((service.metadata | async)?.user; as user) {
                 @if (isAtLeastInstaller) {
-                  <oe-filter (setSearchParams)="searchOnChange($event)"
-                  ></oe-filter>
+                  <oe-filter (setSearchParams)="searchOnChange($event)"></oe-filter>
                 }
               }
               <ion-row class="ion-justify-content-center">
@@ -57,8 +57,7 @@
                     }
                     @for (edge of filteredEdges; track edge; let i = $index) {
                       <ion-item lines="inset" [routerLink]="['/device', edge.id]"
-                        [color]="edge.isOnline ? null : 'light'"
-                        (click)="getAndSubscribeEdge(edge)">
+                        [color]="edge.isOnline ? null : 'light'" (click)="getAndSubscribeEdge(edge)">
                         <ion-label>
                           <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                           @if (!edge.isOnline) {
@@ -86,52 +85,48 @@
                             edge.getRoleString() }}
                           </p>
                         </ion-label>
-                        <oe-sum-state [sumState]="edge.sumState"
-                        [isEdgeOnline]="edge.isOnline"></oe-sum-state> </ion-item>
-                      }
-                      <ion-infinite-scroll (ionInfinite)="doInfinite($event)"
-                        [disabled]="limitReached">
-                        <ion-infinite-scroll-content [loadingSpinner]="'crescent'"
-                          ngClass="custom-spinner">
-                        </ion-infinite-scroll-content>
-                      </ion-infinite-scroll>
-                    </ion-list>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            }
+                        <oe-sum-state [sumState]="edge.sumState" [isEdgeOnline]="edge.isOnline"></oe-sum-state>
+                      </ion-item>
+                    }
+                    <ion-infinite-scroll (ionInfinite)="doInfinite($event)" [disabled]="limitReached">
+                      <ion-infinite-scroll-content [loadingSpinner]="'crescent'" ngClass="custom-spinner">
+                      </ion-infinite-scroll-content>
+                    </ion-infinite-scroll>
+                  </ion-list>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           }
+        }
 
-          <!-- Add-Button for desktop devices -->
-          @if (loggedInUserCanInstall && !this.service.isSmartphoneResolution) {
-            <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
-              testId="ibn-button">
-              <ion-fab-button size="large">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-fab-button>
-              <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
-                <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
-                  translate
-                [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
-              </ion-fab-list>
-            </ion-fab>
-          }
+        <!-- Add-Button for desktop devices -->
+        @if (loggedInUserCanInstall && !this.service.isSmartphoneResolution) {
+          <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
+            testId="ibn-button">
+            <ion-fab-button size="large">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
+              <oe-flat-button color="primary" [link]="{ text: './installation', routeRelative: route }">
+                {{"Index.ADD_EDGE" | translate: {edgeShortName: environment.edgeShortName} }}
+              </oe-flat-button>
+            </ion-fab-list>
+          </ion-fab>
+        }
 
-          <!-- Add-Button for mobile devices -->
-          @if (loggedInUserCanInstall && this.service.isSmartphoneResolution) {
-            <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button"
-              >
-              <ion-fab-button size="small">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-fab-button>
-              <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active"
-                  translate
+        <!-- Add-Button for mobile devices -->
+        @if (loggedInUserCanInstall && this.service.isSmartphoneResolution) {
+          <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button">
+            <ion-fab-button size="small">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
+              <ion-button color="primary" [routerLink]="['./installation']" routerLinkActive="active" translate
                 [translateParams]="{edgeShortName: environment.edgeShortName}">Index.ADD_EDGE</ion-button>
-              </ion-fab-list>
-            </ion-fab>
-          }
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ion-content>
+            </ion-fab-list>
+          </ion-fab>
+        }
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

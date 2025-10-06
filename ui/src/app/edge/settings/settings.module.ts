@@ -3,7 +3,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
 import tr from "src/app/edge/settings/shared/translation.json";
 import { ComponentsModule } from "src/app/shared/components/components.module";
-import { FlatButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
+import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Language } from "src/app/shared/type/language";
 import { SharedModule } from "./../../shared/shared.module";
@@ -25,7 +25,7 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
     ChangelogComponent,
     ComponentsModule,
     HelpButtonComponent,
-    FlatButtonComponent,
+    FlatWidgetButtonComponent,
     UpdateAppComponent,
   ],
   declarations: [

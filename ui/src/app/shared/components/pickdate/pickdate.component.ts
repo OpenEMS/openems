@@ -17,6 +17,7 @@ import { PickDatePopoverComponent } from "./popover/popover.component";
         ion-button.pickdate-styles {
             background: transparent !important;
             box-shadow: none !important;
+            white-space: nowrap;
         }
 
         ion-button.pickdate-styles::part(native) {
