@@ -1,6 +1,5 @@
 package io.openems.edge.fronius.pvinverter;
 
-import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "PV-Inverter.Fronius", //
@@ -65,8 +63,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+// EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+// EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 
 public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
@@ -121,7 +120,8 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(),
-				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, SingleOrAllPhase.ALL)) {
+				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK,
+				SingleOrAllPhase.ALL)) {
 			return;
 		}
 
@@ -144,8 +144,10 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 	 * @param int value - the new limit value
 	 * @throws OpenemsException on error
 	 */
-	@Override
-	public void setActivePowerLimit(int value) throws OpenemsNamedException {
+
+	public void pvLimitHandler() throws OpenemsNamedException {
+
+		var pvLimitValue = this.getActivePowerLimit().get();
 
 		EnumWriteChannel wMaxLimEnaChannel;
 		if (this.isSunSpecInitializationCompleted()) {
@@ -155,8 +157,12 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 			this.log.info("SunSpec model not completely intialized. Skipping PV Limiter");
 			return;
 		}
+		if (pvLimitValue == null) {
+			logDebug(log, "Value for Limiter is NULL. Disabling Limitation");
+		}
 
-		this.getActivePowerLimitChannel().setNextWriteValue(value);
+		logDebug(log, "Value for Limiter is: " + pvLimitValue);
+		this.getActivePowerLimitChannel().setNextWriteValue(pvLimitValue);
 
 		// has to be written every time
 		wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
@@ -377,16 +383,19 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter
 		super.handleEvent(event);
 
 		switch (event.getTopic()) {
-
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-
 			try {
-
 				this.pvDataHandler();
 			} catch (OpenemsNamedException e) {
 				this.log.warn("Cannot write String channel data yet");
 			}
-
+			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
+			try {
+				this.pvLimitHandler();
+			} catch (OpenemsNamedException e) {
+				this.log.warn("Error in pvLimitHandler");
+			}
 			break;
 		}
 	}

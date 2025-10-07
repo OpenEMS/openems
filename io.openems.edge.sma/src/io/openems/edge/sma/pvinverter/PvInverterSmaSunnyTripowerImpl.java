@@ -1,5 +1,6 @@
 package io.openems.edge.sma.pvinverter;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -39,7 +40,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S123_WMaxLim_Ena;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -52,7 +52,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
 
@@ -70,11 +69,12 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		})
 @EventTopics({ //
 		// EdgeEventConstants.TOPIC_BASE,
-		// EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS,
 		// EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		// EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, //
+
 // EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE,
-// EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE
 // EdgeEventConstants.TOPIC_CYCLE
 })
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
@@ -138,6 +138,10 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 	private Config config;
 	private int numberOfModules = 0;
+	private Float lastPct = null;
+	private boolean lastEnabled = false;
+	private static final Duration LIMIT_REFRESH_INTERVAL = Duration.ofSeconds(30);
+	private Instant lastLimiterRefreshAt = null;
 
 	private Instant lastSuccessfulCommunication = null; // Zeitstempel der letzten erfolgreichen Modbus-Kommunikation
 
@@ -185,18 +189,35 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		super.deactivate();
 	}
 
+	/*
+	 * public void handleEvent(Event event) { super.handleEvent(event); //
+	 * this.log.error("Event -> " + event.toString());
+	 * this.checkActivePowerChannel(); try {
+	 * 
+	 * this.pvDataHandler();
+	 * 
+	 * } catch (OpenemsNamedException e) { log.warn("Cannot write S160 data yet"); }
+	 * 
+	 * }
+	 */
+
+	@Override
 	public void handleEvent(Event event) {
-		super.handleEvent(event);
-		// this.log.error("Event -> " + event.toString());
-		this.checkActivePowerChannel();
-		try {
-
-			this.pvDataHandler();
-
-		} catch (OpenemsNamedException e) {
-			log.warn("Cannot write S160 data yet");
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
+			this.checkActivePowerChannel();
+			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
+			try {
+				this.pvDataHandler();				
+				this.handleActivePowerLimitation();
+				this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(false);				
+			} catch (OpenemsNamedException e) {
+				this.log.error("Error setting active power limitation", e);
+				this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(true);		
+			}
+			break;
 		}
-
 	}
 
 	/**
@@ -205,50 +226,76 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 	 *
 	 * @param int value - the new limit value
 	 * @throws OpenemsException on error
+	 * 
+	 * 
+	 *                          2025 10 06 Method from managedSymmetricPvInverter is
+	 *                          called from every controller during one cycle. It´s
+	 *                          only intended to set value to inverter at the end of
+	 *                          a cycle - once! 
+	 *
 	 */
-	@Override
-	public void setActivePowerLimit(Integer value) throws OpenemsNamedException {
+	public void handleActivePowerLimitation() throws OpenemsNamedException {
 		if (!this.isSunSpecInitializationCompleted()) {
 			this.log.info("SunSpec model not completely initialized. Skipping PV Limiter");
 			return;
 		}
+
+		var activePowerLimit = this.getActivePowerLimit().get();
+
 		EnumWriteChannel wMaxLimEnaChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA);
 		FloatWriteChannel wMaxPercentChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT);
-		IntegerWriteChannel wMaxPercentTimeoutChannel = this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
+		IntegerWriteChannel wMaxPercentTimeoutChannel = this
+				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT_RVRT_TMS);
 
 		// no active limitation from controller. Disable inverter´s limit
-		if (value == null) {
-			this.log.info("Value for Limiter is NULL. Disabling Limitation");
-				this.getActivePowerLimitChannel().setNextWriteValue(null);
+		if (activePowerLimit == null) {
+			logDebug(log, "Value for Limiter is NULL. Disabling Limitation");
+
+			if (lastEnabled) {
 				wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.DISABLED);
+				lastEnabled = false;
+				lastPct = null;
+				lastLimiterRefreshAt = null;
+			}
+
 			return; // early return
+		} else {
+			logDebug(log, "Limiting active: " + activePowerLimit);
 		}
 
 		float targetPercent = 100;
-
 
 		Integer maxApparentPower;
 		maxApparentPower = this.getMaxApparentPower().get();
 		if (maxApparentPower == null || maxApparentPower <= 0) {
 			this.log.warn("maxApparentPower is zero or negative; disabling PV limiter.");
 			wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.DISABLED);
+			lastEnabled = false;
+			lastPct = null;
+			lastLimiterRefreshAt = null;
 			return;
 		}
 
-		targetPercent = (float) value * 100f / maxApparentPower;
+		targetPercent = (float) activePowerLimit * 100f / maxApparentPower;
 		targetPercent = Math.max(0f, Math.min(100f, targetPercent));
 
-		wMaxPercentTimeoutChannel.setNextWriteValue(60);
-		wMaxPercentChannel.setNextWriteValue(targetPercent);
-		wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
-		
-		this.getActivePowerLimitChannel().setNextWriteValue(value); // feed internal channel		
+		Instant now = Instant.now();
+		boolean timedOut = (lastLimiterRefreshAt == null)
+				|| now.isAfter(lastLimiterRefreshAt.plus(LIMIT_REFRESH_INTERVAL));
+		boolean changed = (!lastEnabled) || (lastPct == null) || (Math.abs(lastPct - targetPercent) > 0.1f);
 
+		if (timedOut || changed) {
+			wMaxPercentTimeoutChannel.setNextWriteValue(60);
+			wMaxPercentChannel.setNextWriteValue(targetPercent);
+			wMaxLimEnaChannel.setNextWriteValue(S123_WMaxLim_Ena.ENABLED);
+			lastLimiterRefreshAt = now;
+			lastPct = targetPercent;
+			lastEnabled = true;
+			logDebug(log, String.format("Limiter refresh [%s]: %.2f%% (timedOut=%s, changed=%s)", now, targetPercent,
+					timedOut, changed));
+		}
 	}
 
-	public void setActivePowerLimit(int value) throws OpenemsNamedException {
-		this.setActivePowerLimit(Integer.valueOf(value));
-	}
 
 	// Active Power channel is not available (yet)
 	// STP10 does not send valid modbus data if pv production is 0

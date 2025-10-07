@@ -37,6 +37,10 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.timedata.api.Timedata;
+
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,7 +52,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
-		implements VictronAcOutPowerMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler {
+		implements VictronAcOutPowerMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler, TimedataProvider {
 
 	private Config config;
 
@@ -64,7 +68,18 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
 	}
+	
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private volatile Timedata timedata = null;
+	
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);	
+	
+	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);	
+		
+	
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -93,34 +108,23 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void setEnergyValues() {
-		// Both values should sum up to total energy
-		Long energyFromAcIn1ToAcOut = this.getEnergyFromAcIn1ToAcOut().get();
-		Long energyFromAcIn2ToAcOut = this.getEnergyFromAcIn2ToAcOut().get();
-		Long energyFromBatteryToAcOut = this.getEnergyFromBatteryToAcOut().get();
+		var activePower = this.getActivePower().get();
 		
-		// reverse PV feeding, i.e. if pv charger is connected to AC Out
-		Long energyFromAcOutToAcIn1 = this.getEnergyFromAcOutToAcIn1().get();
-		Long energyFromAcOutToAcIn2 = this.getEnergyFromAcOutToAcIn2().get();
-
-		// ToDo: both values are equal! They should not be...
-
-		if (energyFromAcIn1ToAcOut == null || energyFromAcIn2ToAcOut  == null || energyFromBatteryToAcOut == null || energyFromAcOutToAcIn1 == null || energyFromAcOutToAcIn2 == null) {
-			return;
-		}
-		
-		if (this.config.invert() == true) {
-			this._setActiveConsumptionEnergy(
-					energyFromAcIn1ToAcOut + energyFromAcIn2ToAcOut + energyFromBatteryToAcOut);
-			this._setActiveProductionEnergy(
-					energyFromAcOutToAcIn1 + energyFromAcOutToAcIn2);			
-			
+		if (activePower == null) {
+			// Not available
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower > 0) {
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else if (activePower < 0) {
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(activePower * -1);
 		} else {
-			this._setActiveProductionEnergy(
-					energyFromAcIn1ToAcOut + energyFromAcIn2ToAcOut + energyFromBatteryToAcOut);
-			this._setActiveConsumptionEnergy(
-					energyFromAcOutToAcIn1 + energyFromAcOutToAcIn2);
+			// Undefined
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(activePower * -1);
 		}
-		
 	}
 
 	@Override
@@ -170,6 +174,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						new DummyRegisterElement(26, 73),
 
+						// Be careful! Values reset after system reboot
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT,
 								new UnsignedDoublewordElement(74), ElementToChannelConverter.SCALE_FACTOR_1),
 						new DummyRegisterElement(76, 77),
@@ -200,5 +205,10 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

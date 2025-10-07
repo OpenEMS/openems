@@ -110,11 +110,11 @@ public class ReversePowerRelayImpl extends AbstractOpenemsComponent
 
 				if (powerLimit != null) {
 					this.log.warn("Setting PV limit: " + powerLimit + "W for " + this.pvInverterId);
+					// Only call limitation if necessary
+					pvInverter.setActivePowerLimit(powerLimit);
 				} else {
-					this.log.info("No limit for " + this.pvInverterId);
+					this.logDebug(this.log, "[" + this.config.alias() + "] No limitation for "  + this.pvInverterId);					
 				}
-
-				pvInverter.setActivePowerLimit(powerLimit);
 
 			}
 		} catch (OpenemsNamedException e) {

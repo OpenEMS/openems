@@ -77,27 +77,27 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.accessMode(AccessMode.WRITE_ONLY)),
 
 		VOLTAGE_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		VOLTAGE_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		VOLTAGE_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_INPUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_INPUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		FREQUENCY_INPUT_L1(Doc.of(OpenemsType.INTEGER) //
@@ -125,27 +125,27 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.accessMode(AccessMode.READ_ONLY)),		
 
 		VOLTAGE_OUTPUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		VOLTAGE_OUTPUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		VOLTAGE_OUTPUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.MILLIVOLT) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_OUTPUT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_OUTPUT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		CURRENT_OUTPUT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+				.unit(Unit.MILLIAMPERE) //
 				.accessMode(AccessMode.READ_ONLY)),
 
 		FREQUENCY_OUTPUT(Doc.of(OpenemsType.INTEGER) //
