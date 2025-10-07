@@ -13,6 +13,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -32,6 +35,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,12 +52,19 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
-		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler {
+		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler,
+		TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterKostalPikoImpl.class);
 
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private BridgeHttp httpBridge;
 	private String baseUrl;
@@ -104,7 +117,14 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		// Not needed
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateProductionEnergy.update(this.getActivePower().get());
+			break;
+		}
 	}
 
 	private void handleSuccessfulResult(HttpResponse<String> result) {
@@ -423,5 +443,10 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
