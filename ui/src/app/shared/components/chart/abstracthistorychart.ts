@@ -109,7 +109,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       labels.push(new Date(timestamp));
     }
 
-    chartObject.input.forEach(element => {
+    chartObject.input?.forEach(element => {
       let channelAddress: ChannelAddress | null = null;
       if (chartType == "bar" && element.energyChannel) {
         channelAddress = element.energyChannel;

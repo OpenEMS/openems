@@ -5,5 +5,12 @@ import { FieldType } from "@ngx-formly/core";
   selector: "formly-radio",
   templateUrl: "./formly-radio.html",
   standalone: false,
+  styles: [
+    `
+    :host {
+      width: 100%;
+    }
+    `,
+  ],
 })
 export class FormlyRadioTypeComponent extends FieldType { }

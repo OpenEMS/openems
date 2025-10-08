@@ -3,34 +3,14 @@ package io.openems.edge.app.evse;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
-import java.util.Arrays;
-
 import io.openems.edge.app.enums.Wiring;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 
 public class EvseProps {
-
-	/**
-	 * Creates a {@link AppDef} for phase rotation.
-	 * 
-	 * @return the {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.Evse.phaseRotation.label") //
-				.setTranslatedDescription("App.Evse.phaseRotation.description") //
-				.setDefaultValue(PhaseRotation.L1_L2_L3) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(PhaseRotation.values()) //
-							.map(PhaseRotation::name) //
-							.toList());
-				}));
-	}
 
 	/**
 	 * Creates a {@link AppDef} for wiring.
@@ -82,7 +62,7 @@ public class EvseProps {
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 				.setDefaultValue(false);
 	}
-	
+
 	/**
 	 * Creates a {@link AppDef} for configuring the unit id of the charging station.
 	 * 

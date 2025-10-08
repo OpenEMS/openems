@@ -9,7 +9,7 @@ import { EvcsComponent } from "../components/edge/components/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, Currency, EdgeConfig } from "../shared";
+import { ChannelAddress, ChartConstants, Currency, EdgeConfig } from "../shared";
 
 /**
  * @deprecated use seperate utils class
@@ -920,8 +920,7 @@ export namespace TimeOfUseTariffUtils {
       case dischargeLabel:
       case chargeConsumptionLabel:
       case balancingLabel:
-        // Show floating point number for values between 0 and 1
-        return label + ": " + formatNumber(value, locale, "1.0-4") + " " + currencyLabel;
+        return label + ": " + formatNumber(value, locale, ChartConstants.NumberFormat.TWO) + " " + currencyLabel;
 
       default:
       case gridBuyLabel:

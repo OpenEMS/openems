@@ -10,7 +10,7 @@
             </ion-item>
             <ion-card-content>
               <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/profile'}">
-                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                <ion-icon name="arrow-forward-outline"></ion-icon>
               </oe-flat-button>
             </ion-card-content>
           </ion-card>
@@ -24,7 +24,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemlog'}">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -39,7 +39,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/network'}">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -55,7 +55,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/app'}">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -70,7 +70,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/system'}">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -85,7 +85,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/alerting'}">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -107,7 +107,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.update'}" color="light">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -120,7 +120,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.install'}" color="light">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -134,7 +134,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/channels'}" color="light">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -147,7 +147,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemexecute'}" color="light">
-                  <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
             </ion-card>
@@ -159,29 +159,29 @@
                 <ion-label>Power Assistant</ion-label>
               </ion-item>
               <ion-card-content>
-                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/powerAssistant'}" color="light"> <ion-icon
-                slot="icon-only" name="arrow-forward-outline"></ion-icon>
-              </oe-flat-button>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        @if (canSeeJsonrpcTest) {
-          <ion-col size="12" size-sm="4">
-            <ion-card>
-              <ion-item lines="full" color="light">
-                <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
-                <ion-label>Jsonrpc test</ion-label>
-              </ion-item>
-              <ion-card-content>
-                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/jsonrpctest'}" color="light"> <ion-icon
-                slot="icon-only" name="arrow-forward-outline"></ion-icon>
-              </oe-flat-button>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/powerAssistant'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          @if (canSeeJsonrpcTest) {
+            <ion-col size="12" size-sm="4">
+              <ion-card>
+                <ion-item lines="full" color="light">
+                  <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
+                  <ion-label>Jsonrpc test</ion-label>
+                </ion-item>
+                <ion-card-content>
+                  <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/jsonrpctest'}" color="light">
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                  </oe-flat-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          }
+        </ion-row>
       }
-  </ion-row>
-}
-</ion-grid>
-}
+    </ion-grid>
+  }
 </ion-content>

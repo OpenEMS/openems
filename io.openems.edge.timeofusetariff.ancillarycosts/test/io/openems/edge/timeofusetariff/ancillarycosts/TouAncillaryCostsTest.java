@@ -1,9 +1,9 @@
 package io.openems.edge.timeofusetariff.ancillarycosts;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.currency.Currency.EUR;
 import static org.junit.Assert.assertEquals;
-import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.Clock;
 import java.time.Instant;

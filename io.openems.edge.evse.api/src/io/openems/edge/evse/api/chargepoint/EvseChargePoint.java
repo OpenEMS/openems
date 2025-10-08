@@ -9,6 +9,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public interface EvseChargePoint extends ElectricityMeter, OpenemsComponent {
 

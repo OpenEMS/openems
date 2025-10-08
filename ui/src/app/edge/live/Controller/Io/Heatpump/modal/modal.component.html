@@ -84,7 +84,7 @@
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
               <ion-label class="regularFont">{{"Edge.Index.Widgets.HeatPump.switchOnCom" | translate}}</ion-label>
-              <ion-toggle (keydown.enter)="updateManualMode('FORCE_ON')" button tabindex="0" mode="md" mode="md"
+              <ion-toggle (keydown.enter)="updateManualMode('FORCE_ON')" button tabindex="0" mode="md" slot="end"
                 style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
               </ion-toggle>
             </ion-item>
@@ -92,19 +92,19 @@
               lines="none">
               <ion-label class="regularFont">{{"Edge.Index.Widgets.HeatPump.switchOnRec" | translate}}</ion-label>
               <ion-toggle (keydown.enter)="updateManualMode('RECOMMENDATION')" mode="md" style="pointer-events: none"
-                [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
+                slot="end" [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
               lines="none">
               <ion-label class="regularFont">{{"Edge.Index.Widgets.HeatPump.normalOperation" | translate}}</ion-label>
               <ion-toggle (keydown.enter)="updateManualMode('REGULAR')" mode="md" style="pointer-events: none"
-                [checked]="formGroup.value.manualState === 'REGULAR'">
+                slot="end" [checked]="formGroup.value.manualState === 'REGULAR'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
               <ion-label class="regularFont">{{"Edge.Index.Widgets.HeatPump.lock" | translate}}</ion-label>
-              <ion-toggle (keydown.enter)="updateManualMode('LOCK')" mode="md" style="pointer-events: none"
+              <ion-toggle (keydown.enter)="updateManualMode('LOCK')" mode="md" style="pointer-events: none" slot="end"
                 [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
             </ion-item>
           </ion-list>

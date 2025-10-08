@@ -17,7 +17,12 @@ export class FlatComponent extends AbstractFlatWidget {
   protected statusNumber: number | null = null;
   protected status: State | null = null;
 
-  protected get modalComponent(): Modal {
+  protected modalComponent: Modal | null = null;
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+
+  protected getModalComponent(): Modal {
     return {
       component: ModalComponent,
       componentProps: {

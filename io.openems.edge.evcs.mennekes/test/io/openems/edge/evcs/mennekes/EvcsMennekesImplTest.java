@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.mennekes;
 
-import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
+import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;

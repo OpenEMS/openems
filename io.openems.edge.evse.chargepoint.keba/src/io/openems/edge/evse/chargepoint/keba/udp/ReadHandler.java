@@ -1,7 +1,7 @@
 package io.openems.edge.evse.chargepoint.keba.udp;
 
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.AbstractUdpReadHandler;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public class ReadHandler extends AbstractUdpReadHandler<EvseKebaUdpImpl> {
 

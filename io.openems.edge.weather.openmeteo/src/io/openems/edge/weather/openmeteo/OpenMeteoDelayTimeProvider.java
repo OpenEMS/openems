@@ -33,6 +33,8 @@ public class OpenMeteoDelayTimeProvider implements DelayTimeProvider {
 
 	@Override
 	public Delay onSuccessRunDelay(HttpResponse<String> result) {
-		return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofHours(3)).getDelay();
+		return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofHours(3))//
+				.plusRandomDelay(300, ChronoUnit.SECONDS)//
+				.getDelay();
 	}
 }

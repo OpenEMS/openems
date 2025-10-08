@@ -14,16 +14,15 @@ export class FlatComponent extends AbstractFlatWidget {
     public productionMeterComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-    protected get modalComponent(): Modal {
+
+    protected modalComponent: Modal | null = null;
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+    protected getModalComponent(): Modal {
         return { component: ModalComponent };
     };
-
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-        });
-        return await modal.present();
-    }
 
     protected override getChannelAddresses() {
         // Get Chargers
