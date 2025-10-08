@@ -186,7 +186,15 @@ export class Edge {
    * @param channels  the subscribed Channel-Addresses
    */
   public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
+    const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
     this.subscribedChannels[id] = channels;
+
+    const channelsToSubscribe = channels.map(channel => channel.toString());
+
+    if (ArrayUtils.containsAllStrings(previousChannels, channelsToSubscribe)) {
+      return;
+    }
+
     this.sendSubscribeChannels(websocket);
   }
 
@@ -211,7 +219,16 @@ export class Edge {
    * @todo should be removed
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
+    const subscribedChannelsById = this.subscribedChannels[id];
     delete this.subscribedChannels[id];
+
+    const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
+    const unsubscribeChannels = Object.values(subscribedChannelsById ?? {}).flat().map(channel => channel.toString());
+
+    if (ArrayUtils.containsAllStrings(previousChannels, unsubscribeChannels)) {
+      return;
+    }
+
     this.sendSubscribeChannels(websocket);
   }
 
@@ -233,18 +250,37 @@ export class Edge {
    *
    * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
    */
-  public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
-    this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
+  public unsubscribeFromChannels(subscribeId: string, websocket: Websocket, channels: ChannelAddress[]) {
+    const subscribedChannels = Object.entries(this.subscribedChannels)
+      .reduce((arr, [id, subscribedChannels]) => {
 
-      if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
+        const areChannelsEqual = ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()));
+        const channelsUsedByOtherSubscriptions = Object.entries(this.subscribedChannels)
+          .filter(([otherId, _]) => otherId !== id)
+          .some(([_, otherSubscribedChannels]) => {
+            return channels.some(channel => otherSubscribedChannels.some(osc => osc.toString() === channel.toString()));
+          });
+
+        if (areChannelsEqual && channelsUsedByOtherSubscriptions == false) {
+          // removes matching channels from subscribedChannels
+          return arr;
+        }
+
+        arr[id] = subscribedChannels;
         return arr;
-      }
+      }, {});
 
-      arr[id] = subscribedChannels;
+    const previousChannels = Object.values(this.subscribedChannels)
+      .map((channel) => channel.toString());
+    const newChannels = Object.entries(subscribedChannels)
+      .filter(([otherId, _]) => otherId !== subscribeId).map(([_, channel]) => channel.toString());
 
-      return arr;
-    }, {});
+    if (ArrayUtils.containsAllStrings(previousChannels, newChannels) && previousChannels.length === newChannels.length) {
+      // no change in channels, do not send subscribe request
+      return;
+    }
 
+    this.subscribedChannels = subscribedChannels;
     this.sendSubscribeChannels(websocket);
   }
 
