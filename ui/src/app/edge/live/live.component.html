@@ -33,7 +33,7 @@
       </ion-col>
 
       <!-- Widgets -->
-      <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
+      <ion-col size="12" size-md="8" [attr.size-lg]="navigationService.position() === 'left' ? 8 : 6" class="ion-no-padding">
         <ion-grid class="ion-no-padding">
           <ion-row>
             <!-- Regular Widgets -->
