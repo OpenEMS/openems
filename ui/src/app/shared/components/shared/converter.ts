@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
-import { CurrentData, EdgeConfig, GridMode, Utils } from "../../shared";
+import { CurrentData, EdgeConfig, GridMode, Limiter14aRestriction, RippleControlReceiverRestrictionLevel, Utils } from "../../shared";
 import { EnabledDisabledState } from "../../type/general";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
@@ -123,9 +123,9 @@ export namespace Converter {
   };
 
   /**
-   * Formats a Power value as Watt [W].
+   * Formats a Power value as Watt [kW].
    *
-   * Value 1000 -> "1.000 W".
+   * Value 1000 -> "1 kW".
    * Value null -> "-".
    *
    * @param value the power value
@@ -302,14 +302,26 @@ export namespace Converter {
 
   export const GRID_STATE_TO_MESSAGE = (translate: TranslateService, currentData: CurrentData): string => {
     const gridMode = currentData.allComponents["_sum/GridMode"];
-    const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];
+    const restrictionMode14a = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"] ?? Limiter14aRestriction.NO_RESTRICTION;
+    const restrictionModeRcr = currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"] ?? RippleControlReceiverRestrictionLevel.NO_RESTRICTION;
     if (gridMode === GridMode.OFF_GRID) {
       return translate.instant("GRID_STATES.OFF_GRID");
     }
-    if (restrictionMode === 1) {
-      return translate.instant("GRID_STATES.RESTRICTION");
+    if (restrictionMode14a) {
+      return translate.instant(restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION
+        ? "GRID_STATES.GRID_LIMITATION"
+        : "GRID_STATES.CONSUMPTION_LIMITATION");
     }
+
+    if (restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION) {
+      return translate.instant("GRID_STATES.FEED_IN_LIMITATION");
+    }
+
     return translate.instant("GRID_STATES.NO_EXTERNAL_LIMITATION");
+  };
+
+  export const RCR_RESTRICTION_LEVEL_TO_MESSAGE = (currentData: CurrentData): string => {
+    return `${currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"]} %`;
   };
 
   export const ON_OFF = (translate: TranslateService) => {
@@ -394,6 +406,31 @@ export namespace Converter {
     };
   };
 
+  /**
+  * Converts Power2Heat-State
+  *
+  * @param translate the current language to be translated to
+  * @returns converted value
+  */
+  export const CONVERT_ENERIX_CONTROL_STATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case State.ON:
+          return translate.instant("General.on");
+        case State.NO_DISCHARGE:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_DISCHARGE");
+        case State.FORCE_CHARGE:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.FORCE_CHARGE");
+        case State.DISCONNECTED:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.DISCONNECTED");
+        case State.CONNECTED:
+          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.CONNECTED");
+        default:
+          return translate.instant("General.off");
+      }
+    };
+  };
+
   export const CONVERT_TO_BAR: Converter = (raw) => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_BAR(value));
@@ -413,4 +450,17 @@ export namespace Converter {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_HOUR(value));
   };
+
+  export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
+    return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
+  };
+}
+
+export enum State {
+  ON = 0,
+  OFF = 1,
+  NO_DISCHARGE = 2,
+  FORCE_CHARGE = 3,
+  DISCONNECTED = 4,
+  CONNECTED = 5,
 }

@@ -499,7 +499,7 @@ export class EdgeConfig {
      * @param nature the given Nature.
      * @param componentId the Component-ID
      */
-    public hasComponentNature(nature: string, componentId: string) {
+    public hasComponentNature(nature: EdgeConfig.NatureString, componentId: string) {
         const natureIds = this.getNatureIdsByComponentId(componentId);
         return natureIds.includes(nature);
     }
@@ -909,4 +909,7 @@ export namespace EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
+
+    /** Enforces nature ids with at least 3 dots */
+    export type NatureString = `${string}.${string}.${string}.${string}${string}`;
 }

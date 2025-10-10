@@ -426,7 +426,7 @@ export class Edge {
    */
   public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
     const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
-      NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
+      NavigationId.LIVE, { baseString: "live" }, { name: "home-outline" }, "live", "icon", [],
       null,
     ];
 
@@ -434,7 +434,7 @@ export class Edge {
     const navigationTree = new NavigationTree(..._baseNavigationTree);
 
     // TODO find automated way to create reference for parents
-    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
 
     if (edge.isOnline === false) {
       return navigationTree;
@@ -443,23 +443,31 @@ export class Edge {
     const conf = await this.config.getValue();
     const baseMode: NavigationTree["mode"] = "label";
     for (const [componentId, component] of Object.entries(conf.components)) {
+      if (component.isEnabled == false) {
+        continue;
+      }
+
       switch (component.factoryId) {
         case "Evse.Controller.Single":
           navigationTree.setChild(NavigationId.LIVE,
             new NavigationTree(
-              componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+              componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
               ...(this.roleIsAtLeast(Role.ADMIN)
-                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
                 : []),
 
-              new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
-              new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+              new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
+              new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+
+              ...(this.roleIsAtLeast(Role.OWNER)
+                ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                : []),
             ], navigationTree));
           break;
         case "Controller.IO.Heating.Room":
           navigationTree.setChild(NavigationId.LIVE,
             new NavigationTree(
-              componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+              componentId, { baseString: "io-heating-room/" + componentId }, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
               navigationTree,));
           break;
       }

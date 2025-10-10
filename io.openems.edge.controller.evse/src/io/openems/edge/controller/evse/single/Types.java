@@ -1,10 +1,14 @@
 package io.openems.edge.controller.evse.single;
 
-import static java.util.Collections.unmodifiableNavigableMap;
+import static com.google.common.base.MoreObjects.toStringHelper;
+import static io.openems.edge.controller.evse.single.Types.History.allReadyForCharging;
+import static io.openems.edge.controller.evse.single.Types.History.allSetPointsAreZero;
+import static io.openems.edge.controller.evse.single.Types.History.noSetPointsAreZero;
 
 import java.time.Instant;
-import java.util.NavigableMap;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 
@@ -19,12 +23,12 @@ public class Types {
 		private final TreeMap<Instant, Entry> entries = new TreeMap<>();
 
 		/** True once outdated entries have been cleared. */
-		private boolean entriesFullyInitialized = false;
+		private boolean entriesAreFullyInitialized = false;
 
 		/** True if Current has been set, but no ActivePower was measured. */
 		private boolean appearsToBeFullyCharged = false;
 
-		private record Entry(Integer activePower, int setPoint, boolean isReadyForCharging) {
+		public record Entry(Integer activePower, int setPoint, boolean isReadyForCharging) {
 		}
 
 		/**
@@ -32,66 +36,123 @@ public class Types {
 		 * 
 		 * @param now                the timestamp
 		 * @param activePower        the measured {@link EvseChargePoint} ActivePower
-		 * @param setPoint           the {@link SetPoint} value
+		 * @param setPointInWatt     the {@link SetPoint} value in [W]
 		 * @param isReadyForCharging {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}
 		 */
-		public synchronized void addEntry(Instant now, Integer activePower, int setPoint, boolean isReadyForCharging) {
-			this.entries.put(now, new Entry(activePower, setPoint, isReadyForCharging));
+		public synchronized void addEntry(Instant now, Integer activePower, int setPointInWatt,
+				boolean isReadyForCharging) {
+			this.entries.put(now, new Entry(activePower, setPointInWatt, isReadyForCharging));
 
 			// Clear outdated entries; update entriesFullyInitialized
 			var outdatedEntries = this.entries.headMap(now.minusSeconds(MAX_AGE));
 			if (!outdatedEntries.isEmpty()) {
-				this.entriesFullyInitialized = true;
+				this.entriesAreFullyInitialized = true;
 			}
 			outdatedEntries.clear();
 
 			// Update AppearsToBeFullyCharged
 			if (activePower != null && activePower > 500 /* [W] threshold */) {
 				this.appearsToBeFullyCharged = false;
-			} else if (this.entriesFullyInitialized && this.noSetPointsAreZero()) {
+
+			} else if (this.entriesAreFullyInitialized //
+					&& this.entries.values().stream() //
+							.map(Entry::setPoint) //
+							.allMatch(sp -> sp != 0)) {
+				// Fully initialized, no set-points are zero but activePower is null/little
 				this.appearsToBeFullyCharged = true;
 			}
 		}
 
 		/**
-		 * Gets the {@link Entry Entries} as a UnmodifiableNavigableMap.
+		 * Stream all {@link Entry}s.
 		 * 
-		 * @return NavigableMap
+		 * @return {@link Stream} of {@link Entry}s
 		 */
-		public NavigableMap<Instant, Entry> getEntries() {
-			return unmodifiableNavigableMap(this.entries);
+		public synchronized Stream<Entry> streamAll() {
+			if (this.entries.isEmpty()) {
+				return Stream.empty();
+			}
+
+			return this.entries //
+					.values().stream();
 		}
 
 		/**
-		 * Are all Currents Zero?.
+		 * Stream all but the last Entry value.
 		 * 
+		 * @return {@link Stream} of {@link Entry}s
+		 */
+		public synchronized Stream<Entry> streamAllButLast() {
+			if (this.entries.isEmpty()) {
+				return Stream.empty();
+			}
+			return this.entries.headMap(this.entries.lastKey(), false) //
+					.values().stream();
+		}
+
+		/**
+		 * Gets the entry with the highest key.
+		 * 
+		 * @return Instant and Entry or null
+		 */
+		public Map.Entry<Instant, Entry> getLastEntry() {
+			return this.entries.lastEntry();
+		}
+
+		/**
+		 * True if all Entries are populated.
+		 * 
+		 * @return true or false
+		 */
+		public boolean isEntriesAreFullyInitialized() {
+			return this.entriesAreFullyInitialized;
+		}
+
+		/**
+		 * All Set-Point are Zero?.
+		 * 
+		 * @param entries {@link Stream} of {@link Entry}s
 		 * @return boolean
 		 */
-		public boolean allSetPointsAreZero() {
-			return this.entries.values().stream() //
+		public static boolean allSetPointsAreZero(Stream<Entry> entries) {
+			return entries //
 					.map(Entry::setPoint) //
 					.allMatch(sp -> sp == 0);
 		}
 
 		/**
-		 * Is no Current Zero?.
+		 * Is no Set-Point Zero?.
 		 * 
+		 * @param entries {@link Stream} of {@link Entry}s
 		 * @return boolean
 		 */
-		public boolean noSetPointsAreZero() {
-			return this.entries.values().stream() //
+		public static boolean noSetPointsAreZero(Stream<Entry> entries) {
+			return entries //
 					.map(Entry::setPoint) //
 					.allMatch(sp -> sp != 0);
 		}
 
 		/**
-		 * Any {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}?.
+		 * Are all Active-Power values available and zero?.
 		 * 
+		 * @param entries {@link Stream} of {@link Entry}s
 		 * @return boolean
 		 */
-		public boolean anyNotReadyForCharging() {
-			return this.entries.values().stream() //
-					.anyMatch(e -> e.isReadyForCharging);
+		public static boolean allActivePowersAreZero(Stream<Entry> entries) {
+			return entries //
+					.map(Entry::activePower) //
+					.allMatch(ap -> ap != null && ap == 0);
+		}
+
+		/**
+		 * Are all {@link EvseChargePoint.ChannelId#IS_READY_FOR_CHARGING}?.
+		 * 
+		 * @param entries {@link Stream} of {@link Entry}s
+		 * @return boolean
+		 */
+		public static boolean allReadyForCharging(Stream<Entry> entries) {
+			return entries //
+					.allMatch(e -> e.isReadyForCharging);
 		}
 
 		public synchronized boolean getAppearsToBeFullyCharged() {
@@ -103,6 +164,13 @@ public class Types {
 		 */
 		public synchronized void unsetAppearsToBeFullyCharged() {
 			this.appearsToBeFullyCharged = false;
+		}
+
+		@Override
+		public final String toString() {
+			return toStringHelper(History.class) //
+					.add("entries", this.entries.size()) //
+					.toString();
 		}
 	}
 
@@ -116,26 +184,30 @@ public class Types {
 		 * @return the {@link Hysteresis}
 		 */
 		public static Hysteresis from(History history) {
-			final var entries = history.getEntries();
-			if (entries.isEmpty()) {
+			final var lastEntry = history.getLastEntry();
+			if (lastEntry == null) {
 				return Hysteresis.INACTIVE;
 			}
-			if (history.anyNotReadyForCharging()) {
+			if (!allReadyForCharging(history.streamAll())) {
 				// Allow charging if EV just became ready
-				return Hysteresis.INACTIVE;
+				return Hysteresis.KEEP_CHARGING;
 			}
-			var lastValue = entries.lastEntry().getValue();
-			if (lastValue.setPoint == 0) {
-				if (history.allSetPointsAreZero()) {
-					return Hysteresis.INACTIVE; // Hysteresis finished
+
+			if (lastEntry.getValue().setPoint == 0) {
+				if (allSetPointsAreZero(history.streamAllButLast())) {
+					// All set-points are zero -> Hysteresis finished
+					return Hysteresis.INACTIVE;
 				} else {
+					// Latest set-point is zero; others are not -> KEEP_ZERO
 					return Hysteresis.KEEP_ZERO;
 				}
 
 			} else {
-				if (history.noSetPointsAreZero()) {
-					return Hysteresis.INACTIVE; // Hysteresis finished
+				if (noSetPointsAreZero(history.streamAllButLast())) {
+					// All set-points are non-zero -> Hysteresis finished
+					return Hysteresis.INACTIVE;
 				} else {
+					// Latest set-point is non-zero; others are not -> KEEP_CHARGING
 					return Hysteresis.KEEP_CHARGING;
 				}
 			}

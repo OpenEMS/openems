@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
@@ -20,6 +21,15 @@ export class FlatComponent extends AbstractFlatWidget {
     public delayChargeMaximumChargeLimit: number | null = null;
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+
+    protected get modalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        };
+    };
 
     async presentModal() {
         const modal = await this.modalController.create({

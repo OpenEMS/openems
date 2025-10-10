@@ -79,5 +79,22 @@ describe("History EssChart", () => {
           },
         }, Object.values(defaultEMS.components)[0], defaultEMS);
     }
+
+    {
+      // Non-hybrid-ess
+      const ems = DummyConfig.from(
+        DummyConfig.Component.EDGE_2_EDGE_WEBSOCKET_ESS("ess1"),
+      );
+      expectEssChartViewToEqual(TEST_CONTEXT, "bar", History.YEAR,
+        {
+          datasets: {
+            data: [
+              DATA("Beladung: 630,4 kWh", [61.371, 99.427, 179.099, null, 249.619, 40.836, null, null, null, null, null, null]),
+              DATA("Entladung: 563,2 kWh", [56.232, 79.816, 156.976, null, 241.41, 28.797, null, null, null, null, null, null])],
+            labels: LABELS(History.YEAR.energyPerPeriodChannelWithValues?.result?.timestamps ?? []),
+            options: OeTester.ChartOptions.BAR_CHART_OPTIONS("month", "bar", {}),
+          },
+        }, Object.values(ems.components)[0], ems);
+    }
   });
 });

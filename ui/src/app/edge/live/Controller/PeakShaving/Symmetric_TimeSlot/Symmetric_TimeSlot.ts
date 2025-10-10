@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
 import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal/modal.component";
 
@@ -16,6 +17,15 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
     public peakShavingPower: number;
     public rechargePower: number;
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    protected get modalComponent(): Modal {
+        return {
+            component: Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+            },
+        };
+    }
 
     async presentModal() {
         const modal = await this.modalController.create({

@@ -7,8 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;

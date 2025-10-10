@@ -324,6 +324,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.TIME:
         return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         return "%";
       case YAxisType.REACTIVE:
@@ -337,6 +338,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
       case YAxisType.POWER:
         return "kW";
       case YAxisType.HEAT_PUMP:
+      case YAxisType.ENERIX_CONTROL:
         return translate.instant("General.state");
       case YAxisType.VOLTAGE:
         return "V";
@@ -633,6 +635,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           },
         };
         break;
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         options.scales[element.yAxisId] = {
           ...baseConfig,
@@ -680,6 +683,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           ...baseConfig,
           min: 1,
           max: 4,
+          beginAtZero: true,
+          ticks: {
+            ...rest,
+            stepSize: 1,
+          },
+        };
+      }
+        break;
+      case YAxisType.ENERIX_CONTROL: {
+        const { callback, ...rest } = baseConfig.ticks;
+        options.scales[element.yAxisId] = {
+          ...baseConfig,
+          min: 1,
+          // set to 3 for next release
+          max: 2,
           beginAtZero: true,
           ticks: {
             ...rest,
@@ -753,8 +771,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
             return baseName + ": " + formatNumber(suffix / 1000, locale, "1.0-1") + " kWh";
           case YAxisType.PERCENTAGE:
             return baseName + ": " + formatNumber(suffix, locale, "1.0-1") + " %";
+          case YAxisType.RESTRICTION:
           case YAxisType.RELAY:
           case YAxisType.HEAT_PUMP:
+          case YAxisType.ENERIX_CONTROL:
           case YAxisType.TIME: {
             const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(Language.DE.key));
             return baseName + ": " + pipe.transform(suffix);
@@ -784,6 +804,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return prefix + ": " + Converter.ON_OFF(translate)(value);
       case YAxisType.HEAT_PUMP:
         return prefix + ": " + ChartConstants.Plugins.ToolTips.HEAT_PUMP_SUFFIX(translate, value);
+      case YAxisType.ENERIX_CONTROL:
+        return prefix + ": " + ChartConstants.Plugins.ToolTips.ENERIX_CONTROL_SUFFIX(translate, value);
       case YAxisType.TIME: {
         const pipe = new FormatSecondsToDurationPipe(new DecimalPipe(locale));
         return prefix + ": " + pipe.transform(value, true);
@@ -793,6 +815,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
         suffix = Currency.getCurrencyLabelByCurrency(currency); break;
       }
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         suffix = AbstractHistoryChart.getToolTipsAfterTitleLabel(title, chartType, value, translate); break;
       case YAxisType.VOLTAGE:
@@ -904,6 +927,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return Converter.ON_OFF(translate)(value);
       case YAxisType.TIME:
         return "h";
+      case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         return "%";
       case YAxisType.VOLTAGE:

@@ -1,13 +1,19 @@
 import { Component } from "@angular/core";
 import { FieldWrapper } from "@ngx-formly/core";
+import { FormlyUtils } from "./formly-utils";
 
 @Component({
     selector: "formly-input-serial-number",
     templateUrl: "./input-serial-number-wrapper.html",
     standalone: false,
     styles: [`
+        .input-box-wrapper {
+            border-bottom: 1px solid var(--ion-color-dark);
+        }
+
         .input-box {
             border: 1px solid var(--ion-color-dark);
+            border-bottom: 1px solid var(--ion-color-dark);
             border-radius: 2px; /* Add rounded corners */
             width: 100%;
             padding-left: 2px;
@@ -51,6 +57,10 @@ import { FieldWrapper } from "@ngx-formly/core";
 export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
 
     protected isFocused: boolean = false;
+
+    public get borderBottomColor(): { [key: string]: string } {
+        return FormlyUtils.getBorderBottomColor(this.formControl, this.isFocused);
+    }
 
     /**
      * Indicates the field if it is focued on not. helpful for setting highlight for the input field.

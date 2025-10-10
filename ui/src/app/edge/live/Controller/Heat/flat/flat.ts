@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
@@ -15,6 +16,15 @@ export class FlatComponent extends AbstractFlatWidget {
 
   protected statusNumber: number | null = null;
   protected status: State | null = null;
+
+  protected get modalComponent(): Modal {
+    return {
+      component: ModalComponent,
+      componentProps: {
+        component: this.component,
+      },
+    };
+  };
 
   protected async presentModal() {
     if (!this.isInitialized) {
