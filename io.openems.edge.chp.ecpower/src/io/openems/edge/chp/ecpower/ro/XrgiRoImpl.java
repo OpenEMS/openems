@@ -26,6 +26,7 @@ import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
@@ -139,17 +140,20 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent
 						m(XrgiRo.ChannelId.OUTDOOR_TEMPERATURE, new SignedWordElement(5),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // 0x0005: INT16, °C x100
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(6),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // 0x0006: UINT16, kW x10
+								ElementToChannelConverter.SCALE_FACTOR_2), // 0x0006: UINT16, kW x10
 						m(XrgiRo.ChannelId.CURRENT_HEAT_OUTPUT, new UnsignedWordElement(7)), // 0x0007: UINT16, %
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(8)), // 0x0008:
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(8).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.SCALE_FACTOR_3), // 0x0008:
 																													// UINT32,
 																													// kWh
 						// m(XrgiRo.ChannelId.TOTAL_ACTIVE_ENERGY, new UnsignedDoublewordElement(8)), //
 						// 0x0008: UINT32, kWh
-						m(XrgiRo.ChannelId.TOTAL_HEAT_ENERGY, new UnsignedDoublewordElement(10)), // 0x000A: UINT32, kWh
+						m(XrgiRo.ChannelId.TOTAL_HEAT_ENERGY, new UnsignedDoublewordElement(10).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.SCALE_FACTOR_3), // 0x000A: UINT32, kWh
 						m(XrgiRo.ChannelId.ACTIVE_ENERGY_15MIN, new UnsignedWordElement(12)), // 0x000C: UINT16, kWh
 						m(XrgiRo.ChannelId.HEAT_ENERGY_15MIN, new UnsignedWordElement(13)), // 0x000D: UINT16, kWh
-						m(XrgiRo.ChannelId.TOTAL_GAS_CONSUMPTION, new UnsignedDoublewordElement(14)), // 0x000E: UINT32,
+						m(XrgiRo.ChannelId.TOTAL_GAS_CONSUMPTION, new UnsignedDoublewordElement(14).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.SCALE_FACTOR_3), // 0x000E: UINT32,
 																										// kWh
 						m(XrgiRo.ChannelId.TOTAL_OPERATING_HOURS, new UnsignedWordElement(16)), // 0x0010: UINT16,
 																								// Stunden

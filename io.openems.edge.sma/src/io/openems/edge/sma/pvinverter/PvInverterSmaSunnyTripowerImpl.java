@@ -211,10 +211,11 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 			try {
 				this.pvDataHandler();				
 				this.handleActivePowerLimitation();
-				this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(false);				
+				// Todo: find existing channel and feed it
+				//this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(false);				
 			} catch (OpenemsNamedException e) {
 				this.log.error("Error setting active power limitation", e);
-				this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(true);		
+				//this.channel(PvInverterSmaSunnyTripower.ChannelId.PV_LIMIT_FAILED).setNextValue(true);		
 			}
 			break;
 		}

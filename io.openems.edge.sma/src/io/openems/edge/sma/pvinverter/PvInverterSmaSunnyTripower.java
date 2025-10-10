@@ -89,8 +89,8 @@ public interface PvInverterSmaSunnyTripower extends SunSpecPvInverter, ManagedSy
 		DCWH_SF(Doc.of(OpenemsType.INTEGER) //
 				.persistencePriority(PersistencePriority.LOW)),
 		
-		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
-				.text("PV-Limit failed")),		
+		//PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
+		//		.text("PV-Limit failed")),		
 
 		/**
 		 * Internal Value String 1 DC-Current. Scale Factor not applied.
