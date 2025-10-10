@@ -46,9 +46,15 @@ export class FlatComponent extends AbstractFlatWidget {
   protected propertyMode: DefaultTypes.ManualOnOff | null = null;
   protected status: string;
   protected isReadWrite: boolean;
+  protected modalComponent: Modal | null = null;
+
   private chargePoint: EvcsComponent;
 
-  protected get modalComponent(): Modal {
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+
+  protected getModalComponent(): Modal {
     return {
       component: ModalComponent,
       componentProps: {
@@ -56,22 +62,6 @@ export class FlatComponent extends AbstractFlatWidget {
       },
     };
   };
-  formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
-
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
-
 
   protected override getChannelAddresses(): ChannelAddress[] {
     this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
@@ -197,6 +187,10 @@ export class FlatComponent extends AbstractFlatWidget {
     }
   }
 
+  private formatNumber(i: number) {
+    const round = Math.ceil(i / 100) * 100;
+    return round;
+  }
 }
 
 enum ChargeState {

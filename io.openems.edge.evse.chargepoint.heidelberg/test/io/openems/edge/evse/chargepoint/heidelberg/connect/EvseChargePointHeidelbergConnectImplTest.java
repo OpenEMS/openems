@@ -1,8 +1,8 @@
 package io.openems.edge.evse.chargepoint.heidelberg.connect;
 
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.PhaseRotation.L1_L2_L3;
 import static io.openems.edge.evse.chargepoint.heidelberg.connect.enums.PhaseSwitching.FORCE_THREE_PHASE;
+import static io.openems.edge.meter.api.PhaseRotation.L1_L2_L3;
 
 import org.junit.Test;
 

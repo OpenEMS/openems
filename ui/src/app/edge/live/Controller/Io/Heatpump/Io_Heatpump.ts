@@ -21,7 +21,11 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
   public isConnectionSuccessful: boolean;
   public mode: string;
   public statusValue: number;
-  protected get modalComponent(): Modal {
+  protected modalComponent: Modal | null = null;
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+  protected getModalComponent(): Modal {
     return {
       component: Controller_Io_HeatpumpModalComponent,
       componentProps: {
@@ -30,23 +34,6 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
         status: this.status,
       },
     };
-  }
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Controller_Io_HeatpumpModalComponent,
-      componentProps: {
-        edge: this.edge,
-        component: this.component,
-        status: this.status,
-      },
-    });
-    modal.onDidDismiss().then(() => {
-      this.service.getConfig().then(config => {
-        this.component = config.components[this.componentId];
-      });
-    });
-    return await modal.present();
   }
 
   protected override getChannelAddresses() {

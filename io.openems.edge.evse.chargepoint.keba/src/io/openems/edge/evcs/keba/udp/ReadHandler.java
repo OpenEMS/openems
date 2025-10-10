@@ -2,11 +2,11 @@ package io.openems.edge.evcs.keba.udp;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
-import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
-import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
-import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
+import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
+import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedCurrentChannels;
+import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static java.lang.Math.round;
 
 import io.openems.edge.common.channel.Channel;

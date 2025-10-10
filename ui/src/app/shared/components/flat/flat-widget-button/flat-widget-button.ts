@@ -8,19 +8,18 @@ import { Icon } from "src/app/shared/type/widget";
     templateUrl: "./flat-widget-button.html",
     standalone: true,
     imports: [
-    IonicModule,
-    RouterModule,
-],
+        IonicModule,
+        RouterModule,
+    ],
 })
-export class FlatButtonComponent {
+export class FlatWidgetButtonComponent {
 
     @Input({ required: true }) protected link: { routeRelative?: ActivatedRoute, text: string, queryParams?: Params } | null = null;
     @Input({ required: true }) protected color: "light" | "medium" | "primary" = "primary";
 
     constructor(
         private router: Router,
-    ) {
-    }
+    ) { }
 
     protected navigateTo() {
         if (this.link == null) {

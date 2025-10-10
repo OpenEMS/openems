@@ -2,7 +2,7 @@ plugins {
 	id 'base'
 	id 'java'
 	id 'com.github.node-gradle.node'
-	id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+	id 'org.barfuin.gradle.jacocolog'
 }
 
 repositories {
@@ -105,7 +105,7 @@ subprojects {
 		}
 	
 		checkstyle {
-			toolVersion = '10.18.2'
+			toolVersion = '11.1.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures = false

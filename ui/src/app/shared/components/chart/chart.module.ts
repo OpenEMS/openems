@@ -8,7 +8,7 @@ import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerComponent, NgxSpinnerModule } from "ngx-spinner";
 
 import { PipeComponentsModule, PipeModule } from "../../pipe/pipe.module";
-import { FlatButtonComponent } from "../flat/flat-widget-button/flat-widget-button";
+import { FlatWidgetButtonComponent } from "../flat/flat-widget-button/flat-widget-button";
 import { HistoryDataErrorModule } from "../history-data-error/history-data-error.module";
 import { PickdateComponentModule, PickdateModule } from "../pickdate/pickdate.module";
 import { ChartComponent } from "./chart";
@@ -27,7 +27,7 @@ import { ChartLegendComponent } from "./legend/legend";
     HistoryDataErrorModule,
     RouterModule,
     PickdateComponentModule,
-    FlatButtonComponent,
+    FlatWidgetButtonComponent,
   ],
   declarations: [
     ChartComponent,

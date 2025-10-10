@@ -25,17 +25,9 @@ export class StorageComponent extends AbstractFlatWidget {
     public isEmergencyReserveEnabled: boolean[] = [];
 
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
+    protected modalComponent: Modal | null = null;
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
 
-    protected get modalComponent(): Modal {
-        return {
-            component: StorageModalComponent,
-            componentProps: {
-                edge: this.edge,
-                component: this.component,
-            },
-        };
-    };
 
     /**
      * Use 'convertChargePower' to convert/map a value
@@ -95,6 +87,20 @@ export class StorageComponent extends AbstractFlatWidget {
         return await modal.present();
     }
 
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
+            component: StorageModalComponent,
+            componentProps: {
+                edge: this.edge,
+                component: this.component,
+            },
+        };
+    };
 
     protected override getChannelAddresses() {
 

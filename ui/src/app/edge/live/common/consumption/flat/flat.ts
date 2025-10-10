@@ -19,18 +19,15 @@ export class FlatComponent extends AbstractFlatWidget {
   public evcsSumOfChargePower: number;
   public otherPower: number;
   public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+  protected modalComponent: Modal | null = null;
 
-  protected get modalComponent(): Modal {
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+
+  protected getModalComponent(): Modal {
     return { component: ModalComponent };
   };
-
-
-  // async presentModal() {
-  //   const modal = await this.modalController.create({
-  //     component: ModalComponent,
-  //   });
-  //   return await modal.present();
-  // }
 
   protected override getChannelAddresses() {
 

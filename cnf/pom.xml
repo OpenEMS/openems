@@ -190,7 +190,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.18.0</version>
+			<version>5.18.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -478,13 +478,13 @@
 		<dependency>
 		  <groupId>org.mockito</groupId>
 		  <artifactId>mockito-core</artifactId>
-		  <version>5.18.0</version>
+		  <version>5.20.0</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.17.6</version>
+		  <version>1.17.7</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>

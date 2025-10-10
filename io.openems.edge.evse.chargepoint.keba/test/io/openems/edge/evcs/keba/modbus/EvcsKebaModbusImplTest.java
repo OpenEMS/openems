@@ -1,7 +1,6 @@
 package io.openems.edge.evcs.keba.modbus;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
 import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.testDeprecatedEvcsChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.testElectricityMeterChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.testEvcsChannels;
@@ -10,6 +9,7 @@ import static io.openems.edge.evse.chargepoint.keba.common.EvcsKebaTest.testEvcs
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.prepareKebaModbus;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.testKebaModbusChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaTest.testKebaChannels;
+import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
 import static org.junit.Assert.assertEquals;
 
 import java.time.temporal.ChronoUnit;
@@ -23,10 +23,10 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evse.chargepoint.keba.common.Keba;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public class EvcsKebaModbusImplTest {
 
