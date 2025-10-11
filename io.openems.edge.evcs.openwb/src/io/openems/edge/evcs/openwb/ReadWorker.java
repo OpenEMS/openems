@@ -151,7 +151,7 @@ public class ReadWorker extends AbstractCycleWorker {
 				 *
 				 */
 				energyTotal = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_IMPORTED), "message"));
-				if(this.energyStartSession != null) { 
+				if (this.energyStartSession != null) { 
 					this.evcs._setEnergySession((int) Math.max(0, energyTotal - this.energyStartSession));					
 				}
 				
