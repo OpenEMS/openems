@@ -1,9 +1,12 @@
 package io.openems.edge.evcs.alpitronic;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
 import io.openems.edge.meter.api.PhaseRotation;
+
+
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -89,7 +92,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+		return generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override
