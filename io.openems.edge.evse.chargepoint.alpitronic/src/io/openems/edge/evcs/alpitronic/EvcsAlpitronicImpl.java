@@ -54,6 +54,7 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
+import io.openems.edge.evse.chargepoint.alpitronic.common.Alpitronic;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.AvailableState;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -71,8 +72,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent implements Evcs, ManagedEvcs, DeprecatedEvcs,
-		ElectricityMeter, OpenemsComponent, ModbusComponent, EventHandler, EvcsAlpitronic, TimedataProvider {
+public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
+		implements Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter, OpenemsComponent, ModbusComponent, EventHandler,
+		Alpitronic, EvcsAlpitronic, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsAlpitronicImpl.class);
 	/** Modbus offset for multiple connectors. */
