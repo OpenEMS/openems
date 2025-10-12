@@ -6,8 +6,6 @@ import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
 import io.openems.edge.meter.api.PhaseRotation;
 
-
-
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
