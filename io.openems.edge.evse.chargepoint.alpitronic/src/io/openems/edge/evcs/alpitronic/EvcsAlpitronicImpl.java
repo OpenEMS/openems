@@ -695,8 +695,7 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		// These registers are consistent across all firmware versions
 		// This ensures we wait until the version is successfully read
 		readElementsOnce(ModbusUtils.FunctionCode.FC4, // Input registers
-				protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(46), // Major version - consistent across
-																					// all versions
+				protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(46), // Major version - consistent across all versions
 				new UnsignedWordElement(47), // Minor version - consistent across all versions
 				new UnsignedWordElement(48) // Patch version - consistent across all versions
 		).thenAccept(result -> {
