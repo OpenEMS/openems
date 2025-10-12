@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsUtils } from "src/app/shared/components/edge/utils/evcs-utils";
+import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Formatter } from "src/app/shared/components/shared/formatter";
@@ -42,8 +42,9 @@ export class ModalComponent extends AbstractModal {
   protected sessionLimit: number;
   protected awaitingHysteresis: boolean;
   protected isReadWrite: boolean = true;
-
   protected readonly useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
+  private chargePoint: EvcsComponent;
+
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -92,7 +93,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
-
+    this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
     this.controller = this.config.getComponentsByFactory("Controller.Evcs")
       .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component.id);
 
@@ -100,7 +101,7 @@ export class ModalComponent extends AbstractModal {
 
     return [
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, this.getPowerChannelId()),
+      this.chargePoint.powerChannel,
       new ChannelAddress(this.component.id, "Phases"),
       new ChannelAddress(this.component.id, "Plug"),
       new ChannelAddress(this.component.id, "Status"),
@@ -124,7 +125,7 @@ export class ModalComponent extends AbstractModal {
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/" + this.getPowerChannelId()]);
+      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
       this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
       this.state = currentData.allComponents[this.component.id + "/Status"];
       this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
@@ -136,6 +137,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected override onIsInitialized(): void {
+    this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
     this.subscription.add(this.formGroup?.controls["energyLimit"]?.valueChanges.subscribe(isEnergyLimit => {
       if (isEnergyLimit) {
         if (this.formGroup.controls["energySessionLimit"]?.value === 0) {
@@ -286,9 +288,6 @@ export class ModalComponent extends AbstractModal {
     }
   }
 
-  private getPowerChannelId(): string {
-    return EvcsUtils.getEvcsPowerChannelId(this.component, this.config, this.edge);
-  }
 }
 
 

@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Icon } from "src/app/shared/type/widget";
 
 import { ChannelAddress, CurrentData } from "../../../../shared/shared";
@@ -29,6 +30,8 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         color: "primary",
     };
 
+    protected modalComponent: Modal | null = null;
+
     protected get thresholdDelta() {
         const delta = this.highThresholdValue - this.lowThresholdValue;
         return delta < 0 ? 0 : delta;
@@ -46,6 +49,22 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         });
         return await modal.present();
     }
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
+            component: Controller_ChpSocModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+                outputChannel: this.outputChannel,
+                inputChannel: this.inputChannel,
+            },
+        };
+    };
 
     protected override getChannelAddresses() {
         this.outputChannel = ChannelAddress.fromString(

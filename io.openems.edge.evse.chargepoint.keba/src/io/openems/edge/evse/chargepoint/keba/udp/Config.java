@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "EVSE Charge-Point KEBA P30 (via UDP)", //
 		description = "The KEBA KeContact P30 electric vehicle charging station")

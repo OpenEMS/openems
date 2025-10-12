@@ -60,7 +60,6 @@ import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
@@ -70,8 +69,10 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.ProductTypeAndFeatures;
+import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -288,7 +289,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		final var status = this.<EnumReadChannel>channel(Evcs.ChannelId.STATUS).getNextValue();
 		if (status.isDefined() ? status.get() == 2 : false) {
 			try {
-				this.setSetEnable(1);
+				this.setSetEnable(SetEnable.ENABLE);
 				this.setEnableSet = true;
 			} catch (OpenemsNamedException e) {
 				this.logDebug(

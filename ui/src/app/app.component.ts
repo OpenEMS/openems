@@ -4,6 +4,7 @@ import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
   protected isUserAllowedToSeeOverview: boolean = false;
   protected isUserAllowedToSeeFooter: boolean = false;
   protected isHistoryDetailView: boolean = false;
+  protected latestIncident: { message: string | null, id: string } | null = null;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private subscription: Subscription = new Subscription();
@@ -49,7 +51,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private title: Title,
     private stateService: AppStateTracker,
     protected navigationService: NavigationService,
-    protected navCtrl: NavController
+    protected navCtrl: NavController,
+    private translate: TranslateService,
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 

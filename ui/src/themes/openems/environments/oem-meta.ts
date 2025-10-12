@@ -67,7 +67,8 @@ export const OemMeta: BaseMeta = {
                 },
                 COMMERCIAL: {
                     COMMERCIAL_30: "#",
-                    COMMERCIAL_50: "#",
+                    COMMERCIAL_50_GEN_1: "#",
+                    COMMERCIAL_50_GEN_3: "#",
                     COMMERCIAL_92: "#",
                     COMMERCIAL_92_CLUSTER: "#",
                 },

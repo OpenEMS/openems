@@ -1,11 +1,16 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
 import { SelectCustomEvent } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { parse } from "date-fns";
 import { Subject } from "rxjs";
 import { filter, take, takeUntil } from "rxjs/operators";
 import { Filter } from "src/app/index/filter/filter.component";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Role } from "src/app/shared/type/role";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
@@ -34,7 +39,14 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
 @Component({
   selector: SystemLogComponent.SELECTOR,
   templateUrl: "./systemlog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    LocaleProvider,
+    PipeComponentsModule,
+    RouterModule,
+    FormsModule,
+  ],
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 

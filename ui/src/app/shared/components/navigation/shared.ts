@@ -13,7 +13,7 @@ export class NavigationTree {
 
     constructor(
         public id: NavigationId | string,
-        public routerLink: string,
+        public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
         public icon: PartialedIcon,
         public label: string,
         public mode: "icon" | "label",

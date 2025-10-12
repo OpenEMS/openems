@@ -8,9 +8,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.chargerOld;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ess;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
@@ -25,8 +28,9 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeter
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
@@ -58,6 +62,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome20.PropertyParent;
@@ -145,6 +150,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
+		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(externalLimitationType()), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //
@@ -361,8 +367,10 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
+			final var gpioId = FunctionUtils
+					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
-				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
@@ -372,6 +380,11 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			}
 			schedulerComponents.add(new SchedulerComponent("ctrlEssSurplusFeedToGrid0",
 					"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
+			if (feedInType == ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) {
+				components.add(dynamicRippleControlReceiverComponent(bundle, gpioId.get()));
+				schedulerComponents.add(dynamicRippleControlReceiverScheduler(this.getAppId()));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

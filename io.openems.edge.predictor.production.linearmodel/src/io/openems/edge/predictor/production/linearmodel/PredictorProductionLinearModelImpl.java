@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,8 +52,8 @@ import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.production.linearmodel.jsonrpc.GetPrediction;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 import io.openems.edge.weather.api.Weather;
-import io.openems.edge.weather.api.WeatherData;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -131,11 +132,17 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 	private ChannelAddress channelAddress;
 	private ModelSerializer modelSerializer;
+	private PredictionPersistenceService predictionPersistenceService;
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.sourceChannel().channelAddress);
+
+		this.predictionPersistenceService = new PredictionPersistenceService(//
+				this, //
+				this.timedata, //
+				() -> this.componentManager.getClock());
 
 		if (!config.enabled()) {
 			return;
@@ -156,6 +163,8 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 				this.localConfig.trainingIntervalInDays(), //
 				TimeUnit.DAYS //
 		);
+
+		this.predictionPersistenceService.startShiftingJob();
 	}
 
 	@Override
@@ -163,6 +172,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 	protected void deactivate() {
 		super.deactivate();
 		shutdownAndAwaitTermination(this.executor, 5);
+		this.predictionPersistenceService.deactivateShiftingJob();
 	}
 
 	@Override
@@ -184,7 +194,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 			return EMPTY_PREDICTION;
 		}
 
-		final WeatherData weatherForecast;
+		final List<QuarterlyWeatherSnapshot> weatherForecast;
 		try {
 			weatherForecast = this.getWeatherForecast();
 		} catch (Exception e) {
@@ -213,6 +223,8 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		case ARCHIVE_LOCALLY -> this.archivePrediction(prediction);
 		}
 
+		this.predictionPersistenceService.updatePredictionAheadChannels(prediction);
+
 		return prediction;
 	}
 
@@ -236,10 +248,10 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 				+ "Available Linear model is older than " + this.localConfig.maxAgeOfModelInDays() + " days");
 	}
 
-	private WeatherData getWeatherForecast() throws OpenemsException {
-		var weatherForecast = this.weather.getWeatherForecast();
+	private List<QuarterlyWeatherSnapshot> getWeatherForecast() throws OpenemsException {
+		var weatherForecast = this.weather.getQuarterlyWeatherForecast(96 * 2);
 
-		if (weatherForecast == null || WeatherData.EMPTY_WEATHER_DATA.equals(weatherForecast)) {
+		if (weatherForecast == null || weatherForecast.isEmpty()) {
 			throw new OpenemsException("Weather data is null or empty");
 		}
 
@@ -283,17 +295,6 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		return predictions;
 	}
 
-	@Override
-	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetPrediction(), //
-				endpoint -> {
-					endpoint.setGuards(roleIsAtleast(Role.OWNER));
-				}, call -> {
-					var prediction = this.createNewPrediction(this.channelAddress);
-					return new GetPrediction.Response(prediction);
-				});
-	}
-
 	private void archivePrediction(Prediction prediction) {
 		var datetime = prediction.getFirstTime();
 		var data = prediction.asArray();
@@ -316,6 +317,17 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 		} catch (IOException e) {
 			this.log.error("Failed to archive prediction", e);
 		}
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetPrediction(), //
+				endpoint -> {
+					endpoint.setGuards(roleIsAtleast(Role.OWNER));
+				}, call -> {
+					var prediction = this.createNewPrediction(this.channelAddress);
+					return new GetPrediction.Response(prediction);
+				});
 	}
 
 	public interface LocalConfig {

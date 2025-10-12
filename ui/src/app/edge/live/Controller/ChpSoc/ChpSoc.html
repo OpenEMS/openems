@@ -1,28 +1,38 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
+@if (isInitialized) {
+  <oe-flat-widget tabindex="0" button [modalComponent]="modalComponent" [title]="component.alias"
+    [icon]="{name:
     'flame-outline', color: 'normal'}">
     <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="icon.name === '', else noValue" [name]="'General.state' | translate" [value]="state">
-    </oe-flat-widget-line>
-
-    <ng-template #noValue>
-        <oe-flat-widget-line [icon]="icon" [name]="'General.state' | translate"></oe-flat-widget-line>
-    </ng-template>
-
-    <oe-flat-widget-percentagebar *ngIf="this.modeChannelValue === 'AUTOMATIC'">
+    @if (icon.name === '') {
+      <oe-flat-widget-line [name]="'General.state' | translate" [value]="state">
+      </oe-flat-widget-line>
+    } @else {
+      <oe-flat-widget-line [icon]="icon" [name]="'General.state' | translate"></oe-flat-widget-line>
+    }
+    @if (this.modeChannelValue === 'AUTOMATIC') {
+      <oe-flat-widget-percentagebar>
         <svg>
-            <use href="#container"></use>
-            <rect y="2" rx="6" ry="6" height="18" ngClass="primary-color"
-                [style]="'x: calc(' + lowThresholdValue + '% + 2px); width: calc(' + thresholdDelta + '% - 4px);'" />
-            <text id="first" *ngIf="(thresholdDelta) > 15" attr.x="{{ lowThresholdValue }}%" dx="3px" y="50%"
-                dominant-baseline="middle" text-anchor="start" style="font-weight: 500" ngClass="secondary-color">
-                {{lowThresholdValue + " %" }}
+          <use href="#container"></use>
+          <rect y="2" rx="6" ry="6" height="18" ngClass="primary-color"
+            [style]="'x: calc(' + lowThresholdValue + '% + 2px); width: calc(' + thresholdDelta + '% - 4px);'" />
+          @if ((thresholdDelta) > 15) {
+            <text id="first" attr.x="{{ lowThresholdValue }}%" dx="3px" y="50%"
+              dominant-baseline="middle" text-anchor="start" style="font-weight: 500" ngClass="secondary-color">
+              {{lowThresholdValue + " %" }}
             </text>
-            <text id="second" *ngIf="(thresholdDelta) > 15" attr.x="{{ highThresholdValue }}%" dx="-3px" y="50%"
-                dominant-baseline="middle" text-anchor="end" style="font-weight: 500;" ngClass="secondary-color">
-                {{highThresholdValue + " %" }}
+          }
+          @if ((thresholdDelta) > 15) {
+            <text id="second" attr.x="{{ highThresholdValue }}%" dx="-3px" y="50%"
+              dominant-baseline="middle" text-anchor="end" style="font-weight: 500;" ngClass="secondary-color">
+              {{highThresholdValue + " %" }}
             </text>
-            <rect *ngIf="inputChannelValue as value" y="2" rx="0" ry="0" width="1%" height="18"
-                [style]="'x: calc(' + value + '% + 2px); fill: #0000ff80;'" />
+          }
+          @if (inputChannelValue; as value) {
+            <rect y="2" rx="0" ry="0" width="1%" height="18"
+              [style]="'x: calc(' + value + '% + 2px); fill: #0000ff80;'" />
+          }
         </svg>
-    </oe-flat-widget-percentagebar>
-</oe-flat-widget>
+      </oe-flat-widget-percentagebar>
+    }
+  </oe-flat-widget>
+}

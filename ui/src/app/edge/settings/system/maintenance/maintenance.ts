@@ -1,15 +1,18 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { BehaviorSubject, Subscription } from "rxjs";
 import { skip } from "rxjs/operators";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ExecuteSystemRestartRequest, Type } from "src/app/shared/jsonrpc/request/executeSystemRestartRequest";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 
-import { Edge, presentAlert, Service, Utils, Websocket } from "../../../../shared/shared";
+import { CommonUiModule } from "../../../../shared/common-ui.module";
+import { Edge, presentAlert, Service, Websocket } from "../../../../shared/shared";
 
 enum SystemRestartState {
     INITIAL, // No restart
@@ -28,7 +31,13 @@ enum SystemRestartState {
         }
     }
     `],
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        NgxSpinnerComponent,
+        ComponentsBaseModule,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class MaintenanceComponent implements OnInit {
 
@@ -51,7 +60,6 @@ export class MaintenanceComponent implements OnInit {
     protected readonly SystemRestartState = SystemRestartState;
 
     constructor(
-        protected utils: Utils,
         private websocket: Websocket,
         protected service: Service,
         private translate: TranslateService,
