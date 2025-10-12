@@ -4,6 +4,7 @@ import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.DOUBLE;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.STRING;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
@@ -46,6 +47,26 @@ public interface EvcsAlpitronic extends OpenemsComponent {
 		 */
 		TOTAL_STATION_POWER(Doc.of(INTEGER)//
 				.unit(Unit.WATT)),
+
+		/**
+		 * Charging station serial number.
+		 */
+		SERIAL_NUMBER(Doc.of(STRING)),
+
+		/**
+		 * OCPP ChargepointId (32 character null-terminated string).
+		 */
+		CHARGEPOINT_ID(Doc.of(STRING)),
+
+		/**
+		 * Vehicle ID (8 bytes).
+		 */
+		VID(Doc.of(STRING)),
+
+		/**
+		 * OCPP idTag (20 character null-terminated string).
+		 */
+		ID_TAG(Doc.of(STRING)),
 
 		/**
 		 * Whether external load management controller has control.
