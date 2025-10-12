@@ -29,6 +29,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -78,13 +79,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	private final IntFunction<Integer> offset = addr -> addr + this.config.connector().modbusOffset;
 
 	/** Software version for register mapping compatibility. */
-	private FirmwareVersion firmwareVersion = null;
+	private SemanticVersion firmwareVersion = null;
 	private Integer versionMajor = null;
 	private Integer versionMinor = null;
 	private Integer versionPatch = null;
 
 	/** Phase rotation configuration. */
-	private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
+	private PhaseRotation phaseRotation;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -243,13 +244,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	 * @return the ModbusProtocol instance for the detected firmware version
 	 */
 	private ModbusProtocol getProtocolForVersion() {
-		if (this.firmwareVersion.isVersion18()) {
+		if (AlpitronicVersionUtils.isVersion18(this.firmwareVersion)) {
 			this.logInfo(this.log, "Using protocol for firmware v1.8.x");
 			return this.defineModbusProtocolV18();
-		} else if (this.firmwareVersion.isVersion23()) {
+		} else if (AlpitronicVersionUtils.isVersion23(this.firmwareVersion)) {
 			this.logInfo(this.log, "Using protocol for firmware v2.3.x");
 			return this.defineModbusProtocolV23();
-		} else if (this.firmwareVersion.isVersion24()) {
+		} else if (AlpitronicVersionUtils.isVersion24(this.firmwareVersion)) {
 			this.logInfo(this.log, "Using protocol for firmware v2.4.x");
 			return this.defineModbusProtocolV24();
 		} else {
@@ -637,7 +638,7 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	 */
 	private void addCalculatePowerListeners() {
 		// For firmware 2.5+, the RAW_CHARGE_POWER register (104) works correctly
-		if (this.firmwareVersion != null && this.firmwareVersion.isVersion25OrLater()) {
+		if (this.firmwareVersion != null && AlpitronicVersionUtils.isVersion25OrLater(this.firmwareVersion)) {
 			// Use the power value directly from register 104
 			this.channel(EvcsAlpitronicHypercharger.ChannelId.RAW_CHARGE_POWER).onSetNextValue(value -> {
 				if (value != null && value.isDefined()) {
@@ -688,9 +689,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 	}
 
 	/**
-	 * Detects the firmware version of the Hypercharger using readElementsOnce.
-	 * This method reads the version registers once during initialization to determine
+	 * Detects the firmware version of the Hypercharger using readElementsOnce. This
+	 * method reads the version registers once during initialization to determine
 	 * which protocol mapping to use.
+	 *
+	 * <p>
+	 * Note: Version registers 46, 47, 48 (input registers) are consistent across
+	 * all firmware versions and are used to determine which protocol to apply.
 	 */
 	private void detectFirmwareVersion() {
 		if (!this.isEnabled()) {
@@ -701,14 +706,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		var protocol = new ModbusProtocol(this);
 
 		// Read firmware version registers (46, 47, 48) using readElementsOnce
+		// These registers are consistent across all firmware versions
 		// This ensures we wait until the version is successfully read
-		readElementsOnce(
-				ModbusUtils.FunctionCode.FC4, // Input registers
-				protocol,
-				ModbusUtils::retryOnNull,
-				new UnsignedWordElement(46), // Major version
-				new UnsignedWordElement(47), // Minor version
-				new UnsignedWordElement(48)  // Patch version
+		readElementsOnce(ModbusUtils.FunctionCode.FC4, // Input registers
+				protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(46), // Major version - consistent across
+																					// all versions
+				new UnsignedWordElement(47), // Minor version - consistent across all versions
+				new UnsignedWordElement(48) // Patch version - consistent across all versions
 		).thenAccept(result -> {
 			if (result != null) {
 				// Access the values from the ReadElementsResult
@@ -718,23 +722,22 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 					this.versionMinor = TypeUtils.getAsType(OpenemsType.INTEGER, values.get(1));
 					this.versionPatch = TypeUtils.getAsType(OpenemsType.INTEGER, values.get(2));
 
-					// Create FirmwareVersion object
-					this.firmwareVersion = new FirmwareVersion(
-						this.versionMajor != null ? this.versionMajor : 0,
-						this.versionMinor != null ? this.versionMinor : 0,
-						this.versionPatch != null ? this.versionPatch : 0
-					);
+					// Create SemanticVersion object
+					this.firmwareVersion = new SemanticVersion(this.versionMajor != null ? this.versionMajor : 0,
+							this.versionMinor != null ? this.versionMinor : 0,
+							this.versionPatch != null ? this.versionPatch : 0);
 
-					this.logInfo(this.log, "Successfully detected Hypercharger firmware version " + this.firmwareVersion);
+					this.logInfo(this.log,
+							"Successfully detected Hypercharger firmware version " + this.firmwareVersion);
 
 					// Log which register mapping will be used
-					if (this.firmwareVersion.isVersion18()) {
+					if (AlpitronicVersionUtils.isVersion18(this.firmwareVersion)) {
 						this.logInfo(this.log, "Will use v1.8.x register mappings");
-					} else if (this.firmwareVersion.isVersion23()) {
+					} else if (AlpitronicVersionUtils.isVersion23(this.firmwareVersion)) {
 						this.logInfo(this.log, "Will use v2.3.x register mappings");
-					} else if (this.firmwareVersion.isVersion24()) {
+					} else if (AlpitronicVersionUtils.isVersion24(this.firmwareVersion)) {
 						this.logInfo(this.log, "Will use v2.4.x register mappings");
-					} else if (this.firmwareVersion.isVersion25OrLater()) {
+					} else if (AlpitronicVersionUtils.isVersion25OrLater(this.firmwareVersion)) {
 						this.logInfo(this.log, "Will use v2.5.x+ register mappings");
 					}
 
@@ -744,17 +747,18 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 				} else {
 					this.logWarn(this.log, "Insufficient firmware version data, using default v2.5 protocol");
 					// Use v2.5 as fallback
-					this.firmwareVersion = new FirmwareVersion(2, 5, 0);
+					this.firmwareVersion = new SemanticVersion(2, 5, 0);
 				}
 			} else {
 				this.logWarn(this.log, "Could not read firmware version, using default v2.5 protocol");
 				// Use v2.5 as fallback
-				this.firmwareVersion = new FirmwareVersion(2, 5, 0);
+				this.firmwareVersion = new SemanticVersion(2, 5, 0);
 			}
 		}).exceptionally(e -> {
-			this.logWarn(this.log, "Failed to detect firmware version: " + e.getMessage() + ", using default v2.5 protocol");
+			this.logWarn(this.log,
+					"Failed to detect firmware version: " + e.getMessage() + ", using default v2.5 protocol");
 			// Use v2.5 as fallback
-			this.firmwareVersion = new FirmwareVersion(2, 5, 0);
+			this.firmwareVersion = new SemanticVersion(2, 5, 0);
 			return null;
 		});
 	}
@@ -768,11 +772,11 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		}
 
 		int patch = this.versionPatch != null ? this.versionPatch : 0;
-		FirmwareVersion newVersion = new FirmwareVersion(this.versionMajor, this.versionMinor, patch);
+		SemanticVersion newVersion = new SemanticVersion(this.versionMajor, this.versionMinor, patch);
 
 		// Check if version changed
-		if (this.firmwareVersion != null && this.firmwareVersion.getMajor() == this.versionMajor
-				&& this.firmwareVersion.getMinor() == this.versionMinor && this.firmwareVersion.getPatch() == patch) {
+		if (this.firmwareVersion != null && this.firmwareVersion.major() == this.versionMajor
+				&& this.firmwareVersion.minor() == this.versionMinor && this.firmwareVersion.patch() == patch) {
 			return; // No change
 		}
 
@@ -781,13 +785,13 @@ public class EvcsAlpitronicHyperchargerImpl extends AbstractOpenemsModbusCompone
 		this.logInfo(this.log, "Detected Hypercharger firmware version " + newVersion);
 
 		// Log which register mapping will be used
-		if (newVersion.isVersion18()) {
+		if (AlpitronicVersionUtils.isVersion18(newVersion)) {
 			this.logInfo(this.log, "Using v1.8.x register mappings");
-		} else if (newVersion.isVersion23()) {
+		} else if (AlpitronicVersionUtils.isVersion23(newVersion)) {
 			this.logInfo(this.log, "Using v2.3.x register mappings");
-		} else if (newVersion.isVersion24()) {
+		} else if (AlpitronicVersionUtils.isVersion24(newVersion)) {
 			this.logInfo(this.log, "Using v2.4.x register mappings");
-		} else if (newVersion.isVersion25OrLater()) {
+		} else if (AlpitronicVersionUtils.isVersion25OrLater(newVersion)) {
 			this.logInfo(this.log, "Using v2.5.x+ register mappings");
 		}
 

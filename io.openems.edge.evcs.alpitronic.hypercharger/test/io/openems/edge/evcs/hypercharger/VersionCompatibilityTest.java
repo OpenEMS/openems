@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import io.openems.common.types.SemanticVersion;
+
 /**
  * Tests for firmware version compatibility.
  */
@@ -14,62 +16,62 @@ public class VersionCompatibilityTest {
 	@Test
 	public void testFirmwareVersionDetection() {
 		// Test v1.8
-		FirmwareVersion v18 = new FirmwareVersion(1, 8, 14);
-		assertTrue("Should detect v1.8", v18.isVersion18());
-		assertFalse("Should not detect v2.3", v18.isVersion23());
-		assertFalse("Should not detect v2.4", v18.isVersion24());
-		assertFalse("Should not detect v2.5+", v18.isVersion25OrLater());
-		assertFalse("v1.8 should not support total charged energy", v18.supportsTotalChargedEnergy());
-		assertFalse("v1.8 should not support max charging power AC", v18.supportsMaxChargingPowerAC());
-		assertFalse("v1.8 should not use apparent power", v18.usesApparentPowerForStation());
-		
+		SemanticVersion v18 = new SemanticVersion(1, 8, 14);
+		assertTrue("Should detect v1.8", AlpitronicVersionUtils.isVersion18(v18));
+		assertFalse("Should not detect v2.3", AlpitronicVersionUtils.isVersion23(v18));
+		assertFalse("Should not detect v2.4", AlpitronicVersionUtils.isVersion24(v18));
+		assertFalse("Should not detect v2.5+", AlpitronicVersionUtils.isVersion25OrLater(v18));
+		assertFalse("v1.8 should not support total charged energy", AlpitronicVersionUtils.supportsTotalChargedEnergy(v18));
+		assertFalse("v1.8 should not support max charging power AC", AlpitronicVersionUtils.supportsMaxChargingPowerAC(v18));
+		assertFalse("v1.8 should not use apparent power", AlpitronicVersionUtils.usesApparentPowerForStation(v18));
+
 		// Test v2.3
-		FirmwareVersion v23 = new FirmwareVersion(2, 3, 5);
-		assertFalse("Should not detect v1.8", v23.isVersion18());
-		assertTrue("Should detect v2.3", v23.isVersion23());
-		assertFalse("Should not detect v2.4", v23.isVersion24());
-		assertFalse("Should not detect v2.5+", v23.isVersion25OrLater());
-		assertTrue("v2.3 should support total charged energy", v23.supportsTotalChargedEnergy());
-		assertFalse("v2.3 should not support max charging power AC", v23.supportsMaxChargingPowerAC());
-		assertFalse("v2.3 should not use apparent power", v23.usesApparentPowerForStation());
-		
+		SemanticVersion v23 = new SemanticVersion(2, 3, 5);
+		assertFalse("Should not detect v1.8", AlpitronicVersionUtils.isVersion18(v23));
+		assertTrue("Should detect v2.3", AlpitronicVersionUtils.isVersion23(v23));
+		assertFalse("Should not detect v2.4", AlpitronicVersionUtils.isVersion24(v23));
+		assertFalse("Should not detect v2.5+", AlpitronicVersionUtils.isVersion25OrLater(v23));
+		assertTrue("v2.3 should support total charged energy", AlpitronicVersionUtils.supportsTotalChargedEnergy(v23));
+		assertFalse("v2.3 should not support max charging power AC", AlpitronicVersionUtils.supportsMaxChargingPowerAC(v23));
+		assertFalse("v2.3 should not use apparent power", AlpitronicVersionUtils.usesApparentPowerForStation(v23));
+
 		// Test v2.4
-		FirmwareVersion v24 = new FirmwareVersion(2, 4, 10);
-		assertFalse("Should not detect v1.8", v24.isVersion18());
-		assertFalse("Should not detect v2.3", v24.isVersion23());
-		assertTrue("Should detect v2.4", v24.isVersion24());
-		assertFalse("Should not detect v2.5+", v24.isVersion25OrLater());
-		assertTrue("v2.4 should support total charged energy", v24.supportsTotalChargedEnergy());
-		assertTrue("v2.4 should support max charging power AC", v24.supportsMaxChargingPowerAC());
-		assertFalse("v2.4 should not use apparent power", v24.usesApparentPowerForStation());
-		
+		SemanticVersion v24 = new SemanticVersion(2, 4, 10);
+		assertFalse("Should not detect v1.8", AlpitronicVersionUtils.isVersion18(v24));
+		assertFalse("Should not detect v2.3", AlpitronicVersionUtils.isVersion23(v24));
+		assertTrue("Should detect v2.4", AlpitronicVersionUtils.isVersion24(v24));
+		assertFalse("Should not detect v2.5+", AlpitronicVersionUtils.isVersion25OrLater(v24));
+		assertTrue("v2.4 should support total charged energy", AlpitronicVersionUtils.supportsTotalChargedEnergy(v24));
+		assertTrue("v2.4 should support max charging power AC", AlpitronicVersionUtils.supportsMaxChargingPowerAC(v24));
+		assertFalse("v2.4 should not use apparent power", AlpitronicVersionUtils.usesApparentPowerForStation(v24));
+
 		// Test v2.5
-		FirmwareVersion v25 = new FirmwareVersion(2, 5, 0);
-		assertFalse("Should not detect v1.8", v25.isVersion18());
-		assertFalse("Should not detect v2.3", v25.isVersion23());
-		assertFalse("Should not detect v2.4", v25.isVersion24());
-		assertTrue("Should detect v2.5+", v25.isVersion25OrLater());
-		assertTrue("v2.5 should support total charged energy", v25.supportsTotalChargedEnergy());
-		assertTrue("v2.5 should support max charging power AC", v25.supportsMaxChargingPowerAC());
-		assertTrue("v2.5 should use apparent power", v25.usesApparentPowerForStation());
-		assertTrue("v2.5 should support extended connector types", v25.supportsExtendedConnectorTypes());
+		SemanticVersion v25 = new SemanticVersion(2, 5, 0);
+		assertFalse("Should not detect v1.8", AlpitronicVersionUtils.isVersion18(v25));
+		assertFalse("Should not detect v2.3", AlpitronicVersionUtils.isVersion23(v25));
+		assertFalse("Should not detect v2.4", AlpitronicVersionUtils.isVersion24(v25));
+		assertTrue("Should detect v2.5+", AlpitronicVersionUtils.isVersion25OrLater(v25));
+		assertTrue("v2.5 should support total charged energy", AlpitronicVersionUtils.supportsTotalChargedEnergy(v25));
+		assertTrue("v2.5 should support max charging power AC", AlpitronicVersionUtils.supportsMaxChargingPowerAC(v25));
+		assertTrue("v2.5 should use apparent power", AlpitronicVersionUtils.usesApparentPowerForStation(v25));
+		assertTrue("v2.5 should support extended connector types", AlpitronicVersionUtils.supportsExtendedConnectorTypes(v25));
 	}
-	
+
 	@Test
 	public void testVersionComparison() {
-		FirmwareVersion v18 = new FirmwareVersion(1, 8, 0);
-		FirmwareVersion v25 = new FirmwareVersion(2, 5, 3);
-		final FirmwareVersion v30 = new FirmwareVersion(3, 0, 0);
-		
+		SemanticVersion v18 = new SemanticVersion(1, 8, 0);
+		SemanticVersion v25 = new SemanticVersion(2, 5, 3);
+		SemanticVersion v30 = new SemanticVersion(3, 0, 0);
+
 		// Test isAtLeast
-		assertTrue("v1.8 should be at least 1.8", v18.isAtLeast(1, 8));
-		assertFalse("v1.8 should not be at least 2.0", v18.isAtLeast(2, 0));
-		
-		assertTrue("v2.5 should be at least 2.0", v25.isAtLeast(2, 0));
-		assertTrue("v2.5 should be at least 2.5", v25.isAtLeast(2, 5));
-		assertFalse("v2.5 should not be at least 3.0", v25.isAtLeast(3, 0));
-		
-		assertTrue("v3.0 should be at least 2.5", v30.isAtLeast(2, 5));
+		assertTrue("v1.8 should be at least 1.8", v18.isAtLeast(new SemanticVersion(1, 8, 0)));
+		assertFalse("v1.8 should not be at least 2.0", v18.isAtLeast(new SemanticVersion(2, 0, 0)));
+
+		assertTrue("v2.5 should be at least 2.0", v25.isAtLeast(new SemanticVersion(2, 0, 0)));
+		assertTrue("v2.5 should be at least 2.5", v25.isAtLeast(new SemanticVersion(2, 5, 0)));
+		assertFalse("v2.5 should not be at least 3.0", v25.isAtLeast(new SemanticVersion(3, 0, 0)));
+
+		assertTrue("v3.0 should be at least 2.5", v30.isAtLeast(new SemanticVersion(2, 5, 0)));
 	}
 	
 	@Test
