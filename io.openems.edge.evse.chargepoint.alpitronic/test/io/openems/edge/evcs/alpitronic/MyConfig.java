@@ -1,9 +1,9 @@
 package io.openems.edge.evcs.alpitronic;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -16,6 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int minHwPower;
 		private int maxHwPower;
 		private Connector connector;
+		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 		private Builder() {
 		}
@@ -47,6 +48,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setConnector(Connector connector) {
 			this.connector = connector;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -83,7 +89,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return generateReferenceTargetFilter(this.id(), this.modbus_id());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override
@@ -104,5 +110,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Connector connector() {
 		return this.builder.connector;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }
