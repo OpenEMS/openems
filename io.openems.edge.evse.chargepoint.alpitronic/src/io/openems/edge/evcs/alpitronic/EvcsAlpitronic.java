@@ -1,5 +1,13 @@
 package io.openems.edge.evcs.alpitronic;
 
+import static io.openems.common.channel.Unit.AMPERE;
+import static io.openems.common.channel.Unit.KILOWATT_HOURS;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.SECONDS;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.DOUBLE;
 import static io.openems.common.types.OpenemsType.INTEGER;
@@ -8,7 +16,6 @@ import static io.openems.common.types.OpenemsType.STRING;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -30,7 +37,7 @@ public interface EvcsAlpitronic extends OpenemsComponent {
 		 * Unix time from charging station.
 		 */
 		UNIX_TIME(Doc.of(LONG)//
-				.unit(Unit.SECONDS)),
+				.unit(SECONDS)),
 
 		/**
 		 * Number of physical connectors.
@@ -46,7 +53,7 @@ public interface EvcsAlpitronic extends OpenemsComponent {
 		 * Total power drained from the grid by all connectors.
 		 */
 		TOTAL_STATION_POWER(Doc.of(INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(WATT)),
 
 		/**
 		 * Charging station serial number.
@@ -101,66 +108,66 @@ public interface EvcsAlpitronic extends OpenemsComponent {
 		 * applyChargePowerLimit method
 		 */
 		APPLY_CHARGE_POWER_LIMIT(Doc.of(INTEGER)//
-				.unit(Unit.WATT)//
+				.unit(WATT)//
 				.accessMode(AccessMode.READ_WRITE)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		CHARGING_VOLTAGE(Doc.of(DOUBLE)//
-				.unit(Unit.VOLT)),
+				.unit(VOLT)),
 
 		CHARGING_CURRENT(Doc.of(DOUBLE)//
-				.unit(Unit.AMPERE)),
+				.unit(AMPERE)),
 
 		RAW_CHARGE_POWER(Doc.of(INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(WATT)),
 
 		CHARGED_TIME(Doc.of(INTEGER)//
-				.unit(Unit.SECONDS)),
+				.unit(SECONDS)),
 
 		CHARGED_ENERGY(Doc.of(DOUBLE)//
-				.unit(Unit.KILOWATT_HOURS)),
+				.unit(KILOWATT_HOURS)),
 
 		EV_SOC(Doc.of(INTEGER)//
-				.unit(Unit.PERCENT)),
+				.unit(PERCENT)),
 
 		CONNECTOR_TYPE(Doc.of(SelectedConnector.values())),
 
 		EV_MAX_CHARGING_POWER(Doc.of(INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(WATT)),
 
 		EV_MIN_CHARGING_POWER(Doc.of(INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(WATT)),
 
 		/**
 		 * Maximum possible inductive VAR, e. g. 1500 VAR
 		 */
 		VAR_REACTIVE_MAX(Doc.of(INTEGER)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+				.unit(VOLT_AMPERE_REACTIVE)),
 
 		/**
 		 * Maximum possible capacitive VAR, e. g. -1500 VAR
 		 */
 		VAR_REACTIVE_MIN(Doc.of(INTEGER)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)),
+				.unit(VOLT_AMPERE_REACTIVE)),
 
 		SETPOINT_REACTIVE_POWER(Doc.of(INTEGER)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
+				.unit(VOLT_AMPERE_REACTIVE)//
 				.accessMode(AccessMode.WRITE_ONLY)),
 
 		RAW_CHARGE_POWER_SET(Doc.of(INTEGER)//
-				.unit(Unit.WATT)),
+				.unit(WATT)),
 
 		/**
 		 * Total charged energy counter.
 		 */
 		TOTAL_CHARGED_ENERGY(Doc.of(LONG)//
-				.unit(Unit.WATT_HOURS)),
+				.unit(WATT_HOURS)),
 
 		/**
 		 * Maximum AC charging power per connector.
 		 */
 		MAX_CHARGING_POWER_AC(Doc.of(INTEGER)//
-				.unit(Unit.WATT));
+				.unit(WATT));
 
 		private final Doc doc;
 
