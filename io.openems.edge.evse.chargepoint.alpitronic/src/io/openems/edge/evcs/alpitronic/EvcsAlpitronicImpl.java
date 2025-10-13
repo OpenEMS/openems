@@ -295,23 +295,28 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 						m(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MAJOR, new UnsignedWordElement(46)),
 						m(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MINOR, new UnsignedWordElement(47)),
 						m(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_PATCH, new UnsignedWordElement(48))),
-				
+
 				// v2.4.x addition: Station-level reactive power limits
 				new FC4ReadInputRegistersTask(49, Priority.LOW,
 						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(49)),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51))),
+						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51), INVERT)),
 
 				// Read holding registers for current power limits
 				new FC3ReadRegistersTask(this.offset.apply(0), Priority.LOW,
 						m(EvcsAlpitronic.ChannelId.RAW_CHARGE_POWER_SET,
 								new UnsignedDoublewordElement(this.offset.apply(0)))),
 
-				// Write holding registers for power control
+				// Write holding register for active power control
 				new FC16WriteRegistersTask(this.offset.apply(0),
 						m(EvcsAlpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT,
-								new UnsignedDoublewordElement(this.offset.apply(0))),
-						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
-								new SignedDoublewordElement((2)))), // It is advisable to only set the target reactive power for connector 0, as setting the power for the other connectors is deprecated and might be removed in a future release.
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				// Write holding register for reactive power control
+				// It is advisable to only set the target reactive power for connector 0, as
+				// setting the power for
+				// other connectors is deprecated and might be removed in a future release.
+				new FC16WriteRegistersTask(2,
+						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER, new SignedDoublewordElement(2))),
 
 				// Read connector-specific information (input registers)
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
@@ -372,13 +377,8 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(this.offset.apply(10))),
 						m(EvcsAlpitronic.ChannelId.EV_MIN_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(12))),
-						// Reactive power limits at offsets 114-115 and 116-117
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX,
-								new UnsignedDoublewordElement(this.offset.apply(14))),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT),
-						// Gap at offset 17
-						new DummyRegisterElement(this.offset.apply(17)),
+						// Gap at offsets 14-17 (VAR registers removed, using station-level instead)
+						new DummyRegisterElement(this.offset.apply(14), this.offset.apply(17)),
 						// VID (Vehicle ID) at offset 118-121 (4 registers = 8 bytes)
 						m(EvcsAlpitronic.ChannelId.VID, new StringWordElement(this.offset.apply(18), 4)),
 						// idTag (OCPP ID) at offset 122-131 (10 registers = 20 chars)
@@ -544,7 +544,7 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 				// v2.3.x addition: Station-level reactive power limits
 				new FC4ReadInputRegistersTask(49, Priority.LOW,
 						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(49)),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51))),
+						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51), INVERT)),
 
 				// Version 2.3 uses connector-relative offsets throughout
 				// Read holding registers
@@ -552,12 +552,18 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 						m(EvcsAlpitronic.ChannelId.RAW_CHARGE_POWER_SET,
 								new UnsignedDoublewordElement(this.offset.apply(0)))),
 
-				// Write holding registers - Active power is W for all connectors in v2.3
+				// Write holding register for active power control - Active power is W for all
+				// connectors in v2.3
 				new FC16WriteRegistersTask(this.offset.apply(0),
 						m(EvcsAlpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT,
-								new UnsignedDoublewordElement(this.offset.apply(0))),
-						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
-								new SignedDoublewordElement((2)))), // It is advisable to only set the target reactive power for connector 0, as setting the power for the other connectors is deprecated and might be removed in a future release.
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				// Write holding register for reactive power control
+				// It is advisable to only set the target reactive power for connector 0, as
+				// setting the power for
+				// other connectors is deprecated and might be removed in a future release.
+				new FC16WriteRegistersTask(2,
+						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER, new SignedDoublewordElement(2))),
 
 				// Read connector-specific input registers (v2.3 layout)
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
@@ -599,12 +605,8 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(this.offset.apply(10))),
 						m(EvcsAlpitronic.ChannelId.EV_MIN_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(12))),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX,
-								new UnsignedDoublewordElement(this.offset.apply(14))),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT),
-						// Gap at offset 17
-						new DummyRegisterElement(this.offset.apply(17)),
+						// Gap at offsets 14-17 (VAR registers removed, using station-level instead)
+						new DummyRegisterElement(this.offset.apply(14), this.offset.apply(17)),
 						// VID (Vehicle ID) at offset 118-121 (4 registers = 8 bytes)
 						m(EvcsAlpitronic.ChannelId.VID, new StringWordElement(this.offset.apply(18), 4)),
 						// idTag (OCPP ID) at offset 122-131 (10 registers = 20 chars)
@@ -656,7 +658,7 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 				// v2.4.x addition: Station-level reactive power limits
 				new FC4ReadInputRegistersTask(49, Priority.LOW,
 						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX, new UnsignedDoublewordElement(49)),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51))),
+						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN, new UnsignedDoublewordElement(51), INVERT)),
 
 				// Version 2.4 uses connector-relative offsets throughout
 				// Read holding registers
@@ -664,12 +666,18 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 						m(EvcsAlpitronic.ChannelId.RAW_CHARGE_POWER_SET,
 								new UnsignedDoublewordElement(this.offset.apply(0)))),
 
-				// Write holding registers - Active power is W for all connectors in v2.4
+				// Write holding register for active power control - Active power is W for all
+				// connectors in v2.4
 				new FC16WriteRegistersTask(this.offset.apply(0),
 						m(EvcsAlpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT,
-								new UnsignedDoublewordElement(this.offset.apply(0))),
-						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER,
-								new SignedDoublewordElement((2)))), // It is advisable to only set the target reactive power for connector 0, as setting the power for the other connectors is deprecated and might be removed in a future release.
+								new UnsignedDoublewordElement(this.offset.apply(0)))),
+
+				// Write holding register for reactive power control
+				// It is advisable to only set the target reactive power for connector 0, as
+				// setting the power for
+				// other connectors is deprecated and might be removed in a future release.
+				new FC16WriteRegistersTask(2,
+						m(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER, new SignedDoublewordElement(2))),
 
 				// Read connector-specific input registers (v2.4 layout)
 				new FC4ReadInputRegistersTask(this.offset.apply(0), Priority.LOW,
@@ -711,12 +719,8 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 								new UnsignedDoublewordElement(this.offset.apply(10))),
 						m(EvcsAlpitronic.ChannelId.EV_MIN_CHARGING_POWER,
 								new UnsignedDoublewordElement(this.offset.apply(12))),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX,
-								new UnsignedDoublewordElement(this.offset.apply(14))),
-						m(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN,
-								new UnsignedDoublewordElement(this.offset.apply(16)), INVERT),
-						// Gap at offset 17
-						new DummyRegisterElement(this.offset.apply(17)),
+						// Gap at offsets 14-17 (VAR registers removed, using station-level instead)
+						new DummyRegisterElement(this.offset.apply(14), this.offset.apply(17)),
 						// VID (Vehicle ID) at offset 118-121 (4 registers = 8 bytes)
 						m(EvcsAlpitronic.ChannelId.VID, new StringWordElement(this.offset.apply(18), 4)),
 						// idTag (OCPP ID) at offset 122-131 (10 registers = 20 chars)
@@ -816,8 +820,7 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		// These registers are consistent across all firmware versions
 		// This ensures we wait until the version is successfully read
 		readElementsOnce(ModbusUtils.FunctionCode.FC4, // Input registers
-				protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(46), // Major version - consistent across
-																					// all versions
+				protocol, ModbusUtils::retryOnNull, new UnsignedWordElement(46), // Major version - consistent across all versions
 				new UnsignedWordElement(47), // Minor version - consistent across all versions
 				new UnsignedWordElement(48) // Patch version - consistent across all versions
 		).thenAccept(result -> {
