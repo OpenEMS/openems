@@ -23,7 +23,7 @@
     "@capacitor/splash-screen": "^7.0.3",
     "@date-fns/tz": "^1.4.1",
     "@ionic/angular": "^8.7.5",
-    "@ionic/core": "^8.7.5",
+    "@ionic/core": "^8.7.6",
     "@ngx-formly/core": "^7.0.0",
     "@ngx-formly/ionic": "^7.0.0",
     "@ngx-formly/schematics": "^7.0.0",
