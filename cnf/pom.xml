@@ -55,13 +55,13 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.1.0</version>
+			<version>5.2.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.16.0</version>
+			<version>3.16.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -231,7 +231,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.2</version>
+			<version>1.1.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
