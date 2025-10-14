@@ -92,6 +92,8 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 		this.config = config;
 		this._setGeneratorMaxActivePower(this.config.maxActivePower());
 		this._setRegulationSteps(this.config.regulationSteps());
+		this.applyPreparation(false);
+
 	}
 
 	@Override
@@ -103,6 +105,19 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerTarget) {
 		this.applyPower((Integer) activePowerTarget);
+	}
+
+	@Override
+	public void applyPreparation(Boolean activate) {
+		if (activate) {
+			try {
+			this.setChpPreparation(1);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
+
+		}
+
 	}
 
 	@Override
@@ -119,8 +134,9 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 		int stepActive = 0;
 		int activePowerTargetPercent = (int) Math
 				.round(((double) activePowerTarget / this.getGeneratorMaxActivePower().get()) * 100);
-		
-		activePowerTargetPercent = Math.min(100, activePowerTargetPercent); // limit to 100% to handle configuration errors
+
+		activePowerTargetPercent = Math.min(100, activePowerTargetPercent); // limit to 100% to handle configuration
+																			// errors
 
 		/*
 		 * Logic with 2 installed untis Target 0% -> 0% Target 1% -> 50% (1 unit with
@@ -131,19 +147,18 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 					: (int) Math.ceil(((double) activePowerTargetPercent * config.regulationSteps()) / 100);
 
 			stepActive = Math.min(stepActive, config.regulationSteps()); // handle configuration errors
-			
+
 			if (stepActive != this.lastActiveStep) {
 				if (this.isHysteresisActive(lastTransistionChangeTime, this.config.hysteresis())) {
 					stepActive = this.lastActiveStep;
 					this._setAwaitingHysteresis(true);
 				} else {
-					this.logDebug(this.log, "Transitioning from " + lastActiveStep + "->" + stepActive );
-					
+					this.logDebug(this.log, "Transitioning from " + lastActiveStep + "->" + stepActive);
+
 					this.lastActiveStep = stepActive;
 					this.lastTransistionChangeTime = Instant.now(this.componentManager.getClock());
 					this._setAwaitingHysteresis(false);
-					
-					
+
 				}
 			}
 
@@ -163,7 +178,6 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 
 	}
 
-	
 	@Override
 	public void handleEvent(Event event) {
 
@@ -182,11 +196,15 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, new FC16WriteRegistersTask(150, //
 				this.m(XrgiControl.ChannelId.POWER_PERCENT, new UnsignedWordElement(150),
-						ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
-				
-		        new FC3ReadRegistersTask(150, Priority.HIGH,
-			            m(XrgiControl.ChannelId.POWER_PERCENT, new UnsignedWordElement(150),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))		
+						ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+				this.m(XrgiControl.ChannelId.CHP_PREPARING, new UnsignedWordElement(151))
+
+		),
+
+				new FC3ReadRegistersTask(150, Priority.HIGH,
+						this.m(XrgiControl.ChannelId.POWER_PERCENT, new UnsignedWordElement(150),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						this.m(XrgiControl.ChannelId.CHP_PREPARING, new UnsignedWordElement(151)))
 
 		);
 	}
@@ -215,11 +233,10 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 
-		return "Regulation value: " + this.getPowerPercent().asString() + " " + 
-		"Active Regulation Step: "	+ this.getActiveRegulationStep()
+		return "Regulation value: " + this.getPowerPercent().asString() + " " + "Active Regulation Step: "
+				+ this.getActiveRegulationStep()
 
 		;
 	}
-	
 
 }

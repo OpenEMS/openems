@@ -4,6 +4,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 
@@ -23,6 +24,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGenerator  {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+
 
 		
 		AWAITING_HYSTERESIS(Doc.of(Level.WARNING) //
@@ -245,7 +247,8 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 	public default void _setGeneratorMaxApparentPower(int value) {
 		this.getGeneratorMaxApparentPowerChannel().setNextValue(value);
 	}
-
+	
+	//
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER_LIMIT}.
 	 *
@@ -283,6 +286,9 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 	public default void _setGeneratorActivePowerLimit(int value) {
 		this.getGeneratorActivePowerLimitChannel().setNextValue(value);
 	}
+	
+
+	
 
 	
 
@@ -301,5 +307,7 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 	public void applyPower(int calculateChpPowerTarget);
 
 	public void applyPower(Integer activePowerTarget);
+
+	public void applyPreparation(Boolean activate);
 	
 }

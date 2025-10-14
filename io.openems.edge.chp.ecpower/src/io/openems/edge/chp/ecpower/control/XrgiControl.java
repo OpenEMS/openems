@@ -17,6 +17,10 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
+		
+		CHP_PREPARING(Doc.of(OpenemsType.INTEGER) // use of Integer for future implementation of additional preparation methods
+				.text("Prepare CHP for operation")),	
+		
 		POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
 				.accessMode(AccessMode.READ_WRITE)),
@@ -135,8 +139,52 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 		return this.channel(ChannelId.REGULATION_STEPS);
 	}
 
+
+	//
+	/**
+	 * Gets the Channel for {@link ChannelId#CHP_PREPARING}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getChpPreparationChannel() {
+		return this.channel(ChannelId.CHP_PREPARING);
+	}
+
+	/**
+	 * Gets the Active Power Limit in [W]. See {@link ChannelId#CHP_PREPARING}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getChpPreparation() {
+		return this.getChpPreparationChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CHP_PREPARING} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChpPreparation(Integer value) {
+		this.getChpPreparationChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#CHP_PREPARING} Channel.
+	 *
+	 * @param value the next value
+	 * @throws OpenemsNamedException 
+	 */
+	public default void setChpPreparation(int value) throws OpenemsNamedException {
+		this.getChpPreparationChannel().setNextWriteValue(value);
+	}	
+	
+	
 	void applyPower(int activePowerTarget);
 
 	void applyPower(Integer activePowerTarget);
+
+	void applyPreparation(Boolean activate);
 
 }

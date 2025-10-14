@@ -35,6 +35,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Stop Hysteresis [s]", description = "Minimum run time (in seconds) before the CHP is allowed to stop.")
 	int stopHyteresis() default 3600;
 
+	@AttributeDefinition(name = "Preparation Hysteresis [s]", description = "Before CHP is started heating system might need to be prepared, i.e. shut down other heating systems to lower temperatures. \n In order to do that future energy costs are calculated")
+	int preparationHyteresis() default 3600;
+
 	@AttributeDefinition(name = "Grid meter ID", description = "Id of grid meter")
 	String meter_id() default "meter0";
 

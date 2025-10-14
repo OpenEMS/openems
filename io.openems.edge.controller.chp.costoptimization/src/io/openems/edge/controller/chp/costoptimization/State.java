@@ -8,7 +8,8 @@ public enum State implements OptionsEnum {
 	NORMAL(0, "Normal"), // SoC in range between min and max
 	ERROR(1, "Error State"),
 	CHP_ACTIVE(2, "CHP activated"),
-	CHP_INACTIVE(3, "CHP stopped")
+	CHP_INACTIVE(3, "CHP stopped"),
+	CHP_PREPARING(4, "CHP preparing"),
 	
 	;
 

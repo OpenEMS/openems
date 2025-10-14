@@ -93,6 +93,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return null;
 	}
 
+	@Override
+	public int preparationHyteresis() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 
 

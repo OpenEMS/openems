@@ -190,7 +190,7 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent
 						m(XrgiRo.ChannelId.FLOW_MASTER_VALVE_POSITION, new UnsignedWordElement(34)), // 0x0022: UINT16,
 																										// %
 						m(XrgiRo.ChannelId.CURRENT_ENGINE_HEAT_OUTPUT, new UnsignedWordElement(35),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // 0x0023: UINT16, kW x100
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // 0x0023: UINT16, kW x100
 						m(XrgiRo.ChannelId.HEAT_TRANSFER_VALUE, new UnsignedWordElement(36),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), // 0x0024: UINT16, kW/K x10
 						m(XrgiRo.ChannelId.LAYER_SEPARATION_TEMPERATURE, new UnsignedWordElement(37),
@@ -214,11 +214,11 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent
 						m(XrgiRo.ChannelId.L2_L3_VOLTAGE, new UnsignedWordElement(48)), // 0x0030: UINT16, Volt
 						m(XrgiRo.ChannelId.L3_L1_VOLTAGE, new UnsignedWordElement(49)), // 0x0031: UINT16, Volt
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(50)), // 0x0032: UINT16, Hz x100
-						m(XrgiRo.ChannelId.ALERT_STATUS, new UnsignedWordElement(51)) // 0x0033: UINT16
+						m(XrgiRo.ChannelId.MESSAGE_STATUS, new UnsignedWordElement(51)) // 0x0033: UINT16
 				),
 				new FC4ReadInputRegistersTask(0, Priority.LOW,
 						m(XrgiRo.ChannelId.VPP_ENABLE, new UnsignedWordElement(0)), // 0x0000: VPP Freigabe
-						m(XrgiRo.ChannelId.CHP_POWER_CONTROL, new UnsignedWordElement(1)) // 0x0001: BHKW
+						m(XrgiRo.ChannelId.CHP_POWER_CONTROL, new UnsignedWordElement(1), ElementToChannelConverter.SCALE_FACTOR_MINUS_2) // 0x0001: BHKW
 																							// Leistungsregelung %
 				)
 

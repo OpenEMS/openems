@@ -67,7 +67,7 @@ public interface XrgiRo extends ModbusComponent, OpenemsComponent, ElectricityMe
 		// Wärmemotor
 		CURRENT_ENGINE_HEAT_OUTPUT(Doc.of(OpenemsType.INTEGER).unit(Unit.KILOWATT).persistencePriority(PersistencePriority.HIGH)), // kW x100
 		HEAT_TRANSFER_VALUE(Doc.of(OpenemsType.INTEGER).persistencePriority(PersistencePriority.HIGH)), // kW/K x10
-		LAYER_SEPARATION_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS).persistencePriority(PersistencePriority.HIGH)),
+		LAYER_SEPARATION_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS).persistencePriority(PersistencePriority.HIGH)),
 
 		// Leistung/Leistungsgrenzen
 		POWER_UNIT_REQUESTED_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).persistencePriority(PersistencePriority.HIGH)),
@@ -85,7 +85,7 @@ public interface XrgiRo extends ModbusComponent, OpenemsComponent, ElectricityMe
 		L2_L3_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).persistencePriority(PersistencePriority.HIGH)),
 		L3_L1_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).persistencePriority(PersistencePriority.HIGH)),
 		//FREQUENCY(Doc.of(OpenemsType.INTEGER).unit(Unit.HERTZ).persistencePriority(PersistencePriority.HIGH)),
-		ALERT_STATUS(Doc.of(OpenemsType.INTEGER).persistencePriority(PersistencePriority.HIGH)), 
+		MESSAGE_STATUS(Doc.of(OpenemsType.INTEGER).persistencePriority(PersistencePriority.HIGH)), 
 		VPP_ENABLE(Doc.of(OpenemsType.INTEGER).persistencePriority(PersistencePriority.HIGH)),
 		CHP_POWER_CONTROL(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).persistencePriority(PersistencePriority.HIGH)),
 		

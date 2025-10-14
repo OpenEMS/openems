@@ -1,7 +1,11 @@
 package io.openems.edge.controller.chp.costoptimization;
 
+import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -54,12 +58,17 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private Instant lastTransistionChangeTime = Instant.MIN;
 	private Instant lastStopHysteresisTime = Instant.MIN;
 	private Instant lastStartHysteresisTime = Instant.MIN;
+	private Instant lastPreparationHysteresisTime = Instant.MIN;
 	private State state = State.UNDEFINED;
 	private Integer gridPowerWithoutChp = 0;
 	private Integer applyPowerTarget = 0;
 	// private Integer lastApplyPowerTarget = null;
 	private Double currentPrice = null;
 	private Double currentEnergyCost = 0.0;
+	
+	private final Clock clock = Clock.systemDefaultZone(); // oder injizieren
+	private int offset = 180; 
+	
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -118,7 +127,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		if (!checkOperationalValues() || currentEnergyCost == null) {
+		if (!checkOperationalValues()) {
 			this.logWarn(this.log, "Controller not ready");
 			this.changeState(State.ERROR);
 			return;
@@ -129,6 +138,9 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this.gridPowerWithoutChp = gridActivePower + chpActivePower;
 		Double currentEnergyCostsWithoutChp = this.getCurrentCost(gridPowerWithoutChp);
 		Double currentEnergyCosts = this.getCurrentCost(gridActivePower);
+		
+		Double futureEnergyCostsWithoutChp = this.getFutureCost(gridPowerWithoutChp);
+		//Double futureEnergyCosts = this.getFutureCost(gridActivePower);		
 
 		this._setEnergyCostsWithoutChp(currentEnergyCostsWithoutChp); // save value in channel
 		this._setEnergyCosts(currentEnergyCosts); // save value in channel
@@ -141,12 +153,14 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				this.changeState(State.NORMAL);
 				return;
 			}
+			this.chp.applyPreparation(false);
 			break;
 		case UNDEFINED:
 			if (checkOperationalValues()) {
 				this.changeState(State.NORMAL);
 				return;
 			}
+			this.chp.applyPreparation(false);
 			break;
 		case NORMAL:
 
@@ -159,9 +173,23 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			if (this.config.mode() == Mode.MANUAL_OFF) {
 				this.chp.applyPower(null); // off
 				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+				this.changeState(State.CHP_INACTIVE);	
+				this.chp.applyPreparation(false);				
 				break;
 			}
+			
+			if (!checkOperationalValues()) {
+				this.changeState(State.ERROR);
+				break;
+				
+			}
 
+			if (futureEnergyCostsWithoutChp > this.config.maxCost()) {
+				this.changeState(State.CHP_PREPARING);
+				this.lastPreparationHysteresisTime = Instant.now(this.componentManager.getClock());
+				break;
+			}
+			
 			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
 				// ready to start
 
@@ -181,8 +209,63 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				this._setActivePowerTarget(this.applyPowerTarget);
 				this.chp.applyPower(this.applyPowerTarget);
 			}
-
+			this.chp.applyPreparation(false); // no preparation in normal mode
 			break;
+		case CHP_PREPARING: // energy cost will exceed maximum. 
+							// prepare CHPs, i.e. lower temperatures produced by other heating systems
+
+			if (this.config.mode() == Mode.MANUAL_ON) {
+				this.changeState(State.CHP_ACTIVE);
+				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+				break;
+			}
+
+			if (this.config.mode() == Mode.MANUAL_OFF) {
+				this.chp.applyPower(null); // off
+				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+				this.chp.applyPreparation(false);
+				this.changeState(State.CHP_INACTIVE);
+				break;
+			}
+
+			if (futureEnergyCostsWithoutChp < this.config.maxCost()) { // can we  go back to normal?
+				if (isHysteresisActive(this.lastPreparationHysteresisTime, this.config.preparationHyteresis())) { // back to normal if hysteresis is over
+					
+					// prepare something...
+					this.chp.applyPreparation(true);
+					this._setAwaitingPreparationHysteresis(true);					
+					
+				} else {
+					this.changeState(State.NORMAL);
+					this.chp.applyPreparation(false);
+					this._setAwaitingPreparationHysteresis(false);
+				}
+				
+				
+			}
+			
+			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
+				// ready to start
+
+				// start chp
+				this.changeState(State.CHP_ACTIVE);
+								
+
+				// Start Timer
+				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+			} else {
+
+				// Only turn off if there was a change in target power
+				// if (this.lastApplyPowerTarget != this.applyPowerTarget) {
+				// this.chp.applyPower(this.applyPowerTarget);
+				// } else {
+				// do nothing
+				// }
+				this._setActivePowerTarget(this.applyPowerTarget);
+				this.chp.applyPower(this.applyPowerTarget);
+			}
+
+			break;			
 		case CHP_ACTIVE:
 			// check hysteresis
 			// check target power
@@ -202,19 +285,22 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				// Start Timer
 				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
 				this._setAwaitingStartHysteresis(false);
+				this._setAwaitingPreparationHysteresis(false);
 				break;
 			}
-
+			
 			// Automatic mode
+			this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
+			this.chp.applyPreparation(false);			
+
 			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
-				this.applyPowerTarget = this.calculateChpPowerTarget();
+				this.applyPowerTarget = this.calculateChpPowerTarget(currentEnergyCosts);
 				this.chp.applyPower(this.applyPowerTarget);
 				this._setAwaitingStartHysteresis(false);
-
 			} else { // costs are below threshold or not in automatic mode -> can stop chp?
 				// check last START time
 				if (isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
-					this.applyPowerTarget = this.calculateChpPowerTarget();
+					this.applyPowerTarget = this.calculateChpPowerTarget(currentEnergyCosts);
 					this.chp.applyPower(this.applyPowerTarget);
 					this._setAwaitingStartHysteresis(true);
 				} else {
@@ -244,6 +330,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 	}
 
+
 	private boolean isHysteresisActive(Instant hysteresisTime, int configuredHysteresis) {
 		if (Duration.between(//
 				hysteresisTime, //
@@ -270,13 +357,18 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	 * Returns the calculated power target in watts and sets it to the corresponding
 	 * channel.
 	 */
-	private int calculateChpPowerTarget() {
+	private int calculateChpPowerTarget(Double currentEnergyCost) {
+		
+	    if (currentEnergyCost <= 0.0) {
+	        this._setActivePowerTarget(0);
+	        return 0;
+	    }
 		int chpTargetPower = 0;
 
 		if (this.gridPowerWithoutChp != null) {
 
 			chpTargetPower = (int) Math
-					.round(this.gridPowerWithoutChp * this.config.maxCost() / (double) this.currentEnergyCost);
+					.round(this.gridPowerWithoutChp * this.config.maxCost() / currentEnergyCost);
 
 			// Apply limits
 			chpTargetPower = Math.min(this.config.maxActivePower(), chpTargetPower);
@@ -287,20 +379,52 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		return chpTargetPower;
 	}
 
-	private Double getCurrentCost(Integer gridPowerWithoutChp) {
-
-		if (!this.timeOfUseTariff.getPrices().isEmpty()) {
+	private Double getCurrentCost(Integer power) {
+		
+		if (!this.timeOfUseTariff.getPrices().isEmpty() && power > 0) {
 			this.currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh.
 		} else {
 			return 0.0;
 		}
 
-		if (gridPowerWithoutChp != null && this.currentPrice != null && gridPowerWithoutChp > 0) {
-			this.currentEnergyCost = this.currentPrice * gridPowerWithoutChp / 1_000_000.0; // €
-		}
-
-		return Math.round(currentEnergyCost * 1000.0) / 1000.0;
+		return Math.round((this.currentPrice * power / 1_000_000.0) * 1000.0) / 1000.0;
 	}
+
+
+	private Double getFutureCost(Integer power) {
+	
+		
+		if (!this.timeOfUseTariff.getPrices().isEmpty() && power != null && power > 0) {
+			//this.futurePrice = this.timeOfUseTariff.getPrices().getAt(t); // Price in €/MWh.
+			
+			Double[] arrFuturePrices = this.timeOfUseTariff.getPrices().asArray();
+			double avgEurPerMWh = avgFirst3(arrFuturePrices);
+
+			double eurPerHour = Math.round((avgEurPerMWh * (power / 1_000_000.0)) * 1000.0) / 1000.0;	
+			return eurPerHour;
+
+		} else {
+			return 0.0;
+		}
+	
+	}	
+	
+	private static double avgFirst3(Double[] a) {
+	    if (a == null || a.length == 0) return 0.0;
+	    int n = Math.min(3, a.length);
+	    double sum = 0.0;
+	    int cnt = 0;
+	    for (int i = 0; i < n; i++) {
+	        if (a[i] != null) {
+	            sum += a[i];
+	            cnt++;
+	        }
+	    }
+	    if (cnt == 0) return 0.0;
+	    double avg = sum / cnt;                 // €/MWh
+	    return Math.round(avg * 10.0) / 10.0;   // auf 1 Nachkommastelle
+	}	
+	
 
 	@Deactivate
 	protected void deactivate() {
@@ -339,23 +463,24 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 						+ (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)
 
 		);
-		if (this.gridMeter.getMeterType() != MeterType.GRID) {
-			this.log.warn("Controller not ready. Metertype is not GRID");
-			this.changeState(State.ERROR);
-			return false;
-
-		}
-
-		if (this.gridMeter == null) {
-			this.log.warn("Controller not ready. GridMeter is NULL");
-			this.changeState(State.ERROR);
-			return false;
-		}
 
 		if (this.chp == null) {
 			this.log.warn("Controller not ready. No CHP available");
 			this.changeState(State.ERROR);
 			return false;
+		}
+		
+		if (this.gridMeter == null) {
+			this.log.warn("Controller not ready. GridMeter is NULL");
+			this.changeState(State.ERROR);
+			return false;
+		}		
+		
+		if (this.gridMeter.getMeterType() != MeterType.GRID) {
+			this.log.warn("Controller not ready. Metertype is not GRID");
+			this.changeState(State.ERROR);
+			return false;
+
 		}
 
 		if (this.gridMeter.getActivePower().get() == null) {
@@ -371,7 +496,13 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 
 		if (this.chp.getGeneratorActivePower().get() == null) {
-			this.log.warn("Controller not ready. No value for AcmtivePower from generator(s)");
+			this.log.warn("Controller not ready. No value for ActivePower from generator(s)");
+			this.changeState(State.ERROR);
+			return false;
+		}
+		
+		if (this.timeOfUseTariff.getPrices().isEmpty()) {
+			this.log.warn("Controller not ready. No prices available");
 			this.changeState(State.ERROR);
 			return false;
 		}

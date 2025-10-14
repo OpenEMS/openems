@@ -50,6 +50,13 @@
                         </oe-modal-line>
                     </ion-label>
                 </ion-item>
+                <ion-item [color]="getBackgroundClass(currentAwaitingPreparationHysteresis)">
+                    <ion-label>
+                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingPreparationHysteresis' | translate"
+                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingPreparationHysteresis | translate">
+                        </oe-modal-line>
+                    </ion-label>
+                </ion-item>
                 <ion-item [color]="getBackgroundClass(currentAwaitingStartHysteresis)">
                     <ion-label>
                         <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingStartHysteresis' | translate"

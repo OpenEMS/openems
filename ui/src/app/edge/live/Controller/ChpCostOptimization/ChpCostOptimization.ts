@@ -92,6 +92,7 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
             new ChannelAddress(this.component.id, "EnergyCostsWithoutChp"),
             new ChannelAddress(this.component.id, "StateMachine"),
             new ChannelAddress(this.component.id, "AwaitingStartHysteresis"),
+            new ChannelAddress(this.component.id, "AwaitingPreparationHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingStopHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingTransitionHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingDeviceHysteresis"),
@@ -146,6 +147,8 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_ACTIVE");
             case "3":
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_INACTIVE");
+            case "4":
+                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_PREPARING");
             default:
                 return "-";
         }

@@ -50,6 +50,7 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
     // Variable to hold the current state of the PeakShavingState
     private currentState: ChpState = ChpState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingStartHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingPreparationHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingStopHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingTransitionHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingDeviceHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
@@ -112,13 +113,15 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
         // Safely access the PeakShavingStateMachine channel
         const currentStateValue = currentData.channel[`${controllerId}/StateMachine`];
         const currentAwaitingStartHysteresisValue = currentData.channel[`${controllerId}/AwaitingStartHysteresis`];
+        const currentAwaitingPreparationHysteresisValue = currentData.channel[`${controllerId}/AwaitingPreparationHysteresis`];
         const currentAwaitingStopHysteresisValue = currentData.channel[`${controllerId}/AwaitingStopHysteresis`];
         const currentAwaitingTransitionHysteresisValue = currentData.channel[`${controllerId}/AwaitingTransitionHysteresis`];
         const currentAwaitingDeviceHysteresisValue = currentData.channel[`${controllerId}/AwaitingDeviceHysteresis`];
 
         // Check if currentStateValue is not undefined or null and is a valid number
-        if (isNaN(currentStateValue) || isNaN(currentAwaitingStartHysteresisValue) || isNaN(currentAwaitingStopHysteresisValue) || isNaN(currentAwaitingTransitionHysteresisValue) || isNaN(currentAwaitingDeviceHysteresisValue)) {
+        if (isNaN(currentStateValue) || isNaN(currentAwaitingStartHysteresisValue) || isNaN(currentAwaitingPreparationHysteresisValue) || isNaN(currentAwaitingStopHysteresisValue) || isNaN(currentAwaitingTransitionHysteresisValue) || isNaN(currentAwaitingDeviceHysteresisValue)) {
             console.warn(`States for ${controllerId} is undefined or null`);
+            this.currentAwaitingPreparationHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingStartHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingStopHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingTransitionHysteresis = HysteresisState.UNDEFINED;
@@ -126,6 +129,7 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
             this.currentState = ChpState.UNDEFINED;
         } else {
             // Ensure currentStateValue is a valid enum value (number) before casting
+            this.currentAwaitingPreparationHysteresis = HysteresisState[currentAwaitingPreparationHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingStartHysteresis = HysteresisState[currentAwaitingStartHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingStopHysteresis = HysteresisState[currentAwaitingStopHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingTransitionHysteresis = HysteresisState[currentAwaitingTransitionHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;

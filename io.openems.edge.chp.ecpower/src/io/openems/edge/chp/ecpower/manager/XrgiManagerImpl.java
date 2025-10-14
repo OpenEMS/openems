@@ -123,6 +123,16 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
         state = State.UNDEFINED;		
 	}
 
+    @Override
+    public void applyPreparation(Boolean activate) {
+        if (this.xrgiControl == null || xrgiRos.isEmpty()) {
+            log.warn("[XrgiManager] XrgiControl or XrgiRo missing (control={}, roCount={}) – skip Preparation",
+                    xrgiControl != null, xrgiRos.size());
+            return;
+        }
+        this.xrgiControl.applyPreparation(activate);
+    }	
+	
 	
     @Override
     public void applyPower(int activePowerTarget) {

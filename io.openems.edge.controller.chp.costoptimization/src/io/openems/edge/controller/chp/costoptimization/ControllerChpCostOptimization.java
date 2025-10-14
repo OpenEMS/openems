@@ -43,6 +43,9 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 		AWAITING_START_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would stop chp, but hysteresis is active").persistencePriority(PersistencePriority.MEDIUM)),	
 		
+		AWAITING_PREPARATION_HYSTERESIS(Doc.of(Level.INFO) //
+				.text("Would stop chp, but hysteresis is active").persistencePriority(PersistencePriority.MEDIUM)),			
+		
 		AWAITING_STOP_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would start chp, but hysteresis is active")
 				.persistencePriority(PersistencePriority.HIGH).persistencePriority(PersistencePriority.MEDIUM)), 				
@@ -133,6 +136,25 @@ public interface ControllerChpCostOptimization extends Controller, OpenemsCompon
 		this.getAwaitingStartHysteresisChannel().setNextValue(value);
 	}	
 	
+	//
+	/**
+	 * Gets the Channel for {@link ChannelId#AWAITING_START_HYSTERESIS}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getAwaitingPreparationHysteresisChannel() {
+		return this.channel(ChannelId.AWAITING_PREPARATION_HYSTERESIS);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AWAITING_START_HYSTERESIS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAwaitingPreparationHysteresis(boolean value) {
+		this.getAwaitingPreparationHysteresisChannel().setNextValue(value);
+	}		
 	
 	//
 	/**

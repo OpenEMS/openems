@@ -162,6 +162,7 @@
           "currentEnergyCosts": "Aktuelle Kosten [€/h]",
           "currentEnergyCostsWithoutChp": "Kosten ohne BHKW [€/h]",
           "awaitingStartHysteresis": "Start Hysterese ",
+          "awaitingPreparationHysteresis": "Vorbereitungs Hysterese ",
           "awaitingStopHysteresis": "Stop Hysterese ",
           "awaitingTransitionHysteresis": "Transition Hysterese",
           "awaitingDeviceHysteresis": "Gerät spezifische Hysterese",
@@ -178,7 +179,8 @@
             "IDLE": "Bereit",
             "ERROR": "Fehler",
             "CHP_ACTIVE": "BHKW läuft",
-            "CHP_INACTIVE": "BHKW gestoppt"
+            "CHP_INACTIVE": "BHKW gestoppt",
+            "CHP_PREPARING": "BHKW Vorbereitung"
           }
         },
         "EVCS": {
