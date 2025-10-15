@@ -7,6 +7,7 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIDNIGHT;
 import static java.time.LocalTime.MIN;
@@ -25,7 +26,7 @@ import com.google.gson.JsonArray;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.common.jsonrpc.serialization.JsonObjectPath;
+import io.openems.common.jsonrpc.serialization.JsonObjectPathActual;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff;
 
@@ -227,8 +228,8 @@ public class AncillaryCosts {
 	}
 
 	/**
-	 * Parses a grid fee schedule specifically for Germany based on the given JSON
-	 * input.
+	 * Parses a grid fee schedule specifically for Germany from the given ancillary
+	 * cost JSON string.
 	 * 
 	 * <p>
 	 * If a valid {@code dso} (Distribution System Operator) is specified and mapped
@@ -236,18 +237,19 @@ public class AncillaryCosts {
 	 * {@link GridFee} schedule is returned.
 	 * 
 	 * <p>
-	 * If the {@code dso} is not present or is invalid (e.g., {@code "OTHER"},
-	 * {@code null}, or unrecognized), this method falls back to parsing a custom
-	 * schedule from the {@code "schedule"} JSON array using
-	 * {@link #parseSchedule(JsonArray)}.
+	 * If the {@code dso} field is missing or contains an invalid value (e.g.,
+	 * {@code "OTHER"}, {@code null}, or an unrecognized string), this method falls
+	 * back to parsing a custom schedule from the {@code "schedule"} JSON array
+	 * using {@link #parseSchedule(JsonArray)}.
 	 * 
-	 * @param j A {@link JsonObjectPath} object containing the grid fee data
-	 *          including optional {@code dso} and {@code schedule}.
+	 * @param ancillaryCosts the JSON configuration object
 	 * @return A list of {@link Task} instances representing daily recurring tariff
 	 *         intervals.
 	 * @throws OpenemsNamedException on error
 	 */
-	public static ImmutableList<Task<Double>> parseForGermany(JsonObjectPath j) throws OpenemsNamedException {
+	public static ImmutableList<Task<Double>> parseForGermany(String ancillaryCosts) throws OpenemsNamedException {
+
+		var j = new JsonObjectPathActual.JsonObjectPathActualNonNull(parseToJsonObject(ancillaryCosts));
 
 		try {
 			var dsoOpt = j.getOptionalEnum("dso", GermanDSO.class);
@@ -307,6 +309,22 @@ public class AncillaryCosts {
 				var q = Quarter.of(year, quarterNumber);
 
 				var dailySchedules = getAsJsonArray(quarter, "dailySchedule");
+
+				var hasFullDaySchedule = false;
+				for (var dailySchedule : dailySchedules) {
+					var fromStr = getAsString(dailySchedule, "from");
+					var toStr = getAsString(dailySchedule, "to");
+					if ("00:00".equals(fromStr) && "00:00".equals(toStr)) {
+						hasFullDaySchedule = true;
+						break;
+					}
+				}
+				
+				if (hasFullDaySchedule && dailySchedules.size() > 1) {
+					throw new OpenemsException("A full-day tariff (00:00-00:00) is defined for Quarter " + quarterNumber
+							+ ". No other time slots are allowed.");
+				}
+
 				var lowTariffIntervals = new ArrayList<TimeInterval>();
 				var highTariffIntervals = new ArrayList<TimeInterval>();
 				var standardTariffIntervals = new ArrayList<TimeInterval>();
@@ -452,8 +470,15 @@ public class AncillaryCosts {
 			this.to = to;
 		}
 
+		/**
+		 * Overlap checker. An overlap occurs only if the start of one interval is
+		 * strictly before the end of the other, AND vice-versa.
+		 * 
+		 * @param other The other TimeInterval to check against.
+		 * @return true if they overlap, false otherwise.
+		 */
 		public boolean overlapsWith(TimeInterval other) {
-			return !(this.to.isBefore(other.from) || this.from.isAfter(other.to));
+			return this.from.isBefore(other.to) && other.from.isBefore(this.to);
 		}
 
 		@Override

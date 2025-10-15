@@ -113,10 +113,10 @@ public interface Keba extends OpenemsComponent, ElectricityMeter, TimedataProvid
 	/**
 	 * Sets the next Write Value for {@link ChannelId#SET_ENABLE}.
 	 * 
-	 * @param setEnable one for is enabled
+	 * @param setEnable the {@link SetEnable}
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setSetEnable(int setEnable) throws OpenemsNamedException {
+	public default void setSetEnable(SetEnable setEnable) throws OpenemsNamedException {
 		this.getSetEnableChannel().setNextWriteValue(setEnable);
 	}
 

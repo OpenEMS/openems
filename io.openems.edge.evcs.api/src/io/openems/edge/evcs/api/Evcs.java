@@ -637,14 +637,6 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	}
 
 	/**
-	 * Is this Evcs installed according to standard or rotated wiring?. See
-	 * {@link PhaseRotation} for details.
-	 *
-	 * @return the {@link PhaseRotation}.
-	 */
-	public PhaseRotation getPhaseRotation();
-
-	/**
 	 * Gets the {@link MeterType} of an {@link Evcs} {@link ElectricityMeter}.
 	 * 
 	 * @return the {@link MeterType}

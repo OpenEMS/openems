@@ -1,11 +1,11 @@
 package io.openems.edge.controller.evse.cluster;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.cluster.Utils.calculate;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
-import static io.openems.edge.controller.evse.single.Types.Hysteresis.INACTIVE;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.MINIMUM;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.SURPLUS;
@@ -14,19 +14,22 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
 
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.evse.cluster.Utils.PowerDistribution;
 import io.openems.edge.controller.evse.single.CombinedAbilities;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.PhaseSwitching;
-import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.controller.evse.test.DummyControllerEvseSingle;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -39,14 +42,20 @@ public class UtilsTest {
 	protected static class CalculateTester {
 
 		public static CalculateTester generateControllers(int count) {
-			return new CalculateTester(IntStream.range(0, count) //
+			final var clock = createDummyClock();
+
+			// Add History with high value to tick Utils::applyChangeLimit.
+			final var history = new History();
+			history.addEntry(Instant.now(clock), null, 22000 /* [W] */, false);
+			clock.leap(500, ChronoUnit.MILLIS);
+
+			return new CalculateTester(clock, IntStream.range(0, count) //
 					.<CtrlBuilder>mapToObj(i -> CtrlBuilder.create() //
 							.setId("evse" + i) //
 							.setActualMode(ZERO) //
 							.setActivePower(0) //
-							.setHysteresis(INACTIVE) //
+							.setHistory(history) //
 							.setPhaseSwitching(DISABLE) //
-							.setAppearsToBeFullyCharged(false) //
 							.setChargePointAbilities(a -> a //
 									.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
 									.setIsReadyForCharging(true)) //
@@ -58,10 +67,13 @@ public class UtilsTest {
 					.toList());
 		}
 
+		public final TimeLeapClock clock;
+
 		private final List<CtrlBuilder> ctrls;
 		private final DummySum sum = new DummySum();
 
-		private CalculateTester(List<CtrlBuilder> ctrls) {
+		private CalculateTester(TimeLeapClock clock, List<CtrlBuilder> ctrls) {
+			this.clock = clock;
 			this.ctrls = ctrls;
 		}
 
@@ -98,6 +110,7 @@ public class UtilsTest {
 
 		protected PowerDistributionTester execute(DistributionStrategy distributionStrategy) {
 			return new PowerDistributionTester(calculate(//
+					this.clock, //
 					distributionStrategy, //
 					this.sum, //
 					this.ctrls.stream() //
@@ -144,9 +157,8 @@ public class UtilsTest {
 		private String id;
 		private Mode.Actual actualMode;
 		private Integer activePower;
-		private Hysteresis hysteresis;
+		private History history;
 		private PhaseSwitching phaseSwitching;
-		private boolean appearsToBeFullyCharged;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
 
 		public CtrlBuilder setId(String id) {
@@ -164,18 +176,13 @@ public class UtilsTest {
 			return this;
 		}
 
-		public CtrlBuilder setHysteresis(Hysteresis hysteresis) {
-			this.hysteresis = hysteresis;
+		public CtrlBuilder setHistory(History history) {
+			this.history = history;
 			return this;
 		}
 
 		public CtrlBuilder setPhaseSwitching(PhaseSwitching phaseSwitching) {
 			this.phaseSwitching = phaseSwitching;
-			return this;
-		}
-
-		public CtrlBuilder setAppearsToBeFullyCharged(boolean appearsToBeFullyCharged) {
-			this.appearsToBeFullyCharged = appearsToBeFullyCharged;
 			return this;
 		}
 
@@ -201,8 +208,8 @@ public class UtilsTest {
 			if (this.combinedAbilitiesCallback != null) {
 				this.combinedAbilitiesCallback.accept(combinedAbilities);
 			}
-			var params = new Params(this.actualMode, this.activePower, this.hysteresis, this.phaseSwitching,
-					this.appearsToBeFullyCharged, combinedAbilities.build());
+			var params = new Params(this.actualMode, this.activePower, this.history, this.phaseSwitching,
+					combinedAbilities.build());
 			return new DummyControllerEvseSingle(this.id) //
 					.withParams(params);
 		}
@@ -214,22 +221,50 @@ public class UtilsTest {
 
 	@Test
 	public void test1() {
-		var sut = CalculateTester.generateControllers(5) //
+		var ct = CalculateTester.generateControllers(5); //
+		final var history = new History();
+		history.addEntry(Instant.now(ct.clock), null, 10000 /* [W] */, false);
+		ct.clock.leap(500, ChronoUnit.MILLIS);
+
+		ct //
 				.set(1, 2, 3, c -> c //
 						.setActualMode(SURPLUS)) //
 				.set(1, c -> c //
 						.setChargePointAbilities(cp -> cp //
 								.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)))) //
+				.set(2, c -> c //
+						.setHistory(history)) //
 				.sum(s -> s //
-						.withGridActivePower(-32000)) //
-				.execute(DistributionStrategy.EQUAL_POWER);
+						.withGridActivePower(-32000)); //
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
 
 		assertEquals(0, sut.get(0).getApplySetPointInMilliAmpere());
 		assertEquals(15, sut.get(1).getApplySetPointInAmpere());
-		assertEquals(15916, sut.get(2).getApplySetPointInMilliAmpere());
+		assertEquals(14710, sut.get(2).getApplySetPointInMilliAmpere());
 		assertEquals(15458, sut.get(3).getApplySetPointInMilliAmpere());
 		assertEquals(0, sut.get(4).getApplySetPointInMilliAmpere());
 
+		assertArrayEquals(new int[] { 0, 15, 14710, 15458, 0 }, sut.getApplySetPoints());
+
+		// #2 apply ramp on [2]
+
+		history.addEntry(Instant.now(ct.clock), null, 10150 /* [W] */, false);
+		ct.clock.leap(1000, ChronoUnit.MILLIS);
+		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertArrayEquals(new int[] { 0, 15, 15152, 15458, 0 }, sut.getApplySetPoints());
+
+		// #3 apply ramp on [2]
+
+		history.addEntry(Instant.now(ct.clock), null, 10455 /* [W] */, false);
+		ct.clock.leap(1000, ChronoUnit.MILLIS);
+		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertArrayEquals(new int[] { 0, 15, 15607, 15458, 0 }, sut.getApplySetPoints());
+
+		// #4 finished ramp on [2]
+
+		history.addEntry(Instant.now(ct.clock), null, 10769 /* [W] */, false);
+		ct.clock.leap(1000, ChronoUnit.MILLIS);
+		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
 		assertArrayEquals(new int[] { 0, 15, 15916, 15458, 0 }, sut.getApplySetPoints());
 	}
 
@@ -244,7 +279,7 @@ public class UtilsTest {
 						.withGridActivePower(-27000)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
-		assertArrayEquals(new int[] { 16000, 7130, 0, 0, 16000 }, sut.getApplySetPoints());
+		assertArrayEquals(new int[] { 16000, 6000, 6000, 6000, 16000 }, sut.getApplySetPoints());
 	}
 
 	@Test
@@ -306,20 +341,24 @@ public class UtilsTest {
 	@Test
 	public void test6() {
 		var combinedAbilities = CombinedAbilities.createFrom(null, null).build();
-		var params = new Params(Mode.Actual.FORCE, null, null, null, false, combinedAbilities);
+		var params = new Params(Mode.Actual.FORCE, null, new History(), null, combinedAbilities);
 		var ctrl = new DummyControllerEvseSingle("ctrl0") //
 				.withParams(params);
 		var sum = new DummySum();
-		var powerDistribution = calculate(DistributionStrategy.EQUAL_POWER, sum, List.of(ctrl), log -> doNothing());
+		var powerDistribution = calculate(createDummyClock(), DistributionStrategy.EQUAL_POWER, sum, List.of(ctrl),
+				log -> doNothing());
 		assertEquals("PowerDistribution{totalActivePower=0, entries=\n" //
-				+ "Entry{ctrl0, Params[actualMode=FORCE, activePower=null, hysteresis=null, phaseSwitching=null, appearsToBeFullyCharged=false, combinedAbilities=CombinedAbilities[" //
-				+ "chargePointAbilities=null, electricVehicleAbilities=null, isReadyForCharging=false, applySetPoint=Watt" //
-				+ "[phase=THREE_PHASE, min=0, max=0, step=1], phaseSwitch=null]], activePower=null, setPointInWatt=0, actions=UNDEFINED}}",
+				+ "Entry{ctrl0, Params[actualMode=FORCE, activePower=null, history=History{entries=0}, " //
+				+ "hysteresis=INACTIVE, phaseSwitching=null, appearsToBeFullyCharged=false, " //
+				+ "combinedAbilities=CombinedAbilities[chargePointAbilities=null, electricVehicleAbilities=null, " //
+				+ "isReadyForCharging=false, applySetPoint=Watt[phase=THREE_PHASE, min=0, max=0, step=1], phaseSwitch=null]], " //
+				+ "activePower=null, setPointInWatt=0, actions=UNDEFINED}}", //
 				powerDistribution.toString());
 	}
 
 	@Test
 	public void test7() {
+		final var history = new History();
 		var sut = CalculateTester.generateControllers(5) //
 				.set(0, c -> c //
 						.setActualMode(Mode.Actual.SURPLUS) //
@@ -335,7 +374,7 @@ public class UtilsTest {
 								.setIsReadyForCharging(false))) //
 				.set(3, c -> c //
 						.setActualMode(Mode.Actual.MINIMUM) //
-						.setAppearsToBeFullyCharged(true)) //
+						.setHistory(history))
 				.set(4, c -> c //
 						.setActualMode(Mode.Actual.FORCE)) // not-limited
 				.execute(DistributionStrategy.EQUAL_POWER);
@@ -343,4 +382,47 @@ public class UtilsTest {
 		assertArrayEquals(new int[] { 6000, 6000, 0, 6000, 16000 }, sut.getApplySetPoints());
 	}
 
+	@Test
+	public void test8() {
+		var sut = CalculateTester.generateControllers(2) //
+				.sum(s -> s //
+						.withGridActivePower(-29000)) //
+				.set(0, c -> c //
+						.setActualMode(Mode.Actual.SURPLUS) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 32000)) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(a -> a //
+								.setThreePhaseLimitInMilliAmpere(6000, 32000))) //
+				.set(1, c -> c //
+						.setActualMode(Mode.Actual.SURPLUS) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(SINGLE_PHASE, 6000, 32000)) //
+								.setIsReadyForCharging(true))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertArrayEquals(new int[] { 31362, 32000 }, sut.getApplySetPoints());
+	}
+
+	@Test
+	public void test9() {
+		var sut = CalculateTester.generateControllers(2) //
+				.sum(s -> s //
+						.withGridActivePower(-29000)) //
+				.set(0, c -> c //
+						.setActualMode(Mode.Actual.SURPLUS) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(SINGLE_PHASE, 6000, 32000)) //
+								.setIsReadyForCharging(true))) //
+				.set(1, c -> c //
+						.setActualMode(Mode.Actual.SURPLUS) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 32000)) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(a -> a //
+								.setThreePhaseLimitInMilliAmpere(6000, 32000))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertArrayEquals(new int[] { 32000, 31362 }, sut.getApplySetPoints());
+	}
 }

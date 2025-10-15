@@ -1,49 +1,59 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input, SimpleChange, OnChanges } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
-import { environment } from "src/environments";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { Environment, environment } from "src/environments";
 
 @Component({
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
     standalone: true,
     imports: [
-        CommonModule,
-        IonicModule,
-    ],
+    IonicModule,
+],
 })
 export class HelpButtonComponent implements OnChanges {
 
     /** Overwrites default docs link */
-    @Input() public useDefaultPrefix: boolean = false;
+    @Input() public useDefaultPrefix: boolean = true;
     @Input() public key: keyof typeof environment.links | null = null;
 
     protected link: string | null = null;
 
     constructor(private service: Service) { }
 
-    ngOnChanges(changes: { key: SimpleChange, useDocsPrefix: SimpleChange }) {
-        if (changes["key"] || changes["useDocsPrefix"]) {
-            this.setLink(changes.key.currentValue, changes.useDocsPrefix.currentValue);
+    ngOnChanges(changes: { key: SimpleChange, useDefaultPrefix: SimpleChange }) {
+        if (changes["key"] || changes["useDefaultPrefix"]) {
+            this.setLink(changes.key?.currentValue ?? null, changes.useDefaultPrefix?.currentValue ?? true);
         }
     }
 
-    private setLink(key: HelpButtonComponent["key"], docsBaseLink?: HelpButtonComponent["useDefaultPrefix"]) {
-        const docsLink = this.useDefaultPrefix ? "" : environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang());
-        if (key == null || !(key in environment.links)) {
+    /**
+     * Sets the link to navigate to.
+     *
+     * @param key the key
+     * @param useDefaultPrefix if default docs prefix should be used
+     * @returns a link, or if key not found in environment.links null
+     */
+    private setLink(key: HelpButtonComponent["key"], useDefaultPrefix?: HelpButtonComponent["useDefaultPrefix"]) {
+        const flattenedKeys = ObjectUtils.flattenObjectWithValues<Environment["links"]>(environment.links);
+        if (key == null || !(key in flattenedKeys)) {
             console.error("Key [" + key + "] not found in Environment Links");
             this.link = null;
             return;
         }
 
-        const link = environment.links[key];
+        const link = flattenedKeys[key];
         if (link === null || link === "") {
             this.link = null;
-
-        } else {
-            this.link = docsLink + environment.links[key];
+            return;
         }
-    }
 
+        if (useDefaultPrefix === true) {
+            this.link = environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang()) + link;
+            return;
+        }
+
+        this.link = link;
+    }
 }

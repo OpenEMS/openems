@@ -13,9 +13,9 @@ import org.junit.Test;
 
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 
 public class EvseClusterTaskImplTest {

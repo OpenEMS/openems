@@ -91,6 +91,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(evseChargePoint, "CurrentL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(evseChargePoint, "VoltageL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(ctrlEvseSingle, "ActualMode", DataType.LONG)) //
+				.putAll(multiChannels(ctrlEvseSingle, "StateMachine", DataType.LONG)) //
 				.put("_sum/EssDischargePower", DataType.LONG) // used for xlsx export
 				.put("ctrlGridOptimizedCharge0/SellToGridLimitMinimumChargeLimit", DataType.LONG) //
 				.put("ctrlEssTimeOfUseTariff0/QuarterlyPrices", DataType.DOUBLE) //

@@ -1,8 +1,8 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public record CommonConfig(boolean readOnly, PhaseRotation phaseRotation, boolean p30hasS10PhaseSwitching,
 		SingleOrThreePhase wiring, LogVerbosity logVerbosity) {

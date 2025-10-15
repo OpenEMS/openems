@@ -87,6 +87,9 @@
     "temperature": "Teplota",
     "subscribed_successfully": "Úspěšně uloženy odebírané kanály",
     "loaded_subscribed_successfully": "Načtená uložená konfigurace kanálu",
+    "SUFFIX": {
+      "HOUR": "hodin"
+    },
     "TIME": {
       "HOUR": "Hodina",
       "HOURS": "Hodiny",
@@ -235,7 +238,7 @@
           "considerGridFeedInLimit": "Vezměte v úvahu maximální přívod sítě",
           "endTime": "Čas ukončení",
           "endTimeDescription": "Nabíjení neprobíhá maximálním množstvím po dobu několika hodin, ale stabilně po delší dobu.",
-          "endTimeDetailedDescription": "Načítání neprobíhá s maximálním výkonem po dobu několika hodin, ale stabilně s maximem od {{ value1 }} do {{ value2 }} hodin.",
+          "endTimeDetailedDescription": "Načítání neprobíhá s maximálním výkonem po dobu několika hodin, ale stabilně s maximem od {{ maxChargingPowerW }} do {{ endTime }}.",
           "endTimeLong": "Čas ukončení omezeného načítání",
           "expectedSoc": "Očekávaný stav nabití",
           "expectedSocWithoutSellToGridLimit": "Aniž bychom se vyhnuli maximálnímu přívodu do sítě",

@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 
+		private Meta meta;
 		private CurrencyConfig currency;
 		private GridFeedInLimitationType gridFeedInLimitationType = GridFeedInLimitationType.NO_LIMITATION;
 		private boolean isEssChargeFromGridAllowed;
@@ -72,6 +73,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setTimezone(String timezone) {
 			this.timezone = timezone;
+			return this;
+		}
+
+		public Builder setMeta(Meta meta) {
+			this.meta = meta;
 			return this;
 		}
 

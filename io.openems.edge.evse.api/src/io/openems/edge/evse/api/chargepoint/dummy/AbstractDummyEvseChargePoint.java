@@ -4,8 +4,8 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 
 import io.openems.common.types.MeterType;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.meter.test.AbstractDummyElectricityMeter;
 
 public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvseChargePoint<?>>

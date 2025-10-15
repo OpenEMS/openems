@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
@@ -50,18 +51,14 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static SetUserAlertingConfigsRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		return new SetUserAlertingConfigsRequest(request);
-	}
-
-	private final String edgeId;
-	private final List<UserAlertingSettings> userSettings = new ArrayList<>();
-
-	private SetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
-		super(request, SetUserAlertingConfigsRequest.METHOD);
 		var params = request.getParams();
 
-		this.edgeId = getAsString(params, "edgeId");
-		getAsJsonArray(params, "userSettings").forEach(user -> {
+		final var id = getAsString(params, "edgeId");
+		final var array = getAsJsonArray(params, "userSettings");
+		
+		final var settings = new ArrayList<UserAlertingSettings>();
+		
+		for (final var user : array) {
 			var userJsonObject = user.getAsJsonObject();
 			try {
 				var userLogin = getAsString(userJsonObject, "userLogin");
@@ -69,12 +66,22 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 				var faultEdgeDelay = getAsInt(userJsonObject, "faultEdgeDelay");
 				var warningEdgeDelay = getAsInt(userJsonObject, "warningEdgeDelay");
 
-				this.userSettings
-						.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
+				settings.add(new UserAlertingSettings(userLogin, offlineEdgeDelay, faultEdgeDelay, warningEdgeDelay));
+			} catch (Exception e) {
+				throw new OpenemsNamedException(OpenemsError.JSON_PARSE_FAILED, "Error parsing SetUserAlertingConfigsRequest", e);
 			}
-		});
+		}
+		
+		return new SetUserAlertingConfigsRequest(request, id, settings);
+	}
+
+	private final String edgeId;
+	private final List<UserAlertingSettings> userSettings;
+
+	private SetUserAlertingConfigsRequest(JsonrpcRequest request, String edgeId, List<UserAlertingSettings> userSettings) {
+		super(request, SetUserAlertingConfigsRequest.METHOD);
+		this.edgeId = edgeId;
+		this.userSettings = userSettings;
 	}
 
 	/**

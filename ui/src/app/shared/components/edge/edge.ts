@@ -186,7 +186,15 @@ export class Edge {
    * @param channels  the subscribed Channel-Addresses
    */
   public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
+    const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
     this.subscribedChannels[id] = channels;
+
+    const channelsToSubscribe = channels.map(channel => channel.toString());
+
+    if (ArrayUtils.containsAllStrings(previousChannels, channelsToSubscribe)) {
+      return;
+    }
+
     this.sendSubscribeChannels(websocket);
   }
 
@@ -211,7 +219,16 @@ export class Edge {
    * @todo should be removed
    */
   public unsubscribeChannels(websocket: Websocket, id: string): void {
+    const subscribedChannelsById = this.subscribedChannels[id];
     delete this.subscribedChannels[id];
+
+    const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
+    const unsubscribeChannels = Object.values(subscribedChannelsById ?? {}).flat().map(channel => channel.toString());
+
+    if (ArrayUtils.containsAllStrings(previousChannels, unsubscribeChannels)) {
+      return;
+    }
+
     this.sendSubscribeChannels(websocket);
   }
 
@@ -233,18 +250,37 @@ export class Edge {
    *
    * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
    */
-  public unsubscribeFromChannels(websocket: Websocket, channels: ChannelAddress[]) {
-    this.subscribedChannels = Object.entries(this.subscribedChannels).reduce((arr, [id, subscribedChannels]) => {
+  public unsubscribeFromChannels(subscribeId: string, websocket: Websocket, channels: ChannelAddress[]) {
+    const subscribedChannels = Object.entries(this.subscribedChannels)
+      .reduce((arr, [id, subscribedChannels]) => {
 
-      if (ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()))) {
+        const areChannelsEqual = ArrayUtils.equalsCheck(channels.map(channel => channel.toString()), subscribedChannels.map(channel => channel.toString()));
+        const channelsUsedByOtherSubscriptions = Object.entries(this.subscribedChannels)
+          .filter(([otherId, _]) => otherId !== id)
+          .some(([_, otherSubscribedChannels]) => {
+            return channels.some(channel => otherSubscribedChannels.some(osc => osc.toString() === channel.toString()));
+          });
+
+        if (areChannelsEqual && channelsUsedByOtherSubscriptions == false) {
+          // removes matching channels from subscribedChannels
+          return arr;
+        }
+
+        arr[id] = subscribedChannels;
         return arr;
-      }
+      }, {});
 
-      arr[id] = subscribedChannels;
+    const previousChannels = Object.values(this.subscribedChannels)
+      .map((channel) => channel.toString());
+    const newChannels = Object.entries(subscribedChannels)
+      .filter(([otherId, _]) => otherId !== subscribeId).map(([_, channel]) => channel.toString());
 
-      return arr;
-    }, {});
+    if (ArrayUtils.containsAllStrings(previousChannels, newChannels) && previousChannels.length === newChannels.length) {
+      // no change in channels, do not send subscribe request
+      return;
+    }
 
+    this.subscribedChannels = subscribedChannels;
     this.sendSubscribeChannels(websocket);
   }
 
@@ -426,7 +462,7 @@ export class Edge {
    */
   public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
     const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
-      NavigationId.LIVE, "live", { name: "home-outline" }, "live", "icon", [],
+      NavigationId.LIVE, { baseString: "live" }, { name: "home-outline" }, "live", "icon", [],
       null,
     ];
 
@@ -434,7 +470,7 @@ export class Edge {
     const navigationTree = new NavigationTree(..._baseNavigationTree);
 
     // TODO find automated way to create reference for parents
-    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
 
     if (edge.isOnline === false) {
       return navigationTree;
@@ -443,23 +479,31 @@ export class Edge {
     const conf = await this.config.getValue();
     const baseMode: NavigationTree["mode"] = "label";
     for (const [componentId, component] of Object.entries(conf.components)) {
+      if (component.isEnabled == false) {
+        continue;
+      }
+
       switch (component.factoryId) {
         case "Evse.Controller.Single":
           navigationTree.setChild(NavigationId.LIVE,
             new NavigationTree(
-              componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+              componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
               ...(this.roleIsAtLeast(Role.ADMIN)
-                ? [new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
                 : []),
 
-              new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
-              new NavigationTree("settings", "settings", { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+              new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
+              new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+
+              ...(this.roleIsAtLeast(Role.OWNER)
+                ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                : []),
             ], navigationTree));
           break;
         case "Controller.IO.Heating.Room":
           navigationTree.setChild(NavigationId.LIVE,
             new NavigationTree(
-              componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
+              componentId, { baseString: "io-heating-room/" + componentId }, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
               navigationTree,));
           break;
       }

@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 
@@ -7,9 +6,8 @@ import { IonicModule } from "@ionic/angular";
     templateUrl: "./oe-img.html",
     standalone: true,
     imports: [
-        CommonModule,
-        IonicModule,
-    ],
+    IonicModule,
+],
 })
 export class OeImageComponent {
 

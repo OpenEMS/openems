@@ -3,6 +3,7 @@ import { FieldType } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 
 interface YearData {
   year: number;
@@ -55,6 +56,22 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
 
   constructor(private translate: TranslateService, private service: Service) {
     super();
+  }
+
+  /**
+  * Cleans the tariff data.
+  *
+  * @param tariffData the current tariff data
+  * @returns the tariff data without {@link Quarter.formattedDateRange} and  {@link Quarter.key}
+  */
+  private static cleanTariffData(tariffData: YearData[]): YearData[] {
+    const _tariffData = structuredClone(tariffData);
+    return _tariffData.reduce((arr: YearData[], singleTariffData) => {
+      const newQuarters = singleTariffData.quarters.map(el => ObjectUtils.excludeProperties(el, ["formattedDateRange", "key"]));
+      singleTariffData.quarters = newQuarters;
+      arr.push(singleTariffData);
+      return arr;
+    }, []);
   }
 
   ngOnInit() {
@@ -111,8 +128,12 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
     return !!this.expandedQuarters[quarterKey];
   }
 
-  protected updateTariffPrice(yearIndex: number, tariffKey: keyof YearData["tariffs"], value: number) {
-    this.tariffData[yearIndex].tariffs[tariffKey] = value;
+  protected updateTariffPrice(yearIndex: number, tariffKey: keyof YearData["tariffs"], value: string | number) {
+
+    // Convert to number and ensure non-negative
+    const numericValue = Math.max(0, Number(value));
+
+    this.tariffData[yearIndex].tariffs[tariffKey] = numericValue;
     this.updateFormControl();
   }
 
@@ -273,8 +294,23 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
     return quarter.key!; // Use the unique key
   }
 
+  // removes Negative inputs
+  protected sanitizeInput(event: CustomEvent) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+
+    // Remove negative signs and non-numeric characters
+    const sanitized = value.replace(/[^\d.]/g, "");
+
+    // Update value if modified
+    if (sanitized !== value) {
+      input.value = sanitized;
+    }
+  }
+
   private updateFormControl() {
-    this.formControl.setValue(this.tariffData);
+    const cleanedTariffData = FormlyTariffTableTypeComponent.cleanTariffData(this.tariffData);
+    this.formControl.setValue(cleanedTariffData);
     this.formControl.markAsDirty();
   }
 
@@ -354,6 +390,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
           return quarter; // Return the processed quarter
         });
       });
+      this.updateFormControl();
     }
     this.initializeForm(); // Initialize expanded quarters states
   }

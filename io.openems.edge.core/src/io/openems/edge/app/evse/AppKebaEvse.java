@@ -2,6 +2,7 @@ package io.openems.edge.app.evse;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.common.props.CommonProps.phaseRotation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,14 +83,22 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.11") //
 				.setRequired(true)),
-		PHASE_ROTATION(AppDef.copyOfGeneric(EvseProps.phaseRotation())), //
+		PHASE_ROTATION(AppDef.copyOfGeneric(phaseRotation() //
+				.setTranslatedDescription("App.Evse.phaseRotation.description"))), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
 		PHASE_SWITCHING(AppDef.copyOfGeneric(EvseProps.p30hasPhaseSwitch())//
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
 							.equal(Exp.staticValue(KebaHardwareType.P30.name())));
 				})), //
-		READ_ONLY(EvseProps.readOnly()),;
+		READ_ONLY(EvseProps.readOnly()),
+
+		// only for modbus
+		MODBUS_UNIT_ID(EvseProps.unitId().wrapField((app, property, l, parameter, field) -> {
+			field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+					.equal(Exp.staticValue(KebaHardwareType.P40.name())));
+		})), //
+		;
 
 		private final AppDef<? super AppKebaEvse, ? super Property, ? super BundleParameter> def;
 
@@ -153,7 +162,7 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 				components.add(//
 						new EdgeConfig.Component(//
 								cpId, //
-								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.cp.alias"), //
+								alias, //
 								"Evse.ChargePoint.Keba.UDP", //
 								JsonUtils.buildJsonObject() //
 										.addProperty("wiring", wiring) //
@@ -166,16 +175,18 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 			case P40 -> {
 				// Modbus Component
 				var modbusId = this.getId(t, p, Property.MODBUS_ID);
+				var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 				components.add(//
 						new EdgeConfig.Component(//
 								cpId, //
-								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.cp.alias"), //
+								alias, //
 								"Evse.ChargePoint.Keba.Modbus", //
 								JsonUtils.buildJsonObject() //
 										.addProperty("modbus.id", modbusId)//
 										.addProperty("wiring", wiring) //
 										.addProperty("phaseRotation", phaseRotation) //
 										.addProperty("p30hasS10PhaseSwitching", phaseSwitching) //
+										.addProperty("modbusUnitId", modbusUnitId) //
 										.build() //
 				) //
 				); //

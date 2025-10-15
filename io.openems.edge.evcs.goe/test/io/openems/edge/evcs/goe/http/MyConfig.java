@@ -1,7 +1,7 @@
 package io.openems.edge.evcs.goe.http;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

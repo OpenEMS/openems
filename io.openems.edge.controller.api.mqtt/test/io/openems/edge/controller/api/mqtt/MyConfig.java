@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.mqtt;
 
-import java.util.ArrayList;
-
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.test.AbstractComponentConfig;
 

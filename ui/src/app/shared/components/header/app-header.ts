@@ -112,7 +112,60 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
     }
 
-    updateBackUrl(url: string) {
+    updateCurrentPage(url: string) {
+        const urlArray = url.split("/");
+        let file = urlArray.pop();
+        if (urlArray.length >= 4) {
+            file = urlArray[3];
+        }
+        // Enable Segment Navigation for Edge-Index-Page
+        if ((file == "history" || file == "live") && urlArray.length == 3) {
+            if (file == "history") {
+                this.currentPage = "IndexHistory";
+            } else {
+                this.currentPage = "IndexLive";
+            }
+        } else if (file == "settings" && urlArray.length > 1) {
+            this.currentPage = "EdgeSettings";
+        }
+        else {
+            this.currentPage = "Other";
+        }
+    }
+
+    public segmentChanged(event) {
+        if (event.detail.value == "IndexLive") {
+
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
+            this.cdRef.detectChanges();
+        }
+        if (event.detail.value == "IndexHistory") {
+
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
+            this.cdRef.detectChanges();
+        }
+    }
+
+    async presentSingleStatusModal() {
+        const modal = await this.modalCtrl.create({
+            component: StatusSingleComponent,
+        });
+        return await modal.present();
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
+    }
+
+    private updateBackUrl(url: string) {
 
         if (this._customBackUrl) {
             this.backUrl = this._customBackUrl;
@@ -124,7 +177,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.backUrl = false;
             return;
         }
-
 
         // set backUrl for user when an Edge had been selected before
         const currentEdge: Edge = this.service.currentEdge();
@@ -181,59 +233,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.backUrl = backUrl;
     }
 
-    updateCurrentPage(url: string) {
-        const urlArray = url.split("/");
-        let file = urlArray.pop();
-        if (urlArray.length >= 4) {
-            file = urlArray[3];
-        }
-        // Enable Segment Navigation for Edge-Index-Page
-        if ((file == "history" || file == "live") && urlArray.length == 3) {
-            if (file == "history") {
-                this.currentPage = "IndexHistory";
-            } else {
-                this.currentPage = "IndexLive";
-            }
-        } else if (file == "settings" && urlArray.length > 1) {
-            this.currentPage = "EdgeSettings";
-        }
-        else {
-            this.currentPage = "Other";
-        }
-    }
-
-    public segmentChanged(event) {
-        if (event.detail.value == "IndexLive") {
-
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
-            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
-            this.cdRef.detectChanges();
-        }
-        if (event.detail.value == "IndexHistory") {
-
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
-            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
-            this.cdRef.detectChanges();
-        }
-    }
-
-    async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
-        });
-        return await modal.present();
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
-
-    protected toggleMenu() {
-        this.menu.toggle();
-    }
-
     private isAllowedForView(url: string): boolean {
 
         // Strip queryParams
@@ -252,4 +251,5 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
                 return true;
         }
     }
+
 }

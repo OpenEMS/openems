@@ -73,7 +73,7 @@ public final class ApplySetPoint {
 	 * @return the value in [A]
 	 */
 	public static int convertWattToAmpere(SingleOrThreePhase phase, int power) {
-		return round(convertWattToMilliAmpere(phase, power) / 1000f);
+		return convertWattToMilliAmpere(phase, power) / 1000; // round down
 	}
 
 	/**

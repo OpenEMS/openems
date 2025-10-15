@@ -11,6 +11,9 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.roundDownToPowerStep
 import static java.lang.Math.max;
 import static java.util.stream.Collectors.joining;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -30,6 +33,13 @@ import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public class Utils {
+
+	/**
+	 * Max allowed change for increasing power/current. Applied in
+	 * {@link #applyChangeLimit(PowerDistribution)}. A value of 0.03 requires about
+	 * 1 minute from 6 A to 32 A.
+	 */
+	private static final float MAX_PERCENTAGE_CHANGE_PER_SECOND = 0.03F;
 
 	private Utils() {
 	}
@@ -183,13 +193,14 @@ public class Utils {
 	 * Calculate the {@link PowerDistribution} according to the given
 	 * {@link DistributionStrategy}.
 	 * 
+	 * @param clock                the {@link Clock}
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
 	 * @param logDebug             a debug log consumer
 	 * @return the {@link PowerDistribution}
 	 */
-	protected static PowerDistribution calculate(DistributionStrategy distributionStrategy, Sum sum,
+	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
 			List<ControllerEvseSingle> ctrls, Consumer<String> logDebug) {
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
@@ -205,6 +216,7 @@ public class Utils {
 		initializeSetPoints(powerDistribution);
 		distributeSurplusPower(powerDistribution, distributionStrategy, sum);
 		permitNonActives(powerDistribution);
+		applyChangeLimit(clock, powerDistribution);
 
 		// Build Actions
 		powerDistribution.streamWithParams().forEach(e -> {
@@ -281,6 +293,50 @@ public class Utils {
 	}
 
 	/**
+	 * Applies a change limit for set-points.
+	 * 
+	 * <ul>
+	 * <li>Rising values: see See {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND}.
+	 * <li>Declining values: no limit
+	 * </ul>
+	 * 
+	 * @param clock             the {@link Clock}
+	 * @param powerDistribution the {@link PowerDistribution}
+	 */
+	private static void applyChangeLimit(Clock clock, PowerDistribution powerDistribution) {
+		powerDistribution.streamActives().forEach(e -> {
+			final var fallbackLimit = e.params.combinedAbilities().applySetPoint().min();
+
+			final int limit;
+			final var lastEntry = e.params.history().getLastEntry();
+			if (lastEntry == null) {
+				// No history -> limit to min
+				limit = fallbackLimit;
+
+			} else {
+				final var lastSetPoint = lastEntry.getValue().setPoint();
+				if (lastSetPoint > e.setPointInWatt) {
+					// Reduced set-point -> no limit
+					return;
+				} else if (lastSetPoint == 0) {
+					// last set-point was zero-> limit to min
+					limit = fallbackLimit;
+				} else {
+					var duration = Duration.between(lastEntry.getKey(), Instant.now(clock)).toMillis();
+					if (duration < 1) {
+						// history value is not in the past -> limit to min
+						limit = fallbackLimit;
+					} else {
+						limit = lastSetPoint
+								+ (int) Math.ceil(lastSetPoint * MAX_PERCENTAGE_CHANGE_PER_SECOND * (duration / 1000f));
+					}
+				}
+			}
+			e.setPointInWatt = Math.min(e.setPointInWatt, limit);
+		});
+	}
+
+	/**
 	 * Calculates the total excess power, depending on the current PV production and
 	 * house consumption.
 	 * 
@@ -350,13 +406,32 @@ public class Utils {
 	/**
 	 * Distribute power equally among Controllers.
 	 * 
-	 * @param entries            the PowerDistribution Entries
-	 * @param distributablePower the distributable power
+	 * @param initialEntries            the PowerDistribution Entries
+	 * @param initialDistributablePower the distributable power
 	 */
-	protected static void distributePowerEqual(List<PowerDistribution.Entry> entries, int distributablePower) {
-		var equalPower = distributablePower / entries.size();
+	protected static void distributePowerEqual(final List<PowerDistribution.Entry> initialEntries,
+			final int initialDistributablePower) {
+		var entries = initialEntries.stream() //
+				// Only entries that do not already apply max set-point
+				.filter(e -> e.setPointInWatt < e.params.combinedAbilities().applySetPoint().max()) //
+				.toList();
+		if (entries.size() == 0) {
+			return; // avoid divide by zero
+		}
+
+		final var equalPower = initialDistributablePower / entries.size();
+		var remaining = initialDistributablePower;
 		for (var e : entries) {
-			e.setPointInWatt += equalPower;
+			var before = e.setPointInWatt;
+			var after = e.params.combinedAbilities().applySetPoint().fitWithin(before + equalPower);
+			remaining -= after - before;
+
+			e.setPointInWatt = after;
+		}
+
+		if (initialDistributablePower != remaining) {
+			// Recursive call to distribute remaining power
+			distributePowerEqual(entries, remaining);
 		}
 	}
 
@@ -373,7 +448,7 @@ public class Utils {
 			var after = e.params.combinedAbilities().applySetPoint().fitWithin(before + remaining);
 
 			remaining -= after - before;
-			e.setPointInWatt += after;
+			e.setPointInWatt = after;
 		}
 	}
 

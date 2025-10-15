@@ -1,0 +1,7 @@
+<ion-item lines="none" button="true" [href]="urlToNavigate" (click)="$event.preventDefault(); onNavigate();">
+    <ion-label>
+        {{props.label}}
+        <p>{{props.description}}</p>
+    </ion-label>
+    <ion-icon aria-hidden="true" name="arrow-redo-outline" slot="end"></ion-icon>
+</ion-item>

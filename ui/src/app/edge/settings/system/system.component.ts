@@ -1,18 +1,34 @@
 // @ts-strict-ignore
 import { Component, effect } from "@angular/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject, takeUntil, timer } from "rxjs";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { UserService } from "src/app/shared/service/user.service";
 import { environment } from "src/environments";
+import { ChangelogComponent } from "../../../changelog/view/component/changelog.component";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, UserPermission, Utils, Websocket } from "../../../shared/shared";
 import { ExecuteUpdate } from "./jsonrpc/executeUpdate";
 import { GetUpdateables, Updateable } from "./jsonrpc/getUpdateables";
 import { GetUpdateState, UpdateState } from "./jsonrpc/getUpdateState";
+import { MaintenanceComponent } from "./maintenance/maintenance";
+import { OeSystemUpdateComponent } from "./oe-system-update.component";
 
 @Component({
   selector: SystemComponent.SELECTOR,
   templateUrl: "./system.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    ChangelogComponent,
+    OeSystemUpdateComponent,
+    MaintenanceComponent,
+    NgxSpinnerComponent,
+    ComponentsBaseModule,
+    LiveDataServiceProvider,
+  ],
 })
 export class SystemComponent {
 

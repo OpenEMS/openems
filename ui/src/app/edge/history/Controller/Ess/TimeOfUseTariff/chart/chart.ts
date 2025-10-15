@@ -80,6 +80,9 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: "rgb(51,102,0)",
                     stack: 1,
+                    custom: {
+                        formatNumber: ChartConstants.NumberFormat.TWO,
+                    },
                     order: 2,
                 },
                 {
@@ -125,7 +128,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
 
             tooltip: {
-                formatNumber: "1.0-4",
+                formatNumber: ChartConstants.NumberFormat.TWO,
             },
             yAxes: [{
                 unit: YAxisType.CURRENCY,

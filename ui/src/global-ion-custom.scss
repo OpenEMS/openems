@@ -107,6 +107,10 @@
     }
 }
 
+.ion-white-space-nowrap {
+    white-space: nowrap !important;
+}
+
 .ion-align-content-center {
     align-content: center;
 }
@@ -138,4 +142,16 @@
 .ion-item-label-min-content {
     @extend .ion-max-width-max-content;
     white-space: pre-wrap;
+}
+
+.ion-display-flex {
+    display: flex !important;
+}
+
+.ion-flex-column {
+    flex-direction: column !important;
+}
+
+.ion-text-bold {
+    font-weight: bold !important;
 }

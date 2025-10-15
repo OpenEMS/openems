@@ -84,7 +84,7 @@
           "considerGridFeedInLimit": "Consider maximum grid feed-in",
           "endTime": "End time",
           "endTimeDescription": "The charging does not take place with the maximum amount for a few hours, but steadily over a longer period of time.",
-          "endTimeDetailedDescription": "The charging does not take place with the maximum amount for a few hours, but steadily with a maximum of {{ value1 }} to {{ value2 }} o'clock.",
+          "endTimeDetailedDescription": "The charging does not take place with the maximum amount for a few hours, but steadily with a maximum of {{ maxChargingPowerW }} until {{ endTime }}.",
           "endTimeLong": "End time of restricted loading",
           "expectedSoc": "Expected state of charge",
           "expectedSocWithoutSellToGridLimit": "Without avoiding the maximum grid feed-in",
@@ -355,7 +355,8 @@
       "CURRENT_AND_VOLTAGE": "Current & Voltage",
       "CURRENT": "Current",
       "VOLTAGE": "Voltage",
-      "PHASE_ACCURATE": "phase-accurate"
+      "PHASE_ACCURATE": "phase-accurate",
+      "EXTERNAL_LIMITATION": "External Limitation"
     },
     "Config": {
       "Index": {
@@ -381,7 +382,7 @@
         "PRODUCT_TYPE": "Product type",
         "ROLE": "Role",
         "CONFIGURATION": "Configuration",
-        "EXPORT_CHANNELS": "Export channels"
+        "EXPORT_CHANNELS": "Export Channels"
       },
       "PROFILE": {
         "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
@@ -628,11 +629,21 @@
       "czech": "Czech Republic",
       "sweden": "Sweden",
       "netherlands": "Netherlands",
-      "switzerland": "Switzerland"
+      "switzerland": "Switzerland",
+      "GREECE": "Greece",
+      "LITHUANIA": "Lithuania"
     },
     "yes": "Yes",
     "no": "No",
     "value": "value",
+    "STATE_MACHINE": {
+      "GO_STOPPED": "Stopping...",
+      "GO_RUNNING": "Starting...",
+      "RUNNING": "Started",
+      "STOPPED": "Stopped",
+      "UNDEFINED": "Unknown",
+      "ERROR": "Error"
+    },
     "SUM_STATE": "System state",
     "SYSTEM": "system",
     "RESTART": "Restart",
@@ -688,7 +699,7 @@
       "EMERGENCY_RESERVE_NOTE": "If this function is activated, the battery charge level cannot fall below the set value.",
       "EMERGENCY_RESERVE_VALUE": "Emergency reserve value",
       "EMERGENCY_RESERVE": "Emergency power reserve {{ symbol }}",
-      "IS_ACTIVATED": "Activate Emergency power reserve?",
+      "IS_ACTIVATED": "Emergency power reserve active?",
       "IS_ENABLED": "Should the Emergency power function be activated?",
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
@@ -713,15 +724,15 @@
       "GRID_OPTIMIZED_CHARGE": "Grid-optimized charge",
       "TIME_OF_USE_TARIFF": "Time-of-use tariff",
       "LEGEND": "Legend",
-      "NOT_YET_CONFIGURED": "Not yet configured/checked",
+      "NOT_YET_CONFIGURED": "Not yet configured / checked",
       "PARTIAL_CONFIGURATION": "Not all components could be configured correctly.",
-      "PRE_CONFIGURED": "Preconfigured/Warning",
+      "PRE_CONFIGURED": "Preconfigured / Warning",
       "PROGNOSIS": "Prognosis",
       "RELAY_BOARD": "Relay board",
       "SELF_CONSUMPTION": "Self-consumption optimization",
       "START": "Start configuration",
       "STORAGE_SYSTEM": "Energy storage system",
-      "SUCCESSFULLY_CONFIGURED": "Successfully configured/checked",
+      "SUCCESSFULLY_CONFIGURED": "Successfully configured / checked",
       "SURPLUS_ENERGY_FEEDIN": "Surplus energy feed-in",
       "TITLE": "Configuration",
       "WAITING": "Configuration running...",
@@ -739,7 +750,14 @@
       "COMMUNICATION_WITH_RELAY": "Communication with Relay",
       "IP_ADDRESS_WARNING": "An IP address required for the coupler could not be added to the Network configuration.",
       "START_FUNCTION_TEST": "Initiated function tests for the installed components",
-      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components"
+      "FINISH_FUNCTION_TEST": "Finished function tests for the installed components",
+      "ESS_LIMITER_ALIAS": "ESS Limiter for §14a",
+      "IP_ADDRESS_ERROR": "An IP address required for the {{ system}} could not be added to the network configuration.",
+      "PREPARE_BATTERY_EXTENSION": "Battery retrofitting",
+      "COMMERCIAL_BATTERY_NOTE": "If you now click on “NEXT ->”, you have around 15 minutes to complete the rest of the commissioning process. After that, the BMS goes into a “time-out” set for safety reasons. Normally, this time is sufficient to complete the last steps of the commissioning in peace.\nIf there is still not enough time, you can start the commissioning again from the beginning.",
+      "NOTE": "Please note:",
+      "UNDEFINED_COMPONENT_CONFIGURATOR": "Component configurator is undefined",
+      "IS_BEING_CONFIGURED": "is being configured"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -748,7 +766,8 @@
       "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
       "TITLE_HOME": "Circuit breaker at the grid connection point",
       "VALUE": "Value [A]",
-      "METER_LABEL": "Grid connection point meter type"
+      "METER_LABEL": "Grid connection point meter type",
+      "METER": "Meter"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "BESS Location",
@@ -775,7 +794,7 @@
       "BOTH_SELECTED_LABEL": "Both pv-ports (\"PV{{ pv1 }}\" and \"PV{{ pv2 }}\") connected",
       "DEVICE_CONNECTION_CHECKED": "The energy storage system is connected to the power grid",
       "ENERGY_FLOW_METER": {
-        "LABEL": "Installed Grid-Meter"
+        "LABEL": "Grid"
       }
     },
     "CONFIGURATION_SYSTEM": {
@@ -793,7 +812,8 @@
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
       "POSITIVE_INTEGER": "Only positive integer numbers are allowed.",
-      "INVALID_ZIPCODE": "Invalid zip code format"
+      "INVALID_ZIPCODE": "Invalid zip code format",
+      "STS_SERIAL_NUMBER_REQUIREMENT": "The serial number is required if an STS box is present."
     },
     "FORWARD": "continue",
     "LOAD": "load",
@@ -809,8 +829,10 @@
     },
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "Choose",
-      "LIMITATION": "Limitation",
       "CONSTANT_VALUE": "Cos φ value",
+      "INDUCTIVE": "inductive",
+      "CAPACITIVE": "capacitive",
+      "LIMITATION": "Limitation",
       "DYNAMIC_LIMITATION_ACTIVATED": "Dynamic feed-in limitation activated?",
       "DYNAMIC_LIMITATION": "Dynamic limitation of the feed-in",
       "EXTERNAL_CONTROLLER_CHECK": "The external control receiver was installed properly and completely according to the instructions.",
@@ -828,7 +850,13 @@
       "PLACE_HOLDER": "Select option",
       "NO_LIMITATION": "No limitation",
       "NA_PROTECTION": "Activate remote shutdown (central NS protection)",
-      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'"
+      "DYNAMIC_LIMITATION_WITH_RIPPLE_CONTROLLER": "Dynamic limitation of feed-in & ripple control receiver",
+      "MAXIMUM_FEED_IN_VALUE_DYNAMIC_AND_EXTERNAL_LIMITATION": "Value of the dynamic limitation (max feed-in value, e.g. 60% of kWp) [W]",
+      "FIXED_POWER_FACTOR_DESCRIPTION": "Typically, the grid operator specifies a fixed power factor of '1'",
+      "INFO_TEXT": "Your energy storage system attempts to avoid curtailing the PV system through intelligent charging.",
+      "WARNING_TEXT": "This does not replace the proper configuration of the PV inverter!",
+      "DYNAMIC_LIMITATION_TYPE": "Feed-in limitation",
+      "EXTERNAL_LIMITATION_TYPE": "External Limitation"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "City",
@@ -914,8 +942,8 @@
       "BATTERY_TOWER_CLUSTER": "Battery {{ batteryNumber }} Tower {{towerNumber}}",
       "INVALID_SERIALNUMBER_KEY": "Please check the {{ key }} serialnumber in {{ header }}",
       "REFRESH_NOTE": "If not all serial numbers are displayed, please refresh your browser.\nReading the serial numbers may take a few minutes.",
-      "DOUBLE_SOCKET_LABEL": "Installed in the double socket",
-      "DOUBLE_SOCKET": "Double socket"
+      "DOUBLE_SOCKET_LABEL": "Split socket installed",
+      "DOUBLE_SOCKET": "Split socket"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -931,7 +959,7 @@
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
     "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
-      "BALANCING": "Self-Consumption optmization"
+      "BALANCING": "Self-Consumption optimization"
     },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
     "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
@@ -944,13 +972,108 @@
     "CONFIGURATION_ENERGY_FLOW_METER": {
       "TITLE": "Selection of energy flow direction meter",
       "METER": {
-        "WITH_CT": "Home 3-phase sensor with current transformer 120A (standard scope of delivery)",
+        "WITH_CT": "Home 3-phase sensor with current transformer 120A ({{type}})",
         "WITHOUT_CT": "Home 3-phase sensor without current transformer (optional)",
-        "LABEL": "Meter"
+        "LABEL": "Meter",
+        "INTEGRATED": "Integrated Home 3 phase sensor with current transformer ({{type}})",
+        "TYPE": {
+          "STANDARD": "standard scope of delivery",
+          "OPTIONAL": "Optional"
+        },
+        "WITHOUT_CT_STANDARD_DELIVERY": "3-phase sensor without current transformer (Standard delivery)"
       },
       "CONVERTER_RATIO": "Converter ratio (200–5000A)"
     },
-    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center."
+    "CONFIGURATION_MPPT_SELECTION_NOTE": "Additional generators can then be configured via the App Center.",
+    "CONFIGURATION_ESS_LIMITER": {
+      "TITLE": "Limiting according to §14a EnWG",
+      "IS_ACTIVATE": "Activate limiting option according to §14a EnWG",
+      "INFO_NOTE": "In order to avoid overloading the network, the network operator will in future have the option of dimming all consumption devices installed since January 1, 2024 to an output of 4.2 kW.",
+      "IS_ACTIVATE_LABEL": "The wiring must be installed in accordance with the installation instructions."
+    },
+    "PROTOCOL_CHECKLIST_PAGE_TITLE": "KACO - Connect inverter",
+    "PROTOCOL_CHECKLIST": {
+      "CONNECT_INVERTER": "A) Connect the computer to the inverter using a network cable (upper LAN socket)",
+      "CHANGE_NETWORK_SETTINGS": "B) Change network settings on computer (IP address)",
+      "IP_ADDRESS": "C) Enter IP address in browser",
+      "ENTER_PASSWORD": "D) Enter password",
+      "START_CONFIGURATION": "E) Start KACO configuration with the Installation Wizard",
+      "MULTI_STEP": "{{listPosition}}) Perform steps 1 to {{totalSteps}}",
+      "STEP": "Step {{currStep}}/{{totalStep}} - {{description}}",
+      "STEP_1": "Select language",
+      "STEP_2": "Specify country / network type",
+      "STEP_3": "Power limitation",
+      "STEP_4": "IP setting",
+      "STEP_5": "Localization",
+      "STEP_6": "Modbus",
+      "STEP_7": "Other (optional parameters)",
+      "STEP_8": "Finalize",
+      "MIN_VOLTAGE": "G) Addition: Set minimum voltage limit to 600 V",
+      "MIN_VOLTAGE_DESCRIPTION": "Only works with installer password (own password for FENECON or preconfigured)\n\n<ul><li>Minimum Voltage limit:<b> {{voltageLimit}} V</b> (-> Grid setting: <b>{{gridSetting}}</b>)</li></ul>",
+      "POWER_CONTROL": "H) Set power control (Cos-Phi, etc.)",
+      "POWER_CONTROL_DESCRIPTION": "-> which settings are necessary here can be found in the network operator's data\n-> Changes can only be made with the installer password",
+      "NETWORK_SETTINGS": "IP-Address: 169.254.1.12\nSubnet mask: 255.255.255.0",
+      "NETWORK_SETTINGS_NOTE": "In order to access the inverter via its fixed IP address, the device connected to the inverter must be manually assigned a static IP that is within the same network range",
+      "PASSWORD_DESCRIPTION": "Service Password:\n\nUser: service\nPassword: Ye_r0d4w0P!",
+      "IP_ADDRESS_DESCRIPTION": "IP-Address: 169.254.1.1",
+      "STEP_3_DESCRIPTION": "-> Accept default settings as they are.",
+      "STEP_5_DESCRIPTION": "Please synchronize the time here with the “Sync” button",
+      "STEP_8_DESCRIPTION": "Enter the name of the installer",
+      "STEP_6_DESCRIPTION": "The Modbus setting should be set to 502",
+      "STEP_4_DESCRIPTION": "IP Address: 172.16.0.100\nSubnet mask: 255.255.255.0\nDefault gateway: 172.16.0.1",
+      "NETWORK_SETTINGS_INFO": "Please note that the steps and illustrations for setting a static IP address may vary depending on the device used. For other devices, such as Apple devices, the procedures may differ.",
+      "TIMEOUT_NOTE": "The following process can take up to {{timeoutInMinutes}} minutes.",
+      "STEP_2_DESCRIPTION": "Please select your Grid setting here:\n\n<ul><li>Germany <b>{{gridSetting}}</b> (-> under G) set \"Minimum Voltage limit\" to <b>{{voltageLimit}} V </b>)"
+    },
+    "CONFIGURATION_SUB_SYSTEM": {
+      "NOTE": {
+        "COMMERCIAL_92": "Before you continue, make sure that you use the following device(s) to ensure that the next steps - especially for configuring the KACO inverter - run smoothly:\n\na laptop with “LAN-WLAN parallel” function\nor\ntwo mobile devices, each with a WLAN and a LAN function"
+      }
+    },
+    "PROTOCOL_AVU_BOX": {
+      "TITLE": "Does the installation package include an AVU box (automatic consumer switch)?",
+      "SERIAL_NUMBER": "Serial number",
+      "LABEL": "AVU"
+    },
+    "CONFIGURATION_GRID_SETTING": {
+      "TITLE": "Grid setting"
+    },
+    "PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_FILED_LABEL": "Please enter the number of Slaves to be configured",
+      "SLAVES_TITLE": "Slave {{number}}",
+      "SLAVE_INSTALLATION": {
+        "CONNECTION_STATUS": {
+          "NOT_YET_CONNECTED": "Not yet connected",
+          "CONNECTED": "Connected",
+          "NOT_FOUND": "Slave not found",
+          "AUTHENTICATING": "Authenticating"
+        },
+        "LOG_MESSAGE": {
+          "STARTING_AUTHENTICATION": "Starting authentication...",
+          "AUTHENTICATION_SUCCESSFUL": "Authentication successful. Updating system...",
+          "UPDATE_COMPLETED": "System update completed. Configuring app...",
+          "PARTIALLY_CONFIGURED": "Configuration partially completed.",
+          "CONFIGURED_SUCCESSFULLY": "Application configured successfully.",
+          "FUNCTION_TESTS_FAILED": "Function test failed: {{ error }}",
+          "CONFIGURATION_FAILED": "Configuration failed: {{ error }}",
+          "SLAVE_STATUS ERROR": "Error fetching status for Slave {{ slaveNr }}"
+        }
+      }
+    },
+    "CONFIGURATION_PROTOCOL_COMMERCIAL_CLUSTER": {
+      "SLAVE_COUNT_TITLE": "Information about the number of slaves",
+      "SLAVE_INSTALLATION_TITLE": "Installation of individual storage units (slaves)"
+    },
+    "CONFIGURATION_STS_BOX": {
+      "HELP_TEXT": "The serial number of the STS box is located on the type plate on the side of the STS box",
+      "STS_BOX_AVAILABLE": "STS box installed",
+      "LABEL": "STS Box",
+      "STS_BOX_FIELD_LABEL": "Is an STS box installed for emergency power capability:"
+    },
+    "SHARED": {
+      "NOTE": "Note",
+      "WARNING": "Warning"
+    }
   },
   "LIVE": {
     "PULL_TO_REFRESH": "Pull this banner to refresh"
@@ -1123,9 +1246,13 @@
   },
   "GRID_STATES": {
     "OFF_GRID": "Power outage",
-    "NO_EXTERNAL_LIMITATION": "No external limitation",
+    "NO_EXTERNAL_LIMITATION": "No limitation",
     "RIPPLE_CONTROL_RECEIVER": "Ripple Control Receiver",
-    "RESTRICTION": "Restriction according to $14a EnWG"
+    "CONSUMPTION_LIMITATION": "Charge from grid limitation",
+    "FEED_IN_LIMITATION": "Feed-in limitation",
+    "FEED_IN_DESCRIPITON": "Charge from storage system limitation ",
+    "GRID_LIMITATION": "Grid limitation",
+    "§14a": "Limitation according to §14a EnWG"
   },
   "APP": {
     "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "This function is temporarily not available in the app, please use the web app instead."

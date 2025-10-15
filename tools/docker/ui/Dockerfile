@@ -1,4 +1,4 @@
-ARG NODE=20
+ARG NODE=22
 ARG VERSION
 
 ### Build ui files

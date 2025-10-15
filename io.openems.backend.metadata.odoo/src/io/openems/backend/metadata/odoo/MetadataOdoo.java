@@ -626,8 +626,18 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		var result = this.odooHandler.getEdges((MyUser) user, paginationOptions);
 		final var jsonArray = getAsJsonArray(result, "devices");
 		final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
+		OpenemsNamedException lastException = null;
 		for (var jElement : jsonArray) {
-			resultMetadata.add(this.convertToEdgeMetadata(user, jElement));
+			try {
+				resultMetadata.add(this.convertToEdgeMetadata(user, jElement));
+			} catch (OpenemsNamedException e) {
+				this.logWarn(this.log,
+						"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
+				lastException = e;
+			}
+		}
+		if (resultMetadata.isEmpty() && lastException != null) {
+			throw lastException; // No results -> re-throw Exception
 		}
 		return resultMetadata;
 	}

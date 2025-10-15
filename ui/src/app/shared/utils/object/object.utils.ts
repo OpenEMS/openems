@@ -2,6 +2,7 @@ import { ArrayUtils } from "../array/array.utils";
 
 export class ObjectUtils {
 
+    /** Excludes specified properties from an object by creating a shallow copy. */
     public static excludeProperties<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
         const result = { ...obj };
         keys.forEach(key => delete result[key]);
@@ -24,5 +25,31 @@ export class ObjectUtils {
 
     public static isObjectNullOrEmpty(obj: Record<string, any> | null | undefined): boolean {
         return obj == null || Object.keys(obj).length === 0;
+    }
+    /**
+    * Flattens a deep nested object into a single-level object with dot notation keys and string values.
+    *
+    * @param obj the object to flatten
+    * @param parentKey the parent key to use for nested objects
+    * @param result the result object to populate
+    * @returns the flattened object
+    */
+    public static flattenObjectWithValues<T extends object>(obj: T, parentKey: string | null = null, result: Record<string, string> = {}) {
+
+        for (const key in obj) {
+            if (!(key in obj)) {
+                continue;
+            }
+
+            const newKey = parentKey !== null ? `${parentKey}.${key}` : key;
+            const value = obj[key];
+
+            if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+                this.flattenObjectWithValues(value, newKey, result);
+            } else {
+                result[newKey] = String(value);
+            }
+        }
+        return result;
     }
 }

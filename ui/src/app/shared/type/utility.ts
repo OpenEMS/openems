@@ -13,7 +13,12 @@ export type TOmitBy<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** Creates new type of type with optional properties  */
 export type TPartialBy<T, K extends keyof T> = TOmitBy<T, K> & Partial<Pick<T, K>>;
 
-/** Creates new type of type with all properties optional and accepts additional properties */
+/** Creates new type of type with all required properties */
+export type TRequiredBy<T, K extends keyof T> = {
+    [P in K]-?: T[P];
+};
+
+/** Required type of type with all properties optional and accepts additional properties */
 export type TAllPartialWithExtraProps<T> = {
     [K in keyof T]?: T[K] extends object
     ? T[K] extends (...args: any[]) => any

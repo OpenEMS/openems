@@ -1,0 +1,7 @@
+= Profile Clustering Predictor
+
+This model forecasts future unmanaged consumption based on daily load profiles specific to each household.
+The profiles are identified using clustering algorithms. Taking into account factors such as the upcoming day and the previous profile, the model predicts the most likely profile for the next day, which serves as the forecast.
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.predictor.profileclusteringmodel[Source Code icon:github[]]

@@ -36,7 +36,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     /** Should be used to unsubscribe from all subscribed observables at once */
     protected subscription: Subscription = new Subscription();
 
-    private selector: string = uuidv4();
+    private id: string = uuidv4();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -54,7 +54,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        this.edge.unsubscribeFromChannels(this.websocket, this.getChannelAddresses());
+        this.edge.unsubscribeFromChannels(this.id, this.websocket, this.getChannelAddresses());
         this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject
@@ -86,7 +86,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                     }
                 }
                 if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                    this.edge.subscribeChannels(this.websocket, this.id, channelAddresses);
                 }
 
                 // call onCurrentData() with latest data
@@ -136,7 +136,12 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         return [];
     }
 
-    /** Gets the FormGroup of the current Component */
+    /**
+     * Gets the FormGroup of the current Component
+     *
+     *  FormControl keys need to directly map to component properties
+     *
+    */
     protected getFormGroup(): FormGroup | null {
         return null;
     }

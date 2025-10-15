@@ -1,13 +1,16 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, NavigationExtras, Router, RouterModule } from "@angular/router";
 import { IonPopover, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { filter, switchMap, takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Role } from "src/app/shared/type/role";
 import { Environment, environment } from "src/environments";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
 import { ExecuteSystemUpdate } from "../system/executeSystemUpdate";
 import { InstallAppComponent } from "./install.component";
@@ -24,7 +27,13 @@ import { canEnterKey } from "./permissions";
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: "./index.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    RouterModule,
+  ],
 })
 export class IndexComponent implements OnInit, OnDestroy {
 
@@ -82,7 +91,7 @@ export class IndexComponent implements OnInit, OnDestroy {
       switchMap(() => this.route.url),
       takeUntil(this.stopOnDestroy),
     ).subscribe(() => {
-      const navigationExtras = this.router.getCurrentNavigation()?.extras as NavigationExtras;
+      const navigationExtras = this.router.currentNavigation()?.extras as NavigationExtras;
       const appInstanceChange = navigationExtras?.state?.appInstanceChange;
       if (appInstanceChange != null && appInstanceChange) {
         this.init();
@@ -304,7 +313,7 @@ export class IndexComponent implements OnInit, OnDestroy {
           this.service.stopSpinner(this.spinnerId);
 
           this.apps = (response as GetApps.Response).result.apps.map(app => {
-            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
             return app;
           });
 

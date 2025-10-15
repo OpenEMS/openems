@@ -7,6 +7,7 @@ import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
 import io.openems.edge.core.appmanager.formly.builder.DateTimeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RepeatBuilder;
 import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
@@ -196,6 +197,15 @@ public class JsonFormlyUtil {
 	 */
 	public static TextBuilder buildText() {
 		return new TextBuilder();
+	}
+
+	/**
+	 * Creates a JsonObject Formly Link Builder for the given enum.
+	 *
+	 * @return a {@link TextBuilder}
+	 */
+	public static LinkBuilder buildLink() {
+		return new LinkBuilder();
 	}
 
 	private static <T extends Enum<T>> Nameable toNameable(T property) {

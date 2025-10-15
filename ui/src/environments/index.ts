@@ -81,7 +81,8 @@ export interface Environment {
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,
-                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL_50_GEN_1: string,
+                    readonly COMMERCIAL_50_GEN_3: string,
                     readonly COMMERCIAL_92: string,
                     readonly COMMERCIAL_92_CLUSTER: string,
                 },

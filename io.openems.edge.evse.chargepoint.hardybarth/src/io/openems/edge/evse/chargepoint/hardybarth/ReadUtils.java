@@ -16,7 +16,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public class ReadUtils {
 

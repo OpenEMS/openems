@@ -44,8 +44,8 @@ import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MetaEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.modbusslave.ModbusSlave;

@@ -3,7 +3,6 @@ package io.openems.edge.app.evcs;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -13,6 +12,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.KebaHardwareType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
@@ -32,7 +32,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
-import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public final class EvcsProps {
 
@@ -201,19 +201,12 @@ public final class EvcsProps {
 
 	/**
 	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
-	 * 
+	 *
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.Evcs.phaseRotation.label") //
-				.setTranslatedDescription("App.Evcs.phaseRotation.description") //
-				.setDefaultValue(PhaseRotation.L1_L2_L3) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(PhaseRotation.values()) //
-							.map(PhaseRotation::name) //
-							.toList());
-				}));
+		return AppDef.copyOfGeneric(CommonProps.phaseRotation()
+				.setTranslatedDescription("App.Evcs.phaseRotation.description")); //
 	}
 
 	/**

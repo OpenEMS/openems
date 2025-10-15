@@ -1,35 +1,32 @@
 <ion-content>
-  <ng-container [ngSwitch]="backendState">
-
-    <ngx-spinner [name]="spinnerId" *ngSwitchCase="'loading'">
-      <p style="color: white" translate><span translate>
+  @switch (backendState) {
+    @case ('loading') {
+      <ngx-spinner [name]="spinnerId">
+        <p style="color: white" translate><span translate>
           LOADING_SCREEN.LOADING
         </span>
         ...
       </p>
     </ngx-spinner>
-
-    <ng-container *ngSwitchCase="'failed'">
-      <ng-container>
-        <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
-          <ion-row class="ion-justify-content-center">
-            <ion-col size="12" size-md="6" size-lg="4">
-              <ion-card>
-                <ion-card-content>
-                  @if (environment.backend === 'OpenEMS Backend') {
+  }
+  @case ('failed') {
+      <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="12" size-md="6" size-lg="4">
+            <ion-card>
+              <ion-card-content>
+                @if (environment.backend === 'OpenEMS Backend') {
                   <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
                   }@else {
                   <ng-container *ngTemplateOutlet="connectionToEdgeFailed"></ng-container>
-                  }
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ng-container>
-
-    </ng-container>
-  </ng-container>
+                }
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+  }
+}
 </ion-content>
 
 
@@ -38,16 +35,16 @@
     <ion-col
       style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
       <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
-      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;"
-        translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE</ion-label>
+      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
+        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
     </ion-col>
   </ion-row>
 
   <ion-row class="ion-justify-content-center ion-align-items-center">
     <ion-col size="12">
       <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap" translate>
-          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION
+        <ion-label class="ion-text-wrap">
+          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION" | translate}}
         </ion-label>
       </ion-item>
     </ion-col>
@@ -56,8 +53,8 @@
   <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
     <ion-col size="12">
       <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap" style="font-weight: bolder;" translate>
-          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING
+        <ion-label class="ion-text-wrap" style="font-weight: bolder;">
+          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
         </ion-label>
       </ion-item>
     </ion-col>
@@ -70,8 +67,8 @@
     <ion-col
       style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
       <ion-icon name="file-tray-full-outline" color="primary" size="large" style="padding-right: 5%;"></ion-icon>
-      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;" translate>
-        OFFLINE.EDGE.LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE
+      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
+        {{"OFFLINE.EDGE.LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE" | translate}}
       </ion-label>
     </ion-col>
   </ion-row>
@@ -90,8 +87,8 @@
   <ion-row class="ion-justify-content-center ion-align-items-center">
     <ion-col size="12">
       <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap" style="font-weight: bolder;" translate>
-          LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING
+        <ion-label class="ion-text-wrap" style="font-weight: bolder;">
+          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
         </ion-label>
       </ion-item>
     </ion-col>

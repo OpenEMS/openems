@@ -129,6 +129,7 @@ export class UserService {
         // Provide color to set before angular app inits
         const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
         localStorage.setItem("THEME_COLOR", backgroundColor);
+        localStorage.setItem("THEME", validTheme);
 
         document.documentElement.setAttribute("data-theme", attr);
     }

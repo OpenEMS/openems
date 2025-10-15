@@ -10,7 +10,7 @@ import { RouteService } from "../shared/service/route.service";
     selector: "edge",
     template: `
     <ion-content></ion-content>
-         <ion-router-outlet id="content"></ion-router-outlet>
+    <ion-router-outlet id="content"></ion-router-outlet>
     `,
     standalone: false,
 })
@@ -35,16 +35,12 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
             }
 
             pagination.subscribeEdge(edge);
-            this.checkMessages();
         });
     }
 
     public async ngOnInit() {
         const edgeId = this.routeService.getRouteParam<string>("edgeId");
         this.service.updateCurrentEdge(edgeId);
-    }
-
-    public checkMessages(): void {
     }
 
     public ionViewWillLeave() {

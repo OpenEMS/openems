@@ -101,7 +101,7 @@ export class User {
         if (!showNewUI) {
             return;
         }
-        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, "history", { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
     }
 
 };

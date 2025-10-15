@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
@@ -19,18 +20,20 @@ export class FlatComponent extends AbstractFlatWidget {
   public chargeDischargePower: { name: string, value: number };
   public propertyMode: DefaultTypes.ManualOnOff | null = null;
 
-  async presentModal() {
-    if (!this.isInitialized) {
-      return;
-    }
-    const modal = await this.modalController.create({
+  protected modalComponent: Modal | null = null;
+
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+
+  protected getModalComponent(): Modal {
+    return {
       component: ModalComponent,
       componentProps: {
         component: this.component,
       },
-    });
-    return await modal.present();
-  }
+    };
+  };
 
   protected override getChannelAddresses(): ChannelAddress[] {
     return [

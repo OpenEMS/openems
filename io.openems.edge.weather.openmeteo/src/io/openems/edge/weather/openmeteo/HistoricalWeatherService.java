@@ -2,17 +2,16 @@ package io.openems.edge.weather.openmeteo;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.annotations.VisibleForTesting;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.meta.types.Coordinates;
-import io.openems.edge.weather.api.WeatherData;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
 public class HistoricalWeatherService {
 
@@ -21,37 +20,45 @@ public class HistoricalWeatherService {
 	private static final String API_HOST_COMMERCIAL = "customer-historical-forecast-api.open-meteo.com";
 	private static final String API_VERSION = "v1";
 
-	private final Logger log = LoggerFactory.getLogger(HistoricalWeatherService.class);
-
 	private final BridgeHttp httpBridge;
-	private final String[] weatherVariables;
 	private final String apiKey;
 	private final UrlBuilder baseUrl;
+	private final WeatherDataParser weatherDataParser;
 
-	public HistoricalWeatherService(BridgeHttp httpBridge, String[] weatherVariables, String apiKey) {
-		super();
+	public HistoricalWeatherService(//
+			BridgeHttp httpBridge, //
+			String apiKey, //
+			WeatherDataParser weatherDataParser) {
 		this.httpBridge = httpBridge;
-		this.weatherVariables = weatherVariables;
 		this.apiKey = apiKey;
 		this.baseUrl = this.buildBaseUrl();
+		this.weatherDataParser = weatherDataParser;
 	}
 
-	protected CompletableFuture<WeatherData> getWeatherData(Coordinates coordinates, ZonedDateTime dateFrom,
-			ZonedDateTime dateTo, ZoneId zone) {
+	protected CompletableFuture<List<QuarterlyWeatherSnapshot>> getWeatherData(//
+			Coordinates coordinates, //
+			LocalDate dateFrom, //
+			LocalDate dateTo, //
+			ZoneId targetZone) {
 		if (coordinates == null) {
-			this.log.error("Can't get historical weather data, coordinates are missing");
-			return CompletableFuture.completedFuture(WeatherData.EMPTY_WEATHER_DATA);
+			return CompletableFuture
+					.failedFuture(new OpenemsException("Can't get historical weather data, coordinates are missing"));
 		}
 
 		String url = this.buildHistoricalUrl(//
 				coordinates, //
-				dateFrom.withZoneSameInstant(ZoneOffset.UTC).toLocalDate(), //
-				dateTo.withZoneSameInstant(ZoneOffset.UTC).toLocalDate(), //
-				ZoneId.of("UTC")//
-		);
+				dateFrom, //
+				dateTo, //
+				targetZone);
 
 		return this.httpBridge.getJson(url).thenApply(response -> {
-			return Utils.parseWeatherDataFromJson(response.data(), this.weatherVariables, zone);
+			var json = response.data().getAsJsonObject();
+			var responseZone = ZoneId.of(json.get(HistoricalQueryParams.TIMEZONE).getAsString());
+
+			return this.weatherDataParser.parseQuarterly(//
+					json.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY), //
+					responseZone, //
+					targetZone);
 		});
 	}
 
@@ -62,22 +69,23 @@ public class HistoricalWeatherService {
 						? API_HOST_COMMERCIAL //
 						: API_HOST)//
 				.withPath("/" + API_VERSION + "/forecast")//
-				.withQueryParam("minutely_15", String.join(",", this.weatherVariables));
+				.withQueryParam(QuarterlyWeatherVariables.JSON_KEY, String.join(",", QuarterlyWeatherVariables.ALL));
 
 		if (this.apiKey != null) {
-			builder = builder.withQueryParam("apikey", this.apiKey);
+			builder = builder.withQueryParam(HistoricalQueryParams.API_KEY, this.apiKey);
 		}
 
 		return builder;
 	}
 
-	private String buildHistoricalUrl(Coordinates coordinates, LocalDate dateFrom, LocalDate dateTo, ZoneId zone) {
+	@VisibleForTesting
+	String buildHistoricalUrl(Coordinates coordinates, LocalDate dateFrom, LocalDate dateTo, ZoneId zone) {
 		return this.baseUrl//
-				.withQueryParam("latitude", String.valueOf(coordinates.latitude()))//
-				.withQueryParam("longitude", String.valueOf(coordinates.longitude()))//
-				.withQueryParam("start_date", dateFrom.toString())//
-				.withQueryParam("end_date", dateTo.toString())//
-				.withQueryParam("timezone", zone.toString())//
+				.withQueryParam(HistoricalQueryParams.LATITUDE, String.valueOf(coordinates.latitude()))//
+				.withQueryParam(HistoricalQueryParams.LONGITUDE, String.valueOf(coordinates.longitude()))//
+				.withQueryParam(HistoricalQueryParams.START_DATE, dateFrom.toString())//
+				.withQueryParam(HistoricalQueryParams.END_DATE, dateTo.toString())//
+				.withQueryParam(HistoricalQueryParams.TIMEZONE, zone.toString())//
 				.toEncodedString();
 	}
 }

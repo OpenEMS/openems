@@ -1,15 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, LOCALE_ID } from "@angular/core";
+import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { IonicModule, ModalController } from "@ionic/angular";
-import { TranslateModule } from "@ngx-translate/core";
+import { ModalController } from "@ionic/angular";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { NavigationOption } from "src/app/shared/components/footer/subnavigation/footerNavigation";
 import { FooterNavigationComponentsModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
-import { Language } from "src/app/shared/type/language";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { AbstractHistoryChartOverview } from "../../../../../shared/components/chart/abstractHistoryChartOverview";
 import { EdgeConfig, Service } from "../../../../../shared/shared";
 import { StorageTotalChartComponent } from "../chart/totalchart";
@@ -19,18 +18,14 @@ import { StorageTotalChartComponent } from "../chart/totalchart";
     templateUrl: "./overview.html",
     standalone: true,
     imports: [
+        CommonUiModule,
+        LocaleProvider,
         ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
         ChartComponentsModule,
         PickdateComponentModule,
         HistoryDataErrorModule,
         StorageTotalChartComponent,
         FooterNavigationComponentsModule,
-    ],
-    providers: [
-        { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
     ],
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -15,6 +14,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestFilter;
 import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
@@ -41,8 +41,8 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
-import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
@@ -67,6 +67,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial50Gen3;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterSlave;
@@ -93,6 +94,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4s;
 import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
+import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -100,6 +102,7 @@ import io.openems.edge.app.pvinverter.SmaPvInverter;
 import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
+import io.openems.edge.app.timeofusetariff.AncillaryCosts;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.EntsoE;
 import io.openems.edge.app.timeofusetariff.GroupeE;
@@ -198,8 +201,18 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link FeneconCommercial50Gen3}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial50Gen3 feneconCommercial50Gen3(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial50Gen3::new, "App.FENECON.Commercial.50.Gen3");
+	}
+
+	/**
 	 * Test method for creating a {@link FeneconCommercial92}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
@@ -268,6 +281,16 @@ public final class Apps {
 	}
 
 	// TimeOfUseTariff
+
+	/**
+	 * Test method for creating a {@link AncillaryCosts}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AncillaryCosts ancillaryCosts(AppManagerTestBundle t) {
+		return app(t, AncillaryCosts::new, "App.TimeOfUseTariff.AncillaryCosts");
+	}
 
 	/**
 	 * Test method for creating a {@link AwattarHourly}.
@@ -447,6 +470,16 @@ public final class Apps {
 	 */
 	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
 		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+
+	/**
+	 * Test method for creating a {@link TestFilter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestFilter testFilter(AppManagerTestBundle t) {
+		return app(t, TestFilter::new, "App.Test.TestFilter");
 	}
 
 	/**
@@ -1128,8 +1161,8 @@ public final class Apps {
 				t.componentUtil);
 	}
 
-	private static final <T> T app(AppManagerTestBundle t,
-			DefaultAppConstructorWithAppUtilAndHost<T> constructor, String appId) {
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtilAndHost<T> constructor,
+			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.appManagerUtil, t.host);
 	}

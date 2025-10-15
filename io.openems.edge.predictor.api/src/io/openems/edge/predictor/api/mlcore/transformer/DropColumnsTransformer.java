@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
 
-public class DropColumnsTransformer<I> implements DataFrameTransformer<I> {
+public class DropColumnsTransformer<I> extends AbstractDataFrameTransformer<I> {
 
 	private final List<String> columnNames;
 
@@ -13,7 +13,7 @@ public class DropColumnsTransformer<I> implements DataFrameTransformer<I> {
 	}
 
 	@Override
-	public  DataFrame<I> transform(DataFrame<I> dataframe) {
+	public DataFrame<I> safeTransform(DataFrame<I> dataframe) {
 		for (var columnName : this.columnNames) {
 			dataframe.removeColumn(columnName);
 		}

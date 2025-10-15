@@ -1,18 +1,18 @@
 <ion-row>
-  <ng-container *ngFor="let filter of filters">
+  @for (filter of filters; track filter) {
     <ion-col size="6">
-      <ng-container *ngIf="filter">
+      @if (filter) {
         <ion-select interface="popover" [multiple]="true" [label]="filter.placeholder" label-placement="floating"
           fill="outline" type="radio" (ionDismiss)="searchOnChange($event, filter)"
           [interfaceOptions]="{cssClass: 'custom-ion-popover'}"
           class="custom-ion-popover ion-select-border-color-primary"
           style="white-space: initial; --color: var(--ion-color-primary)" mode="md">
-          <ng-container *ngFor="let option of filter.options">
+          @for (option of filter.options; track option) {
             <ion-select-option [value]="option.value">{{option.name}}
             </ion-select-option>
-          </ng-container>
+          }
         </ion-select>
-      </ng-container>
+      }
     </ion-col>
-  </ng-container>
+  }
 </ion-row>

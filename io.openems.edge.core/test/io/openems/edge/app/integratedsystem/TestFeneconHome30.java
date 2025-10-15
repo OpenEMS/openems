@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -48,6 +49,7 @@ public class TestFeneconHome30 {
 					Apps.prepareBatteryExtension(t), //
 					Apps.techbaseCm3(t), //
 					Apps.techbaseCm4sGen2(t), //
+					Apps.ioGpio(t), //
 					this.meterApp = Apps.socomecMeter(t) //
 			);
 		}, null, new PseudoComponentManagerFactory());
@@ -247,6 +249,29 @@ public class TestFeneconHome30 {
 				.filter(t -> t.getId().equals("modbus2")) //
 				.findAny().orElse(null);
 		assertEquals("/dev/busUSB3", newExternalModbus.getProperty("portName").orElse(null).getAsString());
+	}
+
+	@Test
+	public void testConfigureDynamicRippleControlReceiver() throws Exception {
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, new AddAppInstance.Request(
+				"App.OpenemsHardware.CM4S.Gen2", "key", "alias", JsonUtils.buildJsonObject().build()));
+
+		final var properties = fullSettings();
+		properties.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION.name());
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", properties));
+
+		final var batteryInverterProps = this.appManagerTestBundle.componentManger.getComponent("batteryInverter0")
+				.getComponentContext().getProperties();
+
+		assertEquals("DISABLE", batteryInverterProps.get("rcrEnable"));
+		this.appManagerTestBundle.assertComponentExist(new EdgeConfig.Component("ctrlEssRippleControlReceiver0", "",
+				"Controller.Ess.RippleControlReceiver", JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("inputChannelAddress1", "io1/DigitalInput2") //
+						.addProperty("inputChannelAddress2", "io1/DigitalInput3") //
+						.addProperty("inputChannelAddress3", "io1/DigitalInput4") //
+						.build()));
 	}
 
 	private final OpenemsAppInstance createFullHome30() throws Exception {

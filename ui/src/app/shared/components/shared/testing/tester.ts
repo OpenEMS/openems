@@ -453,13 +453,13 @@ export namespace OeFormlyViewTester {
 
     // Read values from channels
     const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
+    const currentData: CurrentData = { allComponents: context };
 
     // Apply filter
-    if (field.filter && field.filter(rawValues) === false) {
+    if (field.filter && field.filter(currentData) === false) {
       return null;
     }
 
-    const currentData: CurrentData = { allComponents: context };
 
     // Apply converter
     const value: string = field.value

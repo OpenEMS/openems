@@ -1,14 +1,17 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
-import { FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { AddAppInstance } from "./jsonrpc/addAppInstance";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
@@ -21,7 +24,15 @@ import { hasPredefinedKey } from "./permissions";
 @Component({
   selector: InstallAppComponent.SELECTOR,
   templateUrl: "./install.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    FormlyModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 

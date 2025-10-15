@@ -15,3 +15,9 @@ export class UnimplementedInEdgeError<T extends JsonrpcRequest> extends Unimplem
         super(request, "not available with edge as backend");
     }
 }
+
+export class EdgeNotSetError extends Error {
+    constructor() {
+        super("edge not set");
+    }
+}

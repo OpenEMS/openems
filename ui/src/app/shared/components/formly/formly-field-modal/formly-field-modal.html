@@ -4,7 +4,6 @@
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
 
-
                 <!-- OeFormlyField.ChannelLine -->
                 <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
                     [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
@@ -31,7 +30,8 @@
 
                 <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'"
                     [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
-                    [valueCallback]="line.value" [filter]="line.filter" [name]="line.name"></oe-modal-value-line>
+                    [valueCallback]="line.value" [filters]="line.filter ?? null"
+                    [name]="line.name"></oe-modal-value-line>
 
                 <!-- FormGrouped -->
                 <ng-container *ngSwitchCase="'buttons-from-form-control-line'">

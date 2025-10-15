@@ -30,6 +30,7 @@ export enum WidgetFactory {
     "Controller.ChannelThreshold",
     "Controller.CHP.CostOptimization",
     "Controller.CHP.SoC",
+    "Controller.Clever-PV",
     "Controller.Ess.DelayedSellToGrid",
     "Controller.Ess.FixActivePower",
     "Controller.Ess.GridOptimizedCharge",
@@ -46,6 +47,7 @@ export enum WidgetFactory {
     "Controller.ThresholdPeakshaving",
     "Evcs.Cluster.PeakShaving",
     "Evcs.Cluster.SelfConsumption",
+    "Weather.OpenMeteo",
 }
 
 export type Icon = {
@@ -141,6 +143,13 @@ export class Widgets {
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
                 const component = config.getComponent(componentId);
+                if (factory === "Controller.Clever-PV") {
+                    // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
+                    const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
+                    if (readOnly !== false) {
+                        continue;
+                    }
+                }
                 if (component.isEnabled) {
                     list.push({ name: factory, componentId: componentId, alias: component.alias });
                 }

@@ -58,6 +58,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @Component(//
 		name = "Metadata.Dummy", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		service = { Metadata.class, EventHandler.class, MetadataDummy.class }, //
 		immediate = true //
 )
 @EventTopics({ //

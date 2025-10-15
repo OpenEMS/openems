@@ -52,6 +52,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
     	"MODBUS_ID": "modbus0",
     	"IP": "192.168.178.85",
     	"PORT": "502",
+ 		"MODBUS_UNIT_ID": "1",
     	"PHASE": {@link Phase},
     },
     "appDescriptor": {
@@ -72,6 +73,8 @@ public class SolarEdgePvInverter extends
 		ALIAS(CommonProps.alias()), //
 		IP(PvInverterProps.ip()), //
 		PORT(PvInverterProps.port()), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
+				.setDefaultValue(1))), //
 		PHASE(AppDef.copyOfGeneric(PvInverterProps.phase(), def -> def//
 				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager))), //
 		;
@@ -114,12 +117,14 @@ public class SolarEdgePvInverter extends
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, Property.IP);
 			final var port = this.getInt(p, Property.PORT);
+			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 			final var phase = this.getString(p, Property.PHASE);
 
 			final var components = List.of(//
 					new EdgeConfig.Component(pvInverterId, alias, "SolarEdge.PV-Inverter", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("phase", phase) //
 									.build()), //
 					new EdgeConfig.Component(modbusId, alias, "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //

@@ -1,20 +1,21 @@
-<oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
-  [icon]="{name: icon.name, color: 'normal'}">
-
-  <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
-  <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
-
-  <ng-container *ngIf="modeValue === 'AUTOMATIC'">
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate"
-      [value]="dependentOnLabel" leftColumnWidth="20" [filter]="Filter.NOT_NULL_OR_UNDEFINED">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line *ngIf="isOtherInputAddress" [name]="'General.currentValue' | translate" [value]="currentValue"
-      [filter]="Filter.NOT_NULL_OR_UNDEFINED">
-    </oe-flat-widget-line>
-
-    <ng-container *ngIf="outputChannelValue !== null">
-      <oe-flat-widget-line [converter]="switchConverter" [name]="switchState" [value]="switchValue">
+@if (isInitialized) {
+  <oe-flat-widget button (click)="presentModal()" [title]="component.alias"
+    [icon]="{name: icon.name, color: 'normal'}">
+    <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
+    @if (modeValue === 'AUTOMATIC') {
+      <oe-flat-widget-line [name]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate"
+        [value]="dependentOnLabel" leftColumnWidth="20" [filter]="Filter.NOT_NULL_OR_UNDEFINED">
       </oe-flat-widget-line>
-    </ng-container>
-  </ng-container>
-</oe-flat-widget>
+      @if (isOtherInputAddress) {
+        <oe-flat-widget-line [name]="'General.currentValue' | translate" [value]="currentValue"
+          [filter]="Filter.NOT_NULL_OR_UNDEFINED">
+        </oe-flat-widget-line>
+      }
+      @if (outputChannelValue !== null) {
+        <oe-flat-widget-line [converter]="switchConverter" [name]="switchState" [value]="switchValue">
+        </oe-flat-widget-line>
+      }
+    }
+  </oe-flat-widget>
+}
