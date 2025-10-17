@@ -9,7 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String alias;
 		private boolean enabled;
-		private String ip;
+		private String url;
 		private String username;
 		private String password;
 
@@ -31,8 +31,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setIp(String ip) {
-			this.ip = ip;
+		public Builder setUrl(String url) {
+			this.url = url;
 			return this;
 		}
 
@@ -83,8 +83,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ip() {
-		return this.builder.ip;
+	public String url() {
+		return this.builder.url;
 	}
 
 	@Override

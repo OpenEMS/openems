@@ -3,8 +3,7 @@ package io.openems.edge.pvinverter.kostal.piko;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(
-		name = "PV-Inverter KOSTAL PIKO", //
+@ObjectClassDefinition(name = "PV-Inverter KOSTAL PIKO", //
 		description = "Implements the KOSTAL PIKO PV inverter via HTTP/HTML parsing.")
 @interface Config {
 
@@ -17,8 +16,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the PIKO inverter")
-	String ip();
+	@AttributeDefinition(name = "URL", description = "The URL of the PIKO inverter (e.g., http://192.168.1.100 or https://piko.example.com)")
+	String url();
 
 	@AttributeDefinition(name = "Username", description = "Username for Basic Authentication")
 	String username() default "pvserver";

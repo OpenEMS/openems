@@ -13,9 +13,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -35,9 +32,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
-import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -52,19 +46,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
-		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler,
-		TimedataProvider {
+		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterKostalPikoImpl.class);
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
 
 	private BridgeHttp httpBridge;
 	private String baseUrl;
@@ -83,7 +70,7 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.baseUrl = "http://" + config.ip();
+		this.baseUrl = config.url();
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		// Setup Basic Authentication headers
@@ -117,14 +104,7 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateProductionEnergy.update(this.getActivePower().get());
-			break;
-		}
+		// Not needed
 	}
 
 	private void handleSuccessfulResult(HttpResponse<String> result) {
@@ -135,6 +115,7 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 		try {
 			this.parseHtmlResponse(result.data());
+			// Clear fault on successful communication
 			this._setSlaveCommunicationFailed(false);
 		} catch (Exception e) {
 			this.logError(this.log, "Failed to parse HTML response: " + e.getMessage());
@@ -166,8 +147,37 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		this.channel(PvInverterKostalPiko.ChannelId.DEBUG_HTML)
 				.setNextValue(html.substring(0, Math.min(html.length(), 1000)));
 
-		// Find all table cells with bgcolor="#FFFFFF"
-		var valueCells = doc.select("td[bgcolor=\"#FFFFFF\"]");
+		// Parse based on structure: look for cells containing numeric data that are
+		// followed by unit cells
+		// This is more robust than relying on bgcolor="#FFFFFF" styling
+		var allRows = doc.select("table tr");
+		var valueCells = new Elements();
+
+		for (Element row : allRows) {
+			Elements cells = row.select("td");
+
+			// Look for data pattern: [Label] [Value] [Unit]
+			for (int i = 1; i < cells.size() - 1; i++) {
+				Element valueCell = cells.get(i);
+				Element prevCell = cells.get(i - 1);
+				Element nextCell = cells.get(i + 1);
+
+				String valueText = valueCell.text().trim();
+				String prevText = prevCell.text().trim();
+				String nextText = nextCell.text().trim();
+
+				// Check if this matches the pattern: previous cell is a label (text),
+				// current cell has numeric value or "x x x", next cell is a unit (text)
+				boolean hasNumericOrNoData = valueText.matches(".*\\d+.*") || valueText.matches("x\\s*x\\s*x")
+						|| valueText.equals("x");
+				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude pure unit labels
+				boolean nextIsUnit = nextText.matches("\\s*[kMGmµ]?[WhVA]+\\s*"); // Match units like W, kWh, V, A, etc.
+
+				if (hasNumericOrNoData && prevIsLabel && nextIsUnit) {
+					valueCells.add(valueCell);
+				}
+			}
+		}
 
 		if (valueCells.isEmpty()) {
 			throw new OpenemsException("No data cells found in HTML response");
@@ -344,12 +354,12 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculate current from power and voltage.
-	 * 
+	 *
 	 * @param power   Power in Watts
 	 * @param voltage Voltage in Volts
 	 * @return Current in milliamperes
 	 */
-	private Integer calculateAcCurrent(Integer power, Integer voltage) {
+	private int calculateAcCurrent(Integer power, Integer voltage) {
 		if (power == null || voltage == null || voltage == 0) {
 			return 0;
 		}
@@ -359,12 +369,12 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculate power from voltage and current.
-	 * 
+	 *
 	 * @param voltage   Voltage in Volts
 	 * @param currentMa Current in milliamperes
 	 * @return Power in Watts
 	 */
-	private Integer calculateDcPower(Integer voltage, Integer currentMa) {
+	private int calculateDcPower(Integer voltage, Integer currentMa) {
 		if (voltage == null || currentMa == null) {
 			return 0;
 		}
@@ -372,25 +382,38 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		return (int) (voltage * (currentMa / 1000.0));
 	}
 
-	private Integer parseIntegerValue(String text) {
-		if (text == null || text.trim().isEmpty()) {
+	/**
+	 * Clean and prepare text for numeric parsing.
+	 *
+	 * @param text The raw text to clean
+	 * @return Cleaned text ready for parsing, or null if text is invalid
+	 */
+	private String cleanTextForParsing(String text) {
+		if (text == null || text.isBlank()) {
 			return null;
 		}
 
-		String cleaned = text.trim().replace(" ", "").replace("\u00A0", ""); // Remove spaces and nbsp
+		// Remove all whitespace characters (spaces, nbsp, tabs, etc.)
+		String cleaned = text.replaceAll("\\s+", "");
 
-		// Check for "x x x" pattern which indicates no data
+		// Check for "xxx" or "x" pattern which indicates no data
 		if (cleaned.contains("xxx") || cleaned.equals("x")) {
 			return null;
 		}
 
-		try {
-			// Remove any non-numeric characters except minus and decimal point
-			cleaned = cleaned.replaceAll("[^0-9\\-\\.]", "");
-			if (cleaned.isEmpty()) {
-				return null;
-			}
+		// Remove any non-numeric characters except minus and decimal point
+		cleaned = cleaned.replaceAll("[^0-9\\-\\.]", "");
 
+		return cleaned.isEmpty() ? null : cleaned;
+	}
+
+	private Integer parseIntegerValue(String text) {
+		String cleaned = this.cleanTextForParsing(text);
+		if (cleaned == null) {
+			return null;
+		}
+
+		try {
 			// If it contains a decimal point, parse as float and convert to int
 			if (cleaned.contains(".")) {
 				return (int) Float.parseFloat(cleaned);
@@ -409,23 +432,12 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	}
 
 	private Integer parseFloatAsMilliamps(String text) {
-		if (text == null || text.trim().isEmpty()) {
-			return null;
-		}
-
-		String cleaned = text.trim().replace(" ", "").replace("\u00A0", "");
-
-		// Check for "x x x" pattern
-		if (cleaned.contains("xxx") || cleaned.equals("x")) {
+		String cleaned = this.cleanTextForParsing(text);
+		if (cleaned == null) {
 			return null;
 		}
 
 		try {
-			cleaned = cleaned.replaceAll("[^0-9\\-\\.]", "");
-			if (cleaned.isEmpty()) {
-				return null;
-			}
-
 			// Parse as float and convert to milliamps
 			float amps = Float.parseFloat(cleaned);
 			return (int) (amps * 1000);
@@ -443,10 +455,5 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.PRODUCTION;
-	}
-
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
 	}
 }
