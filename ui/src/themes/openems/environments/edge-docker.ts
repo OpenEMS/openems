@@ -8,6 +8,6 @@ export const environment: Environment = {
         url: `${getWebsocketScheme()}//${location.host}/openems-edge`,
 
         production: true,
-        debugMode: true,
+        debugMode: false,
     },
 };
