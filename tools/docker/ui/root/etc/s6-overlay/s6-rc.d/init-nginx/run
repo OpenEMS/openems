@@ -12,14 +12,24 @@ if [[ "$WEBSOCKET_HOST" == "<hostname>" ]]; then
     sleep infinity
 fi
 
-if [[ "$WEBSOCKET_SECURE_POROTOCOL^^" == "TRUE" ]]; then
-    env_template="/defaults/sites-templates/443-openems.conf.tpl"
-    env_file="/etc/nginx/site-confs/443-openems.conf"
-else
-    env_template="/defaults/sites-templates/80-openems.conf.tpl"
-    env_file="/etc/nginx/site-confs/80-openems.conf"
-fi
-eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+for file in /etc/nginx/site-confs/80-*.tpl; do
+    env_template="$file"
+    env_file="/etc/nginx/site-confs/$(basename "${file%.tpl}")"
+    rm -f "$env_file";
+    eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+    sed -i '1i# This file might be deleted after the next restart'  "$env_file";
+done
+
+case "${USE_SECURE_POROTOCOL^^}" in TRUE|T|YES|Y|1)
+    for file in /etc/nginx/site-confs/443-*.tpl; do
+        env_template="$file"
+        env_file="/etc/nginx/site-confs/$(basename "${file%.tpl}")"
+        rm -f "$env_file";
+        eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+        sed -i '1i# This file might be deleted after the next restart'  "$env_file";
+    done
+    ;;
+esac
 
 # copy pre-generated dhparams or generate if needed
 if [[ ! -f /etc/nginx/dhparams.pem ]]; then
