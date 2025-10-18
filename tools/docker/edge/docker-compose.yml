@@ -12,7 +12,7 @@ services:
       - 8085:8085 # UI-Websocket
 
   openems-ui:
-    image: openems_ui-edge:latest
+    image: openems/ui-edge:latest
     container_name: openems_ui
     hostname: openems_ui
     restart: unless-stopped
@@ -23,8 +23,8 @@ services:
       - WEBSOCKET_HOST=openems_edge
       - WEBSOCKET_PORT=8085
     ports:
-      - 7080:80
-      - 7443:443
+      - 80:80
+      - 443:443
 
 volumes:
   openems-edge-conf:
