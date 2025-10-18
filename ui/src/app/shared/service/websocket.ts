@@ -237,40 +237,40 @@ export class Websocket implements WebsocketInterface {
     this.socket = webSocket({
       url: environment.url,
       openObserver: {
-        next: (value) => {
-          this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
-          // Websocket connection is open
-          if (environment.debugMode) {
-            console.info("Websocket connection opened");
-          }
+      next: (value) => {
+      this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
+      // Websocket connection is open
+      if (environment.debugMode) {
+      console.info("Websocket connection opened");
+      }
 
-          const token = this.cookieService.get("token");
-          if (token) {
-            this.state.set(States.AUTHENTICATING_WITH_TOKEN);
+      const token = this.cookieService.get("token");
+      if (token) {
+      this.state.set(States.AUTHENTICATING_WITH_TOKEN);
 
-            // Login with Session Token
-            this.login(new AuthenticateWithTokenRequest({ token: token }));
-            this.status = "authenticating";
+      // Login with Session Token
+      this.login(new AuthenticateWithTokenRequest({ token: token }));
+      this.status = "authenticating";
 
-          } else {
-            // No Token -> directly ask for Login credentials
-            this.state.set(States.NOT_AUTHENTICATED);
-            this.status = "waiting for credentials";
-            this.router.navigate(["login"]);
-          }
-        },
+      } else {
+      // No Token -> directly ask for Login credentials
+      this.state.set(States.NOT_AUTHENTICATED);
+      this.status = "waiting for credentials";
+      this.router.navigate(["login"]);
+      }
+      },
       },
       closeObserver: {
-        next: (value) => {
-          // Websocket connection is closed. Auto-Reconnect starts.
-          this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
-          if (environment.debugMode) {
-            console.info("Websocket connection closed");
-          }
-          // trying to connect
-          this.state.set(States.WEBSOCKET_CONNECTING);
-          this.status = "connecting";
-        },
+      next: (value) => {
+      // Websocket connection is closed. Auto-Reconnect starts.
+      this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
+      if (environment.debugMode) {
+      console.info("Websocket connection closed");
+      }
+      // trying to connect
+      this.state.set(States.WEBSOCKET_CONNECTING);
+      this.status = "connecting";
+      },
       },
     });
 

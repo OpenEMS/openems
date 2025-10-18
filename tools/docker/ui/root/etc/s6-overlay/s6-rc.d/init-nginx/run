@@ -4,9 +4,21 @@
 # copy default config files if they don't exist
 rsync -av --chown=abc:abc --ignore-existing /defaults/nginx/ /etc/nginx/
 
-# generate env file
-env_template="/var/www/html/openems/assets/env.template.js"
-env_file="/var/www/html/openems/assets/env.js"
+mkdir -p /etc/nginx/site-confs
+
+if [[ "$WEBSOCKET_HOST" == "<hostname>" ]]; then
+    echo ""
+    echo "WEBSOCKET_HOST contains <hostname> placeholder, replace it with the actual hostname or IP address of the Docker host."
+    sleep infinity
+fi
+
+if [[ "$WEBSOCKET_SECURE_POROTOCOL^^" == "TRUE" ]]; then
+    env_template="/defaults/sites-templates/443-openems.conf.tpl"
+    env_file="/etc/nginx/site-confs/443-openems.conf"
+else
+    env_template="/defaults/sites-templates/80-openems.conf.tpl"
+    env_file="/etc/nginx/site-confs/80-openems.conf"
+fi
 eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
 
 # copy pre-generated dhparams or generate if needed
