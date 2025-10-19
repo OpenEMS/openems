@@ -1,7 +1,8 @@
-= Kostal PV inverter
+= KOSTAL Solar Electric
 
 Implementation of the Kostal PV inverters.
 
+== PV-Inverter.Kostal
 Tested on
 - Kostal Plenticore 5.5
 - Kostal Pico 5.5
@@ -19,5 +20,104 @@ Modbus must be active and byte order must be big-endian for sunspec.
 Implemented Natures:
 - ElectricityMeter
 - ManagedSymmetricPvInverter
+
+== PV-Inverter.Kostal.Piko
+
+Implements the KOSTAL PIKO PV inverter using HTTP/HTML parsing.
+
+=== Configuration
+
+The component requires the following configuration:
+
+[cols="1,1,3"]
+|===
+| Property | Default | Description
+
+| id 
+| pvinverter0 
+| Component ID
+
+| alias 
+| 
+| Human-readable name
+
+| enabled 
+| true 
+| Enable/disable the component
+
+| ip 
+| 
+| IP address of the KOSTAL PIKO inverter (required)
+
+| username 
+| pvserver 
+| Username for Basic Authentication
+
+| password 
+| pvwr 
+| Password for Basic Authentication
+|===
+
+=== Channels
+
+The component provides the following channels:
+
+==== Standard PV-Inverter Channels
+* `ActivePower`: Current AC power output [W]
+* `ActivePowerLimit`: Active power limit (not used)
+* `MaxApparentPower`: Maximum apparent power (not used)
+
+==== KOSTAL PIKO Specific Channels
+* `Status`: Current inverter status (e.g., "Aus", "Feed-in", etc.)
+* `TotalYield`: Total energy production [kWh]
+* `DayYield`: Daily energy production [kWh]
+
+===== DC String Channels
+* `DcString1Voltage`: DC voltage of string 1 [V]
+* `DcString1Current`: DC current of string 1 [mA]
+* `DcString1Power`: DC power of string 1 [W]
+* `DcString2Voltage`: DC voltage of string 2 [V]
+* `DcString2Current`: DC current of string 2 [mA]
+* `DcString2Power`: DC power of string 2 [W]
+* `DcString3Voltage`: DC voltage of string 3 [V]
+* `DcString3Current`: DC current of string 3 [mA]
+* `DcString3Power`: DC power of string 3 [W]
+
+===== AC Phase Channels
+* `AcL1Voltage`: AC voltage of phase L1 [V]
+* `AcL1Power`: AC power of phase L1 [W]
+* `AcL2Voltage`: AC voltage of phase L2 [V]
+* `AcL2Power`: AC power of phase L2 [W]
+* `AcL3Voltage`: AC voltage of phase L3 [V]
+* `AcL3Power`: AC power of phase L3 [W]
+
+===== Debug Channel
+* `DebugHtml`: Raw HTML response (first 1000 characters) for debugging
+
+=== Implementation Details
+
+This component:
+
+1. Connects to the KOSTAL PIKO inverter via HTTP using Basic Authentication
+2. Fetches the main status page HTML
+3. Parses the HTML using Jsoup to extract values
+4. Updates channels every 10 seconds
+5. Handles connection errors gracefully
+
+The HTML parsing is based on finding table cells with `bgcolor="#FFFFFF"` attribute and extracting values in a specific order.
+
+=== Compatibility
+
+This component is compatible with KOSTAL PIKO inverters that provide a web interface with Basic Authentication (typically username: `pvserver`, password: `pvwr`).
+
+Tested with:
+* KOSTAL PIKO 10.1
+
+=== Known Limitations
+
+* Read-only implementation (no control capabilities)
+* Requires network access to the inverter
+* HTML parsing may break if KOSTAL changes the web interface format
+* Values marked as "x x x" in the web interface are interpreted as null/unavailable
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.kostal[Source Code icon:github[]]
