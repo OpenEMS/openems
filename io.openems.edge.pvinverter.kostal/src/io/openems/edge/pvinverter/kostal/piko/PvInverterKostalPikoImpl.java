@@ -13,8 +13,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -46,7 +44,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
-		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler {
+		implements PvInverterKostalPiko, ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterKostalPikoImpl.class);
 
@@ -100,11 +98,6 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 			this.httpBridgeFactory.unget(this.httpBridge);
 			this.httpBridge = null;
 		}
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		// Not needed
 	}
 
 	private void handleSuccessfulResult(HttpResponse<String> result) {
