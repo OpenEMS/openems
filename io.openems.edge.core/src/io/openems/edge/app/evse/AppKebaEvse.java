@@ -2,6 +2,7 @@ package io.openems.edge.app.evse;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.common.props.CommonProps.phaseRotation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +83,8 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.11") //
 				.setRequired(true)),
-		PHASE_ROTATION(AppDef.copyOfGeneric(EvseProps.phaseRotation())), //
+		PHASE_ROTATION(AppDef.copyOfGeneric(phaseRotation() //
+				.setTranslatedDescription("App.Evse.phaseRotation.description"))), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
 		PHASE_SWITCHING(AppDef.copyOfGeneric(EvseProps.p30hasPhaseSwitch())//
 				.wrapField((app, property, l, parameter, field) -> {

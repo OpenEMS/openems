@@ -29,8 +29,12 @@ export class FlatComponent extends AbstractFlatWidget {
   protected gridState: string;
   protected icon: Icon | null = null;
   protected isActivated: boolean = false;
+  protected modalComponent: Modal | null = null;
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
 
-  protected get modalComponent(): Modal {
+  protected getModalComponent(): Modal {
     return {
       component: ModalComponent,
       componentProps: {
@@ -38,17 +42,6 @@ export class FlatComponent extends AbstractFlatWidget {
       },
     };
   };
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        edge: this.edge,
-      },
-    });
-    return await modal.present();
-  }
-
 
   protected override getChannelAddresses(): ChannelAddress[] {
     const channelAddresses: ChannelAddress[] = [

@@ -8,8 +8,8 @@ import org.junit.Test;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public class EvseChargePointHardyImplTest {
 

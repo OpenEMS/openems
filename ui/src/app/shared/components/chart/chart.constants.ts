@@ -277,6 +277,7 @@ export namespace ChartConstants {
   export class NumberFormat {
     public static NO_DECIMALS: string = "1.0-0";
     public static ZERO_TO_TWO: string = "1.0-2";
+    public static TWO: string = "1.2-2";
   }
 
   /**

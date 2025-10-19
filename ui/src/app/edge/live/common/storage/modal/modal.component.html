@@ -201,12 +201,10 @@
                                             *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
                                             <ion-segment [formControlName]="'targetTimeSpecified'">
                                                 <ion-segment-button value="false">
-                                                    <ion-label
-                                                        translate>Edge.Index.RETROFITTING.INSTANT_START</ion-label>
+                                                    <ion-label>{{"Edge.Index.RETROFITTING.INSTANT_START" | translate}}</ion-label>
                                                 </ion-segment-button>
                                                 <ion-segment-button value="true">
-                                                    <ion-label
-                                                        translate>Edge.Index.RETROFITTING.PLANNED_EXPANSION</ion-label>
+                                                    <ion-label>{{"Edge.Index.RETROFITTING.PLANNED_EXPANSION" | translate}}</ion-label>
                                                 </ion-segment-button>
                                             </ion-segment>
 
@@ -242,9 +240,8 @@
                                                     <td style="width: 20%; text-align: center">
                                                         <ion-item button="true" id="open-date-input">
                                                             <ion-label style="text-align: center"
-                                                                *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime"
-                                                                [translateParams]="{date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'}"
-                                                                translate>Edge.Index.RETROFITTING.ON_DATE_AT_TIME
+                                                                *ngIf="prepareBatteryExtensionController['targetTime'] as targetTime, else noValidTargetTime">
+                                                                {{"Edge.Index.RETROFITTING.ON_DATE_AT_TIME" | translate: {date: targetTime | date: 'dd.MM.yyyy', time: targetTime | date: 'HH:mm'} }}
                                                             </ion-label>
 
                                                             <ng-template #noValidTargetTime>
@@ -456,7 +453,8 @@
                                     <tr>
                                         <td style="width:65%" translate>General.CHARGE</td>
                                         <td style="width:35%" class="align_right">{{ (value <= 0 ? (value * -1) : null)
-                                                | unitvalue:'W' }}<td>
+                                                | unitvalue:'W' }}
+                                        <td>
                                     </tr>
                                     <tr>
                                         <td style="width:65%" translate>General.DISCHARGE</td>
@@ -722,7 +720,8 @@
                                     <td style="width:20%" translate>General.DISCHARGE</td>
                                     <td style="width:30%"></td>
                                     <td style="width:35%" class="align_right">
-                                        {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}</td>
+                                        {{ (value <= 0 ? (value * -1) : null | unitvalue:'W') }}
+                                    </td>
                                 </tr>
                             </ng-container>
                         </ng-container>

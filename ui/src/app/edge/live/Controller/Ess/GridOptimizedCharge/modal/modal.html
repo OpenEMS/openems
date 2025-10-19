@@ -7,14 +7,12 @@
       </oe-modal-line>
       <!-- Minimum-/ Maximum- Charge-Limit -->
       @if (chargeLimit) {
-        <oe-modal-line [name]="chargeLimit.name" [converter]="Utils.CONVERT_TO_WATT"
-          [value]="chargeLimit.value">
+        <oe-modal-line [name]="chargeLimit.name" [converter]="Utils.CONVERT_TO_WATT" [value]="chargeLimit.value">
         </oe-modal-line>
       }
       <!--DelayCharge target minute-->
       @if (targetMinute && this.delayChargeState !== DelayChargeState.NO_REMAINING_TIME) {
-        <oe-modal-line
-          leftColumnWidth="70" [name]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeLong'| translate"
+        <oe-modal-line leftColumnWidth="70" [name]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeLong'| translate"
           [converter]="CONVERT_MINUTE_TO_TIME_OF_DAY" [value]="targetMinute">
         </oe-modal-line>
       }
@@ -29,16 +27,16 @@
       @if(formGroup.value.sellToGridLimitEnabled) {
         @if(hasMaximumGridFeedInLimitInMeta) {
           @if (formGroup.value.sellToGridLimitEnabled) {
-            <oe-modal-line
-              [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate" leftColumnWidth="70"
-              [converter]="CONVERT_TO_WATT" [channelAddress]="'_meta/_PropertyMaximumGridFeedInLimit'">
+            <oe-modal-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate"
+              leftColumnWidth="70" [converter]="CONVERT_TO_WATT"
+              [channelAddress]="'_meta/_PropertyMaximumGridFeedInLimit'">
             </oe-modal-line>
           }
         } @else {
           @if (formGroup.value.sellToGridLimitEnabled) {
-            <oe-modal-line
-              [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate" leftColumnWidth="70"
-              [converter]="Utils.CONVERT_TO_WATT" [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
+            <oe-modal-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate"
+              leftColumnWidth="70" [converter]="Utils.CONVERT_TO_WATT"
+              [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
             </oe-modal-line>
           }
         }
@@ -78,7 +76,7 @@
                     <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
                       <ng-template>
                         <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
-                        formControlName="manualTargetTime"></ion-datetime>
+                          formControlName="manualTargetTime"></ion-datetime>
                       </ng-template>
                     </ion-popover>
                   </ion-item>
@@ -93,8 +91,7 @@
     @if (formGroup.value.mode === 'AUTOMATIC') {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       @if (targetMinute !== null && delayChargeMaximumChargeLimit !== null) {
-        <oe-modal-info-line
-            [info]="[{text:
+        <oe-modal-info-line [info]="[{text:
                 'Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription'| translate:
                  {maxChargingPowerW: delayChargeMaximumChargeLimit | unitvalue:'W', endTime: chargingEndTime }
                 }]">
@@ -119,7 +116,7 @@
       <!--Risk propensity-->
       <oe-modal-line [name]="'Edge.Index.Widgets.GridOptimizedCharge.riskPropensity'| translate"></oe-modal-line>
       <!--Select Risk-->
-        <oe-modal-buttons [formGroup]="formGroup" controlName="delayChargeRiskLevel" [component]="component" [buttons]="[
+      <oe-modal-buttons [formGroup]="formGroup" controlName="delayChargeRiskLevel" [component]="component" [buttons]="[
         { name: ('Edge.Index.Widgets.GridOptimizedCharge.low' | translate), value: 'LOW'},
         { name: ('Edge.Index.Widgets.GridOptimizedCharge.medium' | translate), value: 'MEDIUM'},
         { name: ('Edge.Index.Widgets.GridOptimizedCharge.high' | translate), value: 'HIGH'}]">
@@ -142,8 +139,7 @@
     }
     <!-- OFF Mode -->
     @if (formGroup.value.mode === 'OFF') {
-      <oe-modal-info-line
-        [info]="'Edge.Index.Widgets.GridOptimizedCharge.gridOptimizedChargeDisabled'| translate">
+      <oe-modal-info-line [info]="'Edge.Index.Widgets.GridOptimizedCharge.gridOptimizedChargeDisabled'| translate">
       </oe-modal-info-line>
     }
   </oe-modal>

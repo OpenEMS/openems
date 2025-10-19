@@ -9,6 +9,7 @@ import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-transla
 import { BehaviorSubject } from "rxjs";
 import { Theme } from "src/app/edge/history/shared";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
@@ -41,6 +42,7 @@ describe("OverviewComponent", () => {
                 TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
                 IonicModule.forRoot(),
                 RouterModule,
+                FlatWidgetButtonComponent,
             ],
             declarations: [OverViewComponent],
             providers: [

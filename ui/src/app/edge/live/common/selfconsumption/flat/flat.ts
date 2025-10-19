@@ -14,16 +14,14 @@ import { ModalComponent } from "../modal/modal";
 export class FlatComponent extends AbstractFlatWidget {
 
     public calculatedSelfConsumption: number;
-    protected get modalComponent(): Modal {
+    protected modalComponent: Modal | null = null;
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+    protected getModalComponent(): Modal {
         return { component: ModalComponent };
     };
-
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-        });
-        return await modal.present();
-    }
 
     protected override getChannelAddresses() {
         return [

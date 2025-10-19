@@ -28,8 +28,13 @@ export class FlatComponent extends AbstractFlatWidget {
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
     protected outputChannelArray: ChannelAddress[] = [];
     protected consumptionMeter: EdgeConfig.Component = null;
+    protected modalComponent: Modal | null = null;
 
-    protected get modalComponent(): Modal {
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
         return {
             component: ModalComponent,
             componentProps: {
@@ -37,16 +42,6 @@ export class FlatComponent extends AbstractFlatWidget {
             },
         };
     };
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
-
 
     protected override getChannelAddresses() {
 
