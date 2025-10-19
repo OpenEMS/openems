@@ -1,23 +1,33 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
-function eval_files {
+function apply_teplates {
     local pattern=$1
+    local nullglob_set=0
+
+    if ! shopt -p | grep -q 'nullglob[[:space:]]*off'; then
+        nullglob_set=1 shopt -s nullglob
+    fi
+
     for file in $pattern; do
         env_template="$file"
         env_file="${file%.tpl}"
         rm -f "$env_file";
-        eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+        envsubst '$WEBSOCKET_HOST,$WEBSOCKET_PORT,$REST_PORT' < "$env_template" > "$env_file";
         sed -i '1i# This file might be deleted after the next restart'  "$env_file";
     done
+
+    if (( nullglob_set )); then
+        shopt -u nullglob
+    fi
 }
 
 function enable_http {
-    eval_files /etc/nginx/site-confs/80-*.tpl;
+    apply_teplates /etc/nginx/site-confs/80-*.tpl;
 }
 
 function enable_https {
-    eval_files /etc/nginx/site-confs/443-*.tpl;
+    apply_teplates /etc/nginx/site-confs/443-*.tpl;
 
     # copy pre-generated dhparams or generate if needed
     if [[ ! -f /etc/nginx/dhparams.pem ]]; then

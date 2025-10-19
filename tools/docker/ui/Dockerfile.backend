@@ -28,7 +28,7 @@ RUN npm install -g "npm@${NPM}" && \
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
 
 RUN apk add --update --no-cache \
-    nginx openssl bash dos2unix rsync
+    nginx openssl bash dos2unix rsync gettext
 
 ### Build ui container
 FROM ui_base
