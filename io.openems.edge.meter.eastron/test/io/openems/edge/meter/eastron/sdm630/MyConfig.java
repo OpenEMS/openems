@@ -14,7 +14,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int modbusUnitId;
 		private MeterType type;
 		private boolean invert;
-		private PhaseRotation phaseRotation;
 
 		private Builder() {
 		}
@@ -36,11 +35,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
-			return this;
-		}
-
-		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
-			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -86,9 +80,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 
-	@Override
-	public PhaseRotation phaseRotation() {
-		return this.builder.phaseRotation;
-	}
+
 
 }

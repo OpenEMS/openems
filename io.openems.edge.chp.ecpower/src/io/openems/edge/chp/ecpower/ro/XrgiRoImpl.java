@@ -215,11 +215,6 @@ public class XrgiRoImpl extends AbstractOpenemsModbusComponent
 						m(XrgiRo.ChannelId.L3_L1_VOLTAGE, new UnsignedWordElement(49)), // 0x0031: UINT16, Volt
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(50)), // 0x0032: UINT16, Hz x100
 						m(XrgiRo.ChannelId.MESSAGE_STATUS, new UnsignedWordElement(51)) // 0x0033: UINT16
-				),
-				new FC4ReadInputRegistersTask(0, Priority.LOW,
-						m(XrgiRo.ChannelId.VPP_ENABLE, new UnsignedWordElement(0)), // 0x0000: VPP Freigabe
-						m(XrgiRo.ChannelId.CHP_POWER_CONTROL, new UnsignedWordElement(1), ElementToChannelConverter.SCALE_FACTOR_MINUS_2) // 0x0001: BHKW
-																							// Leistungsregelung %
 				)
 
 		// ggf. weitere Tasks für andere Bereiche

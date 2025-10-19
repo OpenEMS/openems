@@ -43,6 +43,9 @@ import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;	
+
 public class Utils {
 
 	private record TimeInterval(ZonedDateTime start, ZonedDateTime end) {
@@ -101,6 +104,8 @@ public class Utils {
 
 	protected static TimeOfUsePrices processPrices(Clock clock, ImmutableSortedMap<ZonedDateTime, Double> timePriceMap,
 			double exchangeRate, TimeOfUsePrices gridFees) {
+		
+	
 
 		// Filter timePriceMap to include only entries from "now" onward.
 		// filteredMap will have 34 hour data maximum (when called during 14:00).
@@ -130,13 +135,90 @@ public class Utils {
 			// converting grid fees from ct/KWh -> EUR/MWh
 			var gridFeesPerMwh = gridFeesArray[index] * 10;
 			var priceWithFee = (entry.getValue() + gridFeesPerMwh) * exchangeRate;
-			resultBuilder.put(entry.getKey(), priceWithFee);
+			
+			var roundedPriceWithFee = BigDecimal.valueOf(priceWithFee)
+			        .setScale(2, RoundingMode.HALF_UP)
+			        .doubleValue();			
+			
+			resultBuilder.put(entry.getKey(), roundedPriceWithFee);
 			index++;
 		}
 
 		return TimeOfUsePrices.from(resultBuilder.build());
 	}
+	
+	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root) {
+	    var table = com.google.common.collect.HashBasedTable.<Duration, ZonedDateTime, Double>create();
 
+	    stream(root)
+	        .filter(n -> "TimeSeries".equals(n.getNodeName()))
+	        .flatMap(XmlUtils::stream)
+	        .filter(n -> "Period".equals(n.getNodeName()))
+	        .forEach(period -> {
+	            try {
+	                parsePeriod(table, period); // <<— Signatur siehe unten
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        });
+
+	    return ImmutableTable.copyOf(table);
+	}	
+	
+	// NEU: parsePeriod – schreibt in mutable Table und nimmt jeweils den höheren Wert
+	protected static void parsePeriod(com.google.common.collect.Table<Duration, ZonedDateTime, Double> result, Node period)
+	        throws Exception {
+
+	    final var duration = Duration.parse(
+	        stream(period)
+	            .filter(n -> "resolution".equals(n.getNodeName()))
+	            .map(XmlUtils::getContentAsString)
+	            .findFirst().get() // "PT15M" oder "PT60M"
+	    );
+
+	    final var timeInterval = parseTimeInterval(period, "timeInterval");
+
+	    // Rohpunkte aus dem Period einsammeln
+	    var prices = new java.util.TreeMap<Integer, Double>();
+	    stream(period)
+	        .filter(n -> "Point".equals(n.getNodeName()))
+	        .forEach(point -> {
+	            final var position = stream(point)
+	                .filter(n -> "position".equals(n.getNodeName()))
+	                .map(XmlUtils::getContentAsString)
+	                .map(Integer::parseInt)
+	                .findFirst().get();
+
+	            final var price = stream(point)
+	                .filter(n -> "price.amount".equals(n.getNodeName()))
+	                .map(XmlUtils::getContentAsString)
+	                .map(Double::parseDouble)
+	                .findFirst().get();
+
+	            prices.put(position, price);
+	        });
+
+	    // Forward-Fill INNERHALB dieses Periods (nur falls Start-Lücke, first bleibt null)
+	    Double last = null;
+	    for (int pos = 1; ; pos++) {
+	        var ts = timeInterval.start.plusMinutes((pos - 1) * duration.toMinutes());
+	        if (!ts.isBefore(timeInterval.end)) break;
+
+	        last = prices.getOrDefault(pos, last);
+	        if (last == null) {
+	            // noch kein Wert gesehen → nichts schreiben (wird später global gefüllt)
+	            continue;
+	        }
+
+	        // MAX-MERGE: wenn für (duration, ts) schon etwas existiert, nimm den höheren Preis
+	        var existing = result.get(duration, ts);
+	        var merged   = (existing == null) ? last : Math.max(existing, last);
+	        result.put(duration, ts, merged);
+	    }
+	}
+	
+
+	/*
 	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root) {
 		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
 		stream(root) //
@@ -155,6 +237,8 @@ public class Utils {
 				});
 		return result.build();
 	}
+*/
+
 
 	protected static TimeInterval parseTimeInterval(Node node, String nodeName) {
 		return parseTimeInterval(stream(node) //

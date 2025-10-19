@@ -849,7 +849,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	}		
 	
 	// SetPoint Channel L1
-	public default void _setSymmetricEssActivePowerL1(Short value) throws OpenemsNamedException {
+	public default void setEssActivePowerL1(Short value) throws OpenemsNamedException {
 		this.getChargePowerChannelL1().setNextWriteValue(value);
 	}
 
@@ -862,7 +862,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	}
 
 	// SetPoint Channel L2
-	public default void _setSymmetricEssActivePowerL2(Short value) throws OpenemsNamedException {
+	public default void setEssActivePowerL2(Short value) throws OpenemsNamedException {
 		this.getChargePowerChannelL2().setNextWriteValue(value);
 	}
 
@@ -875,7 +875,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	}
 
 	// SetPoint Channel L3
-	public default void _setSymmetricEssActivePowerL3(Short value) throws OpenemsNamedException {
+	public default void setEssActivePowerL3(Short value) throws OpenemsNamedException {
 		this.getChargePowerChannelL3().setNextWriteValue(value);
 	}
 

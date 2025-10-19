@@ -116,6 +116,12 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 				e.printStackTrace();
 			}
 
+		} else {
+			try {
+			this.setChpPreparation(0);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

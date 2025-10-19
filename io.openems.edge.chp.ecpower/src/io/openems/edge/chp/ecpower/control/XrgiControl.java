@@ -19,6 +19,7 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 
 		
 		CHP_PREPARING(Doc.of(OpenemsType.INTEGER) // use of Integer for future implementation of additional preparation methods
+				.accessMode(AccessMode.READ_WRITE)
 				.text("Prepare CHP for operation")),	
 		
 		POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //

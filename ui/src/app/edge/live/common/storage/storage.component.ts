@@ -2,6 +2,7 @@
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
@@ -25,12 +26,13 @@ export class StorageComponent extends AbstractFlatWidget {
     public isEmergencyReserveEnabled: boolean[] = [];
     public isChargeDischargeLimiterEnabled: boolean[] = [];
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
+    protected modalComponent: Modal | null = null;
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
 
     /**
-    * Use 'convertChargePower' to convert/map a value
+     * Use 'convertChargePower' to convert/map a value
      *
-    * @param value takes @Input value or channelAddress for chargePower
+     * @param value takes @Input value or channelAddress for chargePower
      * @returns value
     */
     public convertChargePower = (value: any): string => {
@@ -79,15 +81,26 @@ export class StorageComponent extends AbstractFlatWidget {
             component: StorageModalComponent,
             componentProps: {
                 edge: this.edge,
-                config: this.config,
                 component: this.component,
-                essComponents: this.essComponents,
-                chargerComponents: this.chargerComponents,
-                singleComponent: this.component,
             },
         });
         return await modal.present();
     }
+
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
+            component: StorageModalComponent,
+            componentProps: {
+                edge: this.edge,
+                component: this.component,
+            },
+        };
+    };
 
     protected override getChannelAddresses() {
 
