@@ -5,7 +5,7 @@ export const environment: Environment = {
     ...theme, ...{
 
         backend: "OpenEMS Backend",
-        url: `${getWebsocketScheme()}//${location.hostname}:8082`,
+        url: `${getWebsocketScheme()}://${location.hostname}:8082`,
 
         production: true,
         debugMode: false,

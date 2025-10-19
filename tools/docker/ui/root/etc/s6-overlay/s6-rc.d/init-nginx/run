@@ -1,6 +1,34 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+function eval_files {
+    local pattern=$1
+    for file in $pattern; do
+        env_template="$file"
+        env_file="${file%.tpl}"
+        rm -f "$env_file";
+        eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
+        sed -i '1i# This file might be deleted after the next restart'  "$env_file";
+    done
+}
+
+function enable_http {
+    eval_files /etc/nginx/site-confs/80-*.tpl;
+}
+
+function enable_https {
+    eval_files /etc/nginx/site-confs/443-*.tpl;
+
+    # copy pre-generated dhparams or generate if needed
+    if [[ ! -f /etc/nginx/dhparams.pem ]]; then
+        rsync -av --chown=abc:abc /defaults/nginx/dhparams.pem.sample /etc/nginx/dhparams.pem
+    fi
+
+    if ! grep -q 'PARAMETERS' "/etc/nginx/dhparams.pem"; then
+        curl -o /etc/nginx/dhparams.pem -L "https://ssl-config.mozilla.org/ffdhe4096.txt"
+    fi
+}
+
 # copy default config files if they don't exist
 rsync -av --chown=abc:abc --ignore-existing /defaults/nginx/ /etc/nginx/
 
@@ -12,30 +40,9 @@ if [[ "$WEBSOCKET_HOST" == "<hostname>" ]]; then
     sleep infinity
 fi
 
-for file in /etc/nginx/site-confs/80-*.tpl; do
-    env_template="$file"
-    env_file="/etc/nginx/site-confs/$(basename "${file%.tpl}")"
-    rm -f "$env_file";
-    eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
-    sed -i '1i# This file might be deleted after the next restart'  "$env_file";
-done
-
-case "${USE_SECURE_POROTOCOL^^}" in TRUE|T|YES|Y|1)
-    for file in /etc/nginx/site-confs/443-*.tpl; do
-        env_template="$file"
-        env_file="/etc/nginx/site-confs/$(basename "${file%.tpl}")"
-        rm -f "$env_file";
-        eval "cat <<< \"$(<$env_template)\"" 2> /dev/null > $env_file;
-        sed -i '1i# This file might be deleted after the next restart'  "$env_file";
-    done
-    ;;
+case "${ENABLE_HTTPS^^}" in
+    TEST|TESTING|SNAKEOIL|PROD|PRODUCTION|TRUE|T|YES|Y|1) enable_https ;;
+    *) echo "HTTPS is disabled." ;;
 esac
 
-# copy pre-generated dhparams or generate if needed
-if [[ ! -f /etc/nginx/dhparams.pem ]]; then
-    rsync -av --chown=abc:abc /defaults/nginx/dhparams.pem.sample /etc/nginx/dhparams.pem
-fi
-
-if ! grep -q 'PARAMETERS' "/etc/nginx/dhparams.pem"; then
-    curl -o /etc/nginx/dhparams.pem -L "https://ssl-config.mozilla.org/ffdhe4096.txt"
-fi
+enable_http;
