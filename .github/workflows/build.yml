@@ -70,9 +70,9 @@ jobs:
           cd ui
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
+          npm run lint:i18n
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
-          npm run lint:i18n
           export CHROME_BIN=/usr/bin/google-chrome-stable
           npm run test -- --code-coverage --no-watch --no-progress --browsers=ChromeHeadlessCI
 
