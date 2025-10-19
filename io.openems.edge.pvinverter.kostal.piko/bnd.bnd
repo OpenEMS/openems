@@ -11,7 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.timedata.api,\
-	org.jsoup:jsoup
+	org.jsoup:jsoup,\
 
 -testpath: \
 	${testpath},\
