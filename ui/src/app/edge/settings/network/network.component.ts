@@ -74,7 +74,7 @@ export class NetworkComponent implements OnInit {
 
   public submit(iface: InterfaceForm): void {
     if (!iface.formGroup.valid) {
-      this.service.toast(this.translate.instant("Edge.Network.mandatoryFields"), "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.MANDATORY_FIELDS"), "danger");
       return;
     }
 
@@ -115,7 +115,7 @@ export class NetworkComponent implements OnInit {
         this.handleNetworkResponses(response, networkInfoResponse);
       }
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorReading") + reason?.error?.message, "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.ERROR_READING") + reason?.error?.message, "danger");
     }
   }
 
@@ -161,7 +161,7 @@ export class NetworkComponent implements OnInit {
     if (iface.model.addressesList) {
       for (const addr of iface.model.addressesList) {
         if (!this.ipRegex.test(addr)) {
-          this.service.toast(this.translate.instant("Edge.Network.validAddressWarning"), "danger");
+          this.service.toast(this.translate.instant("EDGE.NETWORK.VALID_ADDRESS_WARNING"), "danger");
           return [];
         }
         const [address, subnet] = addr.split("/");
@@ -227,9 +227,9 @@ export class NetworkComponent implements OnInit {
         componentId: "_host",
         payload: new SetNetworkConfigRequest(request),
       }));
-      this.service.toast(this.translate.instant("Edge.Network.successUpdate") + `[${interfaceName}].`, "success");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.SUCCESS_UPDATE") + `[${interfaceName}].`, "success");
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorUpdating") + `[${interfaceName}].` + reason?.error?.message, "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.ERROR_UPDATING") + `[${interfaceName}].` + reason?.error?.message, "danger");
     }
   }
 
@@ -286,11 +286,11 @@ export class NetworkComponent implements OnInit {
         type: "help-popover-label-with-description-and-checkbox",
         defaultValue: true,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.DHCP.ADDRESS"),
+          label: this.translate.instant("EDGE.NETWORK.DHCP.ADDRESS"),
         },
         expressions: {
           "props.description": (field) => field.model.dynamicIp,
-          "props.helpMsg": (field) => field.model.dynamicIp ? this.translate.instant("Edge.Network.DHCP.INFO") : null,
+          "props.helpMsg": (field) => field.model.dynamicIp ? this.translate.instant("EDGE.NETWORK.DHCP.INFO") : null,
         },
       },
       {
@@ -299,7 +299,7 @@ export class NetworkComponent implements OnInit {
         type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.ipAddress"),
+          label: this.translate.instant("EDGE.NETWORK.IP_ADDRESS"),
           placeholder: "z.B. 192.168.0.50",
           required: true,
         },
@@ -313,7 +313,7 @@ export class NetworkComponent implements OnInit {
         type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.subnetmask"),
+          label: this.translate.instant("EDGE.NETWORK.SUBNETMASK"),
           placeholder: "z.B. 255.255.255.0",
           required: true,
         },
@@ -365,7 +365,7 @@ export class NetworkComponent implements OnInit {
         resetOnHide: false,
         defaultValue: addressArray,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.addIP"),
+          label: this.translate.instant("EDGE.NETWORK.ADD_IP"),
         },
         fieldArray: {
           type: "input",
