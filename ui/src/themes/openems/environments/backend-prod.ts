@@ -1,11 +1,12 @@
-import { Environment , getWebsocketScheme } from "src/environments";
+import { Environment } from "src/environments";
 import { theme } from "./theme";
 
 export const environment: Environment = {
     ...theme, ...{
 
         backend: "OpenEMS Backend",
-        url: `${getWebsocketScheme()}://${location.hostname}:8082`,
+        //url: `${getWebsocketScheme()}://${location.hostname}:8082`,
+        url: "https://openems-backend.partec.org:8285/openems-backend-ui",
 
         production: true,
         debugMode: false,

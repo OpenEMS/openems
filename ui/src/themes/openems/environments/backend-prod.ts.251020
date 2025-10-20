@@ -1,0 +1,19 @@
+import { Environment } from "src/environments";
+import { theme } from "./theme";
+
+export const environment: Environment = {
+    ...theme, ...{
+
+<<<<<<< HEAD
+        backend: 'OpenEMS Backend',
+        //url: "ws://" + location.hostname + ":8082/openems-backend-ui",
+        url: "https://openems-backend.partec.org:8285/openems-backend-ui",
+=======
+        backend: "OpenEMS Backend",
+        url: `${getWebsocketScheme()}://${location.hostname}:8082`,
+>>>>>>> 8aa535bab6e995ce7ebecf4c63624b1b48ac470d
+
+        production: true,
+        debugMode: false,
+    },
+};
