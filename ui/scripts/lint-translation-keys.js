@@ -48,7 +48,30 @@ function lintFile(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(content);
-        const errors = checkKeys(data);
+
+        // Module translation files (translation.json) have language codes as top-level keys
+        // Global translation files (assets/i18n/*.json) have direct translation keys
+        const isModuleTranslation = path.basename(filePath) === 'translation.json';
+
+        let errors = [];
+        if (isModuleTranslation) {
+            // For module translations, skip language code validation and check nested content
+            const languageCodes = ['de', 'en', 'es', 'fr', 'nl', 'cz', 'cs', 'ja'];
+            for (const [key, value] of Object.entries(data)) {
+                if (languageCodes.includes(key.toLowerCase())) {
+                    // Check the nested translation keys, not the language code itself
+                    checkKeys(value, '', errors);
+                } else {
+                    // If it's not a language code, validate it normally
+                    checkKeys(data, '', errors);
+                    break;
+                }
+            }
+        } else {
+            // For global translations, check all keys normally
+            errors = checkKeys(data);
+        }
+
         return { filePath, errors };
     } catch (error) {
         return {
@@ -63,37 +86,60 @@ function lintFile(filePath) {
 }
 
 /**
+ * Recursively find all translation files
+ */
+function findTranslationFiles(dir, fileList = []) {
+    const files = fs.readdirSync(dir);
+
+    files.forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+
+        if (stat.isDirectory()) {
+            // Skip node_modules, target, www, and other build directories
+            if (!['node_modules', 'target', 'www', 'dist', '.angular'].includes(file)) {
+                findTranslationFiles(filePath, fileList);
+            }
+        } else if (file.endsWith('.json') && (file === 'translation.json' || filePath.includes(path.join('assets', 'i18n')))) {
+            fileList.push(filePath);
+        }
+    });
+
+    return fileList;
+}
+
+/**
  * Main function
  */
 function main() {
-    const i18nDir = path.join(__dirname, '..', 'src', 'assets', 'i18n');
+    const srcDir = path.join(__dirname, '..', 'src');
+    const globalI18nDir = path.join(srcDir, 'assets', 'i18n');
+    const appDir = path.join(srcDir, 'app');
 
-    // Check if directory exists
-    if (!fs.existsSync(i18nDir)) {
-        console.error('❌ Directory not found:', i18nDir);
+    // Check if source directory exists
+    if (!fs.existsSync(srcDir)) {
+        console.error('❌ Source directory not found:', srcDir);
         process.exit(1);
     }
 
-    // Get all JSON files
-    const files = fs.readdirSync(i18nDir)
-        .filter(file => file.endsWith('.json'))
-        .map(file => path.join(i18nDir, file))
-        .sort();
+    // Get all translation files (global + module-specific)
+    const files = findTranslationFiles(srcDir).sort();
 
     if (files.length === 0) {
-        console.error('❌ No translation files found in', i18nDir);
+        console.error('❌ No translation files found in', srcDir);
         process.exit(1);
     }
 
-    console.log('🔍 Linting translation keys for UPPER_SNAKE_CASE format...\n');
+    console.log('🔍 Linting translation keys for UPPER_SNAKE_CASE format...');
+    console.log(`📁 Found ${files.length} translation file(s)\n`);
 
     // Lint all files
     const results = files.map(lintFile);
     let totalErrors = 0;
 
     results.forEach(result => {
-        const fileName = path.basename(result.filePath);
-        console.log(`Checking ${fileName}...`);
+        const relativePath = path.relative(srcDir, result.filePath);
+        console.log(`Checking ${relativePath}...`);
 
         if (result.errors.length === 0) {
             console.log('  ✅ All keys are valid UPPER_SNAKE_CASE');
@@ -110,8 +156,8 @@ function main() {
 
         results.forEach(result => {
             if (result.errors.length > 0) {
-                const fileName = path.basename(result.filePath);
-                console.log(`${fileName}:`);
+                const relativePath = path.relative(srcDir, result.filePath);
+                console.log(`${relativePath}:`);
                 result.errors.forEach(error => {
                     console.log(`  ❌ ${error.path}: '${error.key}' is not UPPER_SNAKE_CASE`);
                 });
