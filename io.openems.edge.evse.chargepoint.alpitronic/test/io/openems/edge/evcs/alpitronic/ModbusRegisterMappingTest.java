@@ -24,8 +24,6 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testStationLevelRegisters() throws Exception {
-		System.out.println("\n=== Testing Station-Level Registers ===");
-		System.out.println("Creating component with SLOT_0 configuration...");
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -39,21 +37,6 @@ public class ModbusRegisterMappingTest {
 						.setMaxHwPower(150_000) //
 						.setMinHwPower(5_000) //
 						.build());
-
-		System.out.println("Component activated successfully");
-
-		// Verify station-level channels exist
-		System.out.println("\nVerifying station-level channels:");
-		System.out.println(
-				"  UNIX_TIME: " + (component.channel(EvcsAlpitronic.ChannelId.UNIX_TIME) != null ? "OK" : "MISSING"));
-		System.out.println("  NUM_CONNECTORS: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.NUM_CONNECTORS) != null ? "OK" : "MISSING"));
-		System.out.println("  STATION_STATE: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.STATION_STATE) != null ? "OK" : "MISSING"));
-		System.out.println("  TOTAL_STATION_POWER: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.TOTAL_STATION_POWER) != null ? "OK" : "MISSING"));
-		System.out.println("  LOAD_MANAGEMENT_ENABLED: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.LOAD_MANAGEMENT_ENABLED) != null ? "OK" : "MISSING"));
 
 		assertNotNull("Unix time channel should exist", component.channel(EvcsAlpitronic.ChannelId.UNIX_TIME));
 		assertNotNull("Number of connectors channel should exist",
@@ -64,7 +47,6 @@ public class ModbusRegisterMappingTest {
 		assertNotNull("Load management enabled channel should exist",
 				component.channel(EvcsAlpitronic.ChannelId.LOAD_MANAGEMENT_ENABLED));
 
-		System.out.println("\n=== Station-Level Registers Test Complete ===\n");
 	}
 
 	/**
@@ -72,8 +54,6 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testVersionDetectionChannels() throws Exception {
-		System.out.println("\n=== Testing Version Detection Channels ===");
-		System.out.println("Creating component...");
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -88,17 +68,6 @@ public class ModbusRegisterMappingTest {
 						.setMinHwPower(5_000) //
 						.build());
 
-		System.out.println("Component activated successfully");
-
-		// Verify version channels exist
-		System.out.println("\nVerifying version detection channels:");
-		System.out.println("  SOFTWARE_VERSION_MAJOR: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MAJOR) != null ? "OK" : "MISSING"));
-		System.out.println("  SOFTWARE_VERSION_MINOR: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MINOR) != null ? "OK" : "MISSING"));
-		System.out.println("  SOFTWARE_VERSION_PATCH: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_PATCH) != null ? "OK" : "MISSING"));
-
 		assertNotNull("Software version major channel should exist",
 				component.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_MAJOR));
 		assertNotNull("Software version minor channel should exist",
@@ -106,7 +75,6 @@ public class ModbusRegisterMappingTest {
 		assertNotNull("Software version patch channel should exist",
 				component.channel(EvcsAlpitronic.ChannelId.SOFTWARE_VERSION_PATCH));
 
-		System.out.println("\n=== Version Detection Channels Test Complete ===\n");
 	}
 
 	/**
@@ -114,29 +82,22 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testConnectorSpecificRegisters() throws Exception {
-		System.out.println("\n=== Testing Connector-Specific Registers ===");
 
 		// Test SLOT_0 (offset 100)
-		System.out.println("\n--- Testing SLOT_0 (expected offset: 100) ---");
 		this.testConnectorOffset(Connector.SLOT_0, 100);
 
 		// Test SLOT_1 (offset 200)
-		System.out.println("\n--- Testing SLOT_1 (expected offset: 200) ---");
 		this.testConnectorOffset(Connector.SLOT_1, 200);
 
 		// Test SLOT_2 (offset 300)
-		System.out.println("\n--- Testing SLOT_2 (expected offset: 300) ---");
 		this.testConnectorOffset(Connector.SLOT_2, 300);
 
 		// Test SLOT_3 (offset 400)
-		System.out.println("\n--- Testing SLOT_3 (expected offset: 400) ---");
 		this.testConnectorOffset(Connector.SLOT_3, 400);
 
-		System.out.println("\n=== Connector-Specific Registers Test Complete ===\n");
 	}
 
 	private void testConnectorOffset(Connector connector, int expectedOffset) throws Exception {
-		System.out.println("Creating component with connector: " + connector.name());
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -151,38 +112,8 @@ public class ModbusRegisterMappingTest {
 						.setMinHwPower(5_000) //
 						.build());
 
-		System.out.println("Component activated");
-
 		// Verify connector offset is applied correctly
-		System.out.println("Verifying offset: expected=" + expectedOffset + ", actual=" + connector.modbusOffset);
 		assertEquals("Connector offset should match", expectedOffset, connector.modbusOffset);
-
-		// Verify connector-specific channels exist
-		System.out.println("Verifying connector-specific channels:");
-		System.out.println(
-				"  RAW_STATUS: " + (component.channel(EvcsAlpitronic.ChannelId.RAW_STATUS) != null ? "OK" : "MISSING"));
-		System.out.println("  CHARGING_VOLTAGE: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE) != null ? "OK" : "MISSING"));
-		System.out.println("  CHARGING_CURRENT: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.CHARGING_CURRENT) != null ? "OK" : "MISSING"));
-		System.out.println("  RAW_CHARGE_POWER: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.RAW_CHARGE_POWER) != null ? "OK" : "MISSING"));
-		System.out.println("  CHARGED_TIME: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.CHARGED_TIME) != null ? "OK" : "MISSING"));
-		System.out.println("  CHARGED_ENERGY: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.CHARGED_ENERGY) != null ? "OK" : "MISSING"));
-		System.out.println(
-				"  EV_SOC: " + (component.channel(EvcsAlpitronic.ChannelId.EV_SOC) != null ? "OK" : "MISSING"));
-		System.out.println("  CONNECTOR_TYPE: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.CONNECTOR_TYPE) != null ? "OK" : "MISSING"));
-		System.out.println("  EV_MAX_CHARGING_POWER: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.EV_MAX_CHARGING_POWER) != null ? "OK" : "MISSING"));
-		System.out.println("  EV_MIN_CHARGING_POWER: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.EV_MIN_CHARGING_POWER) != null ? "OK" : "MISSING"));
-		System.out.println("  VAR_REACTIVE_MAX: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX) != null ? "OK" : "MISSING"));
-		System.out.println("  VAR_REACTIVE_MIN: "
-				+ (component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN) != null ? "OK" : "MISSING"));
 
 		assertNotNull("RAW_STATUS channel should exist", component.channel(EvcsAlpitronic.ChannelId.RAW_STATUS));
 		assertNotNull("CHARGING_VOLTAGE channel should exist",
@@ -206,7 +137,6 @@ public class ModbusRegisterMappingTest {
 		assertNotNull("VAR_REACTIVE_MIN channel should exist",
 				component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN));
 
-		System.out.println("All channels verified for " + connector.name());
 	}
 
 	/**
@@ -218,8 +148,6 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testStationLevelVarRegisters() throws Exception {
-		System.out.println("\n=== Testing Station-Level VAR Registers (49-52) ===");
-		System.out.println("Creating component with SLOT_0 configuration...");
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -234,21 +162,11 @@ public class ModbusRegisterMappingTest {
 						.setMinHwPower(5_000) //
 						.build());
 
-		System.out.println("Component activated successfully");
-
-		// Verify Station-Level VAR channels exist (Register 49-52)
-		System.out.println("\nVerifying Station-Level VAR registers (49-52):");
-		System.out.println("  VAR_REACTIVE_MAX (Register 49-50): "
-				+ (component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX) != null ? "OK" : "MISSING"));
-		System.out.println("  VAR_REACTIVE_MIN (Register 51-52): "
-				+ (component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN) != null ? "OK" : "MISSING"));
-
 		assertNotNull("Station-Level VAR_REACTIVE_MAX channel should exist (Register 49-50)",
 				component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MAX));
 		assertNotNull("Station-Level VAR_REACTIVE_MIN channel should exist (Register 51-52)",
 				component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN));
 
-		System.out.println("\n=== Station-Level VAR Registers Test Complete ===\n");
 	}
 
 	/**
@@ -265,8 +183,6 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testNewRegistersForVersion25() throws Exception {
-		System.out.println("\n=== Testing New Registers for Version 2.5.x ===");
-		System.out.println("Creating component with SLOT_0 configuration...");
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -281,21 +197,11 @@ public class ModbusRegisterMappingTest {
 						.setMinHwPower(5_000) //
 						.build());
 
-		System.out.println("Component activated successfully");
-
-		// Verify new channels for version 2.5.x exist
-		System.out.println("\nVerifying v2.3+ connector registers:");
-		System.out.println("  TOTAL_CHARGED_ENERGY (Register X32-X35, added in v2.3): "
-				+ (component.channel(EvcsAlpitronic.ChannelId.TOTAL_CHARGED_ENERGY) != null ? "OK" : "MISSING"));
-		System.out.println("  MAX_CHARGING_POWER_AC (Register X36-X37, added in v2.4): "
-				+ (component.channel(EvcsAlpitronic.ChannelId.MAX_CHARGING_POWER_AC) != null ? "OK" : "MISSING"));
-
 		assertNotNull("Total charged energy channel should exist (added in v2.3)",
 				component.channel(EvcsAlpitronic.ChannelId.TOTAL_CHARGED_ENERGY));
 		assertNotNull("Max charging power AC channel should exist (added in v2.4)",
 				component.channel(EvcsAlpitronic.ChannelId.MAX_CHARGING_POWER_AC));
 
-		System.out.println("\n=== New Registers for Version 2.5.x Test Complete ===\n");
 	}
 
 	/**
@@ -307,8 +213,6 @@ public class ModbusRegisterMappingTest {
 	 */
 	@Test
 	public void testCompleteV25RegisterMapping() throws Exception {
-		System.out.println("\n=== Testing Complete v2.5 Register Mapping ===");
-		System.out.println("Creating component with SLOT_0 configuration...");
 
 		var component = new EvcsAlpitronicImpl();
 		new ComponentTest(component) //
@@ -323,13 +227,9 @@ public class ModbusRegisterMappingTest {
 						.setMinHwPower(5_000) //
 						.build());
 
-		System.out.println("Component activated successfully");
-
 		// Verify ALL v2.5 registers are present
-		System.out.println("\nVerifying COMPLETE v2.5 register set:");
 
 		// Station-Level Input Registers (0-52)
-		System.out.println("\n1. Station-Level Input Registers (0-52):");
 		assertNotNull("Register 0-1: UNIX_TIME", component.channel(EvcsAlpitronic.ChannelId.UNIX_TIME));
 		assertNotNull("Register 2: NUM_CONNECTORS", component.channel(EvcsAlpitronic.ChannelId.NUM_CONNECTORS));
 		assertNotNull("Register 3: STATION_STATE", component.channel(EvcsAlpitronic.ChannelId.STATION_STATE));
@@ -351,7 +251,6 @@ public class ModbusRegisterMappingTest {
 				component.channel(EvcsAlpitronic.ChannelId.VAR_REACTIVE_MIN));
 
 		// Connector-Level Input Registers (100-137)
-		System.out.println("\n2. Connector-Level Input Registers (100-137):");
 		assertNotNull("Register X00: RAW_STATUS", component.channel(EvcsAlpitronic.ChannelId.RAW_STATUS));
 		assertNotNull("Register X01-X02: CHARGING_VOLTAGE",
 				component.channel(EvcsAlpitronic.ChannelId.CHARGING_VOLTAGE));
@@ -374,13 +273,10 @@ public class ModbusRegisterMappingTest {
 				component.channel(EvcsAlpitronic.ChannelId.MAX_CHARGING_POWER_AC));
 
 		// Holding Registers (Write)
-		System.out.println("\n3. Holding Registers (Write):");
 		assertNotNull("Register 0-1: APPLY_CHARGE_POWER_LIMIT",
 				component.channel(EvcsAlpitronic.ChannelId.APPLY_CHARGE_POWER_LIMIT));
 		assertNotNull("Register 2-3: SETPOINT_REACTIVE_POWER",
 				component.channel(EvcsAlpitronic.ChannelId.SETPOINT_REACTIVE_POWER));
 
-		System.out.println("\n✅ ALL v2.5 registers are correctly implemented!");
-		System.out.println("\n=== Complete v2.5 Register Mapping Test Complete ===\n");
 	}
 }
