@@ -4,7 +4,6 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
-import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(//
 		name = "EVCS Alpitronic Hypercharger", //
@@ -34,9 +33,6 @@ import io.openems.edge.meter.api.PhaseRotation;
 
 	@AttributeDefinition(name = "Maximum hardware power", description = "Maximum charging power of the Charger in W.", required = true)
 	int maxHwPower() default 75000;
-	
-	@AttributeDefinition(name = "Phase rotation", description = "The way in which the phases are physically rotated.")
-	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;

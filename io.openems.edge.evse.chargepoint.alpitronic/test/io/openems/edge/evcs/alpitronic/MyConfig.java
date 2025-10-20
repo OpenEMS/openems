@@ -112,9 +112,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public Connector connector() {
 		return this.builder.connector;
 	}
-
-	@Override
-	public PhaseRotation phaseRotation() {
-		return this.builder.phaseRotation;
-	}
 }

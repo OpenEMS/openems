@@ -59,7 +59,6 @@ import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evse.chargepoint.alpitronic.common.Alpitronic;
 import io.openems.edge.evse.chargepoint.alpitronic.enums.AvailableState;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -87,9 +86,6 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 	private Integer versionMajor = null;
 	private Integer versionMinor = null;
 	private Integer versionPatch = null;
-
-	/** Phase rotation configuration. */
-	private PhaseRotation phaseRotation;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -177,7 +173,6 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 		this._setFixedMaximumHardwarePower(config.maxHwPower());
 		this._setPowerPrecision(1);
 		this._setPhases(3);
-		this.phaseRotation = config.phaseRotation();
 	}
 
 	@Override
@@ -189,11 +184,6 @@ public class EvcsAlpitronicImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
-	}
-
-	@Override
-	public PhaseRotation getPhaseRotation() {
-		return this.phaseRotation;
 	}
 
 	@Override

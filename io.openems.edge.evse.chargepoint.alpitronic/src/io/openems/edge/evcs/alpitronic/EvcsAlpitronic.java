@@ -33,141 +33,112 @@ public interface EvcsAlpitronic extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		/**
-		 * Unix time from charging station.
-		 */
 		UNIX_TIME(Doc.of(LONG)//
-				.unit(SECONDS)),
+				.unit(SECONDS)//
+				.text("Unix time from charging station")),
 
-		/**
-		 * Number of physical connectors.
-		 */
-		NUM_CONNECTORS(Doc.of(INTEGER)),
+		NUM_CONNECTORS(Doc.of(INTEGER)//
+				.text("Number of physical connectors")),
 
-		/**
-		 * State of the charging station (0=Available, 8=Unavailable, 10=Faulted).
-		 */
-		STATION_STATE(Doc.of(INTEGER)),
+		STATION_STATE(Doc.of(INTEGER)//
+				.text("State of the charging station (0=Available, 8=Unavailable, 10=Faulted)")),
 
-		/**
-		 * Total power drained from the grid by all connectors.
-		 */
 		TOTAL_STATION_POWER(Doc.of(INTEGER)//
-				.unit(WATT)),
+				.unit(WATT)//
+				.text("Total power drained from the grid by all connectors")),
 
-		/**
-		 * Charging station serial number.
-		 */
-		SERIAL_NUMBER(Doc.of(STRING)),
+		SERIAL_NUMBER(Doc.of(STRING)//
+				.text("Charging station serial number")),
 
-		/**
-		 * OCPP ChargepointId (32 character null-terminated string).
-		 */
-		CHARGEPOINT_ID(Doc.of(STRING)),
+		CHARGEPOINT_ID(Doc.of(STRING)//
+				.text("OCPP ChargepointId (32 character null-terminated string)")),
 
-		/**
-		 * Vehicle ID (8 bytes).
-		 */
-		VID(Doc.of(STRING)),
+		VID(Doc.of(STRING)//
+				.text("Vehicle ID (8 bytes)")),
 
-		/**
-		 * OCPP idTag (20 character null-terminated string).
-		 */
-		ID_TAG(Doc.of(STRING)),
+		ID_TAG(Doc.of(STRING)//
+				.text("OCPP idTag (20 character null-terminated string)")),
 
-		/**
-		 * Whether external load management controller has control.
-		 */
-		LOAD_MANAGEMENT_ENABLED(Doc.of(BOOLEAN)),
+		LOAD_MANAGEMENT_ENABLED(Doc.of(BOOLEAN)//
+				.text("Whether external load management controller has control")),
 
-		/**
-		 * Software version major.
-		 */
-		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)),
+		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)//
+				.text("Software version major")),
 
-		/**
-		 * Software version minor.
-		 */
-		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)),
+		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)//
+				.text("Software version minor")),
 
-		/**
-		 * Software version patch.
-		 */
-		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)),
+		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)//
+				.text("Software version patch")),
 
-		/**
-		 * General status message applied to the entire charger.
-		 */
-		RAW_STATUS(Doc.of(AvailableState.values())),
+		RAW_STATUS(Doc.of(AvailableState.values())//
+				.text("General status message applied to the entire charger")),
 
-		/**
-		 * Apply charge power limit.
-		 * 
-		 * <p>
-		 * WriteChannel for the modbus register to apply the charge power given by the
-		 * applyChargePowerLimit method
-		 */
 		APPLY_CHARGE_POWER_LIMIT(Doc.of(INTEGER)//
 				.unit(WATT)//
+				.text("Apply charge power limit")//
 				.accessMode(AccessMode.READ_WRITE)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		CHARGING_VOLTAGE(Doc.of(DOUBLE)//
-				.unit(VOLT)),
+				.unit(VOLT)//
+				.text("Charging voltage")),
 
 		CHARGING_CURRENT(Doc.of(DOUBLE)//
-				.unit(AMPERE)),
+				.unit(AMPERE)//
+				.text("Charging current")),
 
 		RAW_CHARGE_POWER(Doc.of(INTEGER)//
-				.unit(WATT)),
+				.unit(WATT)//
+				.text("Raw charge power")),
 
 		CHARGED_TIME(Doc.of(INTEGER)//
-				.unit(SECONDS)),
+				.unit(SECONDS)//
+				.text("Charged time")),
 
 		CHARGED_ENERGY(Doc.of(DOUBLE)//
-				.unit(KILOWATT_HOURS)),
+				.unit(KILOWATT_HOURS)//
+				.text("Charged energy")),
 
 		EV_SOC(Doc.of(INTEGER)//
-				.unit(PERCENT)),
+				.unit(PERCENT)//
+				.text("Electric vehicle state of charge")),
 
-		CONNECTOR_TYPE(Doc.of(SelectedConnector.values())),
+		CONNECTOR_TYPE(Doc.of(SelectedConnector.values())//
+				.text("Connector type")),
 
 		EV_MAX_CHARGING_POWER(Doc.of(INTEGER)//
-				.unit(WATT)),
+				.unit(WATT)//
+				.text("Electric vehicle maximum charging power")),
 
 		EV_MIN_CHARGING_POWER(Doc.of(INTEGER)//
-				.unit(WATT)),
+				.unit(WATT)//
+				.text("Electric vehicle minimum charging power")),
 
-		/**
-		 * Maximum possible inductive VAR, e. g. 1500 VAR
-		 */
 		VAR_REACTIVE_MAX(Doc.of(INTEGER)//
-				.unit(VOLT_AMPERE_REACTIVE)),
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.text("Maximum possible inductive VAR")),
 
-		/**
-		 * Maximum possible capacitive VAR, e. g. -1500 VAR
-		 */
 		VAR_REACTIVE_MIN(Doc.of(INTEGER)//
-				.unit(VOLT_AMPERE_REACTIVE)),
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.text("Maximum possible capacitive VAR")),
 
 		SETPOINT_REACTIVE_POWER(Doc.of(INTEGER)//
 				.unit(VOLT_AMPERE_REACTIVE)//
+				.text("Setpoint reactive power")//
 				.accessMode(AccessMode.WRITE_ONLY)),
 
 		RAW_CHARGE_POWER_SET(Doc.of(INTEGER)//
-				.unit(WATT)),
+				.unit(WATT)//
+				.text("Raw charge power set")),
 
-		/**
-		 * Total charged energy counter.
-		 */
 		TOTAL_CHARGED_ENERGY(Doc.of(LONG)//
-				.unit(WATT_HOURS)),
+				.unit(WATT_HOURS)//
+				.text("Total charged energy counter")),
 
-		/**
-		 * Maximum AC charging power per connector.
-		 */
 		MAX_CHARGING_POWER_AC(Doc.of(INTEGER)//
-				.unit(WATT));
+				.unit(WATT)//
+				.text("Maximum AC charging power per connector"));
 
 		private final Doc doc;
 
