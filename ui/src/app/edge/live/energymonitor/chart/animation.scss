@@ -1,0 +1,71 @@
+.grid-buy-show {
+    opacity: 0.4;
+    transform: translateX(0%);
+    transition: opacity 0ms, transform 0ms;
+}
+
+.grid-buy-hide {
+    opacity: 0.1;
+    transform: translateX(17%);
+    transition: opacity 650ms, transform 650ms;
+}
+
+.grid-sell-show {
+    opacity: 0.1;
+    transform: translateX(0%);
+    transition: opacity 0ms ease-in, transform 0ms ease-in;
+}
+
+.grid-sell-hide {
+    opacity: 0.4;
+    transform: translateX(-17%);
+    transition: opacity 650ms ease-out, transform 650ms ease-out;
+}
+
+.consumption-show {
+    opacity: 0.1;
+    transform: translateX(0%);
+    transition: opacity 0ms, transform 0ms;
+}
+
+.consumption-hide {
+    opacity: 0.4;
+    transform: translateX(17%);
+    transition: opacity 650ms, transform 650ms;
+}
+
+.production-show {
+    opacity: 0.4;
+    transform: translateY(0%);
+    transition: opacity 0ms ease-in, transform 0ms ease-in;
+}
+
+.production-hide {
+    opacity: 0.1;
+    transform: translateY(17%);
+    transition: opacity 650ms ease-out, transform 650ms ease-out;
+}
+
+.storage-discharge-show {
+    opacity: 0.4;
+    transform: translateY(0);
+    transition: opacity 0ms ease-in, transform 0ms ease-in;
+}
+
+.storage-discharge-hide {
+    opacity: 0.1;
+    transform: translateY(-17%);
+    transition: opacity 650ms ease-out, transform 650ms ease-out;
+}
+
+.storage-charge-show {
+    opacity: 0.1;
+    transform: translateY(0);
+    transition: opacity 0ms ease-out, transform 0ms ease-out;
+}
+
+.storage-charge-hide {
+    opacity: 0.4;
+    transform: translateY(17%);
+    transition: opacity 650ms ease-out, transform 650ms ease-out;
+}

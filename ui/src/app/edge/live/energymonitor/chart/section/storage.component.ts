@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
@@ -11,32 +10,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 @Component({
     selector: "[storagesection]",
     templateUrl: "./storage.component.html",
-    animations: [
-        trigger("Discharge", [
-            state("show", style({
-                opacity: 0.4,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.1,
-                transform: "translateY(-17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-        trigger("Charge", [
-            state("show", style({
-                opacity: 0.1,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.4,
-                transform: "translateY(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-out")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
@@ -74,6 +48,14 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
 
     ngOnDestroy() {
         clearInterval(this.startAnimation);
+    }
+
+    getChargeAnimationClass(): string {
+        return this.showChargeAnimation ? "storage-charge-show" : "storage-charge-hide";
+    }
+
+    getDischargeAnimationClass(): string {
+        return this.showDischargeAnimation ? "storage-discharge-show" : "storage-discharge-hide";
     }
 
     toggleCharge() {

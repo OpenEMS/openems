@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
@@ -10,20 +9,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 @Component({
     selector: "[productionsection]",
     templateUrl: "./production.component.html",
-    animations: [
-        trigger("Production", [
-            state("show", style({
-                opacity: 0.4,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.1,
-                transform: "translateY(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
@@ -53,6 +39,10 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
 
     ngOnDestroy() {
         clearInterval(this.startAnimation);
+    }
+
+    getAnimationClass(): string {
+        return this.showAnimation ? "production-show" : "production-hide";
     }
 
     toggleAnimation() {

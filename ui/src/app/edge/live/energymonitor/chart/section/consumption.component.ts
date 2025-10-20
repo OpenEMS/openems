@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
@@ -10,20 +9,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 @Component({
     selector: "[consumptionsection]",
     templateUrl: "./consumption.component.html",
-    animations: [
-        trigger("Consumption", [
-            state("show", style({
-                opacity: 0.1,
-                transform: "translateX(0%)",
-            })),
-            state("hide", style({
-                opacity: 0.6,
-                transform: "translateX(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
@@ -49,6 +35,10 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+    }
+
+    getAnimationClass(): string {
+        return this.showAnimation ? "consumption-show" : "consumption-hide";
     }
 
     toggleAnimation() {

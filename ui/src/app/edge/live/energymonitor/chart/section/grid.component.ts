@@ -1,5 +1,4 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
@@ -11,32 +10,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
 @Component({
     selector: "[gridsection]",
     templateUrl: "./grid.component.html",
-    animations: [
-        trigger("GridBuy", [
-            state("show", style({
-                opacity: 0.4,
-                transform: "translateX(0%)",
-            })),
-            state("hide", style({
-                opacity: 0.1,
-                transform: "translateX(17%)",
-            })),
-            transition("show => hide", animate("650ms")),
-            transition("hide => show", animate("0ms")),
-        ]),
-        trigger("GridSell", [
-            state("show", style({
-                opacity: 0.1,
-                transform: "translateX(0%)",
-            })),
-            state("hide", style({
-                opacity: 0.4,
-                transform: "translateX(-17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class GridSectionComponent extends AbstractSection implements OnInit, OnDestroy {
@@ -101,6 +75,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     ngOnDestroy() {
         clearInterval(this.startAnimation);
+    }
+
+    getBuyAnimationClass(): string {
+        return this.showBuyAnimation ? "grid-buy-show" : "grid-buy-hide";
+    }
+
+    getSellAnimationClass(): string {
+        return this.showSellAnimation ? "grid-sell-show" : "grid-sell-hide";
     }
 
     toggleBuyAnimation() {
