@@ -23,13 +23,13 @@ jobs:
       - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Checkstyle
-        run: ./gradlew checkstyleAll --console=plain --warn
+        run: ./gradlew checkstyleAll --console=colored --warn
 
       - name: Build all Java packages
-        run: ./gradlew build --console=plain --warn
+        run: ./gradlew build --console=colored --warn
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve --console=plain --warn
+        run: ./gradlew resolve --console=colored --warn
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
