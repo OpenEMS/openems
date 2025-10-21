@@ -60,7 +60,7 @@ import io.openems.edge.victron.enums.SymmetricAsymmetricMode;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 public class VictronEssImpl extends AbstractOpenemsModbusComponent implements VictronEss, ManagedSinglePhaseEss,
@@ -173,7 +173,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		if (this.singlePhase != null) {
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
-			AsymmetricEss.initializePowerSumChannels(this);			
+			AsymmetricEss.initializePowerSumChannels(this);
 		}
 		this._setGridMode(GridMode.ON_GRID);
 
@@ -186,7 +186,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.logError(this.log, "ESS->Battery not yet activated ");
 			return;
 		}
-
 
 	}
 
@@ -781,7 +780,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.calculateEnergy();
 			if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
 				try {
-					this.pushAsymmetricLimitsToPower(); // <<< hier!
+					this.pushAsymmetricLimitsToPower(); //
 				} catch (OpenemsNamedException e) {
 					this.logWarn(this.log, "Push limits failed: " + e.getMessage());
 				}
@@ -826,12 +825,10 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		// Capacity Channel is also needed for ESS
 		if (this.battery != null) {
 			this._setCapacity(this.battery.getCapacity().get());
-			// this._setUseableCapacity(this.battery.getUseableCapacity().get());
 		}
 
-		var dcPower = this.batteryInverter.getActivePower().get();
-		if (dcPower != null) {
-			this._setDcDischargePower(dcPower);
+		if (this.batteryInverter != null) {
+			this._setDcDischargePower(this.batteryInverter.getActivePower().get());
 		}
 
 		this._setDcDischargeEnergy(this.battery.getDcDischargeEnergy().get());
@@ -866,12 +863,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 								ElementToChannelConverter.SCALE_FACTOR_2),
 
 						// Frequencies AC In
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L1, new UnsignedWordElement(9),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L2, new UnsignedWordElement(10),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L3, new UnsignedWordElement(11),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L1, new SignedWordElement(9),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L2, new SignedWordElement(10),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L3, new SignedWordElement(11),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 
 						// Power AC In
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_INPUT_L1, new SignedWordElement(12),
@@ -899,7 +896,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 						// Output Frequency
 						this.m(VictronEss.ChannelId.FREQUENCY_OUTPUT, new SignedWordElement(21),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 
 						this.m(VictronEss.ChannelId.CURRENT_INPUT_LIMIT, new SignedWordElement(22),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
@@ -938,8 +935,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						// ESS Power Setpoints
 						this.m(VictronEss.ChannelId.ESS_POWER_SETPOINT_PHASE_1, new SignedWordElement(37)),
 
-						this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-						this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
+						this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new UnsignedWordElement(38)),
+						this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new UnsignedWordElement(39)),
 
 						this.m(VictronEss.ChannelId.ESS_POWER_SETPOINT_PHASE_2, new SignedWordElement(40)),
 						this.m(VictronEss.ChannelId.ESS_POWER_SETPOINT_PHASE_3, new SignedWordElement(41)),
@@ -1025,12 +1022,18 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.SELECT_REMOTE_GENERATOR, new UnsignedWordElement(103)),
 						this.m(VictronEss.ChannelId.REMOTE_GENERATOR_SELECTED, new UnsignedWordElement(104))),
 
-				new FC16WriteRegistersTask(37, //
-						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-						this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-						this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
-						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
-						this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
+				(this.singlePhase != null) // Do not write L2/L3 values in 1p
+						? new FC16WriteRegistersTask(37,
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)))
+
+						: new FC16WriteRegistersTask(37,
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
 
 		);
 	}
