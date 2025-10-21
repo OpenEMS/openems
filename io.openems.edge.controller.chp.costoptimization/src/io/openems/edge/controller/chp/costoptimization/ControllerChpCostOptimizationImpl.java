@@ -160,6 +160,19 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			}
 			this.chp.applyPreparation(false);
 			break;
+		case IDLE:
+			if (!checkOperationalValues()) {
+				this.changeState(State.ERROR);
+				break;
+
+			}
+			
+			// ToDo: add channels over uner-, over- 
+			// activate controller if power from grid is below configured value 
+			if (this.gridMeter.getActivePower().get()  > this.config.minGridPower() && this.chp.getAverageBufferTankTemperature().get() < this.config.maxBufferTankTemperature()) {
+				this.changeState(State.NORMAL); 
+			}
+			break;			
 		case NORMAL:
 
 			if (this.config.mode() == Mode.MANUAL_ON) {
@@ -181,6 +194,33 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 				break;
 
 			}
+
+			// check power
+			if (this.gridMeter.getActivePower().get()  < this.config.minGridPower()) {
+				this.changeState(State.IDLE); 
+				break;
+			}
+			
+			
+			// check buffer tank temperature
+			if (this.chp.getAverageBufferTankTemperature().get() < this.config.minBufferTankTemperature()) {
+				// start chp
+				this.changeState(State.CHP_ACTIVE);
+
+				// Start Timer
+				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+				break;
+			}
+
+			// Overtemperature. Do not start
+			// check buffer tank temperature MAX
+			if (this.chp.getAverageBufferTankTemperature().get() > this.config.maxBufferTankTemperature()) {
+				// do NOT start chp
+				this.changeState(State.IDLE);
+
+				break;
+			}			
+			
 
 			if (futureEnergyCostsWithoutChp > this.config.maxCost()) {
 				this.changeState(State.CHP_PREPARING);
@@ -312,7 +352,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 					this.chp.applyPower(this.applyPowerTarget);
 					this.changeState(State.CHP_INACTIVE);
 					// Start Timer
-					this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
+					this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock()); // wait until next start
 					this._setAwaitingStartHysteresis(false);
 				}
 			}

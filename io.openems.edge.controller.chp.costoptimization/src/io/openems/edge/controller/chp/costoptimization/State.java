@@ -10,6 +10,7 @@ public enum State implements OptionsEnum {
 	CHP_ACTIVE(2, "CHP activated"),
 	CHP_INACTIVE(3, "CHP stopped"),
 	CHP_PREPARING(4, "CHP preparing"),
+	IDLE(5, "Idle state e.g. power from grid too low"),
 	
 	;
 

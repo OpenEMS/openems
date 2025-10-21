@@ -22,6 +22,10 @@ public interface SymmetricGenerator extends   OpenemsComponent {
 		GENERATOR_HEAT_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
+		
+		BUFFER_TANK_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.DEZIDEGREE_CELSIUS) //
+				.persistencePriority(PersistencePriority.MEDIUM)), //		
 	
 		;
 
@@ -36,6 +40,30 @@ public interface SymmetricGenerator extends   OpenemsComponent {
 			return this.doc;
 		}
 	}
+	
+	//
+	public default IntegerReadChannel getAverageBufferTankTemperatureChannel() {
+		return this.channel(ChannelId.BUFFER_TANK_TEMPERATURE);
+	}
+
+	/**
+	 * Gets the Active Power  in [W]. See {@link ChannelId#ACTIVE_POWER_}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAverageBufferTankTemperature() {
+		return this.getAverageBufferTankTemperatureChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_POWER_} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAverageBufferTankTemperature(Integer value) {
+		this.getAverageBufferTankTemperatureChannel().setNextValue(value);
+	}	
 
 
 	//

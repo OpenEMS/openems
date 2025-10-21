@@ -99,6 +99,24 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return 0;
 	}
 
+	@Override
+	public int minBufferTankTemperature() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int maxBufferTankTemperature() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int minGridPower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 
 

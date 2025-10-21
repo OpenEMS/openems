@@ -2,6 +2,7 @@ package io.openems.edge.chp.ecpower.manager;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -157,6 +158,7 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 			//this._setActivePower(this.xrgiRo.getActivePower().get());
 			//this.applyPower(19000);
 			this.updateGeneratorPowerSum();
+			this.updateBufferTankTemperature();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.checkState();
@@ -238,6 +240,22 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
                 .mapToInt(ro -> ro.getActivePower().orElse(0))
                 .sum();
         this._setGeneratorActivePower(total);
+    }
+    
+    public void updateBufferTankTemperature() {
+    	// get average temperature over all CHPs
+    	int avgRounded = (int) Math.round(
+    		    xrgiRos.values().stream()
+    		        .map(XrgiRo.class::cast)
+    		        .map(ro -> ro.getBufferTankTemperature().asOptional())
+    		        .flatMap(Optional::stream)
+    		        .mapToInt(Integer::intValue)
+    		        .average()
+    		        .orElse(0.0)
+    		);
+
+    	this._setAverageBufferTankTemperature(avgRounded);
+
     }
 
     // Exponiert den Summen-Channel als Value<Integer>

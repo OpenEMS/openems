@@ -37,7 +37,16 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Preparation Hysteresis [s]", description = "Before CHP is started heating system might need to be prepared, i.e. shut down other heating systems to lower temperatures. \n In order to do that future energy costs are calculated")
 	int preparationHyteresis() default 3600;
+	
+	@AttributeDefinition(name = "Min. buffer tank temperature [°C]", description = "Minimum buffer tank temperature before chp(s) will be started")
+	int minBufferTankTemperature() default 60;
+	
+	@AttributeDefinition(name = "Max. buffer tank temperature [°C]", description = "Maximum buffer tank temperature before chp(s) will be stopped")
+	int maxBufferTankTemperature() default 75;	
 
+	@AttributeDefinition(name = "Min. grid power", description = "Min. power from grid to activate this controller")
+	int minGridPower() default 40000;		
+	
 	@AttributeDefinition(name = "Grid meter ID", description = "Id of grid meter")
 	String meter_id() default "meter0";
 
