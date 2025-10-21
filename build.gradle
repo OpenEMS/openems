@@ -63,13 +63,18 @@ subprojects {
 			afterSuite { desc, result ->
 				if (!desc.parent) {
 					def shortName = path.takeRight(36)
-					def padded = String.format("%36s", shortName) 
-					def icon = switch(result.resultType) {
-						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
-						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
-						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ"
-						default -> ""
-					}
+					def padded = String.format("%36s", shortName)
+                    def icon
+                    switch (result.resultType) {
+                        case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS:
+                            icon = "✅"; break
+                        case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE:
+                            icon = "❌"; break
+                        case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED:
+                            icon = "ℹ"; break
+                        default:
+                            icon = ""
+                    }
 					println "> [${padded}] Test summary: ${result.resultType} ${icon} " +
 							"(${result.testCount} tests, " +
 							"${result.successfulTestCount} passed, " +
