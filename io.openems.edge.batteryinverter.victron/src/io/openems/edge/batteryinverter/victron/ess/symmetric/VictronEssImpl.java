@@ -215,7 +215,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		// check if null -> 3p. Cannot be done in switch-statement
 		if (this.singlePhase == null) { // 3p system
-			this.logDebug(this.log, "\n Asymm. Single Phase -> allowed Power calculation. Phase: ALL Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
+			this.logDebug(this.log,
+					"\n Asymm. ALL Phase -> allowed Power calculation. Phase: ALL Max. ChargePower/DischargePower: "
+							+ maxChargePower + "/" + maxDischargePower);
 			int perPhaseCharge = Math.max(0, maxChargePower / 3);
 			int perPhaseDischarge = Math.max(0, maxDischargePower / 3);
 
@@ -229,9 +231,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.setSetActivePowerL3LessOrEquals(perPhaseDischarge);
 		} else {
 
-			this.logDebug(this.log, "\n Asymm. Single Phase -> allowed Power calculation. Phase: " + this.singlePhase.toString() + "Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
+			this.logDebug(this.log,
+					"\n Asymm. Single Phase -> allowed Power calculation. Phase: " + this.singlePhase.toString()
+							+ "Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
 			switch (this.singlePhase) { // 1p
-			
+
 			case L1:
 				this.setSetActivePowerL1GreaterOrEquals(maxChargePower * -1);
 				this.setSetActivePowerL1LessOrEquals(maxDischargePower);
@@ -697,9 +701,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						+ acCurrentOutputL1 + "mA/" + acCurrentOutputL2 + "mA/" + acCurrentOutputL3 + "mA"
 
 						+ "\n Applied values for Active Power" + this.getActivePower().asString() + "/"
-						+ this.getApparentPower().asString()
+								
+						+ this.getApparentPower().asString() 
 
 		);
+		
+		this.logPublishedLimits();
 
 	}
 
@@ -774,7 +781,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this._setMyActivePower();
-			// this.calculateEnergy();
+			if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
+				try {
+					this.pushAsymmetricLimitsToPower(); //
+				} catch (OpenemsNamedException e) {
+					this.logWarn(this.log, "Push limits failed: " + e.getMessage());
+				}
+			}
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this._setMyActivePower();
@@ -785,9 +798,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				} catch (OpenemsNamedException e) {
 					this.logWarn(this.log, "Push limits failed: " + e.getMessage());
 				}
-				break;
-			}
 
+			}
+			break;
 		}
 
 	}
@@ -1081,5 +1094,25 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this.battery = null;
 
 	}
+	
+	private void logPublishedLimits() {
+		  if (!this.config.debugMode()) return;
+		  var l1min = this.getSetActivePowerL1GreaterOrEqualsChannel().getNextValue().get();
+		  var l1max = this.getSetActivePowerL1LessOrEqualsChannel().getNextValue().get();
+		  var l2min = this.getSetActivePowerL2GreaterOrEqualsChannel().getNextValue().get();
+		  var l2max = this.getSetActivePowerL2LessOrEqualsChannel().getNextValue().get();
+		  var l3min = this.getSetActivePowerL3GreaterOrEqualsChannel().getNextValue().get();
+		  var l3max = this.getSetActivePowerL3LessOrEqualsChannel().getNextValue().get();
+
+		  this.logInfo(this.log,
+		    String.format("ESS limits | ready=%s | mode=%s | phase=%s | " +
+		      "L1=[%s..%s]W L2=[%s..%s]W L3=[%s..%s]W | " +
+		      "Wmax=%sVA | MaxCha=%sW MaxDis=%sW",
+		       this.singlePhase == null ? "ALL" : this.singlePhase,
+		      l1min, l1max, l2min, l2max, l3min, l3max,
+		      this.getMaxApparentPower().orElse(null),
+		      this.MaxChargePower, this.MaxDischargePower));
+		}
+
 
 }
