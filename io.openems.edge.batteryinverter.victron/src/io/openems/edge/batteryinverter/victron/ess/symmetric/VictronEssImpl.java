@@ -38,6 +38,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -103,6 +104,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	private Config config;
 	public SinglePhase singlePhase = null;
 
+	private boolean writeThreePhases; // true = L1+L2+L3 schreiben; false = nur L1	
+	
 	private Integer MaxChargePower = null;
 	private Integer MaxDischargePower = null;
 
@@ -144,6 +147,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 
 		this.config = config;
+		
+	    boolean isSymmetric = config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.SYMMETRIC;
+	    boolean isAllPhase  = config.phase() == SingleOrAllPhase.ALL;		
+	    
+	    this.writeThreePhases = isSymmetric || isAllPhase;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -1036,18 +1044,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.SELECT_REMOTE_GENERATOR, new UnsignedWordElement(103)),
 						this.m(VictronEss.ChannelId.REMOTE_GENERATOR_SELECTED, new UnsignedWordElement(104))),
 
-				(this.singlePhase != null) // Do not write L2/L3 values in 1p
-						? new FC16WriteRegistersTask(37,
-								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)))
-
-						: new FC16WriteRegistersTask(37,
-								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
-								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
-								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
+				(this.writeThreePhases) // Do not write L2/L3 values in 1p
+			      ? new FC16WriteRegistersTask(37,
+			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+			              this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+			              this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
+			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
+			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
+			          : new FC16WriteRegistersTask(37,
+			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+			              this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+			              this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)))
 
 		);
 	}
