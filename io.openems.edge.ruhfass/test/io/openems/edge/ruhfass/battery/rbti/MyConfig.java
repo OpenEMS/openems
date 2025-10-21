@@ -3,14 +3,17 @@ package io.openems.edge.ruhfass.battery.rbti;
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.ruhfass.battery.rbti.enums.BatteryChannel;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId = null;
-		private int modbusUnitId;
+		private StartStopConfig startStop;
+		private String modbusId;
+		private BatteryChannel batteryChannel;
 
 		private Builder() {
 		}
@@ -20,13 +23,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
+			return this;
+		}
+
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
 		}
 
-		public Builder setModbusUnitId(int modbusUnitId) {
-			this.modbusUnitId = modbusUnitId;
+		public Builder setBatteryChannel(BatteryChannel batteryChannel) {
+			this.batteryChannel = batteryChannel;
 			return this;
 		}
 
@@ -52,6 +60,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
+	}
+
+	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -62,8 +75,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int modbusUnitId() {
-		return this.builder.modbusUnitId;
+	public BatteryChannel batteryChannel() {
+		return this.builder.batteryChannel;
 	}
-
 }
