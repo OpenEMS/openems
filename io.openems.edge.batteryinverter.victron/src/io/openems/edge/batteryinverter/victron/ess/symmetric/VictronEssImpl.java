@@ -706,7 +706,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		);
 		
-		this.logPublishedLimits();
+		
 
 	}
 
@@ -1095,24 +1095,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 	}
 	
-	private void logPublishedLimits() {
-		  if (!this.config.debugMode()) return;
-		  var l1min = this.getSetActivePowerL1GreaterOrEqualsChannel().getNextValue().get();
-		  var l1max = this.getSetActivePowerL1LessOrEqualsChannel().getNextValue().get();
-		  var l2min = this.getSetActivePowerL2GreaterOrEqualsChannel().getNextValue().get();
-		  var l2max = this.getSetActivePowerL2LessOrEqualsChannel().getNextValue().get();
-		  var l3min = this.getSetActivePowerL3GreaterOrEqualsChannel().getNextValue().get();
-		  var l3max = this.getSetActivePowerL3LessOrEqualsChannel().getNextValue().get();
 
-		  this.logInfo(this.log,
-		    String.format("ESS limits | ready=%s | mode=%s | phase=%s | " +
-		      "L1=[%s..%s]W L2=[%s..%s]W L3=[%s..%s]W | " +
-		      "Wmax=%sVA | MaxCha=%sW MaxDis=%sW",
-		       this.singlePhase == null ? "ALL" : this.singlePhase,
-		      l1min, l1max, l2min, l2max, l3min, l3max,
-		      this.getMaxApparentPower().orElse(null),
-		      this.MaxChargePower, this.MaxDischargePower));
-		}
 
 
 }
