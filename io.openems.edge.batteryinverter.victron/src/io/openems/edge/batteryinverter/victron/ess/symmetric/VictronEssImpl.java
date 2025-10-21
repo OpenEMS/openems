@@ -215,6 +215,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 		// check if null -> 3p. Cannot be done in switch-statement
 		if (this.singlePhase == null) { // 3p system
+			this.logDebug(this.log, "\n Asymm. Single Phase -> allowed Power calculation. Phase: ALL Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
 			int perPhaseCharge = Math.max(0, maxChargePower / 3);
 			int perPhaseDischarge = Math.max(0, maxDischargePower / 3);
 
@@ -228,10 +229,10 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			this.setSetActivePowerL3LessOrEquals(perPhaseDischarge);
 		} else {
 
-			//
+			this.logDebug(this.log, "\n Asymm. Single Phase -> allowed Power calculation. Phase: " + this.singlePhase.toString() + "Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
 			switch (this.singlePhase) { // 1p
-
-			case SinglePhase.L1:
+			
+			case L1:
 				this.setSetActivePowerL1GreaterOrEquals(maxChargePower * -1);
 				this.setSetActivePowerL1LessOrEquals(maxDischargePower);
 
@@ -241,7 +242,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				this.setSetActivePowerL3GreaterOrEquals(0);
 				this.setSetActivePowerL3LessOrEquals(0);
 				break;
-			case SinglePhase.L2:
+			case L2:
 				this.setSetActivePowerL1GreaterOrEquals(0);
 				this.setSetActivePowerL1LessOrEquals(0);
 
@@ -251,7 +252,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				this.setSetActivePowerL3GreaterOrEquals(0);
 				this.setSetActivePowerL3LessOrEquals(0);
 				break;
-			case SinglePhase.L3:
+			case L3:
 				this.setSetActivePowerL1GreaterOrEquals(0);
 				this.setSetActivePowerL1LessOrEquals(0);
 
