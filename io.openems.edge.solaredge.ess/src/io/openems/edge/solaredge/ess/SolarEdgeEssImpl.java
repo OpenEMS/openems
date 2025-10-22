@@ -3,6 +3,8 @@ package io.openems.edge.solaredge.ess;
 import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.stream.Stream;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -81,6 +84,7 @@ import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.solaredge.ess.charger.SolarEdgeCharger;
 import io.openems.edge.solaredge.ess.common.AbstractSunSpecEss;
+import io.openems.edge.solaredge.ess.common.AverageCalculator;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel.S101;
 import io.openems.edge.solaredge.ess.common.SolarEdgeSunSpecModel.S102;
@@ -119,6 +123,8 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);	
 	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 	private final SetPvExportLimitHandler setPvExportLimitHandler = new SetPvExportLimitHandler(this);
+	
+	private AverageCalculator pvProductionAverageCalculator;
 	
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	protected final Set<SolarEdgeCharger> chargers = new HashSet<>();
@@ -202,6 +208,8 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.id())) {
 			return;
 		}
+		
+		this.pvProductionAverageCalculator = new AverageCalculator(120*1000/this.getCycleTime()); // 120s average
 		
 		this._setGridMode(GridMode.ON_GRID);
 		this.addStaticModbusTasks(this.getModbusProtocol());
@@ -432,31 +440,48 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	 */
 	public void calculateAndSetActualPvPower() {
 		try {
-			if(this.batteryActualPowerChanged())
-			{
-				// Do not update pvProduction channel if battery actual power has changed
-				return;
-			}
-
 			final IntegerReadChannel activeDcPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_ACTIVE_DC_POWER);
 			final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
-
-			var pastActiveDcPowerValues = activeDcPowerChannel.getPastValues()
-			.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
-			var pastBatteryPowerValues = batteryPowerChannel.getPastValues()
-			.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
-
-			// get the pv power from data which are 3 seconds old
-			int pvProduction = ignoreImpossibleMinPower(pastActiveDcPowerValues.values().stream().findFirst().get().getOrError()
-									+ pastBatteryPowerValues.values().stream().findFirst().get().getOrError());
 			
+			/*
+			 * Get the DC Power value from 1 second ago
+			 * 
+			 * Since the inverter has to retrieve the battery power value from the SESTI interface, this is outdated.
+			 * For the PV production calculation to be accurate, it is assumed that the value is received with a 1-second delay.
+			 * Therefore, we must add the battery power to the DCW value from 1 second ago to obtain the PV power.
+			 * 
+			 */
+			var cycleTimeSeconds = Math.max(1, this.getCycleTime()/1000); // minimum 1 second
+			var retrievePastSeconds = Math.min(cycleTimeSeconds, 1)*2; // twice the cycle time or 2*1 second
+			var pastActiveDcPowerValues = activeDcPowerChannel.getPastValues()
+					.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(retrievePastSeconds), true); //
+  		  	
+			LocalDateTime target = batteryPowerChannel.getNextValue().getTimestamp().minusSeconds(1);  		  
+			int dcPower = this.findCloseRecord(pastActiveDcPowerValues.values(), target).getOrError();
+
+			// Calculate the actual PV power and add it to the average values ​​of the calculator
+			int lastPvPower = dcPower+batteryPowerChannel.getNextValue().getOrError();
+			this.pvProductionAverageCalculator.addValue(lastPvPower > 0 ? lastPvPower : 0);
+			
+			// Get the actual PV power as an average
+			int pvProduction = ignoreImpossibleMinPower(this.pvProductionAverageCalculator.getAverage());		
+
+			// Write the PV power into the actual power channel of our DC charger
 			for (SolarEdgeCharger charger : this.chargers) {			
 				charger.getActualPowerChannel().setNextValue(pvProduction);
 			}
 		} catch (Exception e) {
 			return;
-		}			
-	}		
+		}
+	}
+	
+	public Value<Integer> findCloseRecord(Collection<Value<Integer>> list, LocalDateTime tempDate) {
+        if (list == null || list.isEmpty()) return null;
+        
+        return list.stream()
+                .min(Comparator.comparingLong(d -> Math.abs(MILLIS.between(tempDate, d.getTimestamp()))))
+                .orElse(null);
+	}
 	
 	/**
 	 * Ignore impossible minimum power.
@@ -472,24 +497,6 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 
 		return pvProduction < 50 /* W */ ? 0 : pvProduction;
 	}
-	
-	/**
-	 * Check if Battery Actual Power (=Charge/Discharge Power) has changed within the last 3 seconds.
-	 */
-	private boolean batteryActualPowerChanged() {
-		final IntegerReadChannel batteryPowerChannel = this.channel(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER);
-		var nextBatteryPowerValue = batteryPowerChannel.getNextValue();
-		var pastBatteryPowerValues = batteryPowerChannel.getPastValues()
-									.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(3), true); //
-		
-		for (Value<Integer> value : pastBatteryPowerValues.values()) {
-			if(value.isDefined() && Math.abs(value.get()-nextBatteryPowerValue.get()) > 50 /* W */) {
-				return true;
-			}
-		}
-				
-		return false;
-	}	
 	
 	/**
 	 * Send PV Export Site Limit to Inverter.
