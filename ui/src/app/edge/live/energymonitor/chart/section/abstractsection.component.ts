@@ -1,8 +1,8 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import * as d3 from "d3";
-import { GridMode, Service } from "src/app/shared/shared";
 import { v4 as uuidv4 } from "uuid";
+import { GridMode, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 
 export type Ratio = "Only Positive [0,1]" | "Negative and Positive [-1,1]";
