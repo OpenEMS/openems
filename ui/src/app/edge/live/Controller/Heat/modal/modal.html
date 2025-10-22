@@ -1,12 +1,12 @@
 @if (isInitialized) {
   <oe-modal [title]="this.component.alias" [component]="controller">
-    <oe-modal-line [name]="'General.STATUS' | translate" [value]="status | translate"
+    <oe-modal-line [name]="'GENERAL.STATUS' | translate" [value]="status | translate"
       [converter]="CONVERT_POWER_2_HEAT_STATE">
     </oe-modal-line>
-    <oe-modal-line [name]="'Edge.Index.Widgets.HEAT.HEATING_OUTPUT' | translate"
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT' | translate"
       [channelAddress]="component.id + '/ActivePower'" [converter]="Utils.CONVERT_TO_WATT">
     </oe-modal-line>
-    <oe-modal-line [name]="'Edge.Index.Widgets.HEAT.TEMPERATURE' | translate"
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEAT.TEMPERATURE' | translate"
       [channelAddress]="component.id + '/Temperature'"
       [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
     </oe-modal-line>
@@ -19,7 +19,7 @@
           </td>
           <td style="width: 90%">
             <oe-modal-line style="font-style: italic;" leftColumnWidth="100"
-              [name]="'Edge.Index.Widgets.HEAT.CHANGES_MY_PV_INFO' | translate">
+              [name]="'EDGE.INDEX.WIDGETS.HEAT.CHANGES_MY_PV_INFO' | translate">
             </oe-modal-line>
           </td>
         </tr>

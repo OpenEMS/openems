@@ -2,12 +2,12 @@
   <oe-flat-widget [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
     link="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart">
     @for (i of [1,2,3]; track i) {
-      <oe-flat-widget-line [name]="('Edge.History.ACTIVE_DURATION_WITH_LEVEL'| translate: {level: i})"
+      <oe-flat-widget-line [name]="('EDGE.HISTORY.ACTIVE_DURATION_WITH_LEVEL'| translate: {level: i})"
         [channelAddress]="component.id + '/Level' + i + 'CumulatedTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
       </oe-flat-widget-line>
     }
     @if (consumptionMeter && consumptionMeter.isEnabled) {
-      <oe-flat-widget-line [name]="'General.consumption' | translate"
+      <oe-flat-widget-line [name]="'GENERAL.CONSUMPTION' | translate"
         [channelAddress]="consumptionMeter.id + '/ActiveProductionEnergy'"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
       </oe-flat-widget-line>

@@ -44,7 +44,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
-          name: this.translate.instant("General.production"),
+          name: this.translate.instant("GENERAL.PRODUCTION"),
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyPeriodResponse?.result.data[this.component.id + "/ActiveProductionEnergy"] ?? null;
           },

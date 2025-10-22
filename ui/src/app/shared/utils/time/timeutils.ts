@@ -87,7 +87,7 @@ export class TimeUtils {
 
     // Helper to get a translated suffix
     const getHourSuffix = (): string => {
-      const key = "General.SUFFIX.HOUR";
+      const key = "GENERAL.SUFFIX.HOUR";
       const value = translate.instant(key);
       return value === key ? "" : value;
     };

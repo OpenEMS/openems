@@ -13,7 +13,7 @@
               <ion-list>
                 <ion-item lines="none">
                   <ion-select justify="space-between" style="white-space: initial;width: 100%;" #selectedComponentId
-                    interface="popover" labelPlacement="start" [label]="'CHANNELS.Component'| translate"
+                    interface="popover" labelPlacement="start" [label]="'CHANNELS.COMPONENT'| translate"
                     (ionChange)="onSelectedComponentChanged($event)" class="ion-text-align-left custom-ion-popover"
                     [interfaceOptions]="{cssClass: 'custom-ion-popover'}" aria-modal="true">
                     @for (entry of (config.components | keys); track entry) {

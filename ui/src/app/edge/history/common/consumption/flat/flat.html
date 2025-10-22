@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-flat-widget [title]="'General.consumption' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
+  <oe-flat-widget [title]="'GENERAL.CONSUMPTION' | translate" [icon]="{name: 'oe-consumption', color: 'warning'}" button
     [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/consumptionchart'">
     @if (evcsComponents.length === 0 && consumptionMeterComponents.length === 0 && heatComponents.length === 0) {
       <oe-flat-widget-line
@@ -11,7 +11,7 @@
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
       }
       @for (component of heatComponents; track component) {
-        <oe-flat-widget-line [name]="'Edge.Index.Widgets.HEAT.HEATING_ENERGY' | translate"
+        <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT.HEATING_ENERGY' | translate"
           [channelAddress]="component.id + '/ActiveProductionEnergy'"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
       }
@@ -22,7 +22,7 @@
     }
     @if ((evcsComponents.length !== 0 || consumptionMeterComponents.length !== 0 || heatComponents.length !== 0)) {
       <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-      <oe-flat-widget-line [name]="'General.otherConsumption'| translate" [value]="totalOtherEnergy"
+      <oe-flat-widget-line [name]="'GENERAL.OTHER_CONSUMPTION'| translate" [value]="totalOtherEnergy"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
       </oe-flat-widget-line>
     }

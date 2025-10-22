@@ -42,11 +42,11 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
         .filter((comp) => comp.isEnabled && this.config.isTypeGrid(comp)) ?? null;
 
       if (gridMeters?.length == 1) {
-        this.title = this.translate.instant("General.grid");
+        this.title = this.translate.instant("GENERAL.GRID");
       }
 
       this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } },
+        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } },
       ];
 
     });
