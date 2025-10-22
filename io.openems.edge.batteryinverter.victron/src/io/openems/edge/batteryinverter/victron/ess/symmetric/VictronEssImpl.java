@@ -151,12 +151,15 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	    boolean isSymmetric = config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.SYMMETRIC;
 	    boolean isAllPhase  = config.phase() == SingleOrAllPhase.ALL;		
 	    
-	    this.writeThreePhases = isSymmetric || isAllPhase;
+	    this.writeThreePhases = isAllPhase;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
+		
+		this._setMaxApparentPower(5000);
+		this._setCapacity(12_000);
 
 		// Evaluate 'SinglePhase'
 		switch (config.phase()) {
@@ -174,15 +177,20 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 			break;
 		}
 
-		// symmetric mode is only valid in 3p systems
-		if (config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.SYMMETRIC) {
-			this.singlePhase = null;
-		}
 
-		if (this.singlePhase != null) {
-			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
-			AsymmetricEss.initializePowerSumChannels(this);
-		}
+	    // Initialisierung nach Modus
+	    if (isSymmetric) {
+	        if (!isAllPhase) {
+	            // "symmetrisch 1p" (Pseudo-3p für höhere Ebenen), aber keine HW-Writes auf L2/L3
+	            SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
+	        }
+	        // symmetrisch 3p: keine Asym-spezifischen Summenkanäle nötig
+	    } else {
+	        // asymmetrisch (1p oder 3p): Summenkanäle, aber KEINE Copy-Phase
+	        AsymmetricEss.initializePowerSumChannels(this);
+	    }
+
+		
 		this._setGridMode(GridMode.ON_GRID);
 
 		if (this.batteryInverter == null) {
@@ -248,29 +256,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				this.setSetActivePowerL1GreaterOrEquals(maxChargePower * -1);
 				this.setSetActivePowerL1LessOrEquals(maxDischargePower);
 
-				this.setSetActivePowerL2GreaterOrEquals(0);
-				this.setSetActivePowerL2LessOrEquals(0);
-
-				this.setSetActivePowerL3GreaterOrEquals(0);
-				this.setSetActivePowerL3LessOrEquals(0);
 				break;
 			case L2:
-				this.setSetActivePowerL1GreaterOrEquals(0);
-				this.setSetActivePowerL1LessOrEquals(0);
-
 				this.setSetActivePowerL2GreaterOrEquals(maxChargePower * -1);
 				this.setSetActivePowerL2LessOrEquals(maxDischargePower);
-
-				this.setSetActivePowerL3GreaterOrEquals(0);
-				this.setSetActivePowerL3LessOrEquals(0);
 				break;
 			case L3:
-				this.setSetActivePowerL1GreaterOrEquals(0);
-				this.setSetActivePowerL1LessOrEquals(0);
-
-				this.setSetActivePowerL2GreaterOrEquals(0);
-				this.setSetActivePowerL2LessOrEquals(0);
-
 				this.setSetActivePowerL3GreaterOrEquals(maxChargePower * -1);
 				this.setSetActivePowerL3LessOrEquals(maxDischargePower);
 				break;
@@ -279,6 +270,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		}
 
 	}
+
 
 	/**
 	 * Uses Info Log for further debug features.
@@ -782,36 +774,35 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 	@Override
 	public void handleEvent(Event event) {
+	    switch (event.getTopic()) {
+	        case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+	            this._setMyActivePower();
 
-		// super.handleEvent(event);
+	            this.logDebug(this.log,"Push constraints TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
+	            if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
+	                try {
+	                    this.pushAsymmetricLimitsToPower();
+	                } catch (OpenemsNamedException e) {
+	                    this.logWarn(this.log, "Push limits failed: " + e.getMessage());
+	                }
+	            }
+	        }
+	        case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
+	            this._setMyActivePower();
+	            this.calculateEnergy();
 
-		switch (event.getTopic()) {
-
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this._setMyActivePower();
-			if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
-				try {
-					this.pushAsymmetricLimitsToPower(); //
-				} catch (OpenemsNamedException e) {
-					this.logWarn(this.log, "Push limits failed: " + e.getMessage());
-				}
-			}
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			this._setMyActivePower();
-			this.calculateEnergy();
-			if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
-				try {
-					this.pushAsymmetricLimitsToPower(); //
-				} catch (OpenemsNamedException e) {
-					this.logWarn(this.log, "Push limits failed: " + e.getMessage());
-				}
-
-			}
-			break;
-		}
-
+	            // optional: auch hier Limits schieben, wenn du ganz sicher gehen willst
+	            if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
+	                try {
+	                    this.pushAsymmetricLimitsToPower();
+	                } catch (OpenemsNamedException e) {
+	                    this.logWarn(this.log, "Push limits failed: " + e.getMessage());
+	                }
+	            }
+	        }
+	    }
 	}
+
 
 	@Override
 	public SinglePhase getPhase() {

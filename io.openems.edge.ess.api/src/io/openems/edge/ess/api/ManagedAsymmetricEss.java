@@ -114,7 +114,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2Equals", L3, REACTIVE, EQUALS))), //
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3Equals", L3, REACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L1.
 		 *
