@@ -1,71 +1,73 @@
+$animation-duration: 550ms;
+
 .grid-buy-show {
     opacity: 0.4;
     transform: translateX(0%);
-    transition: opacity 0ms, transform 0ms;
+    transition: opacity 0ms none 0ms, transform 0ms none 0ms;
 }
 
 .grid-buy-hide {
     opacity: 0.1;
     transform: translateX(17%);
-    transition: opacity 650ms, transform 650ms;
+    transition: opacity $animation-duration ease-in 0ms, transform $animation-duration ease-in 0ms;
 }
 
 .grid-sell-show {
     opacity: 0.1;
     transform: translateX(0%);
-    transition: opacity 0ms ease-in, transform 0ms ease-in;
+    transition: opacity 0ms none $animation-duration, transform 0ms none $animation-duration;
 }
 
 .grid-sell-hide {
     opacity: 0.4;
     transform: translateX(-17%);
-    transition: opacity 650ms ease-out, transform 650ms ease-out;
+    transition: opacity $animation-duration ease-out $animation-duration, transform $animation-duration ease-out $animation-duration;
 }
 
 .consumption-show {
     opacity: 0.1;
     transform: translateX(0%);
-    transition: opacity 0ms, transform 0ms;
+    transition: opacity 0ms none $animation-duration, transform 0ms none $animation-duration;
 }
 
 .consumption-hide {
     opacity: 0.4;
     transform: translateX(17%);
-    transition: opacity 650ms, transform 650ms;
+    transition: opacity $animation-duration ease-out $animation-duration, transform $animation-duration ease-out $animation-duration;
 }
 
 .production-show {
     opacity: 0.4;
     transform: translateY(0%);
-    transition: opacity 0ms ease-in, transform 0ms ease-in;
+    transition: opacity 0ms none 0ms, transform 0ms none 0ms;
 }
 
 .production-hide {
     opacity: 0.1;
     transform: translateY(17%);
-    transition: opacity 650ms ease-out, transform 650ms ease-out;
+    transition: opacity $animation-duration ease-in 0ms, transform $animation-duration ease-in 0ms;
 }
 
 .storage-discharge-show {
     opacity: 0.4;
     transform: translateY(0);
-    transition: opacity 0ms ease-in, transform 0ms ease-in;
+    transition: opacity 0ms none 0ms, transform 0ms none 0ms;
 }
 
 .storage-discharge-hide {
     opacity: 0.1;
     transform: translateY(-17%);
-    transition: opacity 650ms ease-out, transform 650ms ease-out;
+    transition: opacity $animation-duration ease-in 0ms, transform $animation-duration ease-in 0ms;
 }
 
 .storage-charge-show {
     opacity: 0.1;
     transform: translateY(0);
-    transition: opacity 0ms ease-out, transform 0ms ease-out;
+    transition: opacity 0ms none $animation-duration, transform 0ms none $animation-duration;
 }
 
 .storage-charge-hide {
     opacity: 0.4;
     transform: translateY(17%);
-    transition: opacity 650ms ease-out, transform 650ms ease-out;
+    transition: opacity $animation-duration ease-out $animation-duration, transform $animation-duration ease-out $animation-duration;
 }

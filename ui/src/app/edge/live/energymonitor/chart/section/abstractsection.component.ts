@@ -1,8 +1,8 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import * as d3 from "d3";
-import { v4 as uuidv4 } from "uuid";
 import { GridMode, Service } from "src/app/shared/shared";
+import { v4 as uuidv4 } from "uuid";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 
 export type Ratio = "Only Positive [0,1]" | "Negative and Positive [-1,1]";
@@ -127,7 +127,7 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
-    public animationSpeed: number = 500;
+    public animationSpeed: number = 1150;
 
     protected valueText: string = "";
     protected innerRadius: number = 0;
