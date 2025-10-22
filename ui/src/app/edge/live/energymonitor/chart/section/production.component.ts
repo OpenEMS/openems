@@ -1,10 +1,12 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[productionsection]",
@@ -16,7 +18,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
-    private startAnimation = null;
+    private subShow: Subscription;
     private showAnimation: boolean = false;
     private animationTrigger: boolean = false;
 
@@ -24,6 +26,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         translate: TranslateService,
         service: Service,
         unitpipe: UnitvaluePipe,
+        private animationService: AnimationService,
     ) {
         super("General.production", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
@@ -35,10 +38,13 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.showAnimation = show;
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     getAnimationClass(): string {
@@ -46,9 +52,6 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     toggleAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showAnimation = !this.showAnimation;
-        }, this.animationSpeed);
         this.animationTrigger = true;
     }
 

@@ -1,11 +1,13 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
 import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[gridsection]",
@@ -20,7 +22,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
-    private startAnimation = null;
+    private subShow?: Subscription;
     private showBuyAnimation = false;
     private showSellAnimation = false;
 
@@ -28,6 +30,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         translate: TranslateService,
         service: Service,
         unitpipe: UnitvaluePipe,
+        private animationService: AnimationService,
     ) {
         super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
@@ -71,10 +74,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.showBuyAnimation = show;
+            this.showSellAnimation = show;
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     getBuyAnimationClass(): string {
@@ -86,17 +93,11 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     }
 
     toggleBuyAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showBuyAnimation = !this.showBuyAnimation;
-        }, this.animationSpeed);
         this.buyAnimationTrigger = true;
         this.sellAnimationTrigger = false;
     }
 
     toggleSellAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showSellAnimation = !this.showSellAnimation;
-        }, this.animationSpeed);
         this.buyAnimationTrigger = false;
         this.sellAnimationTrigger = true;
     }

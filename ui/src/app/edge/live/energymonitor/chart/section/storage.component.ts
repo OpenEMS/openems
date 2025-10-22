@@ -1,11 +1,13 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[storagesection]",
@@ -21,7 +23,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     private socValue: number;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
-    private startAnimation = null;
+    private subShow: Subscription;
     private showChargeAnimation: boolean = false;
     private showDischargeAnimation: boolean = false;
 
@@ -29,6 +31,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         translate: TranslateService,
         protected override service: Service,
         unitpipe: UnitvaluePipe,
+        private animationService: AnimationService,
     ) {
         super("Edge.Index.Energymonitor.storage", "down", "var(--ion-color-success)", translate, service, "Storage");
         this.unitpipe = unitpipe;
@@ -44,10 +47,14 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.showChargeAnimation = show;
+            this.showDischargeAnimation = show;
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     getChargeAnimationClass(): string {
@@ -59,17 +66,11 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     toggleCharge() {
-        this.startAnimation = setInterval(() => {
-            this.showChargeAnimation = !this.showChargeAnimation;
-        }, this.animationSpeed);
         this.chargeAnimationTrigger = true;
         this.dischargeAnimationTrigger = false;
     }
 
     toggleDischarge() {
-        setInterval(() => {
-            this.showDischargeAnimation = !this.showDischargeAnimation;
-        }, this.animationSpeed);
         this.chargeAnimationTrigger = false;
         this.dischargeAnimationTrigger = true;
     }
