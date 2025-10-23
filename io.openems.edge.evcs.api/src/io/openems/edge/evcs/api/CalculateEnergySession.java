@@ -18,14 +18,23 @@ public class CalculateEnergySession {
 	 * @param isPlugged true, if a car is plugged.
 	 */
 	public void update(boolean isPlugged) {
+		var energy = this.parent.getActiveProductionEnergy().get();
+		if (energy == null) {
+			this.parent._setEnergySession(null);
+			return; // exit without updating isPluggedOld
+		}
+
 		if (isPlugged) {
-			if (!this.isPluggedOld) {
-				this.energyAtStartOfSession = this.parent.getActiveProductionEnergy().orElse(0L);
+			if (!this.isPluggedOld) { // Plugged-State changed
+				this.energyAtStartOfSession = energy;
 			}
-			this.parent._setEnergySession(
-					(int) (this.parent.getActiveProductionEnergy().orElse(0L) - this.energyAtStartOfSession));
+			if (this.energyAtStartOfSession == null) { // Should not happen
+				this.parent._setEnergySession(null);
+				return;
+			}
+
+			this.parent._setEnergySession(Math.max(0, (int) (energy - this.energyAtStartOfSession)));
 		}
 		this.isPluggedOld = isPlugged;
 	}
-
 }

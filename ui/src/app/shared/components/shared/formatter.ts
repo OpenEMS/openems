@@ -10,6 +10,13 @@ export namespace Formatter {
   export const FORMAT_WATT = (value: number) => {
     return formatNumber(value, locale, "1.0-0") + " W";
   };
+  export const FORMAT_VOLT_AMPERE = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " VA";
+  };
+
+  export const FORMAT_VOLT_AMPERE_REACTIVE = (value: number) => {
+    return formatNumber(value, locale, "1.0-0") + " var";
+  };
 
   export const FORMAT_KILO_WATT = (value: number) => {
     return formatNumber(value, locale, "1.0-2") + " kW";
@@ -58,6 +65,15 @@ export namespace Formatter {
     }
 
     return formatNumber(parseFloat(value.toString()), locale, format);
+  };
+
+  export const formatSafelyWithSuffix = (value: number | string | null, format: string, suffix: string | null) => {
+
+    const formattedValue = Formatter.formatSafely(value, format);
+    if (formattedValue == null) {
+      return null;
+    }
+    return formattedValue + " " + suffix;
   };
 }
 

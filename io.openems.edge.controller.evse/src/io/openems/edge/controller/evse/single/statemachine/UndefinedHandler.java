@@ -7,6 +7,8 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		return State.CHARGING;
+		return context.actions.abilities().isEvConnected() //
+				? State.EV_CONNECTED //
+				: State.EV_NOT_CONNECTED;
 	}
 }

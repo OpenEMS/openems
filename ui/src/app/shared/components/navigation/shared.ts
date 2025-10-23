@@ -13,7 +13,7 @@ export class NavigationTree {
 
     constructor(
         public id: NavigationId | string,
-        public routerLink: string,
+        public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
         public icon: PartialedIcon,
         public label: string,
         public mode: "icon" | "label",
@@ -41,6 +41,8 @@ export class NavigationTree {
     }
 
     public getParents(): NavigationTree[] | null {
+
+
         let root: NavigationTree | null = this.parent;
         if (root == null) {
             return null;
@@ -69,8 +71,11 @@ export class NavigationTree {
         function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
             node.parent = parent;
 
-            if (node.children) {
-                node.children.forEach(child => setParentRecursive(child, node));
+            if (!node.children) {
+                return;
+            }
+            for (const child of node.children) {
+                setParentRecursive(child, node);
             }
         }
 

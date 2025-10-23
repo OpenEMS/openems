@@ -111,9 +111,21 @@ export class Language {
     }
 
     /**
+     * Gets the i18n locale key without passed key
+     *
+     * @returns the i18n locale key
+     */
+    public static geti18nLocale() {
+        return Language.getByKey(localStorage.LANGUAGE)?.i18nLocaleKey ?? Language.getByBrowserLang(navigator.language)?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+    }
+
+    /**
      * Sets a additional translation file
      *
      * e.g. AdvertismentModule
+     *
+     *  IMPORTANT: Translation keys will overwrite each other.
+     *  Make sure to use a unique top level key.
      *
      * @param translationFile the translation file
      * @returns translations params
@@ -134,5 +146,14 @@ export class Language {
             translationKey = Language.EN.key;
         }
         return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
+    }
+
+    /**
+     * Gets the i18n locale key without passed key
+     *
+     * @returns the i18n locale key
+     */
+    public static getCurrentLanguage() {
+        return Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT;
     }
 }

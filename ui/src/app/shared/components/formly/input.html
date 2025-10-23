@@ -1,13 +1,14 @@
-<ion-input *ngIf="props.type === 'number'; else noNumberInput" placeholder="{{props.placeholder}}"
+@if (props.type === 'number') {
+  <ion-input placeholder="{{props.placeholder}}"
     style="width:100%; float:right; text-align: right" labelPlacement="floating" [type]="props.type || 'text'"
     [formControl]="formControl" [min]="props.min"
     [label]="props.label + ((props.required && props.hideRequiredMarker !== true) ? '*': '')"
+    [helperText]="props.description" [step]="props.step">
+  </ion-input>
+} @else {
+  <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"
+    [formlyAttributes]="field" labelPlacement="floating" style="text-align: right"
+    [label]="props.label + ((props.required && props.hideRequiredMarker !== true) ? '*': '')"
     [helperText]="props.description">
-</ion-input>
-<ng-template #noNumberInput>
-    <ion-input placeholder="{{props.placeholder}}" [type]="props.type || 'text'" [formControl]="formControl"
-        [formlyAttributes]="field" labelPlacement="floating" style="text-align: right"
-        [label]="props.label + ((props.required && props.hideRequiredMarker !== true) ? '*': '')"
-        [helperText]="props.description">
-    </ion-input>
-</ng-template>
+  </ion-input>
+}

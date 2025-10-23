@@ -5,7 +5,7 @@ export const environment: Environment = {
     ...theme, ...{
 
         backend: "OpenEMS Edge",
-        url: getWebsocketScheme() + location.hostname + ":8075",
+        url: `${getWebsocketScheme()}://${location.hostname}:8075`,
 
         production: true,
         debugMode: false,

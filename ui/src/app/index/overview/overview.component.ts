@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -49,9 +49,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         public service: Service,
         public websocket: Websocket,
         public utils: Utils,
-        private router: Router,
         public translate: TranslateService,
         public pagination: Pagination,
+        protected route: ActivatedRoute,
+        private router: Router,
         private userService: UserService,
     ) {
 

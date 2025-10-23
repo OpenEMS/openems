@@ -111,7 +111,7 @@ public abstract non-sealed class AbstractTask<//
 	 * 
 	 * @param bridge  the {@link AbstractModbusBridge}
 	 * @param request the typed {@link ModbusRequest}
-	 * @return the typed {@link ModbusResponse}
+	 * @return the typed {@link ModbusResponse}, null if Bridge is stopped
 	 * @throws OpenemsException on error
 	 */
 	protected RESPONSE executeRequest(AbstractModbusBridge bridge, REQUEST request) throws Exception {
@@ -361,13 +361,16 @@ public abstract non-sealed class AbstractTask<//
 	 * @param unitId     the Modbus Unit-ID
 	 * @param clazz      the class of the response
 	 * @param request    the {@link ModbusRequest}
-	 * @return the {@link ModbusResponse}
+	 * @return the {@link ModbusResponse}; null if Bridge is stopped
 	 * @throws Exception on error
 	 */
 	private static <RESPONSE extends ModbusResponse> RESPONSE sendRequest(AbstractModbusBridge bridge, int unitId,
 			Class<RESPONSE> clazz, ModbusRequest request) throws Exception {
 		request.setUnitID(unitId);
 		var transaction = bridge.getNewModbusTransaction();
+		if (transaction == null) {
+			return null;
+		}
 		transaction.setRequest(request);
 		transaction.execute();
 

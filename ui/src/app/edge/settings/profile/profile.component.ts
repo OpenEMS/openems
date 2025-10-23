@@ -1,19 +1,22 @@
 import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { format } from "date-fns";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { GetLatestSetupProtocolCoreInfoRequest } from "src/app/shared/jsonrpc/request/getLatestSetupProtocolCoreInfoRequest";
-import { GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
+import { GetSetupProtocolCoreInfoRequest, GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
-import { GetLatestSetupProtocolCoreInfoResponse } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
+import { getFileName, GetLatestSetupProtocolCoreInfoResponse, GetSetupProtocolCoreInfoResponse, Type } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { environment } from "../../../../environments";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
 import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxRequest";
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
@@ -21,7 +24,16 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
 @Component({
   selector: ProfileComponent.SELECTOR,
   templateUrl: "./profile.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    RouterModule,
+    LiveDataServiceProvider,
+    LocaleProvider,
+    HelpButtonComponent,
+  ],
 })
 export class ProfileComponent implements OnInit {
 
@@ -35,7 +47,7 @@ export class ProfileComponent implements OnInit {
 
   public components: CategorizedComponents[] | null = null;
 
-  protected latestSetupProtocolData: Pick<GetLatestSetupProtocolCoreInfoResponse["result"], "setupProtocolId"> & { createDate: Date | null } | null = null;
+  protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
   protected spinnerId: string = ProfileComponent.SELECTOR;
   protected isLoading: WritableSignal<boolean> = signal(true);
   protected isAtLeastOwner: boolean = false;
@@ -50,7 +62,6 @@ export class ProfileComponent implements OnInit {
   ) {
     effect(() => {
       const isLoading = this.isLoading();
-
       if (isLoading === true) {
         this.service.startSpinnerTransparentBackground(this.spinnerId);
       } else {
@@ -115,7 +126,6 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const edge = await this.service.getCurrentEdge();
     const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
 
     if (!blob) {
@@ -123,7 +133,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    const fileName = `IBN-${edge.id}-${format(edge.firstSetupProtocol, "dd.MM.yyyy")}.pdf`;
+    const fileName = getFileName(this.latestSetupProtocolData.setupProtocolType, this.latestSetupProtocolData.createDate, this.edge);
     this.platFormService.downloadAsPdf(blob, fileName);
     this.isLoading.set(false);
   }
@@ -132,15 +142,18 @@ export class ProfileComponent implements OnInit {
     this.isLoading.set(true);
 
     const edge = await this.service.getCurrentEdge();
-    const request = new GetLatestSetupProtocolCoreInfoRequest({ edgeId: edge.id });
-    const setupProtocolData: GetLatestSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetLatestSetupProtocolCoreInfoResponse;
+    const request = new GetSetupProtocolCoreInfoRequest({ edgeId: edge.id });
+    const setupProtocolsData: GetSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetSetupProtocolCoreInfoResponse;
+    const ibnProtocols: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"] | null = setupProtocolsData?.result?.setupProtocols
+      ?.filter(el => el.setupProtocolType === Type.SETUP_PROTOCOL) ?? null;
+    const latestIbnProtocol: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0] | null = ibnProtocols?.length > 0 ? ibnProtocols.reduce((a, b) => DateUtils.maxDate(a.createDate, b.createDate) ? a : b) : null;
 
-    if (!(ObjectUtils.hasKeys(setupProtocolData.result, ["setupProtocolId", "createDate"]))) {
+    if (latestIbnProtocol === null) {
       this.isLoading.set(false);
       return;
     }
 
-    this.latestSetupProtocolData = { setupProtocolId: setupProtocolData.result.setupProtocolId, createDate: DateUtils.stringToDate(setupProtocolData.result.createDate.toString()) };
+    this.latestSetupProtocolData = { setupProtocolType: latestIbnProtocol.setupProtocolType, setupProtocolId: latestIbnProtocol.setupProtocolId, createDate: latestIbnProtocol.createDate };
     this.isLoading.set(false);
   }
 }

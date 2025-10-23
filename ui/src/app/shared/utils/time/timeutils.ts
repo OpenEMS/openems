@@ -2,6 +2,7 @@
 import { DecimalPipe } from "@angular/common";
 
 import { TranslateService } from "@ngx-translate/core";
+import { Converter } from "../../components/shared/converter";
 import { Utils } from "../../shared";
 import { Language } from "../../type/language";
 
@@ -70,4 +71,43 @@ export class TimeUtils {
   public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
     return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
   }
+
+  /**
+   * Creates a converter that formats “minutes since midnight” into a locale-aware time string.
+   * - Uses Intl.DateTimeFormat for HH:mm or h:mm AM/PM
+   * - Detects 12h vs 24h and appends locale-specific suffix (Uhr, h, hodin, etc.)
+   *
+   * @param translate  TranslateService (for currentLang)
+   * @param locale     locale tag (e.g. "de", "en", "cs")
+   * @returns           (minutes: number) ⇒ formatted time string
+  */
+  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string) => {
+    const effectiveLocale = locale ?? translate.currentLang ?? Language.DEFAULT.key;
+    const dtf = new Intl.DateTimeFormat(effectiveLocale, { hour: "2-digit", minute: "2-digit" });
+
+    // Helper to get a translated suffix
+    const getHourSuffix = (): string => {
+      const key = "General.SUFFIX.HOUR";
+      const value = translate.instant(key);
+      return value === key ? "" : value;
+    };
+
+    return (raw: number): string => {
+      return Converter.IF_NUMBER(raw, (value) => {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        date.setMinutes(value);
+
+        const timeString = dtf.format(date);
+        const hasDayPeriod = dtf.formatToParts(date).some(p => p.type === "dayPeriod");
+
+        const suffix = getHourSuffix();
+
+        if (hasDayPeriod || !suffix) {
+          return timeString;
+        }
+        return `${timeString} ${suffix}`;
+      });
+    };
+  };
 }

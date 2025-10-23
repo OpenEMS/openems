@@ -143,6 +143,12 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
 	public void registerUser(JsonObject user, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}

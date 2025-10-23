@@ -61,7 +61,6 @@ public class AppHardyBarthReadOnly
 		// Properties
 		NUMBER_OF_CHARGING_STATIONS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(2))), //
 		PHASE_ROTATION(EvcsProps.phaseRotation()), //
-
 		// First ChargePoint
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setRequired(true) //

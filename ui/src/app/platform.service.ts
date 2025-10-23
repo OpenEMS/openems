@@ -159,6 +159,11 @@ export class PlatFormService {
     toast.present();
   }
 
+  /**
+   * Checks if app or web-app
+   *
+   * @returns true, if current platform is not web
+   */
   public getIsApp() {
     return Capacitor.getPlatform() !== "web";
   }

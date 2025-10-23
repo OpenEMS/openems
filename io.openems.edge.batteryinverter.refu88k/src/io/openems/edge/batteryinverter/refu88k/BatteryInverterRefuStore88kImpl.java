@@ -264,7 +264,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 						m(BatteryInverterRefuStore88k.ChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
 								SCALE_FACTOR_MINUS_2),
 						m(BatteryInverterRefuStore88k.ChannelId.HZ_SF, new SignedWordElement(SUNSPEC_103 + 17)), // 40087
-						m(BatteryInverterRefuStore88k.ChannelId.VA, new SignedWordElement(SUNSPEC_103 + 18), // 40088
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(SUNSPEC_103 + 18), // 40088
 								SCALE_FACTOR_1),
 						m(BatteryInverterRefuStore88k.ChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090

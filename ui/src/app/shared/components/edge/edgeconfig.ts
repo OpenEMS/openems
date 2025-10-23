@@ -499,7 +499,7 @@ export class EdgeConfig {
      * @param nature the given Nature.
      * @param componentId the Component-ID
      */
-    public hasComponentNature(nature: string, componentId: string) {
+    public hasComponentNature(nature: EdgeConfig.NatureString, componentId: string) {
         const natureIds = this.getNatureIdsByComponentId(componentId);
         return natureIds.includes(nature);
     }
@@ -512,6 +512,16 @@ export class EdgeConfig {
      */
     public hasComponentFactory(factoryId: string, component: EdgeConfig.Component) {
         return component.factoryId === factoryId;
+    }
+
+    /**
+     * Determines if component has at least one of the given factory ids
+     *
+     * @param factoryIds the given factory ids.
+     * @returns true, if at least one of the passed factory ids, exists in config
+     */
+    public hasFactories(factoryIds: string[]): boolean {
+        return Object.entries(this.components).some(([id, component]) => factoryIds.includes(component.factoryId));
     }
 
     /**
@@ -753,19 +763,7 @@ export class EdgeConfig {
         return component?.properties[property] ?? null;
     }
 
-    /**
-     * Safely gets a property from a component, if it exists, else returns false.
-     *
-     * @param component The component from which to retrieve the property.
-     * @param property The property name to retrieve.
-     * @returns The property value if it exists, otherwise null.
-     */
-    public hasComponentPropertyValue<T>(component: EdgeConfig.Component | null, property: string, value: T): boolean {
-        if (component == null) {
-            return false;
-        }
-        return component.hasPropertyValue<T>(property, value);
-    }
+
 }
 
 export enum PersistencePriority {
@@ -911,4 +909,7 @@ export namespace EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
+
+    /** Enforces nature ids with at least 3 dots */
+    export type NatureString = `${string}.${string}.${string}.${string}${string}`;
 }

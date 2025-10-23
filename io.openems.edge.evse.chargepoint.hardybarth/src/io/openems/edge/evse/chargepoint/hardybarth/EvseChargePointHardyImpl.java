@@ -24,7 +24,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.types.MeterType;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
@@ -34,11 +33,11 @@ import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -143,15 +142,21 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public MeterType getMeterType() {
-		return MeterType.CONSUMPTION_METERED;
-	}
-
-	@Override
 	public ChargePointAbilities getChargePointAbilities() {
+		if (this.isReadOnly()) {
+			return ChargePointAbilities.create()//
+					.build();
+		}
+
+		final var isEvConnected = switch (this.getChargePointStatus()) {
+		case UNDEFINED, A, E, F -> false;
+		case B, C, D -> true;
+		};
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
-				.setIsReadyForCharging(this.getIsReadyForCharging()).build();
+				.setIsEvConnected(isEvConnected) //
+				.setIsReadyForCharging(this.getIsReadyForCharging()) //
+				.build();
 	}
 
 	@Override
@@ -170,4 +175,8 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		return this.config.phaseRotation();
 	}
 
+	@Override
+	public boolean isReadOnly() {
+		return this.config.readOnly();
+	}
 }

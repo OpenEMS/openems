@@ -11,9 +11,34 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
-	private String openMeteoApiKey = null;
+	private String openCageApiKey;
+	private String openMeteoApiKey;
 
 	public DummyOpenemsEdgeOem() {
+	}
+
+	/**
+	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the Open-Meteo API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
+		this.openMeteoApiKey = apiKey;
+		return this;
+	}
+
+	/**
+	 * Sets the OpenCage API key to be used by this {@link DummyOpenemsEdgeOem}
+	 * instance.
+	 *
+	 * @param apiKey the OpenCage API key
+	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
+	 */
+	public DummyOpenemsEdgeOem withOpenCageApiKey(String apiKey) {
+		this.openCageApiKey = apiKey;
+		return this;
 	}
 
 	@Override
@@ -68,6 +93,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
+			.put("App.FENECON.Commercial.50.Gen3", "https://fenecon.de/fenecon-commercial-50/") //
 			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
 			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
 			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
@@ -75,6 +101,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
+			.put("App.TimeOfUseTariff.AncillaryCosts", "") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
 			.put("App.TimeOfUseTariff.GroupeE", "") //
@@ -101,11 +128,15 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Evcs.IesKeywatt", "") //
 			.put("App.Evcs.Keba", "") //
 			.put("App.Evcs.Keba.ReadOnly", "") //
+			.put("App.Evcs.Goe.ReadOnly", "") //
 			.put("App.Evcs.Heidelberg.ReadOnly", "") //
 			.put("App.Evcs.Mennekes.ReadOnly", "") //
 			.put("App.Evcs.Webasto.Next", "") //
 			.put("App.Evcs.Webasto.Unite", "") //
 			.put("App.Hardware.IoGpio", "") //
+			.put("App.Evse.ElectricVehicle.Generic", "") //
+			.put("App.Evse.ChargePoint.Keba", "") //
+			.put("App.Evse.Controller.Cluster", "") //
 			.put("App.Hardware.KMtronic8Channel", "") //
 			.put("App.Heat.HeatPump", "") //
 			.put("App.Heat.CHP", "") //
@@ -138,6 +169,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.PvInverter.SolarEdge", "") //
 			.put("App.PeakShaving.PeakShaving", "") //
 			.put("App.PeakShaving.PhaseAccuratePeakShaving", "") //
+			.put("App.PeakShaving.TimeSlotPeakShaving", "")//
 			.put("App.Ess.FixActivePower", "") //
 			.put("App.Ess.FixStateOfCharge", "") //
 			.put("App.Ess.PowerPlantController", "") //
@@ -170,19 +202,12 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 	}
 
 	@Override
-	public String getOpenMeteoApiKey() {
-		return this.openMeteoApiKey;
+	public String getOpenCageApiKey() {
+		return this.openCageApiKey;
 	}
 
-	/**
-	 * Sets the Open-Meteo API key to be used by this {@link DummyOpenemsEdgeOem}
-	 * instance.
-	 *
-	 * @param apiKey the Open-Meteo API key
-	 * @return this {@link DummyOpenemsEdgeOem} instance for method chaining
-	 */
-	public DummyOpenemsEdgeOem withOpenMeteoApiKey(String apiKey) {
-		this.openMeteoApiKey = apiKey;
-		return this;
+	@Override
+	public String getOpenMeteoApiKey() {
+		return this.openMeteoApiKey;
 	}
 }

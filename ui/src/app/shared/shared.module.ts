@@ -14,6 +14,7 @@ import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/fo
 import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { MeterModule } from "./components/edge/meter/meter.module";
+import { FlatWidgetButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
 import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
 import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
@@ -29,6 +30,7 @@ import { FormlySelectComponent } from "./components/formly/formly-select/formly-
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
+import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
 import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
 import { InputTypeComponent } from "./components/formly/input";
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
@@ -37,7 +39,10 @@ import { RepeatTypeComponent } from "./components/formly/repeat";
 import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
+import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
+import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
+import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { DirectiveModule } from "./directive/directive";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
@@ -66,6 +71,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 
 @NgModule({
   imports: [
+    PickdateComponentModule,
     BaseChartDirective,
     BrowserAnimationsModule,
     CommonModule,
@@ -94,6 +100,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: "select", component: FormlySelectComponent },
         { name: "checkbox-button", component: CheckboxButtonTypeComponent },
         { name: "radio", component: FormlyRadioTypeComponent },
+        { name: "tariff-table", component: FormlyTariffTableTypeComponent },
         { name: "range", component: FormlyRangeTypeComponent },
       ],
       validators: [
@@ -118,6 +125,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     RouterModule,
     TranslateModule,
     HelpPopoverButtonComponent,
+    FlatWidgetButtonComponent,
   ],
   declarations: [
     AppHeaderComponent,
@@ -143,6 +151,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlySelectComponent,
     CheckboxButtonTypeComponent,
     FormlyRadioTypeComponent,
+    FormlyTariffTableTypeComponent,
+    PickDateTimeRangeComponent,
     FormlyRangeTypeComponent,
   ],
   exports: [
@@ -160,6 +170,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HistoryDataErrorModule,
     IonicModule,
     MeterModule,
+    ModalComponentsModule,
     BaseChartDirective,
     NgxSpinnerModule,
     PercentageBarComponent,
@@ -167,6 +178,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    PickDateTimeRangeComponent,
   ],
   providers: [
     AppStateTracker,

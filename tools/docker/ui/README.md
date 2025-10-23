@@ -13,13 +13,17 @@ see [backend/README.md](../backend/README.md) and [edge/README.md](../edge/READM
 2. **View or Change [Dockerfile](./Dockerfile)**
 
 3. **Type the following build command.**
-    
+
     *Edge*
+
     ```bash
-    docker build . -t openems_ui-edge -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-edge-docker 
+    docker build . -t openems_ui-edge -f tools/docker/ui/Dockerfile.edge
     ```
+
     ---
+
     *Backend*
+
     ```bash
-    docker build . -t openems_ui-backend -f tools/docker/ui/Dockerfile --build-arg VERSION=openems,openems-backend-docker 
+    docker build . -t openems_ui-backend -f tools/docker/ui/Dockerfile.backend
     ```

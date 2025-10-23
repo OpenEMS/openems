@@ -7,9 +7,9 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static io.openems.edge.common.type.Phase.SinglePhase.L2;
 import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
-import static io.openems.edge.evcs.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumActivePowerFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
+import static io.openems.edge.meter.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -52,11 +52,11 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

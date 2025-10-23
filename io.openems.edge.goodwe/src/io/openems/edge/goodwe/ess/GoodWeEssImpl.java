@@ -119,7 +119,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
 
 		// Apply Power Set-Point
 		ApplyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
@@ -172,7 +172,8 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		// Surplus power is the PV production that cannot be fed into the battery. "+" because
+		// Surplus power is the PV production that cannot be fed into the battery. "+"
+		// because
 		// allowed charge power is always negative by convention
 		var surplus = productionPower + this.getAllowedChargePower().orElse(0);
 		if (surplus < 0) {

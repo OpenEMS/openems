@@ -10,9 +10,11 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "allowedCommonJsDependencies": ["chart.js"],
+            "allowedCommonJsDependencies": [
+              "chart.js"
+            ],
             "baseHref": "/",
             "budgets": [
               {
@@ -22,24 +24,31 @@
               }
             ],
             "index": "src/index.html",
-            "main": "src/main.ts",
             "namedChunks": false,
-            "outputPath": "target",
-            "polyfills": "src/polyfills.ts",
+            "outputPath": {
+              "base": "target",
+              "browser": ""
+            },
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "scripts": [],
             "tsConfig": "tsconfig.app.json",
-            "vendorChunk": false,
             "aot": false,
-            "buildOptimizer": false,
             "extractLicenses": false,
             "optimization": false,
             "outputHashing": "none",
-            "sourceMap": true
+            "sourceMap": true,
+            "browser": "src/main.ts",
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "."
+              ]
+            }
           },
           "configurations": {
             "prod": {
               "aot": true,
-              "buildOptimizer": true,
               "extractLicenses": true,
               "optimization": {
                 "scripts": true,
@@ -50,8 +59,7 @@
                 "fonts": true
               },
               "outputHashing": "all",
-              "sourceMap": false,
-              "serviceWorker": true
+              "sourceMap": false
             },
             "openems": {
               "assets": [
@@ -73,7 +81,9 @@
                 }
               ],
               "stylePreprocessorOptions": {
-                "includePaths": ["src/themes/openems/scss"]
+                "includePaths": [
+                  "src/themes/openems/scss"
+                ]
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
@@ -90,6 +100,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -102,6 +116,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -114,6 +132,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -126,6 +148,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -138,6 +164,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -150,6 +180,10 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-docker.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             },
@@ -162,13 +196,17 @@
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
                 }
               ]
             }
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "buildTarget": "app:build:openems,openems-edge-dev"
           },
@@ -193,21 +231,28 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "scripts": []
+            "polyfills": [
+              "src/polyfills.ts"
+            ]
           },
           "configurations": {
             "local": {
-              "karmaConfig": "karma.conf.local.js"
+              "tsConfig": "tsconfig.spec.json",
+              "karmaConfig": "karma.conf.local.js",
+              "polyfills": [
+                "src/polyfills.ts"
+              ]
             }
           }
         }
@@ -216,5 +261,31 @@
   },
   "cli": {
     "analytics": false
+  },
+  "schematics": {
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   }
 }

@@ -1,4 +1,5 @@
 @use "variables";
+// @use "./global.scss";
 
 /** Grid **/
 /** Padding **/
@@ -9,6 +10,10 @@
 
 .ion-no-padding-bottom {
     padding-bottom: 0;
+}
+
+.ion-padding-bottom-double {
+    padding-bottom: 20px;
 }
 
 .ion-no-padding-top {
@@ -25,7 +30,7 @@
 }
 
 .ion-font-size-smaller {
-    font-size: small !important;
+    font-size: smaller !important;
 }
 
 .ion-font-size-small {
@@ -102,6 +107,10 @@
     }
 }
 
+.ion-white-space-nowrap {
+    white-space: nowrap !important;
+}
+
 .ion-align-content-center {
     align-content: center;
 }
@@ -133,4 +142,16 @@
 .ion-item-label-min-content {
     @extend .ion-max-width-max-content;
     white-space: pre-wrap;
+}
+
+.ion-display-flex {
+    display: flex !important;
+}
+
+.ion-flex-column {
+    flex-direction: column !important;
+}
+
+.ion-text-bold {
+    font-weight: bold !important;
 }

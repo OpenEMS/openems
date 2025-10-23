@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 
 import { Controller_Io_HeatpumpModalComponent } from "./modal/modal.component";
@@ -20,22 +21,19 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
   public isConnectionSuccessful: boolean;
   public mode: string;
   public statusValue: number;
-
-  async presentModal() {
-    const modal = await this.modalController.create({
+  protected modalComponent: Modal | null = null;
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+  protected getModalComponent(): Modal {
+    return {
       component: Controller_Io_HeatpumpModalComponent,
       componentProps: {
         edge: this.edge,
         component: this.component,
         status: this.status,
       },
-    });
-    modal.onDidDismiss().then(() => {
-      this.service.getConfig().then(config => {
-        this.component = config.components[this.componentId];
-      });
-    });
-    return await modal.present();
+    };
   }
 
   protected override getChannelAddresses() {

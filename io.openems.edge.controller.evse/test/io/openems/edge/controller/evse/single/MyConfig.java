@@ -8,7 +8,7 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String chargePointId;
 		private Mode mode;

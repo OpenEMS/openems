@@ -9,7 +9,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 
-    @Input({ required: true }) protected buttons!: ButtonLabel[];
+    @Input({ required: true }) public buttons!: ButtonLabel[];
 }
 
 export type ButtonLabel = {

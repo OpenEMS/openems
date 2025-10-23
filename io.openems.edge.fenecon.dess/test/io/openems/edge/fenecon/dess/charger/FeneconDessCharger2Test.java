@@ -2,9 +2,9 @@ package io.openems.edge.fenecon.dess.charger;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.fenecon.dess.ess.FeneconDessEssImpl;
 import io.openems.edge.fenecon.dess.ess.MyEssConfig;
 

@@ -55,7 +55,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
- * Describes a App for a PQ-Plus meter.
+ * Describes an App for a PQ-Plus meter.
  *
  * <pre>
   {
@@ -131,7 +131,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 
 		private final AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def) {
+		Property(AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -254,7 +254,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 		private final String value;
 		private final String translation;
 
-		private PqPlusModel(String value, String translation) {
+		PqPlusModel(String value, String translation) {
 			this.value = value;
 			this.translation = translation;
 		}
@@ -274,8 +274,8 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create()//
-				.setCanSee(Role.ADMIN)//
-				.setCanDelete(Role.ADMIN) //
+				.setCanSee(Role.OWNER)//
+				.setCanDelete(Role.OWNER) //
 				.build();
 	}
 

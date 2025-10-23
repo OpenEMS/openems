@@ -41,7 +41,8 @@ public class ApplyPowerHandlerTest {
 				smartModeNotWorkingWithPidFilter::set, //
 				noSmartMeterDetected::set, //
 				emsPowerSet::set, //
-				emsPowerMode::set);
+				emsPowerMode::set //
+		);
 
 		assertTrue(smartModeNotWorkingWithPidFilter.get());
 		assertTrue(noSmartMeterDetected.get());
@@ -159,5 +160,81 @@ public class ApplyPowerHandlerTest {
 	private static void assertResult(EmsPowerMode emsPowerMode, int emsPowerSet, ApplyPowerHandler.Result result) {
 		assertEquals(emsPowerMode, result.emsPowerMode());
 		assertEquals(emsPowerSet, result.emsPowerSet());
+	}
+
+	@Test
+	public void testApplyWithEmsPowerSet() throws OpenemsNamedException {
+		final var smartModeNotWorkingWithPidFilter = new AtomicBoolean();
+		final var noSmartMeterDetected = new AtomicBoolean();
+		final var emsPowerSet = new AtomicInteger();
+		final var emsPowerMode = new AtomicReference<EmsPowerMode>();
+
+		ApplyPowerHandler.apply(//
+				/* setActivePower */ 5000, // Previous test with 1000 is obsolete due to maxAcImport/Export limits
+				ControlMode.SMART, //
+				/* gridActivePower */ new Value<Integer>(null, 250), //
+				/* essActivePower */ new Value<>(null, 420), //
+				/* maxAcImport */ new Value<>(null, 5000), // Not used in apply
+				/* maxAcExport */ new Value<>(null, 5000), // Not used in apply
+				/* isPidEnabled */ true, //
+				MeterCommunicateStatus.NG, //
+				/* pvProduction */ 300, //
+				/* surplusPower */ 105, //
+				smartModeNotWorkingWithPidFilter::set, //
+				noSmartMeterDetected::set, //
+				emsPowerSet::set, //
+				emsPowerMode::set //
+		);
+
+		assertTrue(smartModeNotWorkingWithPidFilter.get());
+		assertTrue(noSmartMeterDetected.get());
+		assertEquals(4700, emsPowerSet.get());
+		assertEquals(EmsPowerMode.DISCHARGE_BAT, emsPowerMode.get());
+
+		// --- AC set-point of -5kW (import) ---
+		ApplyPowerHandler.apply(//
+				/* setActivePower */ -5_000, //
+				ControlMode.SMART, //
+				/* gridActivePower */ new Value<Integer>(null, 250), //
+				/* essActivePower */ new Value<>(null, 420), //
+				/* maxAcImport */ new Value<>(null, 20000), // Not used in apply
+				/* maxAcExport */ new Value<>(null, 20000), // Not used in apply
+				/* isPidEnabled */ true, //
+				MeterCommunicateStatus.NG, //
+				/* pvProduction */ 300, //
+				/* surplusPower */ 105, //
+				smartModeNotWorkingWithPidFilter::set, //
+				noSmartMeterDetected::set, //
+				emsPowerSet::set, //
+				emsPowerMode::set //
+		);
+
+		assertTrue(smartModeNotWorkingWithPidFilter.get());
+		assertTrue(noSmartMeterDetected.get());
+		assertEquals(5300, emsPowerSet.get());
+		assertEquals(EmsPowerMode.CHARGE_BAT, emsPowerMode.get());
+
+		// --- AC set-point of -5kW (import) ---
+		ApplyPowerHandler.apply(//
+				/* setActivePower */ -5_000, //
+				ControlMode.SMART, //
+				/* gridActivePower */ new Value<Integer>(null, 250), //
+				/* essActivePower */ new Value<>(null, 420), //
+				/* maxAcImport */ new Value<>(null, 20000), // Not used in apply
+				/* maxAcExport */ new Value<>(null, 20000), // Not used in apply
+				/* isPidEnabled */ true, //
+				MeterCommunicateStatus.NG, //
+				/* pvProduction */ 300, //
+				/* surplusPower */ 105, //
+				smartModeNotWorkingWithPidFilter::set, //
+				noSmartMeterDetected::set, //
+				emsPowerSet::set, //
+				emsPowerMode::set //
+		);
+
+		assertTrue(smartModeNotWorkingWithPidFilter.get());
+		assertTrue(noSmartMeterDetected.get());
+		assertEquals(5300, emsPowerSet.get());
+		assertEquals(EmsPowerMode.CHARGE_BAT, emsPowerMode.get());
 	}
 }

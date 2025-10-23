@@ -1,6 +1,9 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
+import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
@@ -10,6 +13,12 @@ import { ChannelAddress } from "../../../../../shared/shared";
 @Component({
   selector: "productionMeterchart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: true,
+  imports: [
+    NgxSpinnerModule,
+    CommonUiModule,
+    HistoryDataErrorModule,
+  ],
 })
 export class ProductionMeterChartComponent extends AbstractHistoryChart {
 

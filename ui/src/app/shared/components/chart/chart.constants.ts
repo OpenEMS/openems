@@ -77,7 +77,23 @@ export namespace ChartConstants {
             return "";
         }
       };
+
+      public static ENERIX_CONTROL_SUFFIX = (translate: TranslateService, value: number | null): string => {
+        switch (value) {
+          case -1:
+            return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+          case 1:
+            return translate.instant("General.off");
+          case 2:
+            return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_DISCHARGE");
+          case 3:
+            return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.FORCE_CHARGE");
+          default:
+            return "";
+        }
+      };
     };
+
 
     /**
      * Places the yAxis above the chart
@@ -216,7 +232,12 @@ export namespace ChartConstants {
     });
 
 
-    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> | EmptyObj => {
+    public static POINT_STYLE = (dataset: ChartDataset): Pick<LegendItem, "pointStyle" | "fillStyle" | "lineDash"> => {
+
+      if (dataset == null || dataset.backgroundColor == null) {
+        return { pointStyle: Chart.defaults.plugins.legend.labels.pointStyle };
+      }
+
       if ("borderDash" in dataset) {
         return { pointStyle: "circle", lineDash: [3, 3] };
       }
@@ -256,6 +277,7 @@ export namespace ChartConstants {
   export class NumberFormat {
     public static NO_DECIMALS: string = "1.0-0";
     public static ZERO_TO_TWO: string = "1.0-2";
+    public static TWO: string = "1.2-2";
   }
 
   /**

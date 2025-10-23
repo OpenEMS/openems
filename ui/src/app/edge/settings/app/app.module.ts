@@ -4,17 +4,14 @@ import { FormControl, ValidationErrors } from "@angular/forms";
 import { FORMLY_CONFIG, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
+import { FormlyLinkComponent } from "./formly/formly-link";
 import { FormlyTextComponent } from "./formly/formly-text";
 import { FormlyInputWithUnitComponent } from "./formly/input-with-unit";
 import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/formly-option-group-picker.component";
 import { FormlyReorderArrayComponent } from "./formly/reorder-select/formly-reorder-array.component";
 import { FormlySafeInputModalComponent } from "./formly/safe-input/formly-safe-input-modal.component";
 import { FormlySafeInputWrapperComponent } from "./formly/safe-input/formly-safe-input.extended";
-import { IndexComponent } from "./index.component";
-import { InstallAppComponent } from "./install.component";
 import { KeyModalComponent } from "./keypopup/modal.component";
-import { SingleAppComponent } from "./single.component";
-import { UpdateAppComponent } from "./update.component";
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { "key": true };
@@ -43,6 +40,7 @@ export function registerTranslateExtension(translate: TranslateService) {
       ],
       types: [
         { name: "text", component: FormlyTextComponent },
+        { name: "link", component: FormlyLinkComponent },
         { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent },
         { name: "reorder-array", component: FormlyReorderArrayComponent },
       ],
@@ -55,23 +53,16 @@ export function registerTranslateExtension(translate: TranslateService) {
     }),
   ],
   declarations: [
-    IndexComponent,
-    InstallAppComponent,
-    SingleAppComponent,
-    UpdateAppComponent,
     KeyModalComponent,
     FormlySafeInputModalComponent,
     FormlySafeInputWrapperComponent,
+    FormlyLinkComponent,
     FormlyTextComponent,
     FormlyInputWithUnitComponent,
     FormlyOptionGroupPickerComponent,
     FormlyReorderArrayComponent,
   ],
   exports: [
-    IndexComponent,
-    InstallAppComponent,
-    SingleAppComponent,
-    UpdateAppComponent,
   ],
   providers: [
     // Use factory for formly. This allows us to use translations in validationMessages.

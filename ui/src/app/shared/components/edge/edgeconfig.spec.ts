@@ -5,7 +5,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { TextIndentation } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -134,6 +134,18 @@ export namespace DummyConfig {
             ],
         };
 
+        export const EVSE_CHARGEPOINT_KEBA_UDP = {
+            id: "Evse.ChargePoint.Keba.UDP",
+            natureIds: [
+                "io.openems.edge.meter.api.ElectricityMeter",
+                "io.openems.edge.evse.chargepoint.keba.common.KebaUdp",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                "io.openems.edge.evse.chargepoint.keba.common.EvseKeba",
+                "io.openems.edge.timedata.api.TimedataProvider",
+            ],
+        };
+
         export const ESS_GENERIC_MANAGEDSYMMETRIC = {
             id: "Ess.Generic.ManagedSymmetric",
             natureIds: [
@@ -148,11 +160,34 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = {
+            id: "Edge2Edge.Websocket.Ess",
+            natureIds: [
+                "io.openems.edge.edge2edge.websocket.Edge2EdgeWebsocket",
+                "io.openems.edge.ess.api.SymmetricEss",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.ess.api.ManagedSymmetricEss",
+                "io.openems.edge.ess.api.AsymmetricEss",
+                "io.openems.edge.edge2edge.websocket.ess.Edge2EdgeEss",
+            ],
+        };
 
         export const ESS_LIMITER_14A = {
             id: "Controller.Ess.Limiter14a",
             natureIds: [
                 "io.openems.edge.controller.ess.limiter14a",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+
+            ],
+        };
+
+        export const ESS_RCR = {
+            id: "Controller.Ess.RippleControlReceiver",
+            natureIds: [
+                "io.openems.edge.common.meta.Meta",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.controller.ess.ripplecontrolreceiver",
                 "io.openems.edge.common.component.OpenemsComponent",
                 "io.openems.edge.timedata.api.TimedataProvider",
 
@@ -378,10 +413,33 @@ export namespace DummyConfig {
             channels: {},
         });
 
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: Factory.EDGE_2_EDGE_WEBSOCKET_ESS.id,
+            factory: Factory.EDGE_2_EDGE_WEBSOCKET_ESS,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+            },
+            channels: {},
+        });
+
         export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.ESS_LIMITER_14A,
+            properties: {
+                enabled: "true",
+                ["ess.id"]: "ess0",
+            },
+            channels: {},
+        });
+
+        export const ESS_RCR = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.ESS_RCR,
             properties: {
                 enabled: "true",
                 ["ess.id"]: "ess0",
@@ -398,6 +456,18 @@ export namespace DummyConfig {
                 modbusUnitId: 5,
                 // TODO
                 type: "CONSUMPTION_METERED",
+            },
+            channels: {},
+        });
+
+        export const EVSE_CHARGEPOINT_KEBA_UDP = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.EVSE_CHARGEPOINT_KEBA_UDP,
+            properties: {
+                alias: alias ?? id,
+                enabled: true,
+                readOnly: false,
             },
             channels: {},
         });
@@ -568,6 +638,12 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string
     name: text,
     buttons: buttons,
     controlName: controlName,
+});
+export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, expectedValue: T, properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,): OeFormlyViewTester.Field => ({
+    type: "range-button-from-form-control-line",
+    controlName,
+    expectedValue,
+    properties,
 });
 
 export namespace ChartConfig {

@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { ModalComponent } from "../modal/modal";
+import { Modal } from "src/app/shared/components/flat/flat";
+import { ModalComponent } from "../pages/home";
 
 @Component({
     selector: "oe-controller-evse-single",
@@ -8,6 +9,13 @@ import { ModalComponent } from "../modal/modal";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
+
+    protected readonly modalComponent: Modal = {
+        component: ModalComponent,
+        componentProps: {
+            component: this.component,
+        },
+    };
 
     async presentModal() {
         const modal = await this.modalController.create({

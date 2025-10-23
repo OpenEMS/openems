@@ -39,12 +39,14 @@ import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.common.test.Plot.Data;
@@ -61,6 +63,7 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
+	private static final DummyMeta META = new DummyMeta("_meta");
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0");
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss("ess0");
@@ -71,6 +74,10 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			"ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
 			"ConsumptionActivePower");
+	private static final ChannelAddress MAXIMUM_GRID_FEED_IN_LIMIT = new ChannelAddress("_meta",
+			"MaximumGridFeedInLimit");
+	private static final ChannelAddress GRID_FEED_IN_LIMITATION_TYPE = new ChannelAddress("_meta",
+			"GridFeedInLimitationType");
 
 	/*
 	 * Default Prediction values
@@ -146,6 +153,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -155,7 +163,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -164,6 +173,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -197,6 +207,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -206,7 +217,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -215,6 +227,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -255,6 +268,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -264,7 +278,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -274,6 +289,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -332,6 +348,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -341,7 +358,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -350,6 +368,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -397,6 +416,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -406,7 +426,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -415,6 +436,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -437,6 +459,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -446,7 +469,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -455,6 +479,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -7500) //
 						.input("ess0", CAPACITY, 10_000) //
@@ -536,6 +561,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -545,7 +571,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -554,6 +581,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(GRID_FEED_IN_LIMITATION_TYPE, GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -7500) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("ess0", CAPACITY, 10_000) //
@@ -637,6 +666,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -646,7 +676,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -655,6 +686,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -7500) //
 						.input("ess0", CAPACITY, 10_000) //
@@ -744,6 +776,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -753,7 +786,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -762,6 +796,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", CAPACITY, 10_000) //
@@ -796,6 +831,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -805,7 +841,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -814,6 +851,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setSellToGridLimitRampPercentage(5) //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -846,6 +884,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -855,7 +894,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -899,6 +939,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -908,7 +949,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.OFF) //
@@ -917,6 +959,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -7500) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
@@ -948,6 +991,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -957,7 +1001,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -966,6 +1011,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
@@ -1004,6 +1050,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -1013,7 +1060,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.OFF) //
@@ -1023,6 +1071,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(sleep) //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
 						.output(DELAY_CHARGE_STATE, DelayChargeState.NOT_STARTED) //
@@ -1067,6 +1116,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -1076,7 +1126,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -1092,6 +1143,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				 */
 				.next(new TestCase("Cycle 1 - no production") //
 						.onAfterProcessImage(sleep) //
+						.input(MAXIMUM_GRID_FEED_IN_LIMIT, 7000) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input(SUM_CONSUMPTION_ACTIVE_POWER, 1000) //
 						.input(START_EPOCH_SECONDS, null) //

@@ -12,6 +12,20 @@ import { FieldWrapper } from "@ngx-formly/core";
             formly-input-serial-number {
                 width: 100%;
             }
+
+            formly-field-ion-toggle ion-toggle {
+                padding: 0 !important;
+                margin: 0 !important;
+                transform: none !important;
+            }
+
+            ion-toggle::part(label),
+            ion-checkbox::part(label),
+            ion-radio::part(label) {
+                white-space: pre-wrap !important;
+                flex: 1;
+                margin-inline-end: 0 !important;
+            }
     `],
 })
 export class FormlyWrapperFormFieldComponent extends FieldWrapper {

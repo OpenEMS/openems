@@ -215,6 +215,18 @@ export enum ChannelRegister {
   "SetReactivePowerGreaterOrEquals" = 716,
 }
 
+export enum RippleControlReceiverRestrictionLevel {
+  NO_RESTRICTION = 0,
+  ZERO_PERCENT = 1,
+  THIRTY_PERCENT = 2,
+  SIXTY_PERCENT = 3,
+}
+
+export enum Limiter14aRestriction {
+  NO_RESTRICTION = 0,
+  RESTRICTION = 1,
+}
+
 /**
 * Presents a simple
 */

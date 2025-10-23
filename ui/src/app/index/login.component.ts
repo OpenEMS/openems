@@ -11,7 +11,7 @@ import { Theme as UserTheme } from "../edge/history/shared";
 import { PlatFormService } from "../platform.service";
 import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authenticateWithPasswordRequest";
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
-import { User } from "../shared/jsonrpc/shared";
+import { User, UserSettings } from "../shared/jsonrpc/shared";
 import { States } from "../shared/ngrx-store/states";
 import { UserService } from "../shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
@@ -35,7 +35,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
 
-
   constructor(
     public service: Service,
     public websocket: Websocket,
@@ -53,7 +52,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
   }
 
   public static getCurrentTheme(user: User): UserTheme {
-    return user?.settings["theme"] ?? localStorage.getItem("THEME") ?? this.DEFAULT_THEME;
+    return (user?.settings[UserSettings.THEME] ?? localStorage.getItem("THEME") ?? this.DEFAULT_THEME) as UserTheme;
   }
   /**
    * Preprocesses the credentials

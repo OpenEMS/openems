@@ -2,15 +2,19 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.Meta;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
+		private Meta meta;
 		private String id;
 		private String essId;
 		private String meterId;
 		private int maximumSellToGridPower;
+		private GridFeedInLimitationType gridFeedInLimitationType;
 		private Mode mode;
 		private String manualTargetTime;
 		private boolean sellToGridLimitEnabled;
@@ -32,8 +36,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMeta(Meta meta) {
+			this.meta = meta;
+			return this;
+		}
+
 		public Builder setMaximumSellToGridPower(int maximumSellToGridPower) {
-			this.maximumSellToGridPower = maximumSellToGridPower;
+			this.meta._setMaximumGridFeedInLimit(maximumSellToGridPower);
 			return this;
 		}
 
@@ -59,6 +68,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setDelayChargeRiskLevel(DelayChargeRiskLevel delayChargeRiskLevel) {
 			this.delayChargeRiskLevel = delayChargeRiskLevel;
+			return this;
+		}
+
+		public Builder setGridFeedInLimitationType(GridFeedInLimitationType gridFeedInLimitationType) {
+			this.gridFeedInLimitationType = gridFeedInLimitationType;
+			this.meta._setGridFeedInLimitationType(this.gridFeedInLimitationType);
 			return this;
 		}
 
@@ -93,6 +108,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.meterId;
 	}
 
+	@Deprecated
 	@Override
 	public int maximumSellToGridPower() {
 		return this.builder.maximumSellToGridPower;
@@ -123,6 +139,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.manualTargetTime;
 	}
 
+	@Deprecated
 	@Override
 	public boolean sellToGridLimitEnabled() {
 		return this.builder.sellToGridLimitEnabled;

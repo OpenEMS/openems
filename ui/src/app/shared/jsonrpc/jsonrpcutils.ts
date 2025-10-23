@@ -1,4 +1,5 @@
 import { ChannelAddress } from "../type/channeladdress";
+import { JsonrpcRequest } from "./base";
 
 export class JsonRpcUtils {
 
@@ -31,5 +32,30 @@ export class JsonRpcUtils {
             result.push(channel.toString());
         }
         return Array.from(new Set(result));
+    }
+
+    /**
+     * Handles jsonRpcRequests
+     *
+     * @param promise the promise
+     * @returns either an error or the result
+     */
+    public static handle<T = JsonrpcRequest>(promise: Promise<T>): Promise<[Error | null, T | null]> {
+        return promise
+            .then((data): [null, T] => [null, data])
+            .catch((err: Error): [Error, null] => [err, null]);
+    }
+
+    /**
+     * Handles a jsonRpcRequests, with fallback value if error thrown
+     *
+     * @param promise the promise
+     * @param orElse the default value to use, if err thrown
+     * @returns either the the result or if error thrown the fallback value orElse
+     */
+    public static handleOrElse<T = JsonrpcRequest>(promise: Promise<T>, orElse: T): Promise<[null | Error, T]> {
+        return promise
+            .then((data): [null, T] => [null, data])
+            .catch((err): [Error, T] => [err, orElse]);
     }
 }

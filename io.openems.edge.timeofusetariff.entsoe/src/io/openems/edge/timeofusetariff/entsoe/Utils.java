@@ -1,7 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
-import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static io.openems.common.utils.XmlUtils.stream;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseForGermany;
@@ -41,7 +40,6 @@ import com.google.common.collect.Streams;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.common.jsonrpc.serialization.JsonObjectPathActual;
 import io.openems.common.utils.XmlUtils;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
@@ -291,7 +289,7 @@ public class Utils {
 	 * @param ancillaryCosts the JSON configuration object
 	 * @param logWarn        a {@link Consumer} for a warning message
 	 * @return an {@link ImmutableList} of {@link Task} instances representing the
-	 *         schedule
+	 *         schedule or an empty list if no valid schedule is provided.
 	 * @throws OpenemsNamedException on error.
 	 */
 	public static ImmutableList<Task<Double>> parseToSchedule(BiddingZone biddingZone, String ancillaryCosts,
@@ -299,11 +297,10 @@ public class Utils {
 		if (ancillaryCosts == null || ancillaryCosts.isBlank()) {
 			return ImmutableList.of();
 		}
-		var j = new JsonObjectPathActual.JsonObjectPathActualNonNull(parseToJsonObject(ancillaryCosts));
 
 		return switch (biddingZone) {
 		case GERMANY //
-			-> parseForGermany(j);
+			-> parseForGermany(ancillaryCosts);
 		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4 -> {
 			logWarn.accept("Parser for " + biddingZone.name() + "-Scheduler is not implemented");
 			throw new OpenemsException("Parser for bidding zone " + biddingZone.name() + " is not implemented");

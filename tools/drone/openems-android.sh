@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NODE_MAJOR=20
+NODE_MAJOR=22
 
 ANDROID_SDK_VERSION=11076708
 ANDROID_HOME="/opt/android-sdk"

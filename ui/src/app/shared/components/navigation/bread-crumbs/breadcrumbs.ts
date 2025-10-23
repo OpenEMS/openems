@@ -1,4 +1,5 @@
-import { Component, effect, EventEmitter, Output } from "@angular/core";
+import { Component, effect, EventEmitter, Output, signal, WritableSignal } from "@angular/core";
+import { RouteService } from "src/app/shared/service/route.service";
 import { NavigationService } from "../service/navigation.service";
 import { NavigationTree } from "../shared";
 
@@ -10,11 +11,12 @@ import { NavigationTree } from "../shared";
 export class NavigationBreadCrumbsComponent {
 
     @Output() public navigate: EventEmitter<NavigationTree> = new EventEmitter();
-    protected parents: (NavigationTree | null)[] = [];
+    protected breadCrumbs: WritableSignal<(NavigationTree | null)[]> = signal([]);
     protected isVisible: boolean = false;
 
     constructor(
         protected navigationService: NavigationService,
+        protected routeService: RouteService,
     ) {
 
         effect(() => {
@@ -23,8 +25,7 @@ export class NavigationBreadCrumbsComponent {
             if (parents?.length >= 1) {
                 parents.push(currentNode);
             }
-
-            this.parents = parents;
+            this.breadCrumbs.set(parents);
         });
     }
 

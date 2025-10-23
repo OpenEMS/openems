@@ -240,11 +240,11 @@ NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to
 
 == Run OpenEMS UI
 
-NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise just go ahead with the hosted version:
+NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI or [deploy the OpenEMS UI as docker image](https://openems.github.io/openems.io/openems/latest/edge/deploy/docker.html#_openems_edge_ui).
 
 . Make sure OpenEMS Edge is running locally and the websocket is running on port `8085`.
 
-. Open https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]]
+. Open the UI URL
 
 . You should see OpenEMS UI. Log in as user "guest" by leaving the standard password and clicking the login button. Alternatively type "admin" in the password field to log in with extended permissions.
 +
@@ -255,8 +255,6 @@ image::openems-ui-login.png[OpenEMS UI Login screen]
 +
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
-
-_Unfortunately the hosted version of OpenEMS UI is currently slightly outdated and incompatible with latest OpenEMS Edge. Follow the xref:ui/setup-ide.adoc[OpenEMS UI guide] to produce the following visualization. The language can be changed in the "burger menu" on top left -> btn:[admin] -> btn:[Allgemeine Einstellungen]._ 
 
 .OpenEMS UI Energymonitor screen
 image::openems-ui-edge-overview2.png[OpenEMS UI Energymonitor screen]

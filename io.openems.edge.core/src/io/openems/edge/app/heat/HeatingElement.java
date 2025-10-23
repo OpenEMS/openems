@@ -15,6 +15,7 @@ import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.List;
@@ -88,31 +89,30 @@ import io.openems.edge.meter.api.ElectricityMeter;
  * Describes a App for a RTU Heating Element.
  *
  * <pre>
- * {
- * "appId":"App.Heat.HeatingElement",
- * "alias":"Heizstab",
- * "instanceId": UUID,
- * "image": base64,
- * "properties":{
- * "CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0",
- * "OUTPUT_CHANNEL_PHASE_L1": "io0/Relay1",
- * "OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
- * "OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3",
- * "POWER_PER_PHASE": 2000,
- * "HYSTERESIS": 60,
- * "IS_ELEMENT_MEASURED": false,
- *
- * },
- * "dependencies": [
- * {
- * "key": "RELAY",
- * "instanceId": UUID
- * }
- * ],
- * "appDescriptor": {
- * "websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
- * }
- * }
+ 	{
+		 "appId":"App.Heat.HeatingElement",
+		 "alias":"Heizstab",
+		 "instanceId": UUID,
+		 "image": base64,
+		 "properties":{
+		 "CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0",
+		 "OUTPUT_CHANNEL_PHASE_L1": "io0/Relay1",
+		 "OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
+		 "OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3",
+		 "POWER_PER_PHASE": 2000,
+		 "HYSTERESIS": 60,
+		 "IS_ELEMENT_MEASURED": false,
+ 		},
+ 		"dependencies": [
+ 			{
+				 "key": "RELAY",
+				 "instanceId": UUID
+ 			}
+ 		],
+ 		"appDescriptor": {
+ 			"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
+ 		}
+ 	}
  * </pre>
  */
 
@@ -187,12 +187,14 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		HOW_MEASURED(AppDef.copyOfGeneric(CommonProps.defaultDef(), de -> de //
 				.setTranslatedLabelWithAppPrefix(".howMeasured") //
 				.setDefaultValue(HeatingElementMeterIntegration.EXTERN) //
-				.appendIsAllowedToSee((app, property, l, parameter, user) -> {
-					return PropsUtil.isHomeInstalled(app.appManagerUtil)
-							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty();
-				}) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					if (PropsUtil.isHomeInstalled(app.appManagerUtil)
+							&& app.appManagerUtil.getInstantiatedAppsOf("App.FENECON.Home").isEmpty()) {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class), l);
+					} else {
+						field.setOptions(OptionsFactory.of(HeatingElementMeterIntegration.class,
+								HeatingElementMeterIntegration.INTERN), l);
+					}
 					field.onlyShowIf(Exp.currentModelValue(IS_ELEMENT_MEASURED).notNull());
 				}))), //
 		METER_ID(AppDef.copyOfGeneric(defaultDef(), def -> def //
@@ -316,7 +318,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
-									.setAppId("App.Meter.Microcare.Sdm630") //
+									.setAppId("App.Meter.Eastron") //
 									.setAlias(translate(getTranslationBundle(l),
 											"App.Heat.HeatingElement.internalMeterAlias")) //
 									.setInitialProperties(buildJsonObject(meterProperties.deepCopy()) //
@@ -344,6 +346,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				}
 			}
 
+			final var tmpMeterId = meterId;
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement", buildJsonObject() //
 							.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
@@ -351,7 +354,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
 							.addProperty("powerPerPhase", powerPerPhase) //
 							.addProperty("minimumSwitchingTime", hysteresis) //
-							.addProperty("meter.id", meterId) //
+							.onlyIf(t != ConfigurationTarget.VALIDATE, b -> b.addProperty("meter.id", tmpMeterId)) //
 							.build()) //
 			);
 
@@ -446,18 +449,35 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	private static List<ElectricityMeter> getExternMeter(HeatingElement app, List<String> meterIdsToNotInclude) {
 		final var componentUtil = app.getComponentUtil();
 
-		var components = componentUtil.getEnabledComponentsOfType(ElectricityMeter.class).stream().filter(meter -> {
-			var toIgnore = meterIdsToNotInclude.stream().anyMatch(m -> meter.id().equals(m));
-			return meter.getMeterType() == MeterType.CONSUMPTION_METERED && !toIgnore;
-		}).sorted((Comparator.comparingInt(meter -> {
-			Matcher m = Pattern.compile("\\d+").matcher(meter.id());
-			if (m.find()) {
-				return Integer.parseInt(m.group());
-			}
-			return 0;
-		})));
+		var components = componentUtil.getEnabledComponentsOfType(ElectricityMeter.class).stream()
+				.filter(meter -> isValidConsumptionMeter(app, meter, meterIdsToNotInclude))
+				.sorted((Comparator.comparingInt(meter -> {
+					Matcher m = Pattern.compile("\\d+").matcher(meter.id());
+					if (m.find()) {
+						return Integer.parseInt(m.group());
+					}
+					return 0;
+				})));
 
 		return components.toList();
+	}
+
+	private static boolean isValidConsumptionMeter(HeatingElement app, ElectricityMeter meter,
+			List<String> meterIdsToNotInclude) {
+		final var edge = app.componentManager.getEdgeConfig();
+		final var meterComponent = edge.getComponents().get(meter.id());
+		if (meterComponent == null) {
+			return false;
+		}
+		final var factoryId = meterComponent.getFactoryId();
+		final var natureIds = edge.getFactories().get(factoryId);
+		var isChargingOrHeating = natureIds != null && Arrays.stream(natureIds.getNatureIds())
+				.anyMatch(natureId -> natureId.equals("io.openems.edge.evcs.api.Evcs")
+						|| natureId.equals("io.openems.edge.heat.api.Heat")
+						|| natureId.equals("io.openems.edge.evse.api.Chargepoint"));
+
+		var toIgnore = meterIdsToNotInclude.stream().anyMatch(m -> meter.id().equals(m));
+		return meter.getMeterType() == MeterType.CONSUMPTION_METERED && !isChargingOrHeating && !toIgnore;
 	}
 
 	private static boolean isInternMeterUsedByHeatingElement(HeatingElement app, String meterAlias) {

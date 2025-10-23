@@ -1,11 +1,11 @@
 package io.openems.edge.predictor.production.linearmodel;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import io.openems.edge.weather.api.WeatherData;
-import io.openems.edge.weather.api.WeatherSnapshot;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
 public final class Utils {
 
@@ -32,26 +32,21 @@ public final class Utils {
 	 *         each column corresponds to one of the specified features.
 	 */
 	public static double[][] getWeatherDataFeatureMatrix(//
-			WeatherData weatherData, //
+			List<QuarterlyWeatherSnapshot> weatherData, //
 			String[] inputFeatures, //
 			boolean includeDaytimeFeatures) {
-		var weatherDataMap = weatherData.toMap();
-		var dateTimeArray = weatherDataMap.keySet().toArray(ZonedDateTime[]::new);
-		var weatherDataArray = weatherDataMap.values().toArray(WeatherSnapshot[]::new);
+		Map<String, Function<QuarterlyWeatherSnapshot, Double>> featureToMethodMap = Map.of(//
+				"global_horizontal_irradiance", QuarterlyWeatherSnapshot::globalHorizontalIrradiance, //
+				"direct_normal_irradiance", QuarterlyWeatherSnapshot::directNormalIrradiance);
 
-		Map<String, Function<WeatherSnapshot, Double>> featureToMethodMap = Map.of(//
-				"global_horizontal_irradiance", WeatherSnapshot::globalHorizontalIrradiance, //
-				"direct_normal_irradiance", WeatherSnapshot::directNormalIrradiance, //
-				"temperature", WeatherSnapshot::temperature, //
-				"weather_code", snapshot -> (double) snapshot.weatherCode() //
-		);
-
-		int nSamples = weatherDataArray.length;
+		int nSamples = weatherData.size();
 		int nFeatures = inputFeatures.length;
 		var features = new double[nSamples][nFeatures];
 
+		var dateTimeArray = new ZonedDateTime[nSamples];
+
 		for (int i = 0; i < nSamples; i++) {
-			var snapshot = weatherDataArray[i];
+			var snapshot = weatherData.get(i);
 			for (int j = 0; j < nFeatures; j++) {
 				var featureName = inputFeatures[j];
 				var extractor = featureToMethodMap.get(featureName);
@@ -60,6 +55,7 @@ public final class Utils {
 				}
 				features[i][j] = extractor.apply(snapshot);
 			}
+			dateTimeArray[i] = snapshot.datetime();
 		}
 
 		if (includeDaytimeFeatures) {

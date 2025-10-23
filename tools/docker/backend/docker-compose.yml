@@ -21,7 +21,8 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://localhost:8082
+      - WEBSOCKET_HOST=openems_backend
+      - WEBSOCKET_PORT=8082
     ports:
       - 80:80
       - 443:443

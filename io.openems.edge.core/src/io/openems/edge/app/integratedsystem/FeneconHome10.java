@@ -11,12 +11,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfCon
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
@@ -45,7 +45,7 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome10.FeneconHomeParameter;
@@ -144,6 +144,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 					return new JsonPrimitive(safetyCountry.name());
 				}))), //
 
+		LINK_FEED_IN(feedInLink()), //
 		// (ger. Rundsteuerempfänger)
 		RIPPLE_CONTROL_RECEIVER_ACTIV(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".rippleControlReceiver.label") //
@@ -152,17 +153,14 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
 				}) //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
-		FEED_IN_TYPE(AppDef.copyOfGeneric(
-				feedInType(FeedInType.EXTERNAL_LIMITATION, FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION), def -> def //
-						.wrapField((app, property, l, parameter, field) -> {
-							field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
-						}))), //
-		MAX_FEED_IN_POWER(AppDef.copyOfGeneric(
-				maxFeedInPower(FEED_IN_TYPE, t -> t.and(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())),
-				def -> def //
-						.setDefaultValue((app, property, l, parameter) -> {
-							return new JsonPrimitive(parameter.defaultValues().maxFeedInPower());
-						}))), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
+		// hidden until external limitation is implemented
+		FEED_IN_TYPE(AppDef.copyOfGeneric(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION), def -> def //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
+				}))
+				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
@@ -289,12 +287,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
 			final var rippleControlReceiverActive = this.getBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV);
-			final var feedInType = rippleControlReceiverActive ? FeedInType.EXTERNAL_LIMITATION
-					: this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
-
+			final var feedInType = rippleControlReceiverActive ? ExternalLimitationType.EXTERNAL_LIMITATION
+					: this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
 
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
@@ -359,8 +353,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 									.addProperty("modbusUnitId", 1) //
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
-					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
+					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
 							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
@@ -430,7 +424,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			}
 
 			var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
 					prepareBatteryExtension() //
 			);
@@ -441,9 +435,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 
 			if (hasEssLimiter14a) {
 				final var dependency = essLimiter14aToHardware(this.appManagerUtil);
-				if (dependency != null) {
-					dependencies.add(dependency);
-				}
+				dependencies.add(dependency);
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();

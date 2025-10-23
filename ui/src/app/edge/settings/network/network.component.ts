@@ -1,9 +1,15 @@
 import { Component, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { FormlyFieldConfig, FormlyForm } from "@ngx-formly/core";
+import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormlyFieldConfig, FormlyForm, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Role } from "src/app/shared/type/role";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
 import { GetNetworkConfigRequest } from "./getNetworkConfigRequest";
 import { GetNetworkConfigResponse } from "./getNetworkConfigResponse";
@@ -15,7 +21,17 @@ import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInfo, N
 @Component({
   selector: NetworkComponent.SELECTOR,
   templateUrl: "./network.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    LiveDataServiceProvider,
+    LocaleProvider,
+    PipeComponentsModule,
+    FormsModule,
+    FormlyModule,
+    ReactiveFormsModule,
+    HelpButtonComponent,
+  ],
 })
 export class NetworkComponent implements OnInit {
 
@@ -93,7 +109,9 @@ export class NetworkComponent implements OnInit {
       this.edge = await this.service.getCurrentEdge();
       if (this.edge) {
         const response: GetNetworkConfigResponse = await this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })) as GetNetworkConfigResponse;
-        const networkInfoResponse = await this.edge.sendRequest<GetNetworkInfoResponse>(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkInfoRequest() }));
+        const getNetworkInfoReq = new GetNetworkInfoRequest();
+        const [_err, networkInfoResponse] = await JsonRpcUtils.handleOrElse<GetNetworkInfoResponse>(
+          this.edge.sendRequest<GetNetworkInfoResponse>(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: getNetworkInfoReq })), GetNetworkInfoResponse.EMPTY(getNetworkInfoReq.id));
         this.handleNetworkResponses(response, networkInfoResponse);
       }
     } catch (reason: any) {

@@ -38,6 +38,10 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
                 Validators.required,
             ])),
+            hysteresisSoc: new FormControl(this.component.properties.hysteresisSoc, Validators.compose([
+                Validators.pattern("^(100|[1-9]?[0-9])$"),
+                Validators.required,
+            ])),
             slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),
             slowChargeStartTime: new FormControl(this.component.properties.slowChargeStartTime, Validators.compose([
                 Validators.pattern("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"),
