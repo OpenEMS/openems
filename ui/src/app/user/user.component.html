@@ -39,7 +39,7 @@
                   {{"MENU.ACCESS_LEVEL" | translate}}
                 </ion-label>
                 <ion-label>
-                  {{ 'Role.' + user.globalRole | translate }}
+                  {{ ('ROLE.' + (user.globalRole?.toUpperCase() || '')) | translate }}
                   <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
               </ion-icon> -->
                 </ion-label>
