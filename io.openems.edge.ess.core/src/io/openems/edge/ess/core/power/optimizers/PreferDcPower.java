@@ -46,7 +46,6 @@ public class PreferDcPower {
 		 *
 		 * TODO:
 		 *
-		 *	- Test implementation with PID-Filter enabled
 		 * 	- Can we use the same logic for ACTIVE and REACTIVE power?
 		 * 	- Documentation/Description with expected behavior of this implementation
 		 *
@@ -221,13 +220,23 @@ public class PreferDcPower {
 	 */
 	private static PointValuePair solvePower(double power, List<ManagedSymmetricEss> essList, Pwr pwr,
 			TargetDirection direction, Coefficients coefficients, List<Constraint> allConstraints, List<Inverter> sortedInverters) throws OpenemsException {
+		List<Constraint> constraints = new ArrayList<>(allConstraints);
 
 		var debug=true;
 		if(debug) System.out.println("["+pwr+"] PowerSetPoint: "+power+ ", Direction: "+direction);
 
 		if (direction == TargetDirection.KEEP_ZERO) {
-			var defaultResult = new double[essList.size()];
-			return new PointValuePair(defaultResult, 0);
+			// Solve the system
+			var defaultResult = ConstraintSolver.solve(coefficients, constraints);
+
+			for (var inv : sortedInverters) {
+				// Create Constraint to force Ess on ZERO
+				defaultResult = addContraintIfProblemStillSolves(defaultResult, constraints, coefficients,
+						createSimpleConstraint(coefficients, //
+								inv.toString() + ": Force ActivePower " + direction.name(), //
+								inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, 0));
+			}
+			return defaultResult;
 		}
 
 		var essUpperLimit = sortedInverters.stream()//
@@ -359,7 +368,6 @@ public class PreferDcPower {
 
 
 		// Solve the system
-		List<Constraint> constraints = new ArrayList<>(allConstraints);
 		var result = ConstraintSolver.solve(coefficients, constraints);
 
 		for (int i=0; i<sortedInverters.size(); i++) {
@@ -374,9 +382,8 @@ public class PreferDcPower {
 
 
 		// Write result into contraints array result2 (sorted/index equals as within constraints)
-		double[] result2 = new double[constraints.size()];
-
 		var point = result.getPoint();
+		double[] result2 = new double[point.length];
 		for (Inverter inv : sortedInverters) {
 			var essId = inv.getEssId();
 			var c = coefficients.of(essId, inv.getPhase(), pwr);
