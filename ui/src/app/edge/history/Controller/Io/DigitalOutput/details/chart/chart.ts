@@ -73,13 +73,13 @@ export class ChartComponent extends AbstractHistoryChart {
   protected static getInputChannelLabel(translate: TranslateService, channelAddress: ChannelAddress): string {
     switch (channelAddress.channelId) {
       case "GridActivePower":
-        return translate.instant("General.grid");
+        return translate.instant("GENERAL.GRID");
       case "ProductionActivePower":
-        return translate.instant("General.production");
+        return translate.instant("GENERAL.PRODUCTION");
       case "EssSoc":
-        return translate.instant("General.soc");
+        return translate.instant("GENERAL.SOC");
       default:
-        return translate.instant("Edge.Index.Widgets.Singlethreshold.other");
+        return translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER");
     }
   }
 

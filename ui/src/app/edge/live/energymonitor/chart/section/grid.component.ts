@@ -32,7 +32,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
+        super("GENERAL.GRID", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 
@@ -115,7 +115,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant("General.gridBuy");
+            this.name = this.translate.instant("GENERAL.GRID_BUY");
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -131,13 +131,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant("General.gridSell");
+            this.name = this.translate.instant("GENERAL.GRID_SELL");
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant("General.grid");
+            this.name = this.translate.instant("GENERAL.GRID");
             super.updateSectionData(0, null, null);
         }
 

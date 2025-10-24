@@ -45,7 +45,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 let data = rawData;
                 if (chartType === "line") {
                     return [{
-                        name: translate.instant("General.state"),
+                        name: translate.instant("GENERAL.STATE"),
                         converter: () => data["Status"]?.map(val => {
                             const value = Utils.multiplySafely(val, 1000);
                             return value != null ? Utils.addSafely(value, 1) : null;
@@ -58,26 +58,26 @@ export class ChartComponent extends AbstractHistoryChart {
                 data = ChartComponent.sanitizeData(rawData, periodString);
                 return [
                     {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.lock"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/LockStateTime"],
                         converter: () => data["LockStateTime"],
                         color: ChartConstants.Colors.DARK_GREY,
                         stack: 0,
                     },
                     {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.normalOperation"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RegularStateTime"],
                         converter: () => data["RegularStateTime"],
                         color: ChartConstants.Colors.YELLOW,
                         stack: 0,
                     }, {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RecommendationStateTime"],
                         converter: () => data["RecommendationStateTime"],
                         color: ChartConstants.Colors.ORANGE,
                         stack: 0,
                     }, {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                             return energyValues?.result.data[component.id + "/ForceOnStateTime"];
                         },

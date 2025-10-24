@@ -28,7 +28,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("General.production", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
+        super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 

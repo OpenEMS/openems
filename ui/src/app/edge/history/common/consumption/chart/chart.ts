@@ -67,7 +67,7 @@ export class ChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
-          name: translate.instant("General.TOTAL"),
+          name: translate.instant("GENERAL.TOTAL"),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
             return energyValues?.result.data["_sum/ConsumptionActiveEnergy"];
           },
@@ -115,7 +115,7 @@ export class ChartComponent extends AbstractHistoryChart {
         // other consumption
         if (consumptionMeters.length > 0 || evcsComponents.length > 0 || heatComponents.length > 0) {
           datasets.push({
-            name: translate.instant("General.otherConsumption"),
+            name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, heatComponents, consumptionMeters),
             converter: () => Utils.calculateOtherConsumption(data, evcsComponents, heatComponents, consumptionMeters),
             color: ChartConstants.Colors.GREY,

@@ -1,5 +1,5 @@
 @if (isInitialized && component) {
-  <oe-chart [title]="component.alias + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)"
+  <oe-chart [title]="component.alias + '&nbsp;-&nbsp;' + ('EDGE.HISTORY.PHASE_ACCURATE' | translate)"
     [period]="service.historyPeriod.value">
     @switch (componentType) {
       @case ('sum') {

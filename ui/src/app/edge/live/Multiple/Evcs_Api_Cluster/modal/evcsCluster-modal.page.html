@@ -10,7 +10,7 @@
         }
         @if (!config.properties.alias) {
           <ion-label>
-            {{"Edge.Index.Widgets.EVCS.chargingStationCluster" | translate}}
+            {{"EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER" | translate}}
           </ion-label>
         }
       </ion-title>
@@ -30,7 +30,7 @@
             <ion-header>
               <ion-toolbar ion-background="transparent">
                 <ion-title style="text-align: center" translate>
-                  Edge.Index.Widgets.EVCS.overviewChargingStations
+                  EDGE.INDEX.WIDGETS.EVCS.OVERVIEW_CHARGING_STATIONS
                 </ion-title>
                 <ion-icon size="large" slot="end" name="arrow-dropright-outline">
                 </ion-icon>
@@ -39,7 +39,7 @@
             <ion-item padding-top class="normalFontSize" lines="none">
               <table class="full_width">
                 <tr>
-                  <td style="width:50%" translate>Edge.Index.Widgets.EVCS.amountOfChargingStations
+                  <td style="width:50%" translate>EDGE.INDEX.WIDGETS.EVCS.AMOUNT_OF_CHARGING_STATIONS
                   </td>
                   <td style="width:5%"></td>
                   <td style="width:45%" class="align_right">
@@ -49,7 +49,7 @@
                 <tr>
                   <td style="width:50%">
                     <ion-label>
-                      {{"Edge.Index.Widgets.EVCS.totalChargingPower" | translate}}
+                      {{"EDGE.INDEX.WIDGETS.EVCS.TOTAL_CHARGING_POWER" | translate}}
                     </ion-label>
                   </td>
                   <td style="width:5%"></td>
@@ -65,7 +65,7 @@
               </evcsChart>
             </ion-item>
             <ion-label>
-              <ion-label>{{"Edge.Index.Widgets.EVCS.prioritization" | translate}}</ion-label>:
+              <ion-label>{{"EDGE.INDEX.WIDGETS.EVCS.PRIORITIZATION" | translate}}</ion-label>:
               <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
                 @for (evcs of prioritizedEvcsList; track evcs; let i = $index) {
                   <ion-item [attr.data-index]="i"

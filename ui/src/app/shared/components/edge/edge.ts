@@ -470,7 +470,7 @@ export class Edge {
     const navigationTree = new NavigationTree(..._baseNavigationTree);
 
     // TODO find automated way to create reference for parents
-    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+    navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("GENERAL.HISTORY"), "label", [], null));
 
     if (edge.isOnline === false) {
       return navigationTree;
@@ -492,8 +492,8 @@ export class Edge {
                 ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
                 : []),
 
-              new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), baseMode, [], null),
-              new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("Menu.settings"), baseMode, [], null),
+              new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
+              new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), baseMode, [], null),
 
               ...(this.roleIsAtLeast(Role.OWNER)
                 ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]

@@ -69,7 +69,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     {
                         key: "fault-delay-selection",
                         type: "radio-buttons",
-                        name: translate.instant("Edge.Config.ALERTING.DELAY"),
+                        name: translate.instant("EDGE.CONFIG.ALERTING.DELAY"),
 
                         props: {
                             options: defaultValues[AlertingType.OFFLINE],
@@ -130,7 +130,7 @@ export const otherUserRow = (key: "fault" | "offline", name: string, delay: Dela
                 {
                     key: key + "-delay-selection",
                     type: "radio-buttons",
-                    name: translate.instant("Edge.Config.ALERTING.DELAY"),
+                    name: translate.instant("EDGE.CONFIG.ALERTING.DELAY"),
                     props: {
                         options: delay,
                         disabledOnFormControl: key + "-toggle",

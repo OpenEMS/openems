@@ -27,7 +27,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         service: Service,
         private animationService: AnimationService,
     ) {
-        super("General.consumption", "right", "var(--ion-color-warning)", translate, service, "Consumption");
+        super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, "Consumption");
         this.unitpipe = unitpipe;
     }
 

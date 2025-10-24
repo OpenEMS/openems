@@ -66,7 +66,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         // Set datasets
         datasets.push({
             type: "bar",
-            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
+            label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
             data: barBalancing,
             order: 1,
         });
@@ -80,7 +80,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         if (!barChargeGrid.every(v => v === null) || controlMode == Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION) {
             datasets.push({
                 type: "bar",
-                label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
+                label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                 data: barChargeGrid,
                 order: 1,
             });
@@ -94,7 +94,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         // Set dataset for buy from grid
         datasets.push({
             type: "bar",
-            label: translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+            label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
             data: barDelayDischarge,
             order: 1,
         });
@@ -107,7 +107,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         // State of charge data
         datasets.push({
             type: "line",
-            label: translate.instant("General.soc"),
+            label: translate.instant("GENERAL.SOC"),
             data: socArray,
             hidden: false,
             yAxisID: ChartAxis.RIGHT,
@@ -121,7 +121,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
 
         datasets.push({
             type: "line",
-            label: translate.instant("General.gridBuyAdvanced"),
+            label: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
             data: gridBuy.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
             hidden: true,
             yAxisID: ChartAxis.RIGHT_2,
