@@ -222,7 +222,7 @@ public class PreferDcPower {
 			TargetDirection direction, Coefficients coefficients, List<Constraint> allConstraints, List<Inverter> sortedInverters) throws OpenemsException {
 		List<Constraint> constraints = new ArrayList<>(allConstraints);
 
-		var debug=true;
+		var debug=false;
 		if(debug) System.out.println("["+pwr+"] PowerSetPoint: "+power+ ", Direction: "+direction);
 
 		if (direction == TargetDirection.KEEP_ZERO) {
