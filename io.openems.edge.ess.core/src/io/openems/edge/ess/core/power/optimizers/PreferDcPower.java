@@ -370,14 +370,20 @@ public class PreferDcPower {
 		// Solve the system
 		var result = ConstraintSolver.solve(coefficients, constraints);
 
+		var relationship = switch (direction) {
+		case CHARGE -> Relationship.LESS_OR_EQUALS;
+		case DISCHARGE -> Relationship.GREATER_OR_EQUALS;
+		case KEEP_ZERO -> Relationship.EQUALS;
+		};
+
 		for (int i=0; i<sortedInverters.size(); i++) {
 			var inv = sortedInverters.get(i);
 
-			if(debug) System.out.println("["+pwr+"] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essPowerRequired[i]);
+			if(debug) System.out.println("["+pwr+"] Add Constraint for "+inv.toString()+": "+relationship+" "+essPowerRequired[i]);
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 					createSimpleConstraint(coefficients, //
 							inv.toString() + ": Set "+pwr.toString()+" Power " + direction.name() + " value", //
-							inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, essPowerRequired[i]));
+							inv.getEssId(), inv.getPhase(), pwr, relationship, essPowerRequired[i]));
 		}
 
 
