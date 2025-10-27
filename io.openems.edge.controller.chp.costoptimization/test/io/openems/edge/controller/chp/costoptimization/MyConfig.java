@@ -51,7 +51,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int maxCost() {
+	public int priceThreshold() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -82,7 +82,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int stopHyteresis() {
+	public int runHyteresis() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -113,6 +113,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int minGridPower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int thresholdBufferTankTemperature() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

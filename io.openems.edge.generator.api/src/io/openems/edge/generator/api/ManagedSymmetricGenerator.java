@@ -4,8 +4,8 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 
 import io.openems.edge.common.channel.IntegerDoc;
@@ -15,7 +15,6 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-
 
 
 /**
@@ -28,7 +27,12 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 
 		
 		AWAITING_HYSTERESIS(Doc.of(Level.WARNING) //
-				.text("Would change regulation, but hysteresis is active")),				
+				.text("Would change regulation, but hysteresis is active")),
+		
+		
+		READY_FOR_OPERATION(Doc.of(OpenemsType.BOOLEAN) //
+				.text("CHP hardware is ready for operation") //
+				.persistencePriority(PersistencePriority.HIGH)), //		
 		
 		/**
 		 * Holds the maximum possible apparent power. This value is defined by the
@@ -288,7 +292,18 @@ public interface ManagedSymmetricGenerator extends OpenemsComponent, SymmetricGe
 	}
 	
 
-	
+	//
+	public default BooleanReadChannel getReadyForOperationChannel() {
+		return this.channel(ChannelId.READY_FOR_OPERATION);
+	}
+
+	public default Value<Boolean> getReadyForOperation() {
+		return this.getReadyForOperationChannel().value();
+	}
+
+	public default void _setReadyForOperation(Boolean value) {
+		this.getReadyForOperationChannel().setNextValue(value);
+	}	
 
 	
 

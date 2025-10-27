@@ -12,16 +12,20 @@ import { Language } from "src/app/shared/type/language";
 type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 
 enum ChpState {
-    UNDEFINED = -1,                  // Undefined state
-    IDLE = 0,                        // Peakshaver is inactive and waiting
-    ERROR = 1,                       // Error State
-    CHP_ACTIVE = 2,                  // CHP running
-    CHP_INACTIVE = 3,                // CHP stopping
+    UNDEFINED = -1,                     // Undefined state
+    NORMAL = 0,                         // Controller is inactive and waiting
+    ERROR = 1,                          // Error State
+    CHP_ACTIVE = 2,                     // CHP running
+    CHP_INACTIVE = 3,                   // CHP stopping
+    CHP_PREPARING = 4,                  // CHP preparing (wait for lower temperatures)
+    IDLE = 5,                           // grid consumption too low
+    OVER_TEMPERATURE = 6,               // buffer tank temperature too high
+    CHP_NOT_READY = 7,                  // CHPs not ready due to hardware locks
 }
 
 enum HysteresisState {
     UNDEFINED = -1,                  // Undefined state
-    INACTIVE = 0,                    // Peakshaver is inactive and waiting
+    INACTIVE = 0,                    // Controller is inactive and waiting
     ACTIVE = 1,                      // Error State
 
 }
@@ -47,13 +51,15 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
     private locale: string = "-";
     private unitpipe: UnitvaluePipe;
     private highCostsThreshold: number;
+    private priceThreshold: number;
     // Variable to hold the current state of the PeakShavingState
     private currentState: ChpState = ChpState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingStartHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingPreparationHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
-    private currentAwaitingStopHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingRunHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingTransitionHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
     private currentAwaitingDeviceHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
+    private currentAwaitingReducedPowerHysteresis: HysteresisState = HysteresisState.UNDEFINED; // Default value is UNDEFINED
 
     constructor(
         unitpipe: UnitvaluePipe,
@@ -66,11 +72,11 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
 
     get costsWithLabel(): string {
         if (this.highCostsThreshold == null) { return "-"; }
-        return formatNumber(this.highCostsThreshold, this.locale, "1.0-2") + " " + this.currency + "/h";
+        return formatNumber(this.priceThreshold, this.locale, "1.0-2") + " " + this.currency + "/h";
     }
 
     ngOnInit() {
-        this.threshold = this.component.properties["maxCost"];
+        this.threshold = this.component.properties["priceThreshold"];
         this.edge.currentData.subscribe((currentData) => {
             this.setCurrentStateFromData(currentData);
             console.log("Current Data:", currentData); // Check what data is coming in
@@ -93,6 +99,10 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
         return formatNumber(value, this.locale, "1.0-2") + " " + this.currency + "/h";
     }
 
+    formatPrice(value: number | null | undefined): string {
+        if (value == null || isNaN(value)) { return "-"; }
+        return formatNumber(value, this.locale, "1.0-0") + " " + this.currency + "/MWh";
+    }
 
     setCurrentStateFromData(currentData): void {
         // Get the latest value from the BehaviorSubject
@@ -114,26 +124,29 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
         const currentStateValue = currentData.channel[`${controllerId}/StateMachine`];
         const currentAwaitingStartHysteresisValue = currentData.channel[`${controllerId}/AwaitingStartHysteresis`];
         const currentAwaitingPreparationHysteresisValue = currentData.channel[`${controllerId}/AwaitingPreparationHysteresis`];
-        const currentAwaitingStopHysteresisValue = currentData.channel[`${controllerId}/AwaitingStopHysteresis`];
+        const currentAwaitingRunHysteresisValue = currentData.channel[`${controllerId}/AwaitingRunHysteresis`];
         const currentAwaitingTransitionHysteresisValue = currentData.channel[`${controllerId}/AwaitingTransitionHysteresis`];
         const currentAwaitingDeviceHysteresisValue = currentData.channel[`${controllerId}/AwaitingDeviceHysteresis`];
+        const currentAwaitingReducedPowerHysteresisValue = currentData.channel[`${controllerId}/AwaitingReducedPowerHysteresis`];
 
         // Check if currentStateValue is not undefined or null and is a valid number
-        if (isNaN(currentStateValue) || isNaN(currentAwaitingStartHysteresisValue) || isNaN(currentAwaitingPreparationHysteresisValue) || isNaN(currentAwaitingStopHysteresisValue) || isNaN(currentAwaitingTransitionHysteresisValue) || isNaN(currentAwaitingDeviceHysteresisValue)) {
+        if (isNaN(currentStateValue) || isNaN(currentAwaitingStartHysteresisValue) || isNaN(currentAwaitingPreparationHysteresisValue) || isNaN(currentAwaitingRunHysteresisValue) || isNaN(currentAwaitingTransitionHysteresisValue) || isNaN(currentAwaitingDeviceHysteresisValue) || isNaN(currentAwaitingReducedPowerHysteresisValue)) {
             console.warn(`States for ${controllerId} is undefined or null`);
             this.currentAwaitingPreparationHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingStartHysteresis = HysteresisState.UNDEFINED;
-            this.currentAwaitingStopHysteresis = HysteresisState.UNDEFINED;
+            this.currentAwaitingRunHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingTransitionHysteresis = HysteresisState.UNDEFINED;
             this.currentAwaitingDeviceHysteresis = HysteresisState.UNDEFINED;
+            this.currentAwaitingReducedPowerHysteresis = HysteresisState.UNDEFINED;
             this.currentState = ChpState.UNDEFINED;
         } else {
             // Ensure currentStateValue is a valid enum value (number) before casting
             this.currentAwaitingPreparationHysteresis = HysteresisState[currentAwaitingPreparationHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingStartHysteresis = HysteresisState[currentAwaitingStartHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
-            this.currentAwaitingStopHysteresis = HysteresisState[currentAwaitingStopHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentAwaitingRunHysteresis = HysteresisState[currentAwaitingRunHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingTransitionHysteresis = HysteresisState[currentAwaitingTransitionHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentAwaitingDeviceHysteresis = HysteresisState[currentAwaitingDeviceHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
+            this.currentAwaitingReducedPowerHysteresis = HysteresisState[currentAwaitingReducedPowerHysteresisValue as keyof typeof HysteresisState] ?? HysteresisState.UNDEFINED;
             this.currentState = ChpState[currentStateValue as keyof typeof ChpState] ?? ChpState.UNDEFINED;
             //console.log("Mapped currentState:", this.currentState);
         }
@@ -145,7 +158,7 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
         switch (state) {
             case "UNDEFINED":
                 return "danger"; // Neutral or undefined state
-            case "IDLE":
+            case "NORMAL":
                 return "success"; // Green for idle or ready
             case "ERROR":
                 return "danger"; // Red for errors
@@ -157,6 +170,14 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
                 return "warning"; // Orange for charging
             case "CHP_INACTIVE":
                 return "tertiary"; // Different color for hysteresis active
+            case "CHP_PREPARING":
+                return "warning";
+            case "IDLE":
+                return "medium";
+            case "OVER_TEMPERATURE":
+                return "danger";
+            case "CHP_NOT_READY":
+                return "danger";
             default:
                 return "default"; // Optional fallback if state doesn't match
         }
@@ -202,19 +223,19 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
     * @param event
     */
     updateThreshold() {
-        const oldHighCostsThreshold = Number(this.component.properties["maxCost"]);
+        const oldPriceThreshold = Number(this.component.properties["priceThreshold"]);
 
-        const newHighCostsThreshold = Number(this.threshold);
+        const newPriceThreshold = Number(this.threshold);
 
         // prevents automatic update when no values have changed
-        if (this.edge != null && oldHighCostsThreshold != newHighCostsThreshold) {
+        if (this.edge != null && oldPriceThreshold != newPriceThreshold) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: "maxCost", value: newHighCostsThreshold },
+                { name: "priceThreshold", value: newPriceThreshold },
             ]).then(() => {
-                this.component.properties["maxCost"] = newHighCostsThreshold;
+                this.component.properties["priceThreshold"] = newPriceThreshold;
                 this.service.toast(this.translate.instant("General.changeAccepted"), "success");
             }).catch(reason => {
-                this.component.properties["maxCost"] = oldHighCostsThreshold;
+                this.component.properties["priceThreshold"] = oldPriceThreshold;
                 this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });

@@ -22,8 +22,10 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
     public stateChannelValue: string;
     public state: string;
     public propertyHighCostsThreshold: number;
+    public propertyPriceThreshold: number;
 
     public currentEnergyCostsWithoutChp: number;
+    public currentEnergyPrice: number;
     public currentEnergyCosts: number;
     public activePowerTarget: number;
 
@@ -40,13 +42,14 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
     protected priceWithCurrency: string = "-";
     protected locale: string = "-";
 
-    get currentEnergyCostsWithoutChpInCtPerKWh(): number | null {
-        if (this.currentEnergyCostsWithoutChp == null) { return null; }
-        return +(this.currentEnergyCostsWithoutChp).toFixed(2);
+    get thresholdPriceWithLabel(): string {
+        if (this.propertyPriceThreshold == null) { return "-"; }
+        return formatNumber(this.propertyPriceThreshold, this.locale, "1.0-" + 0) + " " + this.currency + "/MWh";
     }
-    get currentEnergyCostsWithLabel(): string {
-        if (this.currentEnergyCosts == null) { return "-"; }
-        return formatNumber(this.currentEnergyCosts, this.locale, "1.0-" + 2) + " " + this.currency + "/h";
+
+    get currentEnergyPriceWithLabel(): string {
+        if (this.currentEnergyPrice == null) { return "-"; }
+        return formatNumber(this.currentEnergyPrice, this.locale, "1.0-" + 0) + " " + this.currency + "/MWh";
     }
 
     get currentEnergyCostsWithoutChpWithLabel(): string {
@@ -54,16 +57,16 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
         return formatNumber(this.currentEnergyCostsWithoutChp, this.locale, "1.0-" + 2) + " " + this.currency + "/h";
     }
 
-    get thresholdCostsWithLabel(): string {
-        if (this.propertyHighCostsThreshold == null) { return "-"; }
-        return formatNumber(this.propertyHighCostsThreshold, this.locale, "1.0-" + 2) + " " + this.currency + "/h";
+    get currentEnergyCostsWithLabel(): string {
+        if (this.currentEnergyCosts == null) { return "-"; }
+        return formatNumber(this.currentEnergyCosts, this.locale, "1.0-" + 2) + " " + this.currency + "/h";
     }
 
     get currentEnergyCostsPercent(): number {
-        if (!this.propertyHighCostsThreshold || this.propertyHighCostsThreshold === 0) {
+        if (!this.currentEnergyPrice || this.propertyHighCostsThreshold === 0) {
             return 0;
         }
-        return Math.round((this.currentEnergyCosts / this.propertyHighCostsThreshold) * 100);
+        return Math.round((this.currentEnergyPrice / this.propertyPriceThreshold) * 100);
     }
     get barColor(): string {
         const p = this.currentEnergyCostsPercent;
@@ -90,15 +93,19 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
         return [
             new ChannelAddress(this.component.id, "EnergyCosts"),
             new ChannelAddress(this.component.id, "EnergyCostsWithoutChp"),
+            new ChannelAddress(this.component.id, "CurrentEnergyPrice"),
             new ChannelAddress(this.component.id, "StateMachine"),
             new ChannelAddress(this.component.id, "AwaitingStartHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingPreparationHysteresis"),
-            new ChannelAddress(this.component.id, "AwaitingStopHysteresis"),
+            new ChannelAddress(this.component.id, "AwaitingRunHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingTransitionHysteresis"),
+            new ChannelAddress(this.component.id, "AwaitingReducedPowerHysteresis"),
             new ChannelAddress(this.component.id, "AwaitingDeviceHysteresis"),
+            new ChannelAddress(this.component.id, "OverTemperature"),
+            new ChannelAddress(this.component.id, "UnderTemperature"),
             new ChannelAddress(this.component.id, "ActivePowerTarget"),
             new ChannelAddress(this.component.id, "ChpActivePower"),
-            new ChannelAddress(this.component.id, "_PropertyMaxCost"),
+            new ChannelAddress(this.component.id, "_PropertyPriceThreshold"),
             this.propertyModeChannel,
         ];
     }
@@ -129,7 +136,9 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
 
         this.currentEnergyCostsWithoutChp = currentData.allComponents[this.componentId + "/EnergyCostsWithoutChp"];
         this.currentEnergyCosts = currentData.allComponents[this.componentId + "/EnergyCosts"];
-        this.propertyHighCostsThreshold = Number(this.component.properties["maxCost"]);
+        this.currentEnergyPrice = currentData.allComponents[this.componentId + "/CurrentEnergyPrice"];
+        //this.propertyHighCostsThreshold = Number(this.component.properties["maxCost"]);
+        this.propertyPriceThreshold = Number(this.component.properties["priceThreshold"]);
 
         this.state = this.translateState(this.stateChannelValue);
         this.activePowerTarget = currentData.allComponents[this.componentId + "/ActivePowerTarget"];
@@ -140,7 +149,7 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
             case "-1":
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.UNDEFINED");
             case "0":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.IDLE");
+                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.NORMAL");
             case "1":
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.ERROR");
             case "2":
@@ -149,6 +158,12 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_INACTIVE");
             case "4":
                 return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_PREPARING");
+            case "5":
+                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.IDLE");
+            case "6":
+                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.OVER_TEMPERATURE");
+            case "7":
+                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_NOT_READY");
             default:
                 return "-";
         }

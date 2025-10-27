@@ -23,23 +23,26 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug mode", description = "Enhanced debug mode")
 	boolean debugMode() default true;
 
-	@AttributeDefinition(name = "Maximum Cost [€/h]", description = "CHP is started if grid cosumption exceeds this cost value (grid-consumption * price)")
-	int maxCost() default 100;
+	@AttributeDefinition(name = "Maximum Cost [€/MWh]", description = "CHP is started if grid cosumption exceeds this price value")
+	int priceThreshold() default 100;
 
-	@AttributeDefinition(name = "Maximum CHP power [W]", description = "Defines the rated electrical output power of the CHP system in watts.")
+	@AttributeDefinition(name = "Maximum CHP power [W]", description = "Defines the over all rated electrical output power of the CHP system in watts.")
 	int maxActivePower() default 10000;
 
 	@AttributeDefinition(name = "Start Hysteresis [s]", description = "Minimum time (in seconds) to wait before allowing a new start after a shutdown.")
 	int startHyteresis() default 3600;
 
-	@AttributeDefinition(name = "Stop Hysteresis [s]", description = "Minimum run time (in seconds) before the CHP is allowed to stop.")
-	int stopHyteresis() default 3600;
+	@AttributeDefinition(name = "Run Hysteresis [s]", description = "Minimum run time (in seconds) before the CHP is allowed to stop.")
+	int runHyteresis() default 3600;
 
 	@AttributeDefinition(name = "Preparation Hysteresis [s]", description = "Before CHP is started heating system might need to be prepared, i.e. shut down other heating systems to lower temperatures. \n In order to do that future energy costs are calculated")
 	int preparationHyteresis() default 3600;
 	
-	@AttributeDefinition(name = "Min. buffer tank temperature [°C]", description = "Minimum buffer tank temperature before chp(s) will be started")
+	@AttributeDefinition(name = "Min. buffer tank temperature [°C]", description = "Minimum buffer tank temperature. If below that value CHP will be started forcefully")
 	int minBufferTankTemperature() default 60;
+	
+	@AttributeDefinition(name = "Threshold buffer tank temperature [°C]", description = "Threshold buffer tank temperature. CPHs won´t start above that value")
+	int thresholdBufferTankTemperature() default 70;
 	
 	@AttributeDefinition(name = "Max. buffer tank temperature [°C]", description = "Maximum buffer tank temperature before chp(s) will be stopped")
 	int maxBufferTankTemperature() default 75;	

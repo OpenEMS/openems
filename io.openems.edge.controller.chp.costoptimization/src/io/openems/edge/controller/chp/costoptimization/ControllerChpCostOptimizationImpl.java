@@ -1,11 +1,8 @@
 package io.openems.edge.controller.chp.costoptimization;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,23 +16,19 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.controller.api.Controller;
-
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
-
 import io.openems.edge.generator.api.ManagedSymmetricGenerator;
 
 @Designate(ocd = Config.class, factory = true)
@@ -54,19 +47,34 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	private Config config = null;
 	private final Logger log = LoggerFactory.getLogger(ControllerChpCostOptimizationImpl.class);
 	private static final int STATE_TRANSITION_HYSTERESIS = 10; // seconds ToDo: increase this value
-	private Instant lastTransistionChangeTime = Instant.MIN;
-	private Instant lastStopHysteresisTime = Instant.MIN;
+	private static final int TARGET_NOT_REACHED_GRACE_SECONDS = 300; // check if CHPs produce target power timeout
+	private static final int IDLE_GRACE_SECONDS = 300; // check if CHPs produce target power timeout
+	private static final int REDUCED_POWER_GRACE_SECONDS = 3600; // check if CHPs produce target power timeout
+
+	private Instant lastTransitionChangeTime = Instant.MIN;
+	private Instant lastRunHysteresisTime = Instant.MIN; // CHPs are allowed to stop after that hysteresis
 	private Instant lastStartHysteresisTime = Instant.MIN;
 	private Instant lastPreparationHysteresisTime = Instant.MIN;
+	private Instant targetNotReachedTime = Instant.MIN;
+	private Instant lastIdleHysteresisTime = Instant.MIN;
+	private Instant lastReducedPowerHysteresisTime = Instant.MIN;
 	private State state = State.UNDEFINED;
 	private Integer gridPowerWithoutChp = 0;
 	private Integer applyPowerTarget = 0;
-	// private Integer lastApplyPowerTarget = null;
-	// private Double currentPrice = null;
-	private Double currentEnergyCost = 0.0;
+	private Double currentPrice = 0.0;
+	private Double futurePrice = 0.0;
 
-	private final Clock clock = Clock.systemDefaultZone(); // oder injizieren
-	private int offset = 14400;
+	private boolean targetNotReachedStartFlag = false;
+	private boolean idleStartFlag = false;
+	private boolean wasTemperatureNearMax = false;
+
+	private boolean temperatureAboveThreshold = false;
+	private boolean temperatureBelowMin = false;
+	private boolean temperatureAboveMax = false;
+	private boolean temperatureNearMax = false;
+	
+
+	private boolean operationalValuesOk = false;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -125,7 +133,8 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		if (!checkOperationalValues()) {
+		this.updateOperationalValues();
+		if (this.operationalValuesOk == false) {
 			this.logWarn(this.log, "Controller not ready");
 			this.changeState(State.ERROR);
 			return;
@@ -136,6 +145,9 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this.gridPowerWithoutChp = gridActivePower + chpActivePower;
 		Double currentEnergyCostsWithoutChp = this.getCurrentCost(gridPowerWithoutChp);
 		Double currentEnergyCosts = this.getCurrentCost(gridActivePower);
+		
+		this.currentPrice = this.getCurrentPrice();
+		this.futurePrice = this.getFuturePrice();
 
 		Double futureEnergyCostsWithoutChp = this.getFutureCost(gridPowerWithoutChp);
 		// Double futureEnergyCosts = this.getFutureCost(gridActivePower);
@@ -143,177 +155,352 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this._setEnergyCostsWithoutChp(currentEnergyCostsWithoutChp); // save value in channel
 		this._setEnergyCosts(currentEnergyCosts); // save value in channel
 		this._setChpActivePower(chpActivePower); // save value in channel
-		this._setAwaitingDeviceHysteresis(this.chp.getAwaitingHysteresis().get());
+		this._setAwaitingDeviceHysteresis(Boolean.TRUE.equals(this.chp.getAwaitingHysteresis().get()));
+		this._setCurrentEnergyPrice(this.currentPrice);
+		this.checkTemperatureLimits();
+
+		// check hysteresis timer
+		if (isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
+			this._setAwaitingStartHysteresis(true);
+			this.logDebug(this.log, "Start hysteresis (before next start is allowed) "
+					+ getRemainingHysteresisTime(this.lastStartHysteresisTime, this.config.startHyteresis()));
+		} else {
+			this._setAwaitingStartHysteresis(false);
+		}
+
+		if (isHysteresisActive(this.lastRunHysteresisTime, this.config.runHyteresis())) {
+			this._setAwaitingRunHysteresis(true);
+			this.logDebug(this.log, "Run hysteresis (before stop is allowed) "
+					+ getRemainingHysteresisTime(this.lastRunHysteresisTime, this.config.runHyteresis()));
+		} else {
+			this._setAwaitingRunHysteresis(false);
+		}
+
+		if (isHysteresisActive(this.lastPreparationHysteresisTime, this.config.preparationHyteresis())) {
+			this._setAwaitingPreparationHysteresis(true);
+			this.logDebug(this.log, "Preparation " + getRemainingHysteresisTime(this.lastPreparationHysteresisTime,
+					this.config.preparationHyteresis()));
+
+		} else {
+			this._setAwaitingPreparationHysteresis(false);
+		}
+
+		if (isHysteresisActive(this.lastReducedPowerHysteresisTime, REDUCED_POWER_GRACE_SECONDS)) {
+			this._setAwaitingReducedPowerHysteresis(true);
+			this.logDebug(this.log, "Reduced Power " + getRemainingHysteresisTime(this.lastReducedPowerHysteresisTime,
+					REDUCED_POWER_GRACE_SECONDS));
+
+		} else {
+			this._setAwaitingReducedPowerHysteresis(false);
+		}
+		
+		// just for logging
+		if (isHysteresisActive(this.lastTransitionChangeTime, STATE_TRANSITION_HYSTERESIS)) {
+			this.logDebug(log, "TransitionHysteresis "
+					+ getRemainingHysteresisTime(this.lastTransitionChangeTime, STATE_TRANSITION_HYSTERESIS));
+			this._setAwaitingTransitionHysteresis(true);
+
+		} else {
+			this._setAwaitingTransitionHysteresis(false);
+		}
+
+		logDebug(this.log, "Calculated power " + this.applyPowerTarget + "W");
 
 		switch (this.state) {
 		case ERROR:
-			if (checkOperationalValues()) {
+			if (this.operationalValuesOk == true) {
 				this.changeState(State.NORMAL);
+				this.logDebug(this.log, "Controller ready. Transition to state: NORMAL\n");
 				return;
 			}
+			this.logDebug(this.log, "ERROR in Controller\n");
 			this.chp.applyPreparation(false);
+			this.setChpOff();
 			break;
 		case UNDEFINED:
-			if (checkOperationalValues()) {
+			if (!this.chpReadyForOperation()) {
+				this.changeState(State.CHP_NOT_READY);
+				return;
+			}
+			if (this.operationalValuesOk == true) {
+				this.logDebug(this.log, "Controller ready. Transition to state: NORMAL\n");
 				this.changeState(State.NORMAL);
 				return;
 			}
 			this.chp.applyPreparation(false);
+			this.setChpOff();
 			break;
 		case IDLE:
-			if (!checkOperationalValues()) {
+			if (this.operationalValuesOk == false) {
 				this.changeState(State.ERROR);
 				break;
+			}
 
+			// activate controller if grid consumption is above configured value
+			if (this.gridPowerWithoutChp < this.config.minGridPower()) {
+				this.lastIdleHysteresisTime = Instant.now(this.componentManager.getClock()); // start timer
+				logDebug(this.log, "Grid Consumption " + this.gridPowerWithoutChp + "W below min "
+						+ this.config.minGridPower() + "W. Reset Timer Waiting in State IDLE");
+
+				this.chp.applyPreparation(false);
+				this.setChpOff();
+				break;
 			}
-			
-			// ToDo: add channels over uner-, over- 
-			// activate controller if power from grid is below configured value 
-			if (this.gridMeter.getActivePower().get()  > this.config.minGridPower() && this.chp.getAverageBufferTankTemperature().get() < this.config.maxBufferTankTemperature()) {
-				this.changeState(State.NORMAL); 
+
+			if (!isHysteresisActive(this.lastIdleHysteresisTime,
+					ControllerChpCostOptimizationImpl.IDLE_GRACE_SECONDS)) {
+				this.changeState(State.NORMAL);
+				logDebug(this.log, "Grid Consumption " + this.gridPowerWithoutChp + "W above min "
+						+ this.config.minGridPower() + "W. Timer over Transition to State NORMAL");
+
+			} else {
+				logDebug(this.log, "Grid Consumption " + this.gridPowerWithoutChp + "W above min "
+						+ this.config.minGridPower() + "W. Timer active Waiting in State IDLE");
+				this.chp.applyPreparation(false);
+				this.setChpOff();
 			}
-			break;			
+			break;
+
+		case OVER_TEMPERATURE:
+			if (!this.temperatureAboveMax) {
+				this.logDebug(this.log, "Temperature low enough. Transition to state: NORMAL\n");
+				this.changeState(State.NORMAL);
+				break;
+			}
+			this.chp.applyPreparation(true); // apply Preparation without transition
+			this.setChpOff();
+			break;
+		case CHP_NOT_READY:
+			if (this.chpReadyForOperation()) {
+				this.logDebug(this.log, "At least one CHP is ready. Transition to state: NORMAL \n");
+				this.changeState(State.NORMAL);
+				break;
+			}
+			this.logError(this.log, "No CHP ready. Either hardware fault or all CHPs blocked \n");
+			this.chp.applyPreparation(false);
+			this.setChpOff();
+			break;
 		case NORMAL:
 
 			if (this.config.mode() == Mode.MANUAL_ON) {
-				this.changeState(State.CHP_ACTIVE);
-				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+				if (this.changeState(State.CHP_ACTIVE)) {
+					this.targetNotReachedStartFlag = false;
+					this.targetNotReachedTime = Instant.now(this.componentManager.getClock());
+					this._setTargetNotReached(false);
+					// keine Timer/Hysteresen setzen – dein Wunsch
+				}
+				this.chp.applyPower(this.config.maxActivePower());
 				break;
 			}
 
 			if (this.config.mode() == Mode.MANUAL_OFF) {
-				this.chp.applyPower(null); // off
-				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
-				this.changeState(State.CHP_INACTIVE);
-				this.chp.applyPreparation(false);
+
+				if (this.changeState(State.CHP_INACTIVE)) {
+					this.chp.applyPower(null);
+				}
 				break;
 			}
 
-			if (!checkOperationalValues()) {
+			if (this.operationalValuesOk == false) {
 				this.changeState(State.ERROR);
 				break;
+			}
 
+			// takes care of hardware locks
+			if (!this.chpReadyForOperation()) {
+				this.changeState(State.CHP_NOT_READY);
+				return;
 			}
 
 			// check power
-			if (this.gridMeter.getActivePower().get()  < this.config.minGridPower()) {
-				this.changeState(State.IDLE); 
+			if (this.gridPowerWithoutChp < this.config.minGridPower()) {
+				this.changeState(State.IDLE);
 				break;
 			}
-			
-			
-			// check buffer tank temperature
-			if (this.chp.getAverageBufferTankTemperature().get() < this.config.minBufferTankTemperature()) {
-				// start chp
-				this.changeState(State.CHP_ACTIVE);
 
-				// Start Timer
-				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+			// check buffer tank temperature
+			if (this.temperatureBelowMin) { // start CHPs
+				// start chp
+				if (this.changeState(State.CHP_ACTIVE)) {
+					this.targetNotReachedStartFlag = false;
+					this.targetNotReachedTime = Instant.now(this.componentManager.getClock());
+					this._setTargetNotReached(false);
+					this.logDebug(this.log,
+							"Temperature " + this.chp.getAverageBufferTankTemperature().asString()
+									+ " below configured value " + this.config.minBufferTankTemperature()
+									+ "°C. Transition to state: CHP_ACTIVE\n");
+					// Start Timer
+					this.lastRunHysteresisTime = Instant.now(this.componentManager.getClock());
+					break;
+				}
 				break;
 			}
 
 			// Overtemperature. Do not start
 			// check buffer tank temperature MAX
-			if (this.chp.getAverageBufferTankTemperature().get() > this.config.maxBufferTankTemperature()) {
-				// do NOT start chp
-				this.changeState(State.IDLE);
-
+			if (this.temperatureAboveMax) {
+				// stop chp. set timer
+				if (this.changeState(State.OVER_TEMPERATURE)) {
+					this.logDebug(this.log,
+							"Temperature " + this.chp.getAverageBufferTankTemperature().asString()
+									+ " above configured value " + this.config.maxBufferTankTemperature()
+									+ "°C. Transition to state: OVER_TEMPERATURE\n");
+					this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+					break;
+				}
 				break;
-			}			
-			
 
-			if (futureEnergyCostsWithoutChp > this.config.maxCost()) {
-				this.changeState(State.CHP_PREPARING);
-				this.lastPreparationHysteresisTime = Instant.now(this.componentManager.getClock());
-				break;
-			} else {
-				this.chp.applyPreparation(false); // no preparation in normal mode
 			}
 
-			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
-				// ready to start
+			// Costs are high. Start CHP but check hysteresis and temperatures
+			if (this.currentPrice > this.config.priceThreshold()) {
+				this.logDebug(this.log, "Current price " + this.currentPrice + "€/MWh above configured value "
+						+ this.config.priceThreshold());
+				if (this.temperatureAboveThreshold) {
+					// do NOT start chp
+					if (this.changeState(State.CHP_PREPARING)) {
 
-				// start chp
-				this.changeState(State.CHP_ACTIVE);
+						this.logDebug(this.log, "Temperature " + this.chp.getAverageBufferTankTemperature().asString()
+								+ " above configured THRESHOLD value " + this.config.thresholdBufferTankTemperature()
+								+ "°C. CHP won´t be started. Transition to state PREPARATION without hysteresis\n");
 
-				// Start Timer
-				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
-			} else {
-
-				// Only turn off if there was a change in target power
-				// if (this.lastApplyPowerTarget != this.applyPowerTarget) {
-				// this.chp.applyPower(this.applyPowerTarget);
-				// } else {
-				// do nothing
-				// }
-				this._setActivePowerTarget(this.applyPowerTarget);
-				this.chp.applyPower(this.applyPowerTarget);
-			}
-			break;
-		case CHP_PREPARING: // energy cost will exceed maximum.
-							// prepare CHPs, i.e. lower temperatures produced by other heating systems
-
-			if (this.config.mode() == Mode.MANUAL_ON) {
-				this.changeState(State.CHP_ACTIVE);
-				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
-				break;
-			}
-
-			if (this.config.mode() == Mode.MANUAL_OFF) {
-				this.chp.applyPower(null); // off
-				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
-				this.chp.applyPreparation(false);
-				this.changeState(State.CHP_INACTIVE);
-				break;
-			}
-
-			if (futureEnergyCostsWithoutChp < this.config.maxCost()) { // can we go back to normal?
-				if (isHysteresisActive(this.lastPreparationHysteresisTime, this.config.preparationHyteresis())) { // back
-																													// to
-																													// normal
-																													// if
-																													// hysteresis
-																													// is
-																													// over
-
-					// prepare something...
-					this.chp.applyPreparation(true);
-					this._setAwaitingPreparationHysteresis(true);
-
+						break;
+					} else {
+						// Wechsel blockiert -> eindeutig in NORMAL bleiben
+						this.chp.applyPreparation(false);
+						this.setChpOff();
+					}
+					break;
 				} else {
-					this.changeState(State.NORMAL);
 					this.chp.applyPreparation(false);
-					this._setAwaitingPreparationHysteresis(false);
+					this.setChpOff();
+				}
+
+				if (!isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
+					if (this.changeState(State.CHP_ACTIVE)) {
+						this.logDebug(this.log,
+								"Current price " + this.currentPrice + "€/MWh above configured value "
+										+ this.config.priceThreshold() + "€/MWh Transition to state: CHP_ACTIVE\n");
+						// Start Timer: do not STOP for...
+						this.lastRunHysteresisTime = Instant.now(this.componentManager.getClock());
+						break;
+					}
+				} else {
+					this.logDebug(this.log,
+							"Current price " + this.currentPrice + "€/MWh above configured value "
+									+ this.config.priceThreshold() + "€/MWh Cannot start due to hysteresis ");
+					this.chp.applyPreparation(false);
+					this.setChpOff();
 				}
 
 			}
 
-			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
-				// ready to start
-
-				// start chp
-				this.changeState(State.CHP_ACTIVE);
-
-				// Start Timer
-				this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+			if (this.futurePrice > this.config.priceThreshold()) {
+				if (this.changeState(State.CHP_PREPARING)) {
+					this.logDebug(this.log,
+							" Future price " + this.futurePrice + "€/MWh above configured value "
+									+ this.config.priceThreshold() + "€/MWh Transition to state: PREPARATION\n");
+					this.lastPreparationHysteresisTime = Instant.now(this.componentManager.getClock());
+				} else {
+					// Wechsel blockiert -> eindeutig in NORMAL bleiben
+					this.chp.applyPreparation(false);
+					this.setChpOff();
+				}
+				break;
 			} else {
+				this.chp.applyPreparation(false);
+				this.setChpOff();
+			}
+			break;
+		case CHP_PREPARING:
+			// Future energy price will exceed maxPrice → pre-cool buffer tank
+			// Preparation runs for a defined hysteresis duration, then returns to NORMAL.
 
-				// Only turn off if there was a change in target power
-				// if (this.lastApplyPowerTarget != this.applyPowerTarget) {
-				// this.chp.applyPower(this.applyPowerTarget);
-				// } else {
-				// do nothing
-				// }
-				this._setActivePowerTarget(this.applyPowerTarget);
-				this.chp.applyPower(this.applyPowerTarget);
+			if (this.config.mode() == Mode.MANUAL_ON) {
+				if (this.changeState(State.CHP_ACTIVE)) {
+					this.targetNotReachedStartFlag = false;
+					this.targetNotReachedTime = Instant.now(this.componentManager.getClock());
+					this._setTargetNotReached(false);
+					// keine Timer/Hysteresen setzen – dein Wunsch
+				}
+				this.chp.applyPower(this.config.maxActivePower());
+				break;
 			}
 
+			if (this.config.mode() == Mode.MANUAL_OFF) {
+				// stop chp
+				this.applyPowerTarget = 0;
+
+				if (this.changeState(State.CHP_INACTIVE)) {
+					// Start Timer
+					this.chp.applyPower(null);
+				}
+				break;
+			}
+
+			this.logDebug(this.log,
+					"Current/Future price " + this.currentPrice + "/" + this.futurePrice);
+			if ((this.futurePrice * 2) < this.config.priceThreshold()) {
+				if (this.changeState(State.NORMAL)) {
+					this.chp.applyPreparation(false);
+					// Start Timer
+					this.logDebug(this.log,
+							"Future price below half of configured maximum. Transition to state: NORMAL");
+				}
+				break;
+
+			}
+
+			if (this.temperatureAboveThreshold) {
+				// do NOT start chp
+				this.logDebug(this.log,
+						"Temperature " + this.chp.getAverageBufferTankTemperature().asString()
+								+ " above configured THRESHOLD value " + this.config.thresholdBufferTankTemperature()
+								+ "°C. CHP won´t be started. Waiting...\n");
+				this.chp.applyPreparation(true);
+				break;
+			}
+
+			if (this.temperatureBelowMin) { // Temp too low. Go to normal and decide if we can turn on
+				if (this.changeState(State.NORMAL)) {
+					this.logDebug(this.log,
+							"Temperature " + this.chp.getAverageBufferTankTemperature().asString() + " too low. value "
+									+ this.config.minBufferTankTemperature()
+									+ "°C. Trasition to state NORMAL to make further descisions\n");
+					break;
+				}
+				break;
+			}
+
+			if (this.getAwaitingPreparationHysteresis().get()) {
+				// prepare something...
+				this.chp.applyPreparation(true);
+
+			} else { // hyteresis over -> go back to normal
+				if (this.changeState(State.NORMAL)) {
+					this.chp.applyPreparation(false); // sofort clearen
+				}
+			}
 			break;
+
 		case CHP_ACTIVE:
-			// check hysteresis
-			// check target power
-			// check costs
-			// this._setAwaitingStartHysteresis(false); //
+			this.applyPowerTarget = this.calculateChpPowerTarget(); // target power calculation
+
+			this.chp.applyPreparation(false);
+			this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
+
+			// start hysteresis for reducing power
+			if (this.temperatureNearMax && !this.wasTemperatureNearMax) {
+				this.lastReducedPowerHysteresisTime = Instant.now(this.componentManager.getClock());
+				this._setAwaitingReducedPowerHysteresis(true);
+			}
+			this.wasTemperatureNearMax = this.temperatureNearMax; // update
+			
+			if (this.getAwaitingReducedPowerHysteresis().get()) { // reduce power due to small temperature gap
+				this.applyPowerTarget = Math.floorDiv(this.applyPowerTarget, 2);
+				this.logDebug(this.log, "Temperature near max -> reducing power");
+			} 
+			
 
 			if (this.config.mode() == Mode.MANUAL_ON) {
 				this.chp.applyPower(this.config.maxActivePower()); // full power
@@ -322,55 +509,109 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 			if (this.config.mode() == Mode.MANUAL_OFF) {
 				// stop chp
-				this.applyPowerTarget = 0;
-				this.chp.applyPower(this.applyPowerTarget);
+				this.setChpOff();
 				this.changeState(State.CHP_INACTIVE);
-				// Start Timer
-				this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock());
-				this._setAwaitingStartHysteresis(false);
-				this._setAwaitingPreparationHysteresis(false);
 				break;
 			}
 
 			// Automatic mode
-			this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
-			this.chp.applyPreparation(false);
 
-			if (currentEnergyCostsWithoutChp > this.config.maxCost()) {
-				this.applyPowerTarget = this.calculateChpPowerTarget(currentEnergyCosts);
+			if (this.temperatureAboveMax) {
+				if (this.changeState(State.OVER_TEMPERATURE)) {
+					this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+					break;
+				}
+				break;
+			}
+			
+
+
+			
+
+			// Consumption too low. Stop immediately
+			if (this.gridPowerWithoutChp < config.minGridPower()) {
+				if (this.changeState(State.IDLE)) {
+					this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock());
+					this.logDebug(this.log, "Grid consumption too low. Transition to state: IDLE");
+					this.chp.applyPreparation(false);
+					this.setChpOff();
+					break;
+				}
+				break;
+			}
+
+			// Check if even half of target power is active
+			if ((this.getChpActivePower().get() * 2) < this.applyPowerTarget) {
+				if (!targetNotReachedStartFlag) {
+					this.targetNotReachedTime = Instant.now(this.componentManager.getClock()); // start timer
+				}
+				if (!isHysteresisActive(this.targetNotReachedTime,
+						ControllerChpCostOptimizationImpl.TARGET_NOT_REACHED_GRACE_SECONDS)) {
+					this._setTargetNotReached(true);
+				}
+				this.targetNotReachedStartFlag = true;
+			} else {
+				this.targetNotReachedStartFlag = false;
+				this._setTargetNotReached(false);
+			}
+
+			if (this.currentPrice > this.config.priceThreshold()) {
 				this.chp.applyPower(this.applyPowerTarget);
-				this._setAwaitingStartHysteresis(false);
-			} else { // costs are below threshold or not in automatic mode -> can stop chp?
+				this.chp.applyPreparation(false);
+				this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
+
+			} else { // price are below threshold or not in automatic mode -> can stop chp?
 				// check last START time
-				if (isHysteresisActive(this.lastStartHysteresisTime, this.config.startHyteresis())) {
-					this.applyPowerTarget = this.calculateChpPowerTarget(currentEnergyCosts);
-					this.chp.applyPower(this.applyPowerTarget);
-					this._setAwaitingStartHysteresis(true);
+				if (!this.getAwaitingRunHysteresis().get()) {
+
+					this.logDebug(this.log, "Current price " + this.currentPrice + "€/MWh ≤ "
+							+ this.config.priceThreshold() + "€/MWh. Run hysteresis over. ");
+
+					if (this.temperatureAboveThreshold) {
+						// stop chp
+						if (this.changeState(State.CHP_INACTIVE)) {
+							this.logDebug(this.log, "Current price " + this.currentPrice + "€/MWh ≤ "
+									+ this.config.priceThreshold()
+									+ "€/MWh. Run hysteresis over AND Temperature above threshold → stop CHP → CHP_INACTIVE");
+							// Start Timer
+							this.lastStartHysteresisTime = Instant.now(this.componentManager.getClock()); // wait until
+																											// next
+																											// start
+						}
+					} else {
+						this.chp.applyPower(this.applyPowerTarget);
+						this.chp.applyPreparation(false);
+						this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped
+																		// anyway
+						this.logDebug(this.log,
+								"RunHysteresis over but temperature is not above threshold. Keep on running ");
+					}
 				} else {
-					// stop chp
-					this.applyPowerTarget = 0;
 					this.chp.applyPower(this.applyPowerTarget);
-					this.changeState(State.CHP_INACTIVE);
-					// Start Timer
-					this.lastStopHysteresisTime = Instant.now(this.componentManager.getClock()); // wait until next start
-					this._setAwaitingStartHysteresis(false);
+					this.chp.applyPreparation(false);
+					this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
+					this.logDebug(this.log, "Price " + this.currentPrice + "€/MWh below configured value "
+							+ this.config.priceThreshold() + "€/MWh. RunHysteresis active. Keep on running ");
 				}
 			}
 
-			// this.lastApplyPowerTarget = this.applyPowerTarget;
 			break;
-		case CHP_INACTIVE: // stopped
+		case CHP_INACTIVE: // stopped, transition after timer is over
 
-			if (isHysteresisActive(this.lastStopHysteresisTime, this.config.stopHyteresis())) {
-				this._setAwaitingStopHysteresis(true);
+			if (this.getAwaitingRunHysteresis().get()) {
+				this.logDebug(this.log, " CHP stopped. Wait for Run hysteresis before transitioning");
+				this.setChpOff();
+				this.chp.applyPreparation(false);
 			} else {
-				this._setAwaitingStopHysteresis(false);
-				this.changeState(State.NORMAL);
+				if (this.changeState(State.NORMAL)) {
+					this.logDebug(this.log, " CHP stopped. Hystereses over. Transition to state: NORMAL \n");
+				}
 			}
 			break;
 		default: // ToDo. Is there a default case?
 			break;
 		}
+
 	}
 
 	private boolean isHysteresisActive(Instant hysteresisTime, int configuredHysteresis) {
@@ -384,7 +625,21 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	private String getRemainingHysteresisTime(Instant lastEventTime, int hysteresisSeconds) {
+		Instant now = Instant.now(this.componentManager.getClock());
+		long elapsed = Duration.between(lastEventTime, now).getSeconds();
+		long remaining = hysteresisSeconds - elapsed;
+
+		if (remaining <= 0) {
+			return "0:00";
+		}
+
+		return "Time to go: " + remaining + "s";
+	}
+
 	/**
+	 * 2025 10 27 costs is no longer used. We´re taking a look on prices
+	 * 
 	 * Calculates the optimal target power for the CHP unit to ensure that energy
 	 * costs do not exceed the configured maximum (maxCost). The calculation is
 	 * based on the current grid power without CHP and the current energy cost. The
@@ -398,7 +653,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	 * 
 	 * Returns the calculated power target in watts and sets it to the corresponding
 	 * channel.
-	 */
+	 
 	private int calculateChpPowerTarget(Double currentEnergyCost) {
 
 		if (currentEnergyCost <= 0.0) {
@@ -409,7 +664,8 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 		if (this.gridPowerWithoutChp != null) {
 
-			chpTargetPower = (int) Math.round(this.gridPowerWithoutChp * this.config.maxCost() / currentEnergyCost);
+			chpTargetPower = (int) Math.round(this.gridPowerWithoutChp * this.config.priceThreshold() / currentEnergyCost);
+			logDebug(this.log, "TargetPower Calculation: GridPowerWithoutChp * ConfigMaxCost / CurrentEnergyCosts " + this.gridPowerWithoutChp + "W * " + this.config.priceThreshold() + "€/h / " + currentEnergyCost + "€/h" );
 
 			// Apply limits
 			chpTargetPower = Math.min(this.config.maxActivePower(), chpTargetPower);
@@ -419,21 +675,72 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this._setActivePowerTarget(chpTargetPower); // feed channel
 		return chpTargetPower;
 	}
+	*/
+	
+	private int calculateChpPowerTarget() {
+
+		int chpTargetPower = 0;
+
+		if (this.gridPowerWithoutChp != null) {
+
+			// Apply limits
+			chpTargetPower = Math.min(this.config.maxActivePower(), this.gridPowerWithoutChp); // also avoids sell to grid 
+
+		}
+
+		this._setActivePowerTarget(chpTargetPower); // feed channel
+		return chpTargetPower;
+	}	
 
 	private Double getCurrentCost(Integer power) {
 
 		Double currentPrice = 0.0;
-		if (!this.timeOfUseTariff.getPrices().isEmpty() && power > 0) {
+		if (!this.timeOfUseTariff.getPrices().isEmpty() && power != null && power > 0) {
 			currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh.
 		} else {
 			return 0.0;
 		}
-		this.logDebug(this.log, "\n\n\n\n CurrentPrice" + currentPrice + "\n\n\n\n\n");
+		// this.logDebug(this.log, " CurrentPrice " + currentPrice + "€/MWh\n");
 		return Math.round((currentPrice * power / 1_000_000.0) * 1000.0) / 1000.0;
 	}
+	
+	private Double getCurrentPrice() {
 
+		Double currentPrice = 0.0;
+		if (!this.timeOfUseTariff.getPrices().isEmpty()) {
+			currentPrice = this.timeOfUseTariff.getPrices().getFirst(); // Price in €/MWh.
+		} else {
+			return 0.0;
+		}
+		// this.logDebug(this.log, " CurrentPrice " + currentPrice + "€/MWh\n");
+		return currentPrice;
+	}	
+
+	private Double getFuturePrice() {
+		var from = ZonedDateTime.now(this.componentManager.getClock());
+		int qMin = (from.getMinute() / 15) * 15;
+		from = from.withMinute(qMin).withSecond(0).withNano(0);
+
+		var to = from.plusSeconds(this.config.preparationHyteresis()); // 3600s = 1h
+
+		if (!this.timeOfUseTariff.getPrices().isEmpty()) {
+			// this.futurePrice = this.timeOfUseTariff.getPrices().get
+
+			// Double[] arrFuturePrices = this.timeOfUseTariff.getPrices().asArray();
+
+			var avgEurPerMWh = this.timeOfUseTariff.getPrices().getBetween(from, to).mapToDouble(Double::doubleValue)
+					.average().orElse(0.0);
+
+			return avgEurPerMWh;
+
+		} else {
+			return 0.0;
+		}
+
+	}	
+	
 	private Double getFutureCost(Integer power) {
-		var from = ZonedDateTime.now();
+		var from = ZonedDateTime.now(this.componentManager.getClock());
 		int qMin = (from.getMinute() / 15) * 15;
 		from = from.withMinute(qMin).withSecond(0).withNano(0);
 
@@ -472,73 +779,96 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			return false;
 		}
 
-		if (isHysteresisActive(this.lastTransistionChangeTime, STATE_TRANSITION_HYSTERESIS)) {
+		if (isHysteresisActive(this.lastTransitionChangeTime, STATE_TRANSITION_HYSTERESIS)) {
 			this._setAwaitingTransitionHysteresis(true);
 			return false;
-		} else {
-			this.state = nextState;
-			this.lastTransistionChangeTime = Instant.now(this.componentManager.getClock());
-			this._setAwaitingTransitionHysteresis(false);
-			this._setStateMachine(nextState);
-			this.logDebug(this.log, "Change state " + this.state + "->" + nextState);
-
-			return true;
 		}
+
+		State oldState = this.state;
+		this.state = nextState;
+
+		this.lastTransitionChangeTime = Instant.now(this.componentManager.getClock());
+		this._setAwaitingTransitionHysteresis(true);
+		this._setStateMachine(nextState);
+		this.logDebug(this.log, "Change state " + oldState + "->" + nextState);
+
+		return true;
+
 	}
 
-	private boolean checkOperationalValues() {
-		this.logDebug(this.log,
-				"" + " gridMeter: " + this.gridMeter + " chp: " + this.chp + " gridActivePower: "
-						+ (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null)
-						+ (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)
-
-		);
+	private void updateOperationalValues() {
+		// this.logDebug(this.log,
+		// "" + " gridMeter: " + this.gridMeter + " chp: " + this.chp + "
+		// gridActivePower: "
+		// + (this.gridMeter != null ? this.gridMeter.getActivePower().get() : null)
+		// + (this.chp != null ? this.chp.getGeneratorActivePower().get() : null)
+		//
+		// );
 
 		if (this.chp == null) {
 			this.log.warn("Controller not ready. No CHP available");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		if (this.chp.getGeneratorActivePower().get() == null) {
+			this.log.warn("Controller not ready. CHP power not available");
+			this.changeState(State.ERROR);
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.gridMeter == null) {
 			this.log.warn("Controller not ready. GridMeter is NULL");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.gridMeter.getMeterType() != MeterType.GRID) {
 			this.log.warn("Controller not ready. Metertype is not GRID");
 			this.changeState(State.ERROR);
-			return false;
-
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.gridMeter.getActivePower().get() == null) {
 			this.log.warn("Controller not ready. No value for ActivePower from GridMeter");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.timeOfUseTariff == null) {
 			this.log.warn("Controller not ready. No prices available because TimeOfUse Controller is NULL");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.chp.getGeneratorActivePower().get() == null) {
 			this.log.warn("Controller not ready. No value for ActivePower from generator(s)");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
 		}
 
 		if (this.timeOfUseTariff.getPrices().isEmpty()) {
 			this.log.warn("Controller not ready. No prices available");
 			this.changeState(State.ERROR);
-			return false;
+			this.operationalValuesOk = false;
+			return;
 		}
 
-		return true;
+		this.operationalValuesOk = true;
+		return;
 
+	}
+
+	private boolean chpReadyForOperation() {
+		Boolean b = this.chp.getReadyForOperation().get();
+		return Boolean.TRUE.equals(b); // null-safe
 	}
 
 	void bindGridMeter(ElectricityMeter m) {
@@ -559,8 +889,85 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	@Override
 	protected void logDebug(Logger log, String message) {
 		if (this.config.debugMode()) {
-			this.logInfo(this.log, message);
+			this.logInfo(this.log, "[CtrlChpCostOptimization]State: " + this.state + " " + message);
 		}
+	}
+
+	private void setChpOff() {
+		this.logDebug(this.log, "Setting flags and target power to OFF \n");
+
+		// Null-sicher arbeiten
+		if (this.chp != null) {
+			this.chp.applyPower(null);
+		}
+
+		// Zielwerte und Flags konsistent zurücksetzen
+		this.applyPowerTarget = 0;
+		this._setActivePowerTarget(0);
+		this.targetNotReachedStartFlag = false;
+		this._setTargetNotReached(false);
+	}
+
+	private void checkTemperatureLimits() {
+		var bufferTemperature = this.chp.getAverageBufferTankTemperature().get(); // Dezi Degrees
+		if (bufferTemperature == null) {
+			this.logError(this.log, "Buffer Temperature not available");
+			return;
+		}
+
+		bufferTemperature = (int) Math.round(bufferTemperature / 10.0);
+
+		// check if temperature gets close to max -> reduce power
+		if (bufferTemperature >= this.config.maxBufferTankTemperature() - 5) {
+			this._setTemperatureNearMax(true);
+			this.temperatureNearMax = true;
+		} else {
+			this._setTemperatureNearMax(false);
+			this.temperatureNearMax = false;
+		}
+		
+		if (bufferTemperature <= this.config.minBufferTankTemperature()) {
+			this._setTemperatureBelowMin(true);
+			this._setTemperatureAboveMax(false);
+			this._setTemperatureAboveThreshold(false);
+
+			this.temperatureBelowMin = true;
+			this.temperatureAboveMax = false;
+			this.temperatureAboveThreshold = false;
+			return;
+		}
+
+		if (bufferTemperature >= this.config.maxBufferTankTemperature()) {
+			this._setTemperatureBelowMin(false);
+			this._setTemperatureAboveMax(true);
+			this._setTemperatureAboveThreshold(true);
+
+			this.temperatureBelowMin = false;
+			this.temperatureAboveMax = true;
+			this.temperatureAboveThreshold = true;
+			return;
+		}
+
+		if (bufferTemperature >= this.config.thresholdBufferTankTemperature()
+				&& bufferTemperature < this.config.maxBufferTankTemperature()) {
+			this._setTemperatureBelowMin(false);
+			this._setTemperatureAboveMax(false);
+			this._setTemperatureAboveThreshold(true);
+
+			this.temperatureBelowMin = false;
+			this.temperatureAboveMax = false;
+			this.temperatureAboveThreshold = true;
+			return;
+		}
+
+		this._setTemperatureBelowMin(false);
+		this._setTemperatureAboveMax(false);
+		this._setTemperatureAboveThreshold(false);
+
+		this.temperatureBelowMin = false;
+		this.temperatureAboveMax = false;
+		this.temperatureAboveThreshold = false;
+
 	}
 
 	@Override

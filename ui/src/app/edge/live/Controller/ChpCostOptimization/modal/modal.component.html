@@ -12,32 +12,32 @@
 
 <ion-content>
     <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card-content class="underline">
-
-            <!-- Modus-Auswahl -->
-            <oe-modal-line [name]="'General.mode' | translate" [value]="component.properties['mode'] | translate">
+        <ion-card-content *ngIf="component as c">
+            <oe-modal-line [name]="'General.mode' | translate" [value]="(c.properties?.mode ?? '') | translate">
             </oe-modal-line>
 
-            <!-- Modus-Schalter -->
-            <ion-segment *ngIf="component" (ionChange)="updateMode($event)" [value]="component.properties['mode']"
+            <ion-segment [value]="c.properties?.mode || 'AUTOMATIC'" (ionChange)="updateMode($event)"
                 scrollable="false">
                 <ion-segment-button value="MANUAL_ON">
-                    <ion-label translate>General.on</ion-label>
+                    <ion-label><span translate>General.on</span></ion-label>
                     <ion-icon [color]="component.properties['mode'] === 'MANUAL_ON' ? 'success' : 'normal'"
                         style="width:40px" name="power-outline"></ion-icon>
                 </ion-segment-button>
+
                 <ion-segment-button value="AUTOMATIC">
-                    <ion-label translate>General.automatic</ion-label>
+                    <ion-label><span translate>General.automatic</span></ion-label>
                     <ion-icon style="width:40px" name="sunny-outline"
                         [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'"></ion-icon>
                 </ion-segment-button>
+
                 <ion-segment-button value="MANUAL_OFF">
-                    <ion-label translate>General.off</ion-label>
-                    <ion-icon name="power-outline" style="width: 40px"
+                    <ion-label><span translate>General.off</span></ion-label>
+                    <ion-icon name="power-outline" style="width:40px"
                         [color]="component.properties['mode'] === 'MANUAL_OFF' ? 'danger' : 'normal'"></ion-icon>
                 </ion-segment-button>
             </ion-segment>
         </ion-card-content>
+
 
         <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
             <ng-container *ngIf="component.id as controllerId">
@@ -64,10 +64,10 @@
                         </oe-modal-line>
                     </ion-label>
                 </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingStopHysteresis)">
+                <ion-item [color]="getBackgroundClass(currentAwaitingRunHysteresis)">
                     <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingStopHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingStopHysteresis | translate">
+                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingRunHysteresis' | translate"
+                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingRunHysteresis | translate">
                         </oe-modal-line>
                     </ion-label>
                 </ion-item>
@@ -85,6 +85,13 @@
                         </oe-modal-line>
                     </ion-label>
                 </ion-item>
+                <ion-item [color]="getBackgroundClass(currentAwaitingReducedPowerHysteresis)">
+                    <ion-label>
+                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingReducedPowerHysteresis' | translate"
+                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingReducedPowerHysteresis | translate">
+                        </oe-modal-line>
+                    </ion-label>
+                </ion-item>
 
                 <!-- Datenzeilen -->
                 <ion-card-content class="underline">
@@ -96,8 +103,12 @@
                         [value]="(currentData?.channel?.['_sum/GridActivePower'] >= 0 ? currentData?.channel?.['_sum/GridActivePower'] : 0) | unitvalue:'W'">
                     </oe-modal-line>
 
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.highCostsThreshold' | translate"
-                        [value]="formatCosts(component.properties['maxCost'])">
+                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.priceThreshold' | translate"
+                        [value]="formatPrice(component.properties['priceThreshold'])">
+                    </oe-modal-line>
+
+                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentEnergyPrice' | translate"
+                        [value]="formatPrice(currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] >= 0 ? currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] : 0)">
                     </oe-modal-line>
 
                     <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCostsWithoutChp' | translate"
@@ -108,13 +119,13 @@
                         [value]="formatCosts(currentData?.channel?.[controllerId + '/EnergyCosts'])">
                     </oe-modal-line>
 
-                    <ion-range (ionChange)="updateThreshold()" pin color="dark" min="0" max="100"
+                    <ion-range (ionChange)="updateThreshold()" pin color="dark" min="0" max="1000"
                         [(ngModel)]="threshold" debounce="500">
                         <ion-label slot="start">
-                            {{ formatCosts(0) }}
+                            {{ formatPrice(0) }}
                         </ion-label>
                         <ion-label slot="end">
-                            {{ formatCosts(100) }}
+                            {{ formatPrice(1000) }}
                         </ion-label>
                     </ion-range>
                 </ion-card-content>

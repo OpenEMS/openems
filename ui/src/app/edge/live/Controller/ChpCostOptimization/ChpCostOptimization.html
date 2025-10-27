@@ -6,9 +6,11 @@
     <oe-flat-widget-line [name]="'General.state' | translate" [value]="state">
     </oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.highCostsThreshold' | translate"
-        [value]="thresholdCostsWithLabel">
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.priceThreshold' | translate" [value]="thresholdPriceWithLabel">
     </oe-flat-widget-line>
+
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.currentEnergyPrice' | translate"
+        [value]="currentEnergyPriceWithLabel"></oe-flat-widget-line>
 
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCostsWithoutChp' | translate"
         [value]="currentEnergyCostsWithoutChpWithLabel"></oe-flat-widget-line>

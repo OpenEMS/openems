@@ -158,6 +158,7 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
 			//this._setActivePower(this.xrgiRo.getActivePower().get());
 			//this.applyPower(19000);
 			this.updateGeneratorPowerSum();
+			this.updateReadyForOperation();
 			this.updateBufferTankTemperature();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
@@ -257,6 +258,39 @@ public class XrgiManagerImpl extends AbstractOpenemsComponent implements XrgiMan
     	this._setAverageBufferTankTemperature(avgRounded);
 
     }
+    
+    public void updateReadyForOperation() {
+
+    	// at least one is ready
+    	boolean anyReady = xrgiRos.values().stream()
+    		    .map(XrgiRo.class::cast)
+    		    .map(ro -> ro.getReadyForOperation().asOptional())
+    		    .flatMap(Optional::stream)
+    		    .anyMatch(Boolean::booleanValue);
+    	
+    	// at least one is NOT locked
+    	boolean anyUnlocked = xrgiRos.values().stream()
+    		    .map(XrgiRo.class::cast)
+    		    .map(ro -> ro.getNotReadyForOperation().asOptional())
+    		    .flatMap(Optional::stream)
+    		    .anyMatch(b -> !b);
+    	
+    	// at least one is operating
+    	boolean anyOperating = xrgiRos.values().stream()
+    		    .map(XrgiRo.class::cast)
+    		    .map(ro -> ro.getIsOperating().asOptional())
+    		    .flatMap(Optional::stream)
+    		    .anyMatch(Boolean::booleanValue);    	
+
+    	if (anyReady == true || anyUnlocked == true || anyOperating == true) {
+    		this._setReadyForOperation(true);	
+    	} else {
+    		this._setReadyForOperation(false);
+    	}
+    	
+    	
+
+    }    
 
     // Exponiert den Summen-Channel als Value<Integer>
 //    @Override

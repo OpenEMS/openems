@@ -1,5 +1,6 @@
 package io.openems.edge.chp.ecpower.ro;
 
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -152,4 +153,38 @@ public interface XrgiRo extends ModbusComponent, OpenemsComponent, ElectricityMe
 		return this.channel(ChannelId.STORAGE_TEMPERATURE_BOTTOM);
 
 	}
+	
+	// CHP ready for operation? it is not if:
+	// currently operating
+	// CHP_NOT_READY_FOR_OPERATION is active (device is locked for...reasons)
+	public default Value<Boolean> getReadyForOperation() {
+		return this.getReadyForOperationChannel().value();
+	}
+
+	public default BooleanReadChannel getReadyForOperationChannel() {
+		return this.channel(ChannelId.CHP_READY_FOR_OPERATION);
+
+	}
+
+	//
+	public default Value<Boolean> getNotReadyForOperation() {
+		return this.getNotReadyForOperationChannel().value();
+	}
+
+	public default BooleanReadChannel getNotReadyForOperationChannel() {
+		return this.channel(ChannelId.CHP_NOT_READY_FOR_OPERATION);
+
+	}	
+	
+	//
+	public default Value<Boolean> getIsOperating() {
+		return this.getIsOperatingChannel().value();
+	}
+
+	public default BooleanReadChannel getIsOperatingChannel() {
+		return this.channel(ChannelId.OPERATING);
+
+	}	
+	
+		
 }

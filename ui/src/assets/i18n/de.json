@@ -159,16 +159,19 @@
           "currentChpState": "Status",
           "activePower": "BHKW Leistung",
           "activePowerTarget": "BHKW Ziel-Leistung",
-          "currentEnergyCosts": "Aktuelle Kosten [€/h]",
-          "currentEnergyCostsWithoutChp": "Kosten ohne BHKW [€/h]",
+          "currentEnergyPrice": "Aktueller Preis",
+          "currentEnergyCosts": "Aktuelle Kosten",
+          "currentEnergyCostsWithoutChp": "Kosten ohne BHKW",
           "awaitingStartHysteresis": "Start Hysterese ",
           "awaitingPreparationHysteresis": "Vorbereitungs Hysterese ",
           "awaitingStopHysteresis": "Stop Hysterese ",
+          "awaitingRunHysteresis": "Laufzeit Hysterese ",
           "awaitingTransitionHysteresis": "Transition Hysterese",
           "awaitingDeviceHysteresis": "Gerät spezifische Hysterese",
+          "awaitingReducedPowerHysteresis": "Leistung reduziert Hysterese",
           "highThreshold": "Oberer Schwellenwert",
           "lowThreshold": "Unterer Schwellenwert",
-          "highCostsThreshold": "Schaltschwelle",
+          "priceThreshold": "Schaltschwelle",
           "HYSTERESIS_STATE": {
             "ACTIVE": "Aktiv",
             "INACTIVE": "Inaktiv"
@@ -176,11 +179,13 @@
           "CHP_STATE": {
             "UNDEFINED": "Undefiniert",
             "NORMAL": "Bereit",
-            "IDLE": "Bereit",
+            "IDLE": "StandBy",
             "ERROR": "Fehler",
             "CHP_ACTIVE": "BHKW läuft",
             "CHP_INACTIVE": "BHKW gestoppt",
-            "CHP_PREPARING": "BHKW Vorbereitung"
+            "CHP_PREPARING": "BHKW Vorbereitung",
+            "OVER_TEMPERATURE": "Übertemperatur",
+            "CHP_NOT_READY": "Hardware nicht bereit"
           }
         },
         "EVCS": {
