@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.session.Language;
 import io.openems.edge.app.common.props.PropsUtil;
-import io.openems.edge.app.integratedsystem.TestFeneconHome;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -30,7 +30,7 @@ public class CheckHomeTest {
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
-					Apps.feneconHome(t), //
+					Apps.feneconHome10(t), //
 					Apps.feneconHome20(t), //
 					Apps.feneconHome30(t) //
 			);
@@ -49,7 +49,7 @@ public class CheckHomeTest {
 	@Test
 	public void testCheckWithInstalledHome10() throws Exception {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome.fullSettings()));
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", TestFeneconHome10.fullSettings()));
 
 		assertTrue(response.warnings().isEmpty());
 		assertTrue(this.checkHome.check());

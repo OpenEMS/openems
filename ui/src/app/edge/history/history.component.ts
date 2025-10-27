@@ -1,9 +1,9 @@
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, effect, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { AppService } from "src/app/app.service";
-import { HeaderComponent } from "src/app/shared/components/header/header.component";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
 import { environment } from "src/environments";
@@ -11,10 +11,9 @@ import { environment } from "src/environments";
 @Component({
   selector: "history",
   templateUrl: "./history.component.html",
+  standalone: false,
 })
 export class HistoryComponent implements OnInit {
-
-  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
@@ -40,13 +39,18 @@ export class HistoryComponent implements OnInit {
     public service: Service,
     public translate: TranslateService,
     private route: ActivatedRoute,
-  ) { }
+    private dataService: DataService,
+    protected navigationService: NavigationService,
+  ) {
 
-  ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
+    effect(() => {
+      const edge = this.service.currentEdge();
       this.edge = edge;
       this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
     });
+  }
+
+  ngOnInit() {
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of
@@ -65,12 +69,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  // checks arrows when ChartPage is closed
-  // double viewchild is used to prevent undefined state of PickDateComponent
-  ionViewDidEnter() {
-    this.HeaderComponent.PickDateComponent.checkArrowAutomaticForwarding();
-  }
-
   updateOnWindowResize() {
     const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
       /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
@@ -84,7 +82,7 @@ export class HistoryComponent implements OnInit {
     ) + "px";
   }
 
-  protected handleRefresh: () => void = () => AppService.handleRefresh();
+  protected handleRefresh: (ev: CustomEvent) => void = (ev) => this.dataService.refresh(ev);
 
   protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
     this.errorResponse = errorResponse;

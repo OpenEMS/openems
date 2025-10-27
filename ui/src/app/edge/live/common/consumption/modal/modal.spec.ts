@@ -2,13 +2,13 @@
 import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
-import { sharedSetup } from "src/app/shared/components/shared/testing/utils.spec";
 
+import { TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { expectView } from "./modal.constants.spec";
 
 describe("Consumption - Modal", () => {
   let TEST_CONTEXT;
-  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
+  beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
 
   it("generateView()", () => {
 

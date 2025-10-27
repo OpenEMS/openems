@@ -23,6 +23,7 @@ import org.java_websocket.enums.HandshakeState;
 import org.java_websocket.enums.Opcode;
 import org.java_websocket.enums.ReadyState;
 import org.java_websocket.enums.Role;
+import org.java_websocket.exceptions.IncompleteException;
 import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.exceptions.InvalidFrameException;
 import org.java_websocket.exceptions.InvalidHandshakeException;
@@ -697,16 +698,16 @@ public class MyDraft6455 extends Draft {
 	 * @return byte that represents which RSV bit is set.
 	 */
 	private byte getRsvByte(int rsv) {
-		switch (rsv) {
-		case 1: // 0100 0000
-			return 0x40;
-		case 2: // 0010 0000
-			return 0x20;
-		case 3: // 0001 0000
-			return 0x10;
-		default:
-			return 0;
-		}
+		return switch (rsv) {
+		case 1 //
+			-> 0x40; // 0100 0000
+		case 2 //
+			-> 0x20; // 0010 0000
+		case 3 //
+			-> 0x10; // 0001 0000
+		default //
+			-> 0;
+		};
 	}
 
 	/**
@@ -863,41 +864,26 @@ public class MyDraft6455 extends Draft {
 	}
 
 	private byte fromOpcode(Opcode opcode) {
-		if (opcode == Opcode.CONTINUOUS) {
-			return 0;
-		} else if (opcode == Opcode.TEXT) {
-			return 1;
-		} else if (opcode == Opcode.BINARY) {
-			return 2;
-		} else if (opcode == Opcode.CLOSING) {
-			return 8;
-		} else if (opcode == Opcode.PING) {
-			return 9;
-		} else if (opcode == Opcode.PONG) {
-			return 10;
-		}
-		throw new IllegalArgumentException("Don't know how to handle " + opcode.toString());
+		return switch (opcode) {
+		case Opcode.CONTINUOUS -> 0;
+		case Opcode.TEXT -> 1;
+		case Opcode.BINARY -> 2;
+		case Opcode.CLOSING -> 8;
+		case Opcode.PING -> 9;
+		case Opcode.PONG -> 10;
+		};
 	}
 
 	private Opcode toOpcode(byte opcode) throws InvalidFrameException {
-		switch (opcode) {
-		case 0:
-			return Opcode.CONTINUOUS;
-		case 1:
-			return Opcode.TEXT;
-		case 2:
-			return Opcode.BINARY;
-		// 3-7 are not yet defined
-		case 8:
-			return Opcode.CLOSING;
-		case 9:
-			return Opcode.PING;
-		case 10:
-			return Opcode.PONG;
-		// 11-15 are not yet defined
-		default:
-			throw new InvalidFrameException("Unknown opcode " + (short) opcode);
-		}
+		return switch (opcode) {
+		case 0 -> Opcode.CONTINUOUS;
+		case 1 -> Opcode.TEXT;
+		case 2 -> Opcode.BINARY;
+		case 8 -> Opcode.CLOSING;
+		case 9 -> Opcode.PING;
+		case 10 -> Opcode.PONG;
+		default -> throw new InvalidFrameException("Unknown opcode " + (short) opcode);
+		};
 	}
 
 	@Override
@@ -1058,8 +1044,7 @@ public class MyDraft6455 extends Draft {
 	private void processFrameClosing(WebSocketImpl webSocketImpl, Framedata frame) {
 		int code = CloseFrame.NOCODE;
 		String reason = "";
-		if (frame instanceof CloseFrame) {
-			CloseFrame cf = (CloseFrame) frame;
+		if (frame instanceof CloseFrame cf) {
 			code = cf.getCloseCode();
 			reason = cf.getMessage();
 		}

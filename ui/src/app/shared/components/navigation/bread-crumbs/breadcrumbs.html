@@ -1,0 +1,16 @@
+@if (breadCrumbs().length > 0) {
+  <ion-breadcrumbs maxItems="3">
+    @for(parent of breadCrumbs(); track parent.id; let isLast = $last){
+      <ion-breadcrumb [active]="isLast" (keydown.enter)="navigateTo(parent, !isLast)" tabindex="0"
+        (click)="navigateTo(parent, !isLast)" color="primary">
+        @if (parent.mode === 'label') {
+          <ion-text [color]="isLast ? 'primary': 'medium'">{{parent.label}}</ion-text>
+        }
+        @if (parent.mode === 'icon') {
+          <ion-icon [name]="'home-outline'"
+          [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
+        }
+      </ion-breadcrumb>
+    }
+  </ion-breadcrumbs>
+}

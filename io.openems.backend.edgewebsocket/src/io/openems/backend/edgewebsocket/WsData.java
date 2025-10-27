@@ -8,7 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.java_websocket.WebSocket;
 
-import io.openems.backend.common.edgewebsocket.EdgeCache;
+import io.openems.backend.common.edge.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
@@ -76,10 +76,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		return "EdgeWebsocket.WsData [" //
-				+ "edgeId=" + this.edgeId.orElse("UNKNOWN") //
-				+ "]";
+	protected String toLogString() {
+		return new StringBuilder("EdgeWebsocket.WsData [edgeId=") //
+				.append(this.edgeId.orElse("UNKNOWN")) //
+				.append("]") //
+				.toString();
 	}
 
 }

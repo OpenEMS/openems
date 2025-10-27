@@ -9,23 +9,20 @@ import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 
 public class ControllerAsymmetricFixReactivePowerImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-	private static final String ESS_ID = "ess0";
-
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerAsymmetricFixReactivePowerImpl()) //
-				.addComponent(new DummyManagedAsymmetricEss(ESS_ID)) //
+				.addComponent(new DummyManagedAsymmetricEss("ess0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setEssId(ESS_ID) //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
 						.setPowerL1(0) //
 						.setPowerL2(0) //
 						.setPowerL3(0) //
 						.build()) //
-				.next(new TestCase()); //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 
 }

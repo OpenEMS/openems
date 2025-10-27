@@ -1,13 +1,12 @@
 // @ts-strict-ignore
 import { registerLocaleData } from "@angular/common";
-import { Injectable } from "@angular/core";
+import { effect, inject, Injectable, Injector, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
-import { filter, first, take } from "rxjs/operators";
-import { ChosenFilter } from "src/app/index/filter/filter.component";
+import { take } from "rxjs/operators";
 import { environment } from "src/environments";
 import { ChartConstants } from "../components/chart/chart.constants";
 import { Edge } from "../components/edge/edge";
@@ -22,11 +21,12 @@ import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/query
 import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
 import { ChannelAddress } from "../shared";
+import { DefaultTypes } from "../type/defaulttypes";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
 import { AbstractService } from "./abstractservice";
-import { DefaultTypes } from "./defaulttypes";
+import { RouteService } from "./route.service";
 import { Websocket } from "./websocket";
 
 @Injectable()
@@ -70,7 +70,7 @@ export class Service extends AbstractService {
   /**
    * Holds the currently selected Edge.
    */
-  public readonly currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+  public readonly currentEdge: WritableSignal<Edge> = signal(null);
 
   /**
    * Holds references of Edge-IDs (=key) to Edge objects (=value)
@@ -78,8 +78,6 @@ export class Service extends AbstractService {
   public readonly metadata: BehaviorSubject<{
     user: User, edges: { [edgeId: string]: Edge }
   }> = new BehaviorSubject(null);
-
-  public currentUser: User | null = null;
 
   /**
    * Holds the current Activated Route
@@ -90,25 +88,30 @@ export class Service extends AbstractService {
     fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
   }[] = [];
   private queryEnergyTimeout: any = null;
+  private injector = inject(Injector);
 
   constructor(
     private router: Router,
-    private spinner: NgxSpinnerService,
+    public spinner: NgxSpinnerService,
     private toaster: ToastController,
     public translate: TranslateService,
+    private _injector: Injector,
+    private routeService: RouteService,
   ) {
+
     super();
     // add language
     translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(Language.DEFAULT.key);
+    translate.setFallbackLang(Language.DEFAULT.key);
+    translate.use(Language.DEFAULT.key);
 
     // initialize history period
     this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByKey(event.lang));
+      registerLocaleData(Language.getLocale(Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key));
     });
   }
 
@@ -135,7 +138,7 @@ export class Service extends AbstractService {
   }
 
   // https://v16.angular.io/api/core/ErrorHandler#errorhandler
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   public override handleError(error: any) {
     console.error(error);
     // TODO: show notification
@@ -174,15 +177,22 @@ export class Service extends AbstractService {
   }
 
   public getCurrentEdge(): Promise<Edge> {
-    // TODO maybe timeout
     return new Promise<Edge>((resolve) => {
-      this.currentEdge.pipe(
-        filter(edge => edge != null),
-        first(),
-      ).toPromise().then(resolve);
-      if (this.currentEdge.value) {
-        resolve(this.currentEdge.value);
-      }
+      let isResolved = false; // Flag to ensure the Promise resolves only once
+
+      // Use runInInjectionContext to provide the injector context
+      const dispose = runInInjectionContext(this.injector, () => {
+        return untracked(() => {
+          return effect(() => {
+            const edge = this.currentEdge();
+            if (edge != null && !isResolved) {
+              isResolved = true; // Mark as resolved
+              resolve(edge); // Resolve the Promise with the non-null value
+              dispose.destroy();
+            }
+          });
+        });
+      });
     });
   }
 
@@ -196,8 +206,19 @@ export class Service extends AbstractService {
     });
   }
 
+  public getNextConfig(): Promise<EdgeConfig> {
+    return new Promise<EdgeConfig>((resolve, reject) => {
+      this.getCurrentEdge().then(edge => {
+        edge.getFirstValidConfig(this.websocket)
+          .then(resolve)
+          .catch(reject);
+      }).catch(reason => reject(reason));
+    });
+  }
+
   public onLogout() {
-    this.currentEdge.next(null);
+    this.currentEdge.set(null);
+
     this.metadata.next(null);
     this.websocket.state.set(States.NOT_AUTHENTICATED);
     this.router.navigate(["/login"]);
@@ -268,7 +289,7 @@ export class Service extends AbstractService {
           for (const source of mergedRequests) {
 
             // Jump to next request for empty channelAddresses
-            if (source.channels.length === 0) {
+            if (!source?.channels?.length) {
               continue;
             }
 
@@ -313,20 +334,13 @@ export class Service extends AbstractService {
   /**
    * Gets the page for the given number.
    *
-   * @param page the page number
-   * @param query the query to restrict the edgeId
-   * @param limit the number of edges to be retrieved
-   * @returns a Promise
+   * @param req the get edges request
+   * @returns a promise with the resulting edges
    */
-  public getEdges(page: number, query?: string, limit?: number, searchParamsObj?: { [id: string]: ChosenFilter["value"] }): Promise<Edge[]> {
+  public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
     return new Promise<Edge[]>((resolve, reject) => {
-      this.websocket.sendSafeRequest(
-        new GetEdgesRequest({
-          page: page,
-          ...(query && query != "" && { query: query }),
-          ...(limit && { limit: limit }),
-          ...(searchParamsObj && { searchParams: searchParamsObj }),
-        })).then((response) => {
+      this.websocket.sendSafeRequest(req)
+        .then((response) => {
 
           const result = (response as GetEdgesResponse).result;
 
@@ -367,7 +381,7 @@ export class Service extends AbstractService {
     return new Promise<Edge>((resolve, reject) => {
       const existingEdge = this.metadata.value?.edges[edgeId];
       if (existingEdge) {
-        this.currentEdge.next(existingEdge);
+        this.currentEdge.set(existingEdge);
         resolve(existingEdge);
         return;
       }
@@ -384,7 +398,7 @@ export class Service extends AbstractService {
           edgeData.lastmessage,
           edgeData.sumState,
           DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
-        this.currentEdge.next(currentEdge);
+        this.currentEdge.set(currentEdge);
         value.edges[edgeData.id] = currentEdge;
         this.metadata.next(value);
         resolve(currentEdge);
@@ -420,8 +434,8 @@ export class Service extends AbstractService {
     const toast = await this.toaster.create({
       message: message,
       color: level,
-      duration: duration ?? 2000,
-      cssClass: "container",
+      duration: duration ?? 4000,
+      id: "toast-container",
     });
     toast.present();
   }

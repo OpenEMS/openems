@@ -1,7 +1,11 @@
 package io.openems.edge.ess.generic.common;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -12,7 +16,6 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
@@ -31,9 +34,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 /**
  * Parent class for different implementations of Managed Energy Storage Systems,
@@ -114,8 +114,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		// Get DC-PV-Power for Hybrid ESS
 		Integer dcPvPower = null;
 		var batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			dcPvPower = ((HybridManagedSymmetricBatteryInverter) batteryInverter).getDcPvPower();
+		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter hybrid) {
+			dcPvPower = hybrid.getDcPvPower();
 		}
 
 		sb //
@@ -124,9 +124,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 
 		// For HybridEss show actual Battery charge power and PV production power
 		if (dcPvPower != null) {
-			HybridEss me = this;
 			sb //
-					.append("|Battery:").append(me.getDcDischargePower().asString()) //
+					.append("|Battery:").append(this.getDcDischargePower().asString()) //
 					.append("|PV:").append(dcPvPower);
 		}
 
@@ -168,34 +167,31 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 	 */
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-
-		List<Constraint> result = new ArrayList<>();
+		var result = new ArrayList<Constraint>();
 
 		// Get BatteryInverterConstraints
 		var constraints = this.getBatteryInverter().getStaticConstraints();
 
-		for (BatteryInverterConstraint c : constraints) {
+		for (var c : constraints) {
 			result.add(this.getPower().createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
 					c.value));
 		}
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!
 		if (!this.isStarted()) {
-			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", Phase.ALL, Pwr.ACTIVE,
-					Relationship.EQUALS, 0));
-			result.add(this.createPowerConstraint("ReactivePower Constraint ESS not Started", Phase.ALL, Pwr.REACTIVE,
-					Relationship.EQUALS, 0));
+			result.add(this.createPowerConstraint("ActivePower Constraint ESS not Started", ALL, ACTIVE, EQUALS, 0));
+			result.add(
+					this.createPowerConstraint("ReactivePower Constraint ESS not Started", ALL, REACTIVE, EQUALS, 0));
 		}
 		return result.toArray(new Constraint[result.size()]);
 	}
 
 	@Override
-	public Integer getSurplusPower() {
-		var batteryInverter = this.getBatteryInverter();
-		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			return ((HybridManagedSymmetricBatteryInverter) batteryInverter).getSurplusPower();
-		}
-		return null;
+	public final Integer getSurplusPower() {
+		return switch (this.getBatteryInverter()) {
+		case HybridManagedSymmetricBatteryInverter hybrid -> hybrid.getSurplusPower();
+		case null, default -> null;
+		};
 	}
 
 	@Override
@@ -211,22 +207,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.startStopConfig) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.startStopConfig) {
+		case AUTO -> this.startStopTarget.get();
+		case START -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		};
 	}
-
 }

@@ -1,6 +1,8 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedChargeImpl.DEFAULT_POWER_BUFFER;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static java.lang.Math.min;
 import static java.time.temporal.ChronoField.MINUTE_OF_DAY;
 
@@ -27,8 +29,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 public class DelayCharge {
 
@@ -130,7 +130,7 @@ public class DelayCharge {
 			// Set the power limitation constraint
 			this.parent.ess.setActivePowerGreaterOrEquals(delayChargeMaxChargePower);
 		} catch (OpenemsNamedException e) {
-			state = DelayChargeState.NO_FEASABLE_SOLUTION;
+			state = DelayChargeState.NO_FEASIBLE_SOLUTION;
 		}
 
 		// Avoid charging with low power
@@ -274,7 +274,7 @@ public class DelayCharge {
 		var capacity = this.parent.ess.getCapacity().getOrError();
 
 		// No remaining capacity
-		var minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
+		var minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, ALL, ACTIVE);
 		if (minPower >= 0 && soc > 95) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;
@@ -285,7 +285,7 @@ public class DelayCharge {
 		soc -= 1;
 
 		// Remaining capacity of the battery in Ws till target point.
-		var remainingCapacity = Math.round(capacity * (100 - soc) * 36);
+		var remainingCapacity = capacity * (100L - soc) * 36;
 
 		// Remaining time in seconds till the target point.
 		var remainingTime = DelayCharge.calculateRemainingTime(clock, targetMinute);
@@ -320,7 +320,7 @@ public class DelayCharge {
 		/*
 		 * Calculate the power limit depending on the specified parameters.
 		 */
-		Integer calculatedPower = DelayCharge.getCalculatedPowerLimit(remainingCapacity, remainingTime,
+		var calculatedPower = DelayCharge.getCalculatedPowerLimit(remainingCapacity, remainingTime,
 				quarterHourlyProduction, quarterHourlyConsumption, clock, riskLevel, maxApparentPower, targetMinute,
 				minimumPower, this.parent);
 
@@ -393,24 +393,21 @@ public class DelayCharge {
 	 * @return the calculated charging power limit or null if no limit should be
 	 *         applied
 	 */
-	protected static Integer getCalculatedPowerLimit(int remainingCapacity, int remainingTime,
+	protected static Integer getCalculatedPowerLimit(long remainingCapacity, int remainingTime,
 			Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption, Clock clock,
 			DelayChargeRiskLevel riskLevel, int maxApparentPower, int targetMinute, double minimumChargePower,
 			ControllerEssGridOptimizedChargeImpl parent) {
-
-		Integer calculatedPower = null;
-
 		// Do not divide by zero
 		if (remainingTime <= 0) {
 			return null;
 		}
 		// Calculate charge power limit
-		calculatedPower = remainingCapacity / remainingTime;
+		var calculatedPower = remainingCapacity / remainingTime;
 
 		// Minimum power for more efficiency during a day (Avoid charging with low
 		// power.
 		if (calculatedPower < minimumChargePower) {
-			calculatedPower = 0;
+			calculatedPower = 0L;
 		}
 
 		/**
@@ -440,7 +437,10 @@ public class DelayCharge {
 			return maxApparentPower;
 		}
 
-		return calculatedPower;
+		if (calculatedPower > Integer.MAX_VALUE) {
+			return Integer.MAX_VALUE;
+		}
+		return (int) calculatedPower;
 	}
 
 	/**

@@ -2,6 +2,7 @@ plugins {
 	id 'base'
 	id 'java'
 	id 'com.github.node-gradle.node'
+	id 'org.barfuin.gradle.jacocolog'
 }
 
 repositories {
@@ -9,18 +10,16 @@ repositories {
 	gradlePluginPortal()
 }
 
-dependencies {
-	// Use JUnit test framework.
-	testImplementation 'junit:junit:4.13.2'
-	
-	// This dependency is used by the application. 
-	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
+}
+
+def isCI = (System.getenv("CI") != null) as Boolean
+
+if (isCI) {
+    println("CI environment detected - suppressing all compiler warnings")
 }
 
 /*
@@ -33,19 +32,57 @@ subprojects {
 	repositories {
 		mavenCentral()
 	}
-	
+
 	tasks.withType(JavaCompile) {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
+
+		if (isCI) {
+			options.compilerArgs += ["-Xlint:none", "-nowarn"]
+			options.deprecation = false
+		}
 	}
 	
 	tasks.withType(Test) {
-		maxParallelForks = 2
+		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
 			junitXml.required = false
+		}
+
+		if (isCI) {
+			testLogging {
+				events = ["failed"]
+				exceptionFormat = 'full'
+				showExceptions = true
+				showStackTraces = true
+				showCauses = true
+			}
+			afterSuite { desc, result ->
+				if (!desc.parent) {
+					def shortName = path.takeRight(36)
+					def padded = String.format("%36s", shortName) 
+					def icon = switch(result.resultType) {
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ"
+						default -> ""
+					}
+					println "> [${padded}] Test summary: ${result.resultType} ${icon} " +
+							"(${result.testCount} tests, " +
+							"${result.successfulTestCount} passed, " +
+							"${result.failedTestCount} failed, " +
+							"${result.skippedTestCount} skipped)"
+				}
+			}
+			afterTest { descriptor, result ->
+				if (result.failedTestCount > 0) {
+					println "\n${descriptor.className}.${descriptor.name} FAILED"
+					result.exception?.printStackTrace(System.out)
+				}
+			}
 		}
 	}
 	
@@ -68,7 +105,7 @@ subprojects {
 		}
 	
 		checkstyle {
-			toolVersion = '10.11.0'
+			toolVersion = '11.1.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures = false
@@ -93,8 +130,8 @@ tasks.named('wrapper') {
 }
 
 task cleanEdge() {
-	group 'OpenEMS-Build'
-	description 'Clean all Edge-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Clean all Edge-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
@@ -106,8 +143,8 @@ task cleanEdge() {
 }
 
 task checkstyleAll() {
-	group 'OpenEMS-Build'
-	description 'Checkstyle all bundles'
+	group = 'OpenEMS-Build'
+	description = 'Checkstyle all bundles'
 
 	subprojects.each { proj ->
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
@@ -117,8 +154,8 @@ task checkstyleAll() {
 }
 
 task cleanBackend() {
-	group 'OpenEMS-Build'
-	description 'Clean all Backend-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Clean all Backend-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
@@ -130,8 +167,8 @@ task cleanBackend() {
 }
 
 task assembleEdge() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Edge-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Assemble all Edge-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
@@ -143,8 +180,8 @@ task assembleEdge() {
 }
 
 task assembleBackend() {
-	group 'OpenEMS-Build'
-	description 'Assemble all Backend-Bundles'
+	group = 'OpenEMS-Build'
+	description = 'Assemble all Backend-Bundles'
 	
 	subprojects.each { proj ->
 		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
@@ -172,8 +209,8 @@ task buildComponents() {
 }
 
 task buildEdge() {
-	group 'OpenEMS-Build'
-	description 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
+	group = 'OpenEMS-Build'
+	description = 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
 	
 	def assemble = tasks.getByPath(':assembleEdge')
 	def export = tasks.getByPath(':io.openems.edge.application:export.EdgeApp')
@@ -205,8 +242,8 @@ task buildEdge() {
 }
 
 task buildBackend() {
-	group 'OpenEMS-Build'
-	description 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
+	group = 'OpenEMS-Build'
+	description = 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
 	
 	def assemble = tasks.getByPath(':assembleBackend')
 	def export = tasks.getByPath(':io.openems.backend.application:export.BackendApp')
@@ -343,7 +380,7 @@ task copyBundleReadmes() {
  * Build Antora docs
  */
 task buildAntoraDocs(dependsOn: copyBundleReadmes) {
-	group 'Documentation'
+	group = 'Documentation'
 	dependsOn ":doc:buildAntoraDocs"
 
 	def source = file("doc/build/www")

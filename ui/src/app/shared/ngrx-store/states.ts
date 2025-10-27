@@ -3,8 +3,7 @@ import { Router } from "@angular/router";
 
 import { differenceInSeconds } from "date-fns";
 import { environment } from "src/environments";
-import { Pagination } from "../service/pagination";
-import { PreviousRouteService } from "../service/previousRouteService";
+import { RouteService } from "../service/route.service";
 import { Websocket } from "../shared";
 
 export enum States {
@@ -33,9 +32,8 @@ export class AppStateTracker {
 
     constructor(
         protected router: Router,
-        protected pagination: Pagination,
         private websocket: Websocket,
-        private previousRouteService: PreviousRouteService,
+        private routeService: RouteService,
     ) {
         if (!localStorage.getItem("AppState")) {
             console.log(`${AppStateTracker.LOG_PREFIX} Log deactivated`);
@@ -48,22 +46,25 @@ export class AppStateTracker {
         effect(() => {
             const state = this.websocket.state();
             this.startStateHandler(state);
-        }, { allowSignalWrites: true });
+        });
     }
 
     /**
      * Handles navigation after authentication
      */
     public navigateAfterAuthentication() {
-        const segments = this.router.routerState.snapshot.url.split("/");
-        const previousUrl: string = this.previousRouteService.getPreviousUrl();
 
-        if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
-            this.router.navigate(["./overview"]);
-            return;
-        }
+        this.router.navigate(["overview"]);
+        return;
+        // const segments = this.router.routerState.snapshot.url.split("/");
+        // const previousUrl: string = this.routeService.getPreviousUrl();
 
-        this.router.navigate(previousUrl.split("/"));
+        // if ((previousUrl === segments[segments.length - 1]) || previousUrl === "/") {
+        //     this.router.navigate(["./overview"]);
+        //     return;
+        // }
+
+        // this.router.navigate(previousUrl.split("/"));
     }
 
     private startStateHandler(state: States): void {

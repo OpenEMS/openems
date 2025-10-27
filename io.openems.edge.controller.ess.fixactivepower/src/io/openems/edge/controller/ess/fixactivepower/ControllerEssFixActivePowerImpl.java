@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
+import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -17,6 +19,9 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.PowerConstraint;
@@ -32,7 +37,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
-		implements ControllerEssFixActivePower, Controller, OpenemsComponent, TimedataProvider {
+		implements ControllerEssFixActivePower, EnergySchedulable, Controller, OpenemsComponent, TimedataProvider {
 
 	private final CalculateActiveTime calculateCumulatedActiveTime = new CalculateActiveTime(this,
 			ControllerEssFixActivePower.ChannelId.CUMULATED_ACTIVE_TIME);
@@ -43,10 +48,11 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	private Config config;
-
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	private Config config;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	public ControllerEssFixActivePowerImpl() {
 		super(//
@@ -59,6 +65,15 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() && this.config.mode() == Mode.MANUAL_ON //
+						? new OptimizationContext(//
+								switch (this.config.phase()) {
+								case ALL -> this.config.power();
+								case L1, L2, L3 -> this.config.power() * 3;
+								}, //
+								this.config.relationship()) //
+						: null);
 		if (this.applyConfig(context, config)) {
 			return;
 		}
@@ -70,6 +85,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		if (this.applyConfig(context, config)) {
 			return;
 		}
+		this.energyScheduleHandler.triggerReschedule("ControllerEssFixActivePowerImpl::modified()");
 	}
 
 	private boolean applyConfig(ComponentContext context, Config config) {
@@ -117,24 +133,27 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	 * @return the AC power set-point
 	 */
 	protected static Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
-		switch (hybridEssMode) {
-		case TARGET_AC:
-			return power;
+		return switch (hybridEssMode) {
+		case TARGET_AC -> power;
 
-		case TARGET_DC:
-			if (ess instanceof HybridEss) {
-				var pv = ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0);
-				return pv + power; // Charge or Discharge
-			} else {
-				return power;
+		case TARGET_DC -> //
+			switch (ess) {
+			case HybridEss he -> {
+				var pv = ess.getActivePower().orElse(0) - he.getDcDischargePower().orElse(0);
+				yield pv + power; // Charge or Discharge
 			}
-		}
-
-		return null; /* should never happen */
+			default -> power;
+			};
+		};
 	}
 
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

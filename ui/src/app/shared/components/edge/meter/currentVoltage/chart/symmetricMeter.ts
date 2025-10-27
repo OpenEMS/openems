@@ -1,11 +1,12 @@
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "currentVoltageChart",
   templateUrl: "../../../../../components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 
@@ -27,7 +28,7 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
       output: (data: HistoryUtils.ChannelData) => [
 
         {
-          name: this.translate.instant("Edge.History.CURRENT"),
+          name: this.translate.instant("EDGE.HISTORY.CURRENT"),
           converter: () => {
             return data[component.id + "Current"];
           },
@@ -35,32 +36,36 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
           hiddenOnInit: false,
           stack: 1,
 
-          yAxisId: ChartAxis.RIGHT,
+          yAxisId: ChartAxis.LEFT,
         },
         {
-          name: this.translate.instant("Edge.History.VOLTAGE"),
+          name: this.translate.instant("EDGE.HISTORY.VOLTAGE"),
           converter: () => {
             return data[component.id + "Voltage"];
           },
           color: "rgb(255,0,0)",
           hiddenOnInit: false,
           stack: 1,
-          yAxisId: ChartAxis.LEFT,
+          yAxisId: ChartAxis.RIGHT,
         },
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: this.translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.VOLTAGE,
-        position: "left",
-        yAxisId: ChartAxis.LEFT,
+        position: "right",
+        yAxisId: ChartAxis.RIGHT,
+        displayGrid: false,
+        scale: {
+          dynamicScale: true,
+        },
       },
       {
         unit: YAxisType.CURRENT,
-        position: "right",
-        yAxisId: ChartAxis.RIGHT,
+        position: "left",
+        yAxisId: ChartAxis.LEFT,
       },
       ],
     };

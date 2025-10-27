@@ -1,5 +1,10 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -7,7 +12,6 @@ import java.util.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -19,18 +23,18 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.LimitTotalDischarge", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsComponent
-		implements ControllerEssLimitTotalDischarge, Controller, OpenemsComponent {
+		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
 
@@ -43,6 +47,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private static final int HYSTERESIS = 5;
 	private Instant lastStateChange = Instant.MIN;
 
+	private EnergyScheduleHandler energyScheduleHandler;
 	private String essId;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
@@ -60,6 +65,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> new EnergyScheduler.Config(this.isEnabled() //
+						? this.minSoc //
+						: null));
 
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
@@ -161,7 +170,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				if (this.forceChargePower.isPresent()) {
 					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
 				} else {
-					var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 					calculatedPower = maxCharge / 5;
 				}
 
@@ -176,8 +185,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, ACTIVE, calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set
@@ -210,5 +218,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

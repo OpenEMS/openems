@@ -4,12 +4,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
-import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "detailChart",
   templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -53,7 +54,7 @@ export class ChartComponent extends AbstractHistoryChart {
               // TODO add logic to not have to adjust non power data manually
               ?.map(val => Utils.multiplySafely(val, 1000));
           },
-          color: "rgb(0,191,255)",
+          color: ChartConstants.Colors.YELLOW,
           stack: 0,
         });
 
@@ -72,13 +73,13 @@ export class ChartComponent extends AbstractHistoryChart {
   protected static getInputChannelLabel(translate: TranslateService, channelAddress: ChannelAddress): string {
     switch (channelAddress.channelId) {
       case "GridActivePower":
-        return translate.instant("General.grid");
+        return translate.instant("GENERAL.GRID");
       case "ProductionActivePower":
-        return translate.instant("General.production");
+        return translate.instant("GENERAL.PRODUCTION");
       case "EssSoc":
-        return translate.instant("General.soc");
+        return translate.instant("GENERAL.SOC");
       default:
-        return translate.instant("Edge.Index.Widgets.Singlethreshold.other");
+        return translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER");
     }
   }
 
@@ -155,9 +156,8 @@ export class ChartComponent extends AbstractHistoryChart {
       stack: 1,
     };
   }
+
   protected override getChartData(): HistoryUtils.ChartData {
     return ChartComponent.getChartData(this.config, this.chartType, this.route, this.translate);
   }
-
-
 }

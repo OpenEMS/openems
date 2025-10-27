@@ -6,8 +6,8 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from "uuid";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
@@ -207,6 +207,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     protected getChannelAddresses(): ChannelAddress[] {
         return [];
     }
+
     protected getFormGroup(): FormGroup {
         return;
     }

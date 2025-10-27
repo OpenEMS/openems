@@ -1,0 +1,13 @@
+@if (isVisible) {
+  <ion-modal #modal [isOpen]="true" [initialBreakpoint]="initialBreakPoint" [breakpoints]="[0.05,initialBreakPoint,0.9]"
+    showBackdrop="true" [backdropDismiss]="false" [backdropBreakpoint]="initialBreakPoint" focusTrap="false"
+    style="--box-shadow: 0 0 0.25rem rgba(0,0,0,0.7)"
+    (ionBreakpointDidChange)="onBreakpointDidChange($event)">
+    <ng-template>
+      <ion-content class="ion-padding">
+        <oe-navigation-breadcrumbs (navigate)="navigateTo($event, true)"></oe-navigation-breadcrumbs>
+        <oe-navigation-chips (navigate)="navigateTo($event, true)"></oe-navigation-chips>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+}

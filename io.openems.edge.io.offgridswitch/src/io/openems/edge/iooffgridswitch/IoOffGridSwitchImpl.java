@@ -144,29 +144,18 @@ public class IoOffGridSwitchImpl extends AbstractOpenemsComponent
 		BooleanWriteChannel channel = this.componentManager.getChannel(channelAddress);
 
 		// Get Target Value
-		Boolean targetValue = null;
-		switch (operation) {
-		case OPEN:
-			switch (relay) {
-			case NORMALLY_CLOSED:
-				targetValue = true;
-				break;
-			case NORMALLY_OPEN:
-				targetValue = false;
-				break;
-			}
-			break;
-		case CLOSE:
-			switch (relay) {
-			case NORMALLY_CLOSED:
-				targetValue = false;
-				break;
-			case NORMALLY_OPEN:
-				targetValue = true;
-				break;
-			}
-			break;
-		}
+		var targetValue = switch (operation) {
+		case OPEN //
+			-> switch (relay) {
+			case NORMALLY_CLOSED -> true;
+			case NORMALLY_OPEN -> false;
+			};
+		case CLOSE //
+			-> switch (relay) {
+			case NORMALLY_CLOSED -> false;
+			case NORMALLY_OPEN -> true;
+			};
+		};
 
 		if (Objects.equal(channel.value().get(), targetValue)) {
 			// it is already in the desired state

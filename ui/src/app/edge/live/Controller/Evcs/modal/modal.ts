@@ -2,9 +2,12 @@
 import { ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { ModalController, PopoverController } from "@ionic/angular";
+import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { AdministrationComponent } from "../administration/administration.component";
@@ -13,6 +16,7 @@ import { PopoverComponent } from "../popover/popover";
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
   templateUrl: "./modal.html",
+  standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
@@ -36,7 +40,11 @@ export class ModalComponent extends AbstractModal {
   protected isEnergySinceBeginningAllowed: boolean = false;
   protected isChargingEnabled: boolean = false;
   protected sessionLimit: number;
-  protected helpKey: string;
+  protected awaitingHysteresis: boolean;
+  protected isReadWrite: boolean = true;
+  protected readonly useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
+  private chargePoint: EvcsComponent;
+
 
   constructor(
     @Inject(Websocket) protected override websocket: Websocket,
@@ -57,20 +65,10 @@ export class ModalComponent extends AbstractModal {
     }, 0);
   }
 
-  public static getHelpKey(factoryId: string): string {
-    switch (factoryId) {
-      case "Evcs.Keba.KeContact":
-        return "EVCS_KEBA_KECONTACT";
-      case "Evcs.HardyBarth":
-        return "EVCS_KEBA_KECONTACT";
-      case "Evcs.IesKeywattSingle":
-        return "EVCS_OCPP_IESKEYWATTSINGLE";
-      default:
-        return null;
-    }
-  }
+  protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);
+  protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.POWER_IN_WATT(val);
 
-  async presentPopover() {
+  protected async presentPopover() {
     const popover = await this.popoverctrl.create({
       component: PopoverComponent,
       componentProps: {
@@ -80,7 +78,7 @@ export class ModalComponent extends AbstractModal {
     return await popover.present();
   }
 
-  async presentModal() {
+  protected async presentModal() {
     const modal = await this.detailViewController.create({
       component: AdministrationComponent,
       componentProps: {
@@ -95,16 +93,15 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected override getChannelAddresses(): ChannelAddress[] {
-
+    this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
     this.controller = this.config.getComponentsByFactory("Controller.Evcs")
       .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component.id);
 
     this.evcsComponent = this.config.getComponent(this.component.id);
-    this.helpKey = ModalComponent.getHelpKey(this.evcsComponent?.factoryId);
 
     return [
       // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, "ChargePower"),
+      this.chargePoint.powerChannel,
       new ChannelAddress(this.component.id, "Phases"),
       new ChannelAddress(this.component.id, "Plug"),
       new ChannelAddress(this.component.id, "Status"),
@@ -113,18 +110,22 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress(this.component.id, "MinimumHardwarePower"),
       new ChannelAddress(this.component.id, "MaximumHardwarePower"),
       new ChannelAddress(this.component.id, "SetChargePowerLimit"),
+      new ChannelAddress(this.component.id, "_PropertyReadOnly"),
       new ChannelAddress(this.controller?.id, "_PropertyChargeMode"),
       new ChannelAddress(this.controller?.id, "_PropertyEnabledCharging"),
       new ChannelAddress(this.controller?.id, "_PropertyDefaultChargeMinPower"),
+      new ChannelAddress(this.controller?.id, "AwaitingHysteresis"),
     ];
   }
 
   protected override onCurrentData(currentData: CurrentData) {
     this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
+    this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
+    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
     // Do not change values after touching formControls
     if (this.formGroup?.pristine) {
       this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/ChargePower"]);
+      this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
       this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
       this.state = currentData.allComponents[this.component.id + "/Status"];
       this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
@@ -136,6 +137,7 @@ export class ModalComponent extends AbstractModal {
   }
 
   protected override onIsInitialized(): void {
+    this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
     this.subscription.add(this.formGroup?.controls["energyLimit"]?.valueChanges.subscribe(isEnergyLimit => {
       if (isEnergyLimit) {
         if (this.formGroup.controls["energySessionLimit"]?.value === 0) {
@@ -194,6 +196,16 @@ export class ModalComponent extends AbstractModal {
   }
 
   /**
+   * Formats the pin value
+   *
+   * @param value the value
+   * @returns a formatted value
+   */
+  protected pinFormatter(value: number): string {
+    return Formatter.FORMAT_WATT(value);
+  }
+
+  /**
      * Updates the Min-Power of force charging
      *
      * @param event
@@ -245,38 +257,39 @@ export class ModalComponent extends AbstractModal {
   private getState(enabledCharging: boolean, state: number, plug: number): string {
 
     if (enabledCharging === false) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.chargingStationDeactivated");
+      return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
     }
 
     if (plug == null) {
       if (state == null) {
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
       }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
+    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower?.value > 450) {
+      return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
     }
     switch (state) {
       case ChargeState.STARTING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.starting");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.STARTING");
       case ChargeState.UNDEFINED:
       case ChargeState.ERROR:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.error");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.ERROR");
       case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.readyForCharging");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING");
       case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notReadyForCharging");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING");
       case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
       case ChargeState.CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
       case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED");
       case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
+        return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
     }
   }
 
 }
+
 
 enum ChargeState {
   UNDEFINED = -1,           //Undefined
@@ -287,7 +300,7 @@ enum ChargeState {
   ERROR,                    //Error
   AUTHORIZATION_REJECTED,   //Authorization rejected
   ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED,         //Charging has finished
+  CHARGING_FINISHED,        //Charging has finished
 }
 
 enum ChargePlug {
@@ -296,5 +309,5 @@ enum ChargePlug {
   PLUGGED_ON_EVCS,                          //Plugged on EVCS
   PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
   PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
+  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7, //Plugged on EVCS and on EV and locked
 }

@@ -5,7 +5,6 @@ import static io.openems.edge.core.appmanager.formly.enums.Wrappers.PANEL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -34,6 +33,8 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -41,7 +42,9 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -50,7 +53,6 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
-import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Case;
@@ -73,6 +75,7 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
       "EVCS_ID": "evcs0",
       "CTRL_EVCS_ID": "ctrlEvcs0",
       "IP": "192.168.25.30",
+      "PHASE_ROTATION":"L1_L2_L3",
       "NUMBER_OF_CHARGING_STATIONS": 1,
       "EVCS_ID_CP_2": "evcs0",
       "CTRL_EVCS_ID_CP_2": "ctrlEvcs0",
@@ -86,8 +89,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.HardyBarth")
-public class HardyBarthEvcs extends
-		AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter> implements OpenemsApp {
+public class HardyBarthEvcs
+		extends AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public interface PropertyParent extends Nameable, Type<PropertyParent, HardyBarthEvcs, Parameter.BundleParameter> {
 
@@ -144,7 +148,8 @@ public class HardyBarthEvcs extends
 											.collect(Exp.toArrayExpression()) //
 											.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
 						}))), //
-		;
+		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
+		READ_ONLY(EvcsProps.readOnly());
 
 		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
@@ -182,15 +187,16 @@ public class HardyBarthEvcs extends
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
 										"App.Evcs.HardyBarth.alias.value", //
 										TranslationUtil.getTranslation(parameter.bundle(), "right"))))))), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.30") //
 				.setAutoGenerateField(false) //
 				.setRequired(true)), //
 		;
 
-		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def;
 
-		private SubPropertyFirstChargepoint(AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
+		private SubPropertyFirstChargepoint(
+				AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -199,7 +205,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -237,16 +243,16 @@ public class HardyBarthEvcs extends
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
 				.setRequired(true)), //
-		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.31") //
 				.setAutoGenerateField(false) //
 				.setRequired(true)), //
 		;
 
-		private final AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def;
 
 		private SubPropertySecondChargepoint(
-				AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def) {
+				AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -255,7 +261,7 @@ public class HardyBarthEvcs extends
 		 * 
 		 * @return the {@link AppDef}
 		 */
-		public AppDef<? super OpenemsApp, ? super Nameable, ? super BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super Nameable, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -286,10 +292,21 @@ public class HardyBarthEvcs extends
 
 	}
 
+	private final Host host;
+	private final Meta meta;
+
 	@Activate
-	public HardyBarthEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public HardyBarthEvcs(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host, //
+			@Reference Meta meta //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
+		this.meta = meta;
 	}
 
 	@Override
@@ -315,53 +332,68 @@ public class HardyBarthEvcs extends
 			final var schedulerIds = new ArrayList<SchedulerComponent>();
 
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
-			final var ip = this.getString(p, l, SubPropertyFirstChargepoint.IP);
+			final var ip = this.getString(p, SubPropertyFirstChargepoint.IP);
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
-			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
-			schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
+			final var phaseRotation = this.getString(p, Property.PHASE_ROTATION);
+			final var readOnly = this.getBoolean(p, Property.READ_ONLY);
 
 			final var factorieId = "Evcs.HardyBarth";
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsId, alias, factorieId, JsonUtils.buildJsonObject() //
 							.addProperty("ip", ip) //
-							.build()), //
-					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
-							.addProperty("evcs.id", evcsId) //
-							.build())//
-			);
-			final List<DependencyDeclaration> clusterDependency;
+							.addPropertyIfNotNull("phaseRotation", phaseRotation) //
+							.addPropertyIfNotNull("readOnly", readOnly)//
+							.build())); //
+			if (!readOnly) {
+				final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
+				schedulerIds.add(new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()));
+				components.add(new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs",
+						JsonUtils.buildJsonObject() //
+								.addProperty("evcs.id", evcsId) //
+								.build())//
+				);
+			}
+			final var appConfigBuilder = AppConfiguration.create();
 			if (numberOfChargingStations == 2) {
 				final var aliasCp2 = this.getString(p, l, SubPropertySecondChargepoint.ALIAS_CP_2);
 				final var ipCp2 = this.getString(p, l, SubPropertySecondChargepoint.IP_CP_2);
 				final var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
-				final var ctrlEvcsIdCp2 = this.getId(t, p, Property.CTRL_EVCS_ID_CP_2);
-				schedulerIds.add(new SchedulerComponent(ctrlEvcsIdCp2, "Controller.Evcs", this.getAppId()));
-
 				components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, factorieId, JsonUtils.buildJsonObject() //
 						.addProperty("ip", ipCp2) //
+						.addPropertyIfNotNull("phaseRotation", phaseRotation) //
+						.addPropertyIfNotNull("readOnly", readOnly) //
 						.build()));
-				components.add(new EdgeConfig.Component(ctrlEvcsIdCp2, controllerAlias, "Controller.Evcs",
-						JsonUtils.buildJsonObject() //
-								.addProperty("evcs.id", evcsIdCp2) //
-								.build()));
-				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-						maxHardwarePowerPerPhase, evcsId, evcsIdCp2);
-			} else {
-				var removeIds = Collections.<String>emptyList();
-				if (p.containsKey(Property.EVCS_ID_CP_2)) {
-					removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+
+				if (!readOnly) {
+					final var ctrlEvcsIdCp2 = this.getId(t, p, Property.CTRL_EVCS_ID_CP_2);
+					schedulerIds.add(new SchedulerComponent(ctrlEvcsIdCp2, "Controller.Evcs", this.getAppId()));
+
+					components.add(new EdgeConfig.Component(ctrlEvcsIdCp2, controllerAlias, "Controller.Evcs",
+							JsonUtils.buildJsonObject() //
+									.addProperty("evcs.id", evcsIdCp2) //
+									.build()));
+					appConfigBuilder.addDependencies(EvcsCluster.dependency(t, this.componentManager,
+							this.componentUtil, maxHardwarePowerPerPhase, evcsId, evcsIdCp2));
 				}
-				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-						maxHardwarePowerPerPhase, removeIds, evcsId);
+			} else {
+				if (!readOnly) {
+					var removeIds = Collections.<String>emptyList();
+					if (p.containsKey(Property.EVCS_ID_CP_2)) {
+						removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+					}
+					appConfigBuilder.addDependencies(EvcsCluster.dependency(t, this.componentManager,
+							this.componentUtil, maxHardwarePowerPerPhase, removeIds, evcsId));
+				}
 			}
 
-			return AppConfiguration.create() //
+			if (!readOnly) {
+				appConfigBuilder.addTask(Tasks.schedulerByCentralOrder(schedulerIds)); //
+			}
+			return appConfigBuilder //
 					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.schedulerByCentralOrder(schedulerIds)) //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
 									.addIp("Evcs", "192.168.25.10/24")))) //
-					.addDependencies(clusterDependency) //
 					.build();
 		};
 	}
@@ -395,6 +427,16 @@ public class HardyBarthEvcs extends
 	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

@@ -1,12 +1,15 @@
+// @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { ChannelAddress, Currency, CurrentData, Utils } from "src/app/shared/shared";
+import { Modal } from "src/app/shared/components/flat/flat";
+import { ChannelAddress, Currency, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
 
 @Component({
     selector: "Controller_Ess_TimeOfUseTariff",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
@@ -14,16 +17,20 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
 
     protected priceWithCurrency: string = "-";
+    protected modalComponent: Modal | null = null;
 
-    async presentModal() {
-        const modal = await this.modalController.create({
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
             component: ModalComponent,
             componentProps: {
                 component: this.component,
             },
-        });
-        return await modal.present();
-    }
+        };
+    };
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [
@@ -33,7 +40,9 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
 
     protected override onCurrentData(currentData: CurrentData): void {
         const quarterlyPrice = currentData.allComponents[this.component.id + "/QuarterlyPrices"];
-        const currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
+        const meta: EdgeConfig.Component = this.config?.getComponent("_meta");
+        const currency: string = this.config?.getPropertyFromComponent<string>(meta, "currency");
+        const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
         this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

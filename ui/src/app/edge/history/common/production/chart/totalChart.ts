@@ -1,14 +1,16 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/service/utils";
 import { ChannelAddress } from "../../../../../shared/shared";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/utils/utils";
 
 @Component({
   selector: "productionTotalChart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
@@ -78,14 +80,14 @@ export class TotalChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
-          name: this.showTotal == false ? this.translate.instant("General.production") : this.translate.instant("General.TOTAL"),
+          name: this.showTotal == false ? this.translate.instant("GENERAL.PRODUCTION") : this.translate.instant("GENERAL.TOTAL"),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyQueryResponse?.result.data["_sum/ProductionActiveEnergy"] ?? null;
           },
           converter: () => {
             return data["ProductionActivePower"];
           },
-          color: "rgb(0,152,204)",
+          color: ChartConstants.Colors.BLUE,
           hiddenOnInit: true,
           stack: 2,
         });
@@ -138,7 +140,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           });
         }
 
-        const chargerColors: string[] = ["rgb(0,223,0)", "rgb(0,178,0)", "rgb(0,201,0)", "rgb(0,134,0)", "rgb(0,156,0)"];
+        const chargerColors: string[] = ["rgb(0,223,0)", "rgb(0,134,0)", "rgb(0,201,0)", "rgb(0,134,0)", "rgb(0,156,0)"];
         // ChargerComponents
         for (let i = 0; i < chargerComponents.length; i++) {
           const component = chargerComponents[i];
@@ -158,7 +160,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: this.translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.ENERGY,

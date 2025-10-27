@@ -1,88 +1,86 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.energy.TestData.PRICES_888_20231106;
-import static io.openems.edge.energy.TestData.PRODUCTION_888_20231106;
-import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static io.openems.edge.energy.optimizer.SimulatorTest.hourlyToQuarterly;
-import static io.openems.edge.energy.optimizer.Utils.interpolateArray;
-import static io.openems.edge.energy.optimizer.Utils.toEnergy;
-import static io.openems.edge.energy.optimizer.UtilsTest.prepareExistingSchedule;
-import static java.util.Arrays.stream;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateFromPreviousSchedule;
+import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
+import static io.openems.edge.energy.optimizer.InitialPopulationUtils.getScheduleFromPreviousResult;
+import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
+import static io.openems.edge.energy.optimizer.SimulatorTest.ESH_TIME_OF_USE_TARIFF_CTRL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
+
+import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 
 public class InitialPopulationUtilsTest {
 
-	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+	private static final ZonedDateTime TIME = ZonedDateTime.now(createDummyClock());
+
+	public static final SimulationResult DUMMY_PREVIOUS_RESULT = new SimulationResult(new Fitness(),
+			ImmutableSortedMap.of(), //
+			ImmutableMap.<EnergyScheduleHandler.WithDifferentModes, ImmutableSortedMap<ZonedDateTime, Transition>>builder() //
+					.put(ESH_TIME_OF_USE_TARIFF_CTRL, ImmutableSortedMap.<ZonedDateTime, Transition>naturalOrder() //
+							.put(TIME.plusHours(0).plusMinutes(00), mode(2)) //
+							.put(TIME.plusHours(0).plusMinutes(15), mode(2)) //
+							.put(TIME.plusHours(0).plusMinutes(30), mode(2)) //
+							.build()) //
+					.build(), //
+			ImmutableSet.of());
 
 	@Test
-	public void testBuildInitialPopulation() {
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME)) //
-					.build());
-			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
-		}
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, BALANCING, BALANCING)) //
-					.build());
-			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(2 /* CHARGE_GRID */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(2 /* CHARGE_GRID */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.DELAY_DISCHARGE.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(0 /* fallback to BALANCING */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
+	public void testGenerateFromPreviousSchedule() {
+		final var simulator = DUMMY_SIMULATOR;
+		final var codec = EshCodec.of(simulator.goc, DUMMY_PREVIOUS_RESULT, false);
+		var previousSchedule = getScheduleFromPreviousResult(ESH_TIME_OF_USE_TARIFF_CTRL, codec.previousResult);
+		var ip = generateFromPreviousSchedule(simulator.goc, ESH_TIME_OF_USE_TARIFF_CTRL, previousSchedule);
+		assertTrue(ip.toString().startsWith("InitialPopulation{[2, 2, 2, 0,"));
 	}
 
+	@Test
+	public void testGenerateInitialPopulationNotFixed() {
+		final var simulator = DUMMY_SIMULATOR;
+		final var codec = EshCodec.of(simulator.goc, DUMMY_PREVIOUS_RESULT, false);
+		var schedules = generateInitialPopulation(codec).population();
+		assertEquals(12, schedules.size()); // variations of 6 x 2
+
+		assertTrue(schedules.get(0).get(0).toString().startsWith("[[0],[0],[0],"));
+		assertTrue(schedules.get(0).get(1).toString().startsWith("[[1],[1],[1],"));
+
+		assertTrue(schedules.get(1).get(0).toString().startsWith("[[0],[0],[0],"));
+		assertTrue(schedules.get(1).get(1).toString().startsWith("[[0],[1],[1],"));
+
+		assertTrue(schedules.get(2).get(0).toString().startsWith("[[2],[2],[2],"));
+		assertTrue(schedules.get(2).get(1).toString().startsWith("[[1],[1],[1],"));
+	}
+
+	@Test
+	public void testGenerateInitialPopulationFixed() {
+		final var simulator = DUMMY_SIMULATOR;
+		final var codec = EshCodec.of(simulator.goc, DUMMY_PREVIOUS_RESULT, true);
+		var schedules = generateInitialPopulation(codec).population();
+		assertEquals(12, schedules.size()); // variations of 6 x 2
+
+		assertTrue(schedules.get(0).get(0).toString().startsWith("[[2],[0],[0],"));
+		assertTrue(schedules.get(0).get(1).toString().startsWith("[[1],[1],[1],"));
+
+		assertTrue(schedules.get(1).get(0).toString().startsWith("[[2],[0],[0],"));
+		assertTrue(schedules.get(1).get(1).toString().startsWith("[[0],[1],[1],"));
+
+		assertTrue(schedules.get(2).get(0).toString().startsWith("[[2],[2],[2],"));
+		assertTrue(schedules.get(2).get(1).toString().startsWith("[[1],[1],[1],"));
+	}
+
+	protected static Transition mode(int mode) {
+		return new Transition(QUARTER, mode, 0., null, 0);
+	}
 }

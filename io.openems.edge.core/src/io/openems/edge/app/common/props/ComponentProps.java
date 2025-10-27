@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
@@ -31,7 +32,6 @@ import io.openems.edge.core.appmanager.formly.builder.ReorderArrayBuilder.Select
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 /**
  * Static method collection for {@link AppDef AppDefs} for selecting different
@@ -180,6 +180,40 @@ public final class ComponentProps {
 				.setTranslatedLabel("meterId.label") //
 				.setTranslatedDescription("meterId.description");
 	}
+	
+	/**
+	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}
+	 * with the {@link MeterType} {@link MeterType#CONSUMPTION_METERED} and that are unused.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @param ignoreIdsToCheck a list of the id of a component that should be ignored to check.
+	 * @param meterIdsToNotInclude a list of meterIds that shouldn't be included
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier> //
+	AppDef<APP, Nameable, BundleProvider> pickUnusedElectricityConsumptionMeterId(Function<APP, List<String>> ignoreIdsToCheck, List<String> meterIdsToNotInclude) {
+		
+	    return pickComponentId(app -> {
+	        final var componentUtil = app.getComponentUtil();
+	        List<String> ignoreIds = ignoreIdsToCheck.apply(app);
+
+	        var components = componentUtil.getEnabledComponentsOfType(ElectricityMeter.class).stream()
+	            .filter(meter -> {
+	            	var toIgnore = meterIdsToNotInclude.stream().anyMatch(m -> meter.id().equals(m));
+	            	return meter.getMeterType() == MeterType.CONSUMPTION_METERED && !toIgnore;
+	            });
+	        
+	        components = components.filter(meter -> {
+	        	if (!ignoreIds.contains(meter.id())) {
+	        		ignoreIds.add(meter.id());
+	        	}
+	        	return !componentUtil.anyComponentUses(meter.id(), ignoreIds);
+	        });
+	        
+	        return components.toList();
+	    });
+	    
+	}
 
 	/**
 	 * Creates a {@link AppDef} for a input to select an {@link ElectricityMeter}
@@ -218,11 +252,25 @@ public final class ComponentProps {
 				if (PropsUtil.isHome10Installed(app.getAppManagerUtil())) {
 					return new JsonPrimitive("modbus1");
 				}
-				if (PropsUtil.isHome20Or30Installed(app.getAppManagerUtil())) {
+
+				if (PropsUtil.isHome20Or30Installed(app.getAppManagerUtil())
+						|| PropsUtil.isHomeGen2Installed(app.getAppManagerUtil())) {
+					// external modbus interface
 					return new JsonPrimitive("modbus2");
 				}
 
+				if (PropsUtil.isCommercial92Installed(app.getAppManagerUtil())) {
+					// external modbus interface
+					return new JsonPrimitive("modbus3");
+				}
+
 				return oldDefaultValue.get(app, property, l, parameter);
+			});
+			def.wrapField((app, property, l, parameter, field) -> {
+				if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())
+						|| PropsUtil.isCommercial92Installed(app.getAppManagerUtil())) {
+					field.readonly(true);
+				}
 			});
 		});
 	}

@@ -7,10 +7,12 @@ import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
 import io.openems.edge.core.appmanager.formly.builder.DateTimeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RepeatBuilder;
 import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.core.appmanager.formly.builder.SelectGroupBuilder;
+import io.openems.edge.core.appmanager.formly.builder.TariffTableBuilder;
 import io.openems.edge.core.appmanager.formly.builder.TextBuilder;
 
 /**
@@ -40,6 +42,16 @@ public class JsonFormlyUtil {
 	 */
 	public static CheckboxBuilder buildCheckboxFromNameable(Nameable nameable) {
 		return new CheckboxBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Tariff table Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link TariffTableBuilder}
+	 */
+	public static TariffTableBuilder buildTariffTableFromNameable(Nameable nameable) {
+		return new TariffTableBuilder(nameable);
 	}
 
 	/**
@@ -185,6 +197,15 @@ public class JsonFormlyUtil {
 	 */
 	public static TextBuilder buildText() {
 		return new TextBuilder();
+	}
+
+	/**
+	 * Creates a JsonObject Formly Link Builder for the given enum.
+	 *
+	 * @return a {@link TextBuilder}
+	 */
+	public static LinkBuilder buildLink() {
+		return new LinkBuilder();
 	}
 
 	private static <T extends Enum<T>> Nameable toNameable(T property) {

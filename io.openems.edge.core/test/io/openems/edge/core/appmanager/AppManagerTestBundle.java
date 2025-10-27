@@ -1,5 +1,12 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsString;
+import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
+import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -11,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
@@ -31,15 +37,16 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.DummyHost;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.DummyValidator.TestCheckable;
 import io.openems.edge.core.appmanager.dependency.AppConfigValidator;
@@ -73,6 +80,8 @@ public class AppManagerTestBundle {
 	public final ComponentManager componentManger;
 	public final ComponentUtil componentUtil;
 	public final Validator validator;
+	public final DummyHost host = new DummyHost();
+	public final DummyMeta meta = new DummyMeta("_meta");
 
 	public final DummyAppManagerAppHelper appHelper;
 	public final AppManagerImpl sut;
@@ -183,8 +192,6 @@ public class AppManagerTestBundle {
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 
-		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
-
 		this.addCheckable(TestCheckable.COMPONENT_NAME, t -> new TestCheckable());
 		this.addCheckable(CheckOr.COMPONENT_NAME, t -> new CheckOr(t, this.checkableFactory));
 		this.checkCardinality = this.addCheckable(CheckCardinality.COMPONENT_NAME,
@@ -198,20 +205,13 @@ public class AppManagerTestBundle {
 		this.appValidateWorker = new AppValidateWorker();
 		final var appConfigValidator = new AppConfigValidator();
 
-		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "appManagerUtil",
-				this.appManagerUtil);
-		ReflectionUtils.setAttribute(AppValidateWorker.class, this.appValidateWorker, "validator", appConfigValidator);
+		setAttributeViaReflection(this.appValidateWorker, "appManagerUtil", this.appManagerUtil);
+		setAttributeViaReflection(this.appValidateWorker, "validator", appConfigValidator);
 
-		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "appManagerUtil",
-				this.appManagerUtil);
-		ReflectionUtils.setAttribute(AppConfigValidator.class, appConfigValidator, "tasks", this.appHelper.getTasks());
+		setAttributeViaReflection(appConfigValidator, "appManagerUtil", this.appManagerUtil);
+		setAttributeViaReflection(appConfigValidator, "tasks", this.appHelper.getTasks());
 
-		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
-		// the attribute can still be private
-		ReflectionUtils.setAttribute(this.appHelper.getClass(), this.appHelper, "appManager", this.sut);
-		ReflectionUtils.setAttribute(this.appHelper.getClass(), this.appHelper, "appManagerUtil", this.appManagerUtil);
-
-		ReflectionUtils.setAttribute(DependencyUtil.class, null, "appHelper", this.appHelper);
+		setStaticAttributeViaReflection(DependencyUtil.class, "appHelper", this.appHelper);
 
 		new ComponentTest(this.sut) //
 				.addReference("cm", this.cm) //
@@ -282,7 +282,7 @@ public class AppManagerTestBundle {
 		if (!this.appValidateWorker.defectiveApps.isEmpty()) {
 			throw new Exception(this.appValidateWorker.defectiveApps.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
-					.collect(Collectors.joining("|")));
+					.collect(joining("|")));
 		}
 	}
 
@@ -290,8 +290,10 @@ public class AppManagerTestBundle {
 	 * Prints out the instantiated {@link OpenemsAppInstance}s.
 	 */
 	public void printApps() {
-		JsonUtils.prettyPrint(this.sut.getInstantiatedApps().stream().map(OpenemsAppInstance::toJsonObject)
-				.collect(JsonUtils.toJsonArray()));
+		JsonUtils.prettyPrint(//
+				this.sut.getInstantiatedApps().stream() //
+						.map(OpenemsAppInstance::toJsonObject) //
+						.collect(toJsonArray()));
 	}
 
 	/**
@@ -306,9 +308,9 @@ public class AppManagerTestBundle {
 		final var config = this.cm.getConfiguration(this.sut.servicePid());
 		final var configObj = config.getProperties().get("apps");
 		if (configObj instanceof JsonPrimitive json) {
-			return JsonUtils.getAsJsonArray(JsonUtils.parse(JsonUtils.getAsString(json)));
+			return getAsJsonArray(JsonUtils.parse(getAsString(json)));
 		}
-		return JsonUtils.getAsJsonArray(JsonUtils.parse(configObj.toString()));
+		return getAsJsonArray(JsonUtils.parse(configObj.toString()));
 	}
 
 	/**
@@ -660,7 +662,7 @@ public class AppManagerTestBundle {
 			final var config = MyConfig.create() //
 					.setApps(this.instantiatedApps.stream() //
 							.map(OpenemsAppInstance::toJsonObject) //
-							.collect(JsonUtils.toJsonArray()) //
+							.collect(toJsonArray()) //
 							.toString())
 					.setKey("0000-0000-0000-0000") //
 					.build();
@@ -670,6 +672,18 @@ public class AppManagerTestBundle {
 				throw new OpenemsException(e);
 			}
 		}
+	}
+
+	/**
+	 * Tries to install the provided app with the minimal available configuration.
+	 * 
+	 * @param app the app to install
+	 * @return the installation response
+	 * @throws OpenemsNamedException on installation error
+	 */
+	public AddAppInstance.Response tryInstallWithMinConfig(OpenemsApp app) throws OpenemsNamedException {
+		return this.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request(app.getAppId(), "key", "alias", Apps.getMinConfig(app.getAppId())));
 	}
 
 }

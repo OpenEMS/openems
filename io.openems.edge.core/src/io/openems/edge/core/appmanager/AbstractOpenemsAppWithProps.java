@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -111,6 +112,21 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return this.getInt(map, property, PROPERTY::def);
 	}
 
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsDouble(this.getValueOrDefault(map, Language.DEFAULT, property, mapper));
+	}
+
+	protected double getDouble(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getDouble(map, property, PROPERTY::def);
+	}
+
 	protected <E extends Enum<E>> E getEnum(//
 			final Map<PROPERTY, JsonElement> map, //
 			final Class<E> enumType, //
@@ -126,6 +142,28 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return this.getEnum(map, enumType, property, PROPERTY::def);
+	}
+
+	@Override
+	public final String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
+		final var superMappedName = super.mapPropName(prop, componentId, instance);
+
+		var result = Stream.of(this.propertyValues()).filter(p -> {
+			final var bidirectionalName = p.def().getBidirectionalPropertyName();
+			return bidirectionalName != null && bidirectionalName.equals(prop);
+		}).findFirst().orElse(null);
+		if (result != null) {
+			return result.name();
+		}
+		if (Stream.of(this.propertyValues()).filter(p -> {
+			return p.name().equals(superMappedName);
+		}).noneMatch(p -> {
+			return p.def().getBidirectionalPropertyName() != null;
+		})) {
+			return superMappedName;
+		}
+		return null;
+
 	}
 
 	protected boolean getBoolean(//
@@ -152,7 +190,8 @@ public abstract class AbstractOpenemsAppWithProps<//
 							t.name(), //
 							this.mapDefaultValue(t, parameter.get()), //
 							t.def().isAllowedToSave(), //
-							this.mapBidirectionalValue(t, parameter.get()) //
+							this.mapBidirectionalValue(t, parameter.get()), //
+							this.mapValueMapper(t, parameter.get()) //
 					);
 				}) //
 				.toArray(OpenemsAppPropertyDefinition[]::new);
@@ -225,6 +264,19 @@ public abstract class AbstractOpenemsAppWithProps<//
 		});
 	}
 
+	private Function<JsonObject, JsonElement> mapValueMapper(//
+			final PROPERTY property, //
+			final PARAMETER parameter //
+	) {
+		return this.functionMapper(property, AppDef::getValueMapper, valueMapper -> {
+			return config -> {
+				return valueMapper.apply(this.getApp(), property, //
+						Language.DEFAULT, parameter, config //
+				);
+			};
+		});
+	}
+
 	private <M, R> R functionMapper(//
 			final PROPERTY property, //
 			final Function<AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>, M> mapper, //
@@ -267,6 +319,15 @@ public abstract class AbstractOpenemsAppWithProps<//
 			return this.object;
 		}
 
+	}
+
+	@Override
+	public final boolean assertCanEdit(String propName, User user) {
+		final var prop = Stream.of(this.propertyValues())//
+				.filter(property -> property.name().equals(propName))//
+				.findFirst().orElseThrow(() -> new RuntimeException("Property " + propName + " does not exist"));
+		return prop.def().getIsAllowedToEdit().test(this.getApp(), prop, user.getLanguage(),
+				this.singletonParameter(user.getLanguage()).get(), user);
 	}
 
 	protected abstract APP getApp();

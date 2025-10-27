@@ -1,18 +1,37 @@
 import { Component, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { FormlyFieldConfig, FormlyForm } from "@ngx-formly/core";
+import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormlyFieldConfig, FormlyForm, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Role } from "src/app/shared/type/role";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
 import { GetNetworkConfigRequest } from "./getNetworkConfigRequest";
 import { GetNetworkConfigResponse } from "./getNetworkConfigResponse";
+import { GetNetworkInfoRequest } from "./getNetworkInfoRequest";
+import { GetNetworkInfoResponse } from "./getNetworkInfoResponse";
 import { SetNetworkConfigRequest } from "./setNetworkConfigRequest";
-import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInterface, NetworkUtils } from "./shared";
+import { InterfaceForm, InterfaceModel, IpAddress, NetworkConfig, NetworkInfo, NetworkInterface, NetworkUtils } from "./shared";
 
 @Component({
   selector: NetworkComponent.SELECTOR,
   templateUrl: "./network.component.html",
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    LiveDataServiceProvider,
+    LocaleProvider,
+    PipeComponentsModule,
+    FormsModule,
+    FormlyModule,
+    ReactiveFormsModule,
+    HelpButtonComponent,
+  ],
 })
 export class NetworkComponent implements OnInit {
 
@@ -31,13 +50,31 @@ export class NetworkComponent implements OnInit {
     private websocket: Websocket,
   ) { }
 
+  /**
+ * Gets the dynamic ip with subnetmaks from a given network interface
+ *
+ * @param networkInfo the network info
+ * @param networkInterface the network interface
+ * @returns a dynamic ip address with subnetmask, if determined by "dynamic", else null
+ */
+  public static getDynamicIpWithSubnetMask(networkInfo: NetworkInfo, networkInterface: string): string | null {
+    const networkInfoInterface = networkInfo.networkInterfaces.find(el => el.hardwareInterface === networkInterface);
+    if (networkInfoInterface) {
+      const dynamicIp = networkInfoInterface.ips.find(el => "dynamic" in el);
+      if (dynamicIp) {
+        return dynamicIp.address + "/" + dynamicIp.subnetmask;
+      }
+    }
+    return null;
+  }
+
   public ngOnInit() {
     this.initializeComponent();
   }
 
   public submit(iface: InterfaceForm): void {
     if (!iface.formGroup.valid) {
-      this.service.toast(this.translate.instant("Edge.Network.mandatoryFields"), "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.MANDATORY_FIELDS"), "danger");
       return;
     }
 
@@ -72,22 +109,27 @@ export class NetworkComponent implements OnInit {
       this.edge = await this.service.getCurrentEdge();
       if (this.edge) {
         const response: GetNetworkConfigResponse = await this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: new GetNetworkConfigRequest() })) as GetNetworkConfigResponse;
-        this.handleNetworkConfigResponse(response);
+        const getNetworkInfoReq = new GetNetworkInfoRequest();
+        const [_err, networkInfoResponse] = await JsonRpcUtils.handleOrElse<GetNetworkInfoResponse>(
+          this.edge.sendRequest<GetNetworkInfoResponse>(this.websocket, new ComponentJsonApiRequest({ componentId: "_host", payload: getNetworkInfoReq })), GetNetworkInfoResponse.EMPTY(getNetworkInfoReq.id));
+        this.handleNetworkResponses(response, networkInfoResponse);
       }
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorReading") + reason?.error?.message ?? "Unknown error", "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.ERROR_READING") + reason?.error?.message, "danger");
     }
   }
 
-  private handleNetworkConfigResponse(response: GetNetworkConfigResponse) {
-    const result: NetworkConfig = response.result;
+  private handleNetworkResponses(networkConfigRes: GetNetworkConfigResponse, networkInfoRes: GetNetworkInfoResponse) {
+    const result: NetworkConfig = networkConfigRes.result;
+
     if (this.edge) {
       const isAdmin: boolean = this.edge.roleIsAtLeast(Role.ADMIN);
       for (const name of Object.keys(result.interfaces)) {
         if (isAdmin || name === NetworkComponent.ETH_0) {
+          const dynamicIpWithSubnetmask = NetworkComponent.getDynamicIpWithSubnetMask(networkInfoRes.result, name);
           // Display all interfaces available for user with role Admin.
           // Display only eth0 (LAN) interface for user with role less than Admin.
-          this.generateInterface(name, result.interfaces[name]);
+          this.generateInterface(name, result.interfaces[name], dynamicIpWithSubnetmask);
         }
       }
     }
@@ -119,7 +161,7 @@ export class NetworkComponent implements OnInit {
     if (iface.model.addressesList) {
       for (const addr of iface.model.addressesList) {
         if (!this.ipRegex.test(addr)) {
-          this.service.toast(this.translate.instant("Edge.Network.validAddressWarning"), "danger");
+          this.service.toast(this.translate.instant("EDGE.NETWORK.VALID_ADDRESS_WARNING"), "danger");
           return [];
         }
         const [address, subnet] = addr.split("/");
@@ -185,9 +227,9 @@ export class NetworkComponent implements OnInit {
         componentId: "_host",
         payload: new SetNetworkConfigRequest(request),
       }));
-      this.service.toast(this.translate.instant("Edge.Network.successUpdate") + `[${interfaceName}].`, "success");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.SUCCESS_UPDATE") + `[${interfaceName}].`, "success");
     } catch (reason: any) {
-      this.service.toast(this.translate.instant("Edge.Network.errorUpdating") + `[${interfaceName}].` + reason?.error?.message ?? "Unknown error", "danger");
+      this.service.toast(this.translate.instant("EDGE.NETWORK.ERROR_UPDATING") + `[${interfaceName}].` + reason?.error?.message, "danger");
     }
   }
 
@@ -198,9 +240,9 @@ export class NetworkComponent implements OnInit {
    * @param name The name of the interface to be displayed.
    * @param source The data containing values for the individual {@link NetworkInterface}.
    */
-  private generateInterface(name: string, source: NetworkInterface): void {
+  private generateInterface(name: string, source: NetworkInterface, dynamicIp: string | null): void {
     const addressArray: string[] = [];
-    const interfaceModel: InterfaceModel = { ...source };
+    const interfaceModel: InterfaceModel & { dynamicIp: string | null } = { ...source, dynamicIp: null };
 
     // extracts the addresses json values to form values.
     if (source.addresses) {
@@ -219,6 +261,8 @@ export class NetworkComponent implements OnInit {
 
     interfaceModel.addressesList = addressArray;
 
+    // Only found if edge version at least TODO
+    interfaceModel.dynamicIp = dynamicIp;
     // Generates the form.
     this.forms.push({
       name: name,
@@ -239,10 +283,14 @@ export class NetworkComponent implements OnInit {
     const fields: FormlyFieldConfig[] = [
       {
         key: "dhcp",
-        type: "checkbox",
+        type: "help-popover-label-with-description-and-checkbox",
         defaultValue: true,
         templateOptions: {
-          label: "DHCP",
+          label: this.translate.instant("EDGE.NETWORK.DHCP.ADDRESS"),
+        },
+        expressions: {
+          "props.description": (field) => field.model.dynamicIp,
+          "props.helpMsg": (field) => field.model.dynamicIp ? this.translate.instant("EDGE.NETWORK.DHCP.INFO") : null,
         },
       },
       {
@@ -251,7 +299,7 @@ export class NetworkComponent implements OnInit {
         type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.ipAddress"),
+          label: this.translate.instant("EDGE.NETWORK.IP_ADDRESS"),
           placeholder: "z.B. 192.168.0.50",
           required: true,
         },
@@ -265,7 +313,7 @@ export class NetworkComponent implements OnInit {
         type: "input",
         resetOnHide: false,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.subnetmask"),
+          label: this.translate.instant("EDGE.NETWORK.SUBNETMASK"),
           placeholder: "z.B. 255.255.255.0",
           required: true,
         },
@@ -317,7 +365,7 @@ export class NetworkComponent implements OnInit {
         resetOnHide: false,
         defaultValue: addressArray,
         templateOptions: {
-          label: this.translate.instant("Edge.Network.addIP"),
+          label: this.translate.instant("EDGE.NETWORK.ADD_IP"),
         },
         fieldArray: {
           type: "input",
@@ -341,3 +389,4 @@ export class NetworkComponent implements OnInit {
     return fields;
   }
 }
+

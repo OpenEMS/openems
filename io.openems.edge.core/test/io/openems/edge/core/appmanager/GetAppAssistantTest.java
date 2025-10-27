@@ -15,13 +15,15 @@ public class GetAppAssistantTest {
 	public void before() throws Exception {
 		this.testBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome, //
+					Apps::feneconHome10, //
 					Apps::awattarHourly, //
 					Apps::entsoE, //
 					Apps::stromdaoCorrently, //
 					Apps::tibber, //
 					Apps::modbusTcpApiReadOnly, //
 					Apps::modbusTcpApiReadWrite, //
+					Apps::modbusRtuApiReadOnly, //
+					Apps::modbusRtuApiReadWrite, //
 					Apps::restJsonApiReadOnly, //
 					Apps::hardyBarthEvcs, //
 					Apps::kebaEvcs, //

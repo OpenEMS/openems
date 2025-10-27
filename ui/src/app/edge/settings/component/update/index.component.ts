@@ -1,16 +1,18 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
 import { EdgeConfig, Service, Utils } from "../../../../shared/shared";
 
 interface MyCategorizedComponents extends CategorizedComponents {
   isNatureClicked?: boolean,
-  filteredComponents?: EdgeConfig.Component[]
+  filteredComponents?: EdgeConfig.Component[],
 }
 
 @Component({
   selector: IndexComponent.SELECTOR,
   templateUrl: "./index.component.html",
+  standalone: false,
 })
 export class IndexComponent implements OnInit {
 
@@ -23,6 +25,7 @@ export class IndexComponent implements OnInit {
 
   constructor(
     private service: Service,
+    private translate: TranslateService,
   ) {
   }
 
@@ -30,7 +33,7 @@ export class IndexComponent implements OnInit {
     this.service.getConfig().then(config => {
       this.config = config;
       const categorizedComponentIds: string[] = [];
-      this.list = config.listActiveComponents(categorizedComponentIds);
+      this.list = config.listActiveComponents(categorizedComponentIds, this.translate);
       for (const entry of this.list) {
         entry.isNatureClicked = false;
         entry.filteredComponents = entry.components;

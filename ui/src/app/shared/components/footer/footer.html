@@ -1,23 +1,29 @@
-<ion-footer *ngIf="!service.isSmartphoneResolution">
-  <ion-item color="primary" *ngIf="user && edge && displayValues" lines="none">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12">
-          <span *ngIf="displayValues.comment">
-            {{displayValues.comment}}
-            |
-          </span>
-          <span>
-            {{displayValues.id}}
-          </span>
-          |
-          <ng-container *ngIf="(service.metadata | async)?.user?.globalRole as role">
-            <a routerLink="/device/{{edge.id}}/settings/system" style="color: var(--ion-color-primary-contrast)">
-              Version {{(displayValues.version | version:role)}}
-            </a>
-          </ng-container>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ion-item>
-</ion-footer>
+@if (!service.isSmartphoneResolution) {
+  <ion-footer style="--background: var(--ion-color-toolbar-primary);">
+    @if (user && edge && displayValues) {
+      <ng-container lines="none">
+        <ion-grid style="background-color: var(--ion-color-toolbar-primary); color: var(--ion-color-primary-contrast)">
+          <ion-row>
+            <ion-col size="12">
+              @if (displayValues.comment) {
+                <span>
+                  {{displayValues.comment}}
+                  |
+                </span>
+              }
+              <span>
+                {{displayValues.id}}
+              </span>
+              |
+              @if ((service.metadata | async)?.user?.globalRole; as role) {
+                <a routerLink="/device/{{edge.id}}/settings/system" style="color: var(--ion-color-primary-contrast)">
+                  Version {{(displayValues.version | version:role)}}
+                </a>
+              }
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+    }
+  </ion-footer>
+}

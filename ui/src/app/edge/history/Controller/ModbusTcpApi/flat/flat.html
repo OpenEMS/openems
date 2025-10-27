@@ -1,5 +1,12 @@
-<oe-flat-widget button *ngIf="isInitialized" [title]="component.alias" button 
-    routerLink="/device/{{edge.id}}/history/{{component.id}}/modbusTcpApi" [icon]="{name:'swap-vertical-outline'}">
-    <oe-flat-widget-line [name]="'MODBUS_TCP_API_READ_WRITE.CUMULATED_ACTIVE_TIME' | translate" [channelAddress]="this.component.id + '/CumulatedActiveTime'" [converter]="TIME_CONVERTER" [leftColumnWidth]="80"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'MODBUS_TCP_API_READ_WRITE.CUMULATED_INACTIVE_TIME' | translate" [channelAddress]="this.component.id + '/CumulatedInactiveTime'" [converter]="TIME_CONVERTER" [leftColumnWidth]="80"></oe-flat-widget-line>
-</oe-flat-widget>
+@if (isInitialized) {
+  <oe-flat-widget button [title]="component.alias" button
+    [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/modbusTcpApi'"
+    [icon]="{name:'swap-vertical-outline', color:'normal'}">
+    <oe-flat-widget-line [name]="'MODBUS_TCP_API_READ_WRITE.CUMULATED_ACTIVE_TIME' | translate"
+      [channelAddress]="this.component.id + '/CumulatedActiveTime'" [converter]="TIME_CONVERTER"
+    [leftColumnWidth]="80"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'MODBUS_TCP_API_READ_WRITE.CUMULATED_INACTIVE_TIME' | translate"
+      [channelAddress]="this.component.id + '/CumulatedInactiveTime'" [converter]="TIME_CONVERTER"
+    [leftColumnWidth]="80"></oe-flat-widget-line>
+  </oe-flat-widget>
+}

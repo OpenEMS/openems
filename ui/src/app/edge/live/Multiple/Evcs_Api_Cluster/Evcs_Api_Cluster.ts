@@ -2,12 +2,14 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../../shared/shared";
 import { Evcs_Api_ClusterModalComponent } from "./modal/evcsCluster-modal.page";
 
 @Component({
   selector: "Evcs_Api_Cluster",
   templateUrl: "./Evcs_Api_Cluster.html",
+  standalone: false,
 })
 export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 
@@ -19,6 +21,18 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public isConnectionSuccessful: boolean;
   public alias: string;
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+
+  protected get modalComponent(): Modal {
+    return {
+      component: Evcs_Api_ClusterModalComponent,
+      componentProps: {
+        config: this.component,
+        edge: this.edge,
+        componentId: this.componentId,
+        evcsMap: this.evcsMap,
+      },
+    };
+  }
 
   async presentModal() {
     const modal = await this.modalController.create({
@@ -60,7 +74,7 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   protected override onCurrentData(currentData: CurrentData) {
 
     this.evcsComponent = this.config.getComponent(this.componentId);
-    this.alias = this.config.components[this.componentId].properties.alias || "Edge.Index.Widgets.EVCS.chargingStationCluster";
+    this.alias = this.config.components[this.componentId].properties.alias || "EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_CLUSTER";
     this.isConnectionSuccessful = currentData.allComponents[this.componentId + "/State"] != 3 ? true : false;
 
     // Initialise the Map with all evcss

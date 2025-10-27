@@ -1,51 +1,50 @@
-import { NgModule } from "@angular/core";
-import { ChangelogModule } from "src/app/changelog/changelog.module";
-
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { ChangelogComponent } from "src/app/changelog/view/component/changelog.component";
+import tr from "src/app/edge/settings/shared/translation.json";
+import { ComponentsModule } from "src/app/shared/components/components.module";
+import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { Language } from "src/app/shared/type/language";
 import { SharedModule } from "./../../shared/shared.module";
-import { AlertingComponent } from "./alerting/alerting.component";
 import { AppModule } from "./app/app.module";
+import { UpdateAppComponent } from "./app/update.component";
 import { ChannelsComponent } from "./channels/channels.component";
 import { IndexComponent as ComponentInstallIndexComponent } from "./component/install/index.component";
 import { ComponentInstallComponent } from "./component/install/install.component";
 import { IndexComponent as ComponentUpdateIndexComponent } from "./component/update/index.component";
 import { ComponentUpdateComponent } from "./component/update/update.component";
-import { JsonrpcTestComponent } from "./jsonrpctest/jsonrpctest";
-import { NetworkComponent } from "./network/network.component";
-import { PowerAssistantModule } from "./powerassistant/powerassistant.module";
-import { AliasUpdateComponent } from "./profile/aliasupdate.component";
-import { ProfileComponent } from "./profile/profile.component";
-import { SettingsComponent } from "./settings.component";
-import { MaintenanceComponent } from "./system/maintenance/maintenance";
-import { OeSystemUpdateComponent } from "./system/oe-system-update.component";
-import { SystemComponent } from "./system/system.component";
+import { JsonrpcTestModule } from "./jsonrpctest/jsonrpctest.module";
 import { SystemExecuteComponent } from "./systemexecute/systemexecute.component";
 
 @NgModule({
   imports: [
     AppModule,
+    JsonrpcTestModule,
     SharedModule,
-    ChangelogModule,
-    PowerAssistantModule,
+    ChangelogComponent,
+    ComponentsModule,
+    HelpButtonComponent,
+    FlatWidgetButtonComponent,
+    UpdateAppComponent,
   ],
   declarations: [
-    AlertingComponent,
-    AliasUpdateComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
-    JsonrpcTestComponent,
-    MaintenanceComponent,
-    NetworkComponent,
-    OeSystemUpdateComponent,
-    ProfileComponent,
-    SettingsComponent,
-    SystemComponent,
     SystemExecuteComponent,
   ],
   exports: [
-    OeSystemUpdateComponent,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class SettingsModule { }
+export class SettingsModule {
+
+  constructor(private translate: TranslateService) {
+    Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
+      translate.setTranslation(lang, translations, shouldMerge);
+    });
+  }
+}

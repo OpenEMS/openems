@@ -6,8 +6,8 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from "uuid";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
 import { Role } from "../../type/role";
 import { Converter } from "../shared/converter";
@@ -36,7 +36,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     /** Should be used to unsubscribe from all subscribed observables at once */
     protected subscription: Subscription = new Subscription();
 
-    private selector: string = uuidv4();
+    private id: string = uuidv4();
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -54,8 +54,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy() {
-        // Unsubscribe from OpenEMS
-        this.edge.unsubscribeChannels(this.websocket, this.selector);
+        this.edge.unsubscribeFromChannels(this.id, this.websocket, this.getChannelAddresses());
         this.subscription.unsubscribe();
 
         // Unsubscribe from CurrentData subject
@@ -65,11 +64,13 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     public ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then(async config => {
 
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
+
+                await this.updateComponent(config);
 
                 // If component is passed
                 let channelAddresses: ChannelAddress[] = [];
@@ -77,7 +78,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 // get the channel addresses that should be subscribed
                 channelAddresses = this.getChannelAddresses();
                 if (this.component != null) {
-                    this.component = config.components[this.component.id];
+                    this.component = EdgeConfig.Component.of(config.components[this.component.id]);
 
                     const channelIds = this.getChannelIds();
                     for (const channelId of channelIds) {
@@ -85,7 +86,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                     }
                 }
                 if (channelAddresses.length != 0) {
-                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                    this.edge.subscribeChannels(this.websocket, this.id, channelAddresses);
                 }
 
                 // call onCurrentData() with latest data
@@ -106,6 +107,11 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
             });
         });
     }
+
+    protected updateComponent(config: EdgeConfig) {
+        return;
+    }
+
     protected onIsInitialized() { }
 
     /**
@@ -130,7 +136,12 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
         return [];
     }
 
-    /** Gets the FormGroup of the current Component */
+    /**
+     * Gets the FormGroup of the current Component
+     *
+     *  FormControl keys need to directly map to component properties
+     *
+    */
     protected getFormGroup(): FormGroup | null {
         return null;
     }

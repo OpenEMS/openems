@@ -1,32 +1,22 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import static io.openems.edge.battery.soltaro.cluster.SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE;
+import static io.openems.edge.battery.soltaro.cluster.SoltaroCluster.ChannelId.SUB_MASTER_2_COMMUNICATION_FAILURE;
+import static io.openems.edge.battery.soltaro.cluster.SoltaroCluster.ChannelId.SUB_MASTER_3_COMMUNICATION_FAILURE;
+import static io.openems.edge.battery.soltaro.cluster.SoltaroCluster.ChannelId.SUB_MASTER_4_COMMUNICATION_FAILURE;
+import static io.openems.edge.battery.soltaro.cluster.SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE;
+
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
-import io.openems.edge.battery.soltaro.cluster.SoltaroCluster;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatterySoltaroClusterVersionBImplTest {
-
-	private static final String BATTERY_ID = "battery0";
-	private static final String MODBUS_ID = "modbus0";
-
-	private static final ChannelAddress SUB_MASTER_1_COMMUNICATION_FAILURE = new ChannelAddress(BATTERY_ID,
-			SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE.id());
-	private static final ChannelAddress SUB_MASTER_2_COMMUNICATION_FAILURE = new ChannelAddress(BATTERY_ID,
-			SoltaroCluster.ChannelId.SUB_MASTER_2_COMMUNICATION_FAILURE.id());
-	private static final ChannelAddress SUB_MASTER_3_COMMUNICATION_FAILURE = new ChannelAddress(BATTERY_ID,
-			SoltaroCluster.ChannelId.SUB_MASTER_3_COMMUNICATION_FAILURE.id());
-	private static final ChannelAddress SUB_MASTER_4_COMMUNICATION_FAILURE = new ChannelAddress(BATTERY_ID,
-			SoltaroCluster.ChannelId.SUB_MASTER_4_COMMUNICATION_FAILURE.id());
-	private static final ChannelAddress SUB_MASTER_5_COMMUNICATION_FAILURE = new ChannelAddress(BATTERY_ID,
-			SoltaroCluster.ChannelId.SUB_MASTER_5_COMMUNICATION_FAILURE.id());
 
 	@Test
 	public void test() throws Exception {
@@ -34,10 +24,10 @@ public class BatterySoltaroClusterVersionBImplTest {
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager())
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
 						.setModbusUnitId(0) //
 						.setNumberOfSlaves(0) //
 						.setModuleType(ModuleType.MODULE_3_5_KWH) //

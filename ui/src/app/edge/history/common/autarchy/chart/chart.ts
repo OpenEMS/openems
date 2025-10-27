@@ -2,12 +2,13 @@
 import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Utils } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "autarchychart",
   templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -28,7 +29,7 @@ export class ChartComponent extends AbstractHistoryChart {
         }],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
-          name: this.translate.instant("General.autarchy"),
+          name: this.translate.instant("GENERAL.AUTARCHY"),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
             return Utils.calculateAutarchy(energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.result.data["_sum/ConsumptionActiveEnergy"] ?? null);
           },

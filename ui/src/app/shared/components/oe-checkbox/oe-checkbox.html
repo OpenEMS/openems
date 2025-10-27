@@ -1,0 +1,17 @@
+@if (form) {
+  <form [formGroup]="form.formGroup">
+    <ion-row class="ion-align-items-center ion-padding-top">
+      <ion-col size="auto">
+        <ion-item lines="none">
+          <ion-checkbox #htmlRef [slot]="attributes?.slot ?? 'start'"
+            [labelPlacement]="attributes?.labelPlacement ?? end" class="ion-white-space-pre-wrap"
+            [formControlName]="form.controlName">
+          </ion-checkbox>
+        </ion-item>
+      </ion-col>
+      <ion-col>
+        <ion-label [innerHTML]="attributes.text"></ion-label>
+      </ion-col>
+    </ion-row>
+  </form>
+}

@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Activate;
@@ -10,8 +11,13 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -27,6 +33,33 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 		scope = ServiceScope.SINGLETON //
 )
 public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
+
+	private record SchedulerExecutionConfiguration(//
+			List<String> insertOrder //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private SchedulerExecutionConfiguration {
+			Objects.requireNonNull(insertOrder);
+		}
+
+		@Override
+		public String identifier() {
+			return "Scheduler";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.insertOrder.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("insertOrder", this.insertOrder.stream() //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()))
+					.build();
+		}
+
+	}
 
 	private final ComponentAggregateTask aggregateTask;
 	private final ComponentUtil componentUtil;
@@ -90,6 +123,11 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 		this.removeIds.addAll(this.aggregateTask.getDeletedComponents());
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.removeIds);
+	}
+
+	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new SchedulerExecutionConfiguration(this.order);
 	}
 
 	@Override

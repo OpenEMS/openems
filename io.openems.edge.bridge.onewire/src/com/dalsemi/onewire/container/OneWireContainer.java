@@ -559,8 +559,7 @@ public class OneWireContainer {
 			return true;
 		}
 
-		if (obj instanceof OneWireContainer) {
-			var owc = (OneWireContainer) obj;
+		if (obj instanceof OneWireContainer owc) {
 			// don't claim that all subclasses of a specific container are
 			// equivalent to the parent container
 			if (owc.getClass() == this.getClass()) {

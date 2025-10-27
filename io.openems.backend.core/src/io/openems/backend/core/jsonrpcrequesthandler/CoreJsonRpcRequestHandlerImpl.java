@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
+import io.openems.backend.common.edge.EdgeManager;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.jsonrpc.request.GetEdgesChannelsValuesRequest;
 import io.openems.backend.common.jsonrpc.request.GetEdgesStatusRequest;
@@ -50,7 +50,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile EdgeWebsocket edgeWebsocket;
+	protected volatile EdgeManager edgeManager;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
@@ -98,26 +98,21 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleRequest(String context, User user,
 			JsonrpcRequest request) throws OpenemsNamedException {
-		switch (request.getMethod()) {
-
-		case EdgeRpcRequest.METHOD:
-			return this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
-
-		case GetEdgesStatusRequest.METHOD:
-			return this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
-
-		case GetEdgesChannelsValuesRequest.METHOD:
-			return this.handleGetEdgesChannelsValuesRequest(user, request.getId(),
+		return switch (request.getMethod()) {
+		case EdgeRpcRequest.METHOD //
+			-> this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
+		case GetEdgesStatusRequest.METHOD //
+			-> this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
+		case GetEdgesChannelsValuesRequest.METHOD //
+			-> this.handleGetEdgesChannelsValuesRequest(user, request.getId(),
 					GetEdgesChannelsValuesRequest.from(request));
-
-		case SetGridConnScheduleRequest.METHOD:
-			return this.handleSetGridConnScheduleRequest(user, request.getId(),
-					SetGridConnScheduleRequest.from(request));
-
-		default:
+		case SetGridConnScheduleRequest.METHOD //
+			-> this.handleSetGridConnScheduleRequest(user, request.getId(), SetGridConnScheduleRequest.from(request));
+		default -> {
 			this.logWarn(context, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+		};
 	}
 
 	/**
@@ -170,7 +165,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(GetEdgesChannelsValuesRequest.METHOD, edgeId, Role.GUEST);
 
-			var data = this.edgeWebsocket.getChannelValues(edgeId, request.getChannels());
+			var data = this.edgeManager.getChannelValues(edgeId, request.getChannels());
 			for (var entry : data.entrySet()) {
 				response.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
@@ -200,7 +195,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 		var componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController
 		var request = new ComponentJsonApiRequest(componentId, setGridConnScheduleRequest);
 
-		var resultFuture = this.edgeWebsocket.send(edgeId, user, request);
+		var resultFuture = this.edgeManager.send(edgeId, user, request);
 
 		// Wrap reply in GenericJsonrpcResponseSuccess
 		var result = new CompletableFuture<GenericJsonrpcResponseSuccess>();

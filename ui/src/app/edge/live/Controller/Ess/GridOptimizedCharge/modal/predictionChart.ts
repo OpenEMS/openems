@@ -5,13 +5,14 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "predictionChart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    standalone: false,
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -128,6 +129,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     } else {
                         remainingSteps = targetIndex - currIndex;
                     }
+
                     if (remainingSteps > 0) {
 
                         // Calculate how much percentage is needed in every time step (5 min)
@@ -174,12 +176,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 // Push the prepared data into the datasets
                 datasets.push({
-                    label: this.translate.instant("General.soc"),
+                    label: this.translate.instant("GENERAL.SOC"),
                     data: socData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
                 }, {
-                    label: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.expectedSoc"),
+                    label: this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC"),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
@@ -198,8 +200,13 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
+
+            // Overwrite default options
             this.unit = YAxisType.PERCENTAGE;
             this.formatNumber = "1.0-0";
+            this.chartAxis = ChartAxis.RIGHT;
+            this.position = "right";
+
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
 
@@ -228,7 +235,18 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     }
 
     private applyControllerSpecificOptions() {
-        this.options.scales[ChartAxis.LEFT]["position"] = "right";
+        this.options.scales[ChartAxis.LEFT] = {
+            position: "left",
+            display: false,
+        };
+
+        /** Overwrite default yAxisId */
+        this.datasets = this.datasets
+            .map(el => {
+                el["yAxisID"] = ChartAxis.RIGHT;
+                return el;
+            });
+
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 

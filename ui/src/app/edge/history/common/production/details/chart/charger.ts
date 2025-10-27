@@ -3,12 +3,13 @@ import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "chargerChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class ChargerChartDetailsComponent extends AbstractHistoryChart {
 
@@ -34,7 +35,7 @@ export class ChargerChartDetailsComponent extends AbstractHistoryChart {
       }],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.ENERGY,

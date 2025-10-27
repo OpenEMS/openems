@@ -39,6 +39,11 @@ public enum Unit {
 	THOUSANDTH("‰"),
 
 	/**
+	 * Ten Thousandth [‰], 0-10000.
+	 */
+	TENTHOUSANDTH("0.1‰"),
+
+	/**
 	 * On or Off.
 	 */
 	ON_OFF("On/Off"), // Symbol is ignored in #format()
@@ -92,6 +97,11 @@ public enum Unit {
 	VOLT("V"),
 
 	/**
+	 * Unit of Voltage [dV].
+	 */
+	DEZIVOLT("dV", VOLT, -1),
+
+	/**
 	 * Unit of Voltage [mV].
 	 */
 	MILLIVOLT("mV", VOLT, -3),
@@ -109,6 +119,11 @@ public enum Unit {
 	 * Unit of Current [A].
 	 */
 	AMPERE("A"),
+
+	/**
+	 * Unit of Current [dA].
+	 */
+	DEZIAMPERE("dA", AMPERE, -1),
 
 	/**
 	 * Unit of Current [mA].
@@ -284,7 +299,30 @@ public enum Unit {
 	/**
 	 * Unit of Pressure [bar].
 	 */
-	BAR("bar");
+	BAR("bar"),
+
+	/**
+	 * Unit of Pressure [mbar].
+	 */
+	MILLIBAR("mbar", BAR, -3),
+
+	/**
+	 * Unit of Absolute Humidity [g/m³].
+	 */
+	GRAMS_PER_CUBIC_METER("g/m³"),
+	/*
+	 * Unit of Parts Per Million [ppm].
+	 */
+	PARTS_PER_MILLION("ppm"),
+	/**
+	 * Unit of Enthalpy [kJ/kg].
+	 */
+	KILOJOULES_PER_KILOGRAM("kJ/kg"),
+
+	/**
+	 * Unit of angular measurement in decimal degrees [°].
+	 */
+	DECIMAL_DEGREE("°");
 
 	public final String symbol;
 	public final Unit baseUnit;
@@ -358,12 +396,14 @@ public enum Unit {
 		case NONE -> //
 			value.toString();
 
-		case AMPERE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, MONEY_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE, MICROAMPERE,
-				MILLIHERTZ, MILLIVOLT, MICROVOLT, PERCENT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT, KILOWATT,
-				MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, AMPERE_HOURS, HOUR, CUMULATED_SECONDS, KILOAMPERE_HOURS,
-				KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS, KILOWATT_HOURS, MICROOHM,
-				MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH, VOLT_AMPERE_HOURS,
-				VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR -> //
+		case AMPERE, DECIMAL_DEGREE, DEGREE_CELSIUS, DEZIDEGREE_CELSIUS, MONEY_PER_MEGAWATT_HOUR, HERTZ, MILLIAMPERE,
+				MICROAMPERE, MILLIHERTZ, MILLIVOLT, MICROVOLT, PERCENT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT,
+				KILOWATT, MILLIWATT, WATT_HOURS, OHM, KILOOHM, SECONDS, AMPERE_HOURS, HOUR, CUMULATED_SECONDS,
+				KILOAMPERE_HOURS, KILOVOLT_AMPERE, KILOVOLT_AMPERE_REACTIVE, KILOVOLT_AMPERE_REACTIVE_HOURS,
+				KILOWATT_HOURS, MICROOHM, MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH,
+				VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR,
+				MILLIBAR, TENTHOUSANDTH, DEZIAMPERE, DEZIVOLT, GRAMS_PER_CUBIC_METER, PARTS_PER_MILLION,
+				KILOJOULES_PER_KILOGRAM -> //
 			value + " " + this.symbol;
 
 		case ON_OFF -> //
@@ -386,7 +426,7 @@ public enum Unit {
 	 */
 	public static Unit fromSymbolOrElse(String symbol, Unit defaultUnit) {
 		return Stream.of(Unit.values()) //
-				.filter(u -> u.symbol == symbol) //
+				.filter(u -> u.symbol.equals(symbol)) //
 				.findFirst() //
 				.orElse(defaultUnit);
 	}

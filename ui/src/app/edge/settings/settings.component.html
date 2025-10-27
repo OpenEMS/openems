@@ -1,189 +1,187 @@
-<header></header>
 <ion-content>
-  <ion-grid *ngIf="edge">
-    <ion-row justify-content-left>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="today-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.systemProfile</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/profile">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="isAtLeastOwner">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="list-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.log</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/systemlog">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="isAtLeastInstaller">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.networkConfiguration</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/network">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="isAtLeastOwner">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
-            <ion-label>{{ 'Edge.Config.App.NAME_WITH_EDGE_NAME' | translate:
-              {edgeShortName: environment.edgeShortName} }}</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="isAtLeastOwner">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="cloud-download-outline"></ion-icon>
-            <ion-label>{{ environment.edgeShortName }} System</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/system">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="isAtLeastOwner && !isEdgeBackend">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.alerting</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/alerting">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-
-    <ion-row justify-content-left *ngIf="isAtLeastAdmin">
-      <ion-col size="12">
-        <ion-item-divider>
-          <ion-label translate>General.VISIBLE_FOR_ADMINS_ONLY</ion-label>
-        </ion-item-divider>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="toggle-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.adjustComponents</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light"
-              routerLink="/device/{{ edge.id }}/settings/component.update">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="add-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.addComponents</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light"
-              routerLink="/device/{{ edge.id }}/settings/component.install">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="eye-outline"></ion-icon>
-            <!-- TODO translate -->
-            <ion-label>Channels</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light" routerLink="/device/{{ edge.id }}/settings/channels">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="construct-outline"></ion-icon>
-            <ion-label>Power Assistant</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light"
-              routerLink="/device/{{ edge.id }}/settings/powerAssistant">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4" *ngIf="canSeeJsonrpcTest">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="eye-outline"></ion-icon>
-            <ion-label>Jsonrpc test</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light" routerLink="/device/{{ edge.id }}/settings/jsonrpctest">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-      <ion-col size="12" size-sm="4">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="medium" name="play-outline"></ion-icon>
-            <ion-label translate>Edge.Config.Index.systemExecute</ion-label>
-          </ion-item>
-          <ion-card-content>
-            <ion-button class="ion-float-right" color="light" routerLink="/device/{{ edge.id }}/settings/systemexecute">
-              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-
-    </ion-row>
-  </ion-grid>
+  @if (edge) {
+    <ion-grid>
+      <ion-row justify-content-left>
+        <ion-col size="12" size-sm="4">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="today-outline"></ion-icon>
+              <ion-label>{{"EDGE.CONFIG.INDEX.SYSTEM_PROFILE" | translate}}</ion-label>
+            </ion-item>
+            <ion-card-content>
+              <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/profile'}">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </oe-flat-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+        @if (isAtLeastOwner) {
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="primary" name="list-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.LOG" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemlog'}">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+        @if (isAtLeastOwner) {
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.NETWORK_CONFIGURATION" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/network'}">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+        @if (isAtLeastOwner) {
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
+                <ion-label>{{ 'EDGE.CONFIG.APP.NAME_WITH_EDGE_NAME' | translate:
+                {edgeShortName: environment.edgeShortName} }}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/app'}">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+        @if (isAtLeastOwner) {
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="primary" name="hardware-chip-outline"></ion-icon>
+                <ion-label>{{ environment.edgeShortName }} System</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/system'}">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+        @if (isAtLeastOwner && !isEdgeBackend) {
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ALERTING" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/alerting'}">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+      </ion-row>
+      @if (isAtLeastAdmin) {
+        <ion-row justify-content-left>
+          <ion-col size="12">
+            <ion-item-divider>
+              <ion-label>{{"GENERAL.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
+            </ion-item-divider>
+          </ion-col>
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" class="normal-icon" name="toggle-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ADJUST_COMPONENTS" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.update'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" class="normal-icon" name="add-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ADD_COMPONENTS" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.install'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
+                <!-- TODO translate -->
+                <ion-label>Channels</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/channels'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" class="normal-icon" name="play-outline"></ion-icon>
+                <ion-label>{{"EDGE.CONFIG.INDEX.SYSTEM_EXECUTE" | translate}}</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemexecute'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col size="12" size-sm="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-icon slot="start" size="large" class="normal-icon" name="construct-outline"></ion-icon>
+                <ion-label>Power Assistant</ion-label>
+              </ion-item>
+              <ion-card-content>
+                <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/powerAssistant'}" color="light">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </oe-flat-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          @if (canSeeJsonrpcTest) {
+            <ion-col size="12" size-sm="4">
+              <ion-card>
+                <ion-item lines="full" color="light">
+                  <ion-icon slot="start" size="large" class="normal-icon" name="eye-outline"></ion-icon>
+                  <ion-label>Jsonrpc test</ion-label>
+                </ion-item>
+                <ion-card-content>
+                  <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/jsonrpctest'}" color="light">
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                  </oe-flat-button>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          }
+        </ion-row>
+      }
+    </ion-grid>
+  }
 </ion-content>

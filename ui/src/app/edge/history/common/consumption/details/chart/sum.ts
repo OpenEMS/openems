@@ -4,12 +4,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "sumChart",
   templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+  standalone: false,
 })
 export class SumChartDetailsComponent extends AbstractHistoryChart {
 
@@ -46,7 +47,7 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
       }))],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.ENERGY,

@@ -2,8 +2,8 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { YAxisType } from "src/app/shared/service/utils";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { YAxisType } from "src/app/shared/utils/utils";
 
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
@@ -11,6 +11,7 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "delayedselltogridgchart",
     templateUrl: "../abstracthistorychart.html",
+    standalone: false,
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
@@ -74,7 +75,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.gridSell"),
+                        label: this.translate.instant("GENERAL.GRID_SELL"),
                         data: data,
                         hidden: false,
                     });
@@ -94,7 +95,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit"),
+                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.SELL_TO_GRID_POWER_LIMIT"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -115,7 +116,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower"),
+                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.CONTINUOUS_SELL_TO_GRID_POWER"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -147,7 +148,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.chargePower"),
+                        label: this.translate.instant("GENERAL.CHARGE"),
                         data: chargeData,
                         borderDash: [10, 10],
                     });
@@ -168,7 +169,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.dischargePower"),
+                        label: this.translate.instant("GENERAL.DISCHARGE"),
                         data: dischargeData,
                         borderDash: [10, 10],
                     });

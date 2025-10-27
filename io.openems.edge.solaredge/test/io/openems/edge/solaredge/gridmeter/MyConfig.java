@@ -1,8 +1,8 @@
 package io.openems.edge.solaredge.gridmeter;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private int modbusUnitId;
 		private MeterType type;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -33,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 
@@ -77,4 +83,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.type;
 	}
 
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
+	}
 }

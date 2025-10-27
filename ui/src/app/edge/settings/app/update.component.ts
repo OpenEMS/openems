@@ -1,10 +1,14 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { FormlyFieldConfig } from "@ngx-formly/core";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
+import { AlertController } from "@ionic/angular";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { InstallAppComponent } from "./install.component";
 import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
@@ -24,6 +28,15 @@ interface MyInstance {
 @Component({
   selector: UpdateAppComponent.SELECTOR,
   templateUrl: "./update.component.html",
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    ReactiveFormsModule,
+    RouterModule,
+    FormlyModule,
+  ],
 })
 export class UpdateAppComponent implements OnInit {
 
@@ -42,13 +55,14 @@ export class UpdateAppComponent implements OnInit {
     private service: Service,
     private router: Router,
     private translate: TranslateService,
+    private alertCtrl: AlertController,
   ) {
   }
 
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     const appId = this.route.snapshot.params["appId"];
-    const appName = this.route.snapshot.queryParams["name"];
+    const appName = this.route.snapshot.queryParams["name"] ?? this.service.currentPageTitle;
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,
@@ -114,16 +128,35 @@ export class UpdateAppComponent implements OnInit {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant("Edge.Config.App.successUpdate"), "success");
+          this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
         }
         instance.properties = result.instance.properties;
         instance.properties["ALIAS"] = result.instance.alias;
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failUpdate", { error: error })))
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", { error: error })))
       .finally(() => {
         instance.isUpdating = false;
         this.service.stopSpinner(instance.instanceId);
       });
+  }
+
+  protected async submitDelete(instance: MyInstance) {
+    const translate = this.translate;
+
+    const alert = this.alertCtrl.create({
+      subHeader: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM_HEADLINE"),
+      message: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM_DESCRIPTION"),
+      buttons: [{
+        text: translate.instant("GENERAL.CANCEL"),
+        role: "cancel",
+      },
+      {
+        text: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM"),
+        handler: () => this.delete(instance),
+      }],
+      cssClass: "alertController",
+    });
+    (await alert).present();
   }
 
   protected delete(instance: MyInstance) {
@@ -137,11 +170,11 @@ export class UpdateAppComponent implements OnInit {
         }),
       })).then(response => {
         this.instances.splice(this.instances.indexOf(instance), 1);
-        this.service.toast(this.translate.instant("Edge.Config.App.successDelete"), "success");
+        this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
         const navigationExtras = { state: { appInstanceChange: true } };
         this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
       })
-      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failDelete", { error: error })))
+      .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_DELETE", { error: error })))
       .finally(() => {
         instance.isDeleting = false;
         this.service.stopSpinner(instance.instanceId);

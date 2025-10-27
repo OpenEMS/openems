@@ -1,11 +1,10 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnChanges, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from "uuid";
+import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 
 import { DataService } from "../shared/dataservice";
 import { Filter } from "../shared/filter";
@@ -30,7 +29,10 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   */
   public displayValue: string | null = null;
 
+  protected displayName: string = null;
   protected show: boolean = true;
+
+  private _name: string | ((value: any) => string);
   private _channelAddress: ChannelAddress | null = null;
 
   /**
@@ -39,6 +41,8 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   private selector: string = uuidv4();
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private edge: Edge | null = null;
+  private subscription: EffectRef;
+  private injector = inject(Injector);
 
   constructor(
     @Inject(Websocket) protected websocket: Websocket,
@@ -47,6 +51,15 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     @Inject(ModalController) protected modalCtrl: ModalController,
     @Inject(DataService) private dataService: DataService,
   ) { }
+
+  @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
+    if (typeof value === "object") {
+      this.subscribe(value.channel);
+      this._name = value.converter;
+    } else {
+      this._name = value;
+    }
+  }
 
   /** Channel defines the channel, you need for this line */
   @Input()
@@ -68,18 +81,22 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
   }
 
   public ngOnDestroy() {
-    // Unsubscribe from OpenEMS
-    if (this.edge != null && this._channelAddress) {
-      this.edge.unsubscribeFromChannels(this.websocket, [this._channelAddress]);
-    }
 
     // Unsubscribe from CurrentData subject
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+    this.subscription?.destroy();
   }
 
   protected setValue(value: any) {
+    if (typeof this._name == "function") {
+      this.displayName = this._name(value);
+
+    } else {
+      this.displayName = this._name;
+    }
     this.displayValue = this.converter(value);
+
     if (this.filter) {
       this.show = this.filter(value);
     }
@@ -90,10 +107,11 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
       this.edge = edge;
 
       this.dataService.getValues([channelAddress], this.edge);
-      this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        this.setValue(value.allComponents[channelAddress.toString()]);
-      });
+
+      this.subscription = effect(() => {
+        const val = this.dataService.currentValue();
+        this.setValue(val.allComponents[channelAddress.toString()]);
+      }, { injector: this.injector });
     });
   }
-
 }

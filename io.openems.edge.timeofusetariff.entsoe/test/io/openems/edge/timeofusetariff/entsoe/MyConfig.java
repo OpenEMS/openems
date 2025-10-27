@@ -8,8 +8,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String securityToken;
-		private String exchangerateAccesskey;
 		private BiddingZone biddingZone;
+		private Resolution resolution;
+		private String ancillaryCosts;
 
 		private Builder() {
 		}
@@ -24,13 +25,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setExchangerateAccesskey(String exchangerateAccesskey) {
-			this.exchangerateAccesskey = exchangerateAccesskey;
+		public Builder setBiddingZone(BiddingZone biddingZone) {
+			this.biddingZone = biddingZone;
 			return this;
 		}
 
-		public Builder setBiddingZone(BiddingZone biddingZone) {
-			this.biddingZone = biddingZone;
+		public Builder setResolution(Resolution resolution) {
+			this.resolution = resolution;
+			return this;
+		}
+
+		public Builder setAncillaryCosts(String ancillaryCosts) {
+			this.ancillaryCosts = ancillaryCosts;
 			return this;
 		}
 
@@ -61,13 +67,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String exchangerateAccesskey() {
-		return this.builder.exchangerateAccesskey;
+	public BiddingZone biddingZone() {
+		return this.builder.biddingZone;
 	}
 
 	@Override
-	public BiddingZone biddingZone() {
-		return this.builder.biddingZone;
+	public Resolution resolution() {
+		return this.builder.resolution;
+	}
+
+	@Override
+	public String ancillaryCosts() {
+		return this.builder.ancillaryCosts;
 	}
 
 }

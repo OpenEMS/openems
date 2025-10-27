@@ -2,14 +2,12 @@ package io.openems.edge.bosch.bpts5hybrid.ess;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bosch.bpts5hybrid.core.BoschBpts5HybridCoreImpl;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BoschBpts5HybridEssTest {
-
-	private static final String CORE_ID = "core0";
-	private static final String ESS_ID = "ess0";
 
 	@Test
 	public void test() throws Exception {
@@ -17,7 +15,7 @@ public class BoschBpts5HybridEssTest {
 		new ComponentTest(new BoschBpts5HybridCoreImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(io.openems.edge.bosch.bpts5hybrid.core.MyConfig.create() //
-						.setId(CORE_ID) //
+						.setId("core0") //
 						.setEnabled(false) //
 						.setIpaddress("127.0.0.1") //
 						.setInterval(2) //
@@ -27,9 +25,10 @@ public class BoschBpts5HybridEssTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("core", core) //
 				.activate(MyConfig.create() //
-						.setId(ESS_ID) //
-						.setCoreId(CORE_ID) //
+						.setId("ess0") //
+						.setCoreId("core0") //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

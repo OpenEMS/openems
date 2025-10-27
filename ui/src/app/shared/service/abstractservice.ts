@@ -1,20 +1,19 @@
 // @ts-strict-ignore
-import { ErrorHandler } from "@angular/core";
+import { ErrorHandler, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject } from "rxjs";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress } from "../shared";
+import { DefaultTypes } from "../type/defaulttypes";
 import { Language } from "../type/language";
-import { DefaultTypes } from "./defaulttypes";
 
 export abstract class AbstractService extends ErrorHandler {
 
   /**
    * Holds the currently selected Edge.
    */
-  public abstract currentEdge: BehaviorSubject<Edge>;
+  public abstract currentEdge: WritableSignal<Edge>;
 
   /**
    * Set the application language

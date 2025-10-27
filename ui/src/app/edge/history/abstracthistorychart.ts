@@ -8,10 +8,11 @@ import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/reque
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -42,6 +43,10 @@ export abstract class AbstractHistoryChart {
     protected formatNumber: string = "1.0-2";
     /** @deprecated*/
     protected xAxisType: XAxisType = XAxisType.TIMESERIES;
+    /** @deprecated*/
+    protected chartAxis: ChartAxis = ChartAxis.LEFT;
+    /** @deprecated*/
+    protected position: "left" | "right" = "left";
 
     // Colors for Phase 1-3
     protected phase1Color = {
@@ -56,9 +61,6 @@ export abstract class AbstractHistoryChart {
         backgroundColor: "rgba(128,128,0,0.1)",
         borderColor: "rgba(128,128,0,1)",
     };
-
-    private activeQueryData: string;
-    private debounceTimeout: any | null = null;
 
     constructor(
         public readonly spinnerId: string,
@@ -118,8 +120,7 @@ export abstract class AbstractHistoryChart {
     public setOptions(options: Chart.ChartOptions): Promise<void> {
 
         return new Promise<void>((resolve) => {
-            const locale = this.service.translate.currentLang;
-            const yAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT };
+            const yAxis: HistoryUtils.yAxes = { position: this.position, unit: this.unit, yAxisId: this.chartAxis };
             const chartObject: HistoryUtils.ChartData = {
                 input: [],
                 output: () => [],
@@ -134,7 +135,7 @@ export abstract class AbstractHistoryChart {
             const translate = this.translate;
             this.service.getConfig().then((conf) => {
 
-                options = NewAbstractHistoryChart.getDefaultOptions(this.xAxisType, this.service, this.labels);
+                options = NewAbstractHistoryChart.getDefaultXAxisOptions(this.xAxisType, this.service, this.labels);
 
                 /** Hide default displayed yAxis */
                 options.scales["y"] = {
@@ -155,19 +156,23 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
-                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, conf);
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", translate, conf);
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
-                    const color = colors[item.datasetIndex];
+                    let backgroundColor = item.dataset.backgroundColor;
 
-                    if (!color) {
-                        return;
+                    if (Array.isArray(backgroundColor)) {
+                        backgroundColor = backgroundColor[0];
+                    }
+
+                    if (!backgroundColor) {
+                        backgroundColor = item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
                     }
 
                     return {
-                        borderColor: color.borderColor,
-                        backgroundColor: color.backgroundColor,
+                        borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
+                        backgroundColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
                     };
                 };
 
@@ -194,6 +199,7 @@ export abstract class AbstractHistoryChart {
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
                             strokeStyle: color.borderColor,
+                            ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
                     return chartLegendLabelItems;
@@ -237,19 +243,20 @@ export abstract class AbstractHistoryChart {
                         break;
                 }
 
-                // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, ChartConstants.EMPTY_DATASETS, false);
-
-                options.scales.x["stacked"] = true;
-                options.scales[ChartAxis.LEFT]["stacked"] = false;
-                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
-
                 /** Overwrite default yAxisId */
                 this.datasets = this.datasets
                     .map(el => {
                         el["yAxisID"] = ChartAxis.LEFT;
                         return el;
                     });
+
+                // Only one yAxis defined
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", this.datasets, true, chartObject.tooltip.formatNumber,);
+                options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
+                options.scales[this.chartAxis]["stacked"] = false;
+                options.scales.x["stacked"] = true;
+                options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+
             }).then(() => {
                 this.options = options;
                 resolve();
@@ -271,48 +278,33 @@ export abstract class AbstractHistoryChart {
         const resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
         this.errorResponse = null;
-
-        if (this.debounceTimeout) {
-            clearTimeout(this.debounceTimeout);
-        }
-
-        this.debounceTimeout = setTimeout(() => {
-            const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-                this.service.getCurrentEdge().then(edge => {
-                    this.service.getConfig().then(config => {
-                        this.setLabel(config);
-                        this.getChannelAddresses(edge, config).then(channelAddresses => {
-                            const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
-                            edge.sendRequest(this.service.websocket, request).then(response => {
-                                resolve(response as QueryHistoricTimeseriesDataResponse);
-                                this.activeQueryData = request.id;
-                            }).catch(error => {
-                                this.errorResponse = error;
-                                resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
-                                    timestamps: [null], data: { null: null },
-                                }));
-                            });
+        const result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+            this.service.getCurrentEdge().then(edge => {
+                this.service.getConfig().then(config => {
+                    this.setLabel(config);
+                    this.getChannelAddresses(edge, config).then(channelAddresses => {
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        edge.sendRequest(this.service.websocket, request).then(response => {
+                            resolve(response as QueryHistoricTimeseriesDataResponse);
+                        }).catch(error => {
+                            this.errorResponse = error;
+                            resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
+                                timestamps: [null], data: { null: null },
+                            }));
                         });
                     });
                 });
-            }).then((response) => {
-                if (this.activeQueryData !== response.id) {
-                    return;
-                }
-                if (Utils.isDataEmpty(response)) {
-                    this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
-                    this.initializeChart();
-                }
-                return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
             });
-
-            return result;
-        }, ChartConstants.REQUEST_TIMEOUT);
-
-        return new Promise((resolve) => {
-            resolve(new QueryHistoricTimeseriesDataResponse("", { timestamps: [], data: {} }));
+        }).then((response) => {
+            if (Utils.isDataEmpty(response)) {
+                this.loading = false;
+                this.service.stopSpinner(this.spinnerId);
+                this.initializeChart();
+            }
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
         });
+
+        return result;
     }
 
     /**
@@ -363,8 +355,7 @@ export abstract class AbstractHistoryChart {
      * @returns the ChartOptions
      */
     protected createDefaultChartOptions(): Chart.ChartOptions {
-        const options = <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-        return options;
+        return <Chart.ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     }
 
     /**
@@ -421,7 +412,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant("Edge.History.noData");
+        EMPTY_DATASET[0].label = this.translate.instant("EDGE.HISTORY.NO_DATA");
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

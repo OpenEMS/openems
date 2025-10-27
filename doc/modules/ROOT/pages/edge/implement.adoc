@@ -95,7 +95,7 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	com.ghgande.j2mod,\
+	io.openems.j2mod,\
 	io.openems.common,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
@@ -236,7 +236,7 @@ public MeterSimulatedImpl() {
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+protected ModbusProtocol defineModbusProtocol() {
 	// TODO implement ModbusProtocol
 	return new ModbusProtocol(this);
 }
@@ -247,7 +247,7 @@ with
 [source,java]
 ----
 @Override
-protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+protected ModbusProtocol defineModbusProtocol() {
 	return new ModbusProtocol(this, //
 			new FC3ReadRegistersTask(1000, Priority.HIGH,
 					m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000))));
@@ -349,7 +349,7 @@ public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent // <6>
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // <13>
+	protected ModbusProtocol defineModbusProtocol() { // <13>
 		return new ModbusProtocol(this, // <14>
 				new FC3ReadRegistersTask(1000, Priority.HIGH, // <15>
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(1000)))); // <16>

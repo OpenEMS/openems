@@ -8,6 +8,7 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/s
 @Component({
     selector: "timeslotpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
@@ -35,6 +36,10 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
             ])),
             rechargePower: new FormControl(this.component.properties.rechargePower, Validators.compose([
                 Validators.pattern("^(?:[1-9][0-9]*|0)$"),
+                Validators.required,
+            ])),
+            hysteresisSoc: new FormControl(this.component.properties.hysteresisSoc, Validators.compose([
+                Validators.pattern("^(100|[1-9]?[0-9])$"),
                 Validators.required,
             ])),
             slowChargePower: new FormControl((this.component.properties.slowChargePower) * -1),
@@ -87,23 +92,23 @@ export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements 
                             this.component.properties.peakShavingPower = peakShavingPower.value;
                             this.component.properties.rechargePower = rechargePower.value;
                             this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                            this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                         }).catch(reason => {
                             peakShavingPower.setValue(this.component.properties.peakShavingPower);
                             rechargePower.setValue(this.component.properties.rechargePower);
                             this.loading = false;
-                            this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                            this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                             console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant("Edge.Index.Widgets.Peakshaving.relationError"), "danger");
+                        this.service.toast(this.translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RELATION_ERROR"), "danger");
                     }
                 } else {
-                    this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
+                    this.service.toast(this.translate.instant("GENERAL.INPUT_NOT_VALID"), "danger");
                 }
             } else {
-                this.service.toast(this.translate.instant("General.insufficientRights"), "danger");
+                this.service.toast(this.translate.instant("GENERAL.INSUFFICIENT_RIGHTS"), "danger");
             }
         }
     }

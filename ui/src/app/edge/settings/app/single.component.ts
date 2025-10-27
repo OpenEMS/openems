@@ -1,14 +1,17 @@
 // @ts-strict-ignore
 import { Component, HostListener, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { environment } from "src/environments";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { InstallAppComponent } from "./install.component";
 import { GetApp } from "./jsonrpc/getApp";
@@ -23,6 +26,14 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
 @Component({
   selector: SingleAppComponent.SELECTOR,
   templateUrl: "./single.component.html",
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    ReactiveFormsModule,
+    RouterModule,
+  ],
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
 
@@ -154,7 +165,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             payload: new GetApp.Request({ appId: appId }),
           })).then(response => {
             const app = (response as GetApp.Response).result.app;
-            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
+            app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
             this.setApp(app);
           }).catch(reason => {
             console.error(reason.error);

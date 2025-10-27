@@ -1,7 +1,7 @@
 package io.openems.edge.meter.artemes.am2;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
-import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -32,7 +33,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -45,6 +45,8 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	private Config config;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -66,7 +68,7 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.metertype = config.type();
-
+		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -86,7 +88,7 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this,
+		var modbusProtocol = new ModbusProtocol(this,
 				new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
 						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
@@ -99,30 +101,39 @@ public class MeterArtemesAM2Impl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x0014, 0x0015),
 						m(ElectricityMeter.ChannelId.CURRENT, new SignedDoublewordElement(0x0016)),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedQuadruplewordElement(0X0024),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						new DummyRegisterElement(0x0028, 0x0037),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
-								SCALE_FACTOR_MINUS_3),
+								SCALE_FACTOR_MINUS_3_AND_INVERT_IF_TRUE(this.config.invert())),
 						new DummyRegisterElement(0x0048, 0x0071),
-						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))));
+		if (!this.config.invert()) {
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
+							SCALE_FACTOR_MINUS_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
+							SCALE_FACTOR_MINUS_1)));
+		} else {
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
+							SCALE_FACTOR_MINUS_1),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
+							SCALE_FACTOR_MINUS_1)));
 
-				new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
-								SCALE_FACTOR_MINUS_1),
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedQuadruplewordElement(0x0041C), SCALE_FACTOR_MINUS_1)));
+		}
+		return modbusProtocol;
 	}
 
 	@Override

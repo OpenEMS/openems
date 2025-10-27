@@ -9,10 +9,11 @@ import { Role } from "src/app/shared/type/role";
 
 @Component({
   templateUrl: "./details.overview.html",
+  standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
   protected navigationButtons: NavigationOption[] = [];
-  protected componentType: "sum" | "consumptionMeter" | "evcs" | null = null;
+  protected componentType: "sum" | "consumptionMeter" | "evcs" | "heat" | null = null;
 
   constructor(
     public override service: Service,
@@ -37,12 +38,16 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
       }
 
       if (this.component.factoryId === "Core.Sum") {
-        this.component.alias = this.translate.instant("General.TOTAL");
+        this.component.alias = this.translate.instant("GENERAL.TOTAL");
+        return;
+      }
+
+      if (this.component.factoryId === "Heat.Askoma") {
         return;
       }
 
       this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
     });
   }
 
@@ -56,6 +61,12 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
       && this.component.factoryId !== "Evcs.Cluster.PeakShaving"
       && this.component.isEnabled !== false) {
       return "evcs";
+    }
+
+    if (this.config?.hasComponentNature("io.openems.edge.heat.api.Heat", this.component.id)
+      && (this.component.factoryId !== "Controller.Heat.Heatingelement")
+      && this.component.isEnabled !== false) {
+      return "heat";
     }
 
     if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)

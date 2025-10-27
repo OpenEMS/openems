@@ -1,18 +1,22 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { KeyValue } from "@angular/common";
+import { Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Changelog } from "src/app/changelog/view/component/changelog.constants";
-import { environment } from "../../environments";
+import { environment, Theme as SystemTheme } from "../../environments";
+import { Changelog } from "../changelog/view/component/changelog.constants";
+import { Theme as UserTheme } from "../edge/history/shared";
+import { NavigationService } from "../shared/components/navigation/service/navigation.service";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
 import { Language } from "../shared/type/language";
+import { Role } from "../shared/type/role";
 
 type CompanyUserInformation = UserInformation & { companyName: string };
 
@@ -29,9 +33,19 @@ type UserInformation = {
 
 @Component({
   templateUrl: "./user.component.html",
+  standalone: false,
 })
 export class UserComponent implements OnInit {
 
+  private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
+  protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
+  protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" or other OEM Themes.
+
+  protected readonly themes: KeyValue<string, string>[] = [
+    { key: "Light", value: "light" },
+    { key: "Dark", value: "dark" },
+    { key: "System", value: "system" },
+  ];
   protected readonly environment = environment;
   protected readonly uiVersion = Changelog.UI_VERSION;
   protected readonly languages: Language[] = Language.ALL;
@@ -43,7 +57,7 @@ export class UserComponent implements OnInit {
     key: "firstname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.firstname"),
+      label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
       disabled: true,
     },
   },
@@ -51,106 +65,50 @@ export class UserComponent implements OnInit {
     key: "lastname",
     type: "input",
     props: {
-      label: this.translate.instant("Register.Form.lastname"),
+      label: this.translate.instant("REGISTER.FORM.LASTNAME"),
       disabled: true,
     },
   }];
-  protected readonly companyInformationFields: FormlyFieldConfig[] = [];
+  protected companyInformationFields: FormlyFieldConfig[] = [];
+
+  protected isAtLeastAdmin: boolean = false;
+  protected isAllowedToSeeUserDetails: boolean = true;
+  protected useNewUi: boolean | null = null;
+  protected newNavigationForced: boolean = false;
 
   constructor(
     public translate: TranslateService,
     public service: Service,
-    private route: ActivatedRoute,
     private websocket: Websocket,
-  ) { }
+    private userService: UserService,
+    private navigationService: NavigationService,
+  ) {
+    effect(async () => {
+      const user = this.userService.currentUser();
 
-  ngOnInit() {
-    // Set currentLanguage to
-    this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
-    this.getUserInformation().then((userInformation) => {
-      this.form = {
-        formGroup: new FormGroup({}),
-        model: userInformation,
-      };
+      if (user && this.form == null) {
+        this.isAtLeastAdmin = Role.isAtLeast(user.globalRole, Role.ADMIN);
+        await this.updateUserInformation();
 
-      const baseInformationFields: FormlyFieldConfig[] = [{
-        key: "street",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.street"),
-          disabled: true,
-        },
-      },
-      {
-        key: "zip",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.zip"),
-          disabled: true,
-        },
-      },
-      {
-        key: "city",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.city"),
-          disabled: true,
-        },
-      },
-      {
-        key: "country",
-        type: "select",
-        props: {
-          label: this.translate.instant("Register.Form.country"),
-          options: COUNTRY_OPTIONS(this.translate),
-          disabled: true,
-        },
-      },
-      {
-        key: "email",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.email"),
-          disabled: true,
-        },
-        validators: {
-          validation: [Validators.email],
-        },
-      },
-      {
-        key: "phone",
-        type: "input",
-        props: {
-          label: this.translate.instant("Register.Form.phone"),
-          disabled: true,
-        },
-      }];
-
-      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
-        this.companyInformationFields.push(
-          {
-            key: "companyName",
-            type: "input",
-            props: {
-              label: this.translate.instant("Register.Form.companyName"),
-              disabled: true,
-            },
-          },
-          ...baseInformationFields,
-        );
-      } else {
-        this.userInformationFields.push(...baseInformationFields);
+        this.isAllowedToSeeUserDetails = this.isUserAllowedToSeeContactDetails(user.id);
+        this.showInformation = this.form != null;
+        this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
+        this.useNewUi = user.getUseNewUIFromSettings();
+        this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
       }
-
-    }).then(() => {
-      this.service.metadata.subscribe(entry => {
-        this.showInformation = true;
-      });
     });
   }
 
-  public applyChanges() {
+  ngOnInit() {
+    this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
+    this.systemTheme = environment.theme as SystemTheme;
+  }
 
+  public setTheme(theme: UserTheme): void {
+    this.userService.selectTheme(theme);
+  }
+
+  public applyChanges() {
     const params: SetUserInformationRequest["params"] = {
       user: {
         lastname: this.form.model.lastname,
@@ -167,50 +125,38 @@ export class UserComponent implements OnInit {
     };
 
     this.service.websocket.sendRequest(new SetUserInformationRequest(params)).then(() => {
-      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+      this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+      this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
     });
     this.enableAndDisableFormFields();
     this.form.formGroup.markAsPristine();
   }
 
   public enableAndDisableEditMode(): void {
-    if (this.isEditModeDisabled == false) {
-      this.getUserInformation().then((userInformation) => {
-        this.form = {
-          formGroup: new FormGroup({}),
-          model: userInformation,
-        };
-      });
+    if (!this.isEditModeDisabled) {
+      this.updateUserInformation();
     }
-
     this.enableAndDisableFormFields();
   }
 
   public enableAndDisableFormFields(): boolean {
-
     this.userInformationFields = this.userInformationFields.map(field => {
       field.props.disabled = !field.props.disabled;
       return field;
     });
-
     return this.isEditModeDisabled = !this.isEditModeDisabled;
   }
 
   public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
-
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (this.websocket.status == "online") {
+        if (this.websocket.status === "online") {
           this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
             const user = response.result.user;
-
             resolve({
               lastname: user.lastname,
               firstname: user.firstname,
-
-              // Show company if available
               email: user.email,
               phone: user.phone,
               street: user.address.street,
@@ -241,12 +187,20 @@ export class UserComponent implements OnInit {
    * Logout from OpenEMS Edge or Backend.
    */
   public doLogout() {
+    this.userService.currentUser.set(null);
     this.websocket.logout();
   }
 
-  public toggleDebugMode(event: CustomEvent) {
-    localStorage.setItem("DEBUGMODE", event.detail["checked"]);
-    this.environment.debugMode = event.detail["checked"];
+  public toggleDebugMode(event: Event) {
+    localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
+    this.environment.debugMode = (event as CustomEvent).detail["checked"];
+  }
+
+  public async toggleNewUI(event: Event) {
+    const isToggleOn = (event as CustomEvent).detail["checked"];
+    this.service.startSpinner("user");
+    await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
+    this.service.stopSpinner("user");
   }
 
   public setLanguage(language: Language): void {
@@ -255,12 +209,108 @@ export class UserComponent implements OnInit {
 
     this.service.setLang(language);
     this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
-      this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+      this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
     }).catch((reason) => {
-      this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+      this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
     });
 
     this.currentLanguage = language;
     this.translate.use(language.key);
   }
+
+  private updateUserInformation(): Promise<void> {
+    return this.getUserInformation().then((userInformation) => {
+      this.form = {
+        formGroup: new FormGroup({}),
+        model: userInformation,
+      };
+
+      const baseInformationFields: FormlyFieldConfig[] = [{
+        key: "street",
+        type: "input",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.STREET"),
+          disabled: true,
+        },
+      },
+      {
+        key: "zip",
+        type: "input",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.ZIP"),
+          disabled: true,
+        },
+      },
+      {
+        key: "city",
+        type: "input",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.CITY"),
+          disabled: true,
+        },
+      },
+      {
+        key: "country",
+        type: "select",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.COUNTRY"),
+          options: COUNTRY_OPTIONS(this.translate),
+          disabled: true,
+        },
+      },
+      {
+        key: "email",
+        type: "input",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.EMAIL"),
+          disabled: true,
+        },
+        validators: {
+          validation: [Validators.email],
+        },
+      },
+      {
+        key: "phone",
+        type: "input",
+        props: {
+          label: this.translate.instant("REGISTER.FORM.PHONE"),
+          disabled: true,
+        },
+
+      }];
+
+      if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
+        this.companyInformationFields = [{
+          key: "companyName",
+          type: "input",
+          props: {
+            label: this.translate.instant("REGISTER.FORM.COMPANY_NAME"),
+            disabled: true,
+          },
+        },
+        ...baseInformationFields,
+        ];
+      } else {
+        this.userInformationFields = baseInformationFields;
+      }
+    });
+  }
+
+  /**
+   * Checks if user is allowed to see contact details
+   *
+   * @param id the user id
+   * @returns true, if user is allowed to see contact details
+   */
+  private isUserAllowedToSeeContactDetails(id: string): boolean {
+    switch (id) {
+      case "demo@fenecon.de":
+      case "pv@schachinger-gaerten.de":
+      case "pv@studentenpark1-straubing.de":
+        return false;
+      default:
+        return true;
+    }
+  }
 }
+

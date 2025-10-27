@@ -15,25 +15,35 @@ export enum SumState {
   selector: "oe-sum-state",
   template: `
   <ion-col class="sum-state-icon">
-    <ng-container *ngIf="!isEdgeOnline, else showSystemState">
+    @if (!isEdgeOnline) {
       <ion-icon name="cloud-offline-outline" color="danger"></ion-icon>
-    </ng-container>
-
-    <ng-template #showSystemState>
-      <ng-container *ngIf="!isAtLeastInstaller, else showAllStates">
+    } @else {
+      @if (!isAtLeastInstaller) {
         <ion-icon color="primary" name="play-outline"></ion-icon>
-      </ng-container>
-    </ng-template>
+      } @else {
+        <ng-container class="sum-state-icon">
+          @switch (sumState) {
+            @case (SUM_STATE.OK) {
+              <ion-icon color="success" name="checkmark-circle-outline"></ion-icon>
+            }
+            @case (SUM_STATE.INFO) {
+              <ion-icon color="success" name="information-circle-outline"></ion-icon>
+            }
+            @case (SUM_STATE.WARNING) {
+              <ion-icon color="warning" name="warning-outline"></ion-icon>
+            }
+            @case (SUM_STATE.FAULT) {
+              <ion-icon color="danger" name="alert-circle-outline"></ion-icon>
+            }
+            @default {
+              <ion-icon color="primary" name="play-outline"></ion-icon>
+            }
+          }
+        </ng-container>
+      }
+    }
 
-      <ng-template #showAllStates>
-          <ng-container [ngSwitch]="sumState" class="sum-state-icon">
-            <ion-icon *ngSwitchCase="SUM_STATE.OK" color="success" name="checkmark-circle-outline"></ion-icon>
-            <ion-icon *ngSwitchCase="SUM_STATE.INFO" color="success" name="information-circle-outline"></ion-icon>
-            <ion-icon *ngSwitchCase="SUM_STATE.WARNING" color="warning" name="alert-circle-outline"></ion-icon>
-            <ion-icon *ngSwitchCase="SUM_STATE.FAULT" color="danger" name="alert-circle-outline"></ion-icon>
-            <ion-icon *ngSwitchDefault color="primary" name="play-outline"></ion-icon>
-          </ng-container>
-        </ng-template>
+
   </ion-col>
   `,
   styles: [`
@@ -41,6 +51,7 @@ export enum SumState {
     font-size: 20pt !important;
 }
   `],
+  standalone: false,
 })
 export class SumStateComponent implements OnInit {
 
@@ -61,7 +72,7 @@ export class SumStateComponent implements OnInit {
 }
 
 export const SUM_STATES = (translate: TranslateService): Filter => ({
-  placeholder: translate.instant("General.SUM_STATE"),
+  placeholder: translate.instant("GENERAL.SUM_STATE"),
   category: "sumState",
   options: [
     {
@@ -69,15 +80,15 @@ export const SUM_STATES = (translate: TranslateService): Filter => ({
       value: "ok",
     },
     {
-      name: translate.instant("General.info"),
+      name: translate.instant("GENERAL.INFO"),
       value: "Info",
     },
     {
-      name: translate.instant("General.warning"),
+      name: translate.instant("GENERAL.WARNING"),
       value: "Warning",
     },
     {
-      name: translate.instant("General.fault"),
+      name: translate.instant("GENERAL.FAULT"),
       value: "Fault",
     },
   ],

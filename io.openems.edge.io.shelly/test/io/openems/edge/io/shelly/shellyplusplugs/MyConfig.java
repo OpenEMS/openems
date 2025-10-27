@@ -1,9 +1,8 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.io.shelly.shellyplusplugs.Config;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.common.types.MeterType;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private MeterType type;
 		private SinglePhase phase;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -34,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 
@@ -71,5 +76,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return this.builder.type;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
 	}
 }

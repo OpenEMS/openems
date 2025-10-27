@@ -1,21 +1,27 @@
-<ion-row size="12" *ngIf="info" [style]="rowStyle" class="full_width"
+@if (info) {
+  <ion-row size="12" [style]="rowStyle" class="full_width"
     style="display: flex; align-items: center;line-height: 1.4; margin-top: 2%;">
-    <ion-col *ngIf="icon" [size]="icon ? 1: 0">
+    @if (icon) {
+      <ion-col [size]="icon ? 1: 0">
         <ion-icon [color]="icon?.color ?? 'primary'" [name]="icon?.name ?? 'information-outline'"
-            [size]="icon?.size ?? 'small'">
+          [size]="icon?.size ?? 'small'">
         </ion-icon>
-    </ion-col>
+      </ion-col>
+    }
     <ion-col [size]="!icon ? 12: 11">
-        <ng-container *ngIf="(info | typeof) !== 'string'; else simpleLine">
-            <div *ngFor="let line of info" [style]="line.lineStyle">
-                {{ line.text }} <br *ngIf="info.length > 1">
-            </div>
-        </ng-container>
-
-        <ng-template #simpleLine>
-            <div [style]="lineStyle">
-                {{info}}
-            </div>
-        </ng-template>
+      @if ((info | typeof) !== 'string') {
+        @for (line of info; track line) {
+          <div [style]="line.lineStyle">
+            {{ line.text }} @if (info.length > 1) {
+            <br>
+            }
+          </div>
+        }
+      } @else {
+        <div [style]="lineStyle">
+          {{info}}
+        </div>
+      }
     </ion-col>
-</ion-row>
+  </ion-row>
+}

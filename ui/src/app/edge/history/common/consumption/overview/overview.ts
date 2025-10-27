@@ -8,6 +8,7 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
+    standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
@@ -33,13 +34,20 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
                 !(component.factoryId === "Evcs.Cluster.PeakShaving") &&
                 !component.isEnabled === false);
 
+        const heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(component =>
+                !(component.factoryId === "Controller.Heat.Heatingelement") &&
+                !component.isEnabled === false);
+
         this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
+            .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component)
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.evcs.api.Evcs")
+                && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
 
         const sum: EdgeConfig.Component = this.config.getComponent("_sum");
-        sum.alias = this.translate.instant("General.TOTAL");
+        sum.alias = this.translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
-        this.navigationButtons = [sum, ...this.evcsComponents, ...this.consumptionMeterComponents].map(el => (
+        this.navigationButtons = [sum, ...this.evcsComponents, ...heatComponents, ...this.consumptionMeterComponents].map(el => (
             { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
         ));
 

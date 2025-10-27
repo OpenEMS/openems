@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -32,11 +33,11 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implements //
-		ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider  {
-	
+		ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider {
+
 	@Reference
 	private Sum sum;
-	
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -50,7 +51,7 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	private ManagedSymmetricEss ess;
 
 	private ChannelAddress inputChannelAddress;
-	
+
 	private final CalculateActiveTime cumulatedRestrictionTime = new CalculateActiveTime(this,
 			ControllerEssLimiter14a.ChannelId.CUMULATED_RESTRICTION_TIME);
 
@@ -66,7 +67,7 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
-		
+
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
@@ -80,14 +81,14 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	@Override
 	public void run() throws OpenemsNamedException {
 		BooleanReadChannel inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
-		var onGrid = this.sum.channel(Sum.ChannelId.GRID_MODE).value().asEnum() != GridMode.OFF_GRID;
+		var onGrid = this.sum.getGridMode() != GridMode.OFF_GRID;
 		// 0/1 is reversed on relays board
 		var isActive = onGrid && !inputChannel.value().orElse(true);
 		if (isActive) {
-			this.ess.setActivePowerGreaterOrEquals(-4200);
+			this.ess.setActivePowerGreaterOrEquals(ESS_LIMIT_14A_ENWG);
 		}
-		
-		this.channel(ControllerEssLimiter14a.ChannelId.RESTRICTION_MODE).setNextValue(isActive);
+
+		this._setRestrictionMode(isActive);
 		this.cumulatedRestrictionTime.update(isActive);
 	}
 

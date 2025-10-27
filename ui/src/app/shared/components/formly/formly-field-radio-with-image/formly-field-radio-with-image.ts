@@ -5,12 +5,15 @@ import { FieldWrapper } from "@ngx-formly/core";
     selector: "formly-field-radio-with-image",
     templateUrl: "./formly-field-radio-with-image.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class FormlyFieldRadioWithImageComponent extends FieldWrapper implements OnInit {
 
     protected value: any;
+    protected some: any[] = [];
 
     public ngOnInit() {
+        this.some = this.props.options as any[];
         this.value = this.field.defaultValue;
         if (this.formControl.getRawValue()) {
             this.value = this.formControl.getRawValue();

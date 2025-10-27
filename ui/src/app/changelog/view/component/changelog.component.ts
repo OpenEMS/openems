@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { environment } from "src/environments";
 import { Service } from "../../../shared/shared";
 import { Role } from "../../../shared/type/role";
@@ -9,6 +10,8 @@ import { Changelog } from "./changelog.constants";
 @Component({
   selector: "changelog",
   templateUrl: "./changelog.component.html",
+  standalone: true,
+  imports: [CommonUiModule],
 })
 export class ChangelogComponent {
 

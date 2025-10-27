@@ -154,7 +154,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Rack Under Temperature warning")), //
 		RACK_LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Rack Cell VOltage Difference warning")), //
+				.text("Rack Cell Voltage Difference warning")), //
 		RACK_LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference warning")), //
@@ -329,7 +329,8 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		RACK_NUMBER_OF_BATTERY_BCU(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Count Of The Connected BCU")),
+				.text("Count Of The Connected BCU") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 		RACK_NUMBER_OF_CELLS_IN_SERIES_PER_MODULE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -411,7 +412,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("BCU Status Alarm")),
 		STATUS_WARNING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU Status WARNNG")),
+				.text("BCU Status WARNING")),
 		STATUS_FAULT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status BCU Status Fault")),
@@ -558,7 +559,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("BCU Fault Hardware Fault")),
 
 		// Bcu HW Fault Detail
-		HW_AFE_COMMUNICAITON_FAULT(Doc.of(Level.WARNING) //
+		HW_AFE_COMMUNICATION_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW AFE Communication Fault")),
 		HW_ACTOR_DRIVER_FAULT(Doc.of(Level.WARNING) //
@@ -572,7 +573,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("BCU HW Voltage Detect Fault")),
 		HW_TEMPERATURE_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("BCU HW Temperaure Detect Fault")),
+				.text("BCU HW Temperature Detect Fault")),
 		HW_CURRENT_DETECT_FAULT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU HW Current Detect Fault")),
@@ -633,32 +634,27 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 		TOWER_4_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fifth tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of fifth tower")),
 
 		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of fourth tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of fourth tower")),
 
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of third tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of third tower")),
 
 		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of second tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of second tower")),
 
 		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.text("Bms software version of first tower") //
-				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
+				.text("Bms software version of first tower")),
 
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
@@ -673,7 +669,7 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
 		LOW_MIN_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
 				.text("Low min voltage warning "
@@ -784,5 +780,33 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 	 */
 	public default void _setLowMinVoltageFaultBatteryStopped(boolean value) {
 		this.getLowMinVoltageFaultBatteryStoppedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RACK_NUMBER_OF_BATTERY_BCU}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getRackNumberOfBatteryBcuChannel() {
+		return this.channel(ChannelId.RACK_NUMBER_OF_BATTERY_BCU);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#NUMBER_OF_TOWERS}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getNumberOfTowersChannel() {
+		return this.channel(ChannelId.NUMBER_OF_TOWERS);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#NUMBER_OF_TOWERS}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setNumberOfTowers(Integer value) {
+		this.getNumberOfTowersChannel().setNextValue(value);
 	}
 }

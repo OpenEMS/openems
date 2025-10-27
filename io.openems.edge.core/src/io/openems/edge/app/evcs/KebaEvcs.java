@@ -1,7 +1,9 @@
 package io.openems.edge.app.evcs;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -22,8 +24,11 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.enums.KebaHardwareType;
 import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -31,7 +36,9 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -42,6 +49,7 @@ import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.Exp;
 
 /**
  * Describes a Keba evcs App.
@@ -55,7 +63,8 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
     "properties":{
       "EVCS_ID": "evcs0",
       "CTRL_EVCS_ID": "ctrlEvcs0",
-      "IP":"192.168.25.11"
+      "IP":"192.168.25.11",
+      "PHASE_ROTATION":"L1_L2_L3"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -65,7 +74,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Keba")
 public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public enum Property implements Type<Property, KebaEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -73,14 +82,26 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
 		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+
+		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)),
+
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.11") //
 				.setRequired(true)), //
 		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //
-		;
+		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
+		// Properties for P40 app
+		MODBUS_ID(AppDef.componentId("modbus0")), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+				.setDefaultValue(255)//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+							.equal(Exp.staticValue(KebaHardwareType.P40)));
+				}))), //
+		READ_ONLY(EvcsProps.readOnly());
 
 		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
 
@@ -105,50 +126,98 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 	}
 
+	private final Host host;
+	private final Meta meta;
+
 	@Activate
-	public KebaEvcs(@Reference ComponentManager componentManager, ComponentContext componentContext,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public KebaEvcs(//
+			@Reference ComponentManager componentManager, //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host, //
+			@Reference Meta meta //
+	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
+		this.meta = meta;
 	}
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var controllerAlias = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
-					"App.Evcs.controller.alias");
+			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 
 			// values the user enters
 			final var ip = this.getString(p, l, Property.IP);
 			final var alias = this.getString(p, l, Property.ALIAS);
+			final var phaseRotation = this.getString(p, l, Property.PHASE_ROTATION);
+			final var hardwareType = this.getEnum(p, KebaHardwareType.class, Property.HARDWARE_TYPE);
+			final var readOnly = this.getBoolean(p, Property.READ_ONLY);
 
 			// values which are being auto generated by the appmanager
 			final var evcsId = this.getId(t, p, Property.EVCS_ID);
-			final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
 
 			var maxHardwarePowerPerPhase = OptionalInt.empty();
 			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
 				maxHardwarePowerPerPhase = OptionalInt.of(this.getInt(p, Property.MAX_HARDWARE_POWER));
 			}
 
-			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(evcsId, alias, "Evcs.Keba.KeContact", JsonUtils.buildJsonObject() //
-							.addPropertyIfNotNull("ip", ip) //
-							.build()), //
-					new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs", JsonUtils.buildJsonObject() //
-							.addProperty("evcs.id", evcsId) //
-							.build())//
-			);
+			final var components = new ArrayList<EdgeConfig.Component>();
+			switch (hardwareType) {
+			case P30 -> {
+				components.add(new EdgeConfig.Component(evcsId, alias, "Evcs.Keba.KeContact",
+						JsonUtils.buildJsonObject() //
+								.addPropertyIfNotNull("ip", ip) //
+								.addPropertyIfNotNull("phaseRotation", phaseRotation) //
+								.addProperty("readOnly", readOnly) //
+								.build())//
+				);
+			}
+			case P40 -> {
+				final var modbusId = this.getId(t, p, Property.MODBUS_ID);
+				final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
+				components.addAll(Lists.newArrayList(//
+						new EdgeConfig.Component(evcsId, alias, "Evcs.Keba.P40", JsonUtils.buildJsonObject() //
+								.addPropertyIfNotNull("modbus.id", modbusId)//
+								.addPropertyIfNotNull("modbusUnitId", modbusUnitId)//
+								.addPropertyIfNotNull("phaseRotation", phaseRotation) //
+								.addPropertyIfNotNull("readOnly", readOnly)//
+								.build()),
+						new EdgeConfig.Component(modbusId,
+								TranslationUtil.getTranslation(bundle, "App.Evcs.Keba.modbus.alias"),
+								"Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
+										.addProperty("ip", ip) //
+										.onlyIf(t == ConfigurationTarget.ADD, b -> b //
+												.addProperty("port", 502)) //
+										.build()))); //
+			}
+			}
 
-			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
-					.addTask(Tasks.schedulerByCentralOrder(
-							new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId()))) //
+			var appConfig = AppConfiguration.create() //
 					.throwingOnlyIf(ip.startsWith("192.168.25."),
 							b -> b.addTask(Tasks.staticIp(new InterfaceConfiguration("eth0") //
-									.addIp("Evcs", "192.168.25.10/24")))) //
-					.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
-							maxHardwarePowerPerPhase, evcsId)) //
-					.build();
+									.addIp("Evcs", "192.168.25.10/24"))));
+
+			if (!readOnly) {
+				final var controllerAlias = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
+						"App.Evcs.controller.alias");
+				final var ctrlEvcsId = this.getId(t, p, Property.CTRL_EVCS_ID);
+				components.add(new EdgeConfig.Component(ctrlEvcsId, controllerAlias, "Controller.Evcs",
+						JsonUtils.buildJsonObject() //
+								.addProperty("evcs.id", evcsId) //
+								.build()));
+
+				appConfig
+						.addDependencies(EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+								maxHardwarePowerPerPhase, evcsId))
+						.addTask(Tasks.schedulerByCentralOrder(
+								new SchedulerComponent(ctrlEvcsId, "Controller.Evcs", this.getAppId())));
+			}
+
+			appConfig.addTask(Tasks.component(components));
+
+			return appConfig.build();
 		};
 	}
 
@@ -177,6 +246,16 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 	@Override
 	protected Property[] propertyValues() {
 		return Property.values();
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

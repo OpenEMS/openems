@@ -1,11 +1,13 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE;
+import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
@@ -13,37 +15,25 @@ import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 
 public class TowersAndModulesTest {
-
-	private static final String BATTERY_ID = "battery0";
-	private static final String MODBUS_ID = "modbus0";
-
-	private static final ChannelAddress NUMBER_OF_MODULES_PER_TOWER = new ChannelAddress(BATTERY_ID,
-			"NumberOfModulesPerTower");
-	private static final ChannelAddress TOWER_0_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower0BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_1_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower1BmsSoftwareVersion");
-	private static final ChannelAddress TOWER_2_BMS_SOFTWARE_VERSION = new ChannelAddress(BATTERY_ID,
-			"Tower2BmsSoftwareVersion");
-	private static final ChannelAddress BATTERY_HARDWARE_TYPE = new ChannelAddress(BATTERY_ID, "BatteryHardwareType");
 
 	private static final int TOWERS = 1;
 	private static final int MODULES = 5;
 	private static final int CELLS = 14;
 
 	@Test
-	public void testChannelsCreatedDynamically() throws Exception {
+	public void testChannelsCreatedDynamicallyBasedOnRegister() throws Exception {
 		var battery = new BatteryFeneconHomeImpl();
 		var componentTest = new ComponentTest(battery) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
-						.setId(BATTERY_ID) //
-						.setModbusId(MODBUS_ID) //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
 						.setModbusUnitId(0) //
 						.setBatteryStartUpRelay("io0/Relay4") //
 						.setStartStop(StartStopConfig.AUTO) //
@@ -51,10 +41,8 @@ public class TowersAndModulesTest {
 
 		// initial home (1 tower, each tower 5 modules)
 		componentTest.next(new TestCase() //
+				.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 1) //
 				.input(NUMBER_OF_MODULES_PER_TOWER, MODULES) //
-				.input(TOWER_0_BMS_SOFTWARE_VERSION, 1) //
-				.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-				.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
 				.input(BATTERY_HARDWARE_TYPE, BatteryFeneconHomeHardwareType.BATTERY_52));
 		checkDynamicChannels(battery, TOWERS, MODULES, CELLS, BatteryFeneconHomeHardwareType.BATTERY_52);
 
@@ -65,7 +53,7 @@ public class TowersAndModulesTest {
 
 		// add new tower home (2 tower, each tower 6 modules)
 		componentTest.next(new TestCase() //
-				.input(TOWER_1_BMS_SOFTWARE_VERSION, 1));
+				.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 2));
 		checkDynamicChannels(battery, TOWERS + 1, MODULES + 1, CELLS, BatteryFeneconHomeHardwareType.BATTERY_52);
 	}
 

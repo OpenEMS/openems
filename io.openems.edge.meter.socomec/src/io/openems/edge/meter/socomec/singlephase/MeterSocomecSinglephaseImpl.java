@@ -4,23 +4,27 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_ZERO_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -31,9 +35,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.meter.socomec.AbstractSocomecMeter;
 import io.openems.edge.meter.socomec.SocomecMeter;
@@ -42,7 +45,7 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 @Component(//
 		name = "Meter.Socomec.Singlephase", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements MeterSocomecSinglephase, SocomecMeter,
 		SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
@@ -53,7 +56,7 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 	private ConfigurationAdmin cm;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -105,24 +108,21 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 								.m(ElectricityMeter.ChannelId.VOLTAGE, SCALE_FACTOR_1) //
 								.m(ElectricityMeter.ChannelId.VOLTAGE_L1, chain(//
 										SCALE_FACTOR_1, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L1))) //
 								.m(ElectricityMeter.ChannelId.VOLTAGE_L2, chain(//
 										SCALE_FACTOR_1, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L2))) //
 								.m(ElectricityMeter.ChannelId.VOLTAGE_L3, chain(//
 										SCALE_FACTOR_1, //
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L3))) //
 								.build(), //
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
 								.m(ElectricityMeter.ChannelId.CURRENT, SCALE_FACTOR_1) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L1,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1)) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L2,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2)) //
-								.m(ElectricityMeter.ChannelId.CURRENT_L3,
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3)) //
+								.m(ElectricityMeter.ChannelId.CURRENT_L1, SET_ZERO_IF_TRUE(this.config.phase() != L1)) //
+								.m(ElectricityMeter.ChannelId.CURRENT_L2, SET_ZERO_IF_TRUE(this.config.phase() != L2)) //
+								.m(ElectricityMeter.ChannelId.CURRENT_L3, SET_ZERO_IF_TRUE(this.config.phase() != L3)) //
 								.build(), //
 						new DummyRegisterElement(0xc562, 0xc567), //
 						m(new SignedDoublewordElement(0xc568)) //
@@ -130,26 +130,26 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L1))) //
 								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L2))) //
 								.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L3))) //
 								.build(), //
 						m(new SignedDoublewordElement(0xc56A)) //
 								.m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()))
 								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L1))) //
 								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L2))) //
 								.m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, chain(//
 										SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert()),
-										SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
+										SET_ZERO_IF_TRUE(this.config.phase() != L3))) //
 								.build()));
 		if (this.config.invert()) {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
@@ -213,5 +213,4 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 				SinglePhaseMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
-
 }

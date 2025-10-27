@@ -1,0 +1,157 @@
+@use "variables";
+// @use "./global.scss";
+
+/** Grid **/
+/** Padding **/
+.ion-no-padding-left-right {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.ion-no-padding-bottom {
+    padding-bottom: 0;
+}
+
+.ion-padding-bottom-double {
+    padding-bottom: 20px;
+}
+
+.ion-no-padding-top {
+    padding-top: 0;
+}
+
+/** Font */
+.ion-font-size-medium {
+    font-size: medium !important;
+}
+
+.ion-font-size-large {
+    font-size: xx-large !important;
+}
+
+.ion-font-size-smaller {
+    font-size: smaller !important;
+}
+
+.ion-font-size-small {
+    font-size: small !important;
+}
+
+.ion-font-size-larger {
+    font-size: larger !important;
+}
+
+.ion-font-size-x-small {
+    font-size: x-small !important;
+}
+
+.ion-font-weight-bolder {
+    font-weight: bolder;
+}
+
+/** Text */
+.ion-text-align-center {
+    text-align: center;
+}
+
+.ion-text-align-right {
+    text-align: right;
+}
+
+/** Others */
+.ion-link {
+    color: var(--ion-color-primary);
+}
+
+.ion-full-width {
+    width: 100%;
+}
+
+.ion-full-height {
+    height: 100%;
+}
+
+.ion-width-fit-content {
+    width: fit-content;
+}
+
+.ion-toggle-label-icon {
+    --padding-start: 0px;
+    /* Start padding for the item */
+    --padding-end: 0px;
+    /* End padding for the item */
+    --inner-padding-end: 0px;
+}
+
+.ion-text-align-end {
+    text-align: end;
+}
+
+.ion-col-with-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.ion-item-min-content-height {
+    height: min-content;
+}
+
+.ion-toolbar-button::part(native) {
+    --background: var(--ion-item-background) !important;
+}
+
+.ion-white-space-pre-wrap {
+
+    &::part(label) {
+        white-space: pre-wrap;
+    }
+}
+
+.ion-white-space-nowrap {
+    white-space: nowrap !important;
+}
+
+.ion-align-content-center {
+    align-content: center;
+}
+
+.ion-radio-group-collapsed {
+    // :host {
+    --min-height: 2px !important;
+    height: 2px;
+    --height: 2px;
+    --max-height: 2px !important; // }
+}
+
+.ion-justify-self-center {
+    justify-self: center;
+}
+
+.ion-disabled {
+    opacity: 40%;
+}
+
+.ion-background-transparent {
+    --background: transparent !important;
+}
+
+.ion-max-width-max-content {
+    max-width: max-content !important;
+}
+
+.ion-item-label-min-content {
+    @extend .ion-max-width-max-content;
+    white-space: pre-wrap;
+}
+
+.ion-display-flex {
+    display: flex !important;
+}
+
+.ion-flex-column {
+    flex-direction: column !important;
+}
+
+.ion-text-bold {
+    font-weight: bold !important;
+}

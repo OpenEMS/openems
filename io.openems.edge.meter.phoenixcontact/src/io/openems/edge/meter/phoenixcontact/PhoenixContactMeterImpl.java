@@ -18,6 +18,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -31,7 +32,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -97,7 +97,6 @@ public class PhoenixContactMeterImpl extends AbstractOpenemsModbusComponent
 								.wordOrder(LSWMSW), SCALE_FACTOR_3), //
 						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(0x8014) //
 								.wordOrder(LSWMSW), SCALE_FACTOR_3), //
-						new DummyRegisterElement(0x8016, 0x8015), //
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(0x8016) //
 								.wordOrder(LSWMSW), INVERT_IF_TRUE(this.invert)), //
 						new DummyRegisterElement(0x8018, 0x801D), //

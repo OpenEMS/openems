@@ -1,22 +1,22 @@
 // @ts-strict-ignore
+export { ChartConstants } from "./components/chart/chart.constants";
 export { Edge } from "./components/edge/edge";
 export { EdgeConfig } from "./components/edge/edgeconfig";
 export { Logger } from "./service/logger";
 export { Service } from "./service/service";
-export { Utils } from "./service/utils";
 export { Websocket } from "./service/websocket";
 export { ChannelAddress } from "./type/channeladdress";
 export { CurrentData } from "./type/currentdata";
 export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
-
+export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from "ionicons";
 import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
-import { DefaultTypes } from "./service/defaulttypes";
+import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({
@@ -31,6 +31,16 @@ addIcons({
 });
 
 export class EdgePermission {
+
+  /**
+  * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
+  *
+  * @param edge the edge
+  * @returns true, if user is at least {@link Role.OWNER}
+  */
+  public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
+    return Role.isAtLeast(edge.role, Role.OWNER);
+  }
 
   /**
    * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
@@ -120,22 +130,23 @@ export class UserPermission {
     const isAllowed = edge?.isVersionAtLeast("2024.2.2");
     return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
   }
+
+  /**
+  * Checks if user is allowed to see additional updates.
+  *
+  * @param edge the current {@link Edge}
+  * @returns true, if user has access to see additional updates
+  */
+  public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
+    return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
+  }
+
+}
+
+export enum Producttype {
 }
 
 export namespace Currency {
-
-  /**
-   * Gets the currencylabel for a edgeId
-   *
-   * @param edgeId the edgeId
-   * @returns the Currencylabel dependent on edgeId
-   */
-  export function getCurrencyLabelByEdgeId(edgeId: string): Label {
-    switch (edgeId) {
-      default:
-        return Label.CENT_PER_KWH;
-    }
-  }
 
   /**
    * This method returns the corresponding label based on the user-selected currency in "core.meta."
@@ -147,18 +158,40 @@ export namespace Currency {
     switch (currency) {
       case "SEK":
         return Label.OERE_PER_KWH;
+      case "CHF":
+        return Label.RAPPEN_PER_KWH;
       default:
         return Label.CENT_PER_KWH;
+    }
+  }
+
+  /**
+   * This method returns the corresponding label for the chart based on the user-selected currency.
+   *
+   * @param currency The currency enum.
+   * @returns the Currency Unit label
+   */
+  export function getChartCurrencyUnitLabel(currency: string) {
+    switch (currency) {
+      case "SEK":
+        return Unit.OERE;
+      case "CHF":
+        return Unit.RAPPEN;
+      default:
+        return Unit.CENT;
     }
   }
 
   export enum Label {
     OERE_PER_KWH = "Öre/kWh",
     CENT_PER_KWH = "Cent/kWh",
+    RAPPEN_PER_KWH = "Rp./kWh",
   }
 
   export enum Unit {
     CENT = "Cent",
+    OERE = "Öre",
+    RAPPEN = "Rp.",
   }
 }
 
@@ -182,6 +215,18 @@ export enum ChannelRegister {
   "SetReactivePowerGreaterOrEquals" = 716,
 }
 
+export enum RippleControlReceiverRestrictionLevel {
+  NO_RESTRICTION = 0,
+  ZERO_PERCENT = 1,
+  THIRTY_PERCENT = 2,
+  SIXTY_PERCENT = 3,
+}
+
+export enum Limiter14aRestriction {
+  NO_RESTRICTION = 0,
+  RESTRICTION = 1,
+}
+
 /**
 * Presents a simple
 */
@@ -194,7 +239,7 @@ export async function presentAlert(alertController: AlertController, translate: 
   const alert = alertController.create({
     ...alertOptions,
     buttons: [{
-      text: translate.instant("General.cancel"),
+      text: translate.instant("GENERAL.CANCEL"),
       role: "cancel",
     },
     ...(alertOptions?.buttons ?? []),

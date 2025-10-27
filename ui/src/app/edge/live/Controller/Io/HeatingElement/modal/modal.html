@@ -1,78 +1,143 @@
-<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
-    helpKey="CONTROLLER_IO_HEATING_ELEMENT" *ngIf="isInitialized">
-    <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
+@if (isInitialized) {
+  <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
+    helpKey="CONTROLLER_IO_HEATING_ELEMENT">
+    <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="runState"
+      [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE">
     </oe-modal-line>
-
-    <oe-modal-line *ngIf="(activePhases | async) > 0"
-        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel'| translate" [value]="'Level ' + (activePhases| async)">
-    </oe-modal-line>
-
+    @if (level !== Level.LEVEL_0) {
+      <oe-modal-line
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level">
+      </oe-modal-line>
+    }
+    @if (consumptionMeter) {
+      <oe-modal-line
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate"
+        [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT">
+      </oe-modal-line>
+      <oe-modal-line
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'"
+        [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
+      </oe-modal-line>
+    }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
-
-    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-line [name]="'GENERAL.MODE'| translate"></oe-modal-line>
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'power'}},
-    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'light-contrast', name: 'power'}}]">
+    { name: ('GENERAL.ON' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'play-outline'}},
+    { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+    { name: ('GENERAL.OFF' | translate), value: 'MANUAL_OFF', icon: {color:'danger', name: 'power'}}]">
     </oe-modal-buttons>
-
-
     <!-- TODO: with future version there will be a solution for returning the event from the generic modal-line, but at this moment, CustomEvent not working -->
-    <ng-container *ngIf="formGroup.value.mode === Mode.AUTOMATIC">
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-        <table class=" full_width">
-            <tr>
-                <td style="width: 65%" translate>
-                    Edge.Index.Widgets.Heatingelement.guaranteeMinimumHeating
-                </td>
-                <td style="width: 35%" class="align_right">
-                    <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
-                        [checked]="formGroup.value.workMode !== 'NONE'">
-                    </ion-toggle>
-                </td>
-            </tr>
-        </table>
-    </ng-container>
-
-    <ng-container
-        *ngIf="formGroup.value.mode === Mode.MANUAL_ON|| (formGroup.value.mode === Mode.AUTOMATIC && formGroup.value.workMode !== WorkMode.NONE)">
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-        <oe-modal-line
-            [control]="{type: 'SELECT',options:[{value: 'LEVEL_1', name: 'Level 1'},{value: 'LEVEL_2', name: 'Level 2'},{value: 'LEVEL_3', name: 'Level 3'}]}"
-            name="Level" controlName="defaultLevel" [formGroup]="formGroup">
-        </oe-modal-line>
-    </ng-container>
-
-
-    <ng-container *ngIf="formGroup.value.workMode !==  WorkMode.NONE &&  formGroup.value.mode === Mode.AUTOMATIC">
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-        <table style="width: 100%;">
-            <tr>
-                <td class="text-align: left">
-                    <ion-text translate>
-                        Edge.Index.Widgets.GridOptimizedCharge.endTime
-                    </ion-text>:
-                </td>
-                <td>
-                    <ion-item button="true" id="open-date-input" *ngIf="formGroup" style="text-align: center">
-                        <ion-label> {{this.formGroup.controls["endTime"].value}}
-                        </ion-label>
-                        <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
-                            <ng-template>
-                                <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
-                                    formControlName="endTime"></ion-datetime>
-                            </ng-template>
-                        </ion-popover>
-                    </ion-item>
-                </td>
-            </tr>
-        </table>
-
-        <oe-modal-horizontal-line></oe-modal-horizontal-line>
-
-        <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime'| translate"></oe-modal-line>
-        <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {min: 1, max: 10, unit: 'H'}}"
-            [formGroup]="formGroup">
-        </oe-modal-line>
-    </ng-container>
-</oe-modal>
+    @if (formGroup.controls['mode'].value === Mode.AUTOMATIC) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <table class=" full_width">
+        <tr>
+          <td style="width: 65%" translate>
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_MINIMUM_HEATING
+          </td>
+          <td style="width: 35%" class="align_right">
+            <ion-toggle (ionChange)="switchWorkMode($event, 'TIME')"
+              [checked]="formGroup.controls['workMode'].value === WorkMode.TIME">
+            </ion-toggle>
+          </td>
+        </tr>
+      </table>
+    }
+    @if (formGroup.controls['mode'].value === Mode.MANUAL_ON|| (formGroup.controls['mode'].value === Mode.AUTOMATIC && formGroup.controls['workMode'].value === WorkMode.TIME)) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <oe-modal-line
+        [control]="{type: 'SELECT',options:[{value: 'LEVEL_1', name: 'Level 1'},{value: 'LEVEL_2', name: 'Level 2'},{value: 'LEVEL_3', name: 'Level 3'}]}"
+        name="Level" controlName="defaultLevel" [formGroup]="formGroup">
+      </oe-modal-line>
+    }
+    @if (formGroup.controls['workMode'].value === WorkMode.TIME && formGroup.controls['mode'].value === Mode.AUTOMATIC) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <table style="width: 100%;">
+        <tr>
+          <td class="text-align: left">
+            <ion-text translate>
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME
+            </ion-text>:
+          </td>
+          <td>
+            @if (formGroup) {
+              <ion-item button="true" id="open-date-input" style="text-align: center">
+                <ion-label> {{this.formGroup.controls["endTime"].value}}
+                </ion-label>
+                <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
+                  <ng-template>
+                    <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
+                    formControlName="endTime"></ion-datetime>
+                  </ng-template>
+                </ion-popover>
+              </ion-item>
+            }
+          </td>
+        </tr>
+      </table>
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate"
+        [value]="formGroup.controls['minTime'].value + ' h'">
+      </oe-modal-line>
+      <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true}}"
+        [formGroup]="formGroup">
+      </oe-modal-line>
+    }
+    @if (formGroup.controls['mode'].value === Mode.AUTOMATIC && consumptionMeter && consumptionMeter.isEnabled) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <table class="full_width">
+        <tr>
+          <td style="width: 65%" translate>
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_HEATING
+          </td>
+          <td style="width: 35%" class="align_right">
+            <ion-toggle (ionChange)="switchWorkMode($event, 'ENERGY')"
+              [checked]="formGroup.controls['workMode'].value === WorkMode.ENERGY">
+            </ion-toggle>
+          </td>
+        </tr>
+      </table>
+    }
+    @if (formGroup.controls['mode'].value === Mode.AUTOMATIC && formGroup.controls['workMode'].value === WorkMode.ENERGY
+      && consumptionMeter && consumptionMeter.isEnabled) {
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMAL_ENERGY_LIMIT' | translate"
+        [value]="formGroup.controls['minEnergyLimitInKwh'].value + ' kWh'">
+      </oe-modal-line>
+      <oe-modal-line controlName="minEnergyLimitInKwh"
+        [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: maxPower, unit: 'kWh ', pinFormatter: pinFormatterEnergy, snaps: true}}"
+        [formGroup]="formGroup">
+      </oe-modal-line>
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <table style="width: 100%;">
+        <tr>
+          <td class="text-align: left">
+            <ion-text translate>
+              EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENDTIME
+            </ion-text>:
+          </td>
+          <td>
+            @if (formGroup) {
+              <ion-item button="true" id="open-date-input" style="text-align: center">
+                <ion-label> {{this.formGroup.controls["endTimeWithMeter"].value}}
+                </ion-label>
+                <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
+                  <ng-template>
+                    <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
+                    formControlName="endTimeWithMeter"></ion-datetime>
+                  </ng-template>
+                </ion-popover>
+              </ion-item>
+            }
+          </td>
+        </tr>
+      </table>
+      @if (isUnreachable) {
+        <div style="text-align: center; margin-top: 5px;">
+          <ion-text color="danger" translate>
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.MESSAGE_UNREACHABLE
+          </ion-text>
+        </div>
+      }
+    }
+  </oe-modal>
+}

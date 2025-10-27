@@ -7,8 +7,10 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ClusterConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
@@ -79,6 +81,26 @@ public class Tasks {
 	 */
 	public static Task<SchedulerConfiguration> scheduler(String... componentOrder) {
 		return createTask(SchedulerAggregateTask.class, new SchedulerConfiguration(componentOrder));
+	}
+
+	/**
+	 * Creates a Task for setting the {@link ClusterConfiguration}.
+	 * 
+	 * @param evseIds evseIds of app
+	 * @return the {@link Task} to run when create the {@link OpenemsAppInstance}
+	 */
+	public static Task<ClusterConfiguration> cluster(List<String> evseIds) {
+		return createTask(EvseClusterTask.class, new ClusterConfiguration(evseIds));
+	}
+	
+	/**
+	 * Creates a Task for setting the {@link ClusterConfiguration}.
+	 * 
+	 * @param evseIds evseIds of app
+	 * @return the {@link Task} to run when create the {@link OpenemsAppInstance}
+	 */
+	public static Task<ClusterConfiguration> cluster(String... evseIds) {
+		return createTask(EvseClusterTask.class, new ClusterConfiguration(evseIds));
 	}
 
 	/**

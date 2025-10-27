@@ -1,8 +1,11 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.Collections;
+import static java.util.Collections.emptyMap;
+import static java.util.UUID.randomUUID;
+
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -11,18 +14,24 @@ import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonElement;
 
-import io.openems.backend.common.edgewebsocket.EdgeCache;
+import io.openems.backend.common.edge.EdgeCache;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.notification.CurrentDataNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.jsonrpc.notification.LogMessageNotification;
+import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 
 public class WsData extends io.openems.common.websocket.WsData {
+
+	// This list can be used to enable debug log messages for certain user ids
+	private static final List<String> DEBUG_USER_IDS = List.of();
 
 	private static class SubscribedChannels {
 
@@ -51,7 +60,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		public Map<String, JsonElement> getChannelValues(String edgeId, EdgeCache edgeCache) {
 			var subscribedChannels = this.subscribedChannels.get(edgeId);
 			if (subscribedChannels == null || subscribedChannels.isEmpty()) {
-				return Collections.emptyMap();
+				return emptyMap();
 			}
 
 			var result = edgeCache.getChannelValues(subscribedChannels);
@@ -63,16 +72,34 @@ public class WsData extends io.openems.common.websocket.WsData {
 		}
 	}
 
-	private final UUID id = UUID.randomUUID();
-
+	private final UUID id = randomUUID();
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
+
 	private Optional<String> userId = Optional.empty();
 	private Optional<String> token = Optional.empty();
 
 	private Set<String> subscribedEdges = new HashSet<>();
 
-	public WsData(WebSocket ws) {
+	private final RateLimiter limiterGlobal;
+	private final RateLimiter limiterLogMessages = RateLimiter.create(5);
+
+	public WsData(WebSocket ws, int requestLimit) {
 		super(ws);
+		this.limiterGlobal = RateLimiter.create(requestLimit);
+	}
+
+	/**
+	 * Check if the method can be called. Or if it is rate limited.
+	 * 
+	 * @param method to check
+	 * @return true if the method can be called
+	 */
+	public boolean checkLimiter(String method) {
+		return switch (method) {
+		case EdgeRpcRequest.METHOD -> true;
+		case LogMessageNotification.METHOD -> this.limiterLogMessages.tryAcquire();
+		case null, default -> this.limiterGlobal.tryAcquire();
+		};
 	}
 
 	/**
@@ -85,6 +112,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public synchronized void setUserId(String userId) {
+		super.setDebug(DEBUG_USER_IDS.contains(userId));
 		this.userId = Optional.ofNullable(userId);
 	}
 
@@ -154,14 +182,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		String tokenString;
-		if (this.token.isPresent()) {
-			tokenString = this.token.get().toString();
-		} else {
-			tokenString = "UNKNOWN";
-		}
-		return "UiWebsocket.WsData [userId=" + this.userId.orElse("UNKNOWN") + ", token=" + tokenString + "]";
+	protected String toLogString() {
+		return new StringBuilder("UiWebsocket.WsData [userId=") //
+				.append(this.userId.orElse("UNKNOWN")) //
+				.append(", token=") //
+				.append(this.token.isPresent() //
+						? this.token.get().toString() //
+						: "UNKNOWN") //
+				.append("]") //
+				.toString();
 	}
 
 	/**
