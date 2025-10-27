@@ -24,16 +24,14 @@
                   <form (ngSubmit)="doLogin({ password: password.value})">
                     <div class="ion-padding">
                       <ion-item>
-                        <ion-text class="ion-text-wrap" color="medium" translate>
-                          LOGIN.PREAMBLE
+                        <ion-text class="ion-text-wrap" color="medium">
+                          <span translate>LOGIN.PREAMBLE</span>
                         </ion-text>
                       </ion-item>
                       <ion-item>
-                        <ion-label position="floating">
-                          <span translate>LOGIN.PASSWORD_LABEL</span>
-                        </ion-label>
                         <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
-                          value="user"></ion-input>
+                          label-placement="floating" [label]="'LOGIN.PASSWORD_LABEL' | translate">
+                        </ion-input>
                       </ion-item>
                       <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                       <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
@@ -55,10 +53,8 @@
                       </ion-input>
                     </ion-item>
                     <ion-item>
-                      <ion-label position="floating">
-                        <span translate>LOGIN.PASSWORD_LABEL</span>
-                      </ion-label>
-                      <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate">
+                      <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
+                        label-placement="floating" [label]="'LOGIN.PASSWORD_LABEL' | translate">
                       </ion-input>
                     </ion-item>
                     <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
