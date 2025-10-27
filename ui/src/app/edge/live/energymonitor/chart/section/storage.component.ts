@@ -48,7 +48,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showChargeAnimation = show;
+            this.showChargeAnimation = !show;
             this.showDischargeAnimation = show;
         });
     }

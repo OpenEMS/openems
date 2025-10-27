@@ -76,7 +76,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
             this.showBuyAnimation = show;
-            this.showSellAnimation = show;
+            this.showSellAnimation = !show;
         });
     }
 

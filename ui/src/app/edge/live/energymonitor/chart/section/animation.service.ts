@@ -7,7 +7,7 @@ import { BehaviorSubject, interval, Observable } from "rxjs";
 export class AnimationService {
     public readonly toggleAnimation$: Observable<boolean>;
 
-    private readonly animationSpeed = 1150;
+    private readonly animationSpeed = 605;
     private toggleAnimSubject = new BehaviorSubject(true);
     private value: boolean = true;
 

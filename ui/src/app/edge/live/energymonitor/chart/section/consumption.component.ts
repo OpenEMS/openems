@@ -38,7 +38,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showAnimation = show;
+            this.showAnimation = !show;
         });
     }
 
