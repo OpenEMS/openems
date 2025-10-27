@@ -39,7 +39,7 @@ jobs:
         run: ./gradlew buildEdge buildBackend --console=plain --warn
 
       - name: Save build-artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: java-build-artifacts
           path: |
@@ -80,7 +80,7 @@ jobs:
           tar --xz --transform 's|^ui/target|openems-ui|' -cvf openems-ui.tar.xz ui/target/
 
       - name: Save build-artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ui-build-artifacts
           path: openems-ui.tar.xz
