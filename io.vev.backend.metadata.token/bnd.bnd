@@ -1,0 +1,16 @@
+Bundle-Name: OpenEMS Backend Vev Metadata Token
+Bundle-Vendor: Vev
+Bundle-License: private
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.wrapper.java-jwt,\
+	org.mongodb.driver-sync,\
+	org.mongodb.driver-core,\
+	org.mongodb.bson,\
+	io.openems.backend.common,\
+	io.openems.common,\
+
+-testpath: \
+	${testpath}

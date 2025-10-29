@@ -59,6 +59,10 @@
 	bnd.identity;id='io.openems.backend.timedata.influx',\
 	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
+	bnd.identity;id='io.vev.backend.metadata.token',\
+	bnd.identity;id='org.mongodb.driver-sync',\
+	bnd.identity;id='org.mongodb.driver-core',\
+	bnd.identity;id='org.mongodb.bson',\
 
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
@@ -85,9 +89,9 @@
 	io.openems.backend.simulator;version=snapshot,\
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
-	io.openems.backend.timedata.influx;version=snapshot,\
 	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
+	io.vev.backend.metadata.token;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
@@ -100,6 +104,10 @@
 	io.openems.wrapper.influxdb-flux-dsl;version=snapshot,\
 	io.openems.wrapper.io.reactivex.rxjava3.rxjava;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
+	io.openems.wrapper.java-jwt;version=snapshot,\
+	org.mongodb.driver-sync;version='[5.2.1,5.2.2)',\
+	org.mongodb.driver-core;version='[5.2.1,5.2.2)',\
+	org.mongodb.bson;version='[5.2.1,5.2.2)',\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.pgbulkinsert;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
@@ -144,4 +152,8 @@
 	org.owasp.encoder;version='[1.3.1,1.3.2)',\
 	org.postgresql.jdbc;version='[42.7.8,42.7.9)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	stax2-api;version='[4.2.2,4.2.3)'
+	stax2-api;version='[4.2.2,4.2.3)',\
+	io.openems.backend.timedata.influx;version=snapshot,\
+	com.fasterxml.jackson.core.jackson-annotations;version='[2.14.2,2.14.3)',\
+	com.fasterxml.jackson.core.jackson-core;version='[2.14.2,2.14.3)',\
+	com.fasterxml.jackson.core.jackson-databind;version='[2.14.2,2.14.3)'

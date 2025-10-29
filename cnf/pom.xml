@@ -335,6 +335,24 @@
 			<version>1.6.0</version>
 		</dependency>
 		<dependency>
+			<!-- MongoDB synchronous Java driver -->
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>5.2.1</version>
+		</dependency>
+		<dependency>
+			<!-- MongoDB driver core dependency -->
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-core</artifactId>
+			<version>5.2.1</version>
+		</dependency>
+		<dependency>
+			<!-- BSON primitives used by MongoDB driver -->
+			<groupId>org.mongodb</groupId>
+			<artifactId>bson</artifactId>
+			<version>5.2.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
 			<version>2.2.20</version>
@@ -493,5 +511,11 @@
 		  <version>3.4</version>
 		  <scope>test</scope>
 		</dependency>
+        <!-- used in vev metadata token -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+        </dependency>
 	</dependencies>
 </project>

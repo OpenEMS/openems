@@ -16,7 +16,9 @@
             <ion-card>
               <ion-item color="primary" lines="full">
                 <ion-icon slot="start" name="person-outline"></ion-icon>
-                <ion-label translate>Login.title</ion-label>
+                <ion-label>
+                  {{"Login.title" | translate}}
+                </ion-label>
               </ion-item>
               <!-- OpenEMS Edge Login -->
               @if (environment.backend === 'OpenEMS Edge') {
@@ -47,15 +49,13 @@
                 <ion-card-content>
                   <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                     <ion-item>
-                      <ion-input #username required type="input"
+                      <input #username required type="text"
                         [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)"
-                        [label]="'E-Mail / '  + ('Login.user' | translate)" label-placement="floating">
-                      </ion-input>
+                        />
                     </ion-item>
                     <ion-item>
-                      <ion-input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
-                        label-placement="floating" [label]="'Login.passwordLabel' | translate">
-                      </ion-input>
+                      <input #password required type="password" [placeholder]="'Login.passwordLabel' | translate"
+                        />
                     </ion-item>
                     <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                     <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />

@@ -163,7 +163,7 @@ task cleanBackend() {
 	description = 'Clean all Backend-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
+		if( proj.name ==~ /(io.openems|io.vev)\.(backend|common|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'clean' }) {
 				dependsOn(proj.clean)
 			}
@@ -189,7 +189,7 @@ task assembleBackend() {
 	description = 'Assemble all Backend-Bundles'
 	
 	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
+		if( proj.name ==~ /(io.openems|io.vev)\.(backend|common|oem|shared|wrapper).*/ ) {
 			if (proj.tasks.findAll { it.name == 'assemble' }) {
 				dependsOn(proj.assemble)
 			}

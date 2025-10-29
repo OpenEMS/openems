@@ -1,0 +1,54 @@
+Bundle-Name: java-jwt
+Bundle-Description: Auth0 Java JWT library wrapped for OSGi usage
+Bundle-DocURL: https://github.com/auth0/java-jwt
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 4.4.0
+
+Include-Resource: \
+	@java-jwt-4.4.0.jar,\
+
+Export-Package: \
+	com.auth0.jwt,\
+	com.auth0.jwt.algorithms,\
+	com.auth0.jwt.exceptions,\
+	com.auth0.jwt.impl,\
+	com.auth0.jwt.interfaces,\
+	com.auth0.jwt.jwk,\
+	com.auth0.jwt.params,\
+
+Import-Package: \
+	com.fasterxml.jackson.core;resolution:=optional,\
+	com.fasterxml.jackson.databind;resolution:=optional,\
+	com.fasterxml.jackson.databind.introspect;resolution:=optional,\
+	com.fasterxml.jackson.databind.jsontype;resolution:=optional,\
+	com.fasterxml.jackson.databind.node;resolution:=optional,\
+	com.fasterxml.jackson.databind.ser;resolution:=optional,\
+	com.fasterxml.jackson.databind.type;resolution:=optional,\
+	com.fasterxml.jackson.databind.util;resolution:=optional,\
+	javax.crypto,\
+	javax.crypto.spec,\
+	javax.security.auth.x500;resolution:=optional,\
+	javax.xml.bind.DatatypeConverter;resolution:=optional,\
+	org.apache.commons.codec.binary,\
+	org.bouncycastle.asn1;resolution:=optional,\
+	org.bouncycastle.asn1.x500;resolution:=optional,\
+	org.bouncycastle.asn1.x509;resolution:=optional,\
+	org.bouncycastle.cert;resolution:=optional,\
+	org.bouncycastle.cert.jcajce;resolution:=optional,\
+	org.bouncycastle.crypto.params;resolution:=optional,\
+	org.bouncycastle.jce.provider;resolution:=optional,\
+	org.bouncycastle.jce.spec;resolution:=optional,\
+	org.bouncycastle.openssl;resolution:=optional,\
+	org.bouncycastle.operator;resolution:=optional,\
+	org.bouncycastle.operator.jcajce;resolution:=optional,\
+	org.bouncycastle.pkcs;resolution:=optional,\
+	org.bouncycastle.pkcs.jcajce;resolution:=optional,\
+	org.bouncycastle.util.encoders;resolution:=optional,\
+	org.slf4j;resolution:=optional,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false
