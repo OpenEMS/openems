@@ -51,7 +51,6 @@ final class VevUser extends User {
     }
 
 	private static Role parseVevRole(String role) {
-        System.out.println("Parsing role: " + role);
         return switch (role) {
             case "A" -> ADMIN;
             default -> GUEST;
