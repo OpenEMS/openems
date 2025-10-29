@@ -123,6 +123,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return 0;
 	}
 
+	@Override
+	public int reducePowerThresholdTemperature() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 
 
 

@@ -38,14 +38,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Preparation Hysteresis [s]", description = "Before CHP is started heating system might need to be prepared, i.e. shut down other heating systems to lower temperatures. \n In order to do that future energy costs are calculated")
 	int preparationHyteresis() default 3600;
 	
-	@AttributeDefinition(name = "Min. buffer tank temperature [°C]", description = "Minimum buffer tank temperature. If below that value CHP will be started forcefully")
+	@AttributeDefinition(name = "Min. buffer tank temperature [°C]", description = "Minimum buffer tank temperature. If below that value CHP will be started forcefully and run until threshold temperature is reached")
 	int minBufferTankTemperature() default 60;
 	
 	@AttributeDefinition(name = "Threshold buffer tank temperature [°C]", description = "Threshold buffer tank temperature. CPHs won´t start above that value")
 	int thresholdBufferTankTemperature() default 70;
 	
 	@AttributeDefinition(name = "Max. buffer tank temperature [°C]", description = "Maximum buffer tank temperature before chp(s) will be stopped")
-	int maxBufferTankTemperature() default 75;	
+	int maxBufferTankTemperature() default 75;		
+	
+	@AttributeDefinition(name = "Reduce power temperature threshold [°C]", description = "CHP(s) reduce power if in range between this value and max temperature.")
+	int reducePowerThresholdTemperature() default 5;	
 
 	@AttributeDefinition(name = "Min. grid power", description = "Min. power from grid to activate this controller")
 	int minGridPower() default 40000;		

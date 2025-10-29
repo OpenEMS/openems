@@ -136,13 +136,17 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 		if (this.getGeneratorMaxActivePower().get() == 0) {
 			return;
 		}
+		
+		
 
 		int stepActive = 0;
 		int activePowerTargetPercent = (int) Math
 				.round(((double) activePowerTarget / this.getGeneratorMaxActivePower().get()) * 100);
 
+		this.logDebug(this.log, "Target power " + activePowerTarget + " -> " + activePowerTargetPercent + "%" );
 		activePowerTargetPercent = Math.min(100, activePowerTargetPercent); // limit to 100% to handle configuration
-																			// errors
+		
+		
 
 		/*
 		 * Logic with 2 installed untis Target 0% -> 0% Target 1% -> 50% (1 unit with
@@ -172,10 +176,13 @@ public class XrgiControlImpl extends AbstractOpenemsModbusComponent
 
 		}
 
+		
+		
 		this._setActivePowerTarget(activePowerTarget); // feed channels
 		this._setActiveRegulationStep(stepActive); // feed channels
 
 		try {
+			this.logDebug(this.log, "Applying " + activePowerTargetPercent + "%" );
 			this._setPowerPercent(activePowerTargetPercent);
 		} catch (OpenemsNamedException e) {
 			// TODO Auto-generated catch block

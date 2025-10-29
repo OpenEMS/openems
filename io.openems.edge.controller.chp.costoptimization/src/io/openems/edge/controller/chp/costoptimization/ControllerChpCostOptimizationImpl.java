@@ -489,18 +489,9 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 			this.chp.applyPreparation(false);
 			this._setAwaitingPreparationHysteresis(false); // Preparation Hysteresis has to be stopped anyway
 
-			// start hysteresis for reducing power
-			if (this.temperatureNearMax && !this.wasTemperatureNearMax) {
-				this.lastReducedPowerHysteresisTime = Instant.now(this.componentManager.getClock());
-				this._setAwaitingReducedPowerHysteresis(true);
-			}
-			this.wasTemperatureNearMax = this.temperatureNearMax; // update
-			
-			if (this.getAwaitingReducedPowerHysteresis().get()) { // reduce power due to small temperature gap
-				this.applyPowerTarget = Math.floorDiv(this.applyPowerTarget, 2);
-				this.logDebug(this.log, "Temperature near max -> reducing power");
-			} 
-			
+			// check if power has to be reduced due to a temperature near max
+			this.applyPowerTarget = this.applyNearMaxReduction(this.applyPowerTarget);
+			this._setActivePowerTarget(applyPowerTarget); // feed channel
 
 			if (this.config.mode() == Mode.MANUAL_ON) {
 				this.chp.applyPower(this.config.maxActivePower()); // full power
@@ -688,7 +679,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 
 		}
 
-		this._setActivePowerTarget(chpTargetPower); // feed channel
+		
 		return chpTargetPower;
 	}	
 
@@ -918,7 +909,7 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		bufferTemperature = (int) Math.round(bufferTemperature / 10.0);
 
 		// check if temperature gets close to max -> reduce power
-		if (bufferTemperature >= this.config.maxBufferTankTemperature() - 5) {
+		if (bufferTemperature >= this.config.reducePowerThresholdTemperature()) {
 			this._setTemperatureNearMax(true);
 			this.temperatureNearMax = true;
 		} else {
@@ -969,6 +960,56 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 		this.temperatureAboveThreshold = false;
 
 	}
+	
+	/**
+	 * Handles the "temperature near max" logic including hysteresis,
+	 * and optionally halves the target power if the buffer tank temperature
+	 * is within the configured near-max range.
+	 *
+	 * Behavior:
+	 *  - Starts the reduced-power hysteresis on the rising edge (false → true).
+	 *  - Restarts it once the timer expires while still being in near-max range.
+	 *  - Ends it once temperature is below the near-max range and the hysteresis has expired.
+	 *  - Applies power reduction (target ÷ 2) while hysteresis is active.
+	 *
+	 * @param target current CHP target power in watts
+	 * @return possibly reduced target power in watts
+	 */
+	private int applyNearMaxReduction(int target) {
+	    boolean awaitingReduced = Boolean.TRUE.equals(this.getAwaitingReducedPowerHysteresis().get());
+	    final boolean near = this.temperatureNearMax;
+	    final boolean hystActive = isHysteresisActive(this.lastReducedPowerHysteresisTime, REDUCED_POWER_GRACE_SECONDS);
+
+	    // 1) Rising edge: temperatureNearMax changed from false → true
+	    if (near && !this.wasTemperatureNearMax) {
+	        this.lastReducedPowerHysteresisTime = Instant.now(this.componentManager.getClock());
+	        this._setAwaitingReducedPowerHysteresis(true);
+	        awaitingReduced = true;
+	    }
+
+	    // 2) Timer expired but still near-max → restart hysteresis
+	    if (near && !hystActive) {
+	        this.lastReducedPowerHysteresisTime = Instant.now(this.componentManager.getClock());
+	        this._setAwaitingReducedPowerHysteresis(true);
+	        awaitingReduced = true;
+	    }
+
+	    // 3) Temperature back to normal and hysteresis expired → stop reduction
+	    if (!near && !hystActive) {
+	        this._setAwaitingReducedPowerHysteresis(false);
+	        awaitingReduced = false;
+	    }
+
+	    // 4) Apply reduction while hysteresis is active
+	    if (awaitingReduced) {
+	        target = Math.floorDiv(target, 2);
+	        this.logDebug(this.log, "Temperature near max -> reducing power");
+	    }
+
+	    this.wasTemperatureNearMax = near;
+	    return target;
+	}
+	
 
 	@Override
 	public String debugLog() {

@@ -24,13 +24,15 @@ public interface XrgiControl extends ModbusComponent, OpenemsComponent {
 		
 		POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		REGULATION_STEPS(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)),
 
 		ACTIVE_REGULATION_STEP(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)),
+				.accessMode(AccessMode.READ_WRITE)
+				.persistencePriority(PersistencePriority.HIGH)),
 		
 		
 

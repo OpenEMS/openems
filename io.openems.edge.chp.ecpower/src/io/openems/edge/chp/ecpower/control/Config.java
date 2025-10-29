@@ -21,7 +21,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int regulationSteps() default 2;	
 	
 	@AttributeDefinition(name = "Hysteresis [s]", description = "Hysteresis between transition steps. No effect if stepless control is configured.")
-	int hysteresis() default 3600;	
+	int hysteresis() default 120;	
 	
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
