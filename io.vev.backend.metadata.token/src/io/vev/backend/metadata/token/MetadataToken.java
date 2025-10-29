@@ -174,7 +174,7 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 			throw OpenemsError.COMMON_SERVICE_NOT_AVAILABLE.exception();
 		}
 
-		if (response.statusCode() / 100 != 2) {
+		if (response.statusCode() != 200) {
 			this.logWarn(this.log,
 					"vev-iq authentication failed for email [" + email + "] with HTTP status ["
 							+ response.statusCode() + "]");
