@@ -63,7 +63,7 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 
 	private Config config;
 
-	public MeterSocomecSinglephaseImpl() {
+	public MeterSocomecSinglephaseImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
@@ -192,6 +192,11 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 
 	@Override
 	protected void identifiedDirisB30() throws OpenemsException {
+		this.thisIsNotASinglePhaseMeter();
+	}
+
+	@Override
+	protected void identifiedCountisE47_E48() throws OpenemsException {
 		this.thisIsNotASinglePhaseMeter();
 	}
 

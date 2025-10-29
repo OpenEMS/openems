@@ -58,7 +58,7 @@ public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements 
 
 	private Config config;
 
-	public MeterSocomecThreephaseImpl() {
+	public MeterSocomecThreephaseImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
@@ -345,6 +345,60 @@ public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements 
 	@Override
 	protected void identifiedCountisE14() throws OpenemsException {
 		this.thisIsNotAThreePhaseMeter();
+	}
+
+	@Override
+	protected void identifiedCountisE47_E48() throws OpenemsException {
+		// COUNTIS E47/E48 - Modbus TCP with CT (1/5A)
+		// Official register map:
+		// COUNTIS-E48-ETHERNET_COMMUNICATION-TABLE_2019-07_CMT_201-146_EN
+		this.modbusProtocol.addTask(//
+				new FC3ReadRegistersTask(0xc558, Priority.HIGH, //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0xc558), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0xc55A), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E), SCALE_FACTOR_1),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), // mA → mA: ×1
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), // mA → mA: ×1
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), // mA → mA: ×1
+						new DummyRegisterElement(0xc566, 0xc567), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // W 10
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(0xc56A),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // var 10
+						new DummyRegisterElement(0xc56C, 0xc56F), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(0xc570),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // W 10
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(0xc572),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // W 10
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(0xc574),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // W 10
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(0xc576),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // var 10
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(0xc578),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), // var 10
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(0xc57A),
+								SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())))); // var 10
+
+		// Energy registers - bidirectional measurement at 0xC700 (Energies in Unit/100)
+		// Energy values in Wh 10 (multiply by 10 to get Wh)
+		if (this.config.invert()) {
+			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+							SCALE_FACTOR_1), // Wh 10
+					new DummyRegisterElement(0xC704, 0xC707), //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+							SCALE_FACTOR_1) // Wh 10
+			));
+		} else {
+			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(0xC702),
+							SCALE_FACTOR_1), // Wh 10
+					new DummyRegisterElement(0xC704, 0xC707), //
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC708),
+							SCALE_FACTOR_1) // Wh 10
+			));
+		}
 	}
 
 	private void thisIsNotAThreePhaseMeter() {
