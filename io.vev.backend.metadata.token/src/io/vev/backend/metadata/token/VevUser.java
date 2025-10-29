@@ -72,7 +72,7 @@ final class VevUser extends User {
 
 	public VevUser(String tenantId, Document doc, List<Document> edgesDoc, Optional<String> tokenStr) {
         super(
-          tenantId + "." + doc.getObjectId("_id").toHexString(),
+          tenantId + ":" + doc.getObjectId("_id").toHexString(),
           doc.getString("firstName") + " " + doc.getString("lastName"),
             tokenStr.orElse(""),
             parseVevLanguage(doc.getString("language")),
@@ -80,7 +80,6 @@ final class VevUser extends User {
             edgesDoc.size() > 1,
             new JsonObject()
         );
-        System.out.println("Super OK");
         this.tenantId = tenantId;
         this.doc = doc;
         this.edgeIds = edgesDoc.stream()

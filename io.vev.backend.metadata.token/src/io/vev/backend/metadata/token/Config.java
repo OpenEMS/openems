@@ -20,6 +20,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "MongoDB database", description = "Database name containing metadata collections")
 	String mongoDatabase() default "evse-db";
 
+    @AttributeDefinition(name = "vev-iq url", description = "Base URL of the vev-iq instance to connect to")
+    String vevIqUrl() default "https://qa-vev-iq.com";
+
 
 	String webconsole_configurationFactory_nameHint() default "Metadata Token";
 

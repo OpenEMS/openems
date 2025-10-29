@@ -2,6 +2,13 @@ package io.vev.backend.metadata.token;
 
 import static java.util.stream.Collectors.joining;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import io.openems.common.types.Tuple;
 import org.osgi.service.component.annotations.Activate;
@@ -29,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
@@ -72,6 +79,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 public class MetadataToken extends AbstractMetadata implements Metadata, EventHandler {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final String VEVIQ_LOGIN_PATH = "/v1/auth/signin";
 
 	private final Logger log = LoggerFactory.getLogger(MetadataToken.class);
 
@@ -83,6 +91,10 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 	private final JWTVerifier jwtVerifier;
 	private MongoRepository mongoRepository;
+	private final EdgeCache edgeCache;
+	private final Config config;
+	private final HttpClient httpClient;
+	private final URI vevIqLoginUri;
 
 	private JsonObject settings = new JsonObject();
 
@@ -90,9 +102,15 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 	public MetadataToken(@Reference EventAdmin eventadmin, Config config) {
 		super("Metadata.Token");
 		this.eventAdmin = eventadmin;
+		this.config = config;
 		var algorithm = Algorithm.HMAC256(MetadataToken.JWT_SECRET);
 		this.jwtVerifier = JWT.require(algorithm).build();
 		this.logInfo(this.log, "Activate");
+		this.edgeCache = new EdgeCache(this);
+		this.vevIqLoginUri = MetadataToken.buildVevIqLoginUri(config.vevIqUrl());
+		this.httpClient = HttpClient.newBuilder() //
+				.connectTimeout(Duration.ofSeconds(5)) //
+				.build();
 
 		this.initializeMongoRepository(config);
 
@@ -119,8 +137,71 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public User authenticate(String username, String password) throws OpenemsNamedException {
-		// Use password as token
-        return this.authenticate(password);
+		final var split = MetadataToken.parseId(username);
+		final var tenantId = split.a();
+		final var email = split.b();
+		if (tenantId.isBlank() || email.isBlank() || password == null || password.isBlank()) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		if (this.mongoRepository == null) {
+			throw OpenemsError.COMMON_SERVICE_NOT_AVAILABLE.exception();
+		}
+
+		var payload = new JsonObject();
+		payload.addProperty("email", email);
+		payload.addProperty("password", password);
+		payload.addProperty("acceptEula", true);
+		payload.addProperty("tenant", tenantId);
+
+		var request = HttpRequest.newBuilder() //
+				.uri(this.vevIqLoginUri) //
+				.header("Content-Type", "application/json") //
+				.header("Accept", "application/json") //
+				.timeout(Duration.ofSeconds(10)) //
+				.POST(HttpRequest.BodyPublishers.ofString(payload.toString(), StandardCharsets.UTF_8)) //
+				.build();
+
+		final HttpResponse<String> response;
+		try {
+			response = this.httpClient.send(request,
+					HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			this.logWarn(this.log, "Authentication interrupted for email [" + email + "]: " + e.getMessage());
+			throw OpenemsError.COMMON_SERVICE_NOT_AVAILABLE.exception();
+		} catch (IOException e) {
+			this.logWarn(this.log, "Unable to reach vev-iq for email [" + email + "]: " + e.getMessage());
+			throw OpenemsError.COMMON_SERVICE_NOT_AVAILABLE.exception();
+		}
+
+		if (response.statusCode() / 100 != 2) {
+			this.logWarn(this.log,
+					"vev-iq authentication failed for email [" + email + "] with HTTP status ["
+							+ response.statusCode() + "]");
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+
+		var body = response.body();
+		if (body == null || body.isBlank()) {
+			this.logWarn(this.log, "vev-iq authentication returned empty body for email [" + email + "]");
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+
+		final JsonObject jsonResponse;
+		try {
+			jsonResponse = JsonParser.parseString(body).getAsJsonObject();
+		} catch (RuntimeException e) {
+			this.logWarn(this.log, "Failed to parse vev-iq response for email [" + email + "]: " + e.getMessage());
+			throw OpenemsError.COMMON_SERVICE_NOT_AVAILABLE.exception();
+		}
+
+		var token = Optional.ofNullable(jsonResponse.get("token").getAsString());
+		if (token.isEmpty() || token.get().isBlank()) {
+			this.logWarn(this.log, "vev-iq authentication did not return a token for email [" + email + "]");
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+
+		return this.authenticate(token.get());
 	}
 
 	@Override
@@ -150,6 +231,7 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
         var mongoUser = mongo.getUser(userId);
         log.info("Fetching edges for tenant {}", tenantId);
         var edges = mongo.getEdgeList();
+        this.edgeCache.syncEdgesForTenant(tenantId, edges);
         log.info("Found {} edges for tenant {}", edges.size(), tenantId);
         if (mongoUser.isEmpty()) {
             this.log.warn("User not found in tenant {}", tenantId);
@@ -206,44 +288,56 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
+        if (this.mongoRepository == null) {
+            return Optional.empty();
+        }
         var mongo = this.mongoRepository.forDefaultTenant();
         var mongoEdgeOpt = mongo.getEdgeByApiKey(apikey);
         if (mongoEdgeOpt.isEmpty()) {
+            this.edgeCache.removeApikey(apikey);
             return Optional.empty();
         }
-        var edge = new VevEdge(this, mongoEdgeOpt.get());
+        var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
         return Optional.of(edge.getId());
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+        if (this.mongoRepository == null) {
+            return Optional.empty();
+        }
         var mongo = this.mongoRepository.forDefaultTenant();
         var mongoEdgeOpt = mongo.getEdgeBySetupPassword(setupPassword);
         if (mongoEdgeOpt.isEmpty()) {
+            this.edgeCache.removeSetupPassword(setupPassword);
             return Optional.empty();
         }
-        var edge = new VevEdge(this, mongoEdgeOpt.get());
+        var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
         return Optional.of(edge);
 	}
 
-    private static Tuple<String, String> parseId(String fullId) throws IllegalArgumentException {
-        var parts = fullId.split("\\.");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid full ID: " + fullId);
-        }
-        return new Tuple<String, String>(parts[0], parts[1]);
-    }
+	private static Tuple<String, String> parseId(String fullId) throws IllegalArgumentException {
+		var parts = fullId.split(":");
+		if (parts.length != 2) {
+			throw new IllegalArgumentException("Invalid full ID: " + fullId);
+		}
+		return new Tuple<>(parts[0], parts[1]);
+	}
 
 	@Override
 	public Optional<Edge> getEdge(String fullEdgeId) {
+        if (this.mongoRepository == null) {
+            return this.edgeCache.getCachedEdge(fullEdgeId).map(edge -> edge);
+        }
         var parsed = MetadataToken.parseId(fullEdgeId);
         var mongo = this.mongoRepository.forTenant(parsed.a());
         var edgeDocOpt = mongo.getEdgeById(parsed.b());
         if (edgeDocOpt.isEmpty()) {
+            this.edgeCache.removeEdge(fullEdgeId);
             return Optional.empty();
         }
         var edgeDoc = edgeDocOpt.get();
-        return Optional.of(new VevEdge(this, edgeDoc));
+        return Optional.of(this.edgeCache.upsert(edgeDoc));
 	}
 
 	@Override
@@ -254,7 +348,7 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return List.of();
+		return this.edgeCache.getOfflineEdges();
 	}
 
 	@Override
@@ -385,7 +479,8 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
             throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
         }
         final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
-		return MetadataUtils.getPageDevice(user, mongo.getEdgeList().stream().map(e -> new VevEdge(this, e)).collect(Collectors.toList()), paginationOptions);
+        var edges = this.edgeCache.syncEdgesForTenant(vevUser.getTenantId(), mongo.getEdgeList());
+		return MetadataUtils.getPageDevice(user, edges, paginationOptions);
 	}
 
 	@Override
@@ -394,11 +489,16 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
             throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
         }
         final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
-        var edgeDocOpt = mongo.getEdgeById(edgeId);
+        final var parsedEdgeId = MetadataToken.parseId(edgeId);
+        if (!vevUser.getTenantId().equals(parsedEdgeId.a())) {
+            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+        }
+        var edgeDocOpt = mongo.getEdgeById(parsedEdgeId.b());
         if (edgeDocOpt.isEmpty()) {
+            this.edgeCache.removeEdge(parsedEdgeId.a() + ":" + parsedEdgeId.b());
             return null;
         }
-        var edge = new VevEdge(this, edgeDocOpt.get());
+        var edge = this.edgeCache.upsert(edgeDocOpt.get());
 		user.setRole(edgeId, Role.ADMIN);
 
 		return new EdgeMetadata(//
@@ -435,7 +535,15 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
-        throw new UnsupportedOperationException("TokenMetadata.generateUpdateMetadataCacheNotification() is not implemented");
+        return this.edgeCache.generateUpdateMetadataCacheNotification();
+	}
+
+	private static URI buildVevIqLoginUri(String baseUrl) {
+		if (baseUrl == null || baseUrl.isBlank()) {
+			throw new IllegalArgumentException("vevIqUrl must not be blank");
+		}
+		var normalized = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+		return URI.create(normalized + VEVIQ_LOGIN_PATH);
 	}
 
 }
