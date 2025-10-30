@@ -6,5 +6,5 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
     templateUrl: "./flat.html",
 })
 export class FlatComponent extends AbstractFlatWidget {
-    protected FORMAT_SECONDS_TO_DURATION = this.Converter.FORMAT_SECONDS_TO_DURATION(this.translate.currentLang);
+    protected FORMAT_SECONDS_TO_DURATION = this.Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
 }

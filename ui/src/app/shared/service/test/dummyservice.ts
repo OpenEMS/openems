@@ -58,9 +58,6 @@ export class DummyService extends AbstractService {
     toast(message: string, level: "success" | "warning" | "danger") {
         throw new Error("Method not implemented.");
     }
-    isPartnerAllowed(edge: Edge): boolean {
-        throw new Error("Method not implemented.");
-    }
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler
 
     override handleError(error: any): void {

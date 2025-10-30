@@ -14,8 +14,6 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableSortedMap;
-
 import io.openems.common.OpenemsConstants;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
@@ -25,8 +23,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.predictor.api.prediction.SourceChannel;
 import io.openems.edge.timedata.test.DummyTimedata;
-import io.openems.edge.weather.api.WeatherData;
-import io.openems.edge.weather.api.WeatherSnapshot;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 import io.openems.edge.weather.test.DummyWeather;
 
 /**
@@ -116,12 +113,13 @@ public class PredictorLinearModelStandaloneTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("weather", new DummyWeather("weather0") //
-						.withWeatherForecast(readWeatherData("X_test.csv"))) //
+						.withQuarterlyWeatherForecast(readWeatherData("X_test.csv"))) //
 				.addReference("localConfig",
 						new DummyLocalConfig(Paths.get(OpenemsConstants.getOpenemsDataDir(), "models"))) //
 				.activate(MyConfig.create() //
 						.setId("predictor0") //
 						.setLogVerbosity(LogVerbosity.NONE) //
+						.setSourceChannel(SourceChannel.UNMANAGED_PRODUCTION_ACTIVE_POWER)//
 						.build());
 
 		var prediction = sut.getPrediction(CHANNEL);
@@ -141,9 +139,9 @@ public class PredictorLinearModelStandaloneTest {
 		System.out.println("MAE: " + mae);
 	}
 
-	private static WeatherData readWeatherData(String filename) throws IOException {
+	private static List<QuarterlyWeatherSnapshot> readWeatherData(String filename) throws IOException {
 		var csvFile = DATA_FOLDER + filename;
-		var mapBuilder = ImmutableSortedMap.<ZonedDateTime, WeatherSnapshot>naturalOrder();
+		var result = new ArrayList<QuarterlyWeatherSnapshot>();
 
 		try (var br = new BufferedReader(new FileReader(csvFile))) {
 			// Skip header
@@ -154,16 +152,18 @@ public class PredictorLinearModelStandaloneTest {
 				String[] values = line.split(",");
 
 				var time = ZonedDateTime.parse(values[0], DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX"));
-				double temperature = Double.parseDouble(values[1]);
 				double directNormalIrradiance = Double.parseDouble(values[5]);
 				double shortwaveRadiation = Double.parseDouble(values[6]);
 
-				var weatherSnapshot = new WeatherSnapshot(shortwaveRadiation, directNormalIrradiance, temperature, -1);
-				mapBuilder.put(time, weatherSnapshot);
+				var weatherSnapshot = new QuarterlyWeatherSnapshot(//
+						time, //
+						shortwaveRadiation, //
+						directNormalIrradiance);
+				result.add(weatherSnapshot);
 			}
 		}
 
-		return WeatherData.from(mapBuilder.build());
+		return result;
 	}
 
 	private static List<Object[]> readProduction(String filename) throws IOException {

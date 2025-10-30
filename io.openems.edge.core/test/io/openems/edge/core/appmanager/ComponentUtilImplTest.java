@@ -9,9 +9,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayContactInfo;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayInfo;

@@ -23,13 +23,13 @@ jobs:
       - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Checkstyle
-        run: ./gradlew checkstyleAll --console=plain --warn
+        run: ./gradlew checkstyleAll --console=colored --warn
 
       - name: Build all Java packages
-        run: ./gradlew build --console=plain --warn
+        run: ./gradlew build --console=colored --warn
 
       - name: Resolve OpenEMS bundles
-        run: ./gradlew resolve --console=plain --warn
+        run: ./gradlew resolve --console=colored --warn
 
       - name: Validate BackendApp.bndrun
         run: git diff --exit-code io.openems.backend.application/BackendApp.bndrun
@@ -54,7 +54,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Cache for Node.js
         uses: actions/cache@v4
@@ -70,6 +70,7 @@ jobs:
           cd ui
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng config cli.cache.path "~/.ng"
+          npm run lint:i18n
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
           export CHROME_BIN=/usr/bin/google-chrome-stable

@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { OverrideStatus } from "src/app/shared/type/general";
 import { ModalComponent } from "../modal/modal";
@@ -12,20 +13,19 @@ import { ModalComponent } from "../modal/modal";
 export class FlatComponent extends AbstractFlatWidget {
 
   protected overrideStatus: OverrideStatus | null = null;
+  protected modalComponent: Modal | null = null;
 
-  async presentModal() {
-    if (!this.isInitialized) {
-      return;
-    }
-    const modal = await this.modalController.create({
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+  protected getModalComponent(): Modal {
+    return {
       component: ModalComponent,
       componentProps: {
         component: this.component,
       },
-    });
-    return await modal.present();
-  }
-
+    };
+  };
 
   protected override getChannelAddresses(): ChannelAddress[] {
 

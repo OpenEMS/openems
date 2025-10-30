@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
+
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -22,13 +22,12 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
   imports: [
     BaseChartDirective,
     ReactiveFormsModule,
-    CommonModule,
     IonicModule,
     TranslateModule,
     ChartComponentsModule,
     HistoryDataErrorModule,
     NgxSpinnerModule,
-  ],
+],
 })
 export class ChartComponent extends AbstractHistoryChart {
 
@@ -78,31 +77,31 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => data["ActivePower" + phase],
           }))),
           {
-            name: translate.instant("Edge.Index.Widgets.Peakshaving.rechargePower"),
+            name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER"),
             color: ChartConstants.Colors.GREEN,
             converter: () => data["CHARGE_UNDER"],
             hideShadow: true,
             borderDash: [3, 3],
           },
           {
-            name: translate.instant("Edge.Index.Widgets.Peakshaving.peakshavingPower"),
+            name: translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER"),
             color: ChartConstants.Colors.RED,
             converter: () => data["DISCHARGE_OVER"],
             hideShadow: true,
             borderDash: [3, 3],
           },
           {
-            name: translate.instant("General.CHARGE"),
+            name: translate.instant("GENERAL.CHARGE"),
             color: ChartConstants.Colors.GREEN,
             converter: () => data["Charge"],
           },
           {
-            name: translate.instant("General.DISCHARGE"),
+            name: translate.instant("GENERAL.DISCHARGE"),
             color: ChartConstants.Colors.RED,
             converter: () => data["Discharge"],
           },
           {
-            name: translate.instant("General.soc"),
+            name: translate.instant("GENERAL.SOC"),
             color: ChartConstants.Colors.GREY,
             converter: () => data["EssSoc"]?.map(value => Utils.multiplySafely(value, 1000)),
             yAxisId: ChartAxis.RIGHT,

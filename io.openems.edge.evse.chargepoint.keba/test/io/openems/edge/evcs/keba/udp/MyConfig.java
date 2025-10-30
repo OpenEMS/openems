@@ -1,8 +1,8 @@
 package io.openems.edge.evcs.keba.udp;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

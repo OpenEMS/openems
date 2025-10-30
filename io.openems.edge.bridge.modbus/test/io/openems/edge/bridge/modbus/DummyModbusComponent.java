@@ -3,6 +3,8 @@ package io.openems.edge.bridge.modbus;
 import org.osgi.framework.Constants;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.DummyConfigurationAdmin.DummyConfiguration;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -12,8 +14,6 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.DummyComponentContext;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.DummyConfigurationAdmin.DummyConfiguration;
 
 public class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
 

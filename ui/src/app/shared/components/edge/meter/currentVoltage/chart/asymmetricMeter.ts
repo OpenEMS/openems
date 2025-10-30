@@ -29,7 +29,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
       ],
       output: (data: HistoryUtils.ChannelData) => [
         ...Phase.THREE_PHASE.map((phase, index) => ({
-          name: this.translate.instant("Edge.History.CURRENT") + " " + phase,
+          name: this.translate.instant("EDGE.HISTORY.CURRENT") + " " + phase,
           converter: () => {
             return data["Current" + phase];
           },
@@ -38,7 +38,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
           yAxisId: ChartAxis.LEFT,
         })),
         ...Phase.THREE_PHASE.map((phase, index) => ({
-          name: this.translate.instant("Edge.History.VOLTAGE") + " " + phase,
+          name: this.translate.instant("EDGE.HISTORY.VOLTAGE") + " " + phase,
           converter: () => {
             return data["Voltage" + phase];
           },
@@ -49,7 +49,7 @@ export class CurrentVoltageAsymmetricChartComponent extends AbstractHistoryChart
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: this.translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.VOLTAGE,

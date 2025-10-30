@@ -47,7 +47,9 @@ public class AppGenericVehicle extends
 	public enum Property implements Type<Property, AppGenericVehicle, Parameter.BundleParameter> {
 		VEHICLE_ID(AppDef.componentId("evseElectricVehicle0")), //
 		ALIAS(AppDef.copyOfGeneric(alias())), //
+		MIN_POWER_SINGLE_PHASE(VehicleProps.minPowerSinglePhase()), //
 		MAX_POWER_SINGLE_PHASE(VehicleProps.maxPowerSinglePhase()), //
+		MIN_POWER_THREE_PHASE(VehicleProps.minPowerThreePhase()), //
 		MAX_POWER_THREE_PHASE(VehicleProps.maxPowerThreePhase()), //
 		CAN_INTERRUPT(VehicleProps.canInterupt());
 
@@ -89,7 +91,10 @@ public class AppGenericVehicle extends
 
 			final var id = this.getId(t, p, Property.VEHICLE_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
+
+			final var minPowerSinglePhase = this.getInt(p, Property.MIN_POWER_SINGLE_PHASE);
 			final var maxPowerSinglePhase = this.getInt(p, Property.MAX_POWER_SINGLE_PHASE);
+			final var minPowerThreePhase = this.getInt(p, Property.MIN_POWER_THREE_PHASE);
 			final var maxPowerThreePhase = this.getInt(p, Property.MAX_POWER_THREE_PHASE);
 			final var canInterrupt = this.getBoolean(p, Property.CAN_INTERRUPT);
 
@@ -97,7 +102,9 @@ public class AppGenericVehicle extends
 
 			components.add(new EdgeConfig.Component(id, alias, "Evse.ElectricVehicle.Generic",
 					JsonUtils.buildJsonObject()//
+							.addProperty("minPowerSinglePhase", minPowerSinglePhase)//
 							.addProperty("maxPowerSinglePhase", maxPowerSinglePhase)//
+							.addProperty("minPowerThreePhase", minPowerThreePhase)//
 							.addProperty("maxPowerThreePhase", maxPowerThreePhase)//
 							.addProperty("canInterrupt", canInterrupt)//
 							.build()));

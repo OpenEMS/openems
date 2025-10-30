@@ -55,13 +55,13 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.1.0</version>
+			<version>5.2.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.16.0</version>
+			<version>3.16.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -170,7 +170,7 @@
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
-			<version>3.1.11</version>
+			<version>3.1.12</version>
 		</dependency>
 		<dependency>
 			<!-- Jenetics - Java Genetic Algorithm Library -->
@@ -190,7 +190,7 @@
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.18.0</version>
+			<version>5.18.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -231,7 +231,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -349,6 +349,11 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.21.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter-api</artifactId>
+		    <version>5.13.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -469,6 +474,24 @@
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>4.32.1</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mockito</groupId>
+		  <artifactId>mockito-core</artifactId>
+		  <version>5.20.0</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>net.bytebuddy</groupId>
+		  <artifactId>byte-buddy</artifactId>
+		  <version>1.17.8</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.objenesis</groupId>
+		  <artifactId>objenesis</artifactId>
+		  <version>3.4</version>
+		  <scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
