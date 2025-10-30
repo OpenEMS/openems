@@ -227,19 +227,19 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			}
 
 			if (phases > 0 && this.getVoltageL1() != null && this.getCurrentL1() != null) {
-				this._setActivePowerL1((this.getVoltageL1().get() * this.getCurrentL1().get() / 1000000));
+				this._setActivePowerL1((int)((long)this.getVoltageL1().get() * this.getCurrentL1().get() / 1000000));
 			} else {
 				this._setActivePowerL1(null);
 			}
 
 			if (phases > 1 && this.getVoltageL2() != null && this.getCurrentL2() != null) {
-				this._setActivePowerL2((this.getVoltageL2().get() * this.getCurrentL2().get() / 1000000));
+				this._setActivePowerL2((int)((long)this.getVoltageL2().get() * this.getCurrentL2().get() / 1000000));
 			} else {
 				this._setActivePowerL2(null);
 			}
 
 			if (phases > 2 && this.getVoltageL3() != null && this.getCurrentL3() != null) {
-				this._setActivePowerL3((this.getVoltageL3().get() * this.getCurrentL3().get() / 1000000));
+				this._setActivePowerL3((int)((long)this.getVoltageL3().get() * this.getCurrentL3().get() / 1000000));
 			} else {
 				this._setActivePowerL3(null);
 			}
