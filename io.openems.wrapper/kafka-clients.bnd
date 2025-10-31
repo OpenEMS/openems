@@ -1,0 +1,19 @@
+Bundle-Name: kafka-clients
+Bundle-Description: Apache Kafka client library wrapped for OSGi usage
+Bundle-DocURL: https://kafka.apache.org/
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0
+Bundle-Version: 3.8.0
+
+Include-Resource: \
+	@../cnf/release/kafka-clients-3.8.0.jar,\
+
+Export-Package: \
+	org.apache.kafka.*;version=3.8.0
+
+Import-Package: \
+	javax.net.ssl;resolution:=optional,\
+	javax.security.auth.x500;resolution:=optional,\
+	org.slf4j;resolution:=optional,\
+	*
+
+-sources: false

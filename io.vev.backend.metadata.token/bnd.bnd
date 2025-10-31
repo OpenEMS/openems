@@ -3,6 +3,10 @@ Bundle-Vendor: Vev
 Bundle-License: private
 Bundle-Version: 1.0.0.${tstamp}
 
+Export-Package: \
+	io.vev.backend.metadata.token;\
+		version=1.0.0
+
 -buildpath: \
 	${buildpath},\
 	io.openems.wrapper.java-jwt,\

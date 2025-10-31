@@ -1,0 +1,30 @@
+Bundle-Name: VEV Backend Edge2Kafka Bridge
+Bundle-Vendor: VEV
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.common,\
+	io.openems.common,\
+	io.vev.backend.metadata.token,\
+	org.apache.kafka.kafka-clients;version='3.8.0',\
+	org.lz4.lz4-java;version='1.8.0',\
+	org.xerial.snappy.snappy-java;version='1.1.10.5',\
+	com.github.luben.zstd-jni;version='1.5.6.3',\
+	org.slf4j.slf4j-api;version='2.0.13',\
+
+Bundle-ClassPath: .,lib/zstd-jni.jar
+
+-includeresource: \
+	lib/zstd-jni.jar=@../cnf/release/zstd-jni-1.5.6-3.jar
+
+Export-Package: \
+	com.github.luben.zstd;version=1.5.6.3
+
+Private-Package: \
+	io.vev.backend.edge2kafka,\
+	io.vev.backend.edge2kafka.*
+
+-testpath: \
+	${testpath}

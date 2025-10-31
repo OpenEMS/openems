@@ -60,6 +60,7 @@
 	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
 	bnd.identity;id='io.vev.backend.metadata.token',\
+	bnd.identity;id='io.vev.backend.edge2kafka',\
 	bnd.identity;id='org.mongodb.driver-sync',\
 	bnd.identity;id='org.mongodb.driver-core',\
 	bnd.identity;id='org.mongodb.bson',\
@@ -91,6 +92,7 @@
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
+	io.vev.backend.edge2kafka;version=snapshot,\
 	io.vev.backend.metadata.token;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
@@ -156,4 +158,5 @@
 	io.openems.backend.timedata.influx;version=snapshot,\
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.14.2,2.14.3)',\
 	com.fasterxml.jackson.core.jackson-core;version='[2.14.2,2.14.3)',\
-	com.fasterxml.jackson.core.jackson-databind;version='[2.14.2,2.14.3)'
+	com.fasterxml.jackson.core.jackson-databind;version='[2.14.2,2.14.3)',\
+	org.apache.kafka.kafka-clients;version='[3.8.0,3.8.1)'
