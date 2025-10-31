@@ -63,7 +63,7 @@ import io.openems.edge.victron.enums.DeviceType;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
-		implements VictronBatteryInverter, OffGridBatteryInverter, ManagedSymmetricBatteryInverter,
+		implements VictronBatteryInverter, OffGridBatteryInverter, ManagedSymmetricBatteryInverter, 
 		SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
@@ -121,17 +121,20 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 		// update filter for 'Ess'
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id()) || OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
+				"Modbus", config.modbus_id()) ) {
 			return;
 		}
-		this.config = config;
+		
+		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id());		
+
+		this._setMaxApparentPower(this.config.DeviceType().getApparentPowerLimit());
+		this._setGridMode(GridMode.ON_GRID);		
+		
 		if (this.ess != null) {
 			this.ess.setBatteryInverter(this);
 			// return;
 		}
-		this._setMaxApparentPower(this.config.DeviceType().getApparentPowerLimit());
 
-		this._setGridMode(GridMode.ON_GRID);
 
 	}
 
@@ -309,6 +312,8 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	// }
 	// }
 	// }
+	
+
 
 	/**
 	 * Sets some default settings on the inverter, like Timeout.

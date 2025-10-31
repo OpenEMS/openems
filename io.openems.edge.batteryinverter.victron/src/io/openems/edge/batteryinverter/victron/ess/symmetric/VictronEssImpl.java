@@ -38,21 +38,27 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.common.type.Phase;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 import io.openems.edge.victron.enums.AllowDisallow;
 import io.openems.edge.victron.enums.EnableDisable;
-import io.openems.edge.victron.enums.SymmetricAsymmetricMode;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -64,9 +70,9 @@ import io.openems.edge.victron.enums.SymmetricAsymmetricMode;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
-public class VictronEssImpl extends AbstractOpenemsModbusComponent implements VictronEss, ManagedSinglePhaseEss,
-		SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, ModbusComponent,
-		ModbusSlave, EventHandler, OpenemsComponent, TimedataProvider {
+public class VictronEssImpl extends AbstractOpenemsModbusComponent
+		implements VictronEss, ManagedSinglePhaseEss, SinglePhaseEss, ManagedSymmetricEss, SymmetricEss, AsymmetricEss, ManagedAsymmetricEss,
+		ModbusComponent, ModbusSlave, EventHandler, OpenemsComponent, TimedataProvider {
 
 	@Reference
 	private Power power;
@@ -104,8 +110,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	private Config config;
 	public SinglePhase singlePhase = null;
 
-	private boolean writeThreePhases; // true = L1+L2+L3 schreiben; false = nur L1	
-	
+	private boolean operationalValuesOk = false;
+
 	private Integer MaxChargePower = null;
 	private Integer MaxDischargePower = null;
 
@@ -130,14 +136,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-
-				AsymmetricEss.ChannelId.values(), //
-				ManagedAsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //
 				ManagedSinglePhaseEss.ChannelId.values(), //
-
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
+				ManagedAsymmetricEss.ChannelId.values(), //
 				VictronBatteryInverter.ChannelId.values(), //
 				VictronBattery.ChannelId.values(), //
 				VictronEss.ChannelId.values());
@@ -147,25 +151,16 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 
 		this.config = config;
-		
-	    boolean isSymmetric = config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.SYMMETRIC;
-	    boolean isAllPhase  = config.phase() == SingleOrAllPhase.ALL;		
-	    
-	    this.writeThreePhases = isAllPhase;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		
+
 		this._setMaxApparentPower(5000);
 		this._setCapacity(12_000);
 
-		// Evaluate 'SinglePhase'
 		switch (config.phase()) {
-		case ALL:
-			this.singlePhase = null;
-			break;
 		case L1:
 			this.singlePhase = SinglePhase.L1;
 			break;
@@ -175,22 +170,14 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		case L3:
 			this.singlePhase = SinglePhase.L3;
 			break;
+		default:
+			this.singlePhase = null;
 		}
 
+		if (this.singlePhase != null) {
+			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
+		}
 
-	    // Initialisierung nach Modus
-	    if (isSymmetric) {
-	        if (!isAllPhase) {
-	            // "symmetrisch 1p" (Pseudo-3p für höhere Ebenen), aber keine HW-Writes auf L2/L3
-	            SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
-	        }
-	        // symmetrisch 3p: keine Asym-spezifischen Summenkanäle nötig
-	    } else {
-	        // asymmetrisch (1p oder 3p): Summenkanäle, aber KEINE Copy-Phase
-	        AsymmetricEss.initializePowerSumChannels(this);
-	    }
-
-		
 		this._setGridMode(GridMode.ON_GRID);
 
 		if (this.batteryInverter == null) {
@@ -218,60 +205,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		return 100;
 	}
 
-	private void pushAsymmetricLimitsToPower() throws OpenemsNamedException {
-		if (this.batteryInverter == null)
-			return;
-		if (!this.batteryInverter.calculateHardwareLimits())
-			return;
-
-		Integer maxChargePower = this.batteryInverter.getMaxChargePower(); // positive
-		Integer maxDischargePower = this.batteryInverter.getMaxDischargePower(); // positive
-		if (maxChargePower == null || maxDischargePower == null)
-			return;
-
-		// check if null -> 3p. Cannot be done in switch-statement
-		if (this.singlePhase == null) { // 3p system
-			this.logDebug(this.log,
-					"\n Asymm. ALL Phase -> allowed Power calculation. Phase: ALL Max. ChargePower/DischargePower: "
-							+ maxChargePower + "/" + maxDischargePower);
-			int perPhaseCharge = Math.max(0, maxChargePower / 3);
-			int perPhaseDischarge = Math.max(0, maxDischargePower / 3);
-
-			this.setSetActivePowerL1GreaterOrEquals(perPhaseCharge * -1);
-			this.setSetActivePowerL1LessOrEquals(perPhaseDischarge);
-
-			this.setSetActivePowerL2GreaterOrEquals(perPhaseCharge * -1);
-			this.setSetActivePowerL2LessOrEquals(perPhaseDischarge);
-
-			this.setSetActivePowerL3GreaterOrEquals(perPhaseCharge * -1);
-			this.setSetActivePowerL3LessOrEquals(perPhaseDischarge);
-		} else {
-
-			this.logDebug(this.log,
-					"\n Asymm. Single Phase -> allowed Power calculation. Phase: " + this.singlePhase.toString()
-							+ "Max. ChargePower/DischargePower: " + maxChargePower + "/" + maxDischargePower);
-			switch (this.singlePhase) { // 1p
-
-			case L1:
-				this.setSetActivePowerL1GreaterOrEquals(maxChargePower * -1);
-				this.setSetActivePowerL1LessOrEquals(maxDischargePower);
-
-				break;
-			case L2:
-				this.setSetActivePowerL2GreaterOrEquals(maxChargePower * -1);
-				this.setSetActivePowerL2LessOrEquals(maxDischargePower);
-				break;
-			case L3:
-				this.setSetActivePowerL3GreaterOrEquals(maxChargePower * -1);
-				this.setSetActivePowerL3LessOrEquals(maxDischargePower);
-				break;
-
-			}
-		}
-
-	}
-
-
 	/**
 	 * Uses Info Log for further debug features.
 	 */
@@ -292,68 +225,106 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 				+ "\n" + "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
+	@Override
+	public boolean isManaged() {
+		return !this.config.readOnlyMode();
+	}
+
+	private void updateOperationalValues() {
+
+		if (this.batteryInverter == null) {
+			this.log.warn("ESS not ready. BatteryInverter not available");
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		if (this.battery == null) {
+			this.log.warn("ESS not ready. Battery not available");
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		if (!Boolean.TRUE.equals(batteryInverter.calculateHardwareLimits())) {
+			this.log.warn("BatteryInverter hardware limits not available");
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		if (this.batteryInverter.getMaxApparentPower().get() == null
+				|| this.batteryInverter.getMaxApparentPower().get() == 0) {
+			this.log.warn("Max apparent power not available");
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		if ((this.getVEBusBMSAllowBatteryCharge() != AllowDisallow.ALLOWED)) {
+			this.log.warn("VEBus -> charging not allowed!");
+			this.operationalValuesOk = false;
+			return;
+
+		}
+
+		if ((this.getVEBusBMSAllowBatteryDischarge() != AllowDisallow.ALLOWED)) {
+			this.log.warn("VEBus -> Discharging not allowed!");
+			this.operationalValuesOk = false;
+			return;
+
+		}
+
+		if ((this.getVEBusBMSAllowBatteryCharge() != AllowDisallow.ALLOWED)
+				|| (this.getVEBusBMSAllowBatteryDischarge() != AllowDisallow.ALLOWED)) {
+			this.logDebug(this.log, "System is not ready. Values will not be applied");
+			return;
+		}
+
+		Integer MaxChargePower = this.batteryInverter.getMaxChargePower(); // [W], positiv
+		Integer MaxDischargePower = this.batteryInverter.getMaxDischargePower(); // [W], positiv
+		if (MaxChargePower == null || MaxDischargePower == null || MaxChargePower <= 0 || MaxDischargePower <= 0) {
+			this.operationalValuesOk = false;
+			return;
+		}
+
+		Integer maxApparentPower = this.batteryInverter.getMaxApparentPower().get();
+		if (maxApparentPower == null || maxApparentPower <= 0) {
+			this.operationalValuesOk = false;
+			return;
+		}
+		this.logDebug(this.log,
+				"Getting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");
+		this._setAllowedChargePower(-MaxChargePower);
+		this._setAllowedDischargePower(MaxDischargePower);
+		/*
+		 * try { this.setSetActivePowerL1GreaterOrEquals(-100);
+		 * this.setSetActivePowerL1LessOrEquals(100); } catch (OpenemsNamedException e)
+		 * { // TODO Auto-generated catch block e.printStackTrace(); }
+		 */
+		//
+		this._setMaxApparentPower(maxApparentPower);
+
+		this.operationalValuesOk = true;
+	}
+
 	// Asymmetric systems
 	@Override
 	public void applyPower(int activePowerTargetL1, int reactivePowerTargetL1, int activePowerTargetL2,
 			int reactivePowerTargetL2, int activePowerTargetL3, int reactivePowerTargetL3)
 			throws OpenemsNamedException {
 
+		if (!this.operationalValuesOk) {
+			this.logWarn(this.log, "ESS is not ready for operation. Canceling ApplyPower(p1,p2,p3,q1,q2,q3");
+			return;
+		}
+
 		this.logDebug(this.log, "Asymm. PowerWanted L1: " + activePowerTargetL1 + "|L2: " + activePowerTargetL2
 				+ "|L3: " + activePowerTargetL3);
 
-		if (this.batteryInverter == null) {
-			this.logDebug(this.log,
-					"Power is not applied as BatteryInverter is not connected. Use Victron BatteryInverter");
-			return;
-		}
-
-		if (this.battery == null) {
-			// battery = this.batteryInverter.getBattery();
-			this.logError(this.log, "ApplyPower->Battery not activated ");
-			return;
-		}
-
-		if (!this.batteryInverter.calculateHardwareLimits()) {
-			return;
-		}
-
-		if (this.batteryInverter.getMaxApparentPower().get() == null
-				|| this.batteryInverter.getMaxApparentPower().get() == 0) {
-			this.logError(this.log, "ApplyPower->Max. Apparent Power invalid");
-			return;
-		}
-
 		this.logDebug(this.log, "Setting max. apparent power to batteryInverter-Channel");
-		this._setMaxApparentPower(this.batteryInverter.getMaxApparentPower().get().intValue());
 
 		// Victron: Negative values for Discharge
 		// OpenEMS: Negative values for Charge
 
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase
-
-		MaxChargePower = this.batteryInverter.getMaxChargePower();
-		MaxDischargePower = this.batteryInverter.getMaxDischargePower();
-
-		this.logDebug(this.log,
-				"Getting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");
-
-		if (MaxChargePower == null || MaxDischargePower == null) {
-			this.logError(this.log, "power Limits not set.");
-			return;
-		}
-
-		if (this.hasFaults() || (this.getVEBusBMSAllowBatteryCharge() != AllowDisallow.ALLOWED)
-				|| (this.getVEBusBMSAllowBatteryDischarge() != AllowDisallow.ALLOWED)) {
-			this.logDebug(this.log, "System is not ready. Values will not be applied");
-			return;
-		}
-
-		this.logDebug(this.log,
-				"Setting max. Charge/Discharge power values: " + MaxChargePower + "/" + MaxDischargePower + "W");
-
-		this._setAllowedChargePower(MaxChargePower * -1); // Internal channels. No effect on asymmetric systems
-		this._setAllowedDischargePower(MaxDischargePower);
 
 		this.logDebug(this.log,
 				"OpenEMS Apply Power L1: " + activePowerTargetL1 + "|L2: " + activePowerTargetL2 + "|L3: "
@@ -435,27 +406,13 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	@Override
 	public void applyPower(int activePowerTarget, int reactivePower) throws OpenemsNamedException {
 
-		if (this.batteryInverter == null) {
-			this.logError(this.log, "ApplyPower->BatteryInverter not activated ");
+		if (!this.operationalValuesOk) {
+			this.logWarn(this.log, "ESS is not ready for operation. Canceling ApplyPower(p1,q1)");
 			return;
 		}
 
-		if (this.battery == null) {
-			// battery = this.batteryInverter.getBattery();
-			this.logError(this.log, "ApplyPower->Battery not activated ");
-			return;
-		}
-
-		if (!this.batteryInverter.calculateHardwareLimits()) {
-			return;
-		}
 		this.logDebug(this.log, "ApplyPower Target: " + activePowerTarget + "W");
 
-		if (this.batteryInverter.getMaxApparentPower().get() == null
-				|| this.batteryInverter.getMaxApparentPower().get() == 0) {
-			this.logError(this.log, "ApplyPower->Max. Apparent Power invalid");
-			return;
-		}
 		this._setMaxApparentPower(this.batteryInverter.getMaxApparentPower().get().intValue());
 
 		MaxChargePower = this.batteryInverter.getMaxChargePower();
@@ -524,12 +481,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this._setAllowedChargePower(MaxChargePower * -1); // Negative for charging
 		this._setAllowedDischargePower(MaxDischargePower);// Positive for discharging
 
-		if (this.hasFaults() || (this.getVEBusBMSAllowBatteryCharge() != AllowDisallow.ALLOWED)
-				|| (this.getVEBusBMSAllowBatteryDischarge() != AllowDisallow.ALLOWED)) {
-			this.logDebug(this.log, "System is not ready. Values will not be applied");
-			return;
-		}
-
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase
 		int powerPerPhase = activePowerTarget;
@@ -552,23 +503,15 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 
 			this.setEssActivePowerL1((short) (powerPerPhase * -1));
 			this.logDebug(this.log, "Applying L1 " + powerPerPhase);
-			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
 
 			this.setEssActivePowerL2((short) (powerPerPhase * -1));
 			this.logDebug(this.log, "Applying L2 " + powerPerPhase);
-			// this._setReactivePowerL2((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
 
 			this.setEssActivePowerL3((short) (powerPerPhase * -1));
 			this.logDebug(this.log, "Applying L3 " + powerPerPhase);
-			// this._setReactivePowerL3((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
 
 		} else { // On a single phase ESS, power is applied to L1
 			this.setEssActivePowerL1((short) (powerPerPhase * -1));
-			// this._setReactivePowerL1((short) (powerPerPhase * -1)); // dummy. We have no
-			// channel for that
 		}
 
 	}
@@ -701,108 +644,28 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						+ acCurrentOutputL1 + "mA/" + acCurrentOutputL2 + "mA/" + acCurrentOutputL3 + "mA"
 
 						+ "\n Applied values for Active Power" + this.getActivePower().asString() + "/"
-								
-						+ this.getApparentPower().asString() 
+
+						+ this.getApparentPower().asString()
 
 		);
-		
-		
 
 	}
 
-	public void _setMyActivePower_deprecated() {
-		// ToDo: make it work for single and 3 phase
-
-		/*
-		 * Totally wrong! AC Power in includes Power to AC-Out 1/2 and self consumption.
-		 * It was a mistake to add these values
-		 * 
-		 * 
-		 */
-
-		// ActivePower is the actual AC output including battery discharging
-		var acPowerInputL1 = this.getActivePowerInputL1().orElse(null); // 12 int 16 signed, SF1 (*10)
-		var acPowerInputL2 = this.getActivePowerInputL2().orElse(null); // 13
-		var acPowerInputL3 = this.getActivePowerInputL3().orElse(null); // 14
-
-		// Cosumption includes self-consumption and is always positive
-		var acPowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0); // 817 uint16
-		var acPowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0); // 818
-		var acPowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0); // 819
-		// var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0);
-		// var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0);
-
-		if (acPowerInputL1 != null && acPowerInputL2 != null && acPowerInputL3 != null && acPowerOutputL1 != null
-				&& acPowerOutputL2 != null && acPowerOutputL3 != null) {
-			this._setActivePowerL1(acPowerInputL1 + acPowerOutputL1); // Asymmetric ESS nature
-			this._setActivePowerL2(acPowerInputL2 + acPowerOutputL2); // Asymmetric ESS nature
-			this._setActivePowerL3(acPowerInputL3 + acPowerOutputL3); // Asymmetric ESS nature
-
-			int acPowerSum = acPowerInputL1 + acPowerInputL2 + acPowerInputL3 + acPowerOutputL1 + acPowerOutputL2
-					+ acPowerOutputL3;
-			this._setActivePower(acPowerSum);
-		} else {
-			this.logDebug(this.log, "Unable to calculate active power as at least one phase is NULL");
-		}
-
-		var acVoltageInputL1 = this.getVoltageInputL1().orElse(null);
-		var acVoltageInputL2 = this.getVoltageInputL2().orElse(null);
-		var acVoltageInputL3 = this.getVoltageInputL3().orElse(null);
-
-		var acCurrentInputL1 = this.getCurrentInputL1().orElse(null);
-		var acCurrentInputL2 = this.getCurrentInputL2().orElse(null);
-		var acCurrentInputL3 = this.getCurrentInputL3().orElse(null);
-
-		var acVoltageOutputL1 = this.getVoltageOutputL1().orElse(null);
-		var acVoltageOutputL2 = this.getVoltageOutputL2().orElse(null);
-		var acVoltageOutputL3 = this.getVoltageOutputL3().orElse(null);
-
-		var acCurrentOutputL1 = this.getCurrentOutputL1().orElse(0);
-		var acCurrentOutputL2 = this.getCurrentOutputL2().orElse(0);
-		var acCurrentOutputL3 = this.getCurrentOutputL3().orElse(0);
-
-		if (acVoltageInputL1 != null && acVoltageInputL2 != null && acVoltageInputL3 != null && acCurrentInputL1 != null
-				&& acCurrentInputL2 != null && acCurrentInputL3 != null) {
-			int apparentePowerSum = (acVoltageInputL1 * acCurrentInputL1) + (acVoltageInputL2 * acCurrentInputL2)
-					+ (acVoltageInputL3 * acCurrentInputL3) + (acVoltageOutputL1 * acCurrentOutputL1)
-					+ (acVoltageOutputL2 * acCurrentOutputL2) + (acVoltageOutputL3 * acCurrentOutputL3);
-
-			this._setApparentPower(apparentePowerSum);
-		}
-
-	}
 
 	@Override
 	public void handleEvent(Event event) {
-	    switch (event.getTopic()) {
-	        case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-	            this._setMyActivePower();
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+			this.updateOperationalValues();
+			this._setMyActivePower();
 
-	            this.logDebug(this.log,"Push constraints TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
-	            if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
-	                try {
-	                    this.pushAsymmetricLimitsToPower();
-	                } catch (OpenemsNamedException e) {
-	                    this.logWarn(this.log, "Push limits failed: " + e.getMessage());
-	                }
-	            }
-	        }
-	        case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
-	            this._setMyActivePower();
-	            this.calculateEnergy();
-
-	            // optional: auch hier Limits schieben, wenn du ganz sicher gehen willst
-	            if (this.config.symmetricAsymmetricMode() == SymmetricAsymmetricMode.ASYMMETRIC) {
-	                try {
-	                    this.pushAsymmetricLimitsToPower();
-	                } catch (OpenemsNamedException e) {
-	                    this.logWarn(this.log, "Push limits failed: " + e.getMessage());
-	                }
-	            }
-	        }
-	    }
+		}
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
+			this._setMyActivePower();
+			this.calculateEnergy();
+		}
+		}
 	}
-
 
 	@Override
 	public SinglePhase getPhase() {
@@ -855,7 +718,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
+	protected ModbusProtocol defineModbusProtocol() { // Unit-ID 227
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3, Priority.HIGH, //
 
@@ -1035,17 +898,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 						this.m(VictronEss.ChannelId.SELECT_REMOTE_GENERATOR, new UnsignedWordElement(103)),
 						this.m(VictronEss.ChannelId.REMOTE_GENERATOR_SELECTED, new UnsignedWordElement(104))),
 
-				(this.writeThreePhases) // Do not write L2/L3 values in 1p
-			      ? new FC16WriteRegistersTask(37,
-			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-			              this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-			              this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
-			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
-			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
-			          : new FC16WriteRegistersTask(37,
-			              this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
-			              this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
-			              this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)))
+				(config.phase() == Phase.SingleOrAllPhase.ALL) // Do not write L2/L3 values in 1p
+						? new FC16WriteRegistersTask(37,
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)),
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L2, new SignedWordElement(40)),
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L3, new SignedWordElement(41)))
+						: new FC16WriteRegistersTask(37,
+								this.m(VictronEss.ChannelId.SET_ACTIVE_POWER_L1, new SignedWordElement(37)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, new SignedWordElement(38)),
+								this.m(VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, new SignedWordElement(39)))
 
 		);
 	}
@@ -1092,8 +955,15 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent implements Vi
 		this.battery = null;
 
 	}
-	
 
+	@Override
+	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
+		if (this.config.readOnlyMode() || !this.operationalValuesOk) {
+			return new Constraint[] { this.createPowerConstraint("Read-Only-Mode", ALL, ACTIVE, EQUALS, 0),
+					this.createPowerConstraint("Read-Only-Mode", ALL, REACTIVE, EQUALS, 0) };
+		}
+		return new Constraint[] { createPowerConstraint("NoQ", ALL, REACTIVE, EQUALS, 0) };
 
+	}
 
 }
