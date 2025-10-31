@@ -72,7 +72,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
                 if (consumptionMeter && consumptionMeter.isEnabled){
                     output.push({
-                    name: translate.instant("General.consumption"),
+                    name: translate.instant("GENERAL.CONSUMPTION"),
                     nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
                         energyValues?.result.data[consumptionMeter.id + "/ActiveProductionEnergy"],
                     converter: () =>

@@ -10,7 +10,7 @@ import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
 public class ReadWorkerTest {
 
-	private LocalDateTime now = LocalDateTime.now();
+	private static final LocalDateTime reference = LocalDateTime.of(2025, 8, 14, 15, 30, 0);
 
 	@Test
 	public void testAllReportsDue() {
@@ -18,37 +18,37 @@ public class ReadWorkerTest {
 		LocalDateTime lastReport2 = LocalDateTime.MIN;
 		LocalDateTime lastReport3 = LocalDateTime.MIN;
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(0, result);
 	}
 
 	@Test
 	public void testNoReportsDue() {
-		LocalDateTime lastReport1 = this.now.minusSeconds(5);
-		LocalDateTime lastReport2 = this.now.minusSeconds(5);
-		LocalDateTime lastReport3 = this.now.minusSeconds(5);
+		LocalDateTime lastReport1 = reference.minusSeconds(5);
+		LocalDateTime lastReport2 = reference.minusSeconds(5);
+		LocalDateTime lastReport3 = reference.minusSeconds(5);
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(5000, result);
 	}
 
 	@Test
 	public void testOneReportDue() {
-		LocalDateTime lastReport1 = this.now.minusHours(1);
-		LocalDateTime lastReport2 = this.now.minusSeconds(1);
-		LocalDateTime lastReport3 = this.now.minusSeconds(1);
+		LocalDateTime lastReport1 = reference.minusHours(1);
+		LocalDateTime lastReport2 = reference.minusSeconds(1);
+		LocalDateTime lastReport3 = reference.minusSeconds(1);
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(0, result);
 	}
 
 	@Test
 	public void testReportsInFuture() {
-		LocalDateTime lastReport1 = this.now.plusSeconds(5);
-		LocalDateTime lastReport2 = this.now.plusSeconds(5);
-		LocalDateTime lastReport3 = this.now.plusSeconds(5);
+		LocalDateTime lastReport1 = reference.plusSeconds(5);
+		LocalDateTime lastReport2 = reference.plusSeconds(5);
+		LocalDateTime lastReport3 = reference.plusSeconds(5);
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(15000, result);
 	}
 
@@ -58,17 +58,17 @@ public class ReadWorkerTest {
 		LocalDateTime lastReport2 = LocalDateTime.MAX;
 		LocalDateTime lastReport3 = LocalDateTime.MAX;
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(0, result);
 	}
 
 	@Test
-	public void testEdgeCaseReportNearNow() {
-		LocalDateTime lastReport1 = this.now.minusSeconds(Report.REPORT1.getRequestSeconds() - 1);
-		LocalDateTime lastReport2 = this.now.minusSeconds(Report.REPORT2.getRequestSeconds() - 1);
-		LocalDateTime lastReport3 = this.now.minusSeconds(Report.REPORT3.getRequestSeconds() - 1);
+	public void testEdgeCaseReportNearreference() {
+		LocalDateTime lastReport1 = reference.minusSeconds(Report.REPORT1.getRequestSeconds() - 1);
+		LocalDateTime lastReport2 = reference.minusSeconds(Report.REPORT2.getRequestSeconds() - 1);
+		LocalDateTime lastReport3 = reference.minusSeconds(Report.REPORT3.getRequestSeconds() - 1);
 
-		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, this.now);
+		int result = ReadWorker.getCycleTimeLogic(lastReport1, lastReport2, lastReport3, reference);
 		assertEquals(1000, result);
 	}
 }

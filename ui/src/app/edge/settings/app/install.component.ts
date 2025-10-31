@@ -1,14 +1,17 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormGroup } from "@angular/forms";
+import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
-import { FormlyFieldConfig } from "@ngx-formly/core";
+import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { AddAppInstance } from "./jsonrpc/addAppInstance";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
@@ -21,7 +24,15 @@ import { hasPredefinedKey } from "./permissions";
 @Component({
   selector: InstallAppComponent.SELECTOR,
   templateUrl: "./install.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    FormlyModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
 
@@ -177,14 +188,14 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant("Edge.Config.App.successInstall"), "success");
+          this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_INSTALL"), "success");
         }
 
         this.form.markAsPristine();
         const navigationExtras = { state: { appInstanceChange: true } };
         this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
       })
-        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failInstall", { error: error })))
+        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error })))
         .finally(() => {
           this.isInstalling = false;
           this.service.stopSpinner(this.appId);

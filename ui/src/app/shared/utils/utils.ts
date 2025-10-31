@@ -5,10 +5,11 @@ import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
+import { EvcsComponent } from "../components/edge/components/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, Currency, EdgeConfig } from "../shared";
+import { ChannelAddress, ChartConstants, Currency, EdgeConfig } from "../shared";
 
 /**
  * @deprecated use seperate utils class
@@ -351,9 +352,9 @@ export class Utils {
   public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
     return (value: DefaultTypes.ManualOnOff): string => {
       if (value === "MANUAL_ON") {
-        return translate.instant("General.on");
+        return translate.instant("GENERAL.ON");
       } else if (value === "MANUAL_OFF") {
-        return translate.instant("General.off");
+        return translate.instant("GENERAL.OFF");
       } else {
         return "-";
       }
@@ -369,9 +370,9 @@ export class Utils {
    */
   public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
     if (power >= 0) {
-      return { name: translate.instant("General.DISCHARGE"), value: power };
+      return { name: translate.instant("GENERAL.DISCHARGE"), value: power };
     } else {
-      return { name: translate.instant("General.CHARGE"), value: power * -1 };
+      return { name: translate.instant("GENERAL.CHARGE"), value: power * -1 };
     }
   }
 
@@ -385,28 +386,14 @@ export class Utils {
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === "MANUAL") {
-        return translate.instant("General.manually");
+        return translate.instant("GENERAL.MANUALLY");
       } else if (value === "OFF") {
-        return translate.instant("General.off");
+        return translate.instant("GENERAL.OFF");
       } else if (value === "AUTOMATIC") {
-        return translate.instant("General.automatic");
+        return translate.instant("GENERAL.AUTOMATIC");
       } else {
         return "-";
       }
-    };
-  };
-
-  /**
-   * Converts Minute from start of day to daytime in 'HH:mm' format.
-   *
-   * @returns converted value
-   */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
-    return (value: number): string => {
-      const date: Date = new Date();
-      date.setHours(0, 0, 0, 0);
-      date.setMinutes(value);
-      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: "2-digit", minute: "2-digit" });
     };
   };
 
@@ -433,11 +420,11 @@ export class Utils {
     return (value: any): string => {
       switch (Math.round(value)) {
         case 0:
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+          return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
         case 3:
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+          return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
         default: // Usually "1"
-          return translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
+          return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
       }
     };
   };
@@ -588,7 +575,7 @@ export class Utils {
  * @param consumptionMeterComponents the consumptionMeterComponents
  * @returns the other consumption
  */
-  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
+  public static calculateOtherConsumptionTotal(energyValues: QueryHistoricTimeseriesEnergyResponse, evcsComponents: EvcsComponent[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number {
 
     let totalEvcsConsumption: number = 0;
     let totalHeatConsumption: number = 0;
@@ -598,8 +585,8 @@ export class Utils {
       totalHeatConsumption = this.addSafely(totalHeatConsumption, energyValues.result.data[component.id + "/ActiveProductionEnergy"]);
     });
 
-    [...evcsComponents].forEach(component => {
-      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[component.id + "/ActiveConsumptionEnergy"]);
+    [...evcsComponents].forEach(evcs => {
+      totalEvcsConsumption = this.addSafely(totalEvcsConsumption, energyValues.result.data[evcs.energyChannel.toString()]);
     });
 
     consumptionMeterComponents.forEach(meter => {
@@ -624,14 +611,14 @@ export class Utils {
    * @param consumptionMeterComponents the consumptionMeterComponents
    * @returns the other consumption
    */
-  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
+  public static calculateOtherConsumption(channelData: HistoryUtils.ChannelData, evcsComponents: EvcsComponent[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[]): number[] {
 
     const totalEvcsConsumption: number[] = [];
     const totalHeatConsumption: number[] = [];
     const totalMeteredConsumption: number[] = [];
 
-    evcsComponents.forEach(component => {
-      channelData[component.id + "/ChargePower"]?.forEach((value, index) => {
+    evcsComponents.forEach(evcs => {
+      channelData[evcs.powerChannel.toString()]?.forEach((value, index) => {
         totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
       });
     });
@@ -679,6 +666,8 @@ export enum YAxisType {
   VOLTAGE,
   HEAT_PUMP,
   HEATING_ELEMENT,
+  RESTRICTION,
+  ENERIX_CONTROL,
 }
 
 export enum ChartAxis {
@@ -700,7 +689,7 @@ export namespace HistoryUtils {
  */
   export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
     return [{
-      label: translate.instant("Edge.History.noData"),
+      label: translate.instant("EDGE.HISTORY.NO_DATA"),
       data: [],
       hidden: false,
     }];
@@ -711,13 +700,13 @@ export namespace HistoryUtils {
     /** Choose between predefined converters */
     converter?: (value: number) => number | null,
   } & ({
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel?: undefined
   } | {
-    energyChannel: ChannelAddress,
     powerChannel?: undefined
+    energyChannel: ChannelAddress,
   } | {
-    powerChannel: ChannelAddress | null,
+    powerChannel: ChannelAddress,
     energyChannel: ChannelAddress
   });
 
@@ -917,11 +906,11 @@ export namespace TimeOfUseTariffUtils {
       return;
     }
 
-    const socLabel = translate.instant("General.soc");
-    const dischargeLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
-    const chargeConsumptionLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
-    const balancingLabel = translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING");
-    const gridBuyLabel = translate.instant("General.gridBuy");
+    const socLabel = translate.instant("GENERAL.SOC");
+    const dischargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+    const chargeConsumptionLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+    const balancingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
+    const gridBuyLabel = translate.instant("GENERAL.GRID_BUY");
 
     // Switch case to handle different labels
     switch (label) {
@@ -931,8 +920,7 @@ export namespace TimeOfUseTariffUtils {
       case dischargeLabel:
       case chargeConsumptionLabel:
       case balancingLabel:
-        // Show floating point number for values between 0 and 1
-        return label + ": " + formatNumber(value, locale, "1.0-4") + " " + currencyLabel;
+        return label + ": " + formatNumber(value, locale, ChartConstants.NumberFormat.TWO) + " " + currencyLabel;
 
       default:
       case gridBuyLabel:

@@ -31,6 +31,46 @@ export namespace ControllerEvseSingleShared {
         };
     };
 
+    /**
+     * Converts a string mode to a presentable label
+     *
+     * @param raw the raw value
+     * @returns the value for chosen mode
+     */
+    export const CONVERT_TO_STATE_MACHINE_LABEL = (translate: TranslateService) => {
+        return (value: any): string => {
+            switch (value) {
+                case StateMachine.EV_NOT_CONNECTED:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED");
+                case StateMachine.EV_CONNECTED:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED");
+                case StateMachine.CHARGING:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING");
+                case StateMachine.FINISHED_EV_STOP:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_EV_STOP");
+                case StateMachine.FINISHED_ENERGY_SESSION_LIMIT:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_ENERGY_SESSION_LIMIT");
+                case StateMachine.PHASE_SWITCH_TO_THREE_PHASE:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
+                case StateMachine.PHASE_SWITCH_TO_SINGLE_PHASE:
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
+                default:
+                    return "-";
+            }
+        };
+    };
+
+    export enum StateMachine {
+        UNDEFINED = -1,
+        EV_NOT_CONNECTED = 10,
+        EV_CONNECTED = 20,
+        CHARGING = 50,
+        FINISHED_EV_STOP = 60,
+        FINISHED_ENERGY_SESSION_LIMIT = 61,
+        PHASE_SWITCH_TO_THREE_PHASE = 91,
+        PHASE_SWITCH_TO_SINGLE_PHASE = 92,
+    }
+
     export function getImgUrlByFactoryId(factoryId: string): string | null {
         switch (factoryId) {
             case "Evse.ChargePoint.Keba.UDP":

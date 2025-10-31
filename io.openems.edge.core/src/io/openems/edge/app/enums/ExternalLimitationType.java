@@ -7,6 +7,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public enum ExternalLimitationType implements TranslatableEnum {
 	NO_LIMITATION("App.IntegratedSystem.externalLimitationType.noLimitation"), //
 	EXTERNAL_LIMITATION("App.IntegratedSystem.externalLimitationType.externalLimitation"), //
+	DYNAMIC_EXTERNAL_LIMITATION("App.IntegratedSystem.externalLimitationType.dynamicExternalLimitation"), //
 
 	// Deprecated types, kept for backward compatibility
 	@Deprecated
@@ -17,7 +18,7 @@ public enum ExternalLimitationType implements TranslatableEnum {
 
 	private final String translationKey;
 
-	private ExternalLimitationType(String translationKey) {
+	ExternalLimitationType(String translationKey) {
 		this.translationKey = translationKey;
 	}
 

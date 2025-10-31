@@ -35,7 +35,7 @@ export class ChargerChartDetailsComponent extends AbstractHistoryChart {
       }],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: translate.instant("General.TOTAL"),
+        afterTitle: translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.ENERGY,

@@ -83,10 +83,10 @@ public class EvseKebaUtils {
 		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
 
 		try {
-			keba.getSetEnableChannel().setNextWriteValue(setPointInMilliAmpere == 0 //
+			keba.setSetEnable(setPointInMilliAmpere == 0 //
 					? SetEnable.DISABLE //
 					: SetEnable.ENABLE);
-			keba.getSetChargingCurrentChannel().setNextWriteValue(setPointInMilliAmpere);
+			keba.setSetChargingCurrent(setPointInMilliAmpere);
 
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
@@ -114,18 +114,30 @@ public class EvseKebaUtils {
 	 * @return the value
 	 */
 	public ChargePointAbilities getChargePointAbilities(CommonConfig config) {
-		if (config == null || config.readOnly()) {
+		if (config == null) {
 			return null;
 		}
 		final var phases = this.getWiring(config);
-		if (config == null || config.readOnly() || phases == null) {
+		if (config == null || phases == null) {
 			return null;
 		}
 
+		// Cluster Controller throws exception when abilities are null
+		if (config.readOnly()) {
+			return ChargePointAbilities.create()//
+					.build();
+		}
+
 		final var keba = this.parent;
+		final var isEvConnected = switch (keba.getCableState()) {
+		case UNDEFINED, UNPLUGGED, PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED -> false;
+		case PLUGGED_EV_NOT_LOCKED, PLUGGED_AND_LOCKED -> true;
+		};
+
 		return ChargePointAbilities.create() //
 				// TODO apply actual hardware limit from protocol and/or config
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, 32000)) //
+				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
 				.setPhaseSwitch(this.getPhaseSwitchAbility(config)) //
 				.build();

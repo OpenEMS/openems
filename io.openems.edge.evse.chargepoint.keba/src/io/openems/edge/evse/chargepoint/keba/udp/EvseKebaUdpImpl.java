@@ -34,7 +34,6 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.chargepoint.keba.common.CommonConfig;
@@ -48,6 +47,7 @@ import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 

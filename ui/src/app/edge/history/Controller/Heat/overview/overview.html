@@ -1,4 +1,6 @@
-<oe-chart *ngIf="isInitialized" [title]="component.alias">
+@if (isInitialized) {
+  <oe-chart [title]="component.alias">
     <controller-heat-chart [isOnlyChart]="true" [component]="component">
     </controller-heat-chart>
-</oe-chart>
+  </oe-chart>
+}

@@ -39,19 +39,19 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
       ],
       output: (data: HistoryUtils.ChannelData) => ([
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumCharge"),
+          name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE"),
           converter: () => data["DelayChargeMaximumChargeLimit"],
           color: ChartConstants.Colors.YELLOW,
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.minimumCharge"),
+          name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MINIMUM_CHARGE"),
           converter: () => data["SellToGridLimitMinimumChargeLimit"],
           color: ChartConstants.Colors.RED,
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("General.CHARGE"),
+          name: translate.instant("GENERAL.CHARGE"),
           converter: () =>
             (data["ProductionDcActualPower"]
               ?
@@ -63,7 +63,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
           color: ChartConstants.Colors.GREEN,
         },
         {
-          name: translate.instant("General.soc"),
+          name: translate.instant("GENERAL.SOC"),
           converter: () => data["EssSoc"].map(el => Utils.multiplySafely(el, 1000)),
           color: "rgb(189, 195, 199)",
           borderDash: [10, 10],

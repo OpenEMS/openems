@@ -38,7 +38,7 @@ export class ModalComponent {
     } | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 
-    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
+    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = true;
     public readonly Role = Role;
 
     private edge: Edge | null = null;
@@ -74,9 +74,9 @@ export class ModalComponent {
         if (this.edge) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();

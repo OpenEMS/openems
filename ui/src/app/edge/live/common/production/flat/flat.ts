@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { EdgeConfig, Utils } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
 
@@ -14,12 +15,14 @@ export class FlatComponent extends AbstractFlatWidget {
     public chargerComponents: EdgeConfig.Component[] = [];
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: ModalComponent,
-        });
-        return await modal.present();
+    protected modalComponent: Modal | null = null;
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
     }
+    protected getModalComponent(): Modal {
+        return { component: ModalComponent };
+    };
 
     protected override getChannelAddresses() {
         // Get Chargers
