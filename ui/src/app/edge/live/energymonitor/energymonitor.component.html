@@ -11,6 +11,18 @@
         <ion-label>
           {{"EDGE.INDEX.ENERGYMONITOR.TITLE" | translate}}
         </ion-label>
+        <ion-button slot="end" fill="clear" id="gauge-info-trigger">
+          <ion-icon slot="icon-only" name="information-circle-outline" color="medium"></ion-icon>
+        </ion-button>
+        <ion-popover trigger="gauge-info-trigger" triggerAction="click">
+          <ng-template>
+            <ion-content class="ion-padding">
+              <p style="max-width: 300px; margin: 0;">
+                {{"EDGE.INDEX.ENERGYMONITOR.GAUGE_INFO" | translate}}
+              </p>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
       </ion-item>
       <ion-card-content>
         <energymonitor-chart [currentData]="currentData"></energymonitor-chart>
