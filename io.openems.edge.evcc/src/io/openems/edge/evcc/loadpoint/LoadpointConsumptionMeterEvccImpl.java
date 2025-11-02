@@ -98,14 +98,16 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
-		}
+	    if (!this.isEnabled()) {
+	        return;
+	    }
+	    switch (event.getTopic()) {
+	    case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+	        if (!this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).value().isDefined()) {
+	            this.calculateEnergy();
+	            System.out.println("Engergiewerte nicht vorhanden"); 	        }
+	        break;
+	    }
 	}
 
 	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
@@ -136,8 +138,13 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				calculatedPower = chargePower / phases;
 			}
 
-			int totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsInt() : 0;
-			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).setNextValue(totalImport);
+			Float totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsFloat() : null;
+
+			if (totalImport != null) {
+			    this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).setNextValue(totalImport);
+			} else {
+			    this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).setNextValue(null);
+			}
 
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
 			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY).setNextValue(sessionEnergy);
