@@ -28,7 +28,8 @@
         "STORAGE_DISCHARGE": "Speicher-Entladung",
         "TITLE": "Energiemonitor",
         "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
-        "ERROR_TOO_LONG": ""
+        "ERROR_TOO_LONG": "",
+        "GAUGE_INFO": "Die Balken im Monitor zeigen, wie sich die aktuellen Werte im Verhältnis zu ihren historischen Maximalwerten verhalten. Sie stellen nicht das Echtzeit-Leistungsverteilungsverhältnis dar."
       },
       "WIDGETS": {
         "AUTARCHY_INFO": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
