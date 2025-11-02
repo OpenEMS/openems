@@ -28,7 +28,8 @@
         "STORAGE_DISCHARGE": "Storage-Discharge",
         "TITLE": "Energy monitor",
         "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
-        "ERROR_TOO_LONG": ""
+        "ERROR_TOO_LONG": "",
+        "GAUGE_INFO": "The gauge bars show how current values compare to their historical maximum. They do not represent the real-time power distribution ratio."
       },
       "WIDGETS": {
         "AUTARCHY_INFO": "Autarchy indicates the percentage of current power that can be covered by generation and storage discharge.",
