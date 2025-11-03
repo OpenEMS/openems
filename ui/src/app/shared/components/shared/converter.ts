@@ -326,7 +326,7 @@ export namespace Converter {
 
   export const ON_OFF = (translate: TranslateService) => {
     return (raw): string => {
-      return translate.instant(raw == 1 ? "General.on" : "General.off");
+      return translate.instant(raw == 1 ? "GENERAL.ON" : "GENERAL.OFF");
     };
   };
 
@@ -334,15 +334,15 @@ export namespace Converter {
     return (raw): string => {
       switch (raw) {
         case -1:
-          return translate.instant("Edge.Index.Widgets.HeatPump.undefined");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
         case 0:
-          return translate.instant("Edge.Index.Widgets.HeatPump.lock");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK");
         case 1:
-          return translate.instant("Edge.Index.Widgets.HeatPump.normalOperationShort");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION_SHORT");
         case 2:
-          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnRecShort");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC_SHORT");
         case 3:
-          return translate.instant("Edge.Index.Widgets.HeatPump.switchOnComShort");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM_SHORT");
       }
     };
   };
@@ -365,19 +365,19 @@ export namespace Converter {
     return (value: any): string => {
       switch (value) {
         case 0:
-          return translate.instant("General.inactive");
+          return translate.instant("GENERAL.INACTIVE");
         case 1:
-          return translate.instant("General.active");
+          return translate.instant("GENERAL.ACTIVE");
         case 2:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.activeForced");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_FORCED");
         case 3:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.ACTIVED_FORCED_LIMIT");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVED_FORCED_LIMIT");
         case 4:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.DONE");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.DONE");
         case 5:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.UNREACHABLE");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.UNREACHABLE");
         case 6:
-          return translate.instant("Edge.Index.Widgets.Heatingelement.CALIBRATION");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEATINGELEMENT.CALIBRATION");
         default:
           return "";
       };
@@ -394,14 +394,14 @@ export namespace Converter {
     return (value: any): string => {
       switch (value) {
         case 0:
-          return translate.instant("Edge.Index.Widgets.HEAT.HEATING");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING");
         case 1:
-          return translate.instant("Edge.Index.Widgets.HEAT.TARGET_TEMPERATURE_REACHED");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT.TARGET_TEMPERATURE_REACHED");
         case 2:
-          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
         case -1:
         default:
-          return translate.instant("Edge.Index.Widgets.HEAT.NO_HEATING");
+          return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
       }
     };
   };
@@ -416,17 +416,17 @@ export namespace Converter {
     return (value: any): string => {
       switch (value) {
         case State.ON:
-          return translate.instant("General.on");
+          return translate.instant("GENERAL.ON");
         case State.NO_DISCHARGE:
-          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_DISCHARGE");
+          return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE");
         case State.FORCE_CHARGE:
-          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.FORCE_CHARGE");
+          return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.FORCE_CHARGE");
         case State.DISCONNECTED:
-          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.DISCONNECTED");
+          return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCONNECTED");
         case State.CONNECTED:
-          return translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.CONNECTED");
+          return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CONNECTED");
         default:
-          return translate.instant("General.off");
+          return translate.instant("GENERAL.OFF");
       }
     };
   };

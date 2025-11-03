@@ -2,7 +2,7 @@
   <ion-item lines="full" color="light">
     <ion-icon size="large" slot="start" name="laptop-outline" color="primary"></ion-icon>
     <ion-label>
-      {{"Edge.Index.Energymonitor.title" | translate}}
+      {{"EDGE.INDEX.ENERGYMONITOR.TITLE" | translate}}
     </ion-label>
     <ion-button (click)="exportToXlxs()" slot="end">
       <ion-icon name="download-outline"></ion-icon>
@@ -12,7 +12,7 @@
   </energychart>
 } @else {
   @if (isInitialized) {
-    <oe-flat-widget [title]="'Edge.Index.Energymonitor.title'| translate"
+    <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
       [icon]="{name: 'laptop-outline', color: 'normal'}" [style.height.px]="getChartHeight()"
       class="no-all-edges-shadow">
       <ion-button slot="end" class="ion-float-right" (click)="exportToXlxs()" button>

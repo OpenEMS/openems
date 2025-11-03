@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-chart [title]="'General.storageSystem' | translate" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
+  <oe-chart [title]="'GENERAL.STORAGE_SYSTEM' | translate" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
     (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod.value">
     <common-storage-total-chart [isOnlyChart]="true">
     </common-storage-total-chart>

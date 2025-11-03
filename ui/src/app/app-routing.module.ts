@@ -50,7 +50,7 @@ export const history: (customHeaders: boolean) => Routes = (customHeaders) => [{
     provide: DataService,
   }],
   component: HistoryParentComponent, children: [
-    { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "General.HISTORY" } : {}) } },
+    { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "GENERAL.HISTORY" } : {}) } },
     // History Chart Pages
     { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
     { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
@@ -94,8 +94,8 @@ export const routes: Routes = [
 
   { path: "overview", component: OverViewComponent },
 
-  { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "Menu.user" } },
-  { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "Menu.changelog" } },
+  { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "MENU.USER" } },
+  { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" } },
 
   // Edge Pages
   {
