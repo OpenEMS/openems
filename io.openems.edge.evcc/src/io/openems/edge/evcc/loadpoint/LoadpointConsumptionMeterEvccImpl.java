@@ -30,6 +30,7 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -98,16 +99,16 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-	    if (!this.isEnabled()) {
-	        return;
-	    }
-	    switch (event.getTopic()) {
-	    case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-	        if (!this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).value().isDefined()) {
-	            this.calculateEnergy();
-	            System.out.println("Engergiewerte nicht vorhanden"); 	        }
-	        break;
-	    }
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			if (!this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).value().isDefined()) {
+				this.calculateEnergy();
+			}
+			break;
+		}
 	}
 
 	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
@@ -141,9 +142,10 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			Float totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsFloat() : null;
 
 			if (totalImport != null) {
-			    this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).setNextValue(totalImport);
+				Long consumptionEnergyWh = Math.round(totalImport * 1000.0);
+				this._setActiveConsumptionEnergy(consumptionEnergyWh);
 			} else {
-			    this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).setNextValue(null);
+				this._setActiveConsumptionEnergy((Long) null);
 			}
 
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
@@ -178,10 +180,10 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			} else {
 				this.logDebug(this.log, "chargeVoltages not provided or null – defaulting voltages");
 
-				var voltage = 230;
-				this._setVoltageL1(voltage * 1000);
-				this._setVoltageL2(voltage * 1000);
-				this._setVoltageL3(voltage * 1000);
+				int voltage = 230;
+				this._setVoltageL1(TypeUtils.multiply(voltage, 1000));
+				this._setVoltageL2(TypeUtils.multiply(voltage, 1000));
+				this._setVoltageL3(TypeUtils.multiply(voltage, 1000));
 			}
 
 			if (lp.has("chargeCurrents") && lp.get("chargeCurrents").isJsonArray()) {
@@ -234,19 +236,19 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			}
 
 			if (phases > 0 && this.getVoltageL1() != null && this.getCurrentL1() != null) {
-				this._setActivePowerL1((int)((long)this.getVoltageL1().get() * this.getCurrentL1().get() / 1000000));
+				this._setActivePowerL1((int) ((long) this.getVoltageL1().get() * this.getCurrentL1().get() / 1000000));
 			} else {
 				this._setActivePowerL1(null);
 			}
 
 			if (phases > 1 && this.getVoltageL2() != null && this.getCurrentL2() != null) {
-				this._setActivePowerL2((int)((long)this.getVoltageL2().get() * this.getCurrentL2().get() / 1000000));
+				this._setActivePowerL2((int) ((long) this.getVoltageL2().get() * this.getCurrentL2().get() / 1000000));
 			} else {
 				this._setActivePowerL2(null);
 			}
 
 			if (phases > 2 && this.getVoltageL3() != null && this.getCurrentL3() != null) {
-				this._setActivePowerL3((int)((long)this.getVoltageL3().get() * this.getCurrentL3().get() / 1000000));
+				this._setActivePowerL3((int) ((long) this.getVoltageL3().get() * this.getCurrentL3().get() / 1000000));
 			} else {
 				this._setActivePowerL3(null);
 			}
