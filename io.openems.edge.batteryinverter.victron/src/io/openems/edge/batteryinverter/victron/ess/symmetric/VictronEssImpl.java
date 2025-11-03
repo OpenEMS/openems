@@ -543,7 +543,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		// ToDo: make it work for single and 3 phase
 
 		int acActivePowerSumInput = 0;
-		int acActivePowerSumOutput = 0;
+		int acConsumptionActivePowerSum = 0;
+		int acOutputActivePowerSum = 0;
 		int acApparentPowerSumInput = 0;
 		int acApparentPowerSumOutput = 0;
 
@@ -558,17 +559,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		 * If power on AC In is negative (charging, Victron registers inverted), AC
 		 * consumption has to be subtracted.
 		 * 
-		 * If power on AC In is positive while discharging, AC Out is feed from battery.
+		 * If power on AC In is positive while discharging, AC Out is feed from battery, too.
 		 * So it is part of power coming from ESS an has to be added
 		 * 
-		 * Target is to get the power coming from battery + AC conversion
+		 * Goal is to get the power coming from battery + AC conversion
 		 * 
 		 * Voltages / Currents are in mmili
 		 * 
 		 */
 
 		// ActivePower is the actual AC output including battery discharging
-		var acActivePowerInputL1 = this.getActivePowerInputL1().orElse(0); // 12 int 16 signed, SF1 (*10)
+		var acActivePowerInputL1 = this.getActivePowerInputL1().orElse(0); // 12 int 16 signed, SF1 (*10) / inverted register!
 		var acActivePowerInputL2 = this.getActivePowerInputL2().orElse(0); // 13
 		var acActivePowerInputL3 = this.getActivePowerInputL3().orElse(0); // 14
 
@@ -589,20 +590,25 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// Cosumption includes self-consumption and is always positive
-		var acActivePowerOutputL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0); // 817 uint16
-		var acActivePowerOutputL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0); // 818
-		var acActivePowerOutputL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0); // 819
+		var acConsumptionActivePowerL1 = this.batteryInverter.getAcConsumptionPowerL1().orElse(0); // 817 uint16 always positive
+		var acConsumptionActivePowerL2 = this.batteryInverter.getAcConsumptionPowerL2().orElse(0); // 818
+		var acConsumptionActivePowerL3 = this.batteryInverter.getAcConsumptionPowerL3().orElse(0); // 819
 
-		var acVoltageOutputL1 = this.getVoltageOutputL1().orElse(0);
-		var acVoltageOutputL2 = this.getVoltageOutputL2().orElse(0);
-		var acVoltageOutputL3 = this.getVoltageOutputL3().orElse(0);
+		var acVoltageOutputL1 = this.getVoltageOutputL1().orElse(0);  // 15
+		var acVoltageOutputL2 = this.getVoltageOutputL2().orElse(0);  // 16
+		var acVoltageOutputL3 = this.getVoltageOutputL3().orElse(0);  // 17
 
-		var acCurrentOutputL1 = this.getCurrentOutputL1().orElse(0);
-		var acCurrentOutputL2 = this.getCurrentOutputL2().orElse(0);
-		var acCurrentOutputL3 = this.getCurrentOutputL3().orElse(0);
+		var acCurrentOutputL1 = this.getCurrentOutputL1().orElse(0);  // 18
+		var acCurrentOutputL2 = this.getCurrentOutputL2().orElse(0);  // 19
+		var acCurrentOutputL3 = this.getCurrentOutputL3().orElse(0);  // 20
 
+		var acPowerOutputL1 = this.getActivePowerOutputL1().orElse(0); // 23 always positive
+		var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0); // 24
+		var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0); // 25		
+		
 		// Output power calculation
-		acActivePowerSumOutput = acActivePowerOutputL1 + acActivePowerOutputL2 + acActivePowerOutputL3;
+		acConsumptionActivePowerSum = acConsumptionActivePowerL1 + acConsumptionActivePowerL2 + acConsumptionActivePowerL3;
+		acOutputActivePowerSum = acPowerOutputL1 + acPowerOutputL2 + acPowerOutputL3;
 
 		// apparentPower calculation comes from mA/mV
 		if (acVoltageOutputL1 > 0) { // everything else can be 0
@@ -610,26 +616,19 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 					acCurrentOutputL2, acVoltageOutputL3, acCurrentOutputL3, threePhase);
 		}
 
-		if (acActivePowerSumInput > 0) { // discharging
-			this._setApparentPower(acApparentPowerSumInput - acApparentPowerSumOutput);
-			this._setActivePower(acActivePowerSumInput + acActivePowerSumOutput);
+		int activePowerSumWithOutput = acActivePowerSumInput + acOutputActivePowerSum;
+		int activePowerSumWithConsumption = acActivePowerSumInput + acConsumptionActivePowerSum;
+		
+		
+		this._setApparentPower(acApparentPowerSumInput - acApparentPowerSumOutput);
+		this._setActivePower(activePowerSumWithConsumption);
 
-			this._setActivePowerL1(acActivePowerInputL1 + acActivePowerOutputL1); // Asymmetric ESS nature
-			if (threePhase) { // 3p
-				this._setActivePowerL2(acActivePowerInputL2 + acActivePowerOutputL2); // Asymmetric ESS nature
-				this._setActivePowerL3(acActivePowerInputL3 + acActivePowerOutputL3); // Asymmetric ESS nature
-			}
+		
 
-		} else { // charging, including battery standby (battery +/-10W, AC-Input negative)
-			this._setApparentPower(Math.max(0, acApparentPowerSumInput - acApparentPowerSumOutput));
-
-			this._setActivePower(acActivePowerSumInput + acActivePowerSumOutput);
-
-			this._setActivePowerL1(acActivePowerInputL1 + acActivePowerOutputL1); // Asymmetric ESS nature
-			if (threePhase) { // 3p
-				this._setActivePowerL2(acActivePowerInputL2 + acActivePowerOutputL2); // Asymmetric ESS nature
-				this._setActivePowerL3(acActivePowerInputL3 + acActivePowerOutputL3); // Asymmetric ESS nature
-			}
+		this._setActivePowerL1(acActivePowerInputL1 + acConsumptionActivePowerL1); // Asymmetric ESS nature
+		if (threePhase) { // 3p
+			this._setActivePowerL2(acActivePowerInputL2 + acConsumptionActivePowerL2); // Asymmetric ESS nature
+			this._setActivePowerL3(acActivePowerInputL3 + acConsumptionActivePowerL3); // Asymmetric ESS nature
 		}
 
 		this.logDebug(this.log,
@@ -637,15 +636,18 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 						+ acActivePowerInputL2 + "W/" + acActivePowerInputL3 + "W Sum: " + acActivePowerSumInput
 						+ "\n Input Voltage " + acVoltageInputL1 + "mV/" + acVoltageInputL2 + "mV/" + acVoltageInputL3
 						+ "mV ApparentPower: " + acApparentPowerSumInput + "VA" + "\n Input Current " + acCurrentInputL1
-						+ "mA/" + acCurrentInputL2 + "mA/" + acCurrentInputL3 + "mA"
-
-						+ "\n Output ActivePower " + acActivePowerOutputL1 + "W/" + acActivePowerOutputL2 + "W/"
-						+ acActivePowerOutputL3 + "W Sum: " + acActivePowerSumOutput + "\n Output Voltage "
+						+ "mA/" + acCurrentInputL2 + "mA/" + acCurrentInputL3 + "mA \n"
++ "\n\n Output ActivePower " + acPowerOutputL1 + "W/" + acPowerOutputL2 + "W/" + acPowerOutputL3 + "W Sum: " + acOutputActivePowerSum + "W "
+						+ "\n\n Consumption ActivePower " + acConsumptionActivePowerL1 + "W/" + acConsumptionActivePowerL2 + "W/" + acConsumptionActivePowerL3
+						+ "W Sum: " + acConsumptionActivePowerSum + "\n Output Voltage "
 						+ acVoltageOutputL1 + "mV/" + acVoltageOutputL2 + "mV/" + acVoltageOutputL3
 						+ "mV ApparentPower: " + acApparentPowerSumOutput + "VA" + "\n Output Current "
 						+ acCurrentOutputL1 + "mA/" + acCurrentOutputL2 + "mA/" + acCurrentOutputL3 + "mA"
+						
+						+ "\nActivePower (with OutputPower) " + activePowerSumWithOutput + "W"
+						+ "\nActivePower (with ConsumptionPower) " + activePowerSumWithConsumption + "W"
 
-						+ "\n Applied values for Active Power" + this.getActivePower().asString() + "/"
+						+ "\n ActivePower to Channel -> " + this.getActivePower().asString() + "/"
 
 						+ this.getApparentPower().asString()
 
