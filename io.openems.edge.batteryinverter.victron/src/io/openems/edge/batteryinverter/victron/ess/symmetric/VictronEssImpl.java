@@ -606,6 +606,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		var acPowerOutputL2 = this.getActivePowerOutputL2().orElse(0); // 24
 		var acPowerOutputL3 = this.getActivePowerOutputL3().orElse(0); // 25		
 		
+		acPowerOutputL2 =0;
+		acPowerOutputL3 =0;
+		
 		// Output power calculation
 		acConsumptionActivePowerSum = acConsumptionActivePowerL1 + acConsumptionActivePowerL2 + acConsumptionActivePowerL3;
 		acOutputActivePowerSum = acPowerOutputL1 + acPowerOutputL2 + acPowerOutputL3;
@@ -621,14 +624,16 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		
 		
 		this._setApparentPower(acApparentPowerSumInput - acApparentPowerSumOutput);
+		//this._setActivePower(activePowerSumWithConsumption); // ToDo: calculate 3p individually -> change to output power
+		
 		this._setActivePower(activePowerSumWithConsumption);
 
 		
 
-		this._setActivePowerL1(acActivePowerInputL1 + acConsumptionActivePowerL1); // Asymmetric ESS nature
+		this._setActivePowerL1(acActivePowerInputL1 + acPowerOutputL1); // Asymmetric ESS nature
 		if (threePhase) { // 3p
-			this._setActivePowerL2(acActivePowerInputL2 + acConsumptionActivePowerL2); // Asymmetric ESS nature
-			this._setActivePowerL3(acActivePowerInputL3 + acConsumptionActivePowerL3); // Asymmetric ESS nature
+			this._setActivePowerL2(acActivePowerInputL2 + acPowerOutputL2); // Asymmetric ESS nature
+			this._setActivePowerL3(acActivePowerInputL3 + acPowerOutputL3); // Asymmetric ESS nature
 		}
 
 		this.logDebug(this.log,
