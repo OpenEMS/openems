@@ -37,7 +37,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
       }
 
       this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
     });
   }
 
@@ -55,7 +55,7 @@ export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
     }
 
     if (this.component.factoryId === "Core.Sum") {
-      return { type: "sum", displayName: this.translate.instant("General.TOTAL") };
+      return { type: "sum", displayName: this.translate.instant("GENERAL.TOTAL") };
     }
 
     return null;

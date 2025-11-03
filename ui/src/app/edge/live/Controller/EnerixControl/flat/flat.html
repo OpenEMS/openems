@@ -4,13 +4,13 @@
         [title]="component.alias">
         @if (readOnly){
         <ng-container>
-            <oe-flat-widget-line [name]="'General.state'| translate" [value]="controlMode | translate"
+            <oe-flat-widget-line [name]="'GENERAL.STATE'| translate" [value]="controlMode | translate"
                 [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-flat-widget-line>
         </ng-container>
         } @else{
-        <oe-flat-widget-line [name]="'Edge.Index.Widgets.ENERIX_CONTROL.OVERWRITE_MODE'| translate"
+        <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_MODE'| translate"
             [value]="controlMode | translate" [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.state' | translate" [value]="overwriteLabel">
+        <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="overwriteLabel">
         </oe-flat-widget-line>
         }
     </oe-flat-widget>

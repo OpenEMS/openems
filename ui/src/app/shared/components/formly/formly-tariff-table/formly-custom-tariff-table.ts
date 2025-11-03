@@ -257,8 +257,8 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
       quarter.dailySchedule.push(
         this.createDailySchedule(
           tariff,
-          this.translate.instant("General.FROM"),
-          this.translate.instant("General.TO"),
+          this.translate.instant("GENERAL.FROM"),
+          this.translate.instant("GENERAL.TO"),
           quarter.dailySchedule.length // Assign originalIndex as current length
         )
       );
@@ -322,7 +322,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
       const newQuarter: Quarter = { // Explicitly create the object
         quarter: i,
         dailySchedule: [], // Initialize as empty array
-        formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat")),
+        formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("GENERAL.DATE_FORMAT")),
         key: quarterKey,
       };
 
@@ -364,7 +364,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
             return {
               quarter: defaultQuarterNum,
               dailySchedule: [],
-              formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat")),
+              formattedDateRange: DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("GENERAL.DATE_FORMAT")),
               key: `y${yearData.year}_q${defaultQuarterNum}`,
             };
           }
@@ -374,7 +374,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
 
           // Ensure formattedDateRange is set
           const [startDate, endDate] = this.getQuarterDates(yearData.year, quarter.quarter);
-          quarter.formattedDateRange = DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("General.dateFormat"));
+          quarter.formattedDateRange = DateUtils.formatQuarterDateRange(startDate, endDate, this.translate.instant("GENERAL.DATE_FORMAT"));
 
           // Ensure dailySchedule array exists
           quarter.dailySchedule = quarter.dailySchedule || [];

@@ -39,9 +39,9 @@ export class FlatComponent extends AbstractFlatWidget {
     const channel = currentData.allComponents[this.outputChannel];
     if (channel != null) {
       if (channel == 1) {
-        this.state = this.translate.instant("General.on");
+        this.state = this.translate.instant("GENERAL.ON");
       } else if (channel == 0) {
-        this.state = this.translate.instant("General.off");
+        this.state = this.translate.instant("GENERAL.OFF");
       }
     }
   }
