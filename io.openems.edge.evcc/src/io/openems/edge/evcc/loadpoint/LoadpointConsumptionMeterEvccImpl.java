@@ -134,9 +134,9 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
 			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_PHASES).setNextValue(phases);
-			int calculatedPower = chargePower;
+			double calculatedPower = chargePower;
 			if (phases > 1) {
-				calculatedPower = TypeUtils.divide(chargePower, phases);
+				calculatedPower = chargePower / phases;
 			}
 
 			Float totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsFloat() : null;
@@ -157,7 +157,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				if (voltages.size() > 0 && voltages.get(0) != null && !voltages.get(0).isJsonNull()) {
 					double v1 = voltages.get(0).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1).setNextValue(v1);
-					this._setVoltageL1(TypeUtils.multiply((int) Math.round(v1), 1000));
+					this._setVoltageL1((int) Math.round(v1 * 1000));
 				} else {
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1).setNextValue(null);
 				}
@@ -165,7 +165,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				if (voltages.size() > 0 && voltages.get(1) != null && !voltages.get(1).isJsonNull()) {
 					double v2 = voltages.get(1).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2).setNextValue(v2);
-					this._setVoltageL2(TypeUtils.multiply((int) Math.round(v2), 1000));
+					this._setVoltageL2((int) Math.round(v2 * 1000));
 				} else {
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2).setNextValue(null);
 				}
@@ -173,7 +173,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				if (voltages.size() > 0 && voltages.get(2) != null && !voltages.get(2).isJsonNull()) {
 					double v3 = voltages.get(2).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3).setNextValue(v3);
-					this._setVoltageL3(TypeUtils.multiply((int) Math.round(v3), 1000));
+					this._setVoltageL3((int) Math.round(v3 * 1000));
 				} else {
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3).setNextValue(null);
 				}
@@ -192,17 +192,17 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				if (currents.size() > 0 && currents.get(0) != null && !currents.get(0).isJsonNull()) {
 					double i1 = currents.get(0).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(i1);
-					this._setCurrentL1(TypeUtils.multiply((int) i1, 1000));
+					this._setCurrentL1((int) i1 * 1000);
 				}
 				if (currents.size() > 0 && currents.get(1) != null && !currents.get(1).isJsonNull()) {
 					double i2 = currents.get(1).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(i2);
-					this._setCurrentL2(TypeUtils.multiply((int) i2, 1000));
+					this._setCurrentL2((int) i2 * 1000);
 				}
 				if (currents.size() > 0 && currents.get(2) != null && !currents.get(2).isJsonNull()) {
 					double i3 = currents.get(2).getAsDouble();
 					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(i3);
-					this._setCurrentL3(TypeUtils.multiply((int) i3, 1000));
+					this._setCurrentL3((int) i3 * 1000);
 				}
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
