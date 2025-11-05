@@ -636,16 +636,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 						+ "\n Input Voltage " + acVoltageInputL1 + "mV/" + acVoltageInputL2 + "mV/" + acVoltageInputL3
 						+ "mV ApparentPower: " + acApparentPowerSumInput + "VA" + "\n Input Current " + acCurrentInputL1
 						+ "mA/" + acCurrentInputL2 + "mA/" + acCurrentInputL3 + "mA \n"
-+ "\n\n Output ActivePower " + acPowerOutputL1 + "W/" + acPowerOutputL2 + "W/" + acPowerOutputL3 + "W Sum: " + acOutputActivePowerSum + "W "
-						//+ "\n\n Consumption ActivePower " + acConsumptionActivePowerL1 + "W/" + acConsumptionActivePowerL2 + "W/" + acConsumptionActivePowerL3
+						+ "\n\n Output ActivePower " + acPowerOutputL1 + "W/" + acPowerOutputL2 + "W/" + acPowerOutputL3 + "W Sum: " + acOutputActivePowerSum + "W "
 						+ "\n Output Voltage "
 						+ acVoltageOutputL1 + "mV/" + acVoltageOutputL2 + "mV/" + acVoltageOutputL3
 						+ "mV ApparentPower: " + acApparentPowerSumOutput + "VA" + "\n Output Current "
 						+ acCurrentOutputL1 + "mA/" + acCurrentOutputL2 + "mA/" + acCurrentOutputL3 + "mA"
-						
 						+ "\nActivePower (with OutputPower) " + activePowerSumWithOutput + "W"
-						//+ "\nActivePower (with ConsumptionPower) " + activePowerSumWithConsumption + "W"
-
 						+ "\n ActivePower to Channel -> " + this.getActivePower().asString() + "/"
 
 						+ this.getApparentPower().asString()
