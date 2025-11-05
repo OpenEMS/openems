@@ -34,14 +34,14 @@
           </div>
           @if (false) {
             <p>
-              <small>{{ 'Edge.Config.App.technicalName' | translate }}: {{ app.appId }}</small><br />
-              <small>{{ 'Edge.Config.App.category' | translate }}:
+              <small>{{ 'EDGE.CONFIG.APP.TECHNICAL_NAME' | translate }}: {{ app.appId }}</small><br />
+              <small>{{ 'EDGE.CONFIG.APP.CATEGORY' | translate }}:
                 @for (c of app.categorys; track c) {
                   <a>
                     {{ c.readableName }}
                   </a>
                 }</small><br />
-              <small>{{ 'Edge.Config.App.cardinality' | translate }}: {{ app.cardinality }}</small>
+              <small>{{ 'EDGE.CONFIG.APP.CARDINALITY' | translate }}: {{ app.cardinality }}</small>
             </p>
           }
         </ion-card-content>
@@ -50,7 +50,7 @@
             <ion-accordion>
               <ion-item slot="header" color="light">
                 <ion-label style="white-space: initial; text-align: center;">
-                  {{"Edge.Config.App.notAvailable" | translate}}</ion-label>
+                  {{"EDGE.CONFIG.APP.NOT_AVAILABLE" | translate}}</ion-label>
               </ion-item>
               <div class="ion-padding" slot="content">
                 <ion-label>
@@ -110,7 +110,7 @@
                 <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
                 <ion-text text-nowrap>
                   <a routerLink="/device/{{ edge.id }}/settings/system{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
-                    text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
+                    text-nowrap translate>{{ 'EDGE.CONFIG.APP.UPDATE_AVAILABLE' | translate: {
                     edgeShortName: environment.edgeShortName } }}</a>
                 </ion-text>
               </ion-item>
@@ -122,7 +122,7 @@
             <ion-card id="redeemKeyCard" style="cursor: pointer;" (click)="redeemKey()">
               <ion-item lines="full" color="primary" id="bottom-start">
                 <ion-icon slot="start" name="bag-add-outline"></ion-icon>
-                <ion-text translate>Edge.Config.App.Key.useKey</ion-text>
+                <ion-text translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-text>
                 @if (numberOfUnusedRegisteredKeys !== 0) {
                   <ion-badge slot="end" color="dark">{{numberOfUnusedRegisteredKeys}}</ion-badge>
                 }
@@ -131,7 +131,7 @@
             <ion-popover #hasKeyPopover [isOpen]="showPopover" side="bottom" alignment="center">
               <ng-template>
                 <ion-content class="ion-padding" text-nowrap
-                  translate>Edge.Config.App.UNUSED_REGISTERED_KEY_AVAILABLE</ion-content>
+                  translate>EDGE.CONFIG.APP.UNUSED_REGISTERED_KEY_AVAILABLE</ion-content>
               </ng-template>
             </ion-popover>
           </ion-col>
@@ -139,7 +139,7 @@
             <ion-card style="cursor: pointer;" (click)="registerKey()">
               <ion-item lines="full" color="primary">
                 <ion-icon slot="start" name="key-outline"></ion-icon>
-                <ion-text translate>Edge.Config.App.Key.registerKey</ion-text>
+                <ion-text translate>EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-text>
               </ion-item>
             </ion-card>
           </ion-col>

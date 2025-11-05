@@ -45,7 +45,7 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
                 && !this.config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.heat.api.Heat"));
 
         const sum: EdgeConfig.Component = this.config.getComponent("_sum");
-        sum.alias = this.translate.instant("Edge.History.PHASE_ACCURATE");
+        sum.alias = this.translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
         this.navigationButtons = [sum, ...this.evcsComponents, ...heatComponents, ...this.consumptionMeterComponents].map(el => (
             { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }

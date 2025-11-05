@@ -31,10 +31,10 @@ import tr from "./translation.json";
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
     protected readonly STATES: string = `
-    1.${this.translate.instant("Edge.Index.Widgets.HeatPump.lock")}
-    2.${this.translate.instant("Edge.Index.Widgets.HeatPump.normalOperation")} 
-    3.${this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec")} 
-    4.${this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom")}
+    1.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK")}
+    2.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION")} 
+    3.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC")} 
+    4.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM")}
     `;
     protected chartType: "line" | "bar" = "line";
 

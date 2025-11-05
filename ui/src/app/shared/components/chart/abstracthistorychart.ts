@@ -321,9 +321,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
           // Hide YAxis title
           return "";
         }
-        return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
+        return translate.instant("EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.TIME:
-        return translate.instant("Edge.Index.Widgets.Channeltreshold.ACTIVE_TIME_OVER_PERIOD");
+        return translate.instant("EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD");
       case YAxisType.RESTRICTION:
       case YAxisType.PERCENTAGE:
         return "%";
@@ -339,7 +339,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
         return "kW";
       case YAxisType.HEAT_PUMP:
       case YAxisType.ENERIX_CONTROL:
-        return translate.instant("General.state");
+        return translate.instant("GENERAL.STATE");
       case YAxisType.VOLTAGE:
         return "V";
       case YAxisType.CURRENT:

@@ -87,8 +87,8 @@ export class FlatComponent extends AbstractFlatWidget {
 
   private getOverwriteLabel(mode: ControlMode): string {
     return mode !== ControlMode.IDLE
-      ? this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.OVERWRITE")
-      : this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_OVERWRITE");
+      ? this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE")
+      : this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
   }
 }
 

@@ -172,9 +172,9 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
     edge.updateComponentConfig(websocket, component.id, updateComponentArray)
       .then(() => {
-        service.toast(this.translate.instant("General.changeAccepted"), "success");
+        service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
       }).catch(reason => {
-        service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+        service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
       }).finally(() => {
         this.skipCurrentData = true;
         fg.markAsPristine();

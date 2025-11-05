@@ -75,15 +75,15 @@ export class FlatComponent extends AbstractFlatWidget {
         // get current mode
         switch (currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE]) {
             case "MANUAL_ON": {
-                this.mode = "General.on";
+                this.mode = "GENERAL.ON";
                 break;
             }
             case "MANUAL_OFF": {
-                this.mode = "General.off";
+                this.mode = "GENERAL.OFF";
                 break;
             }
             case "AUTOMATIC": {
-                this.mode = "General.automatic";
+                this.mode = "GENERAL.AUTOMATIC";
                 break;
             }
         }

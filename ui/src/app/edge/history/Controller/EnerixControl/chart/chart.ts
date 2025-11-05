@@ -27,7 +27,7 @@ export class ChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 if (chartType === "line") {
                     return [{
-                        name: translate.instant("General.state"),
+                        name: translate.instant("GENERAL.STATE"),
                         converter: () => data["ControlMode"]?.map(val => {
                             const value = Utils.multiplySafely(val, 1000);
                             return value != null ? Utils.addSafely(value, 1) : null;

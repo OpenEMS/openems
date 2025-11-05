@@ -15,7 +15,7 @@
                   <ion-item lines="none" (keydown.enter)="toggleSubscribe($event)" (click)="toggleSubscribe($event)">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
-                      {{'Edge.Config.Log.automaticUpdating' | translate}}
+                      {{'EDGE.CONFIG.LOG.AUTOMATIC_UPDATING' | translate}}
                     </ion-checkbox>
                   </ion-item>
                 </ion-col>
@@ -25,7 +25,7 @@
                       <ion-toggle tabindex="0" mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
                         [(ngModel)]="isCondensedOutput">
                       </ion-toggle>
-                      <ion-label class="ion-text-wrap">{{"Edge.Config.Log.CONDENSED_OUTPUT" | translate}}</ion-label>
+                      <ion-label class="ion-text-wrap">{{"EDGE.CONFIG.LOG.CONDENSED_OUTPUT" | translate}}</ion-label>
                     </ion-item>
                   </ion-col>
                 }

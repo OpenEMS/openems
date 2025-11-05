@@ -32,7 +32,7 @@ export class ChartComponent extends AbstractHistoryChart {
         const datasets: DefaultTypes.History.DisplayValues[] =
           [
             {
-              name: translate.instant("General.TOTAL"),
+              name: translate.instant("GENERAL.TOTAL"),
               converter: () => {
                 return data["GridActivePower"];
               },

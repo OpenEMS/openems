@@ -1,10 +1,10 @@
 <ion-header>
   <ion-toolbar class="ion-justify-content-center" color="primary">
     @if (behaviour !== 0) {
-      <ion-title translate>Edge.Config.App.Key.useKey</ion-title>
+      <ion-title translate>EDGE.CONFIG.APP.KEY.USE_KEY</ion-title>
     }
     @if (behaviour === 0) {
-      <ion-title translate>Edge.Config.App.Key.registerKey</ion-title>
+      <ion-title translate>EDGE.CONFIG.APP.KEY.REGISTER_KEY</ion-title>
     }
     <ion-buttons slot="end">
       <ion-button (click)="modalCtrl.dismiss()">
@@ -19,7 +19,7 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12" translate>
-        Edge.Config.App.Key.enterKey
+        EDGE.CONFIG.APP.KEY.ENTER_KEY
       </ion-col>
     </ion-row>
     <ion-row>
@@ -32,14 +32,14 @@
         <ion-row>
           <ion-col size="12" size-md="4">
             <ion-button (click)="modalCtrl.dismiss()" style="display: flex;" translate>
-              General.cancel
+              GENERAL.CANCEL
             </ion-button>
           </ion-col>
           <ion-col size="12" size-md="8">
             @if (!isKeyValid()) {
               <ion-button (click)="validateKey()" [disabled]="form.invalid"
                 style="display: flex;" translate>
-                Edge.Config.App.Key.validateKey
+                EDGE.CONFIG.APP.KEY.VALIDATE_KEY
               </ion-button>
             }
             @if (isKeyValid()) {
@@ -48,15 +48,15 @@
                 @switch (behaviour) {
                   <!-- REGISTER -->
                   @case (0) {
-                    <ion-label>{{"Edge.Config.App.Key.registerKey" | translate}}</ion-label>
+                    <ion-label>{{"EDGE.CONFIG.APP.KEY.REGISTER_KEY" | translate}}</ion-label>
                   }
                   <!-- NAVIGATE -->
                   @case (1) {
-                    <ion-label>{{"Edge.Config.App.Key.useKey" | translate}}</ion-label>
+                    <ion-label>{{"EDGE.CONFIG.APP.KEY.USE_KEY" | translate}}</ion-label>
                   }
                   <!-- SELECT -->
                   @case (2) {
-                    <ion-label>{{"Edge.Config.App.Key.useKey" | translate}}</ion-label>
+                    <ion-label>{{"EDGE.CONFIG.APP.KEY.USE_KEY" | translate}}</ion-label>
                   }
                 }
               </ion-button>

@@ -29,7 +29,7 @@ export class ChartComponent extends AbstractHistoryChart {
         }],
       output: (data: HistoryUtils.ChannelData) => {
         return [{
-          name: this.translate.instant("General.autarchy"),
+          name: this.translate.instant("GENERAL.AUTARCHY"),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
             return Utils.calculateAutarchy(energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.result.data["_sum/ConsumptionActiveEnergy"] ?? null);
           },

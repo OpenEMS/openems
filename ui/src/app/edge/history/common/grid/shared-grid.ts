@@ -106,7 +106,7 @@ export function createLimiter14aAxis(
             unit: YAxisType.RELAY,
             position: "right",
             yAxisId: ChartAxis.RIGHT,
-            customTitle: translate.instant("General.state"),
+            customTitle: translate.instant("GENERAL.STATE"),
             displayGrid: false,
         };
 

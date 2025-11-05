@@ -80,7 +80,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       output: (data: HistoryUtils.ChannelData) => {
         const datasets: HistoryUtils.DisplayValue[] = [];
         datasets.push({
-          name: this.showTotal == false ? this.translate.instant("General.production") : this.translate.instant("General.TOTAL"),
+          name: this.showTotal == false ? this.translate.instant("GENERAL.PRODUCTION") : this.translate.instant("GENERAL.TOTAL"),
           nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyQueryResponse?.result.data["_sum/ProductionActiveEnergy"] ?? null;
           },
@@ -160,7 +160,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       },
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: this.translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.ENERGY,

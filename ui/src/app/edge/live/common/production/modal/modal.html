@@ -1,8 +1,8 @@
 @if (isInitialized) {
-  <oe-modal [title]="'General.production'| translate">
+  <oe-modal [title]="'GENERAL.PRODUCTION'| translate">
     <!-- total summary of AC + DC -->
     @if (productionMeters?.length > 0 && chargerComponents?.length > 0) {
-      <oe-modal-line [name]="'General.TOTAL'| translate" channelAddress="_sum/ProductionActivePower"
+      <oe-modal-line [name]="'GENERAL.TOTAL'| translate" channelAddress="_sum/ProductionActivePower"
         [converter]="CONVERT_TO_WATT">
       </oe-modal-line>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -16,12 +16,12 @@
     }
     @if (productionMeters.length > 1) {
       <oe-modal-line margin_bottom="2" [converter]="CONVERT_TO_WATT"
-        [name]="('General.TOTAL'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
+        [name]="('GENERAL.TOTAL'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
         [channelAddress]="'_sum/ProductionAcActivePower'">
       </oe-modal-line>
       @for (phase of ['L1','L2','L3']; track phase) {
         <oe-modal-line [textIndent]="TextIndentation.SINGLE"
-          [name]=" ('General.phase'| translate) + '&nbsp;' + phase"
+          [name]=" ('GENERAL.PHASE'| translate) + '&nbsp;' + phase"
           [channelAddress]="'_sum/ProductionAcActivePower' + phase" [converter]="CONVERT_TO_WATT">
         </oe-modal-line>
       }
@@ -37,7 +37,7 @@
     }
     <!-- Chargers -->
     @if (chargerComponents.length > 1) {
-      <oe-modal-line [name]="('General.TOTAL'| translate) + (productionMeters.length > 0 ? '&nbsp;DC':'')"
+      <oe-modal-line [name]="('GENERAL.TOTAL'| translate) + (productionMeters.length > 0 ? '&nbsp;DC':'')"
         [channelAddress]="'_sum/ProductionDcActualPower'" [converter]="CONVERT_TO_WATT">
       </oe-modal-line>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -46,7 +46,7 @@
       <oe-ess-charger [component]="component"></oe-ess-charger>
       <oe-modal-horizontal-line [index]="i" [components]="chargerComponents"></oe-modal-horizontal-line>
     }
-    <oe-modal-info-line [info]="'Edge.Index.Widgets.phasesInfo' | translate">
+    <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.PHASES_INFO' | translate">
     </oe-modal-info-line>
   </oe-modal>
 }

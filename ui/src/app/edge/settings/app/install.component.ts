@@ -188,14 +188,14 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(";"), "warning");
         } else {
-          this.service.toast(this.translate.instant("Edge.Config.App.successInstall"), "success");
+          this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_INSTALL"), "success");
         }
 
         this.form.markAsPristine();
         const navigationExtras = { state: { appInstanceChange: true } };
         this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
       })
-        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("Edge.Config.App.failInstall", { error: error })))
+        .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error })))
         .finally(() => {
           this.isInstalling = false;
           this.service.stopSpinner(this.appId);

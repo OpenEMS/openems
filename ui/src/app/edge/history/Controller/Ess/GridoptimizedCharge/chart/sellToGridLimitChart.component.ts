@@ -41,19 +41,19 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
       ],
       output: (data: HistoryUtils.ChannelData) => ([
         {
-          name: translate.instant("General.gridSell"),
+          name: translate.instant("GENERAL.GRID_SELL"),
           converter: () => data["ActivePower"],
           color: ChartConstants.Colors.PURPLE,
         },
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn"),
+          name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN"),
           converter: hasMaximumGridFeedInLimitInMeta(edge) ? () => data["_PropertyMaximumGridFeedInLimit"] : () => data["_PropertyMaximumSellToGridPower"],
           color: ChartConstants.Colors.YELLOW,
           hideShadow: true,
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("Edge.Index.Widgets.GridOptimizedCharge.MAXIMUM_GRIDSELL_WITH_CHARGE"),
+          name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRIDSELL_WITH_CHARGE"),
           converter: hasMaximumGridFeedInLimitInMeta(edge) ? () => data["_PropertyMaximumGridFeedInLimit"].map(el => Utils.multiplySafely(el, 0.95))
             : () => data["_PropertyMaximumSellToGridPower"].map(el => Utils.multiplySafely(el, 0.95)),
           color: ChartConstants.Colors.RED,
@@ -61,7 +61,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
           borderDash: [3, 3],
         },
         {
-          name: translate.instant("General.production"),
+          name: translate.instant("GENERAL.PRODUCTION"),
           converter: () => data["ProductionActivePower"],
           color: "rgb(45,143,171)",
         },

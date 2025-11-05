@@ -1,10 +1,10 @@
 @if (isInitialized) {
   <oe-navigation-view [title]="component.alias" [component]="component" [formGroup]="formGroup">
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
+    { name: ('GENERAL.OFF' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
     { name: 'Low', value: 'MANUAL_LOW', icon: {color:'primary', name: 'caret-down-circle-outline'}},
     { name: 'High', value: 'MANUAL_HIGH', icon: {color:'primary', name: 'caret-up-circle-outline'}},
-    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'timer-outline'}}]">
+    { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'timer-outline'}}]">
     </oe-modal-buttons>
     @if (formGroup.value.mode !== 'OFF') {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>

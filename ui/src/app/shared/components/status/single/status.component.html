@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar class="ion-justify-content-center"
     style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-    <ion-title translate>General.SYSTEM_STATE</ion-title>
+    <ion-title translate>GENERAL.SYSTEM_STATE</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close" style="color: var(--ion-title-color);"></ion-icon>
@@ -17,7 +17,7 @@
           <ion-item lines="full">
             <ion-icon color="primary" name="analytics-outline"></ion-icon>
             <ion-label class="ion-padding-start">
-              {{"General.totalState" | translate}}
+              {{"GENERAL.TOTAL_STATE" | translate}}
             </ion-label>
             @switch (sum.state) {
               @case (0) {
@@ -56,7 +56,7 @@
                         }
                         @if (!item.isEnabled) {
                           <small> (<span
-                          translate>General.componentInactive</span>) </small>
+                          translate>GENERAL.COMPONENT_INACTIVE</span>) </small>
                         }
                       </h3>
                     </ion-text>
@@ -72,18 +72,18 @@
                               @switch (channels[address.componentId][address.channelId].level) {
                                 @case ('INFO') {
                                   <ion-text color="success" translate>
-                                    General.info&nbsp;
+                                    GENERAL.INFO&nbsp;
                                   </ion-text>
                                 }
                                 @case ('WARNING') {
                                   <ion-text color="warning"
                                     translate>
-                                    General.warning&nbsp;
+                                    GENERAL.WARNING&nbsp;
                                   </ion-text>
                                 }
                                 @case ('FAULT') {
                                   <ion-text color="danger" translate>
-                                    General.fault&nbsp;
+                                    GENERAL.FAULT&nbsp;
                                   </ion-text>
                                 }
                               }

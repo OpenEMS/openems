@@ -67,9 +67,9 @@ export class ModalComponent extends AbstractModal {
       }
 
       if (this.controlModeNumber != ControlMode.idle) {
-        this.overwriteLabel = this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.OVERWRITE");
+        this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE");
       } else {
-        this.overwriteLabel = this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_OVERWRITE");
+        this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
       }
     }
   }
