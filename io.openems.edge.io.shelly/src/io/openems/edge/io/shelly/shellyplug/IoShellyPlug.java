@@ -14,11 +14,12 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 public interface IoShellyPlug
-		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, ShellyCommon, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**

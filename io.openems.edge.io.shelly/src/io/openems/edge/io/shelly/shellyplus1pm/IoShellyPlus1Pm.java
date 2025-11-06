@@ -13,11 +13,12 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 public interface IoShellyPlus1Pm
-		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, ShellyCommon, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -48,11 +49,23 @@ public interface IoShellyPlus1Pm
 		 * <ul>
 		 * <li>Interface: ShellyPlus1PM
 		 * <li>Type: Boolean
-		 * <li>Level: WARN
+		 * <li>Level: INFO
 		 * </ul>
 		 */
 		NEEDS_RESTART(Doc.of(Level.INFO) //
 				.text("Shelly suggests a restart.")),
+
+		/**
+		 * Indicates whether the Shelly needs a restart.
+		 *
+		 * <ul>
+		 * <li>Interface: ShellyPlus1PM
+		 * <li>Type: Boolean
+		 * <li>Level: INFO
+		 * </ul>
+		 */
+		HAS_UPDATE(Doc.of(Level.INFO) //
+				.text("Shelly has an Update available.")),
 		/**
 		 * Slave Communication Failed Fault.
 		 *

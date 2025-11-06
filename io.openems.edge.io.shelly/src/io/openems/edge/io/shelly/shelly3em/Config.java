@@ -25,8 +25,5 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
 
-	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
-	boolean invert() default false;
-
 	String webconsole_configurationFactory_nameHint() default "IO Shelly 3EM [{id}]";
 }

@@ -2,13 +2,11 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
-import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
-import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -27,20 +25,24 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
 import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "IO.Shelly.Pro3", //
 		immediate = true, //
-		configurationPolicy = REQUIRE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 @EventTopics({ //
-		TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 
 public class IoShellyPro3Impl extends AbstractOpenemsComponent
-		implements IoShellyPro3, DigitalOutput, OpenemsComponent, EventHandler {
+		implements IoShellyPro3, DigitalOutput, OpenemsComponent, ShellyCommon, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShellyPro3Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
@@ -55,7 +57,8 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPro3.ChannelId.values() //
+				IoShellyPro3.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPro3.ChannelId.RELAY_1), //
@@ -69,6 +72,9 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+
+		// Subscribe to check auth status and model validation on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPRO3);
 
 		for (int i = 0; i < 3; i++) {
 			final int relayIndex = i;
@@ -93,7 +99,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.digitalOutputChannels);
+		return Utils.generateDebugLog(this.digitalOutputChannels);
 	}
 
 	@Override
@@ -103,7 +109,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case TOPIC_CYCLE_EXECUTE_WRITE //
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 			-> this.executeWrite();
 		}
 	}
