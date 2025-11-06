@@ -11,8 +11,18 @@ public enum OneWireDevice {
     OneWireThermometer7("OneWire Thermometer 7", 40700),
     OneWireThermometer8("OneWire Thermometer 8", 40800),
     OneWireThermometer9("OneWire Thermometer 9", 40900),
-    OneWireThermometer10("OneWire Thermometer 10", 41000);
-
+    OneWireThermometer10("OneWire Thermometer 10", 41000),
+	OneWireThermometer11("OneWire Thermometer 11", 41100),
+	OneWireThermometer12("OneWire Thermometer 12", 41200),
+	OneWireThermometer13("OneWire Thermometer 13", 41300),
+	OneWireThermometer14("OneWire Thermometer 14", 41400),
+	OneWireThermometer15("OneWire Thermometer 15", 41500),
+	OneWireThermometer16("OneWire Thermometer 16", 41600),
+	OneWireThermometer17("OneWire Thermometer 17", 41700),
+	OneWireThermometer18("OneWire Thermometer 18", 41800),
+	OneWireThermometer19("OneWire Thermometer 19", 41900),
+	OneWireThermometer20("OneWire Thermometer 20", 42000);
+	
     private final int modbusAddress;
     private final String name;
 

@@ -19,6 +19,7 @@ import io.openems.edge.thermometer.esera.onewire.enums.LogVerbosity;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -145,7 +146,7 @@ public class EseraOneWireThermometerImpl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(this.config.OneWireDevice().getModbusAddress(), Priority.HIGH,
 						m(EseraOneWireThermometer.ChannelId.TEMPERATURE_OWD_DEBUG,
-								new SignedWordElement(this.config.OneWireDevice().getModbusAddress())),
+								new SignedWordElement(this.config.OneWireDevice().getModbusAddress()),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(this.config.OneWireDevice().getModbusAddress() + 1,
 								this.config.OneWireDevice().getModbusAddress() + 11),
 						m(EseraOneWireThermometer.ChannelId.OWD_STATUS,
