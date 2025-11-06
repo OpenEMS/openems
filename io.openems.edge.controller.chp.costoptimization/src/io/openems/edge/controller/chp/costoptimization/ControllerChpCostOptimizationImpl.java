@@ -135,8 +135,9 @@ public class ControllerChpCostOptimizationImpl extends AbstractOpenemsComponent
 	public void run() throws OpenemsNamedException {
 		this.updateOperationalValues();
 		if (this.operationalValuesOk == false) {
-			this.logWarn(this.log, "Controller not ready");
-			this.changeState(State.ERROR);
+			this.logError(this.log, "ERROR in Controller\n");
+			this.chp.applyPreparation(false);
+			this.setChpOff();
 			return;
 		}
 		Integer gridActivePower = this.gridMeter.getActivePower().get();
