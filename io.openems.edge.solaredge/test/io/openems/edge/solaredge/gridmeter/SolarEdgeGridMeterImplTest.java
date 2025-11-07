@@ -20,7 +20,6 @@ public class SolarEdgeGridMeterImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(1) //
 						.setType(GRID) //
-						.setInvert(false) //
 						.build()) //
 		;
 	}

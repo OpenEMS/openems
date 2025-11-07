@@ -157,30 +157,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
-	/**
-	 * Make sure to call this method from the inheriting OSGi Component.
-	 *
-	 * @param context               ComponentContext of this component. Receive it
-	 *                              from parameter for @Activate
-	 * @param id                    ID of this component. Typically 'config.id()'
-	 * @param alias                 Human-readable name of this Component. Typically
-	 *                              'config.alias()'. Defaults to 'id' if empty
-	 * @param enabled               Whether the component should be enabled.
-	 *                              Typically 'config.enabled()'
-	 * @param unitId                Unit-ID of the Modbus target
-	 * @param cm                    An instance of ConfigurationAdmin. Receive it
-	 *                              using @Reference
-	 * @param modbusReference       The name of the @Reference setter method for the
-	 *                              Modbus bridge - e.g. 'Modbus' if you have a
-	 *                              setModbus()-method
-	 * @param modbusId              The ID of the Modbus bridge. Typically
-	 *                              'config.modbus_id()'
-	 * @param readFromCommonBlockNo ignore all SunSpec blocks before
-	 *                              'readFromCommonBlockNo' was passed
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
-	 * @throws OpenemsException on error
-	 */
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
 			throws OpenemsException {
@@ -345,7 +321,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					}
 
 					if (blockCounter < this.readFromCommonBlockNo) {
-						// ignore all SunSpec blocks before 'readFromCommonBlockNo' was passed
+						// ignore all SunSpec blocks before 'startFromCommonBlockNo' was passed
 
 					} else {
 

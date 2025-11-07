@@ -2,6 +2,8 @@ package io.openems.common.websocket;
 
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -27,14 +29,13 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	private final AbstractWebsocketClient<?> parent;
 	private final Config config;
 	private final long minWaitSecondsBetweenRetries;
-	private long lastTry;
+	private Instant lastTry = Instant.MIN;
 	private String debugLog = null;
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent, Config config) {
 		this.parent = parent;
 		this.config = config;
 		this.minWaitSecondsBetweenRetries = new Random().nextInt(config.maxWaitSeconds()) + config.minWaitSeconds();
-		this.lastTry = 0;
 	}
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent) {
@@ -48,8 +49,8 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			return;
 		}
 
-		var start = System.nanoTime();
-		var waitedSeconds = TimeUnit.NANOSECONDS.toSeconds(start - this.lastTry);
+		var start = Instant.now();
+		var waitedSeconds = Duration.between(this.lastTry, start).getSeconds();
 		if (waitedSeconds < this.minWaitSecondsBetweenRetries) {
 			this.debugLog = "Waiting till next WebSocket reconnect ["
 					+ (this.minWaitSecondsBetweenRetries - waitedSeconds) + "s]";
@@ -79,11 +80,10 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
-		var end = System.nanoTime();
+		var end = Instant.now();
 		if (success) {
 			this.debugLog = null;
-			this.parent.logInfo(this.log,
-					"Connected successfully [" + TimeUnit.NANOSECONDS.toSeconds(end - start) + "s]");
+			this.parent.logInfo(this.log, "Connected successfully [" + Duration.between(start, end).toSeconds() + "s]");
 		} else {
 			this.debugLog = "Connection failed";
 			this.log.info("Connection failed");

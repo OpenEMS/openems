@@ -133,7 +133,7 @@ export enum DelayChargeState {
     NO_REMAINING_TIME = 1, // No remaining time
     NO_REMAINING_CAPACITY = 2, // No remaining capacity //
     TARGET_MINUTE_NOT_CALCULATED = 3, // Target minute not calculated //
-    NO_FEASIBLE_SOLUTION = 4, // Limit cannot be adapted because of other constraints with higher priority
+    NO_FEASABLE_SOLUTION = 4, // Limit cannot be adapted because of other constraints with higher priority
     NO_CHARGE_LIMIT = 5, // No active limitation
     DISABLED = 6, // Delay charge part is disabled
     NOT_STARTED = 7, // Delay charge was not started because there is no production or to less production
@@ -144,7 +144,7 @@ export enum SellToGridLimitState {
     UNDEFINED = -1,// Undefined
     ACTIVE_LIMIT_FIXED = 0,// Active limitation - Fix limit
     NO_LIMIT = 1,//No active limitation
-    NO_FEASIBLE_SOLUTION = 2,//Limit cannot be adapted because of other constraints with higher priority
+    NO_FEASABLE_SOLUTION = 2,//Limit cannot be adapted because of other constraints with higher priority
     ACTIVE_LIMIT_CONSTRAINT = 3,// Active limitation - Minimum charge power
     DISABLED = 4, // SellToGridLimit part is disabled
     NOT_STARTED = 5,//SellToGridLimit part was not started because there is no production or to less production

@@ -2028,7 +2028,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// Only for Australia, Refer to Table 8-22
 						m(GoodWe.ChannelId.DRED_CMD, new UnsignedWordElement(47007)), //
 						new DummyRegisterElement(47008), //
-						// For wifi+Lan module, to switch to LAN or WiFi communication
+						// For wifi+Lan module, to switch to LAN or WiFi communicaiton
 						m(GoodWe.ChannelId.WIFI_OR_LAN_SWITCH, new UnsignedWordElement(47009)), //
 						// Ripple Control Receiver on/off
 						m(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE, new UnsignedWordElement(47010)), //

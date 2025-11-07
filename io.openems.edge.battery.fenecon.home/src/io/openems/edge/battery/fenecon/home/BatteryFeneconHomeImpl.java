@@ -648,7 +648,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_BAT_UNDER_VOLTAGE",
 												Level.WARNING))), //
 								m(new BitsWordElement(towerOffset + 6, this)
-										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICATION_FAULT",
+										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICAITON_FAULT",
 												Level.WARNING)) //
 										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT",
 												Level.WARNING)) //

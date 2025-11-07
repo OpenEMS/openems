@@ -493,7 +493,7 @@ public interface Sum extends OpenemsComponent {
 		CONSUMPTION_MAX_ACTIVE_POWER(Doc.of(INTEGER) //
 				.unit(WATT) //
 				.persistencePriority(VERY_HIGH) //
-				.text("Maximum measured active power of the electrical consumption")), //
+				.text("Maximum measured active power of the electrical consumpton")), //
 		/**
 		 * Unmanaged Consumption: Active Power.
 		 *

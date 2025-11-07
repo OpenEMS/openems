@@ -6,7 +6,6 @@ import static io.openems.common.types.OptionsEnum.getOption;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsInt;
-import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_PRODUCTION;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
@@ -234,7 +233,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 									0 /* ignore */, //
 									0 /* ignore */, //
 									round(getAsInt(getter.apply(SUM_ESS_SOC)) / 100F * essTotalEnergy), //
-									toEnergy(getAsOptionalInt(getter.apply(SUM_PRODUCTION)).orElse(0)), //
+									toEnergy(getAsInt(getter.apply(SUM_PRODUCTION))), //
 									toEnergy(getAsInt(getter.apply(SUM_CONSUMPTION))), //
 									getAsDouble(getter.apply(channelQuarterlyPrices)), //
 									ofNullable(getOption(StateMachine.class, //

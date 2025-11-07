@@ -1,0 +1,9 @@
+= SMA Sunny Home Manager 2.0 Integrated Meter
+
+This implementation uses the integrated energy meter of the SMA Sunny Home Manager 2.0
+Data needs to polled through Modbus from an attached SMA inverter as the HM2.0 does not have a local API on the device itself
+
+Implemented Natures:
+- ElectricityMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.sma.shm20[Source Code icon:github[]]
