@@ -30,10 +30,26 @@ export class GetLatestSetupProtocolCoreInfoResponse extends JsonrpcResponseSucce
     }
 }
 
+export class GetSetupProtocolCoreInfoResponse extends JsonrpcResponseSuccess {
+
+    public constructor(
+        public override readonly id: string,
+        public override readonly result: {
+            setupProtocols: {
+                setupProtocolId: number,
+                createDate: Date,
+                setupProtocolType: Type,
+            }[],
+        }
+    ) {
+        super(id, result);
+    }
+}
+
 export enum Type {
-    CAPACITY_EXTENSION = "capacity-extension",
-    SETUP_PROTOCOL = "setup-protocol",
-    EMS_EXCHANGE = "ems-exchange",
+    CAPACITY_EXTENSION = "CAPACITY_EXTENSION",
+    SETUP_PROTOCOL = "SETUP_PROTOCOL",
+    EMS_EXCHANGE = "EMS_EXCHANGE",
 }
 
 export function getFileName(type: Type, createDate: Date, edge: Edge | null) {

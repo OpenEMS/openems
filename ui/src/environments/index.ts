@@ -81,7 +81,8 @@ export interface Environment {
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,
-                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL_50_GEN_1: string,
+                    readonly COMMERCIAL_50_GEN_3: string,
                     readonly COMMERCIAL_92: string,
                     readonly COMMERCIAL_92_CLUSTER: string,
                 },
@@ -139,8 +140,8 @@ export interface Environment {
 }
 
 /*
- * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
+ * Return the proper websocket scheme ("ws" or "wss") depending on whether the page is accessed via HTTP or HTTPS.
  */
-export function getWebsocketScheme(): string {
-    return window.location.protocol === "https:" ? "wss://" : "ws://";
+export function getWebsocketScheme(protocol: string = window.location.protocol): string {
+    return protocol === "https:" ? "wss" : "ws";
 }

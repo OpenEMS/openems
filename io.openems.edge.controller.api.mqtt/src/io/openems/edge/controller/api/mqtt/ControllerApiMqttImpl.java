@@ -3,6 +3,8 @@ package io.openems.edge.controller.api.mqtt;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -30,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -68,12 +71,33 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	private volatile ScheduledFuture<?> reconnectFuture = null;
 	private String topicPrefix;
 	private IMqttClient mqttClient = null;
+	private List<MqttTopicFilter> topicFilters;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
+
+	private static List<MqttTopicFilter> getFilter(Config config) throws OpenemsException {
+		// Expand the filterSpec to the filterList
+		if (config == null || config.topicFilters().length == 0) {
+			return List.of();
+		}	
+		if (config.topicFilters().length == 1 && (config.topicFilters()[0] == null || config.topicFilters()[0].isBlank())) {
+			return List.of();
+		}
+
+		final var newFilter = new ArrayList<MqttTopicFilter>(config.topicFilters().length);
+		for (int i = 0; i < config.topicFilters().length; i++) {
+			try {
+				newFilter.add(MqttTopicFilter.of(config.topicFilters()[i]));
+			} catch (IllegalArgumentException e) {
+				throw new OpenemsException("Unable to parse filter pattern: '" + config.topicFilters()[i] + "'");
+			}
+		}
+		return newFilter;
+	}
 
 	public ControllerApiMqttImpl() {
 		super(//
@@ -87,12 +111,24 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws Exception {
 		this.config = config;
 
+		try {
+			this.topicFilters = ControllerApiMqttImpl.getFilter(config);
+		} catch (OpenemsException e) {
+			this.log.warn("Error parsing filter. Filter disabled!: {}", e.getMessage(), e);
+			this.topicFilters = List.of();
+		}
+		if (!this.topicFilters.isEmpty()) {
+			this.log.info("Enabled filters: {}", String.join(", ", config.topicFilters()));
+		}
+
 		// Publish MQTT messages under the topic "edge/edge0/..."
 		this.topicPrefix = createTopicPrefix(config);
 
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.scheduleReconnect();
+		if (this.isEnabled()) {
+			this.scheduleReconnect();
+		}
 	}
 
 	/**
@@ -128,10 +164,12 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 
 		if (this.mqttClient != null) {
 			try {
+				this.mqttClient.disconnect();
 				this.mqttClient.close();
+				this.mqttClient = null;
 			} catch (MqttException e) {
 				this.logWarn(this.log, "Unable to close connection to MQTT broker: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 			}
 		}
 	}
@@ -164,7 +202,7 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
 			// Send new EdgeConfig
 			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-			this.publish(ControllerApiMqtt.TOPIC_EDGE_CONFIG, config.toJson().toString(), //
+			this.publish(ControllerApiMqtt.TOPIC_EDGE_CONFIG + "/", config.toJson().toString(), //
 					1 /* QOS */, true /* retain */, new MqttProperties() /* no specific properties */);
 
 			// Trigger sending of all channel values, because a Component might have
@@ -180,19 +218,28 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
 	 *                 front of this string
 	 * @param message  the message
-	 * @return true if message was successfully published; false otherwise
+	 * @return MqttPublishStatus enum value: OK if the message was successfully
+	 *         published, ERROR if publishing failed, FILTERED if the topic was
+	 *         filtered.
 	 */
-	protected boolean publish(String subTopic, MqttMessage message) {
+	protected MqttPublishStatus publish(String subTopic, MqttMessage message) {
+		if (!this.isEnabled()) {
+			return MqttPublishStatus.ERROR;
+		}
+
 		var mqttClient = this.mqttClient;
 		if (mqttClient == null) {
-			return false;
+			return MqttPublishStatus.ERROR;
 		}
 		try {
+			if (!this.filterTopic(subTopic)) {
+				return MqttPublishStatus.FILTERED;
+			}
 			mqttClient.publish(this.topicPrefix + subTopic, message);
-			return true;
+			return MqttPublishStatus.OK;
 		} catch (MqttException e) {
 			this.logWarn(this.log, e.getMessage());
-			return false;
+			return MqttPublishStatus.ERROR;
 		}
 	}
 
@@ -205,11 +252,26 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 	 * @param qos        the MQTT QOS
 	 * @param retained   the MQTT retained parameter
 	 * @param properties the {@link MqttProperties}
-	 * @return true if message was successfully published; false otherwise
+	 * @return MqttPublishStatus enum value: OK if the message was successfully
+	 *         published, ERROR if publishing failed, FILTERED if the topic was
+	 *         filtered.
 	 */
-	protected boolean publish(String subTopic, String message, int qos, boolean retained, MqttProperties properties) {
+	protected MqttPublishStatus publish(String subTopic, String message, int qos, boolean retained,
+			MqttProperties properties) {
 		var msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
 		return this.publish(subTopic, msg);
+	}
+
+	protected boolean filterTopic(String topic) {
+		if (this.topicFilters.isEmpty()) {
+			return true;
+		}
+		for (final var filter : this.topicFilters) {
+			if (filter.matches(topic)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private synchronized void scheduleReconnect() {
@@ -230,7 +292,8 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 							this.config.certPem(), this.config.privateKeyPem(), this.config.trustStorePem())
 					.thenAccept(client -> {
 						this.mqttClient = client;
-						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri() + "]");
+						this.logInfo(this.log, "Connected to MQTT Broker [" + this.config.uri()
+								+ "]! Publish to topics '" + this.topicPrefix + "#'");
 						this.reconnectionAttempt.set(0); // Reset on successful connection.
 					}) //
 					.exceptionally(ex -> {

@@ -8,14 +8,15 @@ public class TimeOfUseTariffTibberImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new TimeOfUseTariffTibberImpl()) //
+		final var sut = new TimeOfUseTariffTibberImpl();
+		new ComponentTest(sut) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
 						.setAccessToken("foo-bar") //
 						.setFilter("") //
 						.build()) //
 		;
-		// tibber.task.run();
+		// sut.task.run();
 	}
 
 }

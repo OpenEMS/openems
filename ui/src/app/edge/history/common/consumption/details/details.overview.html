@@ -1,11 +1,23 @@
-<oe-chart [title]="component.alias + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)"
-  *ngIf="isInitialized && component" [period]="service.historyPeriod.value">
-  <ng-container [ngSwitch]="componentType">
-    <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
-    <consumptionMeterChart *ngSwitchCase="'consumptionMeter'" [isOnlyChart]="true"></consumptionMeterChart>
-    <evcsChart *ngSwitchCase="'evcs'" [isOnlyChart]="true"></evcsChart>
-    <heatChart *ngSwitchCase="'heat'" [isOnlyChart]="true"></heatChart>
-  </ng-container>
-</oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
+@if (isInitialized && component) {
+  <oe-chart [title]="component.alias + '&nbsp;-&nbsp;' + ('EDGE.HISTORY.PHASE_ACCURATE' | translate)"
+    [period]="service.historyPeriod.value">
+    @switch (componentType) {
+      @case ('sum') {
+        <sumChart [isOnlyChart]="true"></sumChart>
+      }
+      @case ('consumptionMeter') {
+        <consumptionMeterChart [isOnlyChart]="true"></consumptionMeterChart>
+      }
+      @case ('evcs') {
+        <evcsChart [isOnlyChart]="true"></evcsChart>
+      }
+      @case ('heat') {
+        <heatChart [isOnlyChart]="true"></heatChart>
+      }
+    }
+  </oe-chart>
+}
+@if (isInitialized) {
+  <oe-footer-subnavigation [backButton]="true"
   [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+}

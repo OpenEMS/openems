@@ -43,6 +43,7 @@ import io.openems.edge.bridge.modbus.api.task.Task.ExecuteState;
 import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.BitFieldPoint.SunSpecBitPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ChannelIdPoint;
+import io.openems.edge.bridge.modbus.sunspec.Point.EnumFieldPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ScaleFactorPoint;
 import io.openems.edge.bridge.modbus.sunspec.Point.ScaledValuePoint;
@@ -478,6 +479,25 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			var alternativeBitPoints = this.getBitPoints(bfp);
 			yield bfp.generateModbusElements(this, channelId -> this.addChannel(channelId), startAddress,
 					alternativeBitPoints);
+		}
+
+		case EnumFieldPoint efp -> {
+			final var points = efp.points;
+			for (var point : points) {
+				var channelId = point.getChannelId();
+				this.addChannel(channelId);
+			}
+			final var uwe = efp.generateModbusElement(startAddress, t -> {
+				for (var point : points) {
+					try {
+						final var channel = this.getSunSpecChannelOrError(point);
+						channel.setNextValue(t.test(point));
+					} catch (Exception e) {
+						this.logWarn(this.log, "Missing SunSpec Channel for point [" + point + "]: " + e.getMessage());
+					}
+				}
+			});
+			yield List.of(uwe);
 		}
 
 		case ModbusElementPoint mep -> {

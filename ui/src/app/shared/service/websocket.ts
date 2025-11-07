@@ -20,6 +20,7 @@ import { AuthenticateWithTokenRequest } from "../jsonrpc/request/authenticateWit
 import { EdgeRpcRequest } from "../jsonrpc/request/edgeRpcRequest";
 import { LogoutRequest } from "../jsonrpc/request/logoutRequest";
 import { RegisterUserRequest } from "../jsonrpc/request/registerUserRequest";
+import { SubscribeChannelsRequest } from "../jsonrpc/request/subscribeChannelsRequest";
 import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
 import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
@@ -324,11 +325,11 @@ export class Websocket implements WebsocketInterface {
     // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
-        this.service.toast(this.translate.instant("Login.authenticationFailed"), "danger");
+        this.service.toast(this.translate.instant("LOGIN.AUTHENTICATION_FAILED"), "danger");
         this.onLoggedOut();
         break;
       case 1:
-        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger");
+        this.service.toast(this.translate.instant("LOGIN.REQUEST_TIMEOUT"), "danger");
         this.status = "waiting for credentials";
         this.service.onLogout();
         break;
@@ -392,24 +393,32 @@ export class Websocket implements WebsocketInterface {
     const edgeId = edgeRpcNotification.params.edgeId;
     const message = edgeRpcNotification.params.payload;
 
-    const edges = this.service.metadata.value?.edges ?? {};
-    if (edgeId in edges) {
-      const edge = edges[edgeId];
+    const edge = this.service.currentEdge();
 
-      switch (message.method) {
-        case EdgeConfigNotification.METHOD:
-          edge.isOnline = true; // Mark Edge as online
-          edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
-          break;
+    if (edge == null) {
+      const unsubscribeFromChannelsRequest = new EdgeRpcRequest({ edgeId: edgeId, payload: new SubscribeChannelsRequest([]) });
+      this.sendRequest(unsubscribeFromChannelsRequest);
+      return;
+    }
 
-        case CurrentDataNotification.METHOD:
-          edge.handleCurrentDataNotification(message as CurrentDataNotification);
-          break;
+    if (edge.id !== edgeId) {
+      console.error("EdgeId doesnt match");
+      return;
+    }
 
-        case SystemLogNotification.METHOD:
-          edge.handleSystemLogNotification(message as SystemLogNotification);
-          break;
-      }
+    switch (message.method) {
+      case EdgeConfigNotification.METHOD:
+        edge.isOnline = true; // Mark Edge as online
+        edge.handleEdgeConfigNotification(message as EdgeConfigNotification);
+        break;
+
+      case CurrentDataNotification.METHOD:
+        edge.handleCurrentDataNotification(message as CurrentDataNotification);
+        break;
+
+      case SystemLogNotification.METHOD:
+        edge.handleSystemLogNotification(message as SystemLogNotification);
+        break;
     }
   }
 }

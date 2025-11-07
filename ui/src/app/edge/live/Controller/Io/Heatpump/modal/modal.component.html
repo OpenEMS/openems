@@ -16,22 +16,22 @@
     <ion-card-content class="underline">
       <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
         <tr [ngSwitch]="currentData[component.id + '/Status']">
-          <td style="width:65%" translate>General.state</td>
+          <td style="width:65%" translate>GENERAL.STATE</td>
           <td *ngIf="currentData[this.component.id + '/State'] !== 3" style="width:35%" class="align_right" translate>
             <ng-container *ngSwitchCase="-1">
-              Edge.Index.Widgets.HeatPump.undefined
+              EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED
             </ng-container>
             <ng-container *ngSwitchCase="0">
-              Edge.Index.Widgets.HeatPump.lock
+              EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK
             </ng-container>
             <ng-container *ngSwitchCase="1">
-              Edge.Index.Widgets.HeatPump.normalOperation
+              EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION
             </ng-container>
             <ng-container *ngSwitchCase="2">
-              Edge.Index.Widgets.HeatPump.switchOnRec
+              EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC
             </ng-container>
             <ng-container *ngSwitchCase="3">
-              Edge.Index.Widgets.HeatPump.switchOnCom
+              EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM
             </ng-container>
           </td>
           <td *ngIf="currentData[this.component.id + '/State'] === 3" style="width:35%" class="align_right">
@@ -39,12 +39,12 @@
           </td>
         </tr>
         <tr>
-          <td style="width:65%" translate>General.mode</td>
+          <td style="width:65%" translate>GENERAL.MODE</td>
           <td *ngIf="component.properties['mode'] === 'MANUAL'" style="width: 35%" class="align_right" translate>
-            General.manually
+            GENERAL.MANUALLY
           </td>
           <td *ngIf="component.properties['mode'] === 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
-            General.automatic
+            GENERAL.AUTOMATIC
           </td>
         </tr>
       </table>
@@ -53,22 +53,22 @@
       <table class="full_width">
         <tr>
           <td translate>
-            General.mode
+            GENERAL.MODE
           </td>
         </tr>
       </table>
       <!-- Controller Mode -->
       <ion-segment (ionChange)="updateControllerMode($event)" [value]="component.properties['mode']" scrollable="false">
         <ion-segment-button value="MANUAL">
-          <ion-label translate>
-            General.manually
+          <ion-label>
+            {{"GENERAL.MANUALLY" | translate}}
           </ion-label>
           <ion-icon [color]="component.properties['mode'] === 'MANUAL'? 'success': 'normal'" style="width:40px"
-            name="power-outline"></ion-icon>
+            name="options-outline"></ion-icon>
         </ion-segment-button>
         <ion-segment-button value="AUTOMATIC">
-          <ion-label style="color: var(--ion-color-text)" translate>
-            General.automatic
+          <ion-label style="color: var(--ion-color-text)">
+            {{"GENERAL.AUTOMATIC" | translate}}
           </ion-label>
           <ion-icon style="width:40px" name="sunny-outline"
             [color]="component.properties['mode'] === 'AUTOMATIC'? 'primary': 'normal'">
@@ -83,26 +83,28 @@
           <ion-list>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
               lines="none">
-              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom</ion-label>
-              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
+              <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM" | translate}}</ion-label>
+              <ion-toggle (keydown.enter)="updateManualMode('FORCE_ON')" button tabindex="0" mode="md" slot="end"
+                style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('RECOMMENDATION')"
               lines="none">
-              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-              <ion-toggle mode="md" style="pointer-events: none"
-                [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
+              <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC" | translate}}</ion-label>
+              <ion-toggle (keydown.enter)="updateManualMode('RECOMMENDATION')" mode="md" style="pointer-events: none"
+                slot="end" [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
               lines="none">
-              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.normalOperation</ion-label>
-              <ion-toggle mode="md" style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
+              <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION" | translate}}</ion-label>
+              <ion-toggle (keydown.enter)="updateManualMode('REGULAR')" mode="md" style="pointer-events: none"
+                slot="end" [checked]="formGroup.value.manualState === 'REGULAR'">
               </ion-toggle>
             </ion-item>
             <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
-              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
-              <ion-toggle mode="md" style="pointer-events: none"
+              <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK" | translate}}</ion-label>
+              <ion-toggle (keydown.enter)="updateManualMode('LOCK')" mode="md" style="pointer-events: none" slot="end"
                 [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
             </ion-item>
           </ion-list>
@@ -116,7 +118,7 @@
           <ion-item
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value !== true,'automaticRecommendationCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
-            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
+            <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC" | translate}}</ion-label>
             <ion-toggle mode="md"
               [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
@@ -124,7 +126,7 @@
           <table class="full_width">
             <tr>
               <td style="width: 65%" translate>
-                Edge.Index.Widgets.HeatPump.gridSell
+                EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL
               </td>
               <td style="width: 35%" class="align_right">
                 <ion-item class="ion-no-padding" lines="inset">
@@ -141,7 +143,7 @@
             <tr>
               <td style="width: 100%">
                 <ion-text color="danger" translate>
-                  Edge.Index.Widgets.HeatPump.moreThanMaxPower
+                  EDGE.INDEX.WIDGETS.HEAT_PUMP.MORE_THAN_MAX_POWER
                 </ion-text>
               </td>
             </tr>
@@ -152,7 +154,7 @@
           <ion-item
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticForceOnCtrlEnabled.value !== true,'automaticForceOnCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
-            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom
+            <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM" | translate}}
             </ion-label>
             <ion-toggle mode="md"
               [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
@@ -162,7 +164,7 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  Edge.Index.Widgets.HeatPump.gridSell
+                  EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL
                 </td>
                 <td style="width: 35%" class="align_right">
                   <ion-item class="ion-no-padding" lines="inset">
@@ -177,7 +179,7 @@
               <tr>
                 <td style="width: 100%">
                   <ion-text color="danger" translate>
-                    Edge.Index.Widgets.HeatPump.moreThanMaxPower
+                    EDGE.INDEX.WIDGETS.HEAT_PUMP.MORE_THAN_MAX_POWER
                   </ion-text>
                 </td>
               </tr>
@@ -185,7 +187,7 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%;" translate>
-                  Edge.Index.Widgets.HeatPump.aboveSoc</td>
+                  EDGE.INDEX.WIDGETS.HEAT_PUMP.ABOVE_SOC</td>
                 <td style="width: 35%" class="align_right ion-padding-end">
                   {{ formGroup.controls.automaticForceOnSoc.value | unitvalue:'%' }}
                 </td>
@@ -210,14 +212,14 @@
           <ion-item
             (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value !== true,'automaticLockCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
-            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
+            <ion-label class="regularFont">{{"EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK" | translate}}</ion-label>
             <ion-toggle mode="md" [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
           </ion-item>
           <ng-container>
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  Edge.Index.Widgets.HeatPump.gridBuy
+                  EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_BUY
                 </td>
                 <td style="width: 35%" class="align_right">
                   <ion-item class="ion-no-padding" lines="inset">
@@ -231,7 +233,7 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%;" translate>
-                  Edge.Index.Widgets.HeatPump.belowSoc</td>
+                  EDGE.INDEX.WIDGETS.HEAT_PUMP.BELOW_SOC</td>
                 <td style="width: 35%" class="align_right ion-padding-end">
                   {{ formGroup.controls.automaticLockSoc.value | unitvalue:'%' }}
                 </td>
@@ -255,7 +257,7 @@
           <table class="full_width">
             <tr>
               <td style="width: 65%" translate>
-                Edge.Index.Widgets.Singlethreshold.minSwitchingTime
+                EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME
               </td>
               <td style="width: 35%" class="align_right">
                 <ion-item lines="inset" class="ion-no-padding">

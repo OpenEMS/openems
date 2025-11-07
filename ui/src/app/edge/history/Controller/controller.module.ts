@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { ChannelThreshold } from "./ChannelThreshold/channelThreshold.module";
+import { EnerixControl } from "./EnerixControl/enerixControl.module";
 import { ControllerEss } from "./Ess/ess.module";
 import { GridOptimizeCharge } from "./Ess/GridoptimizedCharge/gridOptimizeCharge.module";
 import { TimeOfUseTariff } from "./Ess/TimeOfUseTariff/timeOfUseTariff.module";
@@ -13,6 +14,7 @@ import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
     ControllerHeat,
     ControllerIo,
     ChannelThreshold,
+    EnerixControl,
     TimeOfUseTariff,
     ModbusTcpApi,
     GridOptimizeCharge,
@@ -22,6 +24,7 @@ import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
     ControllerHeat,
     ControllerIo,
     ChannelThreshold,
+    EnerixControl,
     TimeOfUseTariff,
     ModbusTcpApi,
     GridOptimizeCharge,

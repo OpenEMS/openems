@@ -56,7 +56,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         });
 
                         output.push({
-                            name: translate.instant("Edge.Index.Widgets.HEAT.TEMPERATURE_UNIT"),
+                            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.TEMPERATURE_UNIT"),
                             nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => null,
                             converter: () => data["Temperature"]?.map((value) => {
                                 return Utils.multiplySafely(value, 100);

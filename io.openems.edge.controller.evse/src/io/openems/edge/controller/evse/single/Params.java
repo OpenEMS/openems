@@ -1,5 +1,6 @@
 package io.openems.edge.controller.evse.single;
 
+import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.evse.api.chargepoint.Mode;
 
@@ -18,6 +19,10 @@ public record Params(//
 		 */
 		Integer activePower, //
 		/**
+		 * History data
+		 */
+		History history, //
+		/**
 		 * Hysteresis data
 		 */
 		Hysteresis hysteresis, //
@@ -33,4 +38,11 @@ public record Params(//
 		 * The CombinedAbilities of Charge-Point and Electric-Vehicle.
 		 */
 		CombinedAbilities combinedAbilities) {
+
+	public Params(Mode.Actual actualMode, Integer activePower, History history, PhaseSwitching phaseSwitching,
+			CombinedAbilities combinedAbilities) {
+		this(actualMode, activePower, history, Hysteresis.from(history), phaseSwitching,
+				history.getAppearsToBeFullyCharged(), combinedAbilities);
+	}
+
 }
