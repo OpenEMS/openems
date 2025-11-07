@@ -24,5 +24,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
+	@AttributeDefinition(name = "Read only", description = "Defines that this controller is read only.", required = true)
+	boolean readOnly() default true;
+
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.OFF;
+
 	String webconsole_configurationFactory_nameHint() default "Controller Clever-PV [{id}]";
 }

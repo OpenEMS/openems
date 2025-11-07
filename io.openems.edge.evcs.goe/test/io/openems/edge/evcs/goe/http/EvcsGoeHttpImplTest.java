@@ -1,10 +1,11 @@
 package io.openems.edge.evcs.goe.http;
 
-import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.evcs.api.PhaseRotation;
+import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
+
 import org.junit.Test;
 
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public class EvcsGoeHttpImplTest {
 

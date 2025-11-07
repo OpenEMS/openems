@@ -83,7 +83,6 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 				.setDefaultValue("192.168.25.11") //
 				.setRequired(true)), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
-
 		// Properties for P40
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //

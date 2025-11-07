@@ -1,8 +1,8 @@
 <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
 <div [style.height.px]="getChartHeight()" id="chart-area" class="semi-transparent-background">
-    <ngx-spinner [name]="spinnerId"></ngx-spinner>
-    <ng-container *ngIf="!loading">
-        <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" type="line"></canvas>
-    </ng-container>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+  @if (!loading) {
+    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" type="line"></canvas>
+  }
 </div>

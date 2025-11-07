@@ -22,6 +22,17 @@ export namespace StringUtils {
     }
 
     /**
+     * Checks if the value does occur in array
+     *
+     * @param val the value
+     * @param arr the array
+     * @returns true if passed value is ocurring in the array
+     */
+    export function isIn(val: string, arr: string[]): boolean {
+        return arr.some(el => val == el);
+    }
+
+    /**
      * Gets the substring between a start and end character
      *
      * @param start the start character
