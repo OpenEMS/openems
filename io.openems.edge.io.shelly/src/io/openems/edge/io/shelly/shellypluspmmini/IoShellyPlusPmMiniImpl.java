@@ -36,6 +36,9 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -51,7 +54,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements IoShellyPlusPmMini, SinglePhaseMeter,
-		ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		ElectricityMeter, OpenemsComponent, ShellyCommon, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -76,7 +79,8 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				IoShellyPlusPmMini.ChannelId.values() //
+				IoShellyPlusPmMini.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
@@ -97,6 +101,10 @@ public class IoShellyPlusPmMiniImpl extends AbstractOpenemsComponent implements 
 			return;
 		}
 
+		// Subscribe to check auth status and model validation on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPMMINI);
+		
+		// Subscribe for regular status updates
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 

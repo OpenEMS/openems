@@ -32,6 +32,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
+import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -44,7 +47,7 @@ import io.openems.edge.io.api.DigitalOutput;
 })
 
 public class IoShelly25Impl extends AbstractOpenemsComponent
-		implements IoShelly25, DigitalOutput, OpenemsComponent, EventHandler {
+		implements IoShelly25, DigitalOutput, OpenemsComponent, ShellyCommon, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(IoShelly25Impl.class);
 	private final BooleanWriteChannel[] digitalOutputChannels;
@@ -59,7 +62,8 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShelly25.ChannelId.values() //
+				IoShelly25.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShelly25.ChannelId.RELAY_1), //
@@ -74,6 +78,9 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (this.isEnabled()) {
+			// Subscribe to check auth status and model validation on activation
+			Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLY25_RELAY);
+			
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 		}
 	}
