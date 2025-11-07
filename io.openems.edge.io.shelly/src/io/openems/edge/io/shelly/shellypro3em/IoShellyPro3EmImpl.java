@@ -37,6 +37,9 @@ import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -52,7 +55,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
-		implements IoShellyPro3Em, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		implements IoShellyPro3Em, ElectricityMeter, OpenemsComponent, ShellyCommon, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -76,7 +79,8 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				IoShellyPro3Em.ChannelId.values() //
+				IoShellyPro3Em.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
@@ -93,6 +97,9 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		this.httpBridge = this.httpBridgeFactory.get();
 
 		if (this.isEnabled()) {
+			// Subscribe to check auth status and model validation on activation
+			Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPRO3EM);
+			
 			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/EM.GetStatus?id=0", this::processHttpResult);
 		}
 	}

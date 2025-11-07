@@ -41,6 +41,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.ShellyCommon;
+import io.openems.edge.io.shelly.common.ShellyDeviceModels;
+import io.openems.edge.io.shelly.common.Utils;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -58,7 +61,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoShellyPlus1Pm, DigitalOutput,
-		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, ShellyCommon, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -85,7 +88,8 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
-				IoShellyPlus1Pm.ChannelId.values() //
+				IoShellyPlus1Pm.ChannelId.values(), //
+				ShellyCommon.ChannelId.values() //
 		);
 		this.digitalOutputChannels = new BooleanWriteChannel[] { //
 				this.channel(IoShellyPlus1Pm.ChannelId.RELAY) //
@@ -109,6 +113,10 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 			return;
 		}
 
+		// Subscribe to check auth status and model validation on activation
+		Utils.subscribeAuthenticationCheck(this.baseUrl, this.httpBridge, this, this.log, ShellyDeviceModels.SHELLYPLUS1PM);
+		
+		// Subscribe for regular status updates
 		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
@@ -154,6 +162,7 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 		Integer current = null;
 		Boolean relay0 = null;
 		boolean restartRequired = false;
+		boolean updatesAvailable = false;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -169,6 +178,16 @@ public class IoShellyPlus1PmImpl extends AbstractOpenemsComponent implements IoS
 
 				var sys = getAsJsonObject(jsonResponse, "sys");
 				restartRequired = getAsBoolean(sys, "restart_required");
+
+				var availableUpdates = getAsJsonObject(sys, "available_updates");
+				if (availableUpdates != null && availableUpdates.has("stable")) {
+					updatesAvailable = true;
+					this.log.debug("Stable update available: {}",
+							availableUpdates.getAsJsonObject("stable").toString());
+				} else {
+					updatesAvailable = false;
+					this.log.debug("No stable updates available.");
+				}
 
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
