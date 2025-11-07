@@ -4,7 +4,6 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
-import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -16,15 +15,16 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 public interface ControllerEvseSingle extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(StateMachine.State.values()) //
-				.text("Current State of State-Machine")), //
-
-		ACTUAL_MODE(Doc.of(Mode.Actual.values())), //
-		SESSION_ENERGY(Doc.of(INTEGER) //
-				.unit(WATT_HOURS) //
+		STATE_MACHINE(Doc.of(StateMachine.State.values())//
+				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
-		SESSION_LIMIT_REACHED(Doc.of(Level.INFO) //
-				.text("Session Limit reached")) //
+
+		ACTUAL_MODE(Doc.of(Mode.Actual.values())//
+				.persistencePriority(HIGH)), //
+
+		SESSION_ENERGY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)) //
 		;
 
 		private final Doc doc;

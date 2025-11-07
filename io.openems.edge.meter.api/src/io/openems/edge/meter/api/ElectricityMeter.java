@@ -1670,4 +1670,14 @@ public interface ElectricityMeter extends OpenemsComponent {
 		});
 	}
 
+	/**
+	 * Is this Meter installed according to standard or rotated wiring?. See
+	 * {@link PhaseRotation} for details.
+	 *
+	 * @return the {@link PhaseRotation}.
+	 */
+	public default PhaseRotation getPhaseRotation() {
+		return PhaseRotation.L1_L2_L3;
+	}
+
 }

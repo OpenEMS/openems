@@ -2,11 +2,11 @@ package io.openems.edge.meter.abb.b32;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class MeterAbbB23ImplTest {
 

@@ -1,22 +1,26 @@
 // @ts-strict-ignore
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { DataService } from "src/app/shared/components/shared/dataservice";
+import { NgxSpinnerComponent } from "ngx-spinner";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Edge, presentAlert, Service, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
-import { LiveDataService } from "../../live/livedataservice";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { ExecuteSystemUpdate } from "./executeSystemUpdate";
 import { SystemUpdateState } from "./getSystemUpdateStateResponse";
 
 @Component({
   selector: OeSystemUpdateComponent.SELECTOR,
   templateUrl: "./oe-system-update.component.html",
-  standalone: false,
-  providers: [{
-    useClass: LiveDataService,
-    provide: DataService,
-  }],
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    FormsModule,
+  ],
 })
 export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 

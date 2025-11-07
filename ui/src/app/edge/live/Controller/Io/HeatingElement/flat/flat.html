@@ -1,28 +1,30 @@
-<ng-container *ngIf="isInitialized">
-    <oe-flat-widget button (click)="presentModal()" [title]="component.alias" [icon]="{color: 'normal', name:'flame'}">
-
-        <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode | translate">
+@if (isInitialized) {
+  <oe-flat-widget [modalComponent]="modalComponent" [title]="component.alias"
+    [icon]="{color: 'normal', name:'flame'}">
+    <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [value]="mode | translate">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="runState | translate"
+      [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE">
+    </oe-flat-widget-line>
+    <ng-container>
+      <!-- Shown when level isn't 0  -->
+      @if (consumptionMeter === null && level !== Level.LEVEL_0) {
+        <oe-flat-widget-line
+          [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level&nbsp;' + level">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.state' | translate" [value]="runState | translate"
-        [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE">
+      }
+      @if (consumptionMeter) {
+        <oe-flat-widget-line
+          [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate"
+          [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT">
         </oe-flat-widget-line>
-
-        <ng-container>
-            <!-- Shown when level isn't 0  -->
-            <oe-flat-widget-line *ngIf="consumptionMeter === null && level !== Level.LEVEL_0"
-                [name]="'Edge.Index.Widgets.Heatingelement.activeLevel' | translate" [value]="'Level&nbsp;' + level">
-            </oe-flat-widget-line>
-            <oe-flat-widget-line *ngIf="consumptionMeter"
-                [name]="'Edge.Index.Widgets.Heatingelement.HEATING_POWER' | translate"
-                [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT">
-            </oe-flat-widget-line>
-        </ng-container>
-
-        <ng-container *ngIf="activePower && activePower !== 0 && runState === State.CALIBRATION">
-            <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-            <ion-text translate>
-                Edge.Index.Widgets.Heatingelement.CALIBRATION_DESCRIPTION
-            </ion-text>
-        </ng-container>
-    </oe-flat-widget>
-</ng-container>
+      }
+    </ng-container>
+    @if (activePower && activePower !== 0 && runState === State.CALIBRATION) {
+      <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
+      <ion-text translate>
+        EDGE.INDEX.WIDGETS.HEATINGELEMENT.CALIBRATION_DESCRIPTION
+      </ion-text>
+    }
+  </oe-flat-widget>
+}

@@ -72,7 +72,6 @@ public class SunSpecCodeGenerator extends AbstractSunSpecCodeGenerator {
 				"model_160.json", //
 				"model_211.json", //
 				"model_212.json", //
-				"model_213.json", //
 				"model_214.json", //
 				"model_220.json", //
 				"model_302.json", //

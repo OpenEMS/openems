@@ -20,6 +20,7 @@ common_initialize_environment() {
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
     VERSION_PATCH=$(echo $tmp_version | cut -d'.' -f3)
     VERSION_STRING=$(echo $VERSION | cut -s -d'-' -f2)
+    VERSION_FULL=$tmp_version
 }
 
 common_build_snapshot_version() {
@@ -28,7 +29,7 @@ common_build_snapshot_version() {
         # Ref: https://unix.stackexchange.com/a/23673
         VERSION_DEV_BRANCH="$(git branch --show-current)"
         VERSION_DEV_COMMIT=""
-        git diff --exit-code --quiet;
+        git diff --exit-code --quiet
         if [ $? -ne 0 ]; then
             VERSION_DEV_COMMIT="dirty"
         else
@@ -63,10 +64,19 @@ common_update_version_in_code() {
     sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
 }
 
+common_print_banner() {
+    local text="$1"
+    local len="${#text}"
+    printf "\n"
+    printf ' %*s \n' "$len" '' | tr ' ' '='
+    printf ' %s \n' "$text"
+    printf ' %*s \n' "$len" '' | tr ' ' '='
+}
+
 # Build OpenEMS Backend
 common_build_backend() {
-    echo "# Build OpenEMS Backend"
-    ./gradlew $@ --build-cache build buildBackend resolve.BackendApp
+    common_print_banner "Build OpenEMS Backend"
+    ./gradlew "$@" --build-cache build buildBackend resolve.BackendApp
     git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
@@ -77,22 +87,23 @@ common_build_edge_and_ui_in_parallel() {
     common_build_ui
 }
 
+
 # Build OpenEMS Edge
 common_build_edge() {
-    echo "# Build OpenEMS Edge"
-    ./gradlew $@ --build-cache build buildEdge resolve.EdgeApp resolve.BackendApp
-    git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
+    common_print_banner "Build OpenEMS Edge"
+    ./gradlew "$@" --build-cache build buildEdge resolve.EdgeApp
+    git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 }
 
 # Run OpenEMS Checkstyle
 common_run_checkstyle() {
-    echo "# Run Checkstyle"
-    ./gradlew $@ checkstyleAll
+    common_print_banner "Run Checkstyle"
+    ./gradlew "$@" checkstyleAll
 }
 
 # Build OpenEMS UI
 common_build_ui() {
-    echo "# Build OpenEMS UI"
+    common_print_banner "Build OpenEMS UI"
     if [ "${NODE_MODULES_CACHE}" != "" -a -d "$NODE_MODULES_CACHE" ]; then
         echo "## Use cached node_modules"
         mv -f "${NODE_MODULES_CACHE}" "ui/node_modules"
@@ -101,7 +112,7 @@ common_build_ui() {
 
     # Install dependencies from package.json
     npm ci
-    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then 
+    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then
         echo "## Angular Cache: $NG_CLI_CACHE_PATH"
         node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
     fi
@@ -126,7 +137,7 @@ common_build_android_app() {
 
     # Install dependencies from package.json
     npm ci
-    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then 
+    if [ "${NG_CLI_CACHE_PATH}" != "" ]; then
         echo "## Angular Cache: $NG_CLI_CACHE_PATH"
         node_modules/.bin/ng config cli.cache.path "$NG_CLI_CACHE_PATH"
     fi
@@ -195,5 +206,15 @@ common_save_environment() {
     export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
     export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
     export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
+    export VERSION_FULL=\"$VERSION_FULL\"
     " | tee $file
+}
+
+common_check_file() {
+    local file=$1
+    local error_message=${2:-"File not found!"}
+    if [ ! -f "$file" ]; then
+        echo "Error: $error_message"
+        exit 1
+    fi
 }

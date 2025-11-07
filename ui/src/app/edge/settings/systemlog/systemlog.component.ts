@@ -1,15 +1,20 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
 import { SelectCustomEvent } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { parse } from "date-fns";
 import { Subject } from "rxjs";
 import { filter, take, takeUntil } from "rxjs/operators";
 import { Filter } from "src/app/index/filter/filter.component";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Role } from "src/app/shared/type/role";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
-  placeholder: translate.instant("Edge.Config.Log.level"),
+  placeholder: translate.instant("EDGE.CONFIG.LOG.LEVEL"),
   category: "level",
   options: [
     {
@@ -17,15 +22,15 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
       value: "DEBUG",
     },
     {
-      name: translate.instant("General.info"),
+      name: translate.instant("GENERAL.INFO"),
       value: "INFO",
     },
     {
-      name: translate.instant("General.warning"),
+      name: translate.instant("GENERAL.WARNING"),
       value: "WARN",
     },
     {
-      name: translate.instant("General.fault"),
+      name: translate.instant("GENERAL.FAULT"),
       value: "ERROR",
     },
   ],
@@ -34,7 +39,14 @@ export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
 @Component({
   selector: SystemLogComponent.SELECTOR,
   templateUrl: "./systemlog.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    LocaleProvider,
+    PipeComponentsModule,
+    RouterModule,
+    FormsModule,
+  ],
 })
 export class SystemLogComponent implements OnInit, OnDestroy {
 
@@ -162,9 +174,9 @@ export class SystemLogComponent implements OnInit, OnDestroy {
         edge.updateComponentConfig(this.websocket, SystemLogComponent.DEBUG_LOG_CONTROLLER_ID, [{
           name: "condensedOutput", value: event.detail["checked"],
         }]).then(() => {
-          this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+          this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
         }).catch((reason) => {
-          this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+          this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
         }));
   }
 

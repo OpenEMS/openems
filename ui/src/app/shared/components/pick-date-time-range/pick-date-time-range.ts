@@ -105,9 +105,17 @@ export class PickDateTimeRangeComponent implements OnChanges, AfterViewInit {
         if (this.mode === "date") {
             return date.toLocaleDateString("default");
         } else if (this.mode === "datetime") {
-            return `${date.toLocaleTimeString("deafult", { hour: "2-digit", minute: "2-digit" })} ${date.toLocaleDateString("deafult")}`;
-        } else {
-            return date.toLocaleTimeString("default", { hour: "2-digit", minute: "2-digit" });
+            return `${date.toLocaleTimeString("default", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hourCycle: "h23",
+            })} ${date.toLocaleDateString("default")}`;
+        } else { // This is the 'time' mode
+            return date.toLocaleTimeString("default", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hourCycle: "h23",
+            });
         }
     }
 }

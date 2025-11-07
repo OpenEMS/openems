@@ -1250,6 +1250,12 @@ public interface GoodWe extends OpenemsComponent {
 		// Fixed Power Factor
 		FIXED_POWER_FACTOR(Doc.of(FixedPowerFactor.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
+
+		// Separate Register to enable Fixed Power Factor used for ET50 (1547-1) 
+		ENABLE_FIXED_POWER_FACTOR_V2(Doc.of(EnableCurve.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		FIXED_POWER_FACTOR_V2(Doc.of(FixedPowerFactor.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		FIXED_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -1428,6 +1434,11 @@ public interface GoodWe extends OpenemsComponent {
 		FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		EXTENDED_FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		EXTENDED_FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
 

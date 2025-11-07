@@ -263,7 +263,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.CPLD_WARNING_CODE, new UnsignedWordElement(35213)), //
 						new DummyRegisterElement(35214, 35217), //
 						new UnsignedDoublewordElement(35218).onUpdateCallback(code -> detectDiagStatesH(code) //
-                                .forEach((channel, value) -> this.channel(channel).setNextValue(value))),
+								.forEach((channel, value) -> this.channel(channel).setNextValue(value))),
 
 						m(new BitsWordElement(35220, this) //
 								.bit(0, GoodWe.ChannelId.DIAG_STATUS_BMS_OVER_TEMPERATURE)//
@@ -1351,6 +1351,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									case FENECON_50K -> {
 										this.handleMultipleStringChargers(protocol);
 										this.handleStsBox(protocol);
+										this.handleExtendedFeedPower(protocol);
+										this.handleNewFixPfRegisters(protocol);
 									}
 									case FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH ->
 										this.handleMultipleStringChargers(protocol);
@@ -1428,6 +1430,37 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				.orElse(GoodWeType.UNDEFINED);
 	}
 
+	private void handleExtendedFeedPower(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(42003, Priority.LOW, //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, new UnsignedWordElement(42003)), //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, new SignedDoublewordElement(42004)) //
+				) //
+		);
+		protocol.addTask(//
+				new FC16WriteRegistersTask(42003,
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE, new UnsignedWordElement(42003)), //
+						m(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET, new SignedDoublewordElement(42004)) //
+				) //
+		);
+
+	}
+
+	private void handleNewFixPfRegisters(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(45539, Priority.LOW, //
+						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
+				) //
+		);
+		protocol.addTask(//
+				new FC16WriteRegistersTask(45539,
+						m(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45539)), //
+						m(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2, new UnsignedWordElement(45540)) //
+				) //
+		);
+	}
+
 	/**
 	 * Handle multiple string chargers.
 	 *
@@ -1447,7 +1480,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		 * Block 1: PV1 - PV4 voltage & current
 		 */
 		protocol.addTask(//
-
 				new FC3ReadRegistersTask(35103, Priority.HIGH, //
 						m(GoodWe.ChannelId.TWO_S_PV1_V, new UnsignedWordElement(35103),
 								ElementToChannelConverter.SCALE_FACTOR_2),
@@ -1553,9 +1585,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.MPPT7_I, new UnsignedWordElement(35351), //
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(GoodWe.ChannelId.MPPT8_I, new UnsignedWordElement(35352), //
-								ElementToChannelConverter.SCALE_FACTOR_2)
-				)
-		);
+								ElementToChannelConverter.SCALE_FACTOR_2)));
 	}
 
 	// TODO: Can be removed when GoodWeChargerTwoStringImpl has been deleted
@@ -2028,7 +2058,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// Only for Australia, Refer to Table 8-22
 						m(GoodWe.ChannelId.DRED_CMD, new UnsignedWordElement(47007)), //
 						new DummyRegisterElement(47008), //
-						// For wifi+Lan module, to switch to LAN or WiFi communicaiton
+						// For wifi+Lan module, to switch to LAN or WiFi communication
 						m(GoodWe.ChannelId.WIFI_OR_LAN_SWITCH, new UnsignedWordElement(47009)), //
 						// Ripple Control Receiver on/off
 						m(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE, new UnsignedWordElement(47010)), //
@@ -2282,36 +2312,89 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		return goodweDcPower;
 	}
 
+	public record MaxAcPower(Integer maxAcImport, Integer maxAcExport) {
+	}
+
 	/**
 	 * Calculate and store Max-AC-Export and -Import channels.
 	 *
+	 * <p>
+	 * Calculate and store Max-AC-Export and -Import for use in
+	 * getStaticConstraints()
+	 * </p>
+	 *
 	 * @param maxApparentPower the max apparent power
 	 */
-	protected void calculateMaxAcPower(int maxApparentPower) {
-		// Calculate and store Max-AC-Export and -Import for use in
-		// getStaticConstraints()
-		var maxDcChargePower = /* can be negative for force-discharge */
-				TypeUtils.multiply(//
-						/* Inverter Charge-Max-Current */ this.getWbmsChargeMaxCurrent().get(), //
-						/* Voltage */ this.getWbmsVoltage().orElse(0));
-		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
+	protected void handleMaxAcPower(int maxApparentPower) {
 
-		// Calculates Max-AC-Import and Max-AC-Export as positive numbers
-		var maxAcImport = TypeUtils.subtract(maxDcChargePower,
-				TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction));
-		var maxAcExport = TypeUtils.sum(//
-				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
-						/* Inverter Discharge-Max-Current */ this.getWbmsDischargeMaxCurrent().get(), //
-						/* Voltage */ this.getWbmsVoltage().orElse(0)),
-				/* PV Production */ pvProduction);
+		final var result = calculateMaxAcPower(maxApparentPower, this.getWbmsChargeMaxCurrent().get(),
+				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().asOptional(),
+				this.getGoodweType().maxBatChargeP, this.getGoodweType().maxBatDischargeP,
+				this.calculatePvProduction());
+
+		// Set Channels
+		this._setMaxAcImport(result.maxAcImport);
+		this._setMaxAcExport(result.maxAcExport);
+	}
+
+	/**
+	 * Calculate Max-AC-Export and -Import power.
+	 *
+	 * @param maxApparentPower        the max apparent power
+	 * @param wbmsChargeMaxCurrent    the WBMS charge max current
+	 * @param wbmsDischargeMaxCurrent the WBMS discharge max current
+	 * @param wbmsVoltage             the WBMS voltage
+	 * @param maxInvDcChargeP         the maximum inverter DC charge power
+	 * @param maxInvDcDischargeP      the maximum inverter DC discharge power
+	 * @param pvProduction            the DC production power
+	 * @return MaxAcPower with maxAcImport and maxAcExport
+	 */
+	protected static MaxAcPower calculateMaxAcPower(int maxApparentPower, Integer wbmsChargeMaxCurrent,
+			Integer wbmsDischargeMaxCurrent, Optional<Integer> wbmsVoltage, int maxInvDcChargeP, int maxInvDcDischargeP,
+			Integer pvProduction) {
+		pvProduction = TypeUtils.max(0, pvProduction);
+
+		/*
+		 * Calculate Max-Ac-Import
+		 */
+		final var maxDcChargePower = calculateDcLimitation(wbmsChargeMaxCurrent, wbmsVoltage, maxInvDcChargeP);
+
+		var maxAcImport = TypeUtils.subtract(maxDcChargePower, TypeUtils
+				.min(TypeUtils.max(0, maxDcChargePower) /* avoid negative number for `subtract` */, pvProduction));
+
+		/*
+		 * Calculate Max-Ac-Export
+		 */
+		final var maxDcDischargePower = calculateDcLimitation(wbmsDischargeMaxCurrent, wbmsVoltage, maxInvDcDischargeP);
+		var maxAcExport = TypeUtils.sum(maxDcDischargePower, pvProduction);
 
 		// Limit Max-AC-Power to inverter specific limit
 		maxAcImport = TypeUtils.min(maxAcImport, maxApparentPower);
 		maxAcExport = TypeUtils.min(maxAcExport, maxApparentPower);
 
-		// Set Channels
-		this._setMaxAcImport(TypeUtils.multiply(maxAcImport, /* negate */ -1));
-		this._setMaxAcExport(maxAcExport);
+		return new MaxAcPower(TypeUtils.multiply(maxAcImport, /* negate */ -1), // Max-Ac-Import is negative
+				maxAcExport);
+	}
+
+	/**
+	 * Calculate DC Limitation.
+	 *
+	 * <p>
+	 * Calculate the maximum DC power limit based on BMS max current, voltage & a
+	 * fixed inverter limit.
+	 * </p>
+	 *
+	 * @param bmsMaxCurrent BMS maximum current in A
+	 * @param voltage       voltage in V
+	 * @param inverterLimit hard limit for DC power in W
+	 * @return the maximum DC power in W
+	 */
+	protected static Integer calculateDcLimitation(Integer bmsMaxCurrent, Optional<Integer> voltage,
+			int inverterLimit) {
+		var maxDcPower = /* can be negative for force-discharge */
+				TypeUtils.multiply(bmsMaxCurrent, voltage.orElse(0));
+
+		return TypeUtils.min(maxDcPower, inverterLimit);
 	}
 
 	/**

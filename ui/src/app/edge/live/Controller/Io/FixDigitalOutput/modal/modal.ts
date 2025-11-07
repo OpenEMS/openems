@@ -30,20 +30,20 @@ export class ModalComponent extends AbstractFormlyComponent {
     const lines: OeFormlyField[] = [
       {
         type: "info-line",
-        name: translate.instant("General.mode"),
+        name: translate.instant("GENERAL.MODE"),
       },
       {
         type: "buttons-from-form-control-line",
-        name: translate.instant("General.mode"),
+        name: translate.instant("GENERAL.MODE"),
         controlName: "isOn",
         buttons: [
           {
-            name: translate.instant("General.on"),
+            name: translate.instant("GENERAL.ON"),
             value: 1,
-            icon: { color: "success", name: "power-outline", size: "medium" },
+            icon: { color: "success", name: "play-outline", size: "medium" },
           },
           {
-            name: translate.instant("General.off"),
+            name: translate.instant("GENERAL.OFF"),
             value: 0,
             icon: { color: "danger", name: "power-outline", size: "medium" },
           },
