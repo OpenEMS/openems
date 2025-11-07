@@ -17,23 +17,24 @@ public class IoShelly1ImplTest {
 	public void test() throws Exception {
 		final var sut = new IoShelly1Impl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-		
-		// Pre-set the response for the /shelly endpoint that will be called during activation
+
+		// Pre-set the response for the /shelly endpoint that will be called during
+		// activation
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
-			{
-				"name": "shelly1-test",
-				"id": "shelly1-12345",
-				"mac": "AA:BB:CC:DD:EE:FF",
-				"model": "SHSW-1",
-				"gen": 1,
-				"fw_id": "20230912-114516/v1.14.0-gcb84623",
-				"ver": "1.14.0",
-				"app": "shelly1",
-				"auth_en": false,
-				"auth_domain": "shelly1-12345"
-			}
-		"""));
-		
+					{
+						"name": "shelly1-test",
+						"id": "shelly1-12345",
+						"mac": "AA:BB:CC:DD:EE:FF",
+						"model": "SHSW-1",
+						"gen": 1,
+						"fw_id": "20230912-114516/v1.14.0-gcb84623",
+						"ver": "1.14.0",
+						"app": "shelly1",
+						"auth_en": false,
+						"auth_domain": "shelly1-12345"
+					}
+				"""));
+
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.activate(MyConfig.create() //
@@ -82,28 +83,28 @@ public class IoShelly1ImplTest {
 
 				.deactivate();//
 	}
-	
+
 	@Test
 	public void testAuthenticationWarning() throws Exception {
 		final var sut = new IoShelly1Impl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-		
+
 		// Pre-set the response for the /shelly endpoint with authentication enabled
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
-			{
-				"name": "shelly1-test",
-				"id": "shelly1-12345",
-				"mac": "AA:BB:CC:DD:EE:FF",
-				"model": "SHSW-1",
-				"gen": 1,
-				"fw_id": "20230912-114516/v1.14.0-gcb84623",
-				"ver": "1.14.0",
-				"app": "shelly1",
-				"auth_en": true,
-				"auth_domain": "shelly1-12345"
-			}
-		"""));
-		
+					{
+						"name": "shelly1-test",
+						"id": "shelly1-12345",
+						"mac": "AA:BB:CC:DD:EE:FF",
+						"model": "SHSW-1",
+						"gen": 1,
+						"fw_id": "20230912-114516/v1.14.0-gcb84623",
+						"ver": "1.14.0",
+						"app": "shelly1",
+						"auth_en": true,
+						"auth_domain": "shelly1-12345"
+					}
+				"""));
+
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.activate(MyConfig.create() //

@@ -21,23 +21,24 @@ public class IoShellyPlusPmMiniImplTest {
 	public void test() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-		
-		// Pre-set the response for the /shelly endpoint that will be called during activation
+
+		// Pre-set the response for the /shelly endpoint that will be called during
+		// activation
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
-			{
-				"name": "shellypluspmmini-test",
-				"id": "shellypluspmmini-12345",
-				"mac": "AA:BB:CC:DD:EE:FF",
-				"model": "SNSW-001P16EU-M",
-				"gen": 2,
-				"fw_id": "20230912-114516/v1.14.0-gcb84623",
-				"ver": "1.14.0",
-				"app": "PlusPmMini",
-				"auth_en": false,
-				"auth_domain": "shellypluspmmini-12345"
-			}
-		"""));
-		
+					{
+						"name": "shellypluspmmini-test",
+						"id": "shellypluspmmini-12345",
+						"mac": "AA:BB:CC:DD:EE:FF",
+						"model": "SNSW-001P16EU-M",
+						"gen": 2,
+						"fw_id": "20230912-114516/v1.14.0-gcb84623",
+						"ver": "1.14.0",
+						"app": "PlusPmMini",
+						"auth_en": false,
+						"auth_domain": "shellypluspmmini-12345"
+					}
+				"""));
+
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
@@ -112,28 +113,86 @@ public class IoShellyPlusPmMiniImplTest {
 
 				.deactivate();
 	}
-	
+
+	@Test
+	public void testInvert() throws Exception {
+		final var sut = new IoShellyPlusPmMiniImpl();
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("timedata", new DummyTimedata("timedata0")) //
+				.activate(MyConfig.create() //
+						.setId("io0") //
+						.setIp("127.0.0.1") //
+						.setType(CONSUMPTION_METERED) //
+						.setPhase(SinglePhase.L1) //
+						.setInvert(true) //
+						.build()) //
+
+				.next(new TestCase("Successful read response") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "pm1:0":{
+									    "id":0,
+									    "voltage":237.2,
+									    "current":0.106,
+									    "apower":6.7,
+									    "freq":50.1,
+									    "aenergy":{
+									      "total":73284.398,
+									      "by_minute":[
+									        219.104,
+									        0,
+									        219.104
+									      ],
+									      "minute_ts":1751037360
+									    },
+									    "ret_aenergy":{
+									      "total":0,
+									      "by_minute":[
+									        0,
+									        0,
+									        0
+									      ],
+									      "minute_ts":1751037360
+									    }
+									  }
+									}"""));
+							httpTestBundle.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("L1:-7 W", sut.debugLog()))
+
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, -7) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, -7) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 237200) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 237200) //
+						.output(ElectricityMeter.ChannelId.CURRENT, -106) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, -106) //
+						.output(IoShellyPlusPmMini.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
+	}
+
 	@Test
 	public void testAuthenticationWarning() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
-		
+
 		// Pre-set the response for the /shelly endpoint with authentication enabled
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
-			{
-				"name": "shellypluspmmini-test",
-				"id": "shellypluspmmini-12345",
-				"mac": "AA:BB:CC:DD:EE:FF",
-				"model": "SNSW-001P16EU-M",
-				"gen": 2,
-				"fw_id": "20230912-114516/v1.14.0-gcb84623",
-				"ver": "1.14.0",
-				"app": "PlusPmMini",
-				"auth_en": true,
-				"auth_domain": "shellypluspmmini-12345"
-			}
-		"""));
-		
+					{
+						"name": "shellypluspmmini-test",
+						"id": "shellypluspmmini-12345",
+						"mac": "AA:BB:CC:DD:EE:FF",
+						"model": "SNSW-001X16EU",
+						"gen": 2,
+						"fw_id": "20230912-114516/v1.14.0-gcb84623",
+						"ver": "1.14.0",
+						"app": "PlusPmMini",
+						"auth_en": true,
+						"auth_domain": "shellypluspmmini-12345"
+					}
+				"""));
+
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
