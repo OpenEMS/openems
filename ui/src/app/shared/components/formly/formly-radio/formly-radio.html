@@ -1,0 +1,32 @@
+<div [ngClass]="field.className">
+    <ion-list>
+
+        <ion-item *ngIf="to.label || to.description" lines="none">
+            <ion-label>
+                <h2 *ngIf="to.label">{{ to.label }}</h2>
+                <p *ngIf="to.description" class="ion-text-secondary">{{ to.description }}</p>
+            </ion-label>
+        </ion-item>
+
+        <ion-radio-group [formControl]="formControl" [formlyAttributes]="field">
+            <ion-item *ngFor="let option of to.options">
+                <ng-container *ngIf="to.radioSlot === 'start'; else end">
+                    <ion-radio justify="start" labelPlacement="end" [value]="option.value">
+                        {{ option.label }}
+                    </ion-radio>
+                </ng-container>
+                <ng-template #end>
+                    <ion-radio [value]="option.value">
+                        {{ option.label }}
+                    </ion-radio>
+                </ng-template>
+            </ion-item>
+        </ion-radio-group>
+
+        <ion-item *ngIf="showError" lines="none">
+            <ion-label color="danger" class="ion-text-wrap">
+                <formly-validation-message [field]="field"></formly-validation-message>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</div>

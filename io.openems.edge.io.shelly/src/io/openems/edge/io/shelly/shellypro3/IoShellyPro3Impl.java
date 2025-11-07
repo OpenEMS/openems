@@ -2,12 +2,13 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -26,7 +27,6 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.Utils;
 
@@ -34,10 +34,9 @@ import io.openems.edge.io.shelly.common.Utils;
 @Component(//
 		name = "IO.Shelly.Pro3", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 
 public class IoShellyPro3Impl extends AbstractOpenemsComponent
@@ -104,7 +103,7 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		case TOPIC_CYCLE_EXECUTE_WRITE //
 			-> this.executeWrite();
 		}
 	}

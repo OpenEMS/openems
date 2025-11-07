@@ -1,8 +1,7 @@
 package io.openems.edge.app.evse;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-
-import java.util.Arrays;
+import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import io.openems.edge.app.enums.Wiring;
 import io.openems.edge.core.appmanager.AppDef;
@@ -10,26 +9,8 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 
 public class EvseProps {
-
-	/**
-	 * Creates a {@link AppDef} for phase rotation.
-	 * 
-	 * @return the {@link AppDef}
-	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.Evse.phaseRotation.label") //
-				.setTranslatedDescription("App.Evse.phaseRotation.description") //
-				.setDefaultValue(PhaseRotation.L1_L2_L3) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(PhaseRotation.values()) //
-							.map(PhaseRotation::name) //
-							.toList());
-				}));
-	}
 
 	/**
 	 * Creates a {@link AppDef} for wiring.
@@ -39,7 +20,7 @@ public class EvseProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> wiring() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.wiring.label") //
-				.setDefaultValue(Wiring.SINGLE_PHASE) //
+				.setDefaultValue(Wiring.THREE_PHASE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Wiring.optionsFactory(), l);
 				}));
@@ -80,5 +61,15 @@ public class EvseProps {
 				.setTranslatedDescription("App.Evse.readOnly.description") //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 				.setDefaultValue(false);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for configuring the unit id of the charging station.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> unitId() {
+		return AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+				.setDefaultValue(255)); //
 	}
 }

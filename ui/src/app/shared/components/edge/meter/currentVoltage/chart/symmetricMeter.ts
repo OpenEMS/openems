@@ -28,7 +28,7 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
       output: (data: HistoryUtils.ChannelData) => [
 
         {
-          name: this.translate.instant("Edge.History.CURRENT"),
+          name: this.translate.instant("EDGE.HISTORY.CURRENT"),
           converter: () => {
             return data[component.id + "Current"];
           },
@@ -39,7 +39,7 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
           yAxisId: ChartAxis.LEFT,
         },
         {
-          name: this.translate.instant("Edge.History.VOLTAGE"),
+          name: this.translate.instant("EDGE.HISTORY.VOLTAGE"),
           converter: () => {
             return data[component.id + "Voltage"];
           },
@@ -51,7 +51,7 @@ export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart 
       ],
       tooltip: {
         formatNumber: "1.1-2",
-        afterTitle: this.translate.instant("General.TOTAL"),
+        afterTitle: this.translate.instant("GENERAL.TOTAL"),
       },
       yAxes: [{
         unit: YAxisType.VOLTAGE,

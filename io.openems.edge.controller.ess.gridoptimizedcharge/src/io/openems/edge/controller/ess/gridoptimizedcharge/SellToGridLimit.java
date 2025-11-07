@@ -28,7 +28,7 @@ public class SellToGridLimit {
 	 */
 	protected Integer getSellToGridLimit() throws OpenemsNamedException {
 
-		if (this.parent.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.NO_LIMITATION) {
+		if (this.parent.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.NO_LIMITATION) {
 			this.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.DISABLED, null);
 			return null;
 		}
@@ -64,7 +64,7 @@ public class SellToGridLimit {
 			// Set the power limitation constraint
 			this.parent.ess.setActivePowerLessOrEquals(sellToGridLimit);
 		} catch (OpenemsNamedException e) {
-			state = SellToGridLimitState.NO_FEASABLE_SOLUTION;
+			state = SellToGridLimitState.NO_FEASIBLE_SOLUTION;
 		}
 
 		// Set channels

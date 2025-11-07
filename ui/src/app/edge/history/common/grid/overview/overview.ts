@@ -43,8 +43,10 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
 
         navigationButtons.push(...gridMeters);
 
-        this.navigationButtons = navigationButtons.map(el => (
-            { id: el.id, alias: navigationButtons.length === 1 ? this.translate.instant("Edge.History.PHASE_ACCURATE") : el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
-        ));
+        this.navigationButtons = navigationButtons.flatMap(el => [
+            { id: el.id, alias: navigationButtons.length === 1 ? this.translate.instant("EDGE.HISTORY.PHASE_ACCURATE") : el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } },
+            { id: "externalLimitation", alias: this.translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"), callback: () => { this.router.navigate(["./externalLimitation"], { relativeTo: this.route }); } },
+        ]);
+
     }
 }

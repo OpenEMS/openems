@@ -1,6 +1,8 @@
-<oe-navigation-view [title]="component.alias" [component]="component" *ngIf="isInitialized">
+@if (isInitialized) {
+  <oe-navigation-view [title]="component.alias" [component]="component">
     <scheduleChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
     </scheduleChart>
     <powerChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
     </powerChart>
-</oe-navigation-view>
+  </oe-navigation-view>
+}
