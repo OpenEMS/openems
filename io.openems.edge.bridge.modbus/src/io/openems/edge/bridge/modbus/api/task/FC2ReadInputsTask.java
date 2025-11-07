@@ -23,7 +23,7 @@ public class FC2ReadInputsTask
 
 	public FC2ReadInputsTask(Consumer<ExecuteState> onExecute, int startAddress, Priority priority,
 			CoilElement... elements) {
-		super("FC2ReadCoils", onExecute, ReadInputDiscretesResponse.class, startAddress, priority, elements);
+		super("FC2ReadInputsTask", onExecute, ReadInputDiscretesResponse.class, startAddress, priority, elements);
 	}
 
 	@Override

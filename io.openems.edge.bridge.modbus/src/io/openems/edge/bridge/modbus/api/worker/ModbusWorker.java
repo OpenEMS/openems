@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -31,7 +31,7 @@ import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplierImpl;
  * {@link CycleTasksManager} that internally uses a {@link TasksSupplierImpl}
  * that supplies the tasks for one Cycle ({@link CycleTasks}).
  */
-public class ModbusWorker extends AbstractImmediateWorker {
+public class ModbusWorker extends AbstractWorker {
 
 	// Callbacks
 	private final Function<Task, ExecuteState> execute;
@@ -40,6 +40,9 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private final DefectiveComponents defectiveComponents;
 	private final TasksSupplierImpl tasksSupplier;
 	private final CycleTasksManager cycleTasksManager;
+
+	private int cycleTime = 0;
+	private int minSleepTime = 0;
 
 	/**
 	 * Constructor for {@link ModbusWorker}.
@@ -163,4 +166,23 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	public void onBeforeProcessImage() {
 		this.cycleTasksManager.onBeforeProcessImage();
 	}
+
+	@Override
+	protected final int getCycleTime() {
+		return this.cycleTime;
+	}
+
+	public void setCycleTime(int cycleTime) {
+		this.cycleTime = cycleTime;
+	}
+
+	@Override
+	protected final int getMinSleepTime() {
+		return this.minSleepTime;
+	}
+
+	public void setMinSleepTime(int minSleepTime) {
+		this.minSleepTime = minSleepTime;
+	}
+
 }
