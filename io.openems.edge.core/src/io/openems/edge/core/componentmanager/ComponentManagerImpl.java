@@ -170,7 +170,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			return emptyMap();
 		}
 
-		return StreamUtils.dictionaryToStream(config.getProperties())
+		if (config == null) {
+			return emptyMap();
+		}
+		final var props = config.getProperties();
+		if (props == null) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(props) //
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
@@ -749,7 +757,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
 		List<Configuration> result = new ArrayList<>();
-		var configs = this.cm.listConfigurations(null);
+		var configs = this.cm.listConfigurations("(id=" + componentId + ")");
 		if (configs == null) {
 			return result;
 		}
