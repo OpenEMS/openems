@@ -5,15 +5,15 @@ import { Pipe, PipeTransform } from "@angular/core";
  * Use like: *ngIf="bridge | isclass:'io.openems.impl.protocol.simulator.SimulatorBridge'"
  */
 @Pipe({
-  name: "isclass",
-  standalone: false,
+    name: "isclass",
+    standalone: false,
 })
 export class IsclassPipe implements PipeTransform {
-  transform(object: any, classname: string): boolean {
-    if (object !== null && typeof object === "object" && object["class"] && object.class == classname) {
-      return true;
-    } else {
-      return false;
+    transform(object: any, classname: string): boolean {
+        if (object !== null && typeof object === "object" && object["class"] && object.class == classname) {
+            return true;
+        } else {
+            return false;
+        }
     }
-  }
 }

@@ -9,25 +9,25 @@ import { ControllerIo } from "./Io/Io.module";
 import { ModbusTcpApi } from "./ModbusTcpApi/modbusTcpApi.module";
 
 @NgModule({
-  imports: [
-    ControllerEss,
-    ControllerHeat,
-    ControllerIo,
-    ChannelThreshold,
-    EnerixControl,
-    TimeOfUseTariff,
-    ModbusTcpApi,
-    GridOptimizeCharge,
-  ],
-  exports: [
-    ControllerEss,
-    ControllerHeat,
-    ControllerIo,
-    ChannelThreshold,
-    EnerixControl,
-    TimeOfUseTariff,
-    ModbusTcpApi,
-    GridOptimizeCharge,
-  ],
+    imports: [
+        ControllerEss,
+        ControllerHeat,
+        ControllerIo,
+        ChannelThreshold,
+        EnerixControl,
+        TimeOfUseTariff,
+        ModbusTcpApi,
+        GridOptimizeCharge,
+    ],
+    exports: [
+        ControllerEss,
+        ControllerHeat,
+        ControllerIo,
+        ChannelThreshold,
+        EnerixControl,
+        TimeOfUseTariff,
+        ModbusTcpApi,
+        GridOptimizeCharge,
+    ],
 })
 export class Controller { }

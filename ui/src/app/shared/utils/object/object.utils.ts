@@ -1,5 +1,8 @@
 import { ArrayUtils } from "../array/array.utils";
 
+/**
+ * Helper functions for interacting with objects.
+ */
 export class ObjectUtils {
 
     /** Excludes specified properties from an object by creating a shallow copy. */
@@ -16,11 +19,15 @@ export class ObjectUtils {
     }
 
     public static hasKeys<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
-        return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
+        return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
+    }
+
+    public static getKeySafely<T extends Record<string, any>, K extends keyof T>(obj: T, key: K): T[K] | null {
+        return key in obj ? obj[key] : null;
     }
 
     public static findObjectWithProperty<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
-        return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
+        return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
     }
 
     public static isObjectNullOrEmpty(obj: Record<string, any> | null | undefined): boolean {
