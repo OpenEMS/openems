@@ -200,9 +200,6 @@ public class DynamicDocText {
 
 		private static <N extends Number> Predicate<N> isInRange(N min, N max) {
 			return e -> {
-				if (e == null) {
-					return false;
-				}
 				return min.doubleValue() <= e.doubleValue() //
 						&& max.doubleValue() >= e.doubleValue();
 			};
@@ -210,18 +207,12 @@ public class DynamicDocText {
 
 		private static <N extends Number, N2 extends Number> Predicate<N> isAtLeast(N2 min) {
 			return e -> {
-				if (e == null) {
-					return false;
-				}
 				return min.doubleValue() <= e.doubleValue();
 			};
 		}
 
 		private static <N extends Number, N2 extends Number> Predicate<N> isAtMost(N2 max) {
 			return e -> {
-				if (e == null) {
-					return false;
-				}
 				return max.doubleValue() >= e.doubleValue();
 			};
 		}
@@ -237,10 +228,14 @@ public class DynamicDocText {
 		@Override
 		public Function<N, String> build() {
 			return (e) -> {
+				if (e == null) {
+					return this.defaultText;
+				}
 				return this.predicates.stream() //
 						.filter(p -> p.predicate.test(e)) //
 						.map(NumberTextItem::translationKey) //
-						.findFirst().orElse(this.defaultText);
+						.findFirst() //
+						.orElse(this.defaultText);
 			};
 		}
 	}

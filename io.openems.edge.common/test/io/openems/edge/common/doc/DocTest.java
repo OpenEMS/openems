@@ -62,7 +62,7 @@ public class DocTest {
 				.input(TEST_STRING_CHANNEL, null) //
 				.input(TEST_ENUM_CHANNEL, null));
 
-		// FIXME assertEquals("power is fine", docForInt.getText());
+		assertEquals("power is fine", docForInt.getText());
 		assertEquals(":|", docForString.getText());
 		assertEquals("undefined", docForEnum.getText());
 
