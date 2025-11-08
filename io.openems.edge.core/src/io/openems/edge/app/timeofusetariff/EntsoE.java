@@ -93,7 +93,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 				.setTranslatedLabelWithAppPrefix(".resolution.label") //
 				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
 				.setRequired(true)//
-				.setDefaultValue(Resolution.HOURLY)//
+				.setDefaultValue(Resolution.QUARTERLY)//
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Resolution.optionsFactory(), l);
 					final var isInBiddingZone = Exp
