@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { RegisterUserRequest } from "src/app/shared/jsonrpc/request/registerUserRequest";
 import { Service, Websocket } from "src/app/shared/shared";
 import { COUNTRY_OPTIONS } from "src/app/shared/type/country";
+import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
 import { environment } from "src/environments";
 
 @Component({
@@ -30,7 +31,7 @@ export class RegistrationModalComponent implements OnInit {
 
   ngOnInit() {
     this.formGroup = this.getForm(this.activeSegment);
-    this.docsLink = this.createEvcsDocsLink();
+    this.docsLink = DocsUtils.createDataProtectionLink(this.service);
   }
 
   /**
@@ -139,14 +140,4 @@ export class RegistrationModalComponent implements OnInit {
       });
     }
   }
-
-  private createEvcsDocsLink() {
-    const link = environment.links.DATA_PROTECTION;
-
-    if (link == null) {
-      return null;
-    }
-    return link.replace("{language}", this.service.getDocsLang());
-  }
-
 }

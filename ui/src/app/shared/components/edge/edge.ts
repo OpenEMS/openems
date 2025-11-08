@@ -5,6 +5,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
 import { hasUpdateAppVersion } from "src/app/edge/settings/app/permissions";
 import { SumState } from "src/app/index/shared/sumState";
+import { environment } from "src/environments";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../../jsonrpc/notification/edgeConfigNotification";
@@ -29,10 +30,12 @@ import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shar
 import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
+import { ThirdPartyUsageAcceptance } from "./popover/shared/third-party-usage-acceptance";
 
 export class Edge {
 
@@ -54,7 +57,6 @@ export class Edge {
   private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
   private isRefreshConfigBlocked: boolean = false;
   private subscribeChannelsTimeout: any = null;
-
 
   constructor(
     public readonly id: string,
@@ -514,6 +516,36 @@ export class Edge {
     return navigationTree;
   }
 
+  /**
+   * Checks if privacy policy popover should be shown.
+   *
+   * @param websocket the websocket
+   * @returns
+   */
+  public async shouldShowPrivacyPolicyPopover(websocket: Websocket): Promise<boolean> {
+    const [_err, config] = await PromiseUtils.Functions.handle(this.getFirstValidConfig(websocket));
+
+    if (_err) {
+      return false;
+    }
+
+    if (this.isOnline === false) {
+      return false;
+    }
+
+    const isUndecided = config
+      .getComponent("_meta")
+      .hasPropertyValue<ThirdPartyUsageAcceptance>("thirdPartyUsageAcceptance", ThirdPartyUsageAcceptance.UNDECIDED);
+    const latitude = config.getComponent("_meta").getPropertyFromComponent<number>("latitude");
+    const longitude = config.getComponent("_meta").getPropertyFromComponent<number>("longitude");
+    const hasValidCoordinates =
+      latitude != null && longitude != null &&
+      latitude >= -90 && latitude <= 90 &&
+      longitude >= -180 && longitude <= 180;
+    const isOwner = this.role === Role.OWNER;
+    return isUndecided && isOwner && hasValidCoordinates;
+  }
+
   private addCommonWidgetNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {
     const classes = Widgets.parseWidgets(edge, conf).classes;
 
@@ -580,5 +612,4 @@ export class Edge {
       }, 100);
     }
   }
-
 }

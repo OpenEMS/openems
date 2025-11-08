@@ -542,6 +542,9 @@
       "TITLE": "Licht aus, Komfort an!",
       "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
     },
+    "GEOLOCATION": {
+      "CHECKBOX_LABEL": "Ich habe den Inhalt der vorliegenden <a href=''>DATENSCHUTZERKLÄRUNG</a> zur Kenntnis genommen und bestätige durch die Validierung der Standortdaten die Richtigkeit der Daten."
+    },
     "LIGHT": "Hell",
     "DARK": "Dunkel",
     "RESET": "Zurücksetzen",
@@ -690,7 +693,62 @@
   "OFFLINE": {
     "EDGE": {
       "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
-      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart abgeschlossen wurde."
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
+    },
+    "GENERAL": {
+      "AVAILABILITY": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich.<br>Die Daten werden lokal gespeichert und gehen nicht verloren.",
+      "MORE_INFO": "mehr Infos",
+      "TIME_OUT": " Das aufgerufene FEMS ist <b>seit {{timeSinceOffline}}</b> offline.",
+      "TRY": "Probieren Sie in 10 Minuten den Browser neu zu laden.",
+      "SUB_HEADER": "Ihr System ist <b>länger als 10 Minuten offline?</b> Folgendes kann vor Ort geprüft werden:",
+      "STEP_TEST_WIFI_CONNECTION": {
+        "HEADER": "Internetverbindung prüfen",
+        "DESCRIPTION": "Anschließend können Sie die Router-Funktion testen, indem Sie an der Anschlussbox der {{edgeShortName}}-Box den LAN-Stecker ausstecken und diesen in die LAN-Buchse z. B. eines Laptop-PCs einstecken. Bitte beachten: An diesem Gerät die WLAN-Verbindung trennen.",
+        "CHILD_1": {
+          "HEADER": "-> weiterhin keine Internetverbindung",
+          "DESCRIPTION": "Schließen Sie das Endgerät (z. B. Laptop-PC) direkt per LAN-Kabel – ohne zusätzliche Kabelstrecke oder dazwischen geschaltete Netzwerkteilnehmer (z. B. WLAN Verstärker, Switches). – am Router an, um die Funktionalität des Routers sicherzustellen. Wenn erneut keine Internetverbindung hergestellt werden konnte, bitten wir Sie, die produktspezifischen Anleitungen des jeweiligen Netzwerkgeräte-Herstellers zu befolgen und ggf. dort weitere Informationen einzuholen."
+        },
+        "CHILD_2": {
+          "HEADER": "-> Internet mit Laptop aufgebaut",
+          "DESCRIPTION": "weiter zu \"3. Portfreigabe/Firewall prüfen\""
+        }
+      },
+      "EMS_OFFLINE": "{{edgeShortName}} ist offline"
+    },
+    "DEFAULT": {
+      "STEP_TEST_WIFI_CONNECTION": {
+        "HEADER": "Routerverbindung mit Laptop überprüfen",
+        "DESCRIPTION": "<p><b>a)</b> Stecken Sie das LAN-Kabel von der Home--{{edgeShortName}} Box („LAN“ Schnittstelle) ab und schließen Sie dieses an einem Laptop/PC an (Achtung: WLAN Adapter ausschalten). Wenn der Laptop/PC erfolgreich eine Internetverbindung aufbauen konnte, gehen Sie weiter zu Schritt 3, ansonsten weiter zu b.</p> <p><b>b)</b> Wenn der Laptop/PC keine Internetverbindung aufbaut, schließen Sie das Gerät bitte direkt per LAN-Kabel am Router an, um die Funktionalität des Routers sicherzustellen (also ohne zusätzliche Kabelstrecke und ohne weitere Netzwerkteilnehmer dazwischen).</p> <p> → Wenn die Funktionalität des Routers sichergestellt ist, leitet das LAN-Kabel, ein WLAN Repeater oder ein Powerline Adapter das Signal vermutlich nicht korrekt weiter. In diesem Fall finden Sie in den produktspezifischen Anleitungen des jeweiligen Herstellers weitere Informationen.</p>"
+      },
+      "STEP_FIREWALL": {
+        "HEADER": "Portfreigabe/Firewall prüfen",
+        "DESCRIPTION": "Einstellungen der Firewall können die Internetverbindung zum {{edgeShortName}} begrenzen. Besonders bei Erstinbetriebnahmen ist dies häufig der Fall. Bitte überprüfen Sie mithilfe der <a href=\"https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal\" target=\"_blank\">Anleitung</a> die Ports und Dienste, die auf dem {{edgeShortName}} aktiv sind."
+      },
+      "STEP_SERVICE": {
+        "HEADER": "FENECON-Service",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, können Sie sich an unseren Service wenden: <br> Per Mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> oder telefonisch unter: +49 9903 6280-0 (Mo. bis Do.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr | Fr.: 08:00 bis 12:00 Uhr | 13:00 – 17:00 Uhr)"
+      },
+      "STEP_CONTACT_INSTALLER": {
+        "HEADER": "Installateur kontaktieren",
+        "DESCRIPTION": "Sofern Sie alle vorhergehenden Punkte bereits überprüft haben, und das Online-Monitoring weiterhin keine Daten anzeigt, bitten wir Sie, sich mit Ihrem <b>Installateur</b> in Verbindung zu setzen."
+      },
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten und LAN-Stecker prüfen"
+      }
+    },
+    "HOME_10": {
+      "STEP_EMS_RESTART": {
+        "HEADER": "{{edgeShortName}} neu starten",
+        "DESCRIPTION": "Starten Sie das {{edgeShortName}} neu indem Sie an der obersten Box des Speicherturms an der Vorderseite den Taster für 10 Sekunden gedrückt halten. Warten Sie nun  <b>5-10 Minuten</b> ab (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: War diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des FENECON Online-Monitorings sollte wie gewohnt zu sehen sein."
+      }
+    },
+    "HOME_20_30": {
+      "STEP_EMS_RESTART": {
+        "DESCRIPTION": "An der obersten Box des Speicherturms befindet sich ein Kaltgerätestecker (schwarz-blau). Stecken Sie diesen aus und warten Sie 15 Sekunden ab; Stecken Sie den Kaltgerätestecker wieder ein, und warten Sie nun <b>5-10 Minuten</b> (das System startet neu). Stellen Sie außerdem sicher, dass der LAN-Stecker akkurat in der {{edgeShortName}}-Anschlussbox steckt. Aktualisieren Sie nun das Browser-Fenster des Online-Monitorings: war diese Maßnahme erfolgreich, sollte die Fehlermeldung nun aufgehoben sein und die gewohnte Ansicht des {{edgeLongName}} Energiemanagementsystem Online-Monitorings wie gewohnt zu sehen sein."
+      }
+    },
+    "STEP_EMS_RESTART": {
+      "DESCRIPTION": "Im Anschlussbereich des FENECON Home Stromspeichersystems befindet sich ein blauer Steckverbinder. Dieser versorgt das {{edgeShortName}}. mit einer Hilfsversorgung. Ziehen Sie den Stecker heraus und stecken ihn nach 10 Sekunden wieder ein, um das {{edgeShortName}}. neu zu starten. Warten Sie anschließend einige Minuten und aktualisieren Sie das Browser-Fenster. Die Fehlermeldung sollte anschließend verschwunden sein und das Online-Monitoring wieder sichtbar. Falls dies nicht der Fall ist, gehen Sie weiter zu Schritt 2."
     }
   },
   "INDEX": {

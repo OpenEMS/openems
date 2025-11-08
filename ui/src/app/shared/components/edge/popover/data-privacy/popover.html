@@ -1,0 +1,66 @@
+<ngx-spinner [name]="spinnerId">
+    <div class="ion-display-flex ion-flex-column ion-align-items-center" style="margin-top: 10rem;">
+        <ion-icon [name]="spinnerIcon" style="color: white; font-size: 3rem;"></ion-icon>
+        <ion-text class="ion-text-center ion-padding-top" style="color: white; font-style: italic;">
+            {{ spinnerText }}
+        </ion-text>
+    </div>
+</ngx-spinner>
+<ion-header class="ion-no-border">
+    <ion-toolbar>
+        <ion-buttons slot="end">
+            <ion-button color="none" (click)="dismiss()" class="ion-no-padding-top">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content class="ion-align-center " *ngIf="formGroup">
+    <ion-grid class="ion-align-center ion-font-size-medium">
+        <ion-row size="3" class="ion-padding ion-no-padding-top ion-justify-content-center">
+            <ion-label class="full_width ion-text-wrap ion-font-size-x-large ion-text-align-center" color="primary">
+                {{"POPOVER.WEATHER_PROGNOSIS.TITLE" | translate}}
+            </ion-label>
+        </ion-row>
+        <ion-row size="3" class="ion-padding ion-no-padding-top ion-no-padding-bottom ion-justify-content-center">
+            <ion-label class="full_width ion-text-wrap ion-text-start">
+                <span [innerHTML]="'POPOVER.WEATHER_PROGNOSIS.DESCRIPTION' | translate"></span>
+            </ion-label>
+        </ion-row>
+        <ion-row size="3" class="ion-padding ion-no-padding-bottom ion-justify-content-center">
+            <ion-label class="full_width ion-text-wrap ion-text-align-center" color="primary">
+                {{"POPOVER.WEATHER_PROGNOSIS.APP" | translate}}
+            </ion-label>
+        </ion-row>
+        <ion-row *ngIf="img" class="ion-margin-top">
+            <oe-img [img]="img" class="ion-display-flex ion-justify-content-center"></oe-img>
+        </ion-row>
+        <ion-row class="ion-padding ion-no-padding-bottom">
+            <oe-checkbox [form]="{formGroup: formGroup, controlName: 'isChecked'}"
+                [attributes]="{labelPlacement: 'start', text: 'POPOVER.WEATHER_PROGNOSIS.CHECKBOX_LABEL' | translate: {link: dataProtectionLink}}"
+                (setFormGroup)="setFormGroup($event)" ngClass="ion-font-size-small">
+            </oe-checkbox>
+        </ion-row>
+        <ion-row class="full_width align_right ion-no-padding-bottom">
+            <ion-col class="align_left full_width" size="6">
+                <ion-item lines="none" class="ion-float-left">
+                    <ion-button class="ion-padding ion-no-padding-bottom" fill="outline" type="submit" color="normal"
+                        (click)="decline()">
+                        <ion-icon slot="start" name="close-outline"></ion-icon>
+                        <span>{{"POPOVER.WEATHER_PROGNOSIS.DECLINE" | translate}}</span>
+                    </ion-button>
+                </ion-item>
+            </ion-col>
+            <ion-col class="align_right full_width ion-no-padding-top ion-no-padding-bottom" size="6">
+                <ion-item lines="none" class="ion-float-right">
+                    <ion-button class="ion-padding ion-no-padding-bottom"
+                        [disabled]="formGroup.controls['isChecked'].value === false" fill="solid" type="submit"
+                        (click)="apply()">
+                        <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+                        <span>{{"POPOVER.WEATHER_PROGNOSIS.ACCEPT" | translate}}</span>
+                    </ion-button>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>
