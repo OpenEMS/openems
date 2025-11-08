@@ -33,7 +33,7 @@ public class EntsoeApiTest {
 			var response = bridgeHttp.request(endpoint).get();
 
 			var xml = response.data();
-			var quarterlyPrices = parsePrices(xml, 1.0 /* exchangeRate */, Resolution.QUARTERLY);
+			var quarterlyPrices = parsePrices(xml, Resolution.QUARTERLY, biddingZone);
 
 			quarterlyPrices.entrySet().forEach(System.out::println);
 		} finally {

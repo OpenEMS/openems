@@ -1,7 +1,5 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
-import static io.openems.common.utils.FunctionUtils.doNothing;
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,12 +36,6 @@ public class EntsoeApi {
 						.format(URL_DATE_FORMATTER)) //
 				.withQueryParam("periodEnd", toDate.withZoneSameInstant(UTC) //
 						.format(URL_DATE_FORMATTER));
-
-		switch (biddingZone) {
-		case AUSTRIA, GERMANY ->
-			urlBuilder = urlBuilder.withQueryParam("classificationSequence_AttributeInstanceComponent.position", "1");
-		default -> doNothing();
-		}
 
 		return BridgeHttp.create(urlBuilder.toEncodedString()).build();
 	}

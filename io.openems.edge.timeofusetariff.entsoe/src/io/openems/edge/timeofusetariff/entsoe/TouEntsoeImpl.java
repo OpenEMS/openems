@@ -60,7 +60,6 @@ import io.openems.edge.timeofusetariff.api.TouManualHelper;
 )
 public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe, OpenemsComponent, TimeOfUseTariff {
 
-	private static final int API_EXECUTE_HOUR = 14;
 	private static final int INTERNAL_ERROR = -1;
 
 	private final Logger log = LoggerFactory.getLogger(TouEntsoeImpl.class);
@@ -163,7 +162,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		final var gridFees = this.helper.getPrices();
 
 		// Parse the response for the prices
-		final var parsedPrices = parsePrices(result, exchangeRate, this.config.resolution());
+		final var parsedPrices = parsePrices(result, this.config.resolution(), this.config.biddingZone());
 		final var processedPrices = processPrices(this.componentManager.getClock(), parsedPrices, exchangeRate,
 				gridFees);
 
@@ -213,20 +212,13 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			final var now = ZonedDateTime.now(this.clock).truncatedTo(HOURS);
-			final ZonedDateTime nextRun;
+			try {
+				return Utils.calculateDelay(this.clock, result.data());
 
-			if (now.getHour() < API_EXECUTE_HOUR) {
-				// If before 2 PM, schedule for 2 PM today
-				nextRun = now.withHour(API_EXECUTE_HOUR);
-			} else {
-				// If after 2 PM, schedule for 2 PM tomorrow
-				nextRun = now.plusDays(1).withHour(API_EXECUTE_HOUR);
+			} catch (ParserConfigurationException | SAXException | IOException e) {
+				// Wait 30 minutes before retry
+				return Delay.of(Duration.ofMinutes(30));
 			}
-
-			return DelayTimeProviderChain.fixedDelay(Duration.between(now, nextRun)) //
-					.plusRandomDelay(60, SECONDS) //
-					.getDelay();
 		}
 	}
 
