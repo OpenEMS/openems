@@ -17,8 +17,8 @@ export namespace StringUtils {
      * @param arr the array
      * @returns true if passed value is not contained by the array
      */
-    export function isNotIn(val: string, arr: string[]): boolean {
-        return arr.some(el => val != el);
+    export function isNotInArr(val: string, arr: string[]): boolean {
+        return arr.every(el => val != el);
     }
 
     /**

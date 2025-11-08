@@ -1,6 +1,7 @@
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress } from "src/app/shared/shared";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { HistoryUtils } from "src/app/shared/utils/utils";
 import { Edge } from "../edge";
 import { EdgeConfig } from "../edgeconfig";
@@ -37,7 +38,10 @@ export class EvcsComponent extends EdgeConfig.Component {
 
     public static getComponents(config: EdgeConfig, edge: Edge | null): EvcsComponent[] {
         return ArrayUtils.sanitize(config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component => !(component.factoryId in ["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]))
+            .filter(component => StringUtils.isNotInArr(
+                component.factoryId,
+                ["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]
+            ))
             .map(component => EvcsComponent.from(component, config, edge)));
     }
 
