@@ -12,13 +12,11 @@ export { SystemLog } from "./type/systemlog";
 export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { isBefore, subDays, subYears } from "date-fns";
 import { addIcons } from "ionicons";
 import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
-import { StringUtils } from "./utils/string/string.utils";
 
 addIcons({
     "oe-consumption": "assets/img/icon/consumption.svg",

@@ -113,6 +113,24 @@ common_run_checkstyle() {
     ./gradlew "$@" checkstyleAll
 }
 
+# Run OpenEMS Edge Tests
+common_test_edge() {
+    common_print_banner "Run OpenEMS Edge JUnit Tests"
+    ./gradlew "$@" --build-cache testEdge
+}
+
+# Run OpenEMS Backend Tests
+common_test_backend() {
+    common_print_banner "Run OpenEMS Backend JUnit Tests"
+    ./gradlew "$@" --build-cache testBackend
+}
+
+# Run OpenEMS Tests
+common_test() {
+    common_print_banner "Run OpenEMS JUnit Tests"
+    ./gradlew "$@" --build-cache test
+}
+
 # Build OpenEMS UI
 common_build_ui() {
     common_print_banner "Build OpenEMS UI"

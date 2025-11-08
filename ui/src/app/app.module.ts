@@ -18,7 +18,6 @@ import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
-import { RegistrationModule } from "./index/registration/registration.module";
 import { PlatFormService } from "./platform.service";
 import { NavigationComponent } from "./shared/components/navigation/navigation.component";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
