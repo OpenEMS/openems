@@ -20,10 +20,10 @@ public final class AllowedChannels {
 	static {
 		final var io = new Namespace("io", 0, 10);
 		final var ess = new Namespace("ess", 0, 31);
-		final var evcs = new Namespace("evcs", 0, 10);
+		final var evcs = new Namespace("evcs", 0, 20);
 		final var meter = new Namespace("meter", 0, 20);
-		final var ctrlEvseSingle = new Namespace("ctrlEvseSingle", 0, 10);
-		final var evseChargePoint = new Namespace("evseChargePoint", 0, 10);
+		final var ctrlEvseSingle = new Namespace("ctrlEvseSingle", 0, 20);
+		final var evseChargePoint = new Namespace("evseChargePoint", ctrlEvseSingle.from(), ctrlEvseSingle.to());
 		final var pvInverter = new Namespace("pvInverter", 0, 10);
 		final var charger = new Namespace("charger", 0, 20);
 		final var ctrlIoHeatPump = new Namespace("ctrlIoHeatPump", 0, 5);
