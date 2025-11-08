@@ -379,167 +379,167 @@
           "SWITCH_ON_COM_SHORT": "Mando",
           "SWITCH_ON_REC_SHORT": "Recomendación"
         }
-      }
-    },
-    "HISTORY": {
-      "BEGIN_DATE": "Seleccionar fecha de inicio",
-      "DAY": "Día",
-      "END_DATE": "Seleccionar fecha de finalización",
-      "EXPORT": "descargar como archivo de excel",
-      "GO": "Nwo!",
-      "LAST_MONTH": "El me pasado",
-      "LAST_WEEK": "La semana pasada",
-      "LAST_YEAR": "El año pasado",
-      "MONTH": "Mes",
-      "NO_DATA": "sin datos disponibles",
-      "OTHER_PERIOD": "Otro período",
-      "PERIOD": "Período",
-      "SELECTED_DAY": "{{ value }}",
-      "SELECTED_PERIOD": "Período seleccionado:",
-      "TODAY": "Hoy",
-      "WEEK": "Semana",
-      "YEAR": "Año",
-      "YESTERDAY": "Ayer",
-      "SUN": "Dom",
-      "MON": "Lun",
-      "TUE": "Mar",
-      "WED": "Mié",
-      "THU": "Jue",
-      "FRI": "Vie",
-      "SAT": "Sáb",
-      "JAN": "Ene",
-      "FEB": "Feb",
-      "MAR": "Mar",
-      "APR": "Abr",
-      "MAY": "May",
-      "JUN": "Jun",
-      "JUL": "Jul",
-      "AUG": "Ago",
-      "SEP": "Sep",
-      "OCT": "Oct",
-      "NOV": "Nov",
-      "DEC": "Dic",
-      "ACTIVE_DURATION": "duración activa"
-    },
-    "INSTALLATION": {
-      "ATTENTION_MESSAGE": "Tenga en cuenta que la selección no se puede deshacer después.",
-      "BACKWARD": "volver",
-      "CONFIRM_APP_SELECTION": "¿Está seguro de que desea seleccionar la siguiente aplicación?",
-      "CONFIRM_APP_SELECTION_LATER": "¿Están seguros de hacer la selección más tarde?",
-      "FORWARD": "adelante",
-      "PLEASE_SELECT_OPTION": "Por favor, elija una opción"
-    },
-    "CONFIG": {
-      "INDEX": {
-        "ADD_COMPONENTS": "Instalar componentes",
-        "ADJUST_COMPONENTS": "Configurar componentes",
-        "BRIDGE": "Conexiones y dispositivos",
-        "CONTROLLER": "Aplicaciones",
-        "DATA_STORAGE": "Almacenamiento de datos",
-        "EXECUTE_SIMULATOR": "Ejecutar simulaciones",
-        "LIVE_LOG": "Protocolos de sistema de vida",
-        "LOG": "Registro",
-        "MANUAL_CONTROL": "Control manual",
-        "RENAME_COMPONENTS": "Renombrar componentes",
-        "SCHEDULER": "Planificador de aplicaciones",
-        "SIMULATOR": "Simulador",
-        "SYSTEM_EXECUTE": "Ejecutar comando del sistema",
-        "SYSTEM_PROFILE": "Perfil del Sistema",
-        "ALERTING": "Alerta",
-        "NETWORK_CONFIGURATION": "configuración de la red"
       },
-      "MORE": {
-        "MANUAL_COMMAND": "Comando manual",
-        "MANUALPQ_POWER_SPECIFICATION": "Especificaciones de rendimiento",
-        "MANUALPQ_RESET": "Restablecer",
-        "MANUALPQ_SUBMIT": "Tomar",
-        "REFU_INVERTER": "REFU Inversor",
-        "REFU_START": "Empezar",
-        "REFU_START_STOP": "Iniciar/detener inversor",
-        "REFU_STOP": "Parada",
-        "SEND": "Enviar"
+      "HISTORY": {
+        "BEGIN_DATE": "Seleccionar fecha de inicio",
+        "DAY": "Día",
+        "END_DATE": "Seleccionar fecha de finalización",
+        "EXPORT": "descargar como archivo de excel",
+        "GO": "Nwo!",
+        "LAST_MONTH": "El me pasado",
+        "LAST_WEEK": "La semana pasada",
+        "LAST_YEAR": "El año pasado",
+        "MONTH": "Mes",
+        "NO_DATA": "sin datos disponibles",
+        "OTHER_PERIOD": "Otro período",
+        "PERIOD": "Período",
+        "SELECTED_DAY": "{{ value }}",
+        "SELECTED_PERIOD": "Período seleccionado:",
+        "TODAY": "Hoy",
+        "WEEK": "Semana",
+        "YEAR": "Año",
+        "YESTERDAY": "Ayer",
+        "SUN": "Dom",
+        "MON": "Lun",
+        "TUE": "Mar",
+        "WED": "Mié",
+        "THU": "Jue",
+        "FRI": "Vie",
+        "SAT": "Sáb",
+        "JAN": "Ene",
+        "FEB": "Feb",
+        "MAR": "Mar",
+        "APR": "Abr",
+        "MAY": "May",
+        "JUN": "Jun",
+        "JUL": "Jul",
+        "AUG": "Ago",
+        "SEP": "Sep",
+        "OCT": "Oct",
+        "NOV": "Nov",
+        "DEC": "Dic",
+        "ACTIVE_DURATION": "duración activa"
       },
-      "SCHEDULER": {
-        "ALWAYS": "Siempre",
-        "CLASS": "Clase:",
-        "CONTACT": "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
-        "NEW_SCHEDULER": "Nuevo programador...",
-        "NOT_IMPLEMENTED": "Formulario no implementado:"
+      "INSTALLATION": {
+        "ATTENTION_MESSAGE": "Tenga en cuenta que la selección no se puede deshacer después.",
+        "BACKWARD": "volver",
+        "CONFIRM_APP_SELECTION": "¿Está seguro de que desea seleccionar la siguiente aplicación?",
+        "CONFIRM_APP_SELECTION_LATER": "¿Están seguros de hacer la selección más tarde?",
+        "FORWARD": "adelante",
+        "PLEASE_SELECT_OPTION": "Por favor, elija una opción"
       },
-      "LOG": {
-        "AUTOMATIC_UPDATING": "Actualización automática",
-        "LEVEL": "Nivel",
-        "MESSAGE": "Mensaje",
-        "SOURCE": "Ésos",
-        "TIMESTAMP": "Hora"
-      },
-      "CONTROLLER": {
-        "APP": "Aplicación:",
-        "INTERNALLY_ID": "Interno ID:",
-        "PRIORITY": "Priodad:"
-      },
-      "BRIDGE": {
-        "NEW_CONNECTION": "Nueva conexión...",
-        "NEW_DEVICE": "Nuevo dispositivo..."
-      },
-      "ALERTING": {
-        "ACTIVATE": "Activar",
-        "DELAY": "Retraso",
-        "TOAST": {
-          "SUCCESS": "Ajustes adoptados",
-          "ERROR": "Error al cargar la configuración"
+      "CONFIG": {
+        "INDEX": {
+          "ADD_COMPONENTS": "Instalar componentes",
+          "ADJUST_COMPONENTS": "Configurar componentes",
+          "BRIDGE": "Conexiones y dispositivos",
+          "CONTROLLER": "Aplicaciones",
+          "DATA_STORAGE": "Almacenamiento de datos",
+          "EXECUTE_SIMULATOR": "Ejecutar simulaciones",
+          "LIVE_LOG": "Protocolos de sistema de vida",
+          "LOG": "Registro",
+          "MANUAL_CONTROL": "Control manual",
+          "RENAME_COMPONENTS": "Renombrar componentes",
+          "SCHEDULER": "Planificador de aplicaciones",
+          "SIMULATOR": "Simulador",
+          "SYSTEM_EXECUTE": "Ejecutar comando del sistema",
+          "SYSTEM_PROFILE": "Perfil del Sistema",
+          "ALERTING": "Alerta",
+          "NETWORK_CONFIGURATION": "configuración de la red"
+        },
+        "MORE": {
+          "MANUAL_COMMAND": "Comando manual",
+          "MANUALPQ_POWER_SPECIFICATION": "Especificaciones de rendimiento",
+          "MANUALPQ_RESET": "Restablecer",
+          "MANUALPQ_SUBMIT": "Tomar",
+          "REFU_INVERTER": "REFU Inversor",
+          "REFU_START": "Empezar",
+          "REFU_START_STOP": "Iniciar/detener inversor",
+          "REFU_STOP": "Parada",
+          "SEND": "Enviar"
+        },
+        "SCHEDULER": {
+          "ALWAYS": "Siempre",
+          "CLASS": "Clase:",
+          "CONTACT": "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
+          "NEW_SCHEDULER": "Nuevo programador...",
+          "NOT_IMPLEMENTED": "Formulario no implementado:"
+        },
+        "LOG": {
+          "AUTOMATIC_UPDATING": "Actualización automática",
+          "LEVEL": "Nivel",
+          "MESSAGE": "Mensaje",
+          "SOURCE": "Ésos",
+          "TIMESTAMP": "Hora"
+        },
+        "CONTROLLER": {
+          "APP": "Aplicación:",
+          "INTERNALLY_ID": "Interno ID:",
+          "PRIORITY": "Priodad:"
+        },
+        "BRIDGE": {
+          "NEW_CONNECTION": "Nueva conexión...",
+          "NEW_DEVICE": "Nuevo dispositivo..."
+        },
+        "ALERTING": {
+          "ACTIVATE": "Activar",
+          "DELAY": "Retraso",
+          "TOAST": {
+            "SUCCESS": "Ajustes adoptados",
+            "ERROR": "Error al cargar la configuración"
+          }
+        },
+        "APP": {
+          "HEADER": "El App Manager se encuentra actualmente en una primera versión de prueba.",
+          "UPDATE_AVAILABLE": "Hay un nuevo {{ edgeShortName }} ¡versión está disponible! Por favor, actualice el {{ edgeShortName }} para que todos los nuevos {{ edgeShortName }} Las aplicaciones se muestran en el App Center.",
+          "INSTALLED": "Instalado",
+          "AVAILABLE": "Disponible",
+          "INCOMPATIBLE": "Incompatible",
+          "BUY_APP": "Comprar aplicación",
+          "MODIFY_APP": "Modificar la aplicación",
+          "CREATE_APP": "Instalar la aplicación",
+          "DELETE_APP": "Eliminar la aplicación",
+          "UPDATE_APP": "Actualizar la aplicación",
+          "ERROR_INSTALLABLE": "Errores de instalación",
+          "ERROR_COMPATIBLE": "Errores de compatibilidad",
+          "NOT_AVAILABLE": "No disponible"
         }
       },
-      "APP": {
-        "HEADER": "El App Manager se encuentra actualmente en una primera versión de prueba.",
-        "UPDATE_AVAILABLE": "Hay un nuevo {{ edgeShortName }} ¡versión está disponible! Por favor, actualice el {{ edgeShortName }} para que todos los nuevos {{ edgeShortName }} Las aplicaciones se muestran en el App Center.",
-        "INSTALLED": "Instalado",
-        "AVAILABLE": "Disponible",
-        "INCOMPATIBLE": "Incompatible",
-        "BUY_APP": "Comprar aplicación",
-        "MODIFY_APP": "Modificar la aplicación",
-        "CREATE_APP": "Instalar la aplicación",
-        "DELETE_APP": "Eliminar la aplicación",
-        "UPDATE_APP": "Actualizar la aplicación",
-        "ERROR_INSTALLABLE": "Errores de instalación",
-        "ERROR_COMPATIBLE": "Errores de compatibilidad",
-        "NOT_AVAILABLE": "No disponible"
+      "SERVICE": {
+        "ENTIRE_SYSTEM": "Sistema entero",
+        "CELL": {
+          "VOLTAGES": "Voltajes de celda",
+          "TEMPERATURES": "temperaturas de celda",
+          "INSULATION": "Aislamiento"
+        }
+      },
+      "NETWORK": {
+        "ERROR_READING_CONFIGURATION": "Error al leer la configuración de red actual:",
+        "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
+        "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
+        "ERROR_UPDATING": "Error al actualizar",
+        "IP_ADDRESS": "Dirección IP",
+        "SUBNETMASK": "Máscara de subred",
+        "ADD_IP": "Agregar direcciones IP estáticas",
+        "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24",
+        "ADVANCED_MODE": "Modo avanzado"
       }
     },
-    "SERVICE": {
-      "ENTIRE_SYSTEM": "Sistema entero",
-      "CELL": {
-        "VOLTAGES": "Voltajes de celda",
-        "TEMPERATURES": "temperaturas de celda",
-        "INSULATION": "Aislamiento"
-      }
+    "ABOUT": {
+      "BUILD": "Esta compilación",
+      "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
+      "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
+      "FAQ": "Preguntas frecuentes (FAQ)",
+      "LANGUAGE": "Seleccionar idioma:",
+      "OPEN_EMS": "Acerca de OpenEMS",
+      "PATCHNOTES": "Cambios en la supervisión de esta compilación"
     },
-    "NETWORK": {
-      "ERROR_READING_CONFIGURATION": "Error al leer la configuración de red actual:",
-      "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
-      "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
-      "ERROR_UPDATING": "Error al actualizar",
-      "IP_ADDRESS": "Dirección IP",
-      "SUBNETMASK": "Máscara de subred",
-      "ADD_IP": "Agregar direcciones IP estáticas",
-      "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24",
-      "ADVANCED_MODE": "Modo avanzado"
+    "NOTIFICATIONS": {
+      "AUTHENTICATION_FAILED": "Sin conexión: error de autenticación.",
+      "CLOSED": "Conexión terminada.",
+      "FAILED": "Error al configurar la conexión.",
+      "LOGGED_IN": "Registrado.",
+      "LOGGED_IN_AS": "Conectado como usuario \"{{ value }}\"."
     }
-  },
-  "ABOUT": {
-    "BUILD": "Esta compilación",
-    "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
-    "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
-    "FAQ": "Preguntas frecuentes (FAQ)",
-    "LANGUAGE": "Seleccionar idioma:",
-    "OPEN_EMS": "Acerca de OpenEMS",
-    "PATCHNOTES": "Cambios en la supervisión de esta compilación"
-  },
-  "NOTIFICATIONS": {
-    "AUTHENTICATION_FAILED": "Sin conexión: error de autenticación.",
-    "CLOSED": "Conexión terminada.",
-    "FAILED": "Error al configurar la conexión.",
-    "LOGGED_IN": "Registrado.",
-    "LOGGED_IN_AS": "Conectado como usuario \"{{ value }}\"."
   }
 }

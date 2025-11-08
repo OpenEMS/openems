@@ -164,7 +164,7 @@ export class ConfigurationOAuthComponent {
         this.router.navigate([this.router.url.split("?")[0]]);
 
         if (state !== oauthRedirectState.state) {
-            this.service.toast(this.translateService.instant("Edge.Config.App.OAUTH.STATES_MISMATCH"), "warning");
+            this.service.toast(this.translateService.instant("EDGE.CONFIG.APP.OAUTH.STATES_MISMATCH"), "warning");
             return;
         }
 
@@ -182,7 +182,7 @@ export class ConfigurationOAuthComponent {
                 payload: new Connect.Request({ identifier: identifier, code: code, state: oauthRedirectState.state }),
             }));
         } catch (error: JsonrpcResponseError | any) {
-            this.service.toast(this.translateService.instant("Edge.Config.App.OAUTH.UNABLE_TO_CONNECT_CODE", { error: error.error?.message }), "danger");
+            this.service.toast(this.translateService.instant("EDGE.CONFIG.APP.OAUTH.UNABLE_TO_CONNECT_CODE", { error: error.error?.message }), "danger");
         }
     }
 

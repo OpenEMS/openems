@@ -9,32 +9,32 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedAutarchy } from "../shared/shared";
 
 @Component({
-  templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
-  standalone: false,
-  providers: [
-    { provide: DataService, useClass: LiveDataService },
-  ],
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+    standalone: false,
+    providers: [
+        { provide: DataService, useClass: LiveDataService },
+    ],
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  public static generateView(translate: TranslateService): OeFormlyView {
-    return SharedAutarchy.getFormlyView(translate);
-  }
+    public static generateView(translate: TranslateService): OeFormlyView {
+        return SharedAutarchy.getFormlyView(translate);
+    }
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return ModalComponent.generateView(this.translate);
-  }
+    protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+        return ModalComponent.generateView(this.translate);
+    }
 
-  protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-    return SharedAutarchy.getChannelAddresses();
-  }
+    protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
+        return SharedAutarchy.getChannelAddresses();
+    }
 
-  protected override onCurrentData(currentData: CurrentData): void {
-    this.setFormControlSafelyWithValue(this.form, "autarchy", SharedAutarchy.getAutarchyValue(currentData));
-  }
+    protected override onCurrentData(currentData: CurrentData): void {
+        this.setFormControlSafelyWithValue(this.form, "autarchy", SharedAutarchy.getAutarchyValue(currentData));
+    }
 
-  protected override getFormGroup(): FormGroup {
-    return SharedAutarchy.getFormGroup();
-  }
+    protected override getFormGroup(): FormGroup {
+        return SharedAutarchy.getFormGroup();
+    }
 
 }

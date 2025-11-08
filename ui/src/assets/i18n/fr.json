@@ -380,165 +380,165 @@
           "SWITCH_ON_REC_SHORT": "Recommandation",
           "UNDEFINED": "Indéfinie"
         }
-      }
-    },
-    "HISTORY": {
-      "BEGIN_DATE": "Sélectionnez la date de début",
-      "DAY": "Jour",
-      "END_DATE": "Sélectionnez la date de fin",
-      "EXPORT": "télécharger sous format excel",
-      "GO": "Go!",
-      "LAST_MONTH": "Le mois passé",
-      "LAST_WEEK": "Semaine dernière",
-      "LAST_YEAR": "L'année passée",
-      "MONTH": "Mois",
-      "NO_DATA": "Pas de données disponible",
-      "OTHER_PERIOD": "Autre période",
-      "PERIOD": "Période",
-      "SELECTED_DAY": "{{ value }}",
-      "SELECTED_PERIOD": "Période sélectionnée:",
-      "TODAY": "Aujourd'hui",
-      "WEEK": "Semaine",
-      "YEAR": "Année",
-      "YESTERDAY": "Hier",
-      "SUN": "Dim",
-      "MON": "Lun",
-      "TUE": "Mar",
-      "WED": "Mer",
-      "THU": "Jeu",
-      "FRI": "Ven",
-      "SAT": "Sam",
-      "JAN": "Jan",
-      "FEB": "Fév",
-      "MAR": "Mar",
-      "APR": "Avr",
-      "MAY": "Mai",
-      "JUN": "Jun",
-      "JUL": "Jul",
-      "AUG": "Aou",
-      "SEP": "Sep",
-      "OCT": "Oct",
-      "NOV": "Nov",
-      "DEC": "Dec",
-      "ACTIVE_DURATION": "Durée active"
-    },
-    "INSTALLATION": {
-      "ATTENTION_MESSAGE": "Notez que la sélection ne peut pas être annulée par la suite.",
-      "BACKWARD": "arrière",
-      "CONFIRM_APP_SELECTION": "Êtes-vous sûr de vouloir sélectionner l'application suivante ?",
-      "CONFIRM_APP_SELECTION_LATER": "Sont-ils sûrs de faire la sélection plus tard ?",
-      "FORWARD": "plus",
-      "PLEASE_SELECT_OPTION": "Veuillez choisir une option"
-    },
-    "CONFIG": {
-      "INDEX": {
-        "ADD_COMPONENTS": "Installez des componsants",
-        "ADJUST_COMPONENTS": "Configurez des composants",
-        "BRIDGE": "Connections et appareils",
-        "CONTROLLER": "Applications",
-        "DATA_STORAGE": "Donnée du stockage",
-        "EXECUTE_SIMULATOR": "Executez les simulations",
-        "LIVE_LOG": "Live system log",
-        "LOG": "Log",
-        "MANUAL_CONTROL": "Contrôle manuel",
-        "RENAME_COMPONENTS": "Rename components",
-        "SCHEDULER": "Applicationplanner",
-        "SIMULATOR": "Simulateur",
-        "SYSTEM_EXECUTE": "Exécutez une commande système",
-        "SYSTEM_PROFILE": "System Profile",
-        "ALERTING": "Alerte",
-        "NETWORK_CONFIGURATION": "Configuration du réseau"
       },
-      "MORE": {
-        "MANUAL_COMMAND": "Commande Manuelle",
-        "MANUALPQ_POWER_SPECIFICATION": "Spécification de puissance",
-        "MANUALPQ_RESET": "Reset",
-        "MANUALPQ_SUBMIT": "Soumettre",
-        "REFU_INVERTER": "REFU Inverter",
-        "REFU_START": "Start",
-        "REFU_START_STOP": "Start/Stop inverter",
-        "REFU_STOP": "Stop",
-        "SEND": "Envoyer"
+      "HISTORY": {
+        "BEGIN_DATE": "Sélectionnez la date de début",
+        "DAY": "Jour",
+        "END_DATE": "Sélectionnez la date de fin",
+        "EXPORT": "télécharger sous format excel",
+        "GO": "Go!",
+        "LAST_MONTH": "Le mois passé",
+        "LAST_WEEK": "Semaine dernière",
+        "LAST_YEAR": "L'année passée",
+        "MONTH": "Mois",
+        "NO_DATA": "Pas de données disponible",
+        "OTHER_PERIOD": "Autre période",
+        "PERIOD": "Période",
+        "SELECTED_DAY": "{{ value }}",
+        "SELECTED_PERIOD": "Période sélectionnée:",
+        "TODAY": "Aujourd'hui",
+        "WEEK": "Semaine",
+        "YEAR": "Année",
+        "YESTERDAY": "Hier",
+        "SUN": "Dim",
+        "MON": "Lun",
+        "TUE": "Mar",
+        "WED": "Mer",
+        "THU": "Jeu",
+        "FRI": "Ven",
+        "SAT": "Sam",
+        "JAN": "Jan",
+        "FEB": "Fév",
+        "MAR": "Mar",
+        "APR": "Avr",
+        "MAY": "Mai",
+        "JUN": "Jun",
+        "JUL": "Jul",
+        "AUG": "Aou",
+        "SEP": "Sep",
+        "OCT": "Oct",
+        "NOV": "Nov",
+        "DEC": "Dec",
+        "ACTIVE_DURATION": "Durée active"
       },
-      "SCHEDULER": {
-        "ALWAYS": "Toujours",
-        "CLASS": "Class:",
-        "CONTACT": "Ceci ne devrait pas arriver. merci de contacter <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
-        "NEW_SCHEDULER": "New scheduler...",
-        "NOT_IMPLEMENTED": "Formulaire non implanté: "
+      "INSTALLATION": {
+        "ATTENTION_MESSAGE": "Notez que la sélection ne peut pas être annulée par la suite.",
+        "BACKWARD": "arrière",
+        "CONFIRM_APP_SELECTION": "Êtes-vous sûr de vouloir sélectionner l'application suivante ?",
+        "CONFIRM_APP_SELECTION_LATER": "Sont-ils sûrs de faire la sélection plus tard ?",
+        "FORWARD": "plus",
+        "PLEASE_SELECT_OPTION": "Veuillez choisir une option"
       },
-      "LOG": {
-        "AUTOMATIC_UPDATING": "Mise à jour automatique",
-        "LEVEL": "Level",
-        "MESSAGE": "Message",
-        "SOURCE": "Source",
-        "TIMESTAMP": "Timestamp"
-      },
-      "CONTROLLER": {
-        "APP": "App:",
-        "INTERNALLY_ID": "Internally ID:",
-        "PRIORITY": "Priorité:"
-      },
-      "BRIDGE": {
-        "NEW_CONNECTION": "Nouvelle connexion...",
-        "NEW_DEVICE": "Nouvel appareil..."
-      },
-      "ALERTING": {
-        "ACTIVATE": "Activer",
-        "DELAY": "Retard",
-        "TOAST": {
-          "SUCCESS": "Paramètres adoptés",
-          "ERROR": "Erreur lors du chargement des paramètres"
+      "CONFIG": {
+        "INDEX": {
+          "ADD_COMPONENTS": "Installez des componsants",
+          "ADJUST_COMPONENTS": "Configurez des composants",
+          "BRIDGE": "Connections et appareils",
+          "CONTROLLER": "Applications",
+          "DATA_STORAGE": "Donnée du stockage",
+          "EXECUTE_SIMULATOR": "Executez les simulations",
+          "LIVE_LOG": "Live system log",
+          "LOG": "Log",
+          "MANUAL_CONTROL": "Contrôle manuel",
+          "RENAME_COMPONENTS": "Rename components",
+          "SCHEDULER": "Applicationplanner",
+          "SIMULATOR": "Simulateur",
+          "SYSTEM_EXECUTE": "Exécutez une commande système",
+          "SYSTEM_PROFILE": "System Profile",
+          "ALERTING": "Alerte",
+          "NETWORK_CONFIGURATION": "Configuration du réseau"
+        },
+        "MORE": {
+          "MANUAL_COMMAND": "Commande Manuelle",
+          "MANUALPQ_POWER_SPECIFICATION": "Spécification de puissance",
+          "MANUALPQ_RESET": "Reset",
+          "MANUALPQ_SUBMIT": "Soumettre",
+          "REFU_INVERTER": "REFU Inverter",
+          "REFU_START": "Start",
+          "REFU_START_STOP": "Start/Stop inverter",
+          "REFU_STOP": "Stop",
+          "SEND": "Envoyer"
+        },
+        "SCHEDULER": {
+          "ALWAYS": "Toujours",
+          "CLASS": "Class:",
+          "CONTACT": "Ceci ne devrait pas arriver. merci de contacter <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
+          "NEW_SCHEDULER": "New scheduler...",
+          "NOT_IMPLEMENTED": "Formulaire non implanté: "
+        },
+        "LOG": {
+          "AUTOMATIC_UPDATING": "Mise à jour automatique",
+          "LEVEL": "Level",
+          "MESSAGE": "Message",
+          "SOURCE": "Source",
+          "TIMESTAMP": "Timestamp"
+        },
+        "CONTROLLER": {
+          "APP": "App:",
+          "INTERNALLY_ID": "Internally ID:",
+          "PRIORITY": "Priorité:"
+        },
+        "BRIDGE": {
+          "NEW_CONNECTION": "Nouvelle connexion...",
+          "NEW_DEVICE": "Nouvel appareil..."
+        },
+        "ALERTING": {
+          "ACTIVATE": "Activer",
+          "DELAY": "Retard",
+          "TOAST": {
+            "SUCCESS": "Paramètres adoptés",
+            "ERROR": "Erreur lors du chargement des paramètres"
+          }
+        },
+        "APP": {
+          "HEADER": "L'App Manager est actuellement dans une première version de test.",
+          "UPDATE_AVAILABLE": "Une nouvelle version {{ edgeShortName }} est disponible. version est disponible ! Veuillez mettre à jour le {{ edgeShortName }} pour que tous les nouveaux {{ edgeShortName }} soient affichés. Apps soient affichées dans l'App Center.",
+          "INSTALLED": "Installé",
+          "AVAILABLE": "Disponible sur",
+          "INCOMPATIBLE": "Incompatibilité",
+          "BUY_APP": "Acheter l'application",
+          "MODIFY_APP": "Modifier l'application",
+          "CREATE_APP": "Installer l'application",
+          "DELETE_APP": "Supprimer l'application",
+          "UPDATE_APP": "Mise à jour de l'application",
+          "ERROR_INSTALLABLE": "Erreurs d'installation",
+          "ERROR_COMPATIBLE": "Erreurs de compatibilité",
+          "NOT_AVAILABLE": "Pas disponible"
         }
       },
-      "APP": {
-        "HEADER": "L'App Manager est actuellement dans une première version de test.",
-        "UPDATE_AVAILABLE": "Une nouvelle version {{ edgeShortName }} est disponible. version est disponible ! Veuillez mettre à jour le {{ edgeShortName }} pour que tous les nouveaux {{ edgeShortName }} soient affichés. Apps soient affichées dans l'App Center.",
-        "INSTALLED": "Installé",
-        "AVAILABLE": "Disponible sur",
-        "INCOMPATIBLE": "Incompatibilité",
-        "BUY_APP": "Acheter l'application",
-        "MODIFY_APP": "Modifier l'application",
-        "CREATE_APP": "Installer l'application",
-        "DELETE_APP": "Supprimer l'application",
-        "UPDATE_APP": "Mise à jour de l'application",
-        "ERROR_INSTALLABLE": "Erreurs d'installation",
-        "ERROR_COMPATIBLE": "Erreurs de compatibilité",
-        "NOT_AVAILABLE": "Pas disponible"
+      "SERVICE": {
+        "ENTIRE_SYSTEM": "système entier",
+        "CELL": {
+          "VOLTAGES": "Tensions de cellules",
+          "TEMPERATURES": "Températures des cellules",
+          "INSULATION": "Isolement"
+        }
+      },
+      "NETWORK": {
+        "ERROR_READING_CONFIGURATION": "Erreur lors de la lecture de la configuration réseau actuelle:",
+        "MANDATORY_FIELDS": "Merci de remplir les champs obligatoires",
+        "SUCCESS_UPDATE": "Configuration réseau mise à jour avec succès pour",
+        "ERROR_UPDATING": "Erreur lors de la mise à jour",
+        "IP_ADDRESS": "Adresse IP",
+        "SUBNETMASK": "Masque de sous-réseau",
+        "ADD_IP": "Ajouter des adresses IP statiques",
+        "VALID_ADDRESS_WARNING": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IP valide avec un masque de réseau, par ex. 10.4.1.6/24",
+        "ADVANCED_MODE": "Mode avancé"
       }
     },
-    "SERVICE": {
-      "ENTIRE_SYSTEM": "système entier",
-      "CELL": {
-        "VOLTAGES": "Tensions de cellules",
-        "TEMPERATURES": "Températures des cellules",
-        "INSULATION": "Isolement"
-      }
+    "ABOUT": {
+      "BUILD": "This build",
+      "CURRENT_DEVELOPMENTS": "Développement actuels",
+      "DEVELOPED": "Cet interface utilisateur est développé en tant que logiciel libre.",
+      "LANGUAGE": "Sélectionnez la langue:",
+      "OPEN_EMS": "Plus au sujet d'OpenEMS"
     },
-    "NETWORK": {
-      "ERROR_READING_CONFIGURATION": "Erreur lors de la lecture de la configuration réseau actuelle:",
-      "MANDATORY_FIELDS": "Merci de remplir les champs obligatoires",
-      "SUCCESS_UPDATE": "Configuration réseau mise à jour avec succès pour",
-      "ERROR_UPDATING": "Erreur lors de la mise à jour",
-      "IP_ADDRESS": "Adresse IP",
-      "SUBNETMASK": "Masque de sous-réseau",
-      "ADD_IP": "Ajouter des adresses IP statiques",
-      "VALID_ADDRESS_WARNING": "Dans 'Ajouter des adresses IP statiques', veuillez entrer une adresse IP valide avec un masque de réseau, par ex. 10.4.1.6/24",
-      "ADVANCED_MODE": "Mode avancé"
+    "NOTIFICATIONS": {
+      "AUTHENTICATION_FAILED": "Pas de connexion, échec d'authentification .",
+      "CLOSED": "Connecxion fermée.",
+      "FAILED": "Connexion échouée.",
+      "LOGGED_IN": "Enregistré.",
+      "LOGGED_IN_AS": "Enregistré sous as '{{ value }}'."
     }
-  },
-  "ABOUT": {
-    "BUILD": "This build",
-    "CURRENT_DEVELOPMENTS": "Développement actuels",
-    "DEVELOPED": "Cet interface utilisateur est développé en tant que logiciel libre.",
-    "LANGUAGE": "Sélectionnez la langue:",
-    "OPEN_EMS": "Plus au sujet d'OpenEMS"
-  },
-  "NOTIFICATIONS": {
-    "AUTHENTICATION_FAILED": "Pas de connexion, échec d'authentification .",
-    "CLOSED": "Connecxion fermée.",
-    "FAILED": "Connexion échouée.",
-    "LOGGED_IN": "Enregistré.",
-    "LOGGED_IN_AS": "Enregistré sous as '{{ value }}'."
   }
 }

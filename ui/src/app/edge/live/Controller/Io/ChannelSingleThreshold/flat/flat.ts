@@ -151,11 +151,11 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
         switch (this.outputChannelValue) {
             case 0:
                 this.icon.name = "radio-button-off-outline";
-                this.state = this.translate.instant("General.off");
+                this.state = this.translate.instant("GENERAL.OFF");
                 break;
             case 1:
                 this.icon.name = "aperture-outline";
-                this.state = this.translate.instant("General.on");
+                this.state = this.translate.instant("GENERAL.ON");
                 break;
         }
 
@@ -163,13 +163,13 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
         this.modeValue = currentData.allComponents[this.component.id + "/_PropertyMode"];
         switch (this.modeValue) {
             case "ON":
-                this.mode = this.translate.instant("General.on");
+                this.mode = this.translate.instant("GENERAL.ON");
                 break;
             case "OFF":
-                this.mode = this.translate.instant("General.off");
+                this.mode = this.translate.instant("GENERAL.OFF");
                 break;
             case "AUTOMATIC":
-                this.mode = this.translate.instant("General.automatic");
+                this.mode = this.translate.instant("GENERAL.AUTOMATIC");
         }
 
         // True when InputAddress doesnt match any of the following channelIds
@@ -252,18 +252,18 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     private createDependenOnLabel(inputChannel: ChannelAddress, currentData: CurrentData | null): string {
         switch (inputChannel.toString()) {
             case "_sum/EssSoc":
-                return this.translate.instant("General.soc");
+                return this.translate.instant("GENERAL.SOC");
             case "_sum/GridActivePower": {
                 const propertyThreshold = this.getPropertyThreshold(currentData);
                 if (propertyThreshold < 0) {
-                    return this.translate.instant("General.gridSell");
+                    return this.translate.instant("GENERAL.GRID_SELL");
                 }
-                return this.translate.instant("General.gridBuy");
+                return this.translate.instant("GENERAL.GRID_BUY");
             }
             case "_sum/ProductionActivePower":
-                return this.translate.instant("General.production");
+                return this.translate.instant("GENERAL.PRODUCTION");
             default:
-                return this.translate.instant("Edge.Index.Widgets.Singlethreshold.other") + " (" + inputChannel + ")";
+                return this.translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER") + " (" + inputChannel + ")";
         }
     }
 

@@ -1,0 +1,45 @@
+{
+    "SETTINGS": {
+        "ENERGY_JOURNEY": {
+            "TO_THE_ANALYSIS": "To the analysis",
+            "CURRENT_NUMBER_OF_MODULES": "Current",
+            "SIMULATION_NOT_STARTED": "Simulation not started",
+            "WIDGET_TITLE": "Battery extension",
+            "SLOGAN": "Battery extension: is it worth it?",
+            "DESCRIPTION": "Whether it is worth retrofitting your energy storage system depends on various factors. \nYour system has been in operation for more than a year. \nAnalyse here what effect a battery extension would have had",
+            "SEE_CHANGES_TEXT": "Take a relaxed approach to the changes in the energy world.",
+            "SEE_CHANGES_SUB_TEXT": "With us, you are ideally prepared for your 100 % energy transition.",
+            "SEE_CHANGES_SLOGAN": "Use our Energy Journey platform to analyse and calculate how you can sensibly develop your system further and which extensions you can benefit from.",
+            "BATTERY_EXTENSION_TEXT": "Your system has been live for more than a year. \nAnalyse which effect a battery extension would have.",
+            "ELECTRICITY_PRICE_TEXT": "Your system has been live for more than a year. Analyse here what effect a battery extension would have had.",
+            "ELECTRICITY_PRICE_VALUE_TEXT": "Please enter your current electricity price. If you are already using a time-of-use-tariff, please enter an average value.",
+            "START_ANALYSIS": "Start analysis",
+            "ELECTRICITY_PRICE_SELECTION_TITLE": "Energy Journey: Battery extension",
+            "ANALYSE_BATTERY_EXTENSION_TITLE": "Analyse Battery extension",
+            "CONSTANTS": {
+                "TITLE": "Your data",
+                "EDIT": "Edit",
+                "BATTERY_MODULE": "Battery modules",
+                "CHARGE_DISCHARGE": "Charging and discharging capacity",
+                "GRID_SUPPLY": "Grid supply",
+                "ELECTRICITY_PRICE": "Electricity price"
+            },
+            "CONSTANTS_DESCRIPTION": "Last year's details on your current {{ theme }} {{ label }}:",
+            "GRID_CONSUMPTION_TITLE": "Grid consumption saved in kWh ({{date}})",
+            "POTENTIAL_SAVINGS_NOTE": "* Potential annual savings in euros that would have resulted from a battery extension",
+            "POTENTIAL_SAVINGS_CALCULATION_NOTE": "Calculation: Your current electricity price multiplied by the electricity savings in kWh per module.",
+            "CHARGE_DISCHARGE_POWER_NOTE": "** The charging and discharging power (kW) as well as the emergency power capacity of your storage increases to this value. Detailed information on the values that can be processed on the AC side and the achievable output depending on the number of modules can be found in the<a href='{{productLink}}' target='_blank'>&nbsp;product data sheet {{productName}}</a>&nbsp;",
+            "MORE_DETAILS": "Further details in the Home 10 product sheet",
+            "DISCLAIMER": "Disclaimer",
+            "DISCLAIMER_TEXT": "The calculations in the analysis are based on your information on the electricity price, the grid purchases and the grid feed-in data of your storage system in the past year. These underlying parameters can change at any time. The calculations are therefore only examples that serve as an orientation for the possible profitability of a battery extension and do not guarantee that financial savings can actually be achieved. This does not constitute a guarantee on the part of FENECON.",
+            "SAVINGS_LABEL": "Savings on electricity consumption in euros:*",
+            "CHARGE_DISCHARGE_CAPACITY": "Charging and discharging capacity of the storage in kW:**",
+            "TOTAL": "(Total)",
+            "TOTAL_CAPACITY": "Increase in total usable capacity in kWh:",
+            "BATTERY_MODULE_EXTENSION": "Battery module extension",
+            "MODULE": "Module",
+            "MODULES": "Modules",
+            "DECREASE_IN_PEAK_POWER_TOOLTIP": "Negative values indicate a tower expansion that does not cause any additional increase in charging and discharging capacity."
+        }
+    }
+}

@@ -1,19 +1,17 @@
 @if (component !== null && component !== undefined && isInitialized) {
-  <oe-modal [title]="component.alias" [formGroup]="formGroup" [component]="component"
-    helpKey="EVCS_CLUSTER">
-    <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.amountOfChargingStations' | translate"
+  <oe-modal [title]="component.alias" [formGroup]="formGroup" [component]="component" helpKey="EVCS_CLUSTER">
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.AMOUNT_OF_CHARGING_STATIONS' | translate"
       [value]="(evcss | keyvalue)?.length ?? 0">
     </oe-modal-line>
-    <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.totalChargingPower' | translate"
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.TOTAL_CHARGING_POWER' | translate"
       [channelAddress]="component.id + '/ActivePower'" [converter]="Converter.POWER_IN_WATT">
     </oe-modal-line>
     <oe-multiple-evcs-api-cluster-chart [component]="component" [evcss]="evcss"></oe-multiple-evcs-api-cluster-chart>
-    <oe-modal-line [name]="'Edge.Index.Widgets.EVCS.prioritization' | translate"></oe-modal-line>
+    <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.PRIORITIZATION' | translate"></oe-modal-line>
     <ion-list>
       <ion-reorder-group (ionItemReorder)="onReorder($event)" disabled="false">
         @for (entry of formGroup.controls['evcs.ids'].value; track entry; let i = $index) {
-          <ion-item [attr.data-index]="i"
-            lines="full">
+          <ion-item [attr.data-index]="i" lines="full">
             <ion-text>{{i+1}}.&nbsp;</ion-text>
             @if (entry && evcss[entry] !== null) {
               <ion-label>

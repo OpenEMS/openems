@@ -34,7 +34,6 @@ describe("Grid - Modal", () => {
                 ],
             });
         }
-
         {
             // Single Meter
             const EMS = DummyConfig.from(

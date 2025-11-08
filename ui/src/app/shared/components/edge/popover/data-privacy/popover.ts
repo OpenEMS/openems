@@ -5,11 +5,11 @@ import { IonicModule, ModalController } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
+
 import { WeatherIcon } from "src/app/edge/live/common/weather/models/weather-icon";
 import { AddAppInstance } from "src/app/edge/settings/app/jsonrpc/addAppInstance";
 import { AppCenter } from "src/app/edge/settings/app/keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "src/app/edge/settings/app/keypopup/appCenterInstallAppWithSuppliedKey";
-import tr from "src/app/shared/components/edge/popover/shared/translation.json";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
@@ -19,6 +19,8 @@ import { PromiseUtils } from "src/app/shared/utils/promise/promise.utils";
 import { ModalComponentsModule } from "../../../modal/modal.module";
 import { OeCheckboxComponent } from "../../../oe-checkbox/oe-checkbox";
 import { OeImageComponent } from "../../../oe-img/oe-img";
+import de from "../shared/i18n/de.json";
+import en from "../shared/i18n/en.json";
 import { ThirdPartyUsageAcceptance } from "../shared/third-party-usage-acceptance";
 
 @Component({
@@ -53,8 +55,10 @@ export class WeatherForecastApprovalComponent implements OnInit {
         private translate: TranslateService,
         private service: Service,
     ) {
-        Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
-            this.translate.setTranslation(lang, translations, shouldMerge);
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
         });
     }
 
@@ -101,7 +105,7 @@ export class WeatherForecastApprovalComponent implements OnInit {
 
         if (installSuccess == true) {
             this.service.toast(
-                this.translate.instant("Edge.Config.App.successInstall"),
+                this.translate.instant("EDGE.CONFIG.APP.SUCCESS_INSTALL"),
                 "success"
             );
 
@@ -152,7 +156,7 @@ export class WeatherForecastApprovalComponent implements OnInit {
 
         if (err) {
             this.service.toast(
-                this.translate.instant("Edge.Config.App.failUpdate", { error: err.message || err }),
+                this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", { error: err.message || err }),
                 "danger"
             );
             return false;
@@ -187,7 +191,7 @@ export class WeatherForecastApprovalComponent implements OnInit {
 
         if (err) {
             this.service.toast(
-                this.translate.instant("Edge.Config.App.failInstall", { error: err.message || err }),
+                this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: err.message || err }),
                 "danger"
             );
             return false;

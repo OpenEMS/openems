@@ -1,6 +1,7 @@
 export namespace StringUtils {
 
     export const INVALID_STRING = "Passed value is not of type string";
+    export type UppercaseString<T extends string> = T extends Uppercase<T> ? T : never;
 
     export function isValidString(val: any): val is string {
         return typeof val === "string";
@@ -17,7 +18,10 @@ export namespace StringUtils {
      * @param arr the array
      * @returns true if passed value is not contained by the array
      */
-    export function isNotInArr(val: string, arr: string[]): boolean {
+    export function isNotInArr(val: string | null, arr: string[] | null): boolean {
+        if ((!isValidString(val) || !Array.isArray(arr)) || !(validateStrings(...arr))) {
+            throw new Error(INVALID_STRING);
+        }
         return arr.every(el => val != el);
     }
 

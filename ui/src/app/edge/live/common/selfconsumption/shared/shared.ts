@@ -8,11 +8,11 @@ export namespace SharedSelfConsumption {
 
     export const COMMON_NOTE = (translate: TranslateService): OeFormlyField.InfoLine => ({
         type: "info-line",
-        name: translate.instant("Edge.Index.Widgets.selfconsumptionInfo"),
+        name: translate.instant("EDGE.INDEX.WIDGETS.SELFCONSUMPTION_INFO"),
     });
 
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
-        title: translate.instant("General.selfConsumption"),
+        title: translate.instant("GENERAL.SELF_CONSUMPTION"),
         helpKey: "REDIRECT.COMMON_SELFCONSUMPTION",
         lines: [
             {
@@ -48,8 +48,8 @@ export namespace SharedSelfConsumption {
 
 
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree("selfconsumption", { baseString: "common/selfconsumption" }, { name: "oe-consumption", color: "normal" }, translate.instant("General.selfConsumption"), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), "label", [], null),
+        return new NavigationTree("selfconsumption", { baseString: "common/selfconsumption" }, { name: "oe-consumption", color: "normal" }, translate.instant("GENERAL.SELF_CONSUMPTION"), "label", [
+            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
         ], null).toConstructorParams();
     }
 }

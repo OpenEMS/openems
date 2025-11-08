@@ -1,6 +1,6 @@
 {
   "ABOUT": {
-    "DESCRIPTION": "Dieses Energiemanagementsystem basiert auf OpenEMS, dem Open Source Energy Management System. OpenEMS ist eine modulare Plattform zur Überwachung und Steuerung von Energiesystemen. Die Entwicklung wird von der OpenEMS Association e.V. koordiniert.",
+    "DESCRIPTION": "Dieses Energiemanagementsystem wird auf Basis von OpenEMS als Open-Source-Software entwickelt. OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für Energiemanagement-Anwendungen. Es wurde von FENECON initiiert und wird mittlerweile von einer großen Zahl an Unternehmen, Universitäten und Instituten sowohl zur Forschung und Entwicklung verwendet, als auch für deren eigene Energiemanagementsysteme eingesetzt. Die Entwicklung wird in der OpenEMS Association e.V. koordiniert.",
     "CONTACT": "Für Fragen oder Anregungen nutzen Sie bitte das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a>.",
     "BUILD": "Dieser Build",
     "ENERGY_MANAGEMENT": "Energiemanagementsystem",
@@ -1176,7 +1176,9 @@
     "PASSWORD_RESET": "Passwort zurücksetzen",
     "AUTHENTICATION_FAILED": "Authentifizierung fehlgeschlagen",
     "USER": "Benutzer",
-    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
+    "SIGN_IN": "Anmelden",
+    "DEMO_ACCESS": "Demo Zugang"
   },
   "MENU": {
     "ACCESS_LEVEL": "Zugriffslevel",

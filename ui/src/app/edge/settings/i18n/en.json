@@ -1,0 +1,9 @@
+{
+    "PROFILE": {
+        "SYSTEM_PROTOCOL": {
+            "LABEL": "System protocol",
+            "DOWNLOAD": "Download",
+            "TITLE": "Currently"
+        }
+    }
+}

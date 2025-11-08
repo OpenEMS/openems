@@ -18,11 +18,11 @@
                       <ion-item>
                         <ion-button type="submit" color="primary"
                           [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
-                          translate> Edge.Config.App.updateApp
+                          translate> EDGE.CONFIG.APP.UPDATE_APP
                         </ion-button>
                         <ion-button (click)="submitDelete(varinstance)" color="primary"
                           [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
-                          Edge.Config.App.deleteApp
+                          EDGE.CONFIG.APP.DELETE_APP
                         </ion-button>
                         @if (varinstance.isDeleting || varinstance.isUpdating) {
                           <div style="min-height: 100px;">
@@ -37,7 +37,7 @@
                     }
                     @default {
                       <p>
-                        {{ 'Edge.Config.App.UNKNOWN_INSTALLATION_STEP' | translate: { step: step.type } }}
+                        {{ 'EDGE.CONFIG.APP.UNKNOWN_INSTALLATION_STEP' | translate: { step: step.type } }}
                       </p>
                     }
                   }

@@ -11,34 +11,37 @@ import { NumberFormatPipe } from "./pipes/number-format.pipe";
 import { WeatherCodeDescriptionPipe } from "./pipes/weather-code-description.pipe";
 import { WeatherCodeIconPipe } from "./pipes/weather-code-icon.pipe";
 import { WeekdayFormatPipe } from "./pipes/weekday-format.pipe";
-import translations from "./shared/translation.json";
+import de from "./shared/i18n/de.json";
+import en from "./shared/i18n/en.json";
 import { SecondsToHoursPipe } from "./shared/weather.constants";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    NumberFormatPipe,
-    HourFormatPipe,
-    WeekdayFormatPipe,
-    DayMonthFormatPipe,
-    WeatherCodeIconPipe,
-    WeatherCodeDescriptionPipe,
-    SecondsToHoursPipe,
-  ],
-  declarations: [
-    WeatherComponent,
-    WeatherModalComponent,
-  ],
-  exports: [
-    WeatherComponent,
-  ],
+    imports: [
+        SharedModule,
+        NumberFormatPipe,
+        HourFormatPipe,
+        WeekdayFormatPipe,
+        DayMonthFormatPipe,
+        WeatherCodeIconPipe,
+        WeatherCodeDescriptionPipe,
+        SecondsToHoursPipe,
+    ],
+    declarations: [
+        WeatherComponent,
+        WeatherModalComponent,
+    ],
+    exports: [
+        WeatherComponent,
+    ],
 })
 export class WeatherModule {
 
-  constructor(private translate: TranslateService) {
-    registerWeatherIcons();
-    Language.setAdditionalTranslationFile(translations, translate).then(({ lang, translations, shouldMerge }) => {
-      translate.setTranslation(lang, translations, shouldMerge);
-    });
-  }
+    constructor(private translate: TranslateService) {
+        registerWeatherIcons();
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
+    }
 }

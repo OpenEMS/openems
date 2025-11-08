@@ -374,168 +374,168 @@
           "SWITCH_ON_COM_SHORT": "",
           "SWITCH_ON_REC_SHORT": ""
         }
-      }
-    },
-    "HISTORY": {
-      "BEGIN_DATE": "Selecteer startdatum",
-      "DAY": "Dag",
-      "END_DATE": "Selecteer einddatum",
-      "EXPORT": "download als Excel-bestand",
-      "GO": "Ga!",
-      "LAST_MONTH": "Vorige maand",
-      "LAST_WEEK": "Vorige week",
-      "LAST_YEAR": "Vorig jaar",
-      "MONTH": "Maand",
-      "NO_DATA": "geen gegevens beschikbaar",
-      "TRY_AGAIN": "Probeer het later nog eens...",
-      "OTHER_PERIOD": "Andere periode",
-      "PERIOD": "Periode",
-      "SELECTED_DAY": "{{ value }}",
-      "SELECTED_PERIOD": "Geselecteerde periode:",
-      "TODAY": "Vandaag",
-      "WEEK": "Woche",
-      "YEAR": "Jaar",
-      "YESTERDAY": "Gisteren",
-      "SUN": "Zon",
-      "MON": "Maa",
-      "TUE": "Din",
-      "WED": "Woe",
-      "THU": "Don",
-      "FRI": "Vri",
-      "SAT": "Zat",
-      "JAN": "Jan",
-      "FEB": "Feb",
-      "MAR": "Maa",
-      "APR": "Apr",
-      "MAY": "Mei",
-      "JUN": "Jun",
-      "JUL": "Jul",
-      "AUG": "Aug",
-      "SEP": "Sep",
-      "OCT": "Okt",
-      "NOV": "Nov",
-      "DEC": "Dec",
-      "ACTIVE_DURATION": "actieve duur"
-    },
-    "INSTALLATION": {
-      "ATTENTION_MESSAGE": "Merk op dat de selectie achteraf niet ongedaan kan worden gemaakt.",
-      "BACKWARD": "achterwaarts",
-      "CONFIRM_APP_SELECTION": "Weet u zeker dat u de volgende app wilt selecteren?",
-      "CONFIRM_APP_SELECTION_LATER": "Zijn ze er zeker van dat ze de selectie later maken?",
-      "FORWARD": "voorwaarts",
-      "PLEASE_SELECT_OPTION": "Gelieve een optie te kiezen"
-    },
-    "CONFIG": {
-      "INDEX": {
-        "ADD_COMPONENTS": "Componenten installeren",
-        "ADJUST_COMPONENTS": "Componenten configureren",
-        "BRIDGE": "Verbindingen en apparaten",
-        "CONTROLLER": "Toepassingen",
-        "DATA_STORAGE": "Gegevensopslag",
-        "EXECUTE_SIMULATOR": "Simulatie uitvoeren",
-        "LIVE_LOG": "Live System log",
-        "LOG": "Log",
-        "MANUAL_CONTROL": "Handmatige bediening",
-        "RENAME_COMPONENTS": "Componenten hernoem",
-        "SCHEDULER": "Toepassingsschema",
-        "SIMULATOR": "Simulator",
-        "SYSTEM_EXECUTE": "Voer systeemopdracht uit",
-        "SYSTEM_PROFILE": "Systeemprofiel",
-        "ALERTING": "Waarschuwing",
-        "NETWORK_CONFIGURATION": "Netwerk configuratie"
       },
-      "MORE": {
-        "MANUAL_COMMAND": "Handmatig commando",
-        "MANUALPQ_POWER_SPECIFICATION": "Gespecificeerd vermogen",
-        "MANUALPQ_RESET": "Reset",
-        "MANUALPQ_SUBMIT": "Toepassen",
-        "REFU_INVERTER": "REFU inverter",
-        "REFU_START": "Start",
-        "REFU_START_STOP": "Inverter starten/ stoppen",
-        "REFU_STOP": "Stop",
-        "SEND": "Verstuur"
+      "HISTORY": {
+        "BEGIN_DATE": "Selecteer startdatum",
+        "DAY": "Dag",
+        "END_DATE": "Selecteer einddatum",
+        "EXPORT": "download als Excel-bestand",
+        "GO": "Ga!",
+        "LAST_MONTH": "Vorige maand",
+        "LAST_WEEK": "Vorige week",
+        "LAST_YEAR": "Vorig jaar",
+        "MONTH": "Maand",
+        "NO_DATA": "geen gegevens beschikbaar",
+        "TRY_AGAIN": "Probeer het later nog eens...",
+        "OTHER_PERIOD": "Andere periode",
+        "PERIOD": "Periode",
+        "SELECTED_DAY": "{{ value }}",
+        "SELECTED_PERIOD": "Geselecteerde periode:",
+        "TODAY": "Vandaag",
+        "WEEK": "Woche",
+        "YEAR": "Jaar",
+        "YESTERDAY": "Gisteren",
+        "SUN": "Zon",
+        "MON": "Maa",
+        "TUE": "Din",
+        "WED": "Woe",
+        "THU": "Don",
+        "FRI": "Vri",
+        "SAT": "Zat",
+        "JAN": "Jan",
+        "FEB": "Feb",
+        "MAR": "Maa",
+        "APR": "Apr",
+        "MAY": "Mei",
+        "JUN": "Jun",
+        "JUL": "Jul",
+        "AUG": "Aug",
+        "SEP": "Sep",
+        "OCT": "Okt",
+        "NOV": "Nov",
+        "DEC": "Dec",
+        "ACTIVE_DURATION": "actieve duur"
       },
-      "SCHEDULER": {
-        "ALWAYS": "Altijd",
-        "CLASS": "Soort:",
-        "CONTACT": "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
-        "NEW_SCHEDULER": "New Schema...",
-        "NOT_IMPLEMENTED": "Gegevens niet geïmplementeerd:"
+      "INSTALLATION": {
+        "ATTENTION_MESSAGE": "Merk op dat de selectie achteraf niet ongedaan kan worden gemaakt.",
+        "BACKWARD": "achterwaarts",
+        "CONFIRM_APP_SELECTION": "Weet u zeker dat u de volgende app wilt selecteren?",
+        "CONFIRM_APP_SELECTION_LATER": "Zijn ze er zeker van dat ze de selectie later maken?",
+        "FORWARD": "voorwaarts",
+        "PLEASE_SELECT_OPTION": "Gelieve een optie te kiezen"
       },
-      "LOG": {
-        "AUTOMATIC_UPDATING": "Automatisch updaten",
-        "LEVEL": "Niveau",
-        "MESSAGE": "Bericht",
-        "SOURCE": "Bron",
-        "TIMESTAMP": "Tijdspit"
-      },
-      "CONTROLLER": {
-        "APP": "App:",
-        "INTERNALLY_ID": "Intern ID:",
-        "PRIORITY": "Prioriteit:"
-      },
-      "BRIDGE": {
-        "NEW_CONNECTION": "Nieuwe verbinding...",
-        "NEW_DEVICE": "Nieuw apparaat…"
-      },
-      "ALERTING": {
-        "ACTIVATE": "Activeer",
-        "DELAY": "Vertraging",
-        "TOAST": {
-          "SUCCESS": "Goedgekeurde instellingen",
-          "ERROR": "Fout bij het laden van de instellingen"
+      "CONFIG": {
+        "INDEX": {
+          "ADD_COMPONENTS": "Componenten installeren",
+          "ADJUST_COMPONENTS": "Componenten configureren",
+          "BRIDGE": "Verbindingen en apparaten",
+          "CONTROLLER": "Toepassingen",
+          "DATA_STORAGE": "Gegevensopslag",
+          "EXECUTE_SIMULATOR": "Simulatie uitvoeren",
+          "LIVE_LOG": "Live System log",
+          "LOG": "Log",
+          "MANUAL_CONTROL": "Handmatige bediening",
+          "RENAME_COMPONENTS": "Componenten hernoem",
+          "SCHEDULER": "Toepassingsschema",
+          "SIMULATOR": "Simulator",
+          "SYSTEM_EXECUTE": "Voer systeemopdracht uit",
+          "SYSTEM_PROFILE": "Systeemprofiel",
+          "ALERTING": "Waarschuwing",
+          "NETWORK_CONFIGURATION": "Netwerk configuratie"
+        },
+        "MORE": {
+          "MANUAL_COMMAND": "Handmatig commando",
+          "MANUALPQ_POWER_SPECIFICATION": "Gespecificeerd vermogen",
+          "MANUALPQ_RESET": "Reset",
+          "MANUALPQ_SUBMIT": "Toepassen",
+          "REFU_INVERTER": "REFU inverter",
+          "REFU_START": "Start",
+          "REFU_START_STOP": "Inverter starten/ stoppen",
+          "REFU_STOP": "Stop",
+          "SEND": "Verstuur"
+        },
+        "SCHEDULER": {
+          "ALWAYS": "Altijd",
+          "CLASS": "Soort:",
+          "CONTACT": "Dit zou niet mogen gebeuren. Neem contact op met <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
+          "NEW_SCHEDULER": "New Schema...",
+          "NOT_IMPLEMENTED": "Gegevens niet geïmplementeerd:"
+        },
+        "LOG": {
+          "AUTOMATIC_UPDATING": "Automatisch updaten",
+          "LEVEL": "Niveau",
+          "MESSAGE": "Bericht",
+          "SOURCE": "Bron",
+          "TIMESTAMP": "Tijdspit"
+        },
+        "CONTROLLER": {
+          "APP": "App:",
+          "INTERNALLY_ID": "Intern ID:",
+          "PRIORITY": "Prioriteit:"
+        },
+        "BRIDGE": {
+          "NEW_CONNECTION": "Nieuwe verbinding...",
+          "NEW_DEVICE": "Nieuw apparaat…"
+        },
+        "ALERTING": {
+          "ACTIVATE": "Activeer",
+          "DELAY": "Vertraging",
+          "TOAST": {
+            "SUCCESS": "Goedgekeurde instellingen",
+            "ERROR": "Fout bij het laden van de instellingen"
+          }
+        },
+        "APP": {
+          "HEADER": "De App Manager bevindt zich momenteel in een eerste testversie.",
+          "UPDATE_AVAILABLE": "Er is een nieuwe {{ randShortName }} versie is beschikbaar! Gelieve de {{ edgeShortName }} bij te werken zodat alle nieuwe {{ edgeShortName }} Apps worden weergegeven in het App Center.",
+          "INSTALLED": "Geïnstalleerd",
+          "AVAILABLE": "Beschikbaar",
+          "INCOMPATIBLE": "Onverenigbaar",
+          "BUY_APP": "App kopen",
+          "MODIFY_APP": "App wijzigen",
+          "CREATE_APP": "App installeren",
+          "DELETE_APP": "App verwijderen",
+          "UPDATE_APP": "App bijwerken",
+          "ERROR_INSTALLABLE": "Installatiefouten",
+          "ERROR_COMPATIBLE": "Compatibiliteitsfouten",
+          "NOT_AVAILABLE": "Niet beschikbaar"
         }
       },
-      "APP": {
-        "HEADER": "De App Manager bevindt zich momenteel in een eerste testversie.",
-        "UPDATE_AVAILABLE": "Er is een nieuwe {{ randShortName }} versie is beschikbaar! Gelieve de {{ edgeShortName }} bij te werken zodat alle nieuwe {{ edgeShortName }} Apps worden weergegeven in het App Center.",
-        "INSTALLED": "Geïnstalleerd",
-        "AVAILABLE": "Beschikbaar",
-        "INCOMPATIBLE": "Onverenigbaar",
-        "BUY_APP": "App kopen",
-        "MODIFY_APP": "App wijzigen",
-        "CREATE_APP": "App installeren",
-        "DELETE_APP": "App verwijderen",
-        "UPDATE_APP": "App bijwerken",
-        "ERROR_INSTALLABLE": "Installatiefouten",
-        "ERROR_COMPATIBLE": "Compatibiliteitsfouten",
-        "NOT_AVAILABLE": "Niet beschikbaar"
+      "SERVICE": {
+        "ENTIRE_SYSTEM": "Hele systeem",
+        "CELL": {
+          "VOLTAGES": "Celspanningen",
+          "TEMPERATURES": "Celtemperaturen",
+          "INSULATION": "Isolatie"
+        }
+      },
+      "NETWORK": {
+        "ERROR_READING_CONFIGURATION": "Fout bij lezen huidige netwerkconfiguratie:",
+        "MANDATORY_FIELDS": "Gelieve de verplichte velden in te vullen",
+        "SUCCESS_UPDATE": "Netwerkconfiguratie geüpdatet voor:",
+        "ERROR_UPDATING": "Fout bij updaten",
+        "IP_ADDRESS": "IP-adres",
+        "SUBNETMASK": "Subnetmasker",
+        "ADD_IP": "Statische IP-adressen toevoegen",
+        "VALID_ADDRESS_WARNING": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24",
+        "ADVANCED_MODE": "Geavanceerde modus"
       }
     },
-    "SERVICE": {
-      "ENTIRE_SYSTEM": "Hele systeem",
-      "CELL": {
-        "VOLTAGES": "Celspanningen",
-        "TEMPERATURES": "Celtemperaturen",
-        "INSULATION": "Isolatie"
-      }
+    "ABOUT": {
+      "BUILD": "Versie",
+      "CURRENT_DEVELOPMENTS": "Huidige ontwikkelingen",
+      "DEVELOPED": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
+      "FAQ": "Veel Gestelde Vragen (FAQ)",
+      "LANGUAGE": "Selecteer taal:",
+      "OPEN_EMS": "Meer over OpenEMS",
+      "PATCHNOTES": "Veranderingen in de monitoring voor deze build"
     },
-    "NETWORK": {
-      "ERROR_READING_CONFIGURATION": "Fout bij lezen huidige netwerkconfiguratie:",
-      "MANDATORY_FIELDS": "Gelieve de verplichte velden in te vullen",
-      "SUCCESS_UPDATE": "Netwerkconfiguratie geüpdatet voor:",
-      "ERROR_UPDATING": "Fout bij updaten",
-      "IP_ADDRESS": "IP-adres",
-      "SUBNETMASK": "Subnetmasker",
-      "ADD_IP": "Statische IP-adressen toevoegen",
-      "VALID_ADDRESS_WARNING": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24",
-      "ADVANCED_MODE": "Geavanceerde modus"
+    "NOTIFICATIONS": {
+      "AUTHENTICATION_FAILED": "Geen verbinding.Autorisatie mislukt.",
+      "CLOSED": "Verbinding beëindigd.",
+      "FAILED": "Verbinding mislukt.",
+      "LOGGED_IN": "Aangemeld.",
+      "LOGGED_IN_AS": "Aangemeld als gebruiker {{ value }}."
     }
-  },
-  "ABOUT": {
-    "BUILD": "Versie",
-    "CURRENT_DEVELOPMENTS": "Huidige ontwikkelingen",
-    "DEVELOPED": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
-    "FAQ": "Veel Gestelde Vragen (FAQ)",
-    "LANGUAGE": "Selecteer taal:",
-    "OPEN_EMS": "Meer over OpenEMS",
-    "PATCHNOTES": "Veranderingen in de monitoring voor deze build"
-  },
-  "NOTIFICATIONS": {
-    "AUTHENTICATION_FAILED": "Geen verbinding.Autorisatie mislukt.",
-    "CLOSED": "Verbinding beëindigd.",
-    "FAILED": "Verbinding mislukt.",
-    "LOGGED_IN": "Aangemeld.",
-    "LOGGED_IN_AS": "Aangemeld als gebruiker {{ value }}."
   }
 }

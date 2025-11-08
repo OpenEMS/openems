@@ -22,7 +22,7 @@ export namespace SharedGrid {
         // Grid-Mode
         const lines: OeFormlyField[] = [{
             type: "channel-line",
-            name: translate.instant("General.offGrid"),
+            name: translate.instant("GENERAL.OFF_GRID"),
             channel: "_sum/GridMode",
             filter: Filter.GRID_MODE_IS_OFF_GRID,
             converter: Converter.HIDE_VALUE,
@@ -37,13 +37,13 @@ export namespace SharedGrid {
             lines.push(
                 {
                     type: "channel-line",
-                    name: translate.instant("General.gridSellAdvanced"),
+                    name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
                     channel: "_sum/GridActivePower",
                     converter: Converter.GRID_SELL_POWER_OR_ZERO,
                 },
                 {
                     type: "channel-line",
-                    name: translate.instant("General.gridBuyAdvanced"),
+                    name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
                     channel: "_sum/GridActivePower",
                     converter: Converter.GRID_BUY_POWER_OR_ZERO,
                 },
@@ -63,13 +63,13 @@ export namespace SharedGrid {
                 lines.push(
                     {
                         type: "channel-line",
-                        name: translate.instant("General.gridSellAdvanced"),
+                        name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
                         channel: meter.id + "/ActivePower",
                         converter: Converter.GRID_SELL_POWER_OR_ZERO,
                     },
                     {
                         type: "channel-line",
-                        name: translate.instant("General.gridBuyAdvanced"),
+                        name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
                         channel: meter.id + "/ActivePower",
                         converter: Converter.GRID_BUY_POWER_OR_ZERO,
                     },
@@ -99,12 +99,12 @@ export namespace SharedGrid {
             // Technical info
             lines.push({
                 type: "info-line",
-                name: translate.instant("Edge.Index.Widgets.phasesInfo"),
+                name: translate.instant("EDGE.INDEX.WIDGETS.PHASES_INFO"),
             });
         }
 
         return {
-            title: translate.instant("General.grid"),
+            title: translate.instant("GENERAL.GRID"),
             lines: lines,
             helpKey: "REDIRECT.COMMON_GRID",
             component: new EdgeConfig.Component(),
@@ -117,7 +117,7 @@ export namespace SharedGrid {
                 type: "children-line",
                 name: {
                     channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
-                    converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("General.phase") + " " + phase),
+                    converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("GENERAL.PHASE") + " " + phase),
                 },
 
                 indentation: TextIndentation.SINGLE,
@@ -158,7 +158,7 @@ export namespace SharedGrid {
 
         lines.push({
             type: "value-from-channels-line",
-            name: translate.instant("General.state"),
+            name: translate.instant("GENERAL.STATE"),
             value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
             channelsToSubscribe: [
                 ...getChannelsFromController(config),
@@ -235,17 +235,17 @@ export namespace SharedGrid {
             return null;
         }
 
-        return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("General.grid"), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), "label", [
+        return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("GENERAL.GRID"), "label", [
+            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [
                 ...gridMeters
                     .map(el => new NavigationTree(el.id + "/phase-accurate", { baseString: el.id + "/phase-accurate" },
-                        { name: "oe-grid", color: "dark" }, gridMeters.length === 1 ? translate.instant("Edge.History.PHASE_ACCURATE") : el.alias, "label",
+                        { name: "oe-grid", color: "dark" }, gridMeters.length === 1 ? translate.instant("EDGE.HISTORY.PHASE_ACCURATE") : el.alias, "label",
                         edge.roleIsAtLeast(Role.INSTALLER)
-                            ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("Edge.History.CURRENT_AND_VOLTAGE"), "label", [], null)]
+                            ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", [], null)]
                             : [],
                         null)),
                 new NavigationTree(
-                    "external-limitation", { baseString: "external-limitation" }, { name: "flame", color: "danger" }, translate.instant("Edge.History.EXTERNAL_LIMITATION"), "label", [],
+                    "external-limitation", { baseString: "external-limitation" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"), "label", [],
                     null),
             ], null),
         ], null).toConstructorParams();

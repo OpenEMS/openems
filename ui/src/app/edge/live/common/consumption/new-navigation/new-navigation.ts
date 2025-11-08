@@ -50,7 +50,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                 },
                 {
                     type: "value-from-channels-line",
-                    name: translate.instant("General.otherConsumption"),
+                    name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
                     value: (currentData: CurrentData) => Converter.POSITIVE_POWER_IN_KILO_WATT(
                         Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
                     channelsToSubscribe: [
@@ -63,7 +63,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         }
 
         return {
-            title: translate.instant("General.consumption"),
+            title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
             lines: lines,
             component: new EdgeConfig.Component(),

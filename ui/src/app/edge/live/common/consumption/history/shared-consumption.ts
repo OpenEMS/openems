@@ -125,7 +125,7 @@ export function createLimiter14aAxis(
         chartType,
         ChartAxis.RIGHT,
         YAxisType.RELAY,
-        translate.instant("General.state"),
+        translate.instant("GENERAL.STATE"),
     );
 }
 

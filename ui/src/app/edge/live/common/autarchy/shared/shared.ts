@@ -8,11 +8,11 @@ export namespace SharedAutarchy {
 
     export const COMMON_NOTE = (translate: TranslateService): OeFormlyField.InfoLine => ({
         type: "info-line",
-        name: translate.instant("Edge.Index.Widgets.autarchyInfo"),
+        name: translate.instant("EDGE.INDEX.WIDGETS.AUTARCHY_INFO"),
     });
 
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
-        title: translate.instant("General.autarchy"),
+        title: translate.instant("GENERAL.AUTARCHY"),
         helpKey: "REDIRECT.COMMON_AUTARCHY",
         lines: [
             {
@@ -47,8 +47,8 @@ export namespace SharedAutarchy {
     }
 
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree("autarchy", { baseString: "common/autarchy" }, { name: "oe-grid", color: "normal" }, translate.instant("General.autarchy"), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("General.HISTORY"), "label", [], null),
+        return new NavigationTree("autarchy", { baseString: "common/autarchy" }, { name: "oe-grid", color: "normal" }, translate.instant("GENERAL.AUTARCHY"), "label", [
+            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
         ], null).toConstructorParams();
     }
 }
