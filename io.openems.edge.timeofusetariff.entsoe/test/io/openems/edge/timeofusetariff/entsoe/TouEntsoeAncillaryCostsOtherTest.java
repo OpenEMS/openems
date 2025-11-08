@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.edge.common.currency.Currency.EUR;
@@ -14,10 +15,12 @@ import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.timeofusetariff.api.TouManualHelper;
 
@@ -64,6 +67,7 @@ public class TouEntsoeAncillaryCostsOtherTest {
 
 	@Test
 	public void test() throws Exception {
+		final var clock = createDummyClock();
 		var entsoe = new TouEntsoeImpl();
 		var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(EUR);
@@ -71,6 +75,10 @@ public class TouEntsoeAncillaryCostsOtherTest {
 		new ComponentTest(entsoe) //
 				.addReference("meta", dummyMeta) //
 				.addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("httpBridgeFactory",
+						DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId("tou0") //
 						.setSecurityToken("") //
@@ -113,10 +121,10 @@ public class TouEntsoeAncillaryCostsOtherTest {
 
 		var testTime4 = ZonedDateTime.of(LocalDate.of(2025, 6, 1), LocalTime.of(23, 0), ZoneId.systemDefault());
 		assertEquals(0.2, helper.getPrices().getAt(testTime4), 0.01);
-		
+
 		clock = new TimeLeapClock(Instant.parse("2025-07-01T00:00:00Z"), ZoneId.systemDefault());
 		helper = new TouManualHelper(clock, schedule, 0.0);
-		
+
 		var testTime5 = ZonedDateTime.of(LocalDate.of(2025, 7, 1), LocalTime.of(10, 0), ZoneId.systemDefault());
 		assertEquals(0.2, helper.getPrices().getAt(testTime5), 0.01);
 

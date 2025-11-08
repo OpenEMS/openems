@@ -1,6 +1,8 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.common.utils.JsonUtils.toJson;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
@@ -22,6 +24,7 @@ public class ComponentUtilTest {
 
 	@Test
 	public void testEqualsJsonElementJsonElement() {
+		// Equal complex JSON objects
 		var expected = JsonUtils.buildJsonObject() //
 				.addProperty("text", "text") //
 				.addProperty("boolean", false) //
@@ -47,6 +50,66 @@ public class ComponentUtilTest {
 						.build())
 				.build();
 		assertTrue(ComponentUtilImpl.equals(expected, actual));
+
+		// null
+		assertFalse(ComponentUtilImpl.equals(null, toJson("test")));
+
+		// Equal primitive values
+		assertTrue(ComponentUtilImpl.equals(toJson("test"), toJson("test")));
+		assertTrue(ComponentUtilImpl.equals(toJson(123), toJson(123)));
+		assertTrue(ComponentUtilImpl.equals(toJson(true), toJson(true)));
+
+		// Different primitive values
+		assertFalse(ComponentUtilImpl.equals(toJson("test"), toJson("test2")));
+		assertFalse(ComponentUtilImpl.equals(toJson(123), toJson(124)));
+		assertFalse(ComponentUtilImpl.equals(toJson(true), toJson(false)));
+
+		var jsonString = "{\"dso\":\"OTHER\"}";
+		var jsonObject = JsonUtils.buildJsonObject() //
+				.addProperty("dso", "OTHER") //
+				.build();
+
+		var expectedAsString = toJson(jsonString);
+		assertTrue(ComponentUtilImpl.equals(expectedAsString, jsonObject));
+
+		// Actual is JSON string that can be parsed as JSON, expected is JSON object
+		var actualAsString = toJson(jsonString);
+		assertTrue(ComponentUtilImpl.equals(jsonObject, actualAsString));
+
+		// JSON string that cannot be parsed as JSON
+		var invalidJsonString = toJson("{invalid json}");
+		assertFalse(ComponentUtilImpl.equals(invalidJsonString, jsonObject));
+		assertFalse(ComponentUtilImpl.equals(jsonObject, invalidJsonString));
+
+		// Both are JSON strings containing JSON (should compare as strings, not parse)
+		var jsonString1 = toJson("{\"a\": 1}");
+		var jsonString2 = toJson("{\"a\": 1}");
+		var jsonString3 = toJson("{\"a\": 2}");
+		assertTrue(ComponentUtilImpl.equals(jsonString1, jsonString2));
+		assertFalse(ComponentUtilImpl.equals(jsonString1, jsonString3));
+
+		// Different JSON structures
+		var obj1 = JsonUtils.buildJsonObject() //
+				.addProperty("a", 1) //
+				.build();
+		var obj2 = JsonUtils.buildJsonArray() //
+				.add(1) //
+				.build();
+		assertFalse(ComponentUtilImpl.equals(obj1, obj2));
+
+		// Different objects with same content but different structure
+		var simpleObj = JsonUtils.buildJsonObject() //
+				.addProperty("a", 1) //
+				.build();
+		var nestedObj = JsonUtils.buildJsonObject() //
+				.add("a", toJson(1)) //
+				.build();
+		assertTrue(ComponentUtilImpl.equals(simpleObj, nestedObj));
+
+		// Boolean as string vs actual boolean
+		var boolTrue = toJson(true);
+		var stringTrue = toJson("true");
+		assertTrue(ComponentUtilImpl.equals(boolTrue, stringTrue));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.currency.Currency.EUR;
@@ -19,10 +20,12 @@ import java.util.Comparator;
 
 import org.junit.Test;
 
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee;
 import io.openems.edge.timeofusetariff.api.GermanDSO;
@@ -33,12 +36,17 @@ public class TouEntsoeTest {
 
 	@Test
 	public void test() throws Exception {
+		final var clock = createDummyClock();
 		var entsoe = new TouEntsoeImpl();
 		var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(EUR);
 		new ComponentTest(entsoe) //
 				.addReference("meta", dummyMeta) //
 				.addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("httpBridgeFactory",
+						DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId("tou0") //
 						.setSecurityToken("") //
@@ -224,7 +232,7 @@ public class TouEntsoeTest {
 		helper = this.buildHelper("NETZE_BW", "2025-04-10T00:00:00Z");
 		testTime = ZonedDateTime.of(LocalDate.of(2025, 4, 10), LocalTime.of(12, 0), ZoneId.systemDefault());
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
-		
+
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
 		helper = this.buildHelper("NETZE_BW", "2025-04-09T00:00:00Z");

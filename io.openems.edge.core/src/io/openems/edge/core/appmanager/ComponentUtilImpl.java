@@ -72,18 +72,33 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// both are not null
-		if (expected == null || actual == null || !expected.isJsonPrimitive() || !actual.isJsonPrimitive()) {
+		if (expected == null || actual == null) {
 			return false;
 		}
 
-		// both are JsonPrimitives
-		var e = expected.getAsJsonPrimitive();
-		var a = actual.getAsJsonPrimitive();
-
-		if (e.getAsString().equals(a.getAsString())) {
-			// compare 'toString'
-			return true;
+		// If one is a primitive string and the other is not, try parsing the string.
+		if (expected.isJsonPrimitive() && expected.getAsJsonPrimitive().isString() && !actual.isJsonPrimitive()) {
+			try {
+				var parsedExpected = JsonUtils.parse(expected.getAsString());
+				return equals(parsedExpected, actual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
 		}
+
+		if (actual.isJsonPrimitive() && actual.getAsJsonPrimitive().isString() && !expected.isJsonPrimitive()) {
+			try {
+				var parsedActual = JsonUtils.parse(actual.getAsString());
+				return equals(expected, parsedActual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
+		}
+
+		if (expected.isJsonPrimitive() && actual.isJsonPrimitive()) {
+			return expected.getAsString().equals(actual.getAsString());
+		}
+
 		return false;
 	}
 
@@ -382,7 +397,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> {
 					return !ignoreIds.stream().anyMatch(id -> t.id().equals(id)); //
-				})
+				}) //
 				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {
