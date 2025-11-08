@@ -49,7 +49,7 @@ public final class AppInstanceProps {
 					if (components.isEmpty()) {
 						return JsonNull.INSTANCE;
 					}
-					return new JsonPrimitive(components.get(0).appId);
+					return new JsonPrimitive(components.get(0).instanceId.toString());
 				}));
 	}
 

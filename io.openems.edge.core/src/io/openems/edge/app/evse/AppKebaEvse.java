@@ -153,12 +153,12 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 			var alias = this.getString(p, l, Property.ALIAS);
 			var wiring = this.getString(p, Property.WIRING);
 			var phaseRotation = this.getString(p, Property.PHASE_ROTATION);
-			var phaseSwitching = this.getBoolean(p, Property.PHASE_SWITCHING);
 			var ip = this.getString(p, Property.IP);
 
 			switch (hardwareType) {
 			case P30 -> {
 				// UDP Component
+				var phaseSwitching = this.getBoolean(p, Property.PHASE_SWITCHING);
 				components.add(//
 						new EdgeConfig.Component(//
 								cpId, //
@@ -185,7 +185,6 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 										.addProperty("modbus.id", modbusId)//
 										.addProperty("wiring", wiring) //
 										.addProperty("phaseRotation", phaseRotation) //
-										.addProperty("p30hasS10PhaseSwitching", phaseSwitching) //
 										.addProperty("modbusUnitId", modbusUnitId) //
 										.build() //
 				) //
