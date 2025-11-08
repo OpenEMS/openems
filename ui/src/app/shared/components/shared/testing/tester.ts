@@ -192,7 +192,7 @@ export class OeFormlyViewTester {
      * @returns result or null
      */
     private static applyLineOrItem(field: OeFormlyField.ChannelLine | OeFormlyField.Item, context: OeFormlyViewTester.Context):
-   /* result */ { rawValue: number | null, value: string }
+    /* result */ { rawValue: number | null, value: string }
    /* filter did not pass */ | null {
 
         // Read value from channels

@@ -7,22 +7,22 @@ import { CommonAutarchyHistoryComponent } from "./new-navigation/new-navigation"
 import { OverviewComponent } from "./overview/overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ChartComponent,
-    OverviewComponent,
-    CommonAutarchyHistoryComponent,
-    ChartComponent,
-  ],
-  exports: [
-    FlatComponent,
-    ChartComponent,
-    OverviewComponent,
-    CommonAutarchyHistoryComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ChartComponent,
+        OverviewComponent,
+        CommonAutarchyHistoryComponent,
+        ChartComponent,
+    ],
+    exports: [
+        FlatComponent,
+        ChartComponent,
+        OverviewComponent,
+        CommonAutarchyHistoryComponent,
+    ],
 })
 export class CommonAutarchyHistory { }

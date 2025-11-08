@@ -1,5 +1,6 @@
-import { NgModule } from "@angular/core";
-import { NoPreloading, RouterModule, Routes } from "@angular/router";
+import { inject, NgModule } from "@angular/core";
+import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/router";
+import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { DetailsOverviewComponent } from "./edge/history/common/production/details/details.overview";
@@ -35,83 +36,112 @@ import { DataService } from "./shared/components/shared/dataservice";
 import { UserComponent } from "./user/user.component";
 
 export const history: (/** Determines if titles in headers can be set */ customHeaders: boolean) => Routes = (customHeaders) => [{
-  path: "history", providers: [{
-    useClass: HistoryDataService,
-    provide: DataService,
-  }],
-  component: HistoryParentComponent, children: [
-    { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "GENERAL.HISTORY" } : {}) } },
-    // History Chart Pages
-    { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
-    { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
-    { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
-    { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
-    { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
-    { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
-    { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
-    { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
-    { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
-    { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
-    { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
-    { path: "autarchychart", component: CommonAutarchyHistoryOverviewComponent },
-    { path: "consumptionchart", component: CommonConsumptionHistoryOverviewComponent },
-    { path: "consumptionchart/:componentId", component: CommonConsumptionDetailsOverviewComponent },
-    { path: "consumptionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-    { path: "gridchart", component: CommonGridOverviewComponent },
-    { path: "gridchart/externalLimitation", component: CommonGridDetailsExternalLimitationOverviewComponent },
-    { path: "gridchart/:componentId", component: CommonGridDetailsPhaseAccurateOverviewComponent },
-    { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-    { path: "productionchart", component: ProductionChartOverviewComponent },
-    { path: "productionchart/:componentId", component: DetailsOverviewComponent },
-    { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-    { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
-    { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
+    path: "history", providers: [{
+        useClass: HistoryDataService,
+        provide: DataService,
+    }],
+    component: HistoryParentComponent, children: [
+        { path: "", component: EdgeHistoryComponent, data: { ...(customHeaders ? { navbarTitleToBeTranslated: "GENERAL.HISTORY" } : {}) } },
+        // History Chart Pages
+        { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
+        { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
+        { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
+        { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
+        { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
+        { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
+        { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
+        { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
+        { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
+        { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
+        { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
+        { path: "autarchychart", component: CommonAutarchyHistoryOverviewComponent },
+        { path: "consumptionchart", component: CommonConsumptionHistoryOverviewComponent },
+        { path: "consumptionchart/:componentId", component: CommonConsumptionDetailsOverviewComponent },
+        { path: "consumptionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+        { path: "gridchart", component: CommonGridOverviewComponent },
+        { path: "gridchart/externalLimitation", component: CommonGridDetailsExternalLimitationOverviewComponent },
+        { path: "gridchart/:componentId", component: CommonGridDetailsPhaseAccurateOverviewComponent },
+        { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+        { path: "productionchart", component: ProductionChartOverviewComponent },
+        { path: "productionchart/:componentId", component: DetailsOverviewComponent },
+        { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
+        { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
+        { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
 
-    // Controllers
-    { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
-    { path: "digitaloutputchart", component: DigitalOutputChartOverviewComponent },
-    { path: "digitaloutputchart/:componentId", component: DigitalOutputDetailsOverviewComponent },
-  ],
+        // Controllers
+        { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
+        { path: "digitaloutputchart", component: DigitalOutputChartOverviewComponent },
+        { path: "digitaloutputchart/:componentId", component: DigitalOutputDetailsOverviewComponent },
+    ],
 }];
 
 export const routes: Routes = [
 
-  // TODO should be removed in the future
-  { path: "", redirectTo: "index", pathMatch: "full" },
-  { path: "index", component: LoadingScreenComponent },
-  { path: "login", component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
+    // TODO should be removed in the future
+    { path: "", redirectTo: oauthRedirectFunction("index"), pathMatch: "full" },
+    { path: "index", component: LoadingScreenComponent },
+    { path: "login", component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
 
-  { path: "overview", component: OverViewComponent },
+    { path: "overview", component: OverViewComponent },
 
-  { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "MENU.USER" } },
-  { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" } },
+    { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "MENU.USER" } },
+    { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" } },
 
-  // Edge Pages
-  {
-    path: "device/:edgeId", component: EdgeComponent, children: [
-      { path: "", redirectTo: "live", pathMatch: "full" },
-      {
-        path: "live", data: { navbarTitle: environment.uiTitle }, providers: [{
-          useClass: LiveDataService,
-          provide: DataService,
-        }], loadChildren: () => import("./shared/components/navigation/navigation-routing.module").then(m => m.NavigationRoutingModule),
-      },
-      ...history(false),
-      { path: "settings", loadChildren: () => import("./edge/settings/settings-routing.module").then(m => m.SettingsRoutingModule) },
-    ],
-  },
+    // Edge Pages
+    {
+        path: "device/:edgeId", component: EdgeComponent, children: [
+            { path: "", redirectTo: "live", pathMatch: "full" },
+            {
+                path: "live", data: { navbarTitle: environment.uiTitle }, providers: [{
+                    useClass: LiveDataService,
+                    provide: DataService,
+                }], loadChildren: () => import("./shared/components/navigation/navigation-routing.module").then(m => m.NavigationRoutingModule),
+            },
+            ...history(false),
+            { path: "settings", loadChildren: () => import("./edge/settings/settings-routing.module").then(m => m.SettingsRoutingModule) },
+        ],
+    },
 
-  { path: "demo", component: LoginComponent },
-  // Fallback
-  { path: "**", pathMatch: "full", redirectTo: "index" },
+    { path: "demo", component: LoginComponent },
+    // Fallback
+    { path: "**", pathMatch: "full", redirectTo: "index" },
 ];
 
 export const appRoutingProviders: any[] = [];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading, paramsInheritanceStrategy: "always" }),
-  ],
-  exports: [RouterModule],
+    imports: [
+        RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading, paramsInheritanceStrategy: "always" }),
+    ],
+    exports: [RouterModule],
 })
 export class AppRoutingModule { }
+
+/**
+ * Creates a RedirectFunction, which checks for a state parameter
+ * in the query parameters and also the active oauth state if both
+ * are present navigates to the active oauth state.
+ *
+ * @param defaultRoute the default route to navigate to if no oauth state is present
+ * @returns the created RedirectFunction
+ */
+function oauthRedirectFunction(defaultRoute: string): RedirectFunction {
+    return redirectData => {
+        const state = redirectData.queryParams["state"] as string | undefined;
+        if (!state) {
+            return defaultRoute;
+        }
+
+        const cookieService = inject(CookieService);
+        const oauthRedirectStateRaw = cookieService.get("oauthredirectstate");
+        if (!oauthRedirectStateRaw) {
+            return defaultRoute;
+        }
+
+        const queryParamsString = Object.entries(redirectData.queryParams)
+            .map(([key, value]) => key + "=" + value).join("&");
+
+        const oauthRedirectState = JSON.parse(oauthRedirectStateRaw) as { href: string };
+        return oauthRedirectState.href + "?" + queryParamsString;
+    };
+}

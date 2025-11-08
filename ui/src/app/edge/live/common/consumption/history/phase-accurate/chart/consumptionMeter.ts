@@ -8,57 +8,57 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/share
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-  selector: "consumptionMeterChart",
-  templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
-  standalone: false,
+    selector: "consumptionMeterChart",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ConsumptionMeterChartDetailsComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-    const component = config?.getComponent(route.snapshot.params.componentId);
-    return {
-      input: [{
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
-      },
-      ...Phase.THREE_PHASE.map(phase => ({
-        name: "ConsumptionActivePower" + phase,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy" + phase),
-      }))],
-      output: (data: HistoryUtils.ChannelData) => [
-        {
-          name: component.alias,
-          nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveProductionEnergy"],
-          converter: () => data[component.id],
-          color: ChartConstants.Colors.RED,
-          hiddenOnInit: false,
-          stack: 2,
-        },
+    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+        const component = config?.getComponent(route.snapshot.params.componentId);
+        return {
+            input: [{
+                name: component.id,
+                powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
+                energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
+            },
+            ...Phase.THREE_PHASE.map(phase => ({
+                name: "ConsumptionActivePower" + phase,
+                powerChannel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
+                energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy" + phase),
+            }))],
+            output: (data: HistoryUtils.ChannelData) => [
+                {
+                    name: component.alias,
+                    nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => energyQueryResponse.result.data[component.id + "/ActiveProductionEnergy"],
+                    converter: () => data[component.id],
+                    color: ChartConstants.Colors.RED,
+                    hiddenOnInit: false,
+                    stack: 2,
+                },
 
-        ...Phase.THREE_PHASE.map((phase, i) => ({
-          name: "Phase " + phase,
-          converter: () =>
-            data["ConsumptionActivePower" + phase],
-          color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
-          stack: 3,
-        })),
-      ],
-      tooltip: {
-        formatNumber: "1.1-2",
-        afterTitle: translate.instant("GENERAL.TOTAL"),
-      },
-      yAxes: [{
-        unit: YAxisType.ENERGY,
-        position: "left",
-        yAxisId: ChartAxis.LEFT,
-      }],
-    };
-  }
+                ...Phase.THREE_PHASE.map((phase, i) => ({
+                    name: "Phase " + phase,
+                    converter: () =>
+                        data["ConsumptionActivePower" + phase],
+                    color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+                    stack: 3,
+                })),
+            ],
+            tooltip: {
+                formatNumber: "1.1-2",
+                afterTitle: translate.instant("GENERAL.TOTAL"),
+            },
+            yAxes: [{
+                unit: YAxisType.ENERGY,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            }],
+        };
+    }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return ConsumptionMeterChartDetailsComponent.getChartData(this.config, this.route, this.translate);
-  }
+    protected override getChartData(): HistoryUtils.ChartData {
+        return ConsumptionMeterChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+    }
 
 }

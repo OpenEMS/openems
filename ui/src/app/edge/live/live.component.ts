@@ -10,80 +10,80 @@ import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
 @Component({
-  selector: "live",
-  templateUrl: "./live.component.html",
-  standalone: false,
+    selector: "live",
+    templateUrl: "./live.component.html",
+    standalone: false,
 })
 export class LiveComponent implements OnDestroy {
 
-  @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
+    @ViewChild("modal", { read: ElementRef }) public modal!: ElementRef;
 
-  protected edge: Edge | null = null;
-  protected config: EdgeConfig | null = null;
-  protected widgets: Widgets | null = null;
-  protected isModbusTcpWidgetAllowed: boolean = false;
-  protected showRefreshDragDown: boolean = false;
-  protected showNewFooter: boolean = false;
+    protected edge: Edge | null = null;
+    protected config: EdgeConfig | null = null;
+    protected widgets: Widgets | null = null;
+    protected isModbusTcpWidgetAllowed: boolean = false;
+    protected showRefreshDragDown: boolean = false;
+    protected showNewFooter: boolean = false;
 
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-  private interval: ReturnType<typeof setInterval> | undefined;
+    private stopOnDestroy: Subject<void> = new Subject<void>();
+    private interval: ReturnType<typeof setInterval> | undefined;
 
-  constructor(
-    private route: ActivatedRoute,
-    public service: Service,
-    protected utils: Utils,
-    protected websocket: Websocket,
-    private dataService: DataService,
-    private router: Router,
-    protected navigationService: NavigationService,
-    private userService: UserService,
-  ) {
+    constructor(
+        private route: ActivatedRoute,
+        public service: Service,
+        protected utils: Utils,
+        protected websocket: Websocket,
+        private dataService: DataService,
+        private router: Router,
+        protected navigationService: NavigationService,
+        private userService: UserService,
+    ) {
 
-    effect(() => {
-      const edge = this.service.currentEdge();
-      this.edge = edge;
-      this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+        effect(() => {
+            const edge = this.service.currentEdge();
+            this.edge = edge;
+            this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
-      this.service.getConfig().then(config => {
-        this.config = config;
-        this.widgets = navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
-      });
-      this.checkIfRefreshNeeded();
-    });
-  }
-
-  public ionViewWillEnter() {
-    if (this.widgets?.list) {
-      this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
+            this.service.getConfig().then(config => {
+                this.config = config;
+                this.widgets = navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
+            });
+            this.checkIfRefreshNeeded();
+        });
     }
-  }
 
-  ionViewWillLeave() {
-    this.ngOnDestroy();
-  }
+    public ionViewWillEnter() {
+        if (this.widgets?.list) {
+            this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
+        }
+    }
 
-  public ngOnDestroy() {
-    clearInterval(this.interval);
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-  }
+    ionViewWillLeave() {
+        this.ngOnDestroy();
+    }
 
-  protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
+    public ngOnDestroy() {
+        clearInterval(this.interval);
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
+    }
 
-  protected checkIfRefreshNeeded() {
-    this.interval = setInterval(async () => {
+    protected handleRefresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => this.dataService.refresh(ev);
 
-      if (this.edge?.isOnline === false) {
-        this.showRefreshDragDown = false;
-        return;
-      }
+    protected checkIfRefreshNeeded() {
+        this.interval = setInterval(async () => {
 
-      const lastUpdate: Date | null = this.dataService.lastUpdated();
-      if (lastUpdate == null) {
-        this.showRefreshDragDown = true;
-        return;
-      }
-      this.showRefreshDragDown = DateTimeUtils.isDifferenceInSecondsGreaterThan(20, new Date(), lastUpdate);
-    }, 5000);
-  }
+            if (this.edge?.isOnline === false) {
+                this.showRefreshDragDown = false;
+                return;
+            }
+
+            const lastUpdate: Date | null = this.dataService.lastUpdated();
+            if (lastUpdate == null) {
+                this.showRefreshDragDown = true;
+                return;
+            }
+            this.showRefreshDragDown = DateTimeUtils.isDifferenceInSecondsGreaterThan(20, new Date(), lastUpdate);
+        }, 5000);
+    }
 }

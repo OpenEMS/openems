@@ -3,36 +3,36 @@ import { EmptyObj } from "src/app/shared/type/utility";
 
 export namespace DailyWeatherForecasts {
 
-  export interface Forecast {
-    date: Date;
-    weatherCode: number | null;
-    minTemperature: number | null;
-    maxTemperature: number | null;
-    sunshineDuration: number | null;
-  }
-
-  export const METHOD: string = "dailyWeatherForecast";
-
-  export class Request extends JsonrpcRequest {
-
-    public constructor(public override readonly params: EmptyObj) {
-      super(DailyWeatherForecasts.METHOD, params);
+    export interface Forecast {
+        date: Date;
+        weatherCode: number | null;
+        minTemperature: number | null;
+        maxTemperature: number | null;
+        sunshineDuration: number | null;
     }
-  }
 
-  export class Response extends JsonrpcResponse {
+    export const METHOD: string = "dailyWeatherForecast";
 
-    public readonly forecast: Forecast[];
+    export class Request extends JsonrpcRequest {
 
-    public constructor(
-      public override readonly id: string,
-      public readonly result: { dailyWeatherForecast: Array<Omit<Forecast, "date"> & { date: string }> },
-    ) {
-      super(id);
-      this.forecast = result.dailyWeatherForecast.map(item => ({
-        ...item,
-        date: new Date(item.date),
-      }));
+        public constructor(public override readonly params: EmptyObj) {
+            super(DailyWeatherForecasts.METHOD, params);
+        }
     }
-  }
+
+    export class Response extends JsonrpcResponse {
+
+        public readonly forecast: Forecast[];
+
+        public constructor(
+            public override readonly id: string,
+            public readonly result: { dailyWeatherForecast: Array<Omit<Forecast, "date"> & { date: string }> },
+        ) {
+            super(id);
+            this.forecast = result.dailyWeatherForecast.map(item => ({
+                ...item,
+                date: new Date(item.date),
+            }));
+        }
+    }
 }

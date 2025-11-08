@@ -35,57 +35,56 @@ import { UserModule } from "./user/user.module";
 provideTranslateLoader(MyTranslateLoader);
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    ChartOptionsPopoverComponent,
-    StatusSingleComponent,
-    NavigationComponent,
-  ],
-  imports: [
-    AngularMyDatePickerModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    BrowserModule,
-    EdgeModule,
-    EdgeSettingsModule,
-    IndexModule,
-    IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
-    HttpClientModule,
-    SharedModule,
-    TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
-    UserModule,
-    RegistrationModule,
-  ],
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    CookieService,
-    { provide: ErrorHandler, useClass: MyErrorHandler },
-    { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
-    // Use factory for formly. This allows us to use translations in validationMessages.
-    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
-    DeviceDetectorService,
-    Pagination,
-    CheckForUpdateService,
-    PlatFormService,
-    AppStateTracker,
-    UserService,
-    NavigationService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeService,
-      deps: [UserService, NavigationService], // Dependencies for the factory function
-      multi: true, // Allows multiple initializers
-    },
-    provideCharts(withDefaultRegisterables()),
-  ],
-  bootstrap: [AppComponent],
+    declarations: [
+        AppComponent,
+        ChartOptionsPopoverComponent,
+        StatusSingleComponent,
+        NavigationComponent,
+    ],
+    imports: [
+        AngularMyDatePickerModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        EdgeModule,
+        EdgeSettingsModule,
+        IndexModule,
+        IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
+        HttpClientModule,
+        SharedModule,
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
+        UserModule,
+    ],
+    providers: [
+        { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+        CookieService,
+        { provide: ErrorHandler, useClass: MyErrorHandler },
+        { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
+        // Use factory for formly. This allows us to use translations in validationMessages.
+        { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+        DeviceDetectorService,
+        Pagination,
+        CheckForUpdateService,
+        PlatFormService,
+        AppStateTracker,
+        UserService,
+        NavigationService,
+        {
+            provide: APP_INITIALIZER,
+            useFactory: initializeService,
+            deps: [UserService, NavigationService], // Dependencies for the factory function
+            multi: true, // Allows multiple initializers
+        },
+        provideCharts(withDefaultRegisterables()),
+    ],
+    bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor() {
-    registerLocaleData(localDE);
-  }
+    constructor() {
+        registerLocaleData(localDE);
+    }
 }
 
 export function initializeService(): () => Promise<void> {
-  return async () => { };
+    return async () => { };
 }

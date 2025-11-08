@@ -7,8 +7,8 @@ import { EdgeConfig } from "src/app/shared/shared";
 import { ChartComponent } from "./chart";
 
 export function expectView(config: EdgeConfig, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View, showPhases: boolean): void {
-  expect(TestingUtils.removeFunctions(OeChartTester
-    .apply(ChartComponent
-      .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate, showPhases), chartType, channels, testContext, config)))
-    .toEqual(TestingUtils.removeFunctions(view));
+    expect(TestingUtils.removeFunctions(OeChartTester
+        .apply(ChartComponent
+            .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate, showPhases), chartType, channels, testContext, config)))
+        .toEqual(TestingUtils.removeFunctions(view));
 }

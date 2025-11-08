@@ -6,50 +6,50 @@ import { ChannelAddress, Utils } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-  selector: "autarchychart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
-  standalone: false,
+    selector: "autarchychart",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    this.spinnerId = "autarchy-chart";
-    return {
-      input:
+    protected override getChartData(): HistoryUtils.ChartData {
+        this.spinnerId = "autarchy-chart";
+        return {
+            input:
         [{
-          name: "Consumption",
-          powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
-          energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
+            name: "Consumption",
+            powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
+            energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
         },
         {
-          name: "GridBuy",
-          powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-          energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
-          converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
+            name: "GridBuy",
+            powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
+            energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
+            converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
         }],
-      output: (data: HistoryUtils.ChannelData) => {
-        return [{
-          name: this.translate.instant("GENERAL.AUTARCHY"),
-          nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-            return Utils.calculateAutarchy(energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.result.data["_sum/ConsumptionActiveEnergy"] ?? null);
-          },
-          converter: () => {
-            return data["Consumption"]
-              ?.map((value, index) =>
-                Utils.calculateAutarchy(data["GridBuy"][index], value),
-              );
-          },
-          color: "rgb(0,152,204)",
-        }];
-      },
-      tooltip: {
-        formatNumber: "1.0-0",
-      },
-      yAxes: [{
-        unit: YAxisType.PERCENTAGE,
-        position: "left",
-        yAxisId: ChartAxis.LEFT,
-      }],
-    };
-  }
+            output: (data: HistoryUtils.ChannelData) => {
+                return [{
+                    name: this.translate.instant("GENERAL.AUTARCHY"),
+                    nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+                        return Utils.calculateAutarchy(energyValues?.result.data["_sum/GridBuyActiveEnergy"] ?? null, energyValues?.result.data["_sum/ConsumptionActiveEnergy"] ?? null);
+                    },
+                    converter: () => {
+                        return data["Consumption"]
+                            ?.map((value, index) =>
+                                Utils.calculateAutarchy(data["GridBuy"][index], value),
+                            );
+                    },
+                    color: "rgb(0,152,204)",
+                }];
+            },
+            tooltip: {
+                formatNumber: "1.0-0",
+            },
+            yAxes: [{
+                unit: YAxisType.PERCENTAGE,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            }],
+        };
+    }
 }

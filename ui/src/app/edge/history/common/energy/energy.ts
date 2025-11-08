@@ -6,16 +6,16 @@ import { ChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ChartComponent,
-  ],
-  exports: [
-    FlatComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ChartComponent,
+    ],
+    exports: [
+        FlatComponent,
+    ],
 })
 export class CommonEnergyMonitor { }

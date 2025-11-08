@@ -42,8 +42,7 @@ export class Websocket implements WebsocketInterface {
         | "authenticating" // sent authentication request; waiting for response
         | "waiting for credentials" // login is required. Waiting for credentials input
         | "online" // logged in + normal operation
-        | "failed" // connection failed
-        = "initial";
+        | "failed" /* connection failed*/ = "initial";
 
     public readonly state: WritableSignal<States> = signal(States.WEBSOCKET_NOT_YET_CONNECTED);
 

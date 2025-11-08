@@ -8,19 +8,19 @@ import { ModalComponent } from "./modal/modal";
 import { CommonSelfConsumptionHomeComponent } from "./new-navigation/new-navigation";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-    ModalModule,
-    TranslateModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ModalComponent,
-    CommonSelfConsumptionHomeComponent,
-  ],
-  exports: [
-    FlatComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+        ModalModule,
+        TranslateModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ModalComponent,
+        CommonSelfConsumptionHomeComponent,
+    ],
+    exports: [
+        FlatComponent,
+    ],
 })
 export class CommonSelfconsumption { }

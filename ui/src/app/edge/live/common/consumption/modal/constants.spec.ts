@@ -6,6 +6,6 @@ import { OeFormlyViewTester } from "../../../../../shared/components/shared/test
 import { SharedGrid } from "../../grid/shared/shared";
 
 export function expectView(config: EdgeConfig, role: Role, viewContext: OeFormlyViewTester.Context, testContext: TestContext, view: OeFormlyViewTester.View): void {
-  expect(OeFormlyViewTester.apply(SharedGrid.getFormlyView(config, role, testContext.translate), viewContext))
-    .toEqual(view);
+    expect(OeFormlyViewTester.apply(SharedGrid.getFormlyView(config, role, testContext.translate), viewContext))
+        .toEqual(view);
 }

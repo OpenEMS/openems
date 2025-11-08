@@ -73,46 +73,46 @@ export class UpdateAppComponent implements OnInit {
                     componentId: "_appManager",
                     payload: new GetAppInstances.Request({ appId: appId }),
                 })).then(getInstancesResponse => {
-                    const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
+                const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
 
-                    edge.sendRequest(this.websocket,
-                        new ComponentJsonApiRequest({
-                            componentId: "_appManager",
-                            payload: new GetAppAssistant.Request({ appId: appId }),
-                        })).then(getAppAssistantResponse => {
-                            const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
-                            this.appName = appAssistant.name;
-                            this.instances = [];
-                            for (const instance of recInstances) {
-                                const form = new FormGroup({});
-                                const model = {
-                                    "ALIAS": instance.alias,
-                                    ...instance.properties,
-                                };
+                edge.sendRequest(this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: "_appManager",
+                        payload: new GetAppAssistant.Request({ appId: appId }),
+                    })).then(getAppAssistantResponse => {
+                    const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
+                    this.appName = appAssistant.name;
+                    this.instances = [];
+                    for (const instance of recInstances) {
+                        const form = new FormGroup({});
+                        const model = {
+                            "ALIAS": instance.alias,
+                            ...instance.properties,
+                        };
 
-                                // tread configuration as a installation step
-                                const steps = [
-                                    {
-                                        type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
-                                        params: {},
-                                    },
-                                    ...(appAssistant.steps ?? []),
-                                ];
+                        // tread configuration as a installation step
+                        const steps = [
+                            {
+                                type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
+                                params: {},
+                            },
+                            ...(appAssistant.steps ?? []),
+                        ];
 
-                                this.instances.push({
-                                    instanceId: instance.instanceId,
-                                    form: form,
-                                    isDeleting: false,
-                                    isUpdating: false,
-                                    fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
-                                    properties: model,
-                                    steps: steps,
-                                });
-                            }
+                        this.instances.push({
+                            instanceId: instance.instanceId,
+                            form: form,
+                            isDeleting: false,
+                            isUpdating: false,
+                            fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
+                            properties: model,
+                            steps: steps,
+                        });
+                    }
 
-                            this.service.stopSpinner(this.spinnerId);
-                        }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
-                }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
+                    this.service.stopSpinner(this.spinnerId);
+                }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
+            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
         });
     }
 
@@ -137,16 +137,16 @@ export class UpdateAppComponent implements OnInit {
                     properties: clonedFields,
                 }),
             })).then(response => {
-                const result = (response as UpdateAppInstance.Response).result;
+            const result = (response as UpdateAppInstance.Response).result;
 
-                if (result.warnings && result.warnings.length > 0) {
-                    this.service.toast(result.warnings.join(";"), "warning");
-                } else {
-                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
-                }
-                instance.properties = result.instance.properties;
-                instance.properties["ALIAS"] = result.instance.alias;
-            })
+            if (result.warnings && result.warnings.length > 0) {
+                this.service.toast(result.warnings.join(";"), "warning");
+            } else {
+                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
+            }
+            instance.properties = result.instance.properties;
+            instance.properties["ALIAS"] = result.instance.alias;
+        })
             .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", { error: error })))
             .finally(() => {
                 instance.isUpdating = false;
@@ -183,11 +183,11 @@ export class UpdateAppComponent implements OnInit {
                     instanceId: instance.instanceId,
                 }),
             })).then(response => {
-                this.instances.splice(this.instances.indexOf(instance), 1);
-                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
-                const navigationExtras = { state: { appInstanceChange: true } };
-                this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
-            })
+            this.instances.splice(this.instances.indexOf(instance), 1);
+            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
+            const navigationExtras = { state: { appInstanceChange: true } };
+            this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+        })
             .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_DELETE", { error: error })))
             .finally(() => {
                 instance.isDeleting = false;

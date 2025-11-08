@@ -16,39 +16,39 @@ import { CommonConsumptionSingleHistoryOverviewComponent } from "./phase-accurat
 import { CommonConsumptionDetailsOverviewComponent } from "./phase-accurate/overview/overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    ChartBaseModule,
-    CommonUiModule,
-    SharedModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ChartComponent,
-    CommonConsumptionHistoryOverviewComponent,
-    CommonConsumptionHistoryComponent,
-    CommonConsumptionSingleHistoryOverviewComponent,
-    CommonConsumptionDetailsOverviewComponent,
+    imports: [
+        BrowserModule,
+        ChartBaseModule,
+        CommonUiModule,
+        SharedModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ChartComponent,
+        CommonConsumptionHistoryOverviewComponent,
+        CommonConsumptionHistoryComponent,
+        CommonConsumptionSingleHistoryOverviewComponent,
+        CommonConsumptionDetailsOverviewComponent,
 
-    // consumptionChart:componentId
-    ConsumptionMeterChartDetailsComponent,
-    EvcsChartDetailsComponent,
-    SumChartDetailsComponent,
-    HeatChartDetailComponent,
-  ],
-  exports: [
-    FlatComponent,
-    ChartComponent,
-    CommonConsumptionHistoryOverviewComponent,
-    CommonConsumptionHistoryComponent,
-    CommonConsumptionSingleHistoryOverviewComponent,
+        // consumptionChart:componentId
+        ConsumptionMeterChartDetailsComponent,
+        EvcsChartDetailsComponent,
+        SumChartDetailsComponent,
+        HeatChartDetailComponent,
+    ],
+    exports: [
+        FlatComponent,
+        ChartComponent,
+        CommonConsumptionHistoryOverviewComponent,
+        CommonConsumptionHistoryComponent,
+        CommonConsumptionSingleHistoryOverviewComponent,
 
-    CommonConsumptionDetailsOverviewComponent,
-    // consumptionChart:componentId
-    ConsumptionMeterChartDetailsComponent,
-    EvcsChartDetailsComponent,
-    SumChartDetailsComponent,
-    HeatChartDetailComponent,
-  ],
+        CommonConsumptionDetailsOverviewComponent,
+        // consumptionChart:componentId
+        ConsumptionMeterChartDetailsComponent,
+        EvcsChartDetailsComponent,
+        SumChartDetailsComponent,
+        HeatChartDetailComponent,
+    ],
 })
 export class CommonConsumptionHistory { }

@@ -16,40 +16,40 @@ import { CommonGridHistoryComponent } from "./new-navigation/new-navigation";
 import { CommonGridOverviewComponent } from "./overview/overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FooterNavigationModule,
-    ChartBaseModule,
-    CommonUiModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ChartComponent,
-    CommonGridOverviewComponent,
-    CommonGridHistoryComponent,
+    imports: [
+        BrowserModule,
+        FooterNavigationModule,
+        ChartBaseModule,
+        CommonUiModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ChartComponent,
+        CommonGridOverviewComponent,
+        CommonGridHistoryComponent,
 
-    DetailsChartPhaseAccurateComponent,
-    CommonGridPhaseAccurateOverviewComponent,
-    CommonGridExternalLimitationOverviewComponent,
-    CommonGridDetailsExternalLimitationOverviewComponent,
-    CommonGridDetailsPhaseAccurateOverviewComponent,
+        DetailsChartPhaseAccurateComponent,
+        CommonGridPhaseAccurateOverviewComponent,
+        CommonGridExternalLimitationOverviewComponent,
+        CommonGridDetailsExternalLimitationOverviewComponent,
+        CommonGridDetailsPhaseAccurateOverviewComponent,
 
-    DetailsChartLimitationComponent,
-    CommonGridExternalLimitationOverviewComponent,
-    CommonGridPhaseAccurateOverviewComponent,
-  ],
-  exports: [
-    FlatComponent,
-    ChartComponent,
-    CommonGridOverviewComponent,
-    CommonGridHistoryComponent,
+        DetailsChartLimitationComponent,
+        CommonGridExternalLimitationOverviewComponent,
+        CommonGridPhaseAccurateOverviewComponent,
+    ],
+    exports: [
+        FlatComponent,
+        ChartComponent,
+        CommonGridOverviewComponent,
+        CommonGridHistoryComponent,
 
-    DetailsChartPhaseAccurateComponent,
-    CommonGridPhaseAccurateOverviewComponent,
-    CommonGridExternalLimitationOverviewComponent,
-    DetailsChartLimitationComponent,
-    CommonGridExternalLimitationOverviewComponent,
-    CommonGridPhaseAccurateOverviewComponent,
-  ],
+        DetailsChartPhaseAccurateComponent,
+        CommonGridPhaseAccurateOverviewComponent,
+        CommonGridExternalLimitationOverviewComponent,
+        DetailsChartLimitationComponent,
+        CommonGridExternalLimitationOverviewComponent,
+        CommonGridPhaseAccurateOverviewComponent,
+    ],
 })
 export class CommonGridHistory { }

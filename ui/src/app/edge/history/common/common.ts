@@ -7,21 +7,21 @@ import { CommonEnergyMonitor } from "./energy/energy";
 import { Common_Production } from "./production/production";
 
 @NgModule({
-  imports: [
-    CommonAutarchyHistory,
-    CommonConsumptionHistory,
-    CommonGridHistory,
-    CommonSelfConsumptionHistory,
-    CommonEnergyMonitor,
-    Common_Production,
-  ],
-  exports: [
-    CommonAutarchyHistory,
-    CommonConsumptionHistory,
-    CommonGridHistory,
-    CommonSelfConsumptionHistory,
-    CommonEnergyMonitor,
-    Common_Production,
-  ],
+    imports: [
+        CommonAutarchyHistory,
+        CommonConsumptionHistory,
+        CommonGridHistory,
+        CommonSelfConsumptionHistory,
+        CommonEnergyMonitor,
+        Common_Production,
+    ],
+    exports: [
+        CommonAutarchyHistory,
+        CommonConsumptionHistory,
+        CommonGridHistory,
+        CommonSelfConsumptionHistory,
+        CommonEnergyMonitor,
+        Common_Production,
+    ],
 })
 export class Common { }

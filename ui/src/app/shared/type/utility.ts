@@ -21,10 +21,10 @@ export type TRequiredBy<T, K extends keyof T> = {
 /** Required type of type with all properties optional and accepts additional properties */
 export type TAllPartialWithExtraProps<T> = {
     [K in keyof T]?: T[K] extends object
-    ? T[K] extends (...args: any[]) => any
-    ? T[K]
-    : TAllPartialWithExtraProps<T[K]>
-    : T[K];
+        ? T[K] extends (...args: any[]) => any
+            ? T[K]
+            : TAllPartialWithExtraProps<T[K]>
+        : T[K];
 } & {
     [key: string]: any;
 };

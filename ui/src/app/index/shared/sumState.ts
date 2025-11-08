@@ -5,15 +5,15 @@ import { Role } from "src/app/shared/type/role";
 import { Filter } from "../filter/filter.component";
 
 export enum SumState {
-  OK = "OK",
-  INFO = "INFO",
-  WARNING = "WARNING",
-  FAULT = "FAULT",
+    OK = "OK",
+    INFO = "INFO",
+    WARNING = "WARNING",
+    FAULT = "FAULT",
 }
 
 @Component({
-  selector: "oe-sum-state",
-  template: `
+    selector: "oe-sum-state",
+    template: `
   <ion-col class="sum-state-icon">
     @if (!isEdgeOnline) {
       <ion-icon name="cloud-offline-outline" color="danger"></ion-icon>
@@ -46,54 +46,54 @@ export enum SumState {
 
   </ion-col>
   `,
-  styles: [`
+    styles: [`
   .sum-state-icon > ion-icon{
     font-size: 20pt !important;
 }
   `],
-  standalone: false,
+    standalone: false,
 })
 export class SumStateComponent implements OnInit {
 
-  @Input() protected sumState: SumState = SumState.OK;
-  @Input() protected isEdgeOnline: boolean = false;
-  protected isAtLeastInstaller: boolean = false;
-  protected readonly SUM_STATE = SumState;
+    @Input() protected sumState: SumState = SumState.OK;
+    @Input() protected isEdgeOnline: boolean = false;
+    protected isAtLeastInstaller: boolean = false;
+    protected readonly SUM_STATE = SumState;
 
-  constructor(private service: Service) { }
+    constructor(private service: Service) { }
 
-  ngOnInit() {
-    const user = this.service.metadata?.value?.user ?? null;
+    ngOnInit() {
+        const user = this.service.metadata?.value?.user ?? null;
 
-    if (user) {
-      this.isAtLeastInstaller = Role.isAtLeast(user.globalRole, Role.INSTALLER);
+        if (user) {
+            this.isAtLeastInstaller = Role.isAtLeast(user.globalRole, Role.INSTALLER);
+        }
     }
-  }
 }
 
 export const SUM_STATES = (translate: TranslateService): Filter => ({
-  placeholder: translate.instant("GENERAL.SUM_STATE"),
-  category: "sumState",
-  options: [
-    {
-      name: "Ok",
-      value: "ok",
-    },
-    {
-      name: translate.instant("GENERAL.INFO"),
-      value: "Info",
-    },
-    {
-      name: translate.instant("GENERAL.WARNING"),
-      value: "Warning",
-    },
-    {
-      name: translate.instant("GENERAL.FAULT"),
-      value: "Fault",
-    },
-  ],
-  setAdditionalFilter: () => ({
-    key: "isOnline",
-    value: true,
-  }),
+    placeholder: translate.instant("GENERAL.SUM_STATE"),
+    category: "sumState",
+    options: [
+        {
+            name: "Ok",
+            value: "ok",
+        },
+        {
+            name: translate.instant("GENERAL.INFO"),
+            value: "Info",
+        },
+        {
+            name: translate.instant("GENERAL.WARNING"),
+            value: "Warning",
+        },
+        {
+            name: translate.instant("GENERAL.FAULT"),
+            value: "Fault",
+        },
+    ],
+    setAdditionalFilter: () => ({
+        key: "isOnline",
+        value: true,
+    }),
 });

@@ -15,32 +15,32 @@ import { CurrentVoltageOverviewComponent } from "./new-navigation/new-navigation
 import { CurrentAndVoltageOverviewComponent } from "./overview/currentVoltage.overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    IonicModule,
-    FooterNavigationModule,
-    TranslateModule,
-    BaseChartDirective,
-    BaseChartDirective,
-    HistoryDataErrorModule,
-    NgxSpinnerModule.forRoot({
-      type: "ball-clip-rotate-multiple",
-    }),
-    ChartModule,
-    PickdateModule,
-    ComponentsBaseModule,
-  ],
-  declarations: [
-    CurrentAndVoltageOverviewComponent,
-    CurrentVoltageOverviewComponent,
-    CurrentVoltageAsymmetricChartComponent,
-    CurrentVoltageSymmetricChartComponent,
-  ],
-  exports: [
-    CurrentAndVoltageOverviewComponent,
-    CurrentVoltageOverviewComponent,
-    CurrentVoltageAsymmetricChartComponent,
-    CurrentVoltageSymmetricChartComponent,
-  ],
+    imports: [
+        BrowserModule,
+        IonicModule,
+        FooterNavigationModule,
+        TranslateModule,
+        BaseChartDirective,
+        BaseChartDirective,
+        HistoryDataErrorModule,
+        NgxSpinnerModule.forRoot({
+            type: "ball-clip-rotate-multiple",
+        }),
+        ChartModule,
+        PickdateModule,
+        ComponentsBaseModule,
+    ],
+    declarations: [
+        CurrentAndVoltageOverviewComponent,
+        CurrentVoltageOverviewComponent,
+        CurrentVoltageAsymmetricChartComponent,
+        CurrentVoltageSymmetricChartComponent,
+    ],
+    exports: [
+        CurrentAndVoltageOverviewComponent,
+        CurrentVoltageOverviewComponent,
+        CurrentVoltageAsymmetricChartComponent,
+        CurrentVoltageSymmetricChartComponent,
+    ],
 })
 export class CurrentVoltageModule { }

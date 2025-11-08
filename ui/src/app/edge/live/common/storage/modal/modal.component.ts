@@ -142,9 +142,9 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                     this.isTargetTimeInValid.set(essId, true);
                                 } else if
 
-                                    // If expected expectedStartOfpreparation is after targetTime
-                                    //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
-                                    (isBefore(new Date(targetTime), expectedStartOfPreparation)
+                                // If expected expectedStartOfpreparation is after targetTime
+                                //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
+                                (isBefore(new Date(targetTime), expectedStartOfPreparation)
                                     || isBefore(new Date(targetTime), new Date())) {
                                     this.isTargetTimeInValid.set(essId, true);
                                 } else {

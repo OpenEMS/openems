@@ -7,15 +7,15 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedConsumption } from "../shared/shared";
 
 @Component({
-  templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
-  standalone: false,
-  providers: [
-    { provide: DataService, useClass: LiveDataService },
-  ],
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+    standalone: false,
+    providers: [
+        { provide: DataService, useClass: LiveDataService },
+    ],
 })
 export class ModalComponent extends AbstractFormlyComponent {
 
-  protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-    return SharedConsumption.getFormlyDetailsView(config, this.translate);
-  }
+    protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+        return SharedConsumption.getFormlyDetailsView(config, this.translate);
+    }
 }

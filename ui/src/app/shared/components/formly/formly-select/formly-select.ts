@@ -2,9 +2,9 @@ import { Component, ViewEncapsulation } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 
 @Component({
-  selector: "formly-custom-select",
-  encapsulation: ViewEncapsulation.None,
-  template: `
+    selector: "formly-custom-select",
+    encapsulation: ViewEncapsulation.None,
+    template: `
     @if (selectOptions?.length === 1) {
       <ion-item lines="none">
         <ion-label>{{ props.label }}</ion-label>
@@ -37,8 +37,8 @@ import { FieldType } from "@ngx-formly/core";
       </p>
     }
     `,
-  standalone: false,
-  styles: [`
+    standalone: false,
+    styles: [`
       :host {
         formly-custom-select {
           width: 100%;
@@ -61,7 +61,7 @@ import { FieldType } from "@ngx-formly/core";
   `],
 })
 export class FormlySelectComponent extends FieldType {
-  get selectOptions(): any[] {
-    return this.props.options as any[] || [];
-  }
+    get selectOptions(): any[] {
+        return this.props.options as any[] || [];
+    }
 }
