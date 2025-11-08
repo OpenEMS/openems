@@ -985,8 +985,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			final var appConfig = util.getAppConfiguration(ConfigurationTarget.VALIDATE, //
 					instance, Language.DEFAULT);
 			return appConfig.getComponents().stream().anyMatch(t -> {
-				final var hasComponentId = (componentIds == null || componentIds.contains(t.getId()));
-				final var hasFactoryId = (factoryIds == null || factoryIds.contains(t.getFactoryId()));
+				final var hasComponentId = (componentIds == null || componentIds.contains(t.id()));
+				final var hasFactoryId = (factoryIds == null || factoryIds.contains(t.factoryId()));
 
 				return hasComponentId && hasFactoryId;
 			});
@@ -1006,7 +1006,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private OpenemsAppInstance findInstanceByComponentId(String componentId) throws OpenemsNamedException {
 		for (var appConfig : this.appConfigs()) {
 			var containsComponent = appConfig.getValue().getComponents().stream()
-					.anyMatch(t -> t.getId().equals(componentId));
+					.anyMatch(t -> t.id().equals(componentId));
 			if (containsComponent) {
 				return appConfig.getKey();
 			}

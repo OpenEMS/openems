@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.TreeMap;
 import java.util.UUID;
 
-import io.openems.edge.predictor.api.manager.PredictorManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,6 +22,7 @@ import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public class AppManagerImplTest {
 

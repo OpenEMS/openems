@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import io.openems.edge.predictor.api.manager.PredictorManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -76,6 +75,7 @@ import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.CheckableFactory;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.ValidatorImpl;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public class AppManagerTestBundle {
 

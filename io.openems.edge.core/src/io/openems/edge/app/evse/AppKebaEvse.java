@@ -208,7 +208,7 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 			if (instance.isPresent()) {
 				var appConfig = this.appManagerUtil.getAppConfiguration(ConfigurationTarget.VALIDATE, instance.get(),
 						l);
-				vehicleComponentId = appConfig.getComponents().stream().map(b -> b.getId())
+				vehicleComponentId = appConfig.getComponents().stream().map(b -> b.id())
 						.filter(b -> b.startsWith("evseElectricVehicle")).findFirst().get();
 			}
 

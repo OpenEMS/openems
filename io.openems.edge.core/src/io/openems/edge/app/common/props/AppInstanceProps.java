@@ -28,8 +28,8 @@ public final class AppInstanceProps {
 	 * @return the AppDef.
 	 */
 	public static <APP extends OpenemsApp & AppManagerUtilSupplier, T extends OpenemsAppInstance> //
-	AppDef<APP, Nameable, BundleProvider> pickInstanceId(//
-			String appId) {
+			AppDef<APP, Nameable, BundleProvider> pickInstanceId(//
+					String appId) {
 		return pickInstanceId(app -> {
 			var util = app.getAppManagerUtil();
 			return util.getInstantiatedAppsOfApp(appId);

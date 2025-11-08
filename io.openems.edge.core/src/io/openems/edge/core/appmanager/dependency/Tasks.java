@@ -10,6 +10,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ClusterConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
@@ -32,7 +33,7 @@ public class Tasks {
 	 * @return the {@link Task}
 	 */
 	public static Task<ComponentConfiguration> component(List<EdgeConfig.Component> components) {
-		return createTask(ComponentAggregateTask.class, new ComponentConfiguration(components));
+		return Tasks.component(components.toArray(EdgeConfig.Component[]::new));
 	}
 
 	/**
@@ -43,6 +44,26 @@ public class Tasks {
 	 */
 	public static Task<ComponentConfiguration> component(EdgeConfig.Component... components) {
 		return createTask(ComponentAggregateTask.class, new ComponentConfiguration(components));
+	}
+
+	/**
+	 * Creates a {@link Task} for setting the {@link ComponentConfiguration}.
+	 * 
+	 * @param components the components to create or update
+	 * @return the {@link Task}
+	 */
+	public static Task<ComponentConfiguration> component(ComponentDef... components) {
+		return createTask(ComponentAggregateTask.class, new ComponentConfiguration(components));
+	}
+
+	/**
+	 * Creates a {@link Task} for setting the {@link ComponentConfiguration}.
+	 * 
+	 * @param components the components to create or update
+	 * @return the {@link Task}
+	 */
+	public static Task<ComponentConfiguration> componentFromComponentConfig(List<ComponentDef> components) {
+		return Tasks.component(components.toArray(ComponentDef[]::new));
 	}
 
 	/**

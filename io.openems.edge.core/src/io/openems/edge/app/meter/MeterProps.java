@@ -96,9 +96,8 @@ public final class MeterProps {
 	 * @see CommonProps#phaseRotation()
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(
-				CommonProps.phaseRotation() //
-						.setTranslatedDescription("App.Meter.phaseRotation.description"));
+		return AppDef.copyOfGeneric(CommonProps.phaseRotation() //
+				.setTranslatedDescription("App.Meter.phaseRotation.description"));
 	}
 
 }

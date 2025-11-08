@@ -300,7 +300,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var existingIds = this.componentUtil.removeIdsWhichNotExist(
+		final var existingIds = this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
 				handledIds.stream().map(SchedulerComponent::id).toList(), this.aggregateTask.getCreatedComponents());
 		handledIds.removeIf(t -> !existingIds.contains(t.id()));
 

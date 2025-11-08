@@ -234,9 +234,9 @@ public class TestFeneconHome30 {
 		final var oldConfig = this.integratedSystemApp.getAppConfiguration(ConfigurationTarget.ADD, fullSettings(),
 				Language.DEFAULT);
 		final var oldExternalModbus = oldConfig.getComponents().stream() //
-				.filter(t -> t.getId().equals("modbus2")) //
+				.filter(t -> t.id().equals("modbus2")) //
 				.findAny().orElse(null);
-		assertEquals("/dev/bus0", oldExternalModbus.getProperty("portName").orElse(null).getAsString());
+		assertEquals("/dev/bus0", oldExternalModbus.properties().getOrNull("portName").value().getAsString());
 
 		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
 				new DeleteAppInstance.Request(hardwareResponse.instance().instanceId));
@@ -247,9 +247,9 @@ public class TestFeneconHome30 {
 		final var newConfig = this.integratedSystemApp.getAppConfiguration(ConfigurationTarget.ADD, fullSettings(),
 				Language.DEFAULT);
 		final var newExternalModbus = newConfig.getComponents().stream() //
-				.filter(t -> t.getId().equals("modbus2")) //
+				.filter(t -> t.id().equals("modbus2")) //
 				.findAny().orElse(null);
-		assertEquals("/dev/busUSB3", newExternalModbus.getProperty("portName").orElse(null).getAsString());
+		assertEquals("/dev/busUSB3", newExternalModbus.properties().getOrNull("portName").value().getAsString());
 	}
 
 	@Test

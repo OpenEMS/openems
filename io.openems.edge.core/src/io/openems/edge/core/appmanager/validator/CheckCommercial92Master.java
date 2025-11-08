@@ -45,7 +45,8 @@ public class CheckCommercial92Master extends AbstractCheckable implements Checka
 
 	@Override
 	public String getInvertedErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCommercial92.Master.Message.Inverted");
+		return AbstractCheckable.getTranslation(language,
+				"Validator.Checkable.CheckCommercial92.Master.Message.Inverted");
 	}
 
 }

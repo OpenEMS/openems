@@ -17,6 +17,9 @@ import com.google.common.collect.Lists;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
 
@@ -136,28 +139,32 @@ public class ComponentUtilTest {
 
 	@Test
 	public void testIsSameConfiguration() {
-		var expected = new EdgeConfig.Component("id", "alias", "factorieId", JsonUtils.buildJsonObject().build());
+		var expected = new ComponentDef("id", "alias", "factorieId", ComponentProperties.emptyProperties(),
+				Configuration.create().build());
 		var actual = new EdgeConfig.Component("id", "alias", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfiguration(null, expected, actual));
 	}
 
 	@Test
 	public void testIsSameConfigurationWithoutAlias() {
-		var expected = new EdgeConfig.Component("id", "alias1", "factorieId", JsonUtils.buildJsonObject().build());
+		var expected = new ComponentDef("id", "alias1", "factorieId", ComponentProperties.emptyProperties(),
+				Configuration.create().build());
 		var actual = new EdgeConfig.Component("id", "alias2", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutAlias(null, expected, actual));
 	}
 
 	@Test
 	public void testIsSameConfigurationWithoutId() {
-		var expected = new EdgeConfig.Component("id1", "alias", "factorieId", JsonUtils.buildJsonObject().build());
+		var expected = new ComponentDef("id1", "alias", "factorieId", ComponentProperties.emptyProperties(),
+				Configuration.create().build());
 		var actual = new EdgeConfig.Component("id2", "alias", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutId(null, expected, actual));
 	}
 
 	@Test
 	public void testIsSameConfigurationWithoutIdAndAlias() {
-		var expected = new EdgeConfig.Component("id1", "alias1", "factorieId", JsonUtils.buildJsonObject().build());
+		var expected = new ComponentDef("id1", "alias1", "factorieId", ComponentProperties.emptyProperties(),
+				Configuration.create().build());
 		var actual = new EdgeConfig.Component("id2", "alias2", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(null, expected, actual));
 	}
@@ -165,21 +172,25 @@ public class ComponentUtilTest {
 	@Test
 	public void testOrder() {
 		var components = Lists.newArrayList(//
-				new EdgeConfig.Component("id0", "alias", "factorieId", //
-						JsonUtils.buildJsonObject() //
+				new ComponentDef("id0", "alias", "factorieId", //
+						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id1") //
 								.build()),
-				new EdgeConfig.Component("id2", "alias", "factorieId", //
-						JsonUtils.buildJsonObject() //
+						Configuration.create().build()),
+				new ComponentDef("id2", "alias", "factorieId", //
+						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id3") //
 								.build()),
-				new EdgeConfig.Component("id1", "alias", "factorieId", //
-						JsonUtils.buildJsonObject() //
+						Configuration.create().build()),
+				new ComponentDef("id1", "alias", "factorieId", //
+						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id3") //
 								.build()),
-				new EdgeConfig.Component("id3", "alias", "factorieId", //
-						JsonUtils.buildJsonObject() //
-								.build()));
+						Configuration.create().build()),
+				new ComponentDef("id3", "alias", "factorieId", //
+						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
+								.build()),
+						Configuration.create().build()));
 
 		final var orderedComponents = ComponentUtilImpl.order(components);
 
@@ -192,7 +203,7 @@ public class ComponentUtilTest {
 
 		for (var component : orderedComponents) {
 			var expectedId = expectedOrder.poll();
-			assertEquals(component.getId(), expectedId);
+			assertEquals(component.id(), expectedId);
 		}
 	}
 

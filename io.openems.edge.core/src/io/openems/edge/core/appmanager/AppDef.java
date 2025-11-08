@@ -306,9 +306,9 @@ public class AppDef<APP extends OpenemsApp, //
 			APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER> & OpenemsApp, //
 			PROPERTY extends Nameable & Type<PROPERTY, APP, PARAMETER>, //
 			PARAMETER extends Type.Parameter.BundleParameter> //
-	AppDef<APP, PROPERTY, PARAMETER> copyOf(//
-			final Class<PROPERTY> propertyClass, //
-			final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
+					AppDef<APP, PROPERTY, PARAMETER> copyOf(//
+							final Class<PROPERTY> propertyClass, //
+							final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
 	) {
 		return copyOfGeneric(otherDef);
 	}
@@ -687,11 +687,11 @@ public class AppDef<APP extends OpenemsApp, //
 	private static final <APP extends OpenemsApp, //
 			PROPERTY, //
 			PARAMETER> //
-	String fieldValuesToAppName(//
-			final APP app, //
-			final PROPERTY prop, //
-			final Language language, //
-			final PARAMETER param //
+			String fieldValuesToAppName(//
+					final APP app, //
+					final PROPERTY prop, //
+					final Language language, //
+					final PARAMETER param //
 	) {
 		return app.getName(language);
 	}

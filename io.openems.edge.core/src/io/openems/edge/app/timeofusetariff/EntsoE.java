@@ -150,8 +150,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					? this.getJsonArray(p, Property.TARIFF_TABLE)
 					: null;
 
-			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso,
-					tariffTable, t);
+			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso, tariffTable, t);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
