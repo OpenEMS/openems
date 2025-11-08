@@ -3,6 +3,7 @@ package io.openems.edge.weather.openmeteo;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -153,19 +154,20 @@ public class WeatherForecastService {
 		this.parent._setHttpStatusCode(response.status().code());
 
 		var responseJson = response.data().getAsJsonObject();
-		var responseZone = ZoneId.of(responseJson.get(ForecastQueryParams.TIMEZONE).getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(//
+				responseJson.get(ForecastQueryParams.UTC_OFFSET_SECONDS).getAsInt());
 
 		var clock = clockSupplier.get();
 		var targetZone = clock.getZone();
 
 		this.quarterlyWeatherForecast = this.weatherDataParser.parseQuarterly(//
 				responseJson.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY), //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		this.hourlyWeatherForecast = this.weatherDataParser.parseHourly(//
 				responseJson.getAsJsonObject(HourlyWeatherVariables.JSON_KEY), //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		this.dailyWeatherForecast = this.weatherDataParser.parseDaily(//

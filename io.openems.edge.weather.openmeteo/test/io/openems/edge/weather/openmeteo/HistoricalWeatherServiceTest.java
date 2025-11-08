@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -61,8 +62,8 @@ public class HistoricalWeatherServiceTest {
 		final var targetZone = ZoneId.of("Europe/Berlin");
 
 		var jsonRespone = new JsonObject();
-		var responseZone = ZoneId.of("UTC");
-		jsonRespone.addProperty(HistoricalQueryParams.TIMEZONE, responseZone.toString());
+		int utcOffsetSeconds = 0;
+		jsonRespone.addProperty(HistoricalQueryParams.UTC_OFFSET_SECONDS, utcOffsetSeconds);
 		jsonRespone.add(QuarterlyWeatherVariables.JSON_KEY, new JsonObject());
 
 		var httpResponse = HttpResponse.<JsonElement>ok(jsonRespone);
@@ -72,12 +73,16 @@ public class HistoricalWeatherServiceTest {
 				new QuarterlyWeatherSnapshot(ZonedDateTime.of(2025, 8, 17, 0, 0, 0, 0, ZoneId.of("UTC")), 1.0, 2.0));
 		when(this.weatherDataParser.parseQuarterly(any(), any(), any())).thenReturn(historicalWeatherData);
 
-		var result = this.historicalWeatherService.getWeatherData(coordinates, dateFrom, dateTo, targetZone);
+		var result = this.historicalWeatherService.getWeatherData(//
+				coordinates, //
+				dateFrom, //
+				dateTo, //
+				targetZone);
 
 		assertEquals(historicalWeatherData, result.join());
 		verify(this.weatherDataParser).parseQuarterly(//
 				eq(jsonRespone.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY)), //
-				eq(responseZone), //
+				eq(ZoneOffset.ofTotalSeconds(utcOffsetSeconds)), //
 				eq(targetZone));
 	}
 

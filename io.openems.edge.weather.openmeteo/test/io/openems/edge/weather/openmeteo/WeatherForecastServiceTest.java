@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -98,7 +99,7 @@ public class WeatherForecastServiceTest {
 
 		// Prepare dummy JSON response
 		var responseJson = new JsonObject();
-		responseJson.add(ForecastQueryParams.TIMEZONE, new JsonPrimitive("Europe/Berlin"));
+		responseJson.add(ForecastQueryParams.UTC_OFFSET_SECONDS, new JsonPrimitive(0));
 		responseJson.add(QuarterlyWeatherVariables.JSON_KEY, new JsonObject());
 		responseJson.add(HourlyWeatherVariables.JSON_KEY, new JsonObject());
 		responseJson.add(DailyWeatherVariables.JSON_KEY, new JsonObject());
@@ -125,11 +126,11 @@ public class WeatherForecastServiceTest {
 		// Verify parser invocations
 		verify(this.weatherDataParser).parseQuarterly(//
 				any(JsonObject.class), //
-				eq(ZoneId.of("Europe/Berlin")), //
+				eq(ZoneOffset.ofTotalSeconds(0)), //
 				eq(clock.getZone()));
 		verify(this.weatherDataParser).parseHourly(//
 				any(JsonObject.class), //
-				eq(ZoneId.of("Europe/Berlin")), //
+				eq(ZoneOffset.ofTotalSeconds(0)), //
 				eq(clock.getZone()));
 		verify(this.weatherDataParser).parseDaily(//
 				any(JsonObject.class));
