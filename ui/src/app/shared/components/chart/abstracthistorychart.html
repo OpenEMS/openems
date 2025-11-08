@@ -6,10 +6,10 @@
     </tr>
   </table>
 }
-<div [style.height.px]="getChartHeight()" id="chart-area" class="semi-transparent-background ion-padding-top">
+<div [style.height]="viewHeight !== null ? viewHeight + 'vh': getChartHeight() + 'px'" id="chart-area"
+  class="semi-transparent-background ion-padding-top">
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
   @if (!loading) {
-    <canvas style="padding-bottom: 2vh;" baseChart [datasets]="datasets" [labels]="labels" [options]="options"
-    [type]="chartType"></canvas>
+    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
   }
 </div>

@@ -11,7 +11,7 @@ import { ModalComponent } from "../modal/modal";
   templateUrl: "./flat.html",
   standalone: false,
 })
-export class FlatComponent extends AbstractFlatWidget {
+export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
 
   public evcss: EvcsComponent[] | null = null;
   public consumptionMeters: EdgeConfig.Component[] | null = null;

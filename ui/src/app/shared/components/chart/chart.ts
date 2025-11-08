@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, untracked } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,6 +8,8 @@ import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/
 import { UserService } from "../../service/user.service";
 import { Edge, Service } from "../../shared";
 import { DefaultTypes } from "../../type/defaulttypes";
+import { NavigationService } from "../navigation/service/navigation.service";
+import { ViewUtils } from "../navigation/view/shared/shared";
 
 @Component({
   selector: "oe-chart",
@@ -29,6 +31,7 @@ export class ChartComponent implements OnInit, OnChanges {
 
   protected showPopover: boolean = false;
   protected newNavigationUrlSegment: string;
+  protected actionSheetModalHeight: number = 0;
 
   constructor(
     protected service: Service,
@@ -38,6 +41,7 @@ export class ChartComponent implements OnInit, OnChanges {
     protected translate: TranslateService,
     protected modalCtr: ModalController,
     private ref: ChangeDetectorRef,
+    private navigationService: NavigationService,
   ) { }
 
   ngOnInit() {
@@ -48,6 +52,7 @@ export class ChartComponent implements OnInit, OnChanges {
     const _user = this.userService.currentUser();
     const isNewNavigation = this.userService.isNewNavigation();
     this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+    this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(untracked(() => this.navigationService.position()));
   }
 
   /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/

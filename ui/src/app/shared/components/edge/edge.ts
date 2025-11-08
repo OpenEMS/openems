@@ -513,8 +513,8 @@ export class Edge {
       }
     }
 
-    return navigationTree;
-  }
+        return navigationTree;
+    }
 
   /**
    * Checks if privacy policy popover should be shown.

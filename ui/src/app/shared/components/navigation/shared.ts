@@ -7,7 +7,7 @@ export enum NavigationId {
 }
 
 type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning" | "normal" | "production";
-type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
+export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
 
@@ -148,7 +148,7 @@ export namespace NavigationConstants {
         "Common_Autarchy",
         // "Common_Production",
         "Common_Selfconsumption",
-        // "Consumption",
+        "Consumption",
         "Grid",
         // "Storage",
     ];

@@ -70,14 +70,25 @@ export namespace Converter {
   };
 
   /**
-   * Converter for ActivePower; always returns the formatted positive value.
+   * Converter for ActivePower; always returns the formatted positive value in [W]
    *
    * @param value the ActivePower value (positive, negative or null)
    * @returns formatted absolute value; '-' for null
    */
-  export const POSITIVE_POWER: Converter = (raw): string => {
+  export const POSITIVE_POWER_IN_W: Converter = (raw): string => {
     return IF_NUMBER(raw, value =>
       Formatter.FORMAT_WATT(Math.abs(value)));
+  };
+
+  /**
+   * Converter for ActivePower; always returns the formatted positive value converted to [kW]
+   *
+   * @param value the ActivePower value (positive, negative or null)
+   * @returns formatted absolute value; '-' for null
+   */
+  export const POSITIVE_POWER_IN_KILO_WATT: Converter = (raw): string => {
+    return IF_NUMBER(raw, value =>
+      Converter.POWER_IN_KILO_WATT(Math.abs(value)));
   };
 
   /**

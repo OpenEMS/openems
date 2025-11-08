@@ -58,9 +58,17 @@ export namespace StringUtils {
 
     export function splitBy(value: string | null, key: string): null | string[] {
         if (isValidString(value)) {
-            return value.split("/");
+            return value.split(key);
         }
 
         return null;
+    }
+
+    export function splitByGetIndexSafely(value: string | null, key: string, index: number): null | string {
+        const arr = StringUtils.splitBy(value, key);
+        if (arr == null || arr.length == 0) {
+            return null;
+        }
+        return arr[index];
     }
 }

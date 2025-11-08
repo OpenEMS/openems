@@ -8,6 +8,7 @@ import { ChartBaseModule } from "src/app/shared/chart-base.module";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
@@ -47,8 +48,9 @@ export class ChartComponent extends AbstractHistoryChart {
     protected override route: ActivatedRoute,
     protected override logger: Logger,
     @Inject(DataService) private dataService: DataService,
+    protected override navigationService: NavigationService,
   ) {
-    super(service, cdRef, translate, route, logger);
+    super(service, cdRef, translate, route, logger, navigationService);
 
     let previousMax: number | null = null;
 

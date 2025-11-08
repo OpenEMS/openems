@@ -1,6 +1,10 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { history } from "src/app/app-routing.module";
+import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
+import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
+import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
+import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
@@ -36,8 +40,11 @@ export const newNavigationRoutes: Routes = [
     // Common navigation
     { path: "common/autarchy", component: CommonAutarchyHomeComponent },
     { path: "common/autarchy/history", component: CommonAutarchyHistoryComponent },
-    { path: "common/consumption", component: CommonAutarchyHomeComponent },
-    { path: "common/consumption/history", component: CommonAutarchyHistoryComponent },
+    { path: "common/consumption", component: CommonConsumptionHomeComponent },
+    { path: "common/consumption/details", component: CommonConsumptionDetailsComponent },
+    { path: "common/consumption/history", component: CommonConsumptionHistoryComponent },
+    { path: "common/consumption/history/:componentId/details", component: CommonConsumptionSingleHistoryOverviewComponent },
+    { path: "common/consumption/history/:componentId/details/current-voltage", component: CurrentVoltageOverviewComponent },
     { path: "common/grid", component: CommonGridHomeComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
     { path: "common/grid/history/external-limitation", component: CommonGridExternalLimitationOverviewComponent },

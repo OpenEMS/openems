@@ -142,7 +142,7 @@ export namespace SharedGrid {
         children.push({
             type: "item",
             channel: component.id + "/ActivePower" + phase,
-            converter: Converter.POSITIVE_POWER,
+            converter: Converter.POSITIVE_POWER_IN_W,
         });
 
         return children;

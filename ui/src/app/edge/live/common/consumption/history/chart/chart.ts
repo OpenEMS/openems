@@ -10,7 +10,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
   selector: "consumptionchart",
-  templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
   standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {

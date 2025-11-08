@@ -9,7 +9,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "heatChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class HeatChartDetailComponent extends AbstractHistoryChart {

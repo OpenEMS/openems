@@ -1,12 +1,13 @@
 import { TranslateService } from "@ngx-translate/core";
 import { SharedAutarchy } from "src/app/edge/live/common/autarchy/shared/shared";
+import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/shared";
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { NavigationTree } from "../components/navigation/shared";
 import { EdgePermission } from "../shared";
-import { TArrayElement, TEnumKeys } from "./utility";
+import { TEnumKeys } from "./utility";
 import { Widget, WidgetClass, WidgetFactory, WidgetNature } from "./widget";
 
 export class Widgets {
@@ -34,7 +35,7 @@ export class Widgets {
         }
     }
 
-    public static getCommonNavigationTree(edge: Edge, clazz: TArrayElement<Widgets["names"]>, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    public static getCommonNavigationTree(edge: Edge, clazz: TEnumKeys<typeof WidgetClass>, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
         switch (clazz) {
             case "Common_Autarchy":
                 return SharedAutarchy.getNavigationTree(translate);
@@ -42,6 +43,8 @@ export class Widgets {
                 return SharedGrid.getNavigationTree(edge, config, translate);
             case "Common_Selfconsumption":
                 return SharedSelfConsumption.getNavigationTree(translate);
+            case "Consumption":
+                return SharedConsumption.getNavigationTree(edge, config, translate);
             default:
                 return null;
         }

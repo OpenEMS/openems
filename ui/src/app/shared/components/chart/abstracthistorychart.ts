@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -28,6 +28,8 @@ import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
+import { NavigationService } from "../navigation/service/navigation.service";
+import { ViewUtils } from "../navigation/view/shared/shared";
 import { Converter } from "../shared/converter";
 import { ChartConstants, XAxisType } from "./chart.constants";
 import { ChartTypes } from "./chart.types";
@@ -39,7 +41,7 @@ Chart.Chart.register(ChartDataLabels);
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
+export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit {
 
   protected static readonly phaseColors: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
 
@@ -70,6 +72,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected errorResponse: JsonrpcResponseError | null = null;
   protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
   protected channelData: { data: { [name: string]: number[] } } = { data: {} };
+  protected viewHeight: number | null = null;
 
   constructor(
     public service: Service,
@@ -77,6 +80,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     protected translate: TranslateService,
     protected route: ActivatedRoute,
     protected logger: Logger,
+    protected navigationService: NavigationService,
   ) {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
@@ -1028,6 +1032,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
 
   ionViewWillLeave() {
     this.ngOnDestroy();
+  }
+
+  ngAfterViewInit() {
+    this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+    this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
   }
 
   protected getChartHeight(): number {

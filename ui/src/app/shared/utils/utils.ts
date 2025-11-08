@@ -118,6 +118,7 @@ export class Utils {
    *
    * @param values the values
    * @returns a number, if at least one value is not null, else null
+   * @deprecated use {@link NumberUtils.subtractSafely}
    */
   public static subtractSafely(...values: (number | null)[]): number | null {
     return values
@@ -138,6 +139,7 @@ export class Utils {
    *
    * @param v1
    * @param v2
+   * @deprecated use {@link NumberUtils.divideSafely}
    */
   public static divideSafely(v1: number | null, v2: number | null): number | null {
     if (v1 == null || v2 == null) {
@@ -154,6 +156,7 @@ export class Utils {
    *
    * @param v1
    * @param v2
+   * @deprecated use {@link NumberUtils.multiplySafely}
    */
   public static multiplySafely(v1: number | null, v2: number | null): number {
     if (v1 == null || v2 == null) {

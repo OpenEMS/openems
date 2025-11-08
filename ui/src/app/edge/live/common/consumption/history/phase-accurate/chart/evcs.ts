@@ -9,7 +9,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "evcsChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class EvcsChartDetailsComponent extends AbstractHistoryChart {

@@ -89,7 +89,13 @@ export namespace ArrayUtils {
     return Array.from({ length }, (_, index) => index) as T[];
   }
 
-  export function sanitize<T>(arr: T[]): T[] {
+  /**
+   * Sanitizes the arr from null and undefined values.
+   *
+   * @param arr the arr
+   * @returns the sanitized arr
+   */
+  export function sanitize<T>(arr: (T | null)[]): T[] {
     return arr.filter(el => el != null);
   }
 

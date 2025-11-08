@@ -232,7 +232,6 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
     if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
       fg.controls[formControlName].setValue(currFormControlValue);
-      console.log("🚀 ~ AbstractFormlyComponent ~ setFormControlSafelyWithValue ~ currFormControlValue:", currFormControlValue);
       fg.controls[formControlName].markAsTouched();
       this.form = fg;
     }
