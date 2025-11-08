@@ -11,14 +11,15 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.predictor.api.common.TrainingException;
+import io.openems.edge.predictor.profileclusteringmodel.training.TrainingError;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class RawTimeSeriesServiceTest {
+public class TrainingDataServiceTest {
 
 	@Test
-	public void testFetchSeriesForWindow_ShouldReturnCorrectSeries() throws OpenemsNamedException {
+	public void testFetchSeriesForWindow_ShouldReturnCorrectSeries() throws Exception {
 		var timedata = new DummyTimedata("timedata0");
 		var clock = Clock.fixed(ZonedDateTime.parse("2025-07-10T00:00:00+02:00").toInstant(),
 				ZoneId.of("Europe/Berlin"));
@@ -35,10 +36,10 @@ public class RawTimeSeriesServiceTest {
 			}
 		}
 
-		var rawTimeSeriesService = new RawTimeSeriesService(timedata, () -> clock, channelAddress);
+		var sut = new TrainingDataService(timedata, () -> clock, channelAddress);
 		var queryWindow = new QueryWindow(3, 7);
 
-		var series = rawTimeSeriesService.fetchSeriesForWindow(queryWindow);
+		var series = sut.fetchSeriesForWindow(queryWindow);
 
 		// Should have 7 (days) * 96 (quarters) entries
 		assertEquals(7 * (24 * 4), series.getValues().size());
@@ -73,46 +74,13 @@ public class RawTimeSeriesServiceTest {
 			}
 		}
 
-		var rawTimeSeriesService = new RawTimeSeriesService(timedata, () -> clock, channelAddress);
+		var sut = new TrainingDataService(timedata, () -> clock, channelAddress);
 		var queryWindow = new QueryWindow(5, 10);
 
-		// Expect IllegalStateException because not enough data to satisfy minWindowDays
-		assertThrows(//
-				IllegalStateException.class, //
-				() -> rawTimeSeriesService.fetchSeriesForWindow(queryWindow));
-	}
-
-	@Test
-	public void testFetchTodaySeries_ShouldReturnDataForToday() throws OpenemsNamedException {
-		var timedata = new DummyTimedata("timedata0");
-		var clock = Clock.fixed(//
-				ZonedDateTime.parse("2025-07-10T12:00:00+02:00").toInstant(), //
-				ZoneId.of("Europe/Berlin"));
-		var channelAddress = new ChannelAddress("_sum", "testChannel");
-
-		// Add values for today from 00:00 to 11:45 every 15 minutes
-		var todayStart = ZonedDateTime.now(clock).truncatedTo(ChronoUnit.DAYS);
-		for (int min = 0; min < 12 * 60; min += 15) {
-			timedata.add(todayStart.plusMinutes(min), channelAddress, min);
-		}
-
-		var rawTimeSeriesService = new RawTimeSeriesService(timedata, () -> clock, channelAddress);
-		var series = rawTimeSeriesService.fetchSeriesForToday();
-
-		// Should have 48 entries (12 hours * 4 quarters)
-		assertEquals(48, series.getValues().size());
-
-		// First timestamp should be at 00:00
-		assertEquals(todayStart, series.getIndex().getFirst());
-
-		// Ensure there are no NaN values
-		long nanCount = series.getValues().stream().filter(v -> v.isNaN()).count();
-		assertEquals(0, nanCount);
-
-		// Ensure timestamps are evenly spaced by 15 minutes
-		var timestamps = series.getIndex();
-		for (int i = 1; i < timestamps.size(); i++) {
-			assertEquals(15, ChronoUnit.MINUTES.between(timestamps.get(i - 1), timestamps.get(i)));
-		}
+		// Expect TrainingException because not enough data to satisfy minWindowDays
+		var exception = assertThrows(TrainingException.class, () -> {
+			sut.fetchSeriesForWindow(queryWindow);
+		});
+		assertEquals(TrainingError.INSUFFICIENT_TRAINING_DATA, exception.getError());
 	}
 }
