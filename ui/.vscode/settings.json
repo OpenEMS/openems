@@ -26,7 +26,8 @@
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.tabSize": 2
     },
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"

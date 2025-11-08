@@ -1,9 +1,15 @@
 import { ArrayUtils } from "../array/array.utils";
+import { AssertionUtils } from "../assertions/assertions.utils";
 
 export namespace StringUtils {
 
     export const INVALID_STRING = "Passed value is not of type string";
     export type UppercaseString<T extends string> = T extends Uppercase<T> ? T : never;
+
+    export function assertIsString(val: any): asserts val is string {
+        AssertionUtils.assertIsDefined(val);
+        isValidString(val);
+    }
 
     export function isValidString(val: any): val is string {
         const isString = typeof val === "string";
@@ -38,8 +44,11 @@ export namespace StringUtils {
      * @param arr the array
      * @returns true if passed value is ocurring in the array
      */
-    export function isInArr(val: string, arr: string[]): boolean {
-        return arr.some(el => val == el);
+    export function isInArr(val: string | null, arr: string[] | null): boolean {
+        ArrayUtils.isValidArr(arr);
+        StringUtils.isValidString(val);
+        StringUtils.validateStrings(arr);
+        return arr?.some(el => val == el) ?? false;
     }
 
     /**

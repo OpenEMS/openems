@@ -128,5 +128,15 @@ export namespace ArrayUtils {
 
     export namespace ReducerFunctions {
         export const sum = ((acc: number, val: number) => acc + val);
+        export const STRINGIFY_SAFELY: (
+            arr: string[],
+            item: string | null | undefined) => string[] =
+            (arr, item) => {
+                if (item == null) {
+                    return arr;
+                }
+                arr.push(item.toString());
+                return arr;
+            };
     }
 }

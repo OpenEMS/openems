@@ -1,28 +1,73 @@
-import { Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { v4 as uuidv4 } from "uuid";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Service } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { JsonUtils } from "src/app/shared/utils/json/json-utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
-import { environment } from "src/environments";
-import { SUM_STATES } from "../shared/sumState";
 
 @Component({
     selector: "oe-filter",
     templateUrl: "./filter.component.html",
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonUiModule,
+    ],
 })
-export class FilterComponent implements OnInit {
+export class FilterComponent {
 
-    @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
-    protected filters: (Filter<string | null> | SortOrderFilter | null)[] = [
-        environment.PRODUCT_TYPES(this.translate),
-        SUM_STATES(this.translate),
-    ].map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
+    @Output() public setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected defaultFilterValues: FilterCategory = {};
+    protected allFilters: (Filter<string | null> | SortOrderFilter | null)[] = [];
 
-    constructor(private translate: TranslateService, public service: Service) { }
+    constructor(public service: Service) { }
+
+    @Input() public set filters(_filters: (Filter<string> | SortOrderFilter)[]) {
+        this.allFilters = _filters.map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
+
+        if (this.allFilters == null || this.allFilters.length === 0) {
+            return;
+        }
+
+        this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.allFilters);
+
+        for (const [category, ids] of Object.entries(this.defaultFilterValues)) {
+            if (category === null || ids === null || ids === undefined) {
+                return;
+
+            }
+            const validIds = ids.reduce(ArrayUtils.ReducerFunctions.STRINGIFY_SAFELY, []);
+            const filter = this.allFilters.find(el => el?.options.find(e => StringUtils.isInArr(e.option?.id ?? null, validIds)));
+
+            if (filter == null) {
+                continue;
+            }
+            const defaultValue = FilterComponent.getFilterValues(validIds, filter).flat();
+            this.searchParams.set(category, defaultValue);
+        }
+        this.setSearchParams.emit(this.searchParams);
+    }
+
+    /**
+     * Gets id of a filter option by its value.
+     *
+     * @param filter the filter
+     * @param value the value
+     * @returns a array with ids for this filter
+     */
+    public static getIdByValue<T>(filter: Filter<string | null> | SortOrderFilter | null, value: T): string[] {
+        AssertionUtils.assertIsDefined(filter);
+        return filter.options.reduce((arr, opt) => {
+            if (typeof opt.option.value === "string" && Array.isArray(value) && StringUtils.isInArr(opt.option.value, value)) {
+                AssertionUtils.assertIsDefined(opt.option.id);
+                arr.push(opt.option.id);
+            }
+            return arr;
+        }, [] as string[]);
+    }
 
     /**
      * Gets default filter values.
@@ -31,13 +76,19 @@ export class FilterComponent implements OnInit {
      * @returns a list of either id of default values or null
      */
     private static getDefaultFilterValues(filters: (Filter | SortOrderFilter | null)[]): FilterCategory {
-        return filters.reduce((obj, item) => {
-            if (item == null) {
+
+        const persistedSelection = FilterComponent.getPersistedSelection(filters);
+        function getPersistedSelectionOptionIds(filter: (Filter | SortOrderFilter | null)) {
+            AssertionUtils.assertIsDefined(filter);
+            return filter.category in persistedSelection && persistedSelection[filter.category]?.length > 0 ? persistedSelection[filter.category] : filter?.options?.filter(el => el.option?.default).map(el => el.option.id);
+        }
+
+        return filters.reduce((obj, filter) => {
+            if (filter == null) {
                 return obj;
             }
-            const optionId = item?.options?.find(el => el.option?.default)?.option?.id ?? null;
-
-            obj[item.category] = optionId;
+            const optionIds = getPersistedSelectionOptionIds(filter);
+            obj[filter.category] = optionIds;
             return obj;
         }, {} as FilterCategory);
     }
@@ -58,6 +109,7 @@ export class FilterComponent implements OnInit {
             el.option.id = uuidv4();
             return el;
         });
+
         return filter;
     }
 
@@ -68,7 +120,7 @@ export class FilterComponent implements OnInit {
      * @param filter the filter
      * @returns the filter values
      */
-    private static getFilterValues<T = string>(ids: string[], filter: Filter): T[] {
+    private static getFilterValues<T = string>(ids: string[], filter: (Filter<string | null> | SortOrderFilter)): T[] {
         return filter.options
             .reduce((arr: T[], item) => {
                 if (item?.option?.id == null) {
@@ -85,8 +137,19 @@ export class FilterComponent implements OnInit {
             }, []);
     }
 
-    public ngOnInit() {
-        this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.filters);
+    private static getPersistedSelection(filters: (Filter | SortOrderFilter | null)[]) {
+        AssertionUtils.assertIsDefined(filters);
+        return filters.reduce(((obj, filter) => {
+            AssertionUtils.assertIsDefined(filter);
+            const persistedFilterValue: (Filter<string> | SortOrderFilter)["options"][number]["option"]["value"] | null = JsonUtils.safeJsonParse(localStorage.getItem(filter?.category ?? "") ?? "");
+            const id = this.getIdByValue(filter, persistedFilterValue);
+            if (id == null) {
+                return obj;
+            }
+
+            obj[filter.category] = id;
+            return obj;
+        }), {} as FilterCategory);
     }
 
     /**
@@ -95,12 +158,12 @@ export class FilterComponent implements OnInit {
      * @param event the event
      * @param filter the chosen filter
      */
-    public searchOnChange(event: Event, filter: Filter): void {
+    public searchOnChange(event: Event, filter: SortOrderFilter | Filter<string>): void {
         const selectElement = event.target as HTMLIonSelectElement;
         const input = selectElement.value;
 
         // If no value provided
-        if (input == null || input?.length === 0) {
+        if (input == null) {
             return;
         }
 
@@ -126,7 +189,17 @@ export class FilterComponent implements OnInit {
             this.searchParams.set(additionalFilter.key, additionalFilter.value);
         }
 
+        this.persistSelection(filter);
         this.setSearchParams.emit(this.searchParams);
+    }
+
+    /**
+     * Persist the current selection
+     *
+     * @param filter the filter
+     */
+    private persistSelection(filter: Filter<string> | SortOrderFilter) {
+        localStorage.setItem(filter.category, JSON.stringify(this.searchParams.get(filter.category) ?? []));
     }
 }
 
@@ -151,9 +224,9 @@ export type FilterOption<T> = {
     name: string,
     option: {
         value: T,
-        id?: string, // Set automatically
+        id?: string,
         default?: boolean,
     }
 };
 type FilterCategoryOptionId = Filter["options"][number]["option"]["id"] | null;
-type FilterCategory = { [category: Filter["category"]]: FilterCategoryOptionId | null };
+type FilterCategory = { [category: Filter["category"]]: (FilterCategoryOptionId | null)[] };

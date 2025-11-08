@@ -1,5 +1,5 @@
 <ion-row>
-  @for(filter of filters; track filter.category) {
+  @for(filter of allFilters; track filter.category) {
     <ion-col [size]="6">
       <ion-select interface="popover" [multiple]="filter.multiple" [label]="filter.placeholder"
         label-placement="floating" fill="outline" type="radio" (ionDismiss)="searchOnChange($event, filter)"

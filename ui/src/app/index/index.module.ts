@@ -13,9 +13,9 @@ import { SumStateComponent } from "./shared/sumState";
         SharedModule,
         RegistrationModule,
         FlatWidgetButtonComponent,
+        FilterComponent,
     ],
     declarations: [
-        FilterComponent,
         SumStateComponent,
         LoginComponent,
         OverViewComponent,

@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { filter, switchMap, takeUntil } from "rxjs/operators";
+import { ChosenFilter, Filter, FilterComponent, FilterOption } from "src/app/index/filter/filter.component";
 import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -38,6 +39,7 @@ import { canEnterKey } from "./permissions";
         NgxSpinnerComponent,
         RouterModule,
         DomChangeDirective,
+        FilterComponent,
     ],
 })
 export class IndexComponent implements OnInit, OnDestroy {
@@ -70,15 +72,20 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     protected readonly environment: Environment = environment;
     protected edge: Edge | null = null;
+    protected filters: Filter[] = [];
     protected key: Key | null = null;
     protected selectedBundle: number | null = null;
     protected isUpdateAvailable: boolean = false;
     protected canEnterKey: boolean = false;
     protected numberOfUnusedRegisteredKeys: number = 0;
     protected showPopover: boolean = false;
+    protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
+
     private useMasterKey: boolean = false;
     private hasSeenPopover: boolean = false;
     private stopOnDestroy: Subject<void> = new Subject<void>();
+    private inputValue: string;
+
 
     public constructor(
         private route: ActivatedRoute,
@@ -107,6 +114,15 @@ export class IndexComponent implements OnInit, OnDestroy {
     public ngOnDestroy(): void {
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
+    }
+
+    public searchOnChange(event: InstanceType<typeof FilterComponent>["searchParams"]): void {
+        this.searchParams = event;
+        this.updateSelection();
+    }
+    protected onValueChanged(event: any) {
+        this.inputValue = event.detail.value;
+        this.updateSelection();
     }
 
     protected onDomChange(mutation: MutationRecord, appId: string) {
@@ -143,9 +159,6 @@ export class IndexComponent implements OnInit, OnDestroy {
    * @param event the event of a click on a 'ion-fab-list' to stop it from closing
    */
     protected updateSelection(event?: PointerEvent) {
-        if (event) {
-            event.stopPropagation();
-        }
         this.installedApps.appCategories = [];
         this.availableApps.appCategories = [];
         this.incompatibleApps.appCategories = [];
@@ -159,14 +172,30 @@ export class IndexComponent implements OnInit, OnDestroy {
                     }
                 } else {
                     if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM)
-            && environment.production
-            && app.instanceIds.length === 0) {
+                        && environment.production
+                        && app.instanceIds.length === 0) {
                         return false;
                     }
                 }
                 const cat = this.categories.find(c => c.val.name === category.name);
                 if (!cat.isChecked) {
                     return false;
+                }
+                if (this.inputValue &&
+                    !(
+                        app.name.toLowerCase().includes(this.inputValue.toLowerCase()) ||
+                        category.readableName.toLowerCase().includes(this.inputValue.toLowerCase())
+                    )
+                ) {
+                    return false;
+                }
+                const selectedCategories = this.searchParams.get("categories");
+                if (selectedCategories != null && selectedCategories != undefined) {
+                    if (Array.isArray(selectedCategories)) {
+                        if (!selectedCategories.includes(category.name)) {
+                            return false;
+                        }
+                    }
                 }
                 sortedApps.push(app);
                 return true;
@@ -187,6 +216,23 @@ export class IndexComponent implements OnInit, OnDestroy {
                 }
             }
         });
+
+        this.appLists = [];
+        const selectedStatuses = this.searchParams.get("appStatus");
+        if (Array.isArray(selectedStatuses)) {
+            if (selectedStatuses.includes("installed")) {
+                this.appLists.push(this.installedApps);
+                if (selectedStatuses.includes("available")) {
+                    this.appLists.push(this.availableApps);
+                }
+                if (selectedStatuses.includes("incompatible")) {
+                    this.appLists.push(this.incompatibleApps);
+                }
+            }
+            else {
+                this.appLists = [this.installedApps, this.availableApps, this.incompatibleApps];
+            }
+        }
     }
 
     protected showCategories(app: AppList): boolean {
@@ -254,7 +300,7 @@ export class IndexComponent implements OnInit, OnDestroy {
     }
 
     protected onAppClicked(app: GetApps.App): void {
-    // navigate
+        // navigate
         if (this.key != null || this.useMasterKey) {
             this.router.navigate(["device/" + (this.edge.id) + "/settings/app/single/" + app.appId]
                 , { queryParams: { name: app.name }, state: { app: app, appKey: this.key.keyId, useMasterKey: this.useMasterKey } });
@@ -313,6 +359,31 @@ export class IndexComponent implements OnInit, OnDestroy {
         });
     }
 
+    private statusFilter(): Filter {
+        const filterOptions: FilterOption<string>[] = [
+            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INSTALLED"), option: { value: "installed", default: true } },
+            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_AVAILABLE"), option: { value: "available", default: true } },
+            ...(this.edge.roleIsAtLeast(Role.ADMIN)
+                ? [{ name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INCOMPATIBLE"), option: { value: "incompatible" } }]
+                : []),
+        ];
+        return {
+            placeholder: this.translate.instant("EDGE.CONFIG.APP.STATUS_FILTER"),
+            category: "appStatus",
+            multiple: true,
+            options: filterOptions,
+        };
+    }
+    private categoryFilter(): Filter {
+        return {
+            placeholder: this.translate.instant("EDGE.CONFIG.APP.CATEGORY_FILTER"),
+            category: "categories",
+            multiple: true,
+            options: this.categories.map(t => ({ name: t.val.readableName, option: { value: t.val.name } })),
+        };
+    }
+
+
     private sum(app: AppList): number {
         return app.appCategories.reduce((p, c) => p + c.apps.length, 0);
     }
@@ -361,6 +432,7 @@ export class IndexComponent implements OnInit, OnDestroy {
                 });
 
                 this.updateSelection();
+                this.filters = [this.categoryFilter(), this.statusFilter()];
 
                 edge.sendRequest(this.websocket, new AppCenter.Request({
                     payload: new AppCenterGetRegisteredKeys.Request({}),
