@@ -179,6 +179,10 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ess, "ActiveDischargeEnergy", DataType.LONG)) //
 				.putAll(multiChannels(ess, "DcChargeEnergy", DataType.LONG)) //
 				.putAll(multiChannels(ess, "DcDischargeEnergy", DataType.LONG)) //
+				.putAll(multiChannels(ess, "CumulatedTimeOkState", DataType.LONG)) //
+				.putAll(multiChannels(ess, "CumulatedTimeInfoState", DataType.LONG)) //
+				.putAll(multiChannels(ess, "CumulatedTimeWarningState", DataType.LONG)) //
+				.putAll(multiChannels(ess, "CumulatedTimeFaultState", DataType.LONG)) //
 				.putAll(multiChannels(ctrlApiModbusTcp, "CumulatedActiveTime", DataType.LONG)) //
 				.putAll(multiChannels(ctrlApiModbusTcp, "CumulatedInactiveTime", DataType.LONG)) //
 				.put("ctrlEssLimiter14a0/CumulatedRestrictionTime", DataType.LONG) //
