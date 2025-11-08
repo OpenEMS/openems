@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.lstm.common;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.time.OffsetDateTime;
@@ -26,7 +25,7 @@ public class LstmPredictorBoundsTest {
 
 	@Before
 	public void setUp() {
-		hyperParameters = new HyperParameters();
+		this.hyperParameters = new HyperParameters();
 	}
 
 	/**
@@ -38,9 +37,9 @@ public class LstmPredictorBoundsTest {
 		var noon = ZonedDateTime.now().withHour(12).withMinute(0);
 		var evening = ZonedDateTime.now().withHour(18).withMinute(30);
 
-		var midnightIndex = LstmPredictor.decodeDateToColumnIndex(midnight, hyperParameters);
-		var noonIndex = LstmPredictor.decodeDateToColumnIndex(noon, hyperParameters);
-		var eveningIndex = LstmPredictor.decodeDateToColumnIndex(evening, hyperParameters);
+		var midnightIndex = LstmPredictor.decodeDateToColumnIndex(midnight, this.hyperParameters);
+		var noonIndex = LstmPredictor.decodeDateToColumnIndex(noon, this.hyperParameters);
+		var eveningIndex = LstmPredictor.decodeDateToColumnIndex(evening, this.hyperParameters);
 
 		// Indices should be non-negative
 		assertTrue("Midnight index should be non-negative", midnightIndex >= 0);
@@ -48,7 +47,7 @@ public class LstmPredictorBoundsTest {
 		assertTrue("Evening index should be non-negative", eveningIndex >= 0);
 
 		// Indices should be within 24-hour range
-		var maxIndex = 24 * (60 / hyperParameters.getInterval());
+		var maxIndex = 24 * (60 / this.hyperParameters.getInterval());
 		assertTrue("Midnight index should be within range", midnightIndex < maxIndex);
 		assertTrue("Noon index should be within range", noonIndex < maxIndex);
 		assertTrue("Evening index should be within range", eveningIndex < maxIndex);
@@ -61,16 +60,16 @@ public class LstmPredictorBoundsTest {
 	@Test
 	public void testGetIndexValidCombinations() {
 		// Test midnight
-		var midnightIndex = LstmPredictor.getIndex(0, 0, hyperParameters);
+		var midnightIndex = LstmPredictor.getIndex(0, 0, this.hyperParameters);
 		assertEquals("Midnight should be index 0", Integer.valueOf(0), midnightIndex);
 
 		// Test noon
-		var noonIndex = LstmPredictor.getIndex(12, 0, hyperParameters);
-		var expectedNoonIndex = 12 * (60 / hyperParameters.getInterval());
+		var noonIndex = LstmPredictor.getIndex(12, 0, this.hyperParameters);
+		var expectedNoonIndex = 12 * (60 / this.hyperParameters.getInterval());
 		assertEquals("Noon index should be correct", Integer.valueOf(expectedNoonIndex), noonIndex);
 
 		// Test with interval-aligned minute
-		var index = LstmPredictor.getIndex(10, hyperParameters.getInterval(), hyperParameters);
+		var index = LstmPredictor.getIndex(10, this.hyperParameters.getInterval(), this.hyperParameters);
 		assertTrue("Index should be positive", index >= 0);
 	}
 
@@ -128,20 +127,21 @@ public class LstmPredictorBoundsTest {
 		var now = OffsetDateTime.now();
 
 		// Create sample data
-		for (int i = 0; i < hyperParameters.getWindowSizeTrend(); i++) {
+		for (int i = 0; i < this.hyperParameters.getWindowSizeTrend(); i++) {
 			data.add(100.0 + i * 10.0);
-			dates.add(now.minusMinutes((hyperParameters.getWindowSizeTrend() - i) * hyperParameters.getInterval()));
+			dates.add(
+					now.minusMinutes((this.hyperParameters.getWindowSizeTrend() - i) * this.hyperParameters.getInterval()));
 		}
 
 		// This test verifies that the method doesn't throw an exception
 		// The actual prediction values depend on the model, so we just check it runs
 		try {
-			var result = LstmPredictor.predictTrend(data, dates, ZonedDateTime.now(), hyperParameters);
+			var result = LstmPredictor.predictTrend(data, dates, ZonedDateTime.now(), this.hyperParameters);
 			assertTrue("Result should not be null", result != null);
 		} catch (Exception e) {
 			// If model files don't exist, this is expected in test environment
-			assertTrue("Exception should be related to missing model files", 
-				e.getMessage() == null || e.getMessage().contains("model") || e.getMessage().contains("file"));
+			assertTrue("Exception should be related to missing model files",
+					e.getMessage() == null || e.getMessage().contains("model") || e.getMessage().contains("file"));
 		}
 	}
 
@@ -153,8 +153,8 @@ public class LstmPredictorBoundsTest {
 		var endOfDay = ZonedDateTime.now().withHour(23).withMinute(59);
 		var startOfDay = ZonedDateTime.now().withHour(0).withMinute(0);
 
-		var endIndex = LstmPredictor.decodeDateToColumnIndex(endOfDay, hyperParameters);
-		var startIndex = LstmPredictor.decodeDateToColumnIndex(startOfDay, hyperParameters);
+		var endIndex = LstmPredictor.decodeDateToColumnIndex(endOfDay, this.hyperParameters);
+		var startIndex = LstmPredictor.decodeDateToColumnIndex(startOfDay, this.hyperParameters);
 
 		assertTrue("End of day index should be valid", endIndex >= 0);
 		assertTrue("Start of day index should be valid", startIndex >= 0);
