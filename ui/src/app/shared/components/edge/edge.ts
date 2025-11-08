@@ -191,7 +191,7 @@ export class Edge {
 
     const channelsToSubscribe = channels.map(channel => channel.toString());
 
-    if (ArrayUtils.containsAllStrings(previousChannels, channelsToSubscribe)) {
+    if (ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
       return;
     }
 
@@ -225,7 +225,7 @@ export class Edge {
     const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
     const unsubscribeChannels = Object.values(subscribedChannelsById ?? {}).flat().map(channel => channel.toString());
 
-    if (ArrayUtils.containsAllStrings(previousChannels, unsubscribeChannels)) {
+    if (ArrayUtils.containsAll({ arr: previousChannels, strings: unsubscribeChannels })) {
       return;
     }
 
@@ -275,7 +275,7 @@ export class Edge {
     const newChannels = Object.entries(subscribedChannels)
       .filter(([otherId, _]) => otherId !== subscribeId).map(([_, channel]) => channel.toString());
 
-    if (ArrayUtils.containsAllStrings(previousChannels, newChannels) && previousChannels.length === newChannels.length) {
+    if (ArrayUtils.containsAll({ strings: newChannels, arr: previousChannels }) && previousChannels.length === newChannels.length) {
       // no change in channels, do not send subscribe request
       return;
     }

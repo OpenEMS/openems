@@ -16,11 +16,11 @@ export class ObjectUtils {
     }
 
     public static hasKeys<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
-        return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
+        return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
     }
 
     public static findObjectWithProperty<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
-        return ArrayUtils.containsAllStrings(Object.keys(obj), keys);
+        return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
     }
 
     public static isObjectNullOrEmpty(obj: Record<string, any> | null | undefined): boolean {

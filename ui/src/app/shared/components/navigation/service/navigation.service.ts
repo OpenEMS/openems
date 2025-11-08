@@ -94,7 +94,7 @@ export class NavigationService {
         const currentSegments = currentUrl.split("/");
         const newSegments = link.routerLink.baseString.split("/");
 
-        if (ArrayUtils.containsAllStrings(currentSegments, newSegments)) {
+        if (ArrayUtils.containsAll({ strings: currentSegments, arr: newSegments })) {
 
             // Navigate backward
             const prevRoute = this.getPrevRoute(currentSegments, link.routerLink.baseString);
@@ -234,7 +234,7 @@ export class NavigationService {
             const some = url.split("/").slice().reverse();
             const urlSegments = tree.routerLink.baseString.split("/").slice().reverse();
 
-            const foundNode = ArrayUtils.containsAllStrings(some.slice(0, urlSegments.length), urlSegments);
+            const foundNode = ArrayUtils.containsAll({ strings: some.slice(0, urlSegments.length), arr: urlSegments });
             if (foundNode) {
                 return tree;
             }
