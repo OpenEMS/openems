@@ -38,11 +38,7 @@ import { ThirdPartyUsageAcceptance } from "../shared/third-party-usage-acceptanc
 })
 export class WeatherForecastApprovalComponent implements OnInit {
     protected formGroup: FormGroup | null = null;
-    protected img: OeImageComponent["img"] = {
-        url: "/assets/img/weather-popover-app-img.svg",
-        width: 50,
-        style: "justify-self: center;",
-    };
+    protected img: OeImageComponent["img"] | null = null;
     protected dataProtectionLink: string | null = null;
     protected spinnerId: string = uuidv4();
 
@@ -63,6 +59,12 @@ export class WeatherForecastApprovalComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.img = {
+            url: this.translate.getCurrentLang() === Language.DE.i18nLocaleKey
+                ? "assets/img/weather-popover-app-img-de.png"
+                : "assets/img/weather-popover-app-img-en.png",
+            width: 90,
+        };
         this.dataProtectionLink = DocsUtils.createDataProtectionLink(this.service);
         this.formGroup = this.formBuilder.group({
             isChecked: new FormControl(false, Validators.required),
