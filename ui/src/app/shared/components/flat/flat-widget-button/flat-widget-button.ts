@@ -17,7 +17,7 @@ export class FlatWidgetButtonComponent {
     @Input() public link: { routeRelative?: ActivatedRoute, text: string, queryParams?: Params } | null = null;
     @Input() public color: "light" | "medium" | "primary" = "primary";
     @Input() public disabled: IonButton["disabled"] = false;
-    @Input() public fill: IonButton["fill"] = "solid";
+    @Input() public fill: IonButton["fill"] | undefined = undefined;
 
     constructor(
         private router: Router,
