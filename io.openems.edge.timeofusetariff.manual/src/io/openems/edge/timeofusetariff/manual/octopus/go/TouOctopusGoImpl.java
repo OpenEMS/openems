@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.manual.octopus.go;
 
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
 
 import java.time.Duration;
@@ -13,8 +14,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-
-import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -55,20 +54,22 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 		final var lowPrice = config.lowPrice() * 10;
 
 		if (Double.isNaN(standardPrice) || Double.isNaN(lowPrice)) {
-			this.channel(TouOctopusGo.ChannelId.INVALID_PRICE).setNextValue(true);
+			setValue(this, TouOctopusGo.ChannelId.INVALID_PRICE, true);
 			return;
 		}
 
-		final var schedule = ImmutableList.of(JSCalendar.Task.<Double>create() //
-				.setStart(LocalTime.of(0, 0)) //
-				.setDuration(Duration.ofHours(5)) //
-				.addRecurrenceRule(b -> b //
-						.setFrequency(DAILY)) //
-				.setPayload(lowPrice) //
-				.build());
+		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.add(t -> t //
+						.setStart(LocalTime.of(0, 0)) //
+						.setDuration(Duration.ofHours(5)) //
+						.addRecurrenceRule(b -> b //
+								.setFrequency(DAILY)) //
+						.setPayload(lowPrice) //
+						.build()) //
+				.build();
 
 		this.helper = new TouManualHelper(schedule, standardPrice);
-		this.channel(TouOctopusGo.ChannelId.INVALID_PRICE).setNextValue(false);
+		setValue(this, TouOctopusGo.ChannelId.INVALID_PRICE, false);
 	}
 
 	@Deactivate

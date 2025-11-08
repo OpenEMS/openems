@@ -32,7 +32,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Streams;
@@ -41,7 +40,7 @@ import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
 import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jscalendar.JSCalendar.Task;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.XmlUtils;
@@ -419,19 +418,19 @@ public class Utils {
 
 	/**
 	 * Parses the ancillary cost configuration JSON into a schedule of
-	 * {@link Task}s.
+	 * {@link JSCalendar.Tasks}.
 	 * 
 	 * @param biddingZone    the {@link BiddingZone}
 	 * @param ancillaryCosts the JSON configuration object
 	 * @param logWarn        a {@link Consumer} for a warning message
-	 * @return an {@link ImmutableList} of {@link Task} instances representing the
-	 *         schedule or an empty list if no valid schedule is provided.
+	 * @return a {@link JSCalendar.Tasks} instance representing the schedule or an
+	 *         empty list if no valid schedule is provided.
 	 * @throws OpenemsNamedException on error.
 	 */
-	public static ImmutableList<Task<Double>> parseToSchedule(BiddingZone biddingZone, String ancillaryCosts,
+	public static JSCalendar.Tasks<Double> parseToSchedule(BiddingZone biddingZone, String ancillaryCosts,
 			Consumer<String> logWarn) throws OpenemsNamedException {
 		if (ancillaryCosts == null || ancillaryCosts.isBlank()) {
-			return ImmutableList.of();
+			return JSCalendar.Tasks.empty();
 		}
 
 		return switch (biddingZone) {

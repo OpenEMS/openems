@@ -17,8 +17,6 @@ import java.time.LocalTime;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
@@ -178,21 +176,22 @@ public class EnergySchedulerTest {
 	}
 
 	private static SmartOptimizationConfig createSmartOptimizationConfig() {
-		final var smartConfig = ImmutableList.of(//
-				JSCalendar.Task.<Payload>create() //
+		final var smartConfig = JSCalendar.Tasks.<Payload>create() //
+				.add(t -> t //
 						.setStart(LocalTime.of(7, 30)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) //
 						.setPayload(new Payload(10_000)) //
-						.build(), //
-				JSCalendar.Task.<Payload>create() //
+						.build()) //
+				.add(t -> t //
 						.setStart(LocalTime.of(7, 30)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(MONDAY)) //
 						.setPayload(new Payload(60_000)) //
-						.build());
+						.build()) //
+				.build();
 		return new EnergyScheduler.Config.SmartOptimizationConfig(createAbilities(THREE_PHASE, true), //
 				false /* appearsToBeFullyCharged */, //
 				smartConfig);

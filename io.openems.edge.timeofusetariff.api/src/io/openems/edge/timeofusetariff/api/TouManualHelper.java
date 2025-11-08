@@ -7,29 +7,28 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Task;
+import io.openems.common.jscalendar.JSCalendar.Tasks;
 
 public class TouManualHelper {
 
-	public static final TouManualHelper EMPTY_TOU_MANUAL_HELPER = new TouManualHelper(ImmutableList.of(), 0.0d);
+	public static final TouManualHelper EMPTY_TOU_MANUAL_HELPER = new TouManualHelper(Tasks.empty(), 0.0d);
 
 	private final Clock clock;
 	private final double standardPrice;
-	private final ImmutableList<Task<Double>> schedule;
+	private final JSCalendar.Tasks<Double> schedule;
 	private ImmutableSortedMap<ZonedDateTime, Double> prices;
 	private ZonedDateTime lastAccessTime = null;
 
-	public TouManualHelper(Clock clock, ImmutableList<Task<Double>> schedule, double standardPrice) {
+	public TouManualHelper(Clock clock, JSCalendar.Tasks<Double> schedule, double standardPrice) {
 		this.clock = clock;
 		this.schedule = schedule;
 		this.standardPrice = standardPrice;
 	}
 
-	public TouManualHelper(ImmutableList<Task<Double>> schedule, double standardPrice) {
+	public TouManualHelper(JSCalendar.Tasks<Double> schedule, double standardPrice) {
 		this(Clock.systemDefaultZone(), schedule, standardPrice);
 	}
 
@@ -66,12 +65,10 @@ public class TouManualHelper {
 		return TimeOfUsePrices.from(this.prices);
 	}
 
-	private static Double getQuarterPrice(ImmutableList<Task<Double>> schedule, ZonedDateTime now,
-			double standardPrice) {
-		return JSCalendar.Tasks.getNextOccurence(schedule, now.plusNanos(1))
-				.map(ot -> ot.start().isBefore(now.plusMinutes(15)) //
-						? ot.payload() //
-						: standardPrice) //
-				.orElse(standardPrice);
+	private static Double getQuarterPrice(Tasks<Double> schedule, ZonedDateTime now, double standardPrice) {
+		var ot = schedule.getActiveOneTask();
+		return ot == null //
+				? standardPrice //
+				: ot.payload();
 	}
 }

@@ -12,8 +12,6 @@ import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TestUtils;
 import io.openems.edge.timeofusetariff.api.TouManualHelper;
@@ -33,22 +31,30 @@ public class TouOctopusHeatTest {
 		this.clock = TestUtils.createDummyClock();
 
 		// Setup Octopus Heat schedule
-		final var heatSchedule = ImmutableList.of(JSCalendar.Task.<Double>create() // Lower price 02:00-06:00
-				.setStart(LocalTime.of(2, 0)).setDuration(Duration.ofHours(4))
-				.addRecurrenceRule(b -> b.setFrequency(DAILY)).setPayload(HEAT_LOWER_PRICE).build(),
-				JSCalendar.Task.<Double>create() // Lower price 12:00-16:00
+		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.add(t -> t // Lower price 02:00-06:00
+						.setStart(LocalTime.of(2, 0)) //
+						.setDuration(Duration.ofHours(4)) //
+						.addRecurrenceRule(b -> b //
+								.setFrequency(DAILY)) //
+						.setPayload(HEAT_LOWER_PRICE) //
+						.build()) //
+				.add(t -> t // Lower price 12:00-16:00
 						.setStart(LocalTime.of(12, 0)) //
 						.setDuration(Duration.ofHours(4)) //
-						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
+						.addRecurrenceRule(b -> b //
+								.setFrequency(DAILY)) //
 						.setPayload(HEAT_LOWER_PRICE) //
-						.build(),
-				JSCalendar.Task.<Double>create() // Higher price 18:00-21:00
+						.build()) //
+				.add(t -> t // Higher price 18:00-21:00
 						.setStart(LocalTime.of(18, 0)) //
 						.setDuration(Duration.ofHours(3)) //
-						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
+						.addRecurrenceRule(b -> b //
+								.setFrequency(DAILY)) //
 						.setPayload(HEAT_HIGHER_PRICE) //
-						.build());
-		this.heatHelper = new TouManualHelper(this.clock, heatSchedule, HEAT_STANDARD_PRICE);
+						.build()) //
+				.build();
+		this.heatHelper = new TouManualHelper(this.clock, schedule, HEAT_STANDARD_PRICE);
 	}
 
 	// Octopus Heat Tests

@@ -39,13 +39,12 @@ public class ParseScheduleTest {
 				]
 				""";
 
-		final var schedule = parseToJsonArray(json);
-		final var tasks = parseSchedule(schedule);
+		final var schedule = parseSchedule(parseToJsonArray(json));
 
-		assertEquals(3, tasks.size());
-		assertEquals(0.10, tasks.get(0).payload().doubleValue(), 0.001);
-		assertEquals(0.20, tasks.get(1).payload().doubleValue(), 0.001);
-		assertEquals(0.30, tasks.get(2).payload().doubleValue(), 0.001);
+		assertEquals(3, schedule.numberOfTasks());
+		assertEquals(0.10, schedule.tasks.get(0).payload().doubleValue(), 0.001);
+		assertEquals(0.20, schedule.tasks.get(1).payload().doubleValue(), 0.001);
+		assertEquals(0.30, schedule.tasks.get(2).payload().doubleValue(), 0.001);
 	}
 
 	@Test
