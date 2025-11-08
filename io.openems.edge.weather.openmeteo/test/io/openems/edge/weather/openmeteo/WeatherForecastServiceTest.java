@@ -72,7 +72,8 @@ public class WeatherForecastServiceTest {
 		this.weatherForecastService.subscribeToWeatherForecast(//
 				mock(OpenMeteoDelayTimeProvider.class), //
 				null, //
-				Clock::systemUTC);
+				Clock::systemUTC, //
+				null);
 
 		assertNull(this.weatherForecastService.getQuarterlyWeatherForecast());
 		assertNull(this.weatherForecastService.getLastUpdate());
@@ -84,11 +85,13 @@ public class WeatherForecastServiceTest {
 		var delayTimeProvider = mock(OpenMeteoDelayTimeProvider.class);
 		var onResultCaptor = ArgumentCaptor.forClass(ThrowingConsumer.class);
 		var clock = new TimeLeapClock();
+		var callback = mock(Runnable.class);
 
 		this.weatherForecastService.subscribeToWeatherForecast(//
 				delayTimeProvider, //
 				new Coordinates(48.8409, 12.9607), //
-				() -> clock);
+				() -> clock, //
+				callback);
 
 		// Capture success callback
 		verify(this.httpBridge).subscribeJsonTime(//
@@ -142,6 +145,9 @@ public class WeatherForecastServiceTest {
 
 		// Assert last update
 		assertEquals(clock.instant(), this.weatherForecastService.getLastUpdate());
+		
+		// Assert callback
+		verify(callback).run();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -154,7 +160,8 @@ public class WeatherForecastServiceTest {
 		this.weatherForecastService.subscribeToWeatherForecast(//
 				delayTimeProvider, //
 				new Coordinates(48.8409, 12.9607), //
-				() -> clock);
+				() -> clock, //
+				mock(Runnable.class));
 
 		// Capture error callback
 		verify(this.httpBridge).subscribeJsonTime(//

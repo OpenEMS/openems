@@ -71,7 +71,8 @@ public class WeatherForecastService {
 	protected void subscribeToWeatherForecast(//
 			OpenMeteoDelayTimeProvider delayTimeProvider, //
 			Coordinates coordinates, //
-			Supplier<Clock> clockSupplier) {
+			Supplier<Clock> clockSupplier, //
+			Runnable onFetchWeatherForecastSuccess) {
 		if (this.subscription != null) {
 			this.timeService.removeTimeEndpoint(this.subscription);
 			this.subscription = null;
@@ -89,7 +90,8 @@ public class WeatherForecastService {
 						clockSupplier), //
 				response -> this.handleEndpointResponse(//
 						response, //
-						clockSupplier), //
+						clockSupplier, //
+						onFetchWeatherForecastSuccess), //
 				error -> this.handleEndpointError(//
 						error));
 	}
@@ -150,7 +152,8 @@ public class WeatherForecastService {
 
 	private void handleEndpointResponse(//
 			HttpResponse<JsonElement> response, //
-			Supplier<Clock> clockSupplier) {
+			Supplier<Clock> clockSupplier, //
+			Runnable onFetchWeatherForecastSuccess) {
 		this.parent._setHttpStatusCode(response.status().code());
 
 		var responseJson = response.data().getAsJsonObject();
@@ -174,6 +177,7 @@ public class WeatherForecastService {
 				responseJson.getAsJsonObject(DailyWeatherVariables.JSON_KEY));
 
 		this.lastUpdate = Instant.now(clock);
+		onFetchWeatherForecastSuccess.run();
 	}
 
 	private void handleEndpointError(HttpError error) {
