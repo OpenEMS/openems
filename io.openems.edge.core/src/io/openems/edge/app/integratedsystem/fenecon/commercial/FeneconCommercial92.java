@@ -2,6 +2,7 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
@@ -178,6 +179,7 @@ public class FeneconCommercial92
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.staticIp(new InterfaceConfiguration("eth1") //
 							.addIp("BatteryInverter", "172.16.0.99/24")))
+					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

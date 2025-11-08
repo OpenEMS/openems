@@ -56,6 +56,7 @@ public class TestFeneconHome30 {
 
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 	}
 
 	@Test

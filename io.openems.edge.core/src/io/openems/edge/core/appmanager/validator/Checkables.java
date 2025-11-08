@@ -10,6 +10,26 @@ import io.openems.edge.core.appmanager.validator.relaycount.InjectableComponentC
 public final class Checkables {
 
 	/**
+	 * Creates a {@link CheckableConfig} which checks if the user has accepted the
+	 * 3rd party access.
+	 * 
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig check3rdPartyAccessAccepted() {
+		return empty(Check3rdPartyAccessAccepted.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the system coordinates have
+	 * been set.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCoordinatesSet() {
+		return empty(CheckCoordinatesSet.COMPONENT_NAME);
+	}
+
+	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is a
 	 * Home.
 	 *

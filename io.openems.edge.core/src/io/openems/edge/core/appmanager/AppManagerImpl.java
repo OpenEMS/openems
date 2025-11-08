@@ -975,7 +975,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * request.
 	 * 
 	 * @param component the {@link ComponentFilter} filter.
-	 * @param instance the instance to be checked.
+	 * @param instance  the instance to be checked.
 	 * @return the filtered instances
 	 */
 	private boolean resolveComponentFilter(ComponentFilter component, OpenemsAppInstance instance) {
@@ -1026,40 +1026,27 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 */
 	public UpdateAppConfig.Response handleUpdateAppConfigRequest(User user, UpdateAppConfig.Request request)
 			throws OpenemsNamedException {
-
 		final var appInstance = this.findInstanceByComponentId(request.componentId());
-
 		// update Component the old fashioned way if no app exists for the component
 		if (appInstance == null) {
 			this.updateComponentDirectly(user, request);
 			return new UpdateAppConfig.Response(null);
 		}
 		final var app = this.findAppByIdOrError(appInstance.appId);
-
 		final var requestProperties = request.properties().entrySet().stream() //
 				.map(entry -> Map.entry(app.mapPropName(entry.getKey(), request.componentId(), appInstance),
 						entry.getValue()))
 				.filter(entry -> entry.getKey() != null)
 				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
-
 		for (var entry : appInstance.properties.entrySet()) {
 			if (requestProperties.has(entry.getKey())) {
 				continue;
 			}
 			requestProperties.add(entry.getKey(), entry.getValue());
 		}
-
-		final var mappedRequestProperties = new JsonObject();
-
-		// change keys to keys of app properties for updateInstance Method!
-		for (var entry : requestProperties.entrySet()) {
-			final var mappedKey = app.mapPropName(entry.getKey(), request.componentId(), appInstance);
-			mappedRequestProperties.add(mappedKey, entry.getValue());
-		}
-
 		// build UpdateAppInstance Request and pass the request to the
 		// handleUpdateAppInstanceRequest Method
-		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, mappedRequestProperties);
+		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, requestProperties);
 		this.handleUpdateAppInstanceRequest(user, req);
 		return new UpdateAppConfig.Response(appInstance);
 	}

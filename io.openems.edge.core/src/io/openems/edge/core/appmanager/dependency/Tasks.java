@@ -13,6 +13,8 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfigu
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
@@ -92,7 +94,7 @@ public class Tasks {
 	public static Task<ClusterConfiguration> cluster(List<String> evseIds) {
 		return createTask(EvseClusterTask.class, new ClusterConfiguration(evseIds));
 	}
-	
+
 	/**
 	 * Creates a Task for setting the {@link ClusterConfiguration}.
 	 * 
@@ -101,6 +103,32 @@ public class Tasks {
 	 */
 	public static Task<ClusterConfiguration> cluster(String... evseIds) {
 		return createTask(EvseClusterTask.class, new ClusterConfiguration(evseIds));
+	}
+
+	/**
+	 * Creates a Task for setting the
+	 * {@link PredictorManagerByCentralOrderConfiguration}.
+	 *
+	 * @param component the order of the components in the predictor manager
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<PredictorManagerByCentralOrderConfiguration> predictorManagerByCentralOrder(
+			List<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent> component) {
+		return createTask(PredictorManagerByCentralOrderAggregateTask.class,
+				new PredictorManagerByCentralOrderConfiguration(component));
+	}
+
+	/**
+	 * Creates a Task for setting the
+	 * {@link PredictorManagerByCentralOrderConfiguration}.
+	 *
+	 * @param component the order of the components in the scheduler
+	 * @return the {@link Task} to run when creating the {@link OpenemsAppInstance}
+	 */
+	public static Task<PredictorManagerByCentralOrderConfiguration> predictorManagerByCentralOrder(
+			PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent... component) {
+		return createTask(PredictorManagerByCentralOrderAggregateTask.class,
+				new PredictorManagerByCentralOrderConfiguration(component));
 	}
 
 	/**

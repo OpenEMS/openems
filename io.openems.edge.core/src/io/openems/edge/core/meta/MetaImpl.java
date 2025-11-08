@@ -32,6 +32,7 @@ import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -165,5 +166,10 @@ public class MetaImpl extends AbstractOpenemsComponent
 			return new GeocodeJsonRpcEndpoint.Response(//
 					this.geocodingService.geocode(call.getRequest().query()).get());
 		});
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
+		return this.config.thirdPartyUsageAcceptance();
 	}
 }

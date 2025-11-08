@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import io.openems.edge.predictor.api.manager.PredictorManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -214,6 +215,14 @@ public class AppManagerImplTest {
 								.addProperty("enablePid", false) //
 								.build()) //
 						.build()) //
+				.add(PredictorManager.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", PredictorManager.SINGLETON_SERVICE_PID) //
+						.addProperty("alias", "") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.add("predictor.ids", JsonUtils.buildJsonArray() //
+										.build()) //
+								.build()) //
+						.build()) //
 				.add(Host.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", Host.SINGLETON_SERVICE_PID) //
 						.addProperty("alias", "") //
@@ -305,6 +314,7 @@ public class AppManagerImplTest {
 	public void testAppValidateWorker() throws Exception {
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
 		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 
