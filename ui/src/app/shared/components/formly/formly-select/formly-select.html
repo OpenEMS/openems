@@ -1,5 +1,5 @@
 <!-- If the select options has images -->
-@if(hasImageOptions){
+@if (hasImageOptions){
   <ion-item lines="none" button detail="false" (click)="openOptionsModal()" class="ion-no-padding custom-select-item">
     <ion-label class="ion-text-wrap">
       {{ props.label + (props.required ? '*' : '') }}
@@ -11,14 +11,6 @@
       <ion-icon name="caret-down-outline" color="primary"></ion-icon>
     </div>
   </ion-item>
-}
-@else if (selectOptions?.length === 1) {
-  <!-- If there is only one select option (Applies only for plain text) -->
-  <ion-item lines="none">
-    <ion-label>{{ props.label }}</ion-label>
-    <ion-text>{{ selectOptions[0]?.label }}</ion-text>
-  </ion-item>
-  <input type="hidden" [formControl]="formControl" [value]="selectOptions[0]?.value" />
 } @else {
   <!-- Normal text options -->
   <ion-select [id]="id" [label]="props.label + (to.required ? '*' : '')" interface="alert"
