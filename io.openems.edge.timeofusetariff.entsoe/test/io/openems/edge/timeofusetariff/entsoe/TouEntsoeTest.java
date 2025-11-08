@@ -121,8 +121,8 @@ public class TouEntsoeTest {
 				.build() //
 				.toString();
 
-		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var clock = new TimeLeapClock(Instant.parse(clockTime), ZoneId.systemDefault());
+		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 
 		return new TouManualHelper(clock, schedule, 0.0);
 	}
@@ -258,7 +258,7 @@ public class TouEntsoeTest {
 				.build() //
 				.toString();
 
-		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
+		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var helper = new TouManualHelper(clock, schedule, 0.0);
 
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 2, 1), LocalTime.of(10, 0), ZoneId.systemDefault());
@@ -273,7 +273,7 @@ public class TouEntsoeTest {
 				.build() //
 				.toString();
 
-		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
+		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var helper = new TouManualHelper(clock, schedule, 0.0);
 
 		var testTime = ZonedDateTime.of(LocalDate.of(2025, 2, 1), LocalTime.of(10, 0), ZoneId.systemDefault());

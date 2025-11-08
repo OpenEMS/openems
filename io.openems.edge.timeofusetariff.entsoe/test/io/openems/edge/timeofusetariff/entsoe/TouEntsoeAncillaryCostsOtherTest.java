@@ -102,7 +102,7 @@ public class TouEntsoeAncillaryCostsOtherTest {
 				.toString();
 
 		var clock = new TimeLeapClock(Instant.parse("2025-03-01T00:00:00Z"), ZoneId.systemDefault());
-		var schedule = parseToSchedule(BiddingZone.GERMANY, ancillaryCosts, System.out::println);
+		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, System.out::println);
 		var helper = new TouManualHelper(clock, schedule, 0.0);
 
 		// Validate prices

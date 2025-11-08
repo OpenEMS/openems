@@ -17,6 +17,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
@@ -34,6 +35,9 @@ public class TouOctopusHeatImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private Meta meta;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	private TouManualHelper helper = null;
 
@@ -59,7 +63,9 @@ public class TouOctopusHeatImpl extends AbstractOpenemsComponent
 			return;
 		}
 
+		final var clock = this.componentManager.getClock();
 		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.setClock(clock) //
 				.add(t -> t // Lower price from 02:00 to 06:00
 						.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4))//
@@ -80,7 +86,7 @@ public class TouOctopusHeatImpl extends AbstractOpenemsComponent
 						.build()) //
 				.build();
 
-		this.helper = new TouManualHelper(schedule, standardPrice);
+		this.helper = new TouManualHelper(clock, schedule, standardPrice);
 		setValue(this, TouOctopusHeat.ChannelId.INVALID_PRICE, false);
 	}
 

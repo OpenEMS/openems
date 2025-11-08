@@ -6,6 +6,7 @@ import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.germanDso;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
+import java.time.Clock;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -141,7 +142,7 @@ public class AncillaryCosts extends
 
 				// parsing here to throw any exceptions.
 				if (!t.isDeleteOrTest()) {
-					parseSchedule(tariffTable);
+					parseSchedule(Clock.systemDefaultZone() /* does not matter here */, tariffTable);
 				}
 
 				ancillaryCosts = buildJsonObject() //

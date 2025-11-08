@@ -12,6 +12,7 @@ import static java.time.LocalTime.MAX;
 import static java.time.LocalTime.MIDNIGHT;
 import static java.time.LocalTime.MIN;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -188,11 +189,13 @@ public class AncillaryCosts {
 		 * definitions into a {@link JSCalendar.Tasks} object, each Task representing a
 		 * non-repeating time window with an associated price (tariff).
 		 * 
+		 * @param clock The {!link Clock}.
 		 * @return a {@link JSCalendar.Tasks} instance representing the full tariff
 		 *         schedule.
 		 */
-		public JSCalendar.Tasks<Double> toSchedule() {
-			final var tasks = JSCalendar.Tasks.<Double>create();
+		public JSCalendar.Tasks<Double> toSchedule(Clock clock) {
+			final var tasks = JSCalendar.Tasks.<Double>create() //
+					.setClock(clock);
 
 			// Process all DateRanges defined in the GridFee configuration
 			for (var dateRange : this.dateRanges) {
@@ -240,19 +243,21 @@ public class AncillaryCosts {
 	 * back to parsing a custom schedule from the {@code "schedule"} JSON array
 	 * using {@link #parseSchedule(JsonArray)}.
 	 * 
+	 * @param clock          The {@link Clock}
 	 * @param ancillaryCosts the JSON configuration object
 	 * @return {@link JSCalendar.Tasks} representing daily recurring tariff
 	 *         intervals.
 	 * @throws OpenemsNamedException on error
 	 */
-	public static JSCalendar.Tasks<Double> parseForGermany(String ancillaryCosts) throws OpenemsNamedException {
+	public static JSCalendar.Tasks<Double> parseForGermany(Clock clock, String ancillaryCosts)
+			throws OpenemsNamedException {
 
 		var j = new JsonObjectPathActual.JsonObjectPathActualNonNull(parseToJsonObject(ancillaryCosts));
 
 		try {
 			var dsoOpt = j.getOptionalEnum("dso", GermanDSO.class);
 			if (dsoOpt.isPresent()) {
-				return dsoOpt.get().gridFee.toSchedule();
+				return dsoOpt.get().gridFee.toSchedule(clock);
 			}
 		} catch (IllegalArgumentException e) {
 			// Invalid enum value like "OTHER" or "null"
@@ -264,7 +269,7 @@ public class AncillaryCosts {
 			return JSCalendar.Tasks.empty();
 		}
 
-		return parseSchedule(j.getJsonArray("schedule"));
+		return parseSchedule(clock, j.getJsonArray("schedule"));
 
 	}
 
@@ -278,14 +283,16 @@ public class AncillaryCosts {
 	 * time intervals for each tariff type (`lowTariff`, `standardTariff`,
 	 * `highTariff`).
 	 * 
+	 * @param clock    The {@link Clock}
 	 * @param schedule A JSON array containing yearly tariff schedules structured by
 	 *                 quarter.
 	 * @return A {@link JSCalendar.Tasks} object representing daily recurring tariff
 	 *         intervals.
 	 * @throws OpenemsNamedException on error.
 	 */
-	public static JSCalendar.Tasks<Double> parseSchedule(JsonArray schedule) throws OpenemsNamedException {
-		final var tasks = JSCalendar.Tasks.<Double>create();
+	public static JSCalendar.Tasks<Double> parseSchedule(Clock clock, JsonArray schedule) throws OpenemsNamedException {
+		final var tasks = JSCalendar.Tasks.<Double>create() //
+				.setClock(clock);
 
 		for (var yearData : schedule) {
 			var year = getAsInt(yearData, "year");

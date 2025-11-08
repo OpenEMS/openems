@@ -420,6 +420,7 @@ public class Utils {
 	 * Parses the ancillary cost configuration JSON into a schedule of
 	 * {@link JSCalendar.Tasks}.
 	 * 
+	 * @param clock          The {@link Clock}
 	 * @param biddingZone    the {@link BiddingZone}
 	 * @param ancillaryCosts the JSON configuration object
 	 * @param logWarn        a {@link Consumer} for a warning message
@@ -427,7 +428,7 @@ public class Utils {
 	 *         empty list if no valid schedule is provided.
 	 * @throws OpenemsNamedException on error.
 	 */
-	public static JSCalendar.Tasks<Double> parseToSchedule(BiddingZone biddingZone, String ancillaryCosts,
+	public static JSCalendar.Tasks<Double> parseToSchedule(Clock clock, BiddingZone biddingZone, String ancillaryCosts,
 			Consumer<String> logWarn) throws OpenemsNamedException {
 		if (ancillaryCosts == null || ancillaryCosts.isBlank()) {
 			return JSCalendar.Tasks.empty();
@@ -435,7 +436,7 @@ public class Utils {
 
 		return switch (biddingZone) {
 		case GERMANY //
-			-> parseForGermany(ancillaryCosts);
+			-> parseForGermany(clock, ancillaryCosts);
 		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4 -> {
 			logWarn.accept("Parser for " + biddingZone.name() + "-Scheduler is not implemented");
 			throw new OpenemsException("Parser for bidding zone " + biddingZone.name() + " is not implemented");

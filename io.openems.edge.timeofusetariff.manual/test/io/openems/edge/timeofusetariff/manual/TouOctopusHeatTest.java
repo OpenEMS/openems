@@ -32,6 +32,7 @@ public class TouOctopusHeatTest {
 
 		// Setup Octopus Heat schedule
 		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.setClock(this.clock) //
 				.add(t -> t // Lower price 02:00-06:00
 						.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4)) //

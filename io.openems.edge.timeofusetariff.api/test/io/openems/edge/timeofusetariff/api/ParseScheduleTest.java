@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.api;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +40,8 @@ public class ParseScheduleTest {
 				]
 				""";
 
-		final var schedule = parseSchedule(parseToJsonArray(json));
+		final var clock = createDummyClock();
+		final var schedule = parseSchedule(clock, parseToJsonArray(json));
 
 		assertEquals(3, schedule.numberOfTasks());
 		assertEquals(0.10, schedule.tasks.get(0).payload().doubleValue(), 0.001);
@@ -72,7 +74,8 @@ public class ParseScheduleTest {
 				""";
 
 		final var schedule = parseToJsonArray(json);
-		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(schedule));
+		final var clock = createDummyClock();
+		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(clock, schedule));
 
 		assertTrue(ex.getMessage().contains("overlaps"));
 	}
@@ -100,7 +103,8 @@ public class ParseScheduleTest {
 				]
 				""";
 		final var schedule = parseToJsonArray(json);
-		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(schedule));
+		final var clock = createDummyClock();
+		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(clock, schedule));
 		assertTrue(ex.getMessage().contains("Invalid time format"));
 	}
 
@@ -128,7 +132,8 @@ public class ParseScheduleTest {
 				""";
 
 		final var schedule = parseToJsonArray(json);
-		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(schedule));
+		final var clock = createDummyClock();
+		final var ex = assertThrows(OpenemsException.class, () -> parseSchedule(clock, schedule));
 		assertTrue(ex.getMessage().contains("Invalid time range"));
 	}
 
@@ -156,7 +161,8 @@ public class ParseScheduleTest {
 				""";
 
 		final var schedule = parseToJsonArray(json);
-		final var ex = assertThrows(OpenemsNamedException.class, () -> parseSchedule(schedule));
+		final var clock = createDummyClock();
+		final var ex = assertThrows(OpenemsNamedException.class, () -> parseSchedule(clock, schedule));
 		assertEquals(OpenemsError.JSON_NO_ENUM_MEMBER, ex.getError());
 	}
 }

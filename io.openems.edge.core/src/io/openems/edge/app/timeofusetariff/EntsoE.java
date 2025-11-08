@@ -4,6 +4,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
+import java.time.Clock;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -159,7 +160,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
 
 				// parsing here to throw any exceptions.
-				parseSchedule(tariffTable);
+				parseSchedule(Clock.systemDefaultZone() /* does not matter here */, tariffTable);
 
 				ancillaryCosts = buildJsonObject() //
 						.addProperty("dso", germanDso.name()) //

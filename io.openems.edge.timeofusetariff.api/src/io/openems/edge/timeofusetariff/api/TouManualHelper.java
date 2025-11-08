@@ -1,6 +1,5 @@
 package io.openems.edge.timeofusetariff.api;
 
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.Clock;
@@ -14,7 +13,8 @@ import io.openems.common.jscalendar.JSCalendar.Tasks;
 
 public class TouManualHelper {
 
-	public static final TouManualHelper EMPTY_TOU_MANUAL_HELPER = new TouManualHelper(Tasks.empty(), 0.0d);
+	public static final TouManualHelper EMPTY_TOU_MANUAL_HELPER = new TouManualHelper(Clock.systemDefaultZone(),
+			Tasks.empty(), 0.0d);
 
 	private final Clock clock;
 	private final double standardPrice;
@@ -26,10 +26,6 @@ public class TouManualHelper {
 		this.clock = clock;
 		this.schedule = schedule;
 		this.standardPrice = standardPrice;
-	}
-
-	public TouManualHelper(JSCalendar.Tasks<Double> schedule, double standardPrice) {
-		this(Clock.systemDefaultZone(), schedule, standardPrice);
 	}
 
 	/**
@@ -55,20 +51,33 @@ public class TouManualHelper {
 		final var fromDate = now;
 		final var toDate = fromDate.plusDays(1).plusHours(12); // 36 hours
 
-		this.prices = Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
+		var tasks = this.schedule.getOneTasksBetween(fromDate, toDate);
+		var prices = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
 				.takeWhile(d -> d.isBefore(toDate)) //
-				.collect(toImmutableSortedMap(//
-						ZonedDateTime::compareTo, //
-						d -> d, //
-						d -> getQuarterPrice(this.schedule, d, this.standardPrice)));
+				.forEach(t -> {
+					var ot = tasks.isEmpty() //
+							? null //
+							: tasks.first();
+					if (ot != null && !ot.end().isAfter(t)) {
+						// First OneTask has ended (end time is before or equal to current time) -> take
+						// next
+						tasks.removeFirst();
+						ot = tasks.isEmpty() //
+								? null //
+								: tasks.first();
+					}
+					if (ot == null || ot.start().isAfter(t)) {
+						// No active OneTask -> fallback
+						prices.put(t, this.standardPrice);
+
+					} else {
+						// Active OneTask -> use given price
+						prices.put(t, ot.payload());
+					}
+				});
+		this.prices = prices.build();
 		this.lastAccessTime = now;
 		return TimeOfUsePrices.from(this.prices);
-	}
-
-	private static Double getQuarterPrice(Tasks<Double> schedule, ZonedDateTime now, double standardPrice) {
-		var ot = schedule.getActiveOneTask();
-		return ot == null //
-				? standardPrice //
-				: ot.payload();
 	}
 }

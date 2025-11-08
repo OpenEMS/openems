@@ -31,6 +31,7 @@ public class TouOctopusGoTest {
 
 		// Setup Octopus Go schedule
 		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.setClock(this.clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(0, 0)) //
 						.setDuration(Duration.ofHours(5)) //

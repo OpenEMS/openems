@@ -230,11 +230,12 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		}
 
 		this.config = config;
+		final var clock = this.componentManager.getClock();
 
 		try {
-			final var schedule = parseToSchedule(config.biddingZone(), config.ancillaryCosts(),
+			final var schedule = parseToSchedule(clock, config.biddingZone(), config.ancillaryCosts(),
 					msg -> this.logWarn(this.log, msg));
-			this.helper = new TouManualHelper(schedule, 0.0);
+			this.helper = new TouManualHelper(clock, schedule, 0.0);
 
 		} catch (OpenemsNamedException e) {
 			this.logWarn(this.log, "Unable to parse Schedule: " + e.getMessage());
