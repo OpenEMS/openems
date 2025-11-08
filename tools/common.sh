@@ -88,7 +88,7 @@ common_print_banner() {
 # Build OpenEMS Backend
 common_build_backend() {
     common_print_banner "Build OpenEMS Backend"
-    ./gradlew "$@" --build-cache build buildBackend resolve.BackendApp
+    ./gradlew "$@" --build-cache buildBackend resolve.BackendApp
     git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
@@ -103,7 +103,7 @@ common_build_edge_and_ui_in_parallel() {
 # Build OpenEMS Edge
 common_build_edge() {
     common_print_banner "Build OpenEMS Edge"
-    ./gradlew "$@" --build-cache build buildEdge resolve.EdgeApp
+    ./gradlew "$@" --build-cache buildEdge resolve.EdgeApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 }
 
