@@ -165,10 +165,8 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 				// current cell has numeric value or "x x x", next cell is a unit (text)
 				boolean hasNumericOrNoData = valueText.matches(".*\\d+.*") || valueText.matches("x\\s*x\\s*x")
 						|| valueText.equals("x");
-				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude
-																														// pure
-																														// unit
-																														// labels
+				// Exclude pure unit labels
+				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$");
 				boolean nextIsUnit = nextText.matches("\\s*[kMGmµ]?[WhVA]+\\s*"); // Match units like W, kWh, V, A, etc.
 
 				if (hasNumericOrNoData && prevIsLabel && nextIsUnit) {
