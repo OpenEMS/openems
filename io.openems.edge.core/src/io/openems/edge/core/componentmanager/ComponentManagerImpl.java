@@ -1,6 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
 import static io.openems.common.utils.StreamUtils.dictionaryToStream;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -751,47 +752,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * searching through Factory default values.
 	 *
 	 * @param componentId the Component-ID
-	 * @return an array of Configurations
+	 * @return a {@link List} of {@link Configuration Configurations}
 	 * @throws InvalidSyntaxException on error
 	 * @throws IOException            on error
 	 */
 	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
-		List<Configuration> result = new ArrayList<>();
 		var configs = this.cm.listConfigurations("(id=" + componentId + ")");
+
 		if (configs == null) {
-			return result;
+			return emptyList();
 		}
 
-		for (Configuration config : configs) {
-			var id = config.getProperties().get("id");
-			if (id != null) {
-				// Configuration has an 'id' property
-				if (id instanceof String && componentId.equals(id)) {
-					// 'id' property matches
-					result.add(config);
-				}
-
-			} else {
-				// compare default value for property 'id'
-				var factoryPid = config.getFactoryPid();
-				if (factoryPid == null) {
-					// Singleton?
-					factoryPid = config.getPid();
-					if (factoryPid == null) {
-						continue;
-					}
-				}
-				var factory = this.getEdgeConfig().getFactories().get(factoryPid);
-				if (factory == null) {
-					continue;
-				}
-				var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
-				if (defaultValue.isPresent() && componentId.equals(defaultValue.get())) {
-					result.add(config);
-				}
-			}
-		}
-		return result;
+		return List.of(configs);
 	}
 
 	@Override
