@@ -152,7 +152,7 @@
         <ion-col>
           <ion-segment [(ngModel)]="selectedBundle">
             @for (bundle of key.bundles; track bundle; let i = $index) {
-              <ion-segment-button value={ {i}} (click)="updateSelection()">
+              <ion-segment-button [value]="i" (click)="updateSelection()">
                 <ion-text text-nowrap>
                   {{ bundle.length }}
                 </ion-text>
