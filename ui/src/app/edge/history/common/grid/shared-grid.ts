@@ -86,8 +86,34 @@ export function getAnnotations(
 }
 
 /**
+ * Creates a generic y-axis configuration for charts.
+ * @param chartType - The chart type ("bar" | "line").
+ * @param yAxisId - The axis ID (e.g. ChartAxis.RIGHT, ChartAxis.RIGHT_2).
+ * @param yAxisType - The YAxisType to use when chartType is "line".
+ * @param titleKey - Optional translation String for the axis title.
+ */
+function createChartAxis(
+    chartType: "bar" | "line",
+    yAxisId: ChartAxis,
+    yAxisType: YAxisType,
+    titleKey?: string
+): HistoryUtils.yAxes {
+    const axis: HistoryUtils.yAxes = {
+        unit: chartType === "bar" ? YAxisType.TIME : yAxisType,
+        position: "right",
+        yAxisId,
+        displayGrid: false,
+    };
+
+    if (titleKey !== null && chartType !== "bar") {
+        axis.customTitle = titleKey;
+    }
+
+    return axis;
+}
+
+/**
  * Adds ControllerEssLimiter14a to chart axis array.
- * @param yAxes the yAxes.
  * @param chartType the chart type.
  * @param translate the translate service.
 */
@@ -95,48 +121,40 @@ export function createLimiter14aAxis(
     chartType: "bar" | "line",
     translate: TranslateService
 ): HistoryUtils.yAxes {
-    const axis: HistoryUtils.yAxes = chartType === "bar"
-        ? {
-            unit: YAxisType.TIME,
-            position: "right",
-            yAxisId: ChartAxis.RIGHT,
-            displayGrid: false,
-        }
-        : {
-            unit: YAxisType.RELAY,
-            position: "right",
-            yAxisId: ChartAxis.RIGHT,
-            customTitle: translate.instant("GENERAL.STATE"),
-            displayGrid: false,
-        };
+    return createChartAxis(
+        chartType,
+        ChartAxis.RIGHT,
+        YAxisType.RELAY,
+        translate.instant("General.state"),
+    );
+}
 
-    return axis;
+/**
+ * Adds EmergencyCapacityReserve to chart axis array.
+ * @param chartType the chart type.
+*/
+export function createOffGridAxis(
+    chartType: "bar" | "line"
+): HistoryUtils.yAxes {
+    return createChartAxis(
+        chartType,
+        ChartAxis.RIGHT_2,
+        YAxisType.RELAY
+    );
 }
 
 /**
  * Adds ControllerEssRippleControlReceiver to chart.
- * @param yAxes the yAxes.
  * @param chartType the chart type.
- * @param translate the translate service.
 */
 export function createRcrAxis(
     chartType: "bar" | "line"
 ): HistoryUtils.yAxes {
-    const axis: HistoryUtils.yAxes = chartType === "bar"
-        ? {
-            unit: YAxisType.TIME,
-            position: "right",
-            yAxisId: ChartAxis.RIGHT_2,
-            displayGrid: false,
-        }
-        : {
-            unit: YAxisType.RESTRICTION,
-            position: "right",
-            yAxisId: ChartAxis.RIGHT_2,
-            displayGrid: false,
-        };
-
-    return axis;
+    return createChartAxis(
+        chartType,
+        ChartAxis.RIGHT_2,
+        YAxisType.RESTRICTION
+    );
 }
 
 /**

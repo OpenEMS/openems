@@ -7,7 +7,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
-import { buildAnnotations, createLimiter14aAxis, createRcrAxis, hasData, processRestrictionDatasets } from "../shared-grid";
+import { buildAnnotations, createLimiter14aAxis, createOffGridAxis, createRcrAxis, hasData, processRestrictionDatasets } from "../shared-grid";
 
 @Component({
   selector: "gridchart",
@@ -89,6 +89,10 @@ export class ChartComponent extends AbstractHistoryChart {
       yAxes.push(createLimiter14aAxis(chartType, translate));
     }
 
+    if (isEmergencyCapacityEnabled) {
+      yAxes.push(createOffGridAxis(chartType));
+    }
+
     if (isRcrInstalled) {
       yAxes.push(createRcrAxis(chartType));
     }
@@ -121,9 +125,8 @@ export class ChartComponent extends AbstractHistoryChart {
 
         const has14aData = hasData(isLimiter14aInstalled, restrictionData14a);
         const hasRcrData = hasData(isRcrInstalled, restrictionDataRcr);
-        const hasOffGridData = hasData(isEmergencyCapacityEnabled, offGridData);
 
-        if (hasOffGridData) {
+        if (Array.isArray(offGridData) && offGridData.some(value => value != null && value !== 0)) {
           datasets.push({
             name: translate.instant("GRID_STATES.OFF_GRID"),
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
@@ -131,15 +134,8 @@ export class ChartComponent extends AbstractHistoryChart {
             converter: () => offGridData,
             color: ChartConstants.Colors.RED,
             stack: 2,
-            custom: chartType === "line"
-              ? {
-                unit: YAxisType.RELAY,
-                pluginType: "box",
-                annotations: buildAnnotations(offGridData, labels, "offGrid", ChartAxis.RIGHT),
-              }
-              : { unit: YAxisType.TIME },
-            yAxisId: ChartAxis.RIGHT,
-          } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>);
+            yAxisId: ChartAxis.RIGHT_2,
+          });
         }
 
         if (has14aData) {
