@@ -2350,7 +2350,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * @return MaxAcPower with maxAcImport and maxAcExport
 	 */
 	protected static MaxAcPower calculateMaxAcPower(int maxApparentPower, Integer wbmsChargeMaxCurrent,
-			Integer wbmsDischargeMaxCurrent, Optional<Integer> wbmsVoltage, int maxInvDcChargeP, int maxInvDcDischargeP,
+			Integer wbmsDischargeMaxCurrent, Optional<Integer> wbmsVoltage, Integer maxInvDcChargeP, Integer maxInvDcDischargeP,
 			Integer pvProduction) {
 		pvProduction = TypeUtils.max(0, pvProduction);
 
@@ -2390,7 +2390,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * @return the maximum DC power in W
 	 */
 	protected static Integer calculateDcLimitation(Integer bmsMaxCurrent, Optional<Integer> voltage,
-			int inverterLimit) {
+			Integer inverterLimit) {
 		var maxDcPower = /* can be negative for force-discharge */
 				TypeUtils.multiply(bmsMaxCurrent, voltage.orElse(0));
 
