@@ -172,10 +172,6 @@ public class AppAssistant {
 	public final JsonArray fields;
 	public final List<AppConfigurationStep> steps;
 
-	private AppAssistant(String name, String alias, JsonArray fields) {
-		this(name, alias, fields, Collections.emptyList());
-	}
-
 	public AppAssistant(String name, String alias, JsonArray fields, List<AppConfigurationStep> steps) {
 		this.name = name;
 		this.alias = alias != null ? alias : name;

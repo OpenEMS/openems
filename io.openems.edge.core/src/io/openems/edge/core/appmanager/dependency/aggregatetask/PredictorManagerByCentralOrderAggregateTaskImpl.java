@@ -241,7 +241,6 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 				continue;
 			}
 			final var entry = instances.entrySet().iterator().next();
-			final var appId = entry.getKey().appId;
 			final var schedulerComponents = entry.getValue();
 			if (schedulerComponents.isEmpty()) {
 				continue;

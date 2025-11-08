@@ -52,8 +52,6 @@ import io.openems.edge.goodwe.common.enums.WorkMode;
 import io.openems.edge.goodwe.common.enums.WorkWeek;
 import io.openems.edge.goodwe.common.enums.ZvrtConfig;
 
-import java.util.Arrays;
-
 public interface GoodWe extends OpenemsComponent {
 
 	/**

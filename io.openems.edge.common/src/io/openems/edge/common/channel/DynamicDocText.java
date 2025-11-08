@@ -1,7 +1,5 @@
 package io.openems.edge.common.channel;
 
-import io.openems.common.types.OptionsEnum;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import io.openems.common.types.OptionsEnum;
 
 public class DynamicDocText {
 
@@ -96,7 +96,7 @@ public class DynamicDocText {
 		 * @param values         one or more enum vales
 		 * @return this Builder instance
 		 */
-		public EnumBuilder<E> when(String translationKey, E... values) {
+		public EnumBuilder<E> when(String translationKey, @SuppressWarnings("unchecked") E... values) {
 			this.specificTextsMapping.put(Arrays.asList(values), translationKey);
 			return this;
 		}
