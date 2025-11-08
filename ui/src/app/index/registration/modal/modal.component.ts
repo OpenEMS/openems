@@ -123,7 +123,8 @@ export class RegistrationModalComponent implements OnInit {
                 confirmEmail: new FormControl("", [Validators.required, Validators.email]),
                 password: new FormControl("", Validators.required),
                 confirmPassword: new FormControl("", Validators.required),
-            });
+                acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
+            }, {});
         } else {
             return this.formBuilder.group({
                 firstname: new FormControl("", Validators.required),
@@ -137,6 +138,7 @@ export class RegistrationModalComponent implements OnInit {
                 confirmEmail: new FormControl("", [Validators.required, Validators.email]),
                 password: new FormControl("", Validators.required),
                 confirmPassword: new FormControl("", Validators.required),
+                acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
             });
         }
     }

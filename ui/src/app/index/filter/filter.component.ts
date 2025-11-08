@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { v4 as uuidv4 } from "uuid";
+
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Service } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";
@@ -26,7 +27,9 @@ export class FilterComponent {
     constructor(public service: Service) { }
 
     @Input() public set filters(_filters: (Filter<string> | SortOrderFilter)[]) {
-        this.allFilters = _filters.map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
+        this.allFilters = _filters
+            .filter(f => f != null)
+            .map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
 
         if (this.allFilters == null || this.allFilters.length === 0) {
             return;

@@ -11,9 +11,6 @@
         "OPEN_EMS": "More about OpenEMS",
         "PATCHNOTES": "Changes in the monitoring for this build"
     },
-    "PAGE_HEADERS": {
-        "ENERGY_JOURNEY": "Analyse Battery extension"
-    },
     "EDGE": {
         "INDEX": {
             "EMERGENCY_RESERVE": {
@@ -264,7 +261,7 @@
                 },
                 "TIME_OF_USE_TARIFF": {
                     "CONTROL_MODE_DESCRIPTION": {
-                        "CHARGE_CONSUMPTION": "Participation in BETA-Test: This feature is under active development and will be continuously improved.<br/><br/>By actively charging the battery from grid in periods of low electricity prices, buying energy in periods with high price can be avoided.<br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: Precondition for the German Renewable Energy Sources Act (EEG 2023) grant is that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function the battery is charged with energy from the grid. This energy is, depending on the individual power-supply contract, probably generated from fossil and/or nuclear power sources. Thus we cannot guarantee that the battery is exclusively charged with energy gained from renewable sources and/or pit gas."
+                        "CHARGE_CONSUMPTION": ""
                     },
                     "CHARGE_FROM_GRID_ACTIVATE": "Activate charge from the grid",
                     "PRICE": "Current price",
@@ -712,61 +709,6 @@
         "EDGE": {
             "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Local access currently not possible",
             "DESCRIPTION": "If the {{edgeShortName}} has been restarted, please wait a moment until the restart has been completed."
-        },
-        "GENERAL": {
-            "AVAILABILITY": "Online access to the energy storage system is currently not available.<br>The data is stored locally and will not be lost.",
-            "MORE_INFO": "More Info",
-            "TIME_OUT": "The requested FEMS has been offline <b>for {{timeSinceOffline}}</b>.",
-            "TRY": "Try refreshing the browser in 10 minutes.",
-            "SUB_HEADER": "Your system has been <b>offline for more than 10 minutes?</b> The following can be checked on-site:",
-            "STEP_TEST_WIFI_CONNECTION": {
-                "HEADER": "Check internet connection",
-                "DESCRIPTION": "In the next step, test the router function by unplugging the LAN plug on the connection box of the {{edgeShortName}} Box and connecting it to a laptop or desktop PC. Please note: Turn off WiFi on this device.",
-                "CHILD_1": {
-                    "HEADER": "-> Still no internet connection",
-                    "DESCRIPTION": "Connect your computer directly to the router via LAN cable. Make sure there are no additional cables or network devices (like WiFi amplifiers or switches) connected in between to ensure that your router works correctly. If again no internet connection could be established, please follow the product-specific instructions by the respective manufacturer of your network device(s) to obtain further information."
-                },
-                "CHILD_2": {
-                    "HEADER": "-> Internet set up via laptop",
-                    "DESCRIPTION": "Continue to step 3) Check port forwarding/firewall settings."
-                }
-            },
-            "EMS_OFFLINE": "{{edgeShortName}} is offline"
-        },
-        "DEFAULT": {
-            "STEP_TEST_WIFI_CONNECTION": {
-                "HEADER": "Check router connection with laptop",
-                "DESCRIPTION": "<p><b>a)</b> Disconnect the LAN cable from the Home-{{edgeShortName}} box ('LAN' interface) and connect it to a laptop/PC (make sure to disable the Wi-Fi adapter). If the laptop/PC successfully establishes an internet connection, proceed to step 3, otherwise proceed to b.</p><p><b>b)</b> If the laptop/PC does not connect to the internet, connect the device directly to the router via a LAN cable to ensure that the router is functioning correctly (without additional cable length and without other network devices in between).</p><p>→ If the router is functioning, the LAN cable, a Wi-Fi repeater, or a powerline adapter may not be forwarding the signal correctly. You can find more information in the product-specific instructions from the respective manufacturer.</p>"
-            },
-            "STEP_FIREWALL": {
-                "HEADER": "Check port forwarding/firewall settings",
-                "DESCRIPTION": "Firewall settings can limit the internet connection to the {{edgeShortName}}. This happens especially when putting the system into service for the first time. Please use the <a href=\"https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal\" target=\"_blank\">instructions</a> to check the ports and services that are active on {{edgeShortName}}."
-            },
-            "STEP_SERVICE": {
-                "HEADER": "Contact FENECON Service",
-                "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact our service department:<br>By e-mail: <a href=\"mailto:service@fenecon.de\">service@fenecon.de</a> or via phone: +49 9903 6280-0 (Mon. through Thurs.: 08:00 to 12:00 h | 13:00 to 17:00 h | Fri.: 08:00 to 12:00 h | 13:00 to 17:00 h)"
-            },
-            "STEP_CONTACT_INSTALLER": {
-                "HEADER": "Contact Installer",
-                "DESCRIPTION": "If you have already checked all previous steps and the Online Monitoring still does not display any data, please contact your <b>electrician/installer</b>."
-            },
-            "STEP_EMS_RESTART": {
-                "HEADER": "Restart {{edgeShortName}} and check LAN connection"
-            }
-        },
-        "HOME_10": {
-            "STEP_EMS_RESTART": {
-                "HEADER": "{{edgeShortName}} Restart",
-                "DESCRIPTION": "On the top box of the storage tower, there is a cold device plug (colored in black and blue). Unplug it and wait 15 seconds. Plug the cold device plug back in and wait <b>5 to 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible."
-            }
-        },
-        "HOME_20_30": {
-            "STEP_EMS_RESTART": {
-                "DESCRIPTION": "Restart the {{edgeShortName}} by pressing and holding the button on the top box of the storage tower at the front for 10 seconds. Now wait <b>5 - 10 minutes</b> (the system restarts). Also make sure that the LAN plug is correctly inserted in the {{edgeShortName}} connection box. Now refresh the browser window of the Online Monitoring: if this action was successful, the error message should now be cancelled and the usual view of the {{edgeLongName}} Energy management system Online Monitoring should be visible."
-            }
-        },
-        "STEP_EMS_RESTART": {
-            "DESCRIPTION": "On the top of the battery storage tower, there is a push button located on the front. Press and hold it for 10 seconds. Now, please wait for 5 to 10 minutes (the system restarts). Also make sure that the LAN plug is correctly plugged into the {{edgeShortName}} connection box. Now, refresh the browser window of the Online Monitoring: If this action was successful, the offline message should now be resolved and the usual interface of the FENECON Online Monitoring should be visible."
         }
     },
     "INSTALLATION": {
@@ -779,7 +721,6 @@
             "SUB_TITLE": "You have successfully commisioned the {{ value }}.",
             "TITLE": "Set-up complete",
             "NOTE": "Click here to go to the App Center to configure additional components and install apps.",
-            "HECKERT_NOTE": "A free app is now available for you to install in the app center.",
             "INVALID_PAYLOAD": "Invalid response from server",
             "DOWNLOAD_SUCCESS": "Protocol downloaded successfully"
         },
@@ -1006,7 +947,7 @@
             "ENTER_VALID_ADDRESS": "To apply the settings, enter valid values.",
             "ERROR_SENDING": "Error sending Protocols.",
             "INVERTER": "Inverter",
-            "NEXT_BUTTON_DESCRIPTION": "By clicking on “next” button, the IBN protocol will be automatically sent to FENECON GmbH.",
+            "NEXT_BUTTON_DESCRIPTION": "By clicking on “next” button, the IBN protocol will be automatically sent.",
             "NUMBER_OF_MODULES_PER_TOWER": "Number of modules per tower",
             "NUMBER_OF_TOWERS": "Number of Towers",
             "READ_DESCRIPTION": "Please check the \"System setup\". Please read the description of the fields.",
@@ -1183,9 +1124,7 @@
         "AUTHENTICATION_FAILED": "Authentication Failed",
         "USER": "User",
         "REQUEST_TIMEOUT": "Your request has timed out. Please try again later.",
-        "ENERGY_JOURNEY_SLOGAN": "You are part of the energy journey",
-        "SIGN_IN": "Sign in",
-        "DEMO_ACCESS": "Demo Access"
+        "SIGN_IN": "Sign in"
     },
     "MENU": {
         "ACCESS_LEVEL": "Access Level",
@@ -1197,10 +1136,7 @@
         "NAME": "Name",
         "OVERVIEW": "All Systems",
         "SETTINGS": "Settings",
-        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
-        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
-        "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
-        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
+        "DEFAULT_EDGE_LONG_NAME": "Open Energy Management System",
         "USER": "User",
         "CHANGELOG": "Changelog",
         "OTHER_USER": "Other users"
@@ -1220,10 +1156,10 @@
         },
         "FORM": {
             "USER": {
-                "ACCEPT_PRIVACY_POLICY": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href={{link}}>Privacy Policy</a> and Terms of Use.*"
+                "ACCEPT_PRIVACY_POLICY": ""
             },
             "INSTALLER": {
-                "ACCEPT_PRIVACY_POLICY": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href={{link}}>Privacy Policy</a> and Terms of Use.*"
+                "ACCEPT_PRIVACY_POLICY": ""
             },
             "CONTACT_DETAILS": "Contact Details",
             "COMPANY_NAME": "Company name",
@@ -1237,9 +1173,6 @@
             "EMAIL": "E-Mail",
             "PASSWORD": "Password",
             "CONFIRM_PASSWORD": "Confirm password",
-            "IS_ELECTRICIAN": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
-            "ACCEPT_AGB": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
-            "SUBSCRIBE_NEWSLETTER": "Here you can subscribe to the <a href='https://erp.fenecon.de/fenmail' target='_blank'>FENECON newsletter</a>, which is published several times a year.",
             "COMPANY": "Company",
             "CONFIRM_EMAIL": "confirm E-Mail",
             "PRIVATE": "Private"
@@ -1303,17 +1236,6 @@
             "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state.",
             "UPDATE_EXECUTE": "Execute system update",
             "SUB_HEADER": "Would you like to execute a system update?"
-        },
-        "POWER_ASSISTANT": {
-            "INFO": "The 'Power Assistant' shows the respective controllers for all storage systems (ess0, ess1,...) and some relevant data points for each. The order corresponds to the order in the scheduler."
-        },
-        "ENERGY_JOURNEY": {
-            "INTRO_1": "Take a fresh look at the changes in the energy world.",
-            "INTRO_2": "With us, you are ideally prepared for your 100 % energy transition.",
-            "TO_THE_ANALYSIS": "View analysis",
-            "CURRENT_NUMBER_OF_MODULES": "Current",
-            "SIMULATION_NOT_STARTED": "Simulation not started",
-            "MODULE_COUNT": "Number of modules"
         }
     },
     "CHANNELS": {
@@ -1374,12 +1296,6 @@
             "ERROR_MESSAGES": {
                 "INVALID_TIME_INPUT": "'To' Time cannot be higher than or equal to 'from' time"
             }
-        }
-    },
-    "SYSTEM": {
-        "INDUSTRIAL": {
-            "CLEAR_TIMEOUT": "Reset Timeout failure: battery, battery.inverter, ess",
-            "BMS_HARD_RESET": "BMS hard reset"
         }
     }
 }

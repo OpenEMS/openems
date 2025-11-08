@@ -81,6 +81,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
         }, 1000);
     }
 
+
     async ionViewWillEnter() {
     }
 

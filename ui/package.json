@@ -105,7 +105,7 @@
     "typescript-strict-plugin": "^2.4.4"
   },
   "scripts": {
-    "lint": "npm run lint:i18n && ng lint",
+    "lint": "ng lint && npm run lint:i18n",
     "test": "ng test",
     "capacitor-assets": "capacitor-assets",
     "lint:i18n": "node scripts/lint-translation-keys.js"

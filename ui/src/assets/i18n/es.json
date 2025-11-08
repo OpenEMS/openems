@@ -1,171 +1,135 @@
 {
-  "GENERAL": {
-    "ACTIVE": "Activo",
-    "ACTUAL_POWER": "e-car Carga",
-    "AUTARCHY": "Autosuficiencia",
-    "AUTOMATIC": "Automático",
-    "CANCEL": "cancelar",
-    "CAPACITY": "Capacidad",
-    "CHANGE_ACCEPTED": "Cambio aceptado",
-    "CHANGE_FAILED": "Cambio fallido",
-    "CHARGE_DISCHARGE": "Débito/Descarga",
-    "COMPONENT_COUNT": "Numero de componentes",
-    "COMPONENT_INACTIVE": "El componente está inactivo!",
-    "CONNECTION_LOST": "Conexión perdida. Intentando reconectar.",
-    "CONSUMPTION": "Consumo",
-    "CUMULATIVE": "Valores Acumulativos",
-    "CURRENT_VALUE": "Valor actual",
-    "DATE_FORMAT": "dd.MM.yyyy",
-    "DIGITAL_INPUTS": "Entradas digitales",
-    "NUMBER_OF_COMPONENTS": "número de componentes",
-    "DIRECT_CONSUMPTION": "Consumo directo",
-    "FAULT": "Error",
-    "GRID": "Red",
-    "GRID_BUY": "Relación",
-    "GRID_BUY_ADVANCED": "Relación",
-    "GRID_SELL": "Fuente de alimentación",
-    "GRID_SELL_ADVANCED": "Fuente de alimentación",
-    "HISTORY": "Historia",
-    "INACTIVE": "Inactivo",
-    "INFO": "Informacion",
-    "INPUT_NOT_VALID": "Entrada inválida",
-    "INSUFFICIENT_RIGHTS": "Derechos insuficientes",
-    "LIVE": "Live",
-    "LOAD": "la cantidad",
-    "MANUALLY": "a mano",
-    "MEASURED_VALUE": "Valor Medido",
-    "MODE": "Modo",
-    "MORE": "Más...",
-    "NO_VALUE": "Sin valor",
-    "OFF": "Apagado",
-    "OFF_GRID": "No hay conexión de red",
-    "OK": "ok",
-    "ON": "Conmutada",
-    "OTHER_CONSUMPTION": "otro consumo",
-    "PERCENTAGE": "Por ciento",
-    "PERIOD_FROM_TO": "de {{ value1 }} para {{ value2 }}",
-    "PHASE": "Fase",
-    "PHASES": "Fases",
-    "POWER": "Rendimiento",
-    "PRODUCTION": "Producción",
-    "REPORT_VALUE": "Reportar datos corruptos",
-    "SEARCH": "Búsqueda",
-    "SELF_CONSUMPTION": "Autoconsumo",
-    "SOC": "Cargo",
-    "STATE": "Estado",
-    "STORAGE_SYSTEM": "Almacenamiento",
-    "SYSTEM_STATE": "Estado del sistema",
-    "TOTAL": "consumo total",
-    "TOTAL_STATE": "Condición general",
-    "WARNING": "Advertencia",
-    "WEEK": {
-      "MONDAY": "Lunes",
-      "TUESDAY": "Martes",
-      "WEDNESDAY": "Miércoles",
-      "THURSDAY": "Jueves",
-      "FRIDAY": "Viernes",
-      "SATURDAY": "Sábado",
-      "SUNDAY": "Domingo"
-    },
-    "MONTH": {
-      "JANUARY": "Enero",
-      "FEBRUARY": "Febrero",
-      "MARCH": "Marzo",
-      "APRIL": "Abril",
-      "MAY": "Mayo",
-      "JUNE": "Junio",
-      "JULY": "Julio",
-      "AUGUST": "Agosto",
-      "SEPTEMBER": "Septiembre",
-      "OCTOBER": "Octubre",
-      "NOVEMBER": "Noviembre",
-      "DECEMBER": "Diciembre"
-    },
-    "SAVE": "Ahorrar",
-    "SUFFIX": {
-      "HOUR": "h"
-    },
-    "TIME": {
-      "HOUR": "Hora",
-      "HOURS": "Horas",
-      "MINUTE": "Minuto",
-      "MINUTES": "Minutos",
-      "DAY": "Día",
-      "DAYS": "Días"
-    },
-    "DISCHARGE": "Descargar",
-    "CHARGE": "Cargando"
-  },
-  "MENU": {
-    "ACCESS_LEVEL": "Nivel de acceso",
-    "EDGE_SETTINGS": "Configuración",
-    "GENERAL_SETTINGS": "Configuración general",
-    "INDEX": "Visión general",
-    "LOGOUT": "Desuscribirse",
-    "MENU": "Menú",
-    "NAME": "Nombre",
-    "OVERVIEW": "Todos los sistemas",
-    "SETTINGS": "Ajustes",
-    "USER": "Usuario",
-    "CHANGELOG": "Changelog",
-    "OTHER_USER": "Otros usuarios"
-  },
-  "INDEX": {
-    "ALL_CONNECTED": "Todas las conexiones establecidas.",
-    "CONNECTION_IN_PROGRESS": "Establecimiento de la conexión...",
-    "CONNECTION_FAILED": "Conexión a {{ value }} seperados.",
-    "CONNECTION_SUCCESSFUL": "Conexión a {{ value }} hecho.",
-    "DEVICE_OFFLINE": "El aparato no está conectado!",
-    "IS_OFFLINE": "OpenEMS está fuera de línea!",
-    "LOGGED_IN_AS": "Conectado como",
-    "TO_ENERGYMONITOR": "Al monitor de energía...",
-    "TYPE": "Tipo"
-  },
-  "LOGIN": {
-    "TITLE": "Login",
-    "PREAMBLE": "Por favor, introduzca su contraseña o confirme la entrada por defecto para conectarse como invitado.",
-    "PASSWORD_LABEL": "Contraseña",
-    "PASSWORD_RESET": "Restablecer contraseña",
-    "AUTHENTICATION_FAILED": "Fallo de autentificación",
-    "USER": "Usuario"
-  },
-  "REGISTER": {
-    "SEGMENT": {
-      "USER": "Usuario",
-      "INSTALLER": "Instalador"
-    },
-    "FORM": {
-      "USER": {
-        "ACCEPT_PRIVACY_POLICY": ""
-      },
-      "INSTALLER": {
-        "ACCEPT_PRIVACY_POLICY": ""
-      },
-      "CONTACT_DETAILS": "Datos de contacto",
-      "COMPANY_NAME": "Nombre de la empresa",
-      "FIRSTNAME": "Nombre",
-      "LASTNAME": "Apellido",
-      "STREET": "Calle | número de casa",
-      "ZIP": "Código postal",
-      "CITY": "Ciudad",
-      "COUNTRY": "País",
-      "PHONE": "Número de teléfono",
-      "EMAIL": "Correo electrónico",
-      "PASSWORD": "Contraseña",
-      "CONFIRM_PASSWORD": "Confirmar contraseña"
-    },
-    "BUTTON": "Crear",
-    "ERRORS": {
-      "REQUIRED_FIELDS": "Por favor, rellene todos los campos",
-      "PASSWORD_NOT_EQUAL": "Las contraseñas no son iguales"
-    },
-    "SUCCESS": "Registro realizado con éxito"
+  "ABOUT": {
+    "BUILD": "Esta compilación",
+    "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
+    "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
+    "FAQ": "Preguntas frecuentes (FAQ)",
+    "LANGUAGE": "Seleccionar idioma:",
+    "OPEN_EMS": "Acerca de OpenEMS",
+    "PATCHNOTES": "Cambios en la supervisión de esta compilación"
   },
   "EDGE": {
+    "CONFIG": {
+      "ALERTING": {
+        "ACTIVATE": "Activar",
+        "DELAY": "Retraso",
+        "TOAST": {
+          "ERROR": "Error al cargar la configuración",
+          "SUCCESS": "Ajustes adoptados"
+        }
+      },
+      "APP": {
+        "AVAILABLE": "Disponible",
+        "BUY_APP": "Comprar aplicación",
+        "CREATE_APP": "Instalar la aplicación",
+        "DELETE_APP": "Eliminar la aplicación",
+        "ERROR_COMPATIBLE": "Errores de compatibilidad",
+        "ERROR_INSTALLABLE": "Errores de instalación",
+        "HEADER": "El App Manager se encuentra actualmente en una primera versión de prueba.",
+        "INCOMPATIBLE": "Incompatible",
+        "INSTALLED": "Instalado",
+        "MODIFY_APP": "Modificar la aplicación",
+        "NOT_AVAILABLE": "No disponible",
+        "UPDATE_APP": "Actualizar la aplicación",
+        "UPDATE_AVAILABLE": "Hay un nuevo {{ edgeShortName }} ¡versión está disponible! Por favor, actualice el {{ edgeShortName }} para que todos los nuevos {{ edgeShortName }} Las aplicaciones se muestran en el App Center."
+      },
+      "BRIDGE": {
+        "NEW_CONNECTION": "Nueva conexión...",
+        "NEW_DEVICE": "Nuevo dispositivo..."
+      },
+      "CONTROLLER": {
+        "APP": "Aplicación:",
+        "INTERNALLY_ID": "Interno ID:",
+        "PRIORITY": "Priodad:"
+      },
+      "INDEX": {
+        "ADD_COMPONENTS": "Instalar componentes",
+        "ADJUST_COMPONENTS": "Configurar componentes",
+        "ALERTING": "Alerta",
+        "BRIDGE": "Conexiones y dispositivos",
+        "CONTROLLER": "Aplicaciones",
+        "DATA_STORAGE": "Almacenamiento de datos",
+        "EXECUTE_SIMULATOR": "Ejecutar simulaciones",
+        "LIVE_LOG": "Protocolos de sistema de vida",
+        "LOG": "Registro",
+        "MANUAL_CONTROL": "Control manual",
+        "NETWORK_CONFIGURATION": "configuración de la red",
+        "RENAME_COMPONENTS": "Renombrar componentes",
+        "SCHEDULER": "Planificador de aplicaciones",
+        "SIMULATOR": "Simulador",
+        "SYSTEM_EXECUTE": "Ejecutar comando del sistema",
+        "SYSTEM_PROFILE": "Perfil del Sistema"
+      },
+      "LOG": {
+        "AUTOMATIC_UPDATING": "Actualización automática",
+        "LEVEL": "Nivel",
+        "MESSAGE": "Mensaje",
+        "SOURCE": "Ésos",
+        "TIMESTAMP": "Hora"
+      },
+      "MORE": {
+        "MANUAL_COMMAND": "Comando manual",
+        "MANUALPQ_POWER_SPECIFICATION": "Especificaciones de rendimiento",
+        "MANUALPQ_RESET": "Restablecer",
+        "MANUALPQ_SUBMIT": "Tomar",
+        "REFU_INVERTER": "REFU Inversor",
+        "REFU_START": "Empezar",
+        "REFU_START_STOP": "Iniciar/detener inversor",
+        "REFU_STOP": "Parada",
+        "SEND": "Enviar"
+      },
+      "SCHEDULER": {
+        "ALWAYS": "Siempre",
+        "CLASS": "Clase:",
+        "CONTACT": "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
+        "NEW_SCHEDULER": "Nuevo programador...",
+        "NOT_IMPLEMENTED": "Formulario no implementado:"
+      }
+    },
+    "HISTORY": {
+      "ACTIVE_DURATION": "duración activa",
+      "APR": "Abr",
+      "AUG": "Ago",
+      "BEGIN_DATE": "Seleccionar fecha de inicio",
+      "DAY": "Día",
+      "DEC": "Dic",
+      "END_DATE": "Seleccionar fecha de finalización",
+      "EXPORT": "descargar como archivo de excel",
+      "FEB": "Feb",
+      "FRI": "Vie",
+      "GO": "Nwo!",
+      "JAN": "Ene",
+      "JUL": "Jul",
+      "JUN": "Jun",
+      "LAST_MONTH": "El me pasado",
+      "LAST_WEEK": "La semana pasada",
+      "LAST_YEAR": "El año pasado",
+      "MAR": "Mar",
+      "MAY": "May",
+      "MON": "Lun",
+      "MONTH": "Mes",
+      "NO_DATA": "sin datos disponibles",
+      "NOV": "Nov",
+      "OCT": "Oct",
+      "OTHER_PERIOD": "Otro período",
+      "PERIOD": "Período",
+      "SAT": "Sáb",
+      "SELECTED_DAY": "{{ value }}",
+      "SELECTED_PERIOD": "Período seleccionado:",
+      "SEP": "Sep",
+      "SUN": "Dom",
+      "THU": "Jue",
+      "TODAY": "Hoy",
+      "TUE": "Mar",
+      "WED": "Mié",
+      "WEEK": "Semana",
+      "YEAR": "Año",
+      "YESTERDAY": "Ayer"
+    },
     "INDEX": {
       "EMERGENCY_RESERVE": {
-        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.",
-        "EMERGENCY_RESERVE": "reserva de emergencia"
+        "EMERGENCY_RESERVE": "reserva de emergencia",
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%."
       },
       "ENERGYMONITOR": {
         "ACTIVE_POWER": "Potencia de salida",
@@ -180,49 +144,86 @@
       },
       "WIDGETS": {
         "AUTARCHY_INFO": "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
-        "PHASES_INFO": "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
-        "SELFCONSUMPTION_INFO": "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
-        "TWO_WAY_INFO_GRID": "Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red",
-        "INFO_STORAGE_FOR_CHARGE": "Los valores negativos corresponden a la carga de memoria",
-        "INFO_STORAGE_FOR_DISCHARGE": "Los valores positivos corresponden a la descarga de la memoria",
         "CHANNELTRESHOLD": {
           "OUTPUT": "Salida"
         },
-        "SINGLETHRESHOLD": {
-          "ABOVE": "Sobre",
-          "BEHAVIOUR": "Comportamiento",
-          "BELOW": "Por debajo",
-          "CURRENT_VALUE": "Valor actual",
-          "DEPENDEND_ON": "Dependiendo de",
-          "MIN_SWITCHING_TIME": "Conmutación mínimo",
-          "MORE_THAN_MAX_POWER": "El valor no debe ser inferior a la potencia máxima del dispositivo controlado",
-          "OTHER": "Otro",
-          "RELATION_ERROR": "El umbral debe ser mayor que la carga conmutada",
-          "SWITCHED_LOAD_POWER": "Carga conmutada",
-          "SWITCH_OFF_ABOVE": "Apagar a través de",
-          "SWITCH_OFF_BELOW": "Apagar bajo",
-          "SWITCH_ON_ABOVE": "Encender a través de",
-          "SWITCH_ON_BELOW": "Encender debajo",
-          "THRESHOLD": "Thresholded"
+        "CHP": {
+          "HIGH_THRESHOLD": "Umbral alto",
+          "LOW_THRESHOLD": "Umbral bajo"
         },
         "DELAYED_SELL_TO_GRID": {
-          "SELL_TO_GRID_POWER_LIMIT": "Cargar arriba",
           "CONTINUOUS_SELL_TO_GRID_POWER": "Descarga a continuación",
-          "RELATION_ERROR": "El límite de carga debe ser mayor que el límite de descarga"
+          "RELATION_ERROR": "El límite de carga debe ser mayor que el límite de descarga",
+          "SELL_TO_GRID_POWER_LIMIT": "Cargar arriba"
         },
-        "PEAKSHAVING": {
-          "ASYMMETRIC_INFO": "Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.",
-          "END_DATE": "Fecha final",
-          "END_TIME": "Hora de finalización",
-          "MOST_STRESSED_PHASE": "Fase mayormente estresada",
-          "PEAKSHAVING": "Afeitado máximo",
-          "PEAKSHAVING_POWER": "Descarga sobre",
-          "RECHARGE": "Poder de carga",
-          "RECHARGE_POWER": "Cargando debajo",
-          "RELATION_ERROR": "Límite de descarga debe ser mayor o igual que el límite de carga",
-          "START_DATE": "Fecha de inicio",
-          "START_TIME": "Hora de inicio",
-          "START_TIME_CHARGE": "Hora de inicio de carga"
+        "EVCS": {
+          "ACTIVATE_CHARGING": "Activar la estación de carga.",
+          "ADMINISTRATION": {
+            "CAR_ADMINISTRATION": "Administración de automóviles",
+            "CUSTOM_CAR_INFO": "Si este es el caso, su automóvil solo puede cargarse de manera eficiente desde una determinada salida. Con este botón, esto se incluye en sus opciones de configuración, así como en la carga automática.",
+            "RENAULT_ZOE": "¿Se carga principalmente un Renault Zoe en esta estación de carga?"
+          },
+          "AMOUNT_OF_CHARGING_STATIONS": "Cantidad de estaciones de carga",
+          "CABLE": "Cable",
+          "CABLE_NOT_CONNECTED": "El cable no esta conectado",
+          "CAR_FULL": "El carro esta lleno",
+          "CHARGE_LIMIT_REACHED": "Límite de carga alcanzado",
+          "CHARGE_MODE": "Modo de carga",
+          "CHARGE_TARGET": "Objetivo de carga",
+          "CHARGING": "Inicio de Carga",
+          "CHARGING_LIMIT": "Límite de carga",
+          "CHARGING_POWER": "Energía de carga",
+          "CHARGING_STATION": "Carga",
+          "CHARGING_STATION_CLUSTER": "Grupo de estaciones de carga",
+          "CHARGING_STATION_DEACTIVATED": "Estación de carga desactivada",
+          "CHARGING_STATION_PLUGGED_IN": "Estación de carga encufada",
+          "CHARGING_STATION_PLUGGED_IN_EV": "Estación de carga + e-Car enchufado",
+          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Estación de carga + e-Car enchufado + bloqueando",
+          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Estación de carga enchufada + bloqueado",
+          "CLUSTER_CONFIG_ERROR": "Se ha producido un error en la configuración del clúster Evcs.",
+          "CURRENT_CHARGE": "Carga actual",
+          "ENERGY_LIMIT": "Límite de la energía",
+          "ENERGY_SINCE_BEGINNING": "Energía desde el último inicio de carga",
+          "ENFORCE_CHARGING": "Forzar la carga",
+          "ERROR": "Error",
+          "FORCE_CHARGE_MODE": {
+            "INFO": "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
+            "MAX_CHARGING": "Fuerza de carga maxima:",
+            "MAX_CHARGING_DETAILS": "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente.",
+            "NAME": "Carga forzada",
+            "SHORT_NAME": "a mano"
+          },
+          "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
+          "NO_CONNECTION": {
+            "DESCRIPTION": "No se pudo conectar a la estación de carga.",
+            "HELP1": "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red",
+            "HELP1_1": "La IP de la estación de carga aparece cuando se enciende nuevamente"
+          },
+          "NOT_AUTHORIZED": "No autorizado",
+          "NOT_CHARGING": "No cobrar",
+          "NOT_READY_FOR_CHARGING": "No está liesto para la carga",
+          "OPTIMIZED_CHARGE_MODE": {
+            "CHARGING_PRIORITY": {
+              "CAR": "Coche",
+              "INFO": "Dependiendo de la priorización, el componente seleccionado se cargará primero",
+              "STORAGE": "Almacenamiento"
+            },
+            "INFO": "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
+            "MIN_CHARGE_POWER": "velocidad de carga",
+            "MIN_CHARGING": "Garantía de carga mínima",
+            "MIN_INFO": "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
+            "NAME": "Carga optimizada",
+            "SHORT_NAME": "automáticamente"
+          },
+          "OVERVIEW_CHARGING_STATIONS": "Resumen de estaciones de carga",
+          "PRIORITIZATION": "Priorización",
+          "READY_FOR_CHARGING": "Listo para cargar",
+          "STARTING": "Comenzó",
+          "STATUS": "Status",
+          "TOTAL_CHARGE": "Carga total",
+          "TOTAL_CHARGING_POWER": "Potencia de carga total",
+          "UNKNOWN": "Desconocido",
+          "UNPLUGGED": "No conectado"
         },
         "GRID_OPTIMIZED_CHARGE": {
           "CHARGING_DELAYED": "Retraso en la carga",
@@ -246,20 +247,20 @@
           "MEDIUM": "Medio",
           "MINIMUM_CHARGE": "Carga mínima",
           "RISK_DESCRIPTION": {
+            "HIGH": {
+              "FUNCTION_DESCRIPTION": "Carga comparativamente posterior del sistema de almacenamiento",
+              "PV_CURTAIL": "Mayor probabilidad de que se evite la reducción del sistema fotovoltaico",
+              "STORAGE_DESCRIPTION": "Menos probabilidad de que el sistema de almacenamiento se cargue por completo"
+            },
             "LOW": {
               "FUNCTION_DESCRIPTION": "Carga relativamente temprana de la tienda",
-              "STORAGE_DESCRIPTION": "Mayor probabilidad de que la memoria se cargue por completo",
-              "PV_CURTAIL": "Menor probabilidad de que se evite la reducción del sistema fotovoltaico"
+              "PV_CURTAIL": "Menor probabilidad de que se evite la reducción del sistema fotovoltaico",
+              "STORAGE_DESCRIPTION": "Mayor probabilidad de que la memoria se cargue por completo"
             },
             "MEDIUM": {
               "FUNCTION_DESCRIPTION": "Carga comparativamente uniforme de la tienda",
-              "STORAGE_DESCRIPTION": "Alta probabilidad de que el almacenamiento esté completamente cargado",
-              "PV_CURTAIL": ""
-            },
-            "HIGH": {
-              "FUNCTION_DESCRIPTION": "Carga comparativamente posterior del sistema de almacenamiento",
-              "STORAGE_DESCRIPTION": "Menos probabilidad de que el sistema de almacenamiento se cargue por completo",
-              "PV_CURTAIL": "Mayor probabilidad de que se evite la reducción del sistema fotovoltaico"
+              "PV_CURTAIL": "",
+              "STORAGE_DESCRIPTION": "Alta probabilidad de que el almacenamiento esté completamente cargado"
             }
           },
           "RISK_PROPENSITY": "Propensión al riesgo",
@@ -277,78 +278,21 @@
           },
           "STORAGE_CAPACITY": "capacidad de almacenamiento (sólo visible para el administrador)"
         },
-        "CHP": {
-          "HIGH_THRESHOLD": "Umbral alto",
-          "LOW_THRESHOLD": "Umbral bajo"
-        },
-        "EVCS": {
-          "ACTIVATE_CHARGING": "Activar la estación de carga.",
-          "AMOUNT_OF_CHARGING_STATIONS": "Cantidad de estaciones de carga",
-          "CABLE": "Cable",
-          "CABLE_NOT_CONNECTED": "El cable no esta conectado",
-          "CAR_FULL": "El carro esta lleno",
-          "CHARGE_LIMIT_REACHED": "Límite de carga alcanzado",
-          "CHARGE_MODE": "Modo de carga",
-          "CHARGE_TARGET": "Objetivo de carga",
-          "CHARGING": "Inicio de Carga",
-          "CHARGING_LIMIT": "Límite de carga",
-          "CHARGING_POWER": "Energía de carga",
-          "CHARGING_STATION": "Carga",
-          "CHARGING_STATION_CLUSTER": "Grupo de estaciones de carga",
-          "CHARGING_STATION_DEACTIVATED": "Estación de carga desactivada",
-          "CHARGING_STATION_PLUGGED_IN": "Estación de carga encufada",
-          "CHARGING_STATION_PLUGGED_IN_EV": "Estación de carga + e-Car enchufado",
-          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Estación de carga + e-Car enchufado + bloqueando",
-          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Estación de carga enchufada + bloqueado",
-          "CLUSTER_CONFIG_ERROR": "Se ha producido un error en la configuración del clúster Evcs.",
-          "CURRENT_CHARGE": "Carga actual",
-          "ENERGY_SINCE_BEGINNING": "Energía desde el último inicio de carga",
-          "ENERGY_LIMIT": "Límite de la energía",
-          "ENFORCE_CHARGING": "Forzar la carga",
-          "ERROR": "Error",
-          "MAX_ENERGY_RESTRICTION": "Limite la energía máxima por carga",
-          "NOT_AUTHORIZED": "No autorizado",
-          "NOT_CHARGING": "No cobrar",
-          "NOT_READY_FOR_CHARGING": "No está liesto para la carga",
-          "OVERVIEW_CHARGING_STATIONS": "Resumen de estaciones de carga",
-          "PRIORITIZATION": "Priorización",
-          "READY_FOR_CHARGING": "Listo para cargar",
-          "STARTING": "Comenzó",
-          "STATUS": "Status",
-          "TOTAL_CHARGE": "Carga total",
-          "TOTAL_CHARGING_POWER": "Potencia de carga total",
-          "UNKNOWN": "Desconocido",
-          "UNPLUGGED": "No conectado",
-          "ADMINISTRATION": {
-            "CAR_ADMINISTRATION": "Administración de automóviles",
-            "CUSTOM_CAR_INFO": "Si este es el caso, su automóvil solo puede cargarse de manera eficiente desde una determinada salida. Con este botón, esto se incluye en sus opciones de configuración, así como en la carga automática.",
-            "RENAULT_ZOE": "¿Se carga principalmente un Renault Zoe en esta estación de carga?"
-          },
-          "NO_CONNECTION": {
-            "DESCRIPTION": "No se pudo conectar a la estación de carga.",
-            "HELP1_1": "La IP de la estación de carga aparece cuando se enciende nuevamente",
-            "HELP1": "Compruebe si la estación de carga está encendida y se puede acceder a ella a través de la red"
-          },
-          "OPTIMIZED_CHARGE_MODE": {
-            "INFO": "En este modo, la carga del automóvil se ajusta a la producción y consumo actuales.",
-            "MIN_CHARGE_POWER": "velocidad de carga",
-            "MIN_CHARGING": "Garantía de carga mínima",
-            "MIN_INFO": "Si desea evitar que el automóvil no se cargue por la noche, puede establecer un cargo mínimo.",
-            "NAME": "Carga optimizada",
-            "SHORT_NAME": "automáticamente",
-            "CHARGING_PRIORITY": {
-              "CAR": "Coche",
-              "INFO": "Dependiendo de la priorización, el componente seleccionado se cargará primero",
-              "STORAGE": "Almacenamiento"
-            }
-          },
-          "FORCE_CHARGE_MODE": {
-            "INFO": "En este modo se aplica la carga del automóvil, i. Siempre se garantiza que el automóvil se cargará, incluso si la estación de carga necesita acceder a la red eléctrica.",
-            "MAX_CHARGING": "Fuerza de carga maxima:",
-            "MAX_CHARGING_DETAILS": "Si el automóvil no puede cargar el valor máximo introducido, la potencia se limita automáticamente.",
-            "NAME": "Carga forzada",
-            "SHORT_NAME": "a mano"
-          }
+        "HEAT_PUMP": {
+          "ABOVE_SOC": "y del estado de carga de",
+          "BELOW_SOC": "y bajo el estado de cargo de",
+          "GRID_BUY": "De la compra de la red de",
+          "GRID_SELL": "Por exceso de alimentación de",
+          "LOCK": "Bloquear",
+          "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima de la bomba de calor",
+          "NORMAL_OPERATION": "Operación normal",
+          "NORMAL_OPERATION_SHORT": "Normal",
+          "RELATION_ERROR": "El valor de exceso del comando de encendido debe ser mayor que el valor recomendado de encendido",
+          "SWITCH_ON_COM": "Mando de encendido",
+          "SWITCH_ON_COM_SHORT": "Mando",
+          "SWITCH_ON_REC": "Recomendación de encendido",
+          "SWITCH_ON_REC_SHORT": "Recomendación",
+          "UNDEFINED": "Indefinido"
         },
         "HEATINGELEMENT": {
           "ACTIVE_FORCED": "Activo (Plazo mínimo)",
@@ -363,183 +307,239 @@
           "TIME": "Tiempo",
           "TIME_COUNTDOWN": "Hora de empezar"
         },
-        "HEAT_PUMP": {
-          "ABOVE_SOC": "y del estado de carga de",
-          "BELOW_SOC": "y bajo el estado de cargo de",
-          "GRID_BUY": "De la compra de la red de",
-          "GRID_SELL": "Por exceso de alimentación de",
-          "LOCK": "Bloquear",
-          "MORE_THAN_HP_POWER": "El valor no debe ser inferior a la potencia máxima de la bomba de calor",
-          "NORMAL_OPERATION": "Operación normal",
-          "RELATION_ERROR": "El valor de exceso del comando de encendido debe ser mayor que el valor recomendado de encendido",
-          "SWITCH_ON_COM": "Mando de encendido",
-          "SWITCH_ON_REC": "Recomendación de encendido",
-          "UNDEFINED": "Indefinido",
-          "NORMAL_OPERATION_SHORT": "Normal",
-          "SWITCH_ON_COM_SHORT": "Mando",
-          "SWITCH_ON_REC_SHORT": "Recomendación"
-        }
-      },
-      "HISTORY": {
-        "BEGIN_DATE": "Seleccionar fecha de inicio",
-        "DAY": "Día",
-        "END_DATE": "Seleccionar fecha de finalización",
-        "EXPORT": "descargar como archivo de excel",
-        "GO": "Nwo!",
-        "LAST_MONTH": "El me pasado",
-        "LAST_WEEK": "La semana pasada",
-        "LAST_YEAR": "El año pasado",
-        "MONTH": "Mes",
-        "NO_DATA": "sin datos disponibles",
-        "OTHER_PERIOD": "Otro período",
-        "PERIOD": "Período",
-        "SELECTED_DAY": "{{ value }}",
-        "SELECTED_PERIOD": "Período seleccionado:",
-        "TODAY": "Hoy",
-        "WEEK": "Semana",
-        "YEAR": "Año",
-        "YESTERDAY": "Ayer",
-        "SUN": "Dom",
-        "MON": "Lun",
-        "TUE": "Mar",
-        "WED": "Mié",
-        "THU": "Jue",
-        "FRI": "Vie",
-        "SAT": "Sáb",
-        "JAN": "Ene",
-        "FEB": "Feb",
-        "MAR": "Mar",
-        "APR": "Abr",
-        "MAY": "May",
-        "JUN": "Jun",
-        "JUL": "Jul",
-        "AUG": "Ago",
-        "SEP": "Sep",
-        "OCT": "Oct",
-        "NOV": "Nov",
-        "DEC": "Dic",
-        "ACTIVE_DURATION": "duración activa"
-      },
-      "INSTALLATION": {
-        "ATTENTION_MESSAGE": "Tenga en cuenta que la selección no se puede deshacer después.",
-        "BACKWARD": "volver",
-        "CONFIRM_APP_SELECTION": "¿Está seguro de que desea seleccionar la siguiente aplicación?",
-        "CONFIRM_APP_SELECTION_LATER": "¿Están seguros de hacer la selección más tarde?",
-        "FORWARD": "adelante",
-        "PLEASE_SELECT_OPTION": "Por favor, elija una opción"
-      },
-      "CONFIG": {
-        "INDEX": {
-          "ADD_COMPONENTS": "Instalar componentes",
-          "ADJUST_COMPONENTS": "Configurar componentes",
-          "BRIDGE": "Conexiones y dispositivos",
-          "CONTROLLER": "Aplicaciones",
-          "DATA_STORAGE": "Almacenamiento de datos",
-          "EXECUTE_SIMULATOR": "Ejecutar simulaciones",
-          "LIVE_LOG": "Protocolos de sistema de vida",
-          "LOG": "Registro",
-          "MANUAL_CONTROL": "Control manual",
-          "RENAME_COMPONENTS": "Renombrar componentes",
-          "SCHEDULER": "Planificador de aplicaciones",
-          "SIMULATOR": "Simulador",
-          "SYSTEM_EXECUTE": "Ejecutar comando del sistema",
-          "SYSTEM_PROFILE": "Perfil del Sistema",
-          "ALERTING": "Alerta",
-          "NETWORK_CONFIGURATION": "configuración de la red"
+        "INFO_STORAGE_FOR_CHARGE": "Los valores negativos corresponden a la carga de memoria",
+        "INFO_STORAGE_FOR_DISCHARGE": "Los valores positivos corresponden a la descarga de la memoria",
+        "PEAKSHAVING": {
+          "ASYMMETRIC_INFO": "Los valores de rendimiento introducidos se refieren a fases individuales. Se ajusta a la fase más estresada.",
+          "END_DATE": "Fecha final",
+          "END_TIME": "Hora de finalización",
+          "MOST_STRESSED_PHASE": "Fase mayormente estresada",
+          "PEAKSHAVING": "Afeitado máximo",
+          "PEAKSHAVING_POWER": "Descarga sobre",
+          "RECHARGE": "Poder de carga",
+          "RECHARGE_POWER": "Cargando debajo",
+          "RELATION_ERROR": "Límite de descarga debe ser mayor o igual que el límite de carga",
+          "START_DATE": "Fecha de inicio",
+          "START_TIME": "Hora de inicio",
+          "START_TIME_CHARGE": "Hora de inicio de carga"
         },
-        "MORE": {
-          "MANUAL_COMMAND": "Comando manual",
-          "MANUALPQ_POWER_SPECIFICATION": "Especificaciones de rendimiento",
-          "MANUALPQ_RESET": "Restablecer",
-          "MANUALPQ_SUBMIT": "Tomar",
-          "REFU_INVERTER": "REFU Inversor",
-          "REFU_START": "Empezar",
-          "REFU_START_STOP": "Iniciar/detener inversor",
-          "REFU_STOP": "Parada",
-          "SEND": "Enviar"
+        "PHASES_INFO": "La suma de las fases individuales puede diferir ligeramente del total por razones técnicas.",
+        "SELFCONSUMPTION_INFO": "El autoconsumo indica el porcentaje de la salida generada actualmente que puede ser utilizado por el consumo directo y la carga de almacenamiento.",
+        "SINGLETHRESHOLD": {
+          "ABOVE": "Sobre",
+          "BEHAVIOUR": "Comportamiento",
+          "BELOW": "Por debajo",
+          "CURRENT_VALUE": "Valor actual",
+          "DEPENDEND_ON": "Dependiendo de",
+          "MIN_SWITCHING_TIME": "Conmutación mínimo",
+          "MORE_THAN_MAX_POWER": "El valor no debe ser inferior a la potencia máxima del dispositivo controlado",
+          "OTHER": "Otro",
+          "RELATION_ERROR": "El umbral debe ser mayor que la carga conmutada",
+          "SWITCH_OFF_ABOVE": "Apagar a través de",
+          "SWITCH_OFF_BELOW": "Apagar bajo",
+          "SWITCH_ON_ABOVE": "Encender a través de",
+          "SWITCH_ON_BELOW": "Encender debajo",
+          "SWITCHED_LOAD_POWER": "Carga conmutada",
+          "THRESHOLD": "Thresholded"
         },
-        "SCHEDULER": {
-          "ALWAYS": "Siempre",
-          "CLASS": "Clase:",
-          "CONTACT": "Eso no debería suceder. Póngase es contacto con <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
-          "NEW_SCHEDULER": "Nuevo programador...",
-          "NOT_IMPLEMENTED": "Formulario no implementado:"
-        },
-        "LOG": {
-          "AUTOMATIC_UPDATING": "Actualización automática",
-          "LEVEL": "Nivel",
-          "MESSAGE": "Mensaje",
-          "SOURCE": "Ésos",
-          "TIMESTAMP": "Hora"
-        },
-        "CONTROLLER": {
-          "APP": "Aplicación:",
-          "INTERNALLY_ID": "Interno ID:",
-          "PRIORITY": "Priodad:"
-        },
-        "BRIDGE": {
-          "NEW_CONNECTION": "Nueva conexión...",
-          "NEW_DEVICE": "Nuevo dispositivo..."
-        },
-        "ALERTING": {
-          "ACTIVATE": "Activar",
-          "DELAY": "Retraso",
-          "TOAST": {
-            "SUCCESS": "Ajustes adoptados",
-            "ERROR": "Error al cargar la configuración"
-          }
-        },
-        "APP": {
-          "HEADER": "El App Manager se encuentra actualmente en una primera versión de prueba.",
-          "UPDATE_AVAILABLE": "Hay un nuevo {{ edgeShortName }} ¡versión está disponible! Por favor, actualice el {{ edgeShortName }} para que todos los nuevos {{ edgeShortName }} Las aplicaciones se muestran en el App Center.",
-          "INSTALLED": "Instalado",
-          "AVAILABLE": "Disponible",
-          "INCOMPATIBLE": "Incompatible",
-          "BUY_APP": "Comprar aplicación",
-          "MODIFY_APP": "Modificar la aplicación",
-          "CREATE_APP": "Instalar la aplicación",
-          "DELETE_APP": "Eliminar la aplicación",
-          "UPDATE_APP": "Actualizar la aplicación",
-          "ERROR_INSTALLABLE": "Errores de instalación",
-          "ERROR_COMPATIBLE": "Errores de compatibilidad",
-          "NOT_AVAILABLE": "No disponible"
-        }
-      },
-      "SERVICE": {
-        "ENTIRE_SYSTEM": "Sistema entero",
-        "CELL": {
-          "VOLTAGES": "Voltajes de celda",
-          "TEMPERATURES": "temperaturas de celda",
-          "INSULATION": "Aislamiento"
-        }
-      },
-      "NETWORK": {
-        "ERROR_READING_CONFIGURATION": "Error al leer la configuración de red actual:",
-        "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
-        "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
-        "ERROR_UPDATING": "Error al actualizar",
-        "IP_ADDRESS": "Dirección IP",
-        "SUBNETMASK": "Máscara de subred",
-        "ADD_IP": "Agregar direcciones IP estáticas",
-        "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24",
-        "ADVANCED_MODE": "Modo avanzado"
+        "TWO_WAY_INFO_GRID": "Los valores negativos corresponden a la inyección a la red, Los valores positivos corresponden a la alimentación de la red"
       }
     },
-    "ABOUT": {
-      "BUILD": "Esta compilación",
-      "CURRENT_DEVELOPMENTS": "Desarrollos actuales",
-      "DEVELOPED": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
-      "FAQ": "Preguntas frecuentes (FAQ)",
-      "LANGUAGE": "Seleccionar idioma:",
-      "OPEN_EMS": "Acerca de OpenEMS",
-      "PATCHNOTES": "Cambios en la supervisión de esta compilación"
+    "INSTALLATION": {
+      "ATTENTION_MESSAGE": "Tenga en cuenta que la selección no se puede deshacer después.",
+      "BACKWARD": "volver",
+      "CONFIRM_APP_SELECTION": "¿Está seguro de que desea seleccionar la siguiente aplicación?",
+      "CONFIRM_APP_SELECTION_LATER": "¿Están seguros de hacer la selección más tarde?",
+      "FORWARD": "adelante",
+      "PLEASE_SELECT_OPTION": "Por favor, elija una opción"
     },
-    "NOTIFICATIONS": {
-      "AUTHENTICATION_FAILED": "Sin conexión: error de autenticación.",
-      "CLOSED": "Conexión terminada.",
-      "FAILED": "Error al configurar la conexión.",
-      "LOGGED_IN": "Registrado.",
-      "LOGGED_IN_AS": "Conectado como usuario \"{{ value }}\"."
+    "NETWORK": {
+      "ADD_IP": "Agregar direcciones IP estáticas",
+      "ADVANCED_MODE": "Modo avanzado",
+      "ERROR_READING_CONFIGURATION": "Error al leer la configuración de red actual:",
+      "ERROR_UPDATING": "Error al actualizar",
+      "IP_ADDRESS": "Dirección IP",
+      "MANDATORY_FIELDS": "Por favor complete los campos obligatorios",
+      "SUBNETMASK": "Máscara de subred",
+      "SUCCESS_UPDATE": "Configuración de red actualizada con éxito para",
+      "VALID_ADDRESS_WARNING": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24"
+    },
+    "SERVICE": {
+      "CELL": {
+        "INSULATION": "Aislamiento",
+        "TEMPERATURES": "temperaturas de celda",
+        "VOLTAGES": "Voltajes de celda"
+      },
+      "ENTIRE_SYSTEM": "Sistema entero"
     }
+  },
+  "GENERAL": {
+    "ACTIVE": "Activo",
+    "ACTUAL_POWER": "e-car Carga",
+    "AUTARCHY": "Autosuficiencia",
+    "AUTOMATIC": "Automático",
+    "CANCEL": "cancelar",
+    "CAPACITY": "Capacidad",
+    "CHANGE_ACCEPTED": "Cambio aceptado",
+    "CHANGE_FAILED": "Cambio fallido",
+    "CHARGE": "Cargando",
+    "CHARGE_DISCHARGE": "Débito/Descarga",
+    "COMPONENT_COUNT": "Numero de componentes",
+    "COMPONENT_INACTIVE": "El componente está inactivo!",
+    "CONNECTION_LOST": "Conexión perdida. Intentando reconectar.",
+    "CONSUMPTION": "Consumo",
+    "CUMULATIVE": "Valores Acumulativos",
+    "CURRENT_VALUE": "Valor actual",
+    "DATE_FORMAT": "dd.MM.yyyy",
+    "DIGITAL_INPUTS": "Entradas digitales",
+    "DIRECT_CONSUMPTION": "Consumo directo",
+    "DISCHARGE": "Descargar",
+    "FAULT": "Error",
+    "GRID": "Red",
+    "GRID_BUY": "Relación",
+    "GRID_BUY_ADVANCED": "Relación",
+    "GRID_SELL": "Fuente de alimentación",
+    "GRID_SELL_ADVANCED": "Fuente de alimentación",
+    "HISTORY": "Historia",
+    "INACTIVE": "Inactivo",
+    "INFO": "Informacion",
+    "INPUT_NOT_VALID": "Entrada inválida",
+    "INSUFFICIENT_RIGHTS": "Derechos insuficientes",
+    "LIVE": "Live",
+    "LOAD": "la cantidad",
+    "MANUALLY": "a mano",
+    "MEASURED_VALUE": "Valor Medido",
+    "MODE": "Modo",
+    "MONTH": {
+      "APRIL": "Abril",
+      "AUGUST": "Agosto",
+      "DECEMBER": "Diciembre",
+      "FEBRUARY": "Febrero",
+      "JANUARY": "Enero",
+      "JULY": "Julio",
+      "JUNE": "Junio",
+      "MARCH": "Marzo",
+      "MAY": "Mayo",
+      "NOVEMBER": "Noviembre",
+      "OCTOBER": "Octubre",
+      "SEPTEMBER": "Septiembre"
+    },
+    "MORE": "Más...",
+    "NO_VALUE": "Sin valor",
+    "NUMBER_OF_COMPONENTS": "número de componentes",
+    "OFF": "Apagado",
+    "OFF_GRID": "No hay conexión de red",
+    "OK": "ok",
+    "ON": "Conmutada",
+    "OTHER_CONSUMPTION": "otro consumo",
+    "PERCENTAGE": "Por ciento",
+    "PERIOD_FROM_TO": "de {{ value1 }} para {{ value2 }}",
+    "PHASE": "Fase",
+    "PHASES": "Fases",
+    "POWER": "Rendimiento",
+    "PRODUCTION": "Producción",
+    "REPORT_VALUE": "Reportar datos corruptos",
+    "SAVE": "Ahorrar",
+    "SEARCH": "Búsqueda",
+    "SELF_CONSUMPTION": "Autoconsumo",
+    "SOC": "Cargo",
+    "STATE": "Estado",
+    "STORAGE_SYSTEM": "Almacenamiento",
+    "SUFFIX": {
+      "HOUR": "h"
+    },
+    "SYSTEM_STATE": "Estado del sistema",
+    "TIME": {
+      "DAY": "Día",
+      "DAYS": "Días",
+      "HOUR": "Hora",
+      "HOURS": "Horas",
+      "MINUTE": "Minuto",
+      "MINUTES": "Minutos"
+    },
+    "TOTAL": "consumo total",
+    "TOTAL_STATE": "Condición general",
+    "WARNING": "Advertencia",
+    "WEEK": {
+      "FRIDAY": "Viernes",
+      "MONDAY": "Lunes",
+      "SATURDAY": "Sábado",
+      "SUNDAY": "Domingo",
+      "THURSDAY": "Jueves",
+      "TUESDAY": "Martes",
+      "WEDNESDAY": "Miércoles"
+    }
+  },
+  "INDEX": {
+    "ALL_CONNECTED": "Todas las conexiones establecidas.",
+    "CONNECTION_FAILED": "Conexión a {{ value }} seperados.",
+    "CONNECTION_IN_PROGRESS": "Establecimiento de la conexión...",
+    "CONNECTION_SUCCESSFUL": "Conexión a {{ value }} hecho.",
+    "DEVICE_OFFLINE": "El aparato no está conectado!",
+    "IS_OFFLINE": "OpenEMS está fuera de línea!",
+    "LOGGED_IN_AS": "Conectado como",
+    "TO_ENERGYMONITOR": "Al monitor de energía...",
+    "TYPE": "Tipo"
+  },
+  "LOGIN": {
+    "AUTHENTICATION_FAILED": "Fallo de autentificación",
+    "PASSWORD_LABEL": "Contraseña",
+    "PASSWORD_RESET": "Restablecer contraseña",
+    "PREAMBLE": "Por favor, introduzca su contraseña o confirme la entrada por defecto para conectarse como invitado.",
+    "TITLE": "Login",
+    "USER": "Usuario"
+  },
+  "MENU": {
+    "ACCESS_LEVEL": "Nivel de acceso",
+    "CHANGELOG": "Changelog",
+    "EDGE_SETTINGS": "Configuración",
+    "GENERAL_SETTINGS": "Configuración general",
+    "INDEX": "Visión general",
+    "LOGOUT": "Desuscribirse",
+    "MENU": "Menú",
+    "NAME": "Nombre",
+    "OTHER_USER": "Otros usuarios",
+    "OVERVIEW": "Todos los sistemas",
+    "SETTINGS": "Ajustes",
+    "USER": "Usuario"
+  },
+  "NOTIFICATIONS": {
+    "AUTHENTICATION_FAILED": "Sin conexión: error de autenticación.",
+    "CLOSED": "Conexión terminada.",
+    "FAILED": "Error al configurar la conexión.",
+    "LOGGED_IN": "Registrado.",
+    "LOGGED_IN_AS": "Conectado como usuario \"{{ value }}\"."
+  },
+  "REGISTER": {
+    "BUTTON": "Crear",
+    "ERRORS": {
+      "PASSWORD_NOT_EQUAL": "Las contraseñas no son iguales",
+      "REQUIRED_FIELDS": "Por favor, rellene todos los campos"
+    },
+    "FORM": {
+      "CITY": "Ciudad",
+      "COMPANY_NAME": "Nombre de la empresa",
+      "CONFIRM_PASSWORD": "Confirmar contraseña",
+      "CONTACT_DETAILS": "Datos de contacto",
+      "COUNTRY": "País",
+      "EMAIL": "Correo electrónico",
+      "FIRSTNAME": "Nombre",
+      "INSTALLER": {
+        "ACCEPT_PRIVACY_POLICY": ""
+      },
+      "LASTNAME": "Apellido",
+      "PASSWORD": "Contraseña",
+      "PHONE": "Número de teléfono",
+      "STREET": "Calle | número de casa",
+      "USER": {
+        "ACCEPT_PRIVACY_POLICY": ""
+      },
+      "ZIP": "Código postal"
+    },
+    "SEGMENT": {
+      "INSTALLER": "Instalador",
+      "USER": "Usuario"
+    },
+    "SUCCESS": "Registro realizado con éxito"
   }
 }
