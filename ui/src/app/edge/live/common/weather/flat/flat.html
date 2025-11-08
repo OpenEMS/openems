@@ -1,108 +1,70 @@
-@if (currentHourlyForecast && currentDailyForecast) {
-<ion-card>
-  <ion-item lines="full" style="--background: var(--ion-background-color-card-header)" tabindex="0">
-    <ion-icon slot="start" size="large" color="normal"
-      [name]="currentHourlyForecast.weatherCode | weatherCodeIcon:currentHourlyForecast.isDay">
-    </ion-icon>
-    <ion-label>
-      {{'TITLE_WITH_LOCATION' | translate: { location: placeName } }}
-    </ion-label>
-  </ion-item>
-  <ion-card-content class="ion-no-padding">
-    <ion-grid class="ion-no-padding">
-      <ion-card style="--background: var(--ion-background-color-card-header); box-shadow: none;">
-        <ion-card-content>
+@if(isInitialized){
+  <oe-flat-widget [modalComponent]="modalComponent"
+    [title]="'TITLE_WITH_LOCATION' | translate : { location: placeName }"
+    [icon]="{color: 'normal', name: currentHourlyForecast.weatherCode | weatherCodeIcon:currentHourlyForecast.isDay }">
+    @if(gotData){
+      <ion-card-content class="ion-no-padding">
+        <ion-grid class="ion-no-padding">
           <ion-row>
-            <ion-col size="6" class="ion-display-flex ion-flex-column ion-justify-content-between">
+            <ion-text [translate]="'TODAY'">
+            </ion-text>
+          </ion-row>
+          <ion-row>
+            <ion-col size="3.5" class="ion-display-flex ion-flex-column ion-justify-content-between">
               <ion-row style="flex-grow: 1;">
-                <ion-text style="font-size: 3.2rem; line-height: 1;">
+                <ion-text class="weather-temp">
                   {{ currentHourlyForecast.temperature | number:'1.0-0' }}°
                 </ion-text>
               </ion-row>
               <ion-row>
                 <ion-text [translate]="'MIN_TEMPERATURE'"
-                  [translateParams]="{ temp: (currentDailyForecast.minTemperature | number:'1.0-0') }"
-                  style="margin-right: 0.25rem;">
+                  [translateParams]="{ temp: (currentDailyForecast.minTemperature | number:'1.0-0') }" class="temp-min">
                 </ion-text>
                 <ion-text [translate]="'MAX_TEMPERATURE'"
                   [translateParams]="{ temp: (currentDailyForecast.maxTemperature) | number:'1.0-0' }">
                 </ion-text>
               </ion-row>
             </ion-col>
-            <ion-col size="6">
+            <ion-col size="8.5">
               <ion-row class="ion-justify-content-end">
                 <ion-icon [name]="currentHourlyForecast.weatherCode | weatherCodeIcon:currentHourlyForecast.isDay"
                   class="weather-icon"></ion-icon>
               </ion-row>
               <ion-row class="ion-justify-content-end">
                 <ion-text translate>
-                  {{ currentHourlyForecast.weatherCode | weatherCodeDescription:currentHourlyForecast.isDay }}
+                  {{ (currentHourlyForecast.weatherCode | weatherCodeDescription:currentHourlyForecast.isDay) }}
                 </ion-text>
               </ion-row>
-              <ion-row class="ion-align-items-center ion-justify-content-end" style="gap: 0.2rem;">
+              <ion-row class="ion-align-items-center ion-justify-content-end sunshine-row">
+                <ion-text [translate]="'SUNSHINE_DURATION_LABEL'"></ion-text>
                 <ion-icon name="oe-sunshine-duration" color="primary" class="sunshine-duration-icon">
                 </ion-icon>
                 <ion-text [translate]="'SUNSHINE_DURATION_HOURS'"
-                  [translateParams]="{ duration: (currentDailyForecast.sunshineDuration / 3600) | numberFormat:'1.1-1' }"></ion-text>
+                  [translateParams]="{ duration: (currentDailyForecast.sunshineDuration) | numberFormat:'1.0-0' }"></ion-text>
               </ion-row>
             </ion-col>
+            <ion-item-divider class="ion-no-padding"></ion-item-divider>
           </ion-row>
           <div class="thin-divider"></div>
           <ion-row class="ion-justify-content-between">
-            @for (forecast of upcomingHourlyForecasts | slice:0:(isSmartphone ? 5 : 6); track forecast) {
-            <ion-col size="auto" class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
-              <ion-text color="normal" style="font-size: 0.7rem; margin-bottom:0.15rem;">
-                {{ forecast.datetime | hourFormat }}
-              </ion-text>
-              <ion-icon [name]="forecast.weatherCode | weatherCodeIcon:forecast.isDay" class="weather-icon">
-              </ion-icon>
-              <ion-text class="ion-text-bold" style="padding-left: 0.15rem;">
-                {{ forecast.temperature | number:'1.0-0' }}°
-              </ion-text>
-            </ion-col>
+            @for (forecast of upcomingHourlyForecasts; track forecast) {
+              <ion-col size="auto" class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
+                <ion-text color="normal" style="font-size: 0.7rem; margin-bottom:0.15rem;">
+                  {{ forecast.datetime | hourFormat }}
+                </ion-text>
+                <ion-icon [name]="forecast.weatherCode | weatherCodeIcon:forecast.isDay" class="weather-icon">
+                </ion-icon>
+                <ion-text class="ion-text-bold" style="padding-left: 0.15rem;">
+                  {{ forecast.temperature | number:'1.0-0' }}°
+                </ion-text>
+              </ion-col>
             }
           </ion-row>
-        </ion-card-content>
-      </ion-card>
-      <ion-card style="--background: var(--ion-background-color); box-shadow: none;">
-        <ion-card-content style="padding-top: 0; padding-bottom: 0;">
-          @for (forecast of upcomingDailyForecasts; track forecast) {
-          <ion-row class="ion-align-items-center" style="margin-top: 0px;">
-            <ion-col size="2" size-sm="1" class="ion-text-start ion-text-bold">
-              {{ forecast.date | weekdayFormat }}
-            </ion-col>
-            <ion-col size-sm="3" class="ion-hide-sm-down ion-text-center">
-              {{ forecast.date | dayMonthFormat }}
-            </ion-col>
-            <ion-col size="2" size-sm="2" class="ion-text-center">
-              <ion-icon [name]="forecast.weatherCode | weatherCodeIcon:true" class="weather-icon">
-              </ion-icon>
-            </ion-col>
-            <ion-col size="4" size-sm="3">
-              <ion-row>
-                <ion-col size="6" class="ion-text-end" style="color: var(--ion-color-normal);">
-                  {{ forecast.minTemperature | number:'1.0-0' }}°
-                </ion-col>
-                <ion-col size="6" class="ion-text-start ion-text-bold" style="padding-left: 0.3rem;">
-                  {{ forecast.maxTemperature | number:'1.0-0' }}°
-                </ion-col>
-              </ion-row>
-            </ion-col>
-            <ion-col size="4" size-sm="3"
-              class="ion-display-flex ion-justify-content-end ion-align-items-center ion-text-end"
-              style="gap: 0.15rem;">
-              <ion-icon name="oe-sunshine-duration" color="primary" class="sunshine-duration-icon">
-              </ion-icon>
-              <ion-text [translate]="'SUNSHINE_DURATION_HOURS'"
-                [translateParams]="{ duration: (forecast.sunshineDuration / 3600) | numberFormat:'1.1-1' }"
-                style="width: 5ch;">
-              </ion-text>
-            </ion-col>
-          </ion-row>
-          }
-        </ion-card-content>
-      </ion-card>
-    </ion-grid>
-  </ion-card-content>
-</ion-card>
+        </ion-grid>
+      </ion-card-content>
+    } @else {
+      <oe-flat-widget-line [name]="'NO_DATA_INFO' | translate">
+      </oe-flat-widget-line>
+    }
+  </oe-flat-widget>
 }

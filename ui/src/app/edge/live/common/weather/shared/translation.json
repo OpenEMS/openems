@@ -1,9 +1,13 @@
 {
     "de": {
+        "TODAY": "Heute",
+        "WEEKLY_FORECAST": "Wochenprognose",
         "TITLE_WITH_LOCATION": "Wettervorhersage für {{location}}",
         "MIN_TEMPERATURE": "T: {{temp}}°",
         "MAX_TEMPERATURE": "H: {{temp}}°",
         "SUNSHINE_DURATION_HOURS": "{{duration}} h",
+        "SUNSHINE_DURATION_LABEL": "Sonnenstunden",
+        "NO_DATA_INFO": "Aktuell können leider keine Wetterdaten anzeigt werden.",
         "WEATHER_CODE_0": "Sonnig",
         "WEATHER_CODE_1": "Heiter",
         "WEATHER_CODE_2": "Teilweise bewölkt",
@@ -38,10 +42,14 @@
         "WEATHER_CODE_UNKNOWN": "Unbekannt"
     },
     "en": {
+        "TODAY": "Today",
+        "WEEKLY_FORECAST": "Weekly forecast",
         "TITLE_WITH_LOCATION": "Weather forecast for {{location}}",
         "MIN_TEMPERATURE": "L: {{temp}}°",
         "MAX_TEMPERATURE": "H: {{temp}}°",
         "SUNSHINE_DURATION_HOURS": "{{duration}} h",
+        "SUNSHINE_DURATION_LABEL": "hours of sunshine",
+        "NO_DATA_INFO": "No weather forecast available.",
         "WEATHER_CODE_0": "Sunny",
         "WEATHER_CODE_1": "Mainly clear",
         "WEATHER_CODE_2": "Partly cloudy",

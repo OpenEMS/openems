@@ -3,6 +3,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { WeatherComponent } from "./flat/flat";
+import { WeatherModalComponent } from "./modal/modal";
 import { registerWeatherIcons } from "./models/weather-icon";
 import { DayMonthFormatPipe } from "./pipes/day-month-format.pipe";
 import { HourFormatPipe } from "./pipes/hour-format.pipe";
@@ -11,6 +12,7 @@ import { WeatherCodeDescriptionPipe } from "./pipes/weather-code-description.pip
 import { WeatherCodeIconPipe } from "./pipes/weather-code-icon.pipe";
 import { WeekdayFormatPipe } from "./pipes/weekday-format.pipe";
 import translations from "./shared/translation.json";
+import { SecondsToHoursPipe } from "./shared/weather.constants";
 
 @NgModule({
   imports: [
@@ -21,9 +23,11 @@ import translations from "./shared/translation.json";
     DayMonthFormatPipe,
     WeatherCodeIconPipe,
     WeatherCodeDescriptionPipe,
+    SecondsToHoursPipe,
   ],
   declarations: [
     WeatherComponent,
+    WeatherModalComponent,
   ],
   exports: [
     WeatherComponent,

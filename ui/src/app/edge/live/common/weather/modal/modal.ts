@@ -1,24 +1,24 @@
 import { Component, inject, OnDestroy, OnInit } from "@angular/core";
-import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { Modal } from "src/app/shared/components/flat/flat";
+import { isAfter, isSameDay, startOfDay } from "date-fns";
+import { interval, startWith, Subscription } from "rxjs";
+import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChannelAddress, CurrentData, Service } from "src/app/shared/shared";
 import { DailyWeatherForecasts } from "../jsonrpc/daily-weather-forecasts";
 import { HourlyWeatherForecasts } from "../jsonrpc/hourly-weather-forecasts";
-import { WeatherModalComponent } from "../modal/modal";
 import { FORECAST_HOURS, isDayTime, WEATHER_CHANNEL_KEYS } from "../shared/weather.constants";
 
 @Component({
-  selector: WeatherComponent.SELECTOR,
-  templateUrl: "./flat.html",
+  templateUrl: "./modal.html",
   styleUrls: ["../shared/weather.scss"],
   standalone: false,
 })
-export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDestroy {
+export class WeatherModalComponent extends AbstractModal implements OnInit, OnDestroy {
 
-  protected static readonly SELECTOR = "weather";
+  private static readonly FETCH_INTERVAL_MS = 15 /* minutes */ * 60 * 1000;
 
   protected placeName: string | null = null;
-  protected isSmartphone: boolean | null = null;
+  protected isSmartphone: boolean = false;
   protected gotData: boolean | null = null;
 
   protected currentHourlyForecast: HourlyWeatherForecasts.Forecast | null = null;
@@ -28,47 +28,68 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
   protected upcomingDailyForecasts: DailyWeatherForecasts.Forecast[] = [];
 
   protected resolutionService = inject(Service);
+  protected weatherForecastSubscription?: Subscription;
 
-  protected get modalComponent(): Modal {
-    return {
-      component: WeatherModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    };
-  };
+  public override ngOnDestroy(): void {
+    this.weatherForecastSubscription?.unsubscribe();
+    super.ngOnDestroy();
+  }
 
-  protected override afterIsInitialized(): void {
+  protected override onIsInitialized(): void {
+    if (this.component == null || this.edge == null) {
+      return;
+    }
     const meta = this.edge.getConfig(this.websocket).value.getComponentsByFactory("Core.Meta")[0];
     this.placeName = meta.getPropertyFromComponent("placeName") ?? "";
 
     this.isSmartphone = this.resolutionService.isSmartphoneResolution;
+
+    this.weatherForecastSubscription = interval(WeatherModalComponent.FETCH_INTERVAL_MS)
+      .pipe(startWith(0))
+      .subscribe(() => {
+        this.fetchDailyWeatherForecast();
+      });
   }
 
-  protected override getChannelAddresses() {
-    const id = this.componentId;
+  protected fetchDailyWeatherForecast() {
+    if (this.component == null || this.edge == null) {
+      return;
+    }
+
+    this.edge.sendRequest<DailyWeatherForecasts.Response>(this.websocket,
+      new ComponentJsonApiRequest({
+        componentId: this.component.id,
+        payload:
+          new DailyWeatherForecasts.Request({}),
+      })
+    ).then(rawResponse => {
+      const response = new DailyWeatherForecasts.Response(rawResponse.id, rawResponse.result);
+      const now = new Date();
+      this.currentDailyForecast = response.forecast.find(forecast => isSameDay(forecast.date, now)) ?? null;
+      this.upcomingDailyForecasts = response.forecast.filter(forecast => isAfter(startOfDay(forecast.date), startOfDay(now)));
+    }).catch(error => {
+      console.warn("Error fetching weather forecast", error);
+    });
+  }
+
+  protected override getChannelAddresses(): ChannelAddress[] {
+    if (this.component == null) {
+      return [];
+    }
+
+    const id = this.component.id;
     const buildChannelAddress = (name: string) => new ChannelAddress(id, name);
 
     return WEATHER_CHANNEL_KEYS.map(key => buildChannelAddress(key));
   }
 
   protected override onCurrentData(currentData: CurrentData) {
-    if (this.gotData) {
+    if (this.component == null || this.edge == null) {
       return;
     }
 
     const base = this.component.id;
     const getChannelData = (k: string) => currentData.allComponents[`${base}/${k}`];
-
-    this.currentDailyForecast = {
-      date: new Date(),
-      minTemperature: getChannelData("TodaysMinTemperature") ?? null,
-      maxTemperature: getChannelData("TodaysMaxTemperature") ?? null,
-      weatherCode: getChannelData("CurrentWeatherCode") ?? null,
-      sunshineDuration: getChannelData("TodaysSunshineDuration")
-        ? getChannelData("TodaysSunshineDuration") / 3600
-        : null,
-    };
 
     this.currentHourlyForecast = {
       datetime: new Date(),
@@ -91,7 +112,6 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
         };
       })
       .filter(f => f.temperature !== null && f.weatherCode !== null);
-
 
     const isPresentNumber = (v: unknown): v is number =>
       typeof v === "number" && Number.isFinite(v);
