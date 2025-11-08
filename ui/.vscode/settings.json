@@ -19,7 +19,7 @@
             "source.organizeImports": "explicit",
             "source.removeUnusedImports": "explicit"
         },
-        "typescript.preferences.quoteStyle": "double"
+        "typescript.preferences.quoteStyle": "double",
     },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
@@ -31,7 +31,8 @@
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[html]": {
-        "editor.defaultFormatter": "vscode.html-language-features"
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.tabSize": 2,
     },
     "[scss]": {
         "editor.defaultFormatter": "vscode.css-language-features"
@@ -51,4 +52,6 @@
     "html.format.templating": [
         "angular"
     ],
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
 }
