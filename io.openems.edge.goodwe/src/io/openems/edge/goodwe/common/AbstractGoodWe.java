@@ -28,6 +28,8 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.FunctionUtils;
@@ -154,17 +156,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
 								new ElementToChannelConverter(value -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-									if (intValue != null) {
-										switch (intValue) {
-										case 0:
-											return GridMode.UNDEFINED;
-										case 1:
-											return GridMode.ON_GRID;
-										case 2:
-											return GridMode.OFF_GRID;
-										}
-									}
-									return GridMode.UNDEFINED;
+									final var goodWeType = this.getGoodweType();
+
+									return mapGridMode(goodWeType, intValue);
 								}))), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
@@ -2470,4 +2464,35 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		}
 		return bitsElement;
 	}
+
+	@VisibleForTesting
+	static GridMode mapGridMode(GoodWeType goodWeType, Integer value) {
+		if (value == null) {
+			return GridMode.UNDEFINED;
+		}
+		return switch (goodWeType) {
+		case UNDEFINED, GOODWE_10K_BT, GOODWE_8K_BT, GOODWE_5K_BT, GOODWE_10K_ET, GOODWE_8K_ET, GOODWE_5K_ET,
+				FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_6K, FENECON_GEN2_10K,
+				FENECON_GEN2_15K -> {
+			yield defaultMapGridMode(value);
+		}
+		case FENECON_50K -> {
+			yield switch (value) {
+			case 0 -> GridMode.OFF_GRID;
+			case 1 -> GridMode.ON_GRID;
+			default -> GridMode.UNDEFINED;
+			};
+		}
+		case null -> defaultMapGridMode(value);
+		};
+	}
+
+	private static GridMode defaultMapGridMode(int value) {
+		return switch (value) {
+		case 1 -> GridMode.ON_GRID;
+		case 2 -> GridMode.OFF_GRID;
+		default -> GridMode.UNDEFINED;
+		};
+	}
+
 }
