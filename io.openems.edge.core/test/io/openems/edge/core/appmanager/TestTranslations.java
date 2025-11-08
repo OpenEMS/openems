@@ -123,6 +123,8 @@ public class TestTranslations {
 					.addProperty("API_KEY", "123456789") //
 					.addProperty("BUCKET", "bucket")//
 					.build()));
+			this.apps.add(new TestTranslation(Apps.ablEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcsReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
@@ -131,7 +133,6 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));

@@ -123,6 +123,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
+			.put("App.Evcs.Abl.ReadOnly", "")//
 			.put("App.Evcs.Alpitronic", "") //
 			.put("App.Evcs.Cluster", "") //
 			.put("App.Evcs.HardyBarth", "") //

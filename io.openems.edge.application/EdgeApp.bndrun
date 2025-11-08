@@ -120,6 +120,7 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.samsung',\
+	bnd.identity;id='io.openems.edge.evcs.abl',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
 	bnd.identity;id='io.openems.edge.evcs.goe',\
@@ -312,6 +313,7 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.samsung;version=snapshot,\
+	io.openems.edge.evcs.abl;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\

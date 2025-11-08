@@ -41,6 +41,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AblEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
@@ -781,6 +782,16 @@ public final class Apps {
 		return app(t, TimedataInfluxDb::new, "App.Timedata.InfluxDb");
 	}
 
+	/**
+	 * Test method for creating a {@link AblEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AblEvcsReadOnly ablEvcs(AppManagerTestBundle t) {
+		return app(t, AblEvcsReadOnly::new, "App.Evcs.Abl.ReadOnly");
+	}
+	
 	/**
 	 * Test method for creating a {@link AlpitronicEvcs}.
 	 * 
