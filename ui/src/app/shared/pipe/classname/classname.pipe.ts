@@ -2,12 +2,12 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-  name: "classname",
-  standalone: false,
+    name: "classname",
+    standalone: false,
 })
 export class ClassnamePipe implements PipeTransform {
-  transform(value, args: string[]): any {
-    const parts = value.split(".");
-    return parts[parts.length - 1];
-  }
+    transform(value, args: string[]): any {
+        const parts = value.split(".");
+        return parts[parts.length - 1];
+    }
 }

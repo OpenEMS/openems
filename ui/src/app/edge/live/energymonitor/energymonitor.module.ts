@@ -10,21 +10,21 @@ import { StorageSectionComponent } from "./chart/section/storage.component";
 import { EnergymonitorComponent } from "./energymonitor.component";
 
 @NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    BrowserModule,
-    SharedModule,
-  ],
-  declarations: [
-    ConsumptionSectionComponent,
-    EnergymonitorChartComponent,
-    EnergymonitorComponent,
-    GridSectionComponent,
-    ProductionSectionComponent,
-    StorageSectionComponent,
-  ],
-  exports: [
-    EnergymonitorComponent,
-  ],
+    imports: [
+        BrowserAnimationsModule,
+        BrowserModule,
+        SharedModule,
+    ],
+    declarations: [
+        ConsumptionSectionComponent,
+        EnergymonitorChartComponent,
+        EnergymonitorComponent,
+        GridSectionComponent,
+        ProductionSectionComponent,
+        StorageSectionComponent,
+    ],
+    exports: [
+        EnergymonitorComponent,
+    ],
 })
 export class EnergymonitorModule { }

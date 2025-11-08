@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
 	io.openems.edge.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\

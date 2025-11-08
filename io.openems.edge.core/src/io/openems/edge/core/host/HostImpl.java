@@ -82,7 +82,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				OpenemsComponent.ChannelId.values(), //
 				Host.ChannelId.values() //
 		);
-		
+
 		// Initialize correct Operating System handler
 		this.operatingSystem = this.getCurrentOS();
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
@@ -331,20 +331,20 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			return s.hasNext() ? s.next().trim() : "";
 		}
 	}
-	
+
 	private OperatingSystem getCurrentOS() {
 		if (Files.exists(Paths.get("/.dockerenv"))) {
 			return new OperatingSystemDocker();
 		}
-		
+
 		final String osName = System.getProperty("os.name");
 
-        if (osName.startsWith("Windows")) {
-            return new OperatingSystemWindows();
-        } else if (osName.startsWith("Mac")) {
-            return new OperatingSystemMac();
-        }
-		
+		if (osName.startsWith("Windows")) {
+			return new OperatingSystemWindows();
+		} else if (osName.startsWith("Mac")) {
+			return new OperatingSystemMac();
+		}
+
 		return new OperatingSystemDebianSystemd(this);
 	}
 

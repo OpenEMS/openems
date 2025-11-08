@@ -18,6 +18,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 public record AppConfiguration(List<Task<?>> tasks, List<DependencyDeclaration> dependencies) {
 
@@ -110,7 +111,7 @@ public record AppConfiguration(List<Task<?>> tasks, List<DependencyDeclaration> 
 		return create().build();
 	}
 
-	public List<EdgeConfig.Component> getComponents() {
+	public List<ComponentDef> getComponents() {
 		return this.map(ComponentAggregateTask.class, ComponentConfiguration::components) //
 				.orElse(emptyList());
 	}
@@ -180,7 +181,7 @@ public record AppConfiguration(List<Task<?>> tasks, List<DependencyDeclaration> 
 	 *                {@link EdgeConfig.Component Components} from
 	 * @return the {@link EdgeConfig.Component Components}
 	 */
-	public static List<EdgeConfig.Component> getComponentsFromConfigs(List<AppConfiguration> configs) {
+	public static List<ComponentDef> getComponentsFromConfigs(List<AppConfiguration> configs) {
 		return flatMap(configs, ComponentAggregateTask.class, ComponentConfiguration::components).toList();
 	}
 

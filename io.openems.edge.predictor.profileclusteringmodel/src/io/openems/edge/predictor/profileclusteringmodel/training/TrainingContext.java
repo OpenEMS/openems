@@ -12,7 +12,7 @@ import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.timedata.api.Timedata;
 
 public record TrainingContext(//
-		TrainingCallback trainingCallback, //
+		TrainingCallback callback, //
 		Supplier<Clock> clockSupplier, //
 		Timedata timedata, //
 		ChannelAddress channelAddress, //

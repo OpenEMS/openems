@@ -17,26 +17,26 @@ import { HistoryComponent } from "./history.component";
 import { HistoryParentComponent } from "./historyparent.component";
 
 @NgModule({
-  imports: [
-    Common,
-    Controller,
-    HistoryDataErrorModule,
-    SharedModule,
-  ],
-  declarations: [
-    ChpSocChartComponent,
-    ChpSocWidgetComponent,
-    DelayedSellToGridChartComponent,
-    DelayedSellToGridChartOverviewComponent,
-    DelayedSellToGridWidgetComponent,
-    HeatpumpFlatComponent,
-    TimeslotPeakshavingFlatComponent,
-    StorageFlatComponent,
-    SymmetricPeakshavingFlatComponent,
-    AsymmetricPeakshavingFlatComponent,
-    StorageFlatComponent,
-    HistoryComponent,
-    HistoryParentComponent,
-  ],
+    imports: [
+        Common,
+        Controller,
+        HistoryDataErrorModule,
+        SharedModule,
+    ],
+    declarations: [
+        ChpSocChartComponent,
+        ChpSocWidgetComponent,
+        DelayedSellToGridChartComponent,
+        DelayedSellToGridChartOverviewComponent,
+        DelayedSellToGridWidgetComponent,
+        HeatpumpFlatComponent,
+        TimeslotPeakshavingFlatComponent,
+        StorageFlatComponent,
+        SymmetricPeakshavingFlatComponent,
+        AsymmetricPeakshavingFlatComponent,
+        StorageFlatComponent,
+        HistoryComponent,
+        HistoryParentComponent,
+    ],
 })
 export class HistoryModule { }
