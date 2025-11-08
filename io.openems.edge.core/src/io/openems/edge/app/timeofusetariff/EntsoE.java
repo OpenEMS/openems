@@ -1,10 +1,8 @@
 package io.openems.edge.app.timeofusetariff;
 
-import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.createAncillaryCosts;
 
-import java.time.Clock;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -100,16 +98,10 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
 					field.onlyShowIf(isInBiddingZone);
 				}))), //
+
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 
-		PARAGRAPH_14A_CHECK(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".14aCheck.label") //
-				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
-					final var isInBiddingZone = Exp.staticValue(BiddingZone.GERMANY)
-							.equal(Exp.currentModelValue(BIDDING_ZONE));
-					field.onlyShowIf(isInBiddingZone);
-				}))),
+		PARAGRAPH_14A_CHECK(TimeOfUseProps.paragraph14aCheck(BIDDING_ZONE)), //
 
 		GERMAN_DSO(AncillaryCostsProps.germanDso(PARAGRAPH_14A_CHECK)),
 
@@ -154,20 +146,12 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
 			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
-			var ancillaryCosts = paragraph14aCheck ? germanDso.getAncillaryCosts() : null;
+			final var tariffTable = paragraph14aCheck && germanDso == GermanDSO.OTHER
+					? this.getJsonArray(p, Property.TARIFF_TABLE)
+					: null;
 
-			if (germanDso == GermanDSO.OTHER) {
-				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
-
-				// parsing here to throw any exceptions.
-				parseSchedule(Clock.systemDefaultZone() /* does not matter here */, tariffTable);
-
-				ancillaryCosts = buildJsonObject() //
-						.addProperty("dso", germanDso.name()) //
-						.add("schedule", tariffTable) //
-						.build() //
-						.toString(); //
-			}
+			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso,
+					tariffTable, t);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
@@ -178,7 +162,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("biddingZone", biddingZone) //
-									.addPropertyIfNotNull("ancillaryCosts", ancillaryCosts) //
+									.addProperty("ancillaryCosts", ancillaryCosts) //
 									.build()) //
 			);
 

@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.function.Consumer;
@@ -226,6 +227,72 @@ public class AncillaryCosts {
 
 			return tasks.build();
 		}
+
+		/**
+		 * Determines the standard grid fee tariff applicable at the specified date and
+		 * time.
+		 * 
+		 * <p>
+		 * This method searches through the configured date ranges and their associated
+		 * time ranges to find the applicable standard tariff for the given timestamp.
+		 * </p>
+		 *
+		 * @param time the {@link ZonedDateTime} for which to determine the applicable
+		 *             standard tariff
+		 * @return the standard grid fee tariff in ct/kWh for the given time, or 0.0 if
+		 *         no matching date/time range is found or if no date ranges are
+		 *         configured
+		 * 
+		 * @see #isWithinDateRange(DateRange, LocalDate)
+		 * @see #isWithinTimeRange(TimeRange, LocalTime)
+		 * 
+		 */
+		public double getStandardTariffAt(ZonedDateTime time) {
+
+			if (this.dateRanges == null || this.dateRanges.isEmpty()) {
+				return 0.0;
+			}
+
+			final var localDate = time.toLocalDate();
+			final var localTime = time.toLocalTime();
+
+			for (var dateRange : this.dateRanges) {
+				if (!isWithinDateRange(dateRange, localDate)) {
+					continue;
+				}
+
+				for (var timeRange : dateRange.timeRanges()) {
+					if (isWithinTimeRange(timeRange, localTime)) {
+						return dateRange.standardTariff();
+					}
+				}
+			}
+
+			return 0.0;
+		}
+
+		private static boolean isWithinDateRange(DateRange dateRange, LocalDate date) {
+			return (date.isEqual(dateRange.start()) || date.isAfter(dateRange.start()))
+					&& (date.isEqual(dateRange.end()) || date.isBefore(dateRange.end()));
+		}
+
+		private static boolean isWithinTimeRange(TimeRange timeRange, LocalTime time) {
+			var start = timeRange.start();
+			var end = timeRange.end();
+
+			if (start.equals(end)) {
+				// Full day range
+				return true;
+			}
+
+			if (start.isBefore(end)) {
+				// Normal case (e.g. 05:00–17:00)
+				return !time.isBefore(start) && time.isBefore(end);
+			} else {
+				// Overnight case (e.g. 21:00–00:00)
+				return (!time.isBefore(start) || time.isBefore(end));
+			}
+		}
 	}
 
 	/**
@@ -270,7 +337,69 @@ public class AncillaryCosts {
 		}
 
 		return parseSchedule(clock, j.getJsonArray("schedule"));
+	}
 
+	/**
+	 * Retrieves the standard ancillary price for Germany based on the provided
+	 * configuration.
+	 * 
+	 * <p>
+	 * This method processes the ancillary costs configuration to determine the
+	 * standard price for a given timestamp. It first attempts to use a predefined
+	 * DSO (Distribution System Operator) configuration if available, falling back
+	 * to a custom schedule if no DSO is specified.
+	 * </p>
+	 * 
+	 * @param ancillaryCosts the ancillary costs configuration as a JSON string,
+	 *                       which may contain either a "dso" field with a
+	 *                       {@link GermanDSO} value or a "schedule" field with
+	 *                       custom pricing rules
+	 * @param time           the {@link ZonedDateTime} for which to retrieve the
+	 *                       standard price
+	 * @return the standard ancillary price in ct/kWh for the given time, or 0.0 if
+	 *         no matching configuration is found or the schedule is null
+	 * @throws OpenemsNamedException if the configuration JSON is malformed or
+	 *                               cannot be parsed
+	 * 
+	 * @see GermanDSO
+	 * @see #parseScheduleForStandardPrice(JsonArray, ZonedDateTime)
+	 * 
+	 */
+	public static double getScheduleStandardPriceForGermany(String ancillaryCosts, ZonedDateTime time)
+			throws OpenemsNamedException {
+		var j = new JsonObjectPathActual.JsonObjectPathActualNonNull(parseToJsonObject(ancillaryCosts));
+
+		try {
+			var dsoOpt = j.getOptionalEnum("dso", GermanDSO.class);
+			if (dsoOpt.isPresent()) {
+				return dsoOpt.get().gridFee.getStandardTariffAt(time);
+			}
+		} catch (IllegalArgumentException e) {
+			// Invalid enum value like "OTHER" or "null"
+		}
+
+		var schedule = j.getJsonArrayOrNull("schedule");
+
+		if (schedule == null) {
+			return 0.0;
+		}
+
+		return parseScheduleForStandardPrice(j.getJsonArray("schedule"), time);
+	}
+
+	private static double parseScheduleForStandardPrice(JsonArray schedule, ZonedDateTime time)
+			throws OpenemsNamedException {
+
+		for (var yearData : schedule) {
+			var year = getAsInt(yearData, "year");
+			var tariffs = getAsJsonObject(yearData, "tariffs");
+
+			if (time.getYear() == year) {
+				return getAsDouble(tariffs, "standard");
+			}
+		}
+
+		return 0.0;
 	}
 
 	/**

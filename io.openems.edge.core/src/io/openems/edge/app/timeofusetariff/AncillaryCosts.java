@@ -1,12 +1,10 @@
 package io.openems.edge.app.timeofusetariff;
 
-import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.createAncillaryCosts;
 import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.germanDso;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
-import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
-import java.time.Clock;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -134,25 +132,9 @@ public class AncillaryCosts extends
 			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 			final var germanDso = this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO);
 			final var fixedTariff = this.getDouble(p, Property.FIXED_ELECTRICITY_TARIFF);
+			final var tariffTable = germanDso == GermanDSO.OTHER ? this.getJsonArray(p, Property.TARIFF_TABLE) : null;
 
-			final String ancillaryCosts;
-
-			if (germanDso == GermanDSO.OTHER) {
-				final var tariffTable = this.getJsonArray(p, Property.TARIFF_TABLE);
-
-				// parsing here to throw any exceptions.
-				if (!t.isDeleteOrTest()) {
-					parseSchedule(Clock.systemDefaultZone() /* does not matter here */, tariffTable);
-				}
-
-				ancillaryCosts = buildJsonObject() //
-						.addProperty("dso", germanDso.name()) //
-						.add("schedule", tariffTable) //
-						.build() //
-						.toString(); //
-			} else {
-				ancillaryCosts = germanDso.getAncillaryCosts();
-			}
+			final var ancillaryCosts = createAncillaryCosts(germanDso, tariffTable, t);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
