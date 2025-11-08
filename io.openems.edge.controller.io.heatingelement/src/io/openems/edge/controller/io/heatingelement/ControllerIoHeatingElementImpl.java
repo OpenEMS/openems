@@ -16,7 +16,6 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -36,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -147,6 +147,8 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	private Level currentLevel = Level.LEVEL_0;
 	/** Last Level change time, used for the hysteresis. */
 	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
+	/** Last active task. */
+	private OneTask<Payload> lastTask = null;
 
 	/** The configured endTime in the mode time. */
 	private LocalTime endTimeWorkModeTime;
@@ -318,12 +320,22 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 
 	private Level getLevelFromSchedule(Level targetLevel) throws IllegalArgumentException, OpenemsNamedException {
 		var ot = this.schedule.getActiveOneTask();
-		var lastOt = this.schedule.getLastActiveOneTask();
 		var now = ZonedDateTime.now(this.componentManager.getClock());
 
-		var lastTaskJustFinished = lastOt != null //
-				&& now.isAfter(lastOt.end()) //
-				&& this.timestampTaskFinished != null //
+		if (ot != null) {
+			this.lastTask = ot;
+			this.timestampTaskFinished = null;
+			this.updateEndTime();
+		}
+
+		if (ot == null && this.lastTask != null && now.isAfter(this.lastTask.end())) {
+			if (this.timestampTaskFinished == null) {
+				this.timestampTaskFinished = now;
+				this.resetProps();
+			}
+		}
+
+		boolean lastTaskJustFinished = this.timestampTaskFinished != null //
 				&& now.isBefore(this.timestampTaskFinished.plusSeconds(SHOWING_DONE_FOR_HALF_AN_HOUR.getSeconds()));
 
 		/*
@@ -334,14 +346,13 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 				this.runState = Status.DONE;
 			} else {
 				this.runState = Status.INACTIVE;
+
+				if (!lastTaskJustFinished) {
+					this.timestampTaskFinished = null;
+					this.lastTask = null;
+				}
 			}
 			return Level.LEVEL_0;
-		}
-
-		if (lastOt != null && now.isAfter(lastOt.end())) {
-			this.resetProps();
-			this.updateEndTime();
-			this.timestampTaskFinished = now;
 		}
 
 		return switch (this.config.workMode()) {
@@ -523,15 +534,6 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Gets the endTime from the config converted to LocalTime.
-	 *
-	 * @return the endTime in LocalTime format
-	 */
-	private LocalTime getConvertedEndTime() {
-		return LocalTime.parse(this.config.endTimeWithMeter());
-	}
-
-	/**
 	 * Calculates the power that can be consumed by the heating element.
 	 *
 	 * @param gridActivePower   the current active power of the grid
@@ -627,6 +629,10 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 		// not be reset.
 		if (this.isScheduleConfigured()) {
 			var highPeriod = this.schedule.getActiveOneTask();
+
+			if (highPeriod == null) {
+				return; // Session didn't start yet
+			}
 			var startDateTask = highPeriod.start() //
 					.withZoneSameInstant(this.componentManager.getClock().getZone()).toLocalDate();
 			var endDateTask = highPeriod.end() //
@@ -679,9 +685,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return the calculated ending time
 	 */
 	private LocalTime getCalculatedEndTimeOfWorkModeEnergy() {
-		var highPeriod = this.schedule.getLastActiveOneTask();
+		if (!this.isScheduleConfigured()) {
+			return LocalTime.parse(this.config.endTimeWithMeter()); // Get from config
+		}
+		var highPeriod = this.schedule.getActiveOneTask();
 		if (highPeriod == null) {
-			return this.getConvertedEndTime();
+			return LocalTime.MIN; // Task didn't start yet
 		}
 		return highPeriod.end().toLocalTime();
 	}
@@ -692,9 +701,12 @@ public class ControllerIoHeatingElementImpl extends AbstractOpenemsComponent
 	 * @return the calculated ending time
 	 */
 	private LocalTime getCalculatedEndTimeOfWorkModeTime() throws OpenemsException {
-		var highPeriod = this.schedule.getLastActiveOneTask();
+		if (!this.isScheduleConfigured()) {
+			return DateUtils.parseLocalTimeOrError(this.config.endTime()); // Get from config
+		}
+		var highPeriod = this.schedule.getActiveOneTask();
 		if (highPeriod == null) {
-			return DateUtils.parseLocalTimeOrError(this.config.endTime());
+			return LocalTime.MIN; // Task didn't start yet
 		}
 		return highPeriod.end().toLocalTime();
 	}
