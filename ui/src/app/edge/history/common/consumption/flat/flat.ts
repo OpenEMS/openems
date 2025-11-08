@@ -59,7 +59,7 @@ export class FlatComponent extends AbstractFlatWidget {
         let otherEnergy: number = 0;
 
         this.evcsComponents.forEach(evcs => {
-            otherEnergy += currentData.allComponents[evcs.id + "/" + evcs.energyChannel] ?? 0;
+            otherEnergy += currentData.allComponents[evcs.energyChannel.toString()] ?? 0;
         });
 
         [...this.consumptionMeterComponents, ...this.heatComponents].forEach(component => {
