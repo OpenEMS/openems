@@ -32,8 +32,7 @@ public class LstmPredictor {
 		preprocessing.setData(to1DArray(data)).setDates(date);
 		var resized = to2DList((double[][][]) preprocessing.interpolate()//
 				.scale()//
-				.movingAverage()
-				.filterOutliers() //
+				.movingAverage().filterOutliers() //
 				.groupByHoursAndMinutes()//
 				.execute());
 		preprocessing.setData(resized);
@@ -90,13 +89,20 @@ public class LstmPredictor {
 		for (int i = 0; i < hyperParameters.getTrendPoint(); i++) {
 			var temp = predictionFor.plusMinutes(i * hyperParameters.getInterval());
 
-			var modlelindex = (int) decodeDateToColumnIndex(temp, hyperParameters);
+			var modelIndex = (int) decodeDateToColumnIndex(temp, hyperParameters);
+
+			// Bounds check to prevent IndexOutOfBoundsException
+			if (modelIndex < 0 || modelIndex >= val.size()) {
+				throw new IllegalStateException(
+						"Model index " + modelIndex + " is out of bounds. Valid range: 0-" + (val.size() - 1));
+			}
+
 			double predTemp = LstmPredictor.predict(//
 					normData, //
-					val.get(modlelindex).get(0), val.get(modlelindex).get(1), //
-					val.get(modlelindex).get(2), val.get(modlelindex).get(3), //
-					val.get(modlelindex).get(4), val.get(modlelindex).get(5), //
-					val.get(modlelindex).get(7), val.get(modlelindex).get(6), //
+					val.get(modelIndex).get(0), val.get(modelIndex).get(1), //
+					val.get(modelIndex).get(2), val.get(modelIndex).get(3), //
+					val.get(modelIndex).get(4), val.get(modelIndex).get(5), //
+					val.get(modelIndex).get(7), val.get(modelIndex).get(6), //
 					hyperParameters);
 			normData.add(predTemp);
 			normData.remove(0);
@@ -125,7 +131,7 @@ public class LstmPredictor {
 	public static double decodeDateToColumnIndex(ZonedDateTime predictionFor, HyperParameters hyperParameters) {
 		var hour = predictionFor.getHour();
 		var minute = predictionFor.getMinute();
-		var index = (Integer) hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();
+		var index = hour * (60 / hyperParameters.getInterval()) + minute / hyperParameters.getInterval();
 		var modifiedIndex = index - hyperParameters.getWindowSizeTrend();
 		if (modifiedIndex >= 0) {
 			return modifiedIndex;
@@ -303,7 +309,7 @@ public class LstmPredictor {
 		var ct = hyperParameters.getCtInit();
 		var yt = hyperParameters.getYtInit();
 		var standData = inputData;// DataModification.standardize(inputData, hyperParameters);
-		
+
 		// Add dropout regularization for prediction
 		// Only apply dropout during training, not during actual prediction
 		boolean isTraining = false; // Set to true during training phase
@@ -313,19 +319,19 @@ public class LstmPredictor {
 			var ctMinusOne = ct;
 			var yTMinusOne = yt;
 			var xt = standData.get(i);
-			
+
 			// Apply dropout to input connections if in training mode
 			double dropoutScale = 1.0;
 			if (isTraining) {
 				// Scale remaining values to maintain expected output magnitude
 				dropoutScale = 1.0 / (1.0 - dropoutRate);
 			}
-			
+
 			// Apply dropout scaling to input
 			var it = MathUtils.sigmoid(wi.get(i) * xt * dropoutScale + rI.get(i) * yTMinusOne);
 			var ot = MathUtils.sigmoid(wo.get(i) * xt * dropoutScale + rO.get(i) * yTMinusOne);
 			var zt = MathUtils.tanh(wz.get(i) * xt * dropoutScale + rZ.get(i) * yTMinusOne);
-			
+
 			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}
@@ -365,7 +371,7 @@ public class LstmPredictor {
 		var ct = hyperParameters.getCtInit();
 		var yt = hyperParameters.getYtInit();
 		var standData = inputData;// DataModification.standardize(inputData, hyperParameters);
-		
+
 		// Add dropout regularization for prediction
 		// Only apply dropout during training, not during actual prediction
 		boolean isTraining = false; // Set to true during training phase
@@ -375,19 +381,19 @@ public class LstmPredictor {
 			var ctMinusOne = ct;
 			var yTMinusOne = yt;
 			var xt = standData[i]; // Fixed: using actual value instead of array length
-			
+
 			// Apply dropout to input connections if in training mode
 			double dropoutScale = 1.0;
 			if (isTraining) {
 				// Scale remaining values to maintain expected output magnitude
 				dropoutScale = 1.0 / (1.0 - dropoutRate);
 			}
-			
+
 			// Apply dropout scaling to input
 			var it = MathUtils.sigmoid(wi.get(i) * xt * dropoutScale + rI.get(i) * yTMinusOne);
 			var ot = MathUtils.sigmoid(wo.get(i) * xt * dropoutScale + rO.get(i) * yTMinusOne);
 			var zt = MathUtils.tanh(wz.get(i) * xt * dropoutScale + rZ.get(i) * yTMinusOne);
-			
+
 			ct = ctMinusOne + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}
