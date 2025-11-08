@@ -58,15 +58,18 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
     }
 
     const base = this.component.id;
-    const getChannelData = (k: string) => currentData.allComponents[`${base}/${k}`];
+    const getChannelData = (k: string) => {
+      const value = currentData.allComponents?.[`${base}/${k}`];
+      return value !== null && value !== undefined ? value : null;
+    };
 
     this.currentDailyForecast = {
       date: new Date(),
       minTemperature: getChannelData("TodaysMinTemperature") ?? null,
       maxTemperature: getChannelData("TodaysMaxTemperature") ?? null,
       weatherCode: getChannelData("CurrentWeatherCode") ?? null,
-      sunshineDuration: getChannelData("TodaysSunshineDuration")
-        ? getChannelData("TodaysSunshineDuration") / 3600
+      sunshineDuration: getChannelData("TodaysSunshineDuration") != null
+        ? this.Utils.divideSafely(getChannelData("TodaysSunshineDuration"), 3600)
         : null,
     };
 

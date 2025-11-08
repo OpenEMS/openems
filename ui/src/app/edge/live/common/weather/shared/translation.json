@@ -7,7 +7,7 @@
         "MAX_TEMPERATURE": "H: {{temp}}°",
         "SUNSHINE_DURATION_HOURS": "{{duration}} h",
         "SUNSHINE_DURATION_LABEL": "Sonnenstunden",
-        "NO_DATA_INFO": "Aktuell können leider keine Wetterdaten anzeigt werden.",
+        "NO_DATA_INFO": "Aktuell können leider keine Wetterdaten angezeigt werden.",
         "WEATHER_CODE_0": "Sonnig",
         "WEATHER_CODE_1": "Heiter",
         "WEATHER_CODE_2": "Teilweise bewölkt",
