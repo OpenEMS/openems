@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 import static java.util.Collections.emptyList;
 
 import java.util.AbstractMap;
@@ -564,16 +565,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			final AddAppInstance.Request request, //
 			final boolean ignoreBackend //
 	) throws OpenemsNamedException {
-		// check if key is valid for this app
-		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key(), request.appId())) {
-			throw new OpenemsException("Key not applicable!");
-		}
-
+		final var bundle = AbstractOpenemsApp
+				.getTranslationBundle(user == null ? Language.DEFAULT : user.getLanguage());
 		final var openemsApp = this.findAppByIdOrError(request.appId());
 
 		if (user != null) {
 			if (!openemsApp.getAppPermissions().canInstall().contains(user.getRole())) {
-				throw new OpenemsException("User Role can't install!");
+				throw new OpenemsException(translate(bundle, "AppManager.installApp.permissionDenied"));
 			}
 		}
 
@@ -597,6 +595,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 					if (e.getMessage().contains("Read timed out")) {
 						this.appSynchronizeWorker.setValidBackendResponse(false);
 						this.appSynchronizeWorker.triggerNextRun();
+						throw new OpenemsException(translate(bundle, "AppManager.installApp.timeout"));
 					}
 					throw e;
 				}
