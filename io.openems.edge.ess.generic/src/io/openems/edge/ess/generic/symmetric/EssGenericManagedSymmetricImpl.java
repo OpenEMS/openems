@@ -25,8 +25,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.session.Role;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.api.BatteryTimeoutFailure;
-import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
+import io.openems.edge.battery.api.BatteryErrorAcknowledge;
+import io.openems.edge.batteryinverter.api.BatteryInverterErrorAcknowledge;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -38,14 +38,14 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.ess.api.EssTimeoutFailure;
+import io.openems.edge.ess.api.EssErrorAcknowledge;
+import io.openems.edge.ess.api.EssErrorAcknowledgeRequest;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.jsonrpc.ClearTimeoutFailure;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.power.api.Power;
@@ -62,9 +62,9 @@ import io.openems.edge.ess.power.api.Power;
 public class EssGenericManagedSymmetricImpl extends
 		AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> implements
 		EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss, OpenemsComponent,
-		EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssTimeoutFailure, ComponentJsonApi {
+		EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssErrorAcknowledge, ComponentJsonApi {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
+	private final Logger log = LoggerFactory.getLogger(EssGenericManagedSymmetricImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
 
@@ -96,7 +96,7 @@ public class EssGenericManagedSymmetricImpl extends
 				HybridEss.ChannelId.values(), //
 				EssGenericManagedSymmetric.ChannelId.values(), //
 				EssProtection.ChannelId.values(), //
-				EssTimeoutFailure.ChannelId.values()//
+				EssErrorAcknowledge.ChannelId.values()//
 		);
 	}
 
@@ -196,28 +196,29 @@ public class EssGenericManagedSymmetricImpl extends
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new ClearTimeoutFailure(), endpoint -> {
+		builder.handleRequest(new EssErrorAcknowledgeRequest(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
 		}, call -> {
-			this.clearEssTimeoutFailure();
+			this.executeErrorAcknowledge();
 			return EmptyObject.INSTANCE;
 		});
+
 	}
 
 	@Override
-	public void clearEssTimeoutFailure() {
+	public void executeErrorAcknowledge() {
 		try {
 			this._setTimeoutStartBattery(false);
 			this._setTimeoutStartBatteryInverter(false);
 			this._setTimeoutStopBattery(false);
 			this._setTimeoutStopBatteryInverter(false);
 
-			if (this.battery instanceof BatteryTimeoutFailure b) {
-				b.clearBatteryTimeoutFailure();
+			if (this.battery instanceof BatteryErrorAcknowledge b) {
+				b.executeBatteryErrorAcknowledge();
 			}
 
-			if (this.batteryInverter instanceof BatteryInverterTimeoutFailure bi) {
-				bi.clearBatteryInverterTimeoutFailure();
+			if (this.batteryInverter instanceof BatteryInverterErrorAcknowledge bi) {
+				bi.executeBatteryInverterErrorAcknowledge();
 			}
 
 			this.stateMachine.forceNextState(UNDEFINED);

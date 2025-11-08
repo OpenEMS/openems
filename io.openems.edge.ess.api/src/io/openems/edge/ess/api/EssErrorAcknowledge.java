@@ -1,28 +1,28 @@
 package io.openems.edge.ess.api;
 
-import io.openems.common.channel.Level;
+import static io.openems.common.channel.Level.FAULT;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface EssTimeoutFailure extends OpenemsComponent {
+public interface EssErrorAcknowledge extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		TIMEOUT_START_BATTERY(Doc.of(Level.FAULT) //
+	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		TIMEOUT_START_BATTERY(Doc.of(FAULT)//
 				.text("Start battery timeout passed!")), //
-		TIMEOUT_START_BATTERY_INVERTER(Doc.of(Level.FAULT) //
+		TIMEOUT_START_BATTERY_INVERTER(Doc.of(FAULT)//
 				.text("Start battery inverter timeout passed!")), //
-		TIMEOUT_STOP_BATTERY(Doc.of(Level.FAULT) //
+		TIMEOUT_STOP_BATTERY(Doc.of(FAULT)//
 				.text("Stop battery timeout passed!")), //
-		TIMEOUT_STOP_BATTERY_INVERTER(Doc.of(Level.FAULT) //
+		TIMEOUT_STOP_BATTERY_INVERTER(Doc.of(FAULT) //
 				.text("Stop battery inverter timeout passed!")) //
-
 		;
 
 		private final Doc doc;
 
-		private ChannelId(Doc doc) {
+		ChannelId(Doc doc) {
 			this.doc = doc;
 		}
 
@@ -33,17 +33,16 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	}
 
 	/**
-	 * This method attempts to set the individual component timeout channels to
-	 * false.
+	 * This method attempts to set the individual component error channels to null.
 	 */
-	public void clearEssTimeoutFailure();
+	void executeErrorAcknowledge();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#TIMEOUT_START_BATTERY}.
 	 *
 	 * @return the Channel
 	 */
-	public default StateChannel getTimeoutStartBatteryChannel() {
+	default StateChannel getTimeoutStartBatteryChannel() {
 		return this.channel(ChannelId.TIMEOUT_START_BATTERY);
 	}
 
@@ -52,7 +51,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getTimeoutStartBattery() {
+	default Value<Boolean> getTimeoutStartBattery() {
 		return this.getTimeoutStartBatteryChannel().value();
 	}
 
@@ -62,7 +61,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTimeoutStartBattery(boolean value) {
+	default void _setTimeoutStartBattery(boolean value) {
 		this.getTimeoutStartBatteryChannel().setNextValue(value);
 	}
 
@@ -71,7 +70,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default StateChannel getTimeoutStartBatteryInverterhannel() {
+	default StateChannel getTimeoutStartBatteryInverterChannel() {
 		return this.channel(ChannelId.TIMEOUT_START_BATTERY_INVERTER);
 	}
 
@@ -81,8 +80,8 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getTimeoutStartBatteryInverter() {
-		return this.getTimeoutStartBatteryInverterhannel().value();
+	default Value<Boolean> getTimeoutStartBatteryInverter() {
+		return this.getTimeoutStartBatteryInverterChannel().value();
 	}
 
 	/**
@@ -91,8 +90,8 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTimeoutStartBatteryInverter(boolean value) {
-		this.getTimeoutStartBatteryInverterhannel().setNextValue(value);
+	default void _setTimeoutStartBatteryInverter(boolean value) {
+		this.getTimeoutStartBatteryInverterChannel().setNextValue(value);
 	}
 
 	/**
@@ -100,7 +99,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default StateChannel getTimeoutStopBatteryInverterChannel() {
+	default StateChannel getTimeoutStopBatteryInverterChannel() {
 		return this.channel(ChannelId.TIMEOUT_STOP_BATTERY_INVERTER);
 	}
 
@@ -110,7 +109,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getTimeoutStopBatteryInverter() {
+	default Value<Boolean> getTimeoutStopBatteryInverter() {
 		return this.getTimeoutStopBatteryInverterChannel().value();
 	}
 
@@ -120,7 +119,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTimeoutStopBatteryInverter(boolean value) {
+	default void _setTimeoutStopBatteryInverter(boolean value) {
 		this.getTimeoutStopBatteryInverterChannel().setNextValue(value);
 	}
 
@@ -129,7 +128,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default StateChannel getTimeoutStopBatteryChannel() {
+	default StateChannel getTimeoutStopBatteryChannel() {
 		return this.channel(ChannelId.TIMEOUT_STOP_BATTERY);
 	}
 
@@ -138,7 +137,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getTimeoutStopBattery() {
+	default Value<Boolean> getTimeoutStopBattery() {
 		return this.getTimeoutStopBatteryChannel().value();
 	}
 
@@ -148,7 +147,7 @@ public interface EssTimeoutFailure extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setTimeoutStopBattery(boolean value) {
+	default void _setTimeoutStopBattery(boolean value) {
 		this.getTimeoutStopBatteryChannel().setNextValue(value);
 	}
 }
