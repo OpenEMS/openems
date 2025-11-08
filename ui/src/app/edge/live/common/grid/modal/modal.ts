@@ -111,6 +111,7 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     return {
       title: translate.instant("GENERAL.GRID"),
+      helpKey: "REDIRECT.COMMON_GRID",
       lines: lines,
     };
   }

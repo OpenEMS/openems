@@ -18,6 +18,11 @@ export class EvcsChartDetailsComponent extends AbstractHistoryChart {
 
         const component = config?.getComponent(route.snapshot.params.componentId);
         const evcs = EvcsComponent.from(component, config, edge);
+
+        if (evcs == null) {
+            return HistoryUtils.ChartData.EMPTY;
+        }
+
         return {
             input: [{
                 name: evcs.id,

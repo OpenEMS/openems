@@ -55,6 +55,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
             props: {
               attributes: {
                 title: view.title,
+                ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
               },
               required: true,
               options: [{ lines: view.lines, component: view.component }],
@@ -228,6 +229,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
 export type OeFormlyView = {
   title: string,
+  helpKey?: string | null,
   lines: OeFormlyField[],
   component?: EdgeConfig.Component,
   edge?: Edge,

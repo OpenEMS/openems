@@ -788,25 +788,37 @@ export namespace HistoryUtils {
  * TODO Lukas refactor
  */
   export type ChannelData = {
-    [name: string]: number[]
+    [name: string]: number[];
   };
 
-  export type ChartData = {
-    /** Input Channels that need to be queried from the database */
-    input: InputChannel[],
-    /** Output Channels that will be shown in the chart */
-    output: (data: ChannelData, labels?: (string | Date)[]) => DisplayValue<HistoryUtils.CustomOptions>[],
-    tooltip: {
-      /** Format of Number displayed */
-      formatNumber: string,
-      afterTitle?: (stack: string) => string,
-      /** Defaults to true */
-      enabled?: boolean,
-    },
-    yAxes: yAxes[],
-    /** Rounds slightly negative values, defaults to false */
-    normalizeOutputData?: boolean,
-  };
+  export class ChartData {
+    /** Static empty instance */
+    public static readonly EMPTY = new ChartData();
+
+    constructor(
+      /** Input Channels that need to be queried from the database */
+      public input: InputChannel[] = [],
+
+      /** Output Channels that will be shown in the chart */
+      public output: (
+        data: ChannelData,
+        labels?: (string | Date)[]
+      ) => DisplayValue<HistoryUtils.CustomOptions>[] = () => [],
+
+      public tooltip: {
+        /** Format of Number displayed */
+        formatNumber: string;
+        afterTitle?: (stack: string) => string;
+        /** Defaults to true */
+        enabled?: boolean;
+      } = { formatNumber: "", enabled: false },
+
+      public yAxes: yAxes[] = [],
+
+      /** Rounds slightly negative values, defaults to false */
+      public normalizeOutputData?: boolean,
+    ) { }
+  }
 
   export type yAxes = {
     /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */

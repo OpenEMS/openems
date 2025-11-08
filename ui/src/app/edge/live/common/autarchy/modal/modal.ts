@@ -18,6 +18,7 @@ export class ModalComponent extends AbstractFormlyComponent {
   public static generateView(translate: TranslateService): OeFormlyView {
     return {
       title: translate.instant("GENERAL.AUTARCHY"),
+      helpKey: "REDIRECT.COMMON_AUTARCHY",
       lines: [{
         type: "info-line",
         name: translate.instant("EDGE.INDEX.WIDGETS.AUTARCHY_INFO"),

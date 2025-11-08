@@ -124,6 +124,7 @@ export class ModalComponent extends AbstractFormlyComponent {
 
     return {
       title: translate.instant("GENERAL.CONSUMPTION"),
+      helpKey: "REDIRECT.COMMON_CONSUMPTION",
       lines: lines,
     };
   }

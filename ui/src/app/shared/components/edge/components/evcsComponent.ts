@@ -34,7 +34,7 @@ export class EvcsComponent extends EdgeConfig.Component {
         return true;
     }
 
-    public static getComponents(config: EdgeConfig, edge: Edge | null): EvcsComponent[] {
+    public static getComponents(config: EdgeConfig, edge: Edge | null): (EvcsComponent | null)[] {
         return config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
             .filter(component =>
                 !["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]
@@ -42,7 +42,10 @@ export class EvcsComponent extends EdgeConfig.Component {
             .map(component => EvcsComponent.from(component, config, edge));
     }
 
-    public static from(component: EdgeConfig.Component, config: EdgeConfig, edge: Edge | null) {
+    public static from(component: EdgeConfig.Component, config: EdgeConfig | null, edge: Edge | null) {
+        if (config === null) {
+            return null;
+        }
         const powerChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ChargePower" : "ActivePower";
         const energyChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ActiveConsumptionEnergy" : "ActiveProductionEnergy";
         return new EvcsComponent(component.id, component.alias, new ChannelAddress(component.id, powerChannelId), new ChannelAddress(component.id, energyChannelId));

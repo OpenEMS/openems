@@ -1,4 +1,4 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props">
+<oe-modal [title]="props.attributes.title" *ngIf="props" [helpKey]="props.attributes.helpKey" useDefaultPrefix="false">
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ng-container *ngFor="let entry of props.options">
         <ng-container *ngFor="let line of entry.lines">
