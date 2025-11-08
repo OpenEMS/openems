@@ -63,6 +63,7 @@ import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
+import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
@@ -278,6 +279,16 @@ public final class Apps {
 	 */
 	public static final Isk011 feneconIndustrialSIsk011(AppManagerTestBundle t) {
 		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconProHybrid10}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconProHybrid10 feneconProHybrid10(AppManagerTestBundle t) {
+		return app(t, FeneconProHybrid10::new, "App.FENECON.ProHybrid.10");
 	}
 
 	// TimeOfUseTariff
