@@ -18,13 +18,14 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,6 +51,8 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
 	private BridgeHttp httpBridge;
 	private String baseUrl;
@@ -84,8 +87,9 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 			this.logInfo(this.log, "Subscribing to KOSTAL PIKO at " + this.baseUrl);
 
 			// Subscribe for updates every cycle
-			this.httpBridge.subscribeCycle(1,
-					() -> new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
+			final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+			cycleService.subscribeCycle(1,
+					new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
 							BridgeHttp.DEFAULT_READ_TIMEOUT, null, this.headers),
 					this::handleSuccessfulResult, this::handleError);
 		}
@@ -94,10 +98,8 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		if (this.httpBridge != null) {
-			this.httpBridgeFactory.unget(this.httpBridge);
-			this.httpBridge = null;
-		}
+		this.httpBridgeFactory.unget(this.httpBridge);
+		this.httpBridge = null;
 	}
 
 	private void handleSuccessfulResult(HttpResponse<String> result) {
@@ -163,7 +165,10 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 				// current cell has numeric value or "x x x", next cell is a unit (text)
 				boolean hasNumericOrNoData = valueText.matches(".*\\d+.*") || valueText.matches("x\\s*x\\s*x")
 						|| valueText.equals("x");
-				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude pure unit labels
+				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude
+																														// pure
+																														// unit
+																														// labels
 				boolean nextIsUnit = nextText.matches("\\s*[kMGmµ]?[WhVA]+\\s*"); // Match units like W, kWh, V, A, etc.
 
 				if (hasNumericOrNoData && prevIsLabel && nextIsUnit) {
