@@ -300,8 +300,13 @@
                     "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
                 },
                 "STORAGE": {
+                    "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
+                    "BATTERY_DC": "Batterie - DC",
+                    "INVERTER": "Wechselrichter",
                     "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
-                    "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
+                    "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird",
+                    "TOTAL_AC": "Gesamt AC",
+                    "TOTAL_DC": "Gesamt DC"
                 }
             },
             "RETROFITTING": {
@@ -317,10 +322,10 @@
                 "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
                 "INSTANT_START": "Sofortstart",
                 "PLANNED_EXPANSION": "Geplante Erweiterung",
-                "INFORMATION_FOR_PL_ANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+                "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
                 "PREPARING": "Kapazitätserweiterung wird vorbereitet",
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-                "INFORMATION_FOR_PL_ANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
+                "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
                 "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt"
             },
             "SYSTEMUPDATE": "Systemupdate"

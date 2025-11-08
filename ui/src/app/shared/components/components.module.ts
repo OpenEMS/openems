@@ -18,7 +18,7 @@ import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentageb
 import { FooterComponent } from "./footer/footer";
 import { FooterNavigationComponentsModule, FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
-import { ModalModule } from "./modal/modal.module";
+import { ModalComponentsModule, ModalModule } from "./modal/modal.module";
 import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
 import { NavigationChipsComponent } from "./navigation/chips/chips";
 import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
@@ -33,7 +33,7 @@ import { NotificationComponent } from "./shared/notification/notification";
         ReactiveFormsModule,
         DomChangeDirective,
         RouterModule,
-        ModalModule,
+        ModalComponentsModule,
         PickdateComponentModule,
         ChartComponentsModule,
     ],

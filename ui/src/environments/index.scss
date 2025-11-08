@@ -158,6 +158,7 @@
     --ion-color-grey-primary: rgba(128, 128, 128, 1);
     --ion-color-grey-rgba: rgba(128, 128, 128, 0.05);
     --ion-card-content-color: #737373; // #f4f4f4 in case the percentage-style class is applied.
+    --ion-card-header-shadow: var(--ion-color-light-shade);
     --ion-color-charge-primary: rgba(0, 223, 0, 1); // Base //
     --ion-color-charge-rgba: rgba(0, 223, 0, 0.05); // semi-transparent //
     --ion-color-custom-links: var(--ion-color-primary);
@@ -271,6 +272,7 @@
     /** Card **/
     --ion-card-content: #cccccc;
     --ion-card-content-color: #cccccc;
+    --ion-card-header-shadow: #59677a;
     --ion-color-label: var(--ion-item-color);
     --ion-color-background-pull-to-refresh: var(--ion-color-secondary);
     --ion-color-pull-to-refresh: var(--ion-menu-color);

@@ -1,20 +1,66 @@
 // @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
+import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { environment, Environment } from "src/environments";
+import { StorageSystemComponent } from "./storage-system/storage-system";
 
 @Component({
     selector: "storage-modal",
-    templateUrl: "./modal.component.html",
-    standalone: false,
+    templateUrl: "./admin-modal.component.html",
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        StorageSystemComponent,
+        HelpButtonComponent,
+        ReactiveFormsModule,
+        FormsModule,
+        FormlyModule,
+        PipeComponentsModule,
+        ComponentsBaseModule,
+        ModalComponentsModule,
+
+        LocaleProvider,
+        LiveDataServiceProvider,
+    ],
+    styles: [`
+            .ess-accordion-group {
+                padding: 0 0.625rem;
+            }
+            .ess-accordion {
+                margin: 1rem 0;
+                border-radius: 0.625rem;
+                overflow: hidden;
+                width: 100%;
+            }
+            .ess-accordion-header {
+                --background: var(--ion-color-light);
+                --color: var(--ion-color-title);
+                --padding-start: 0.75rem;
+                --inner-padding-end: 0.75rem;
+                --min-height: 2.75rem;
+                --border-color: transparent;
+                box-shadow: 0 0.125rem 0.375rem var(--ion-card-header-shadow);
+            }
+            .ess-accordion-content {
+                background: var(--ion-color-light);
+            }`,
+    ],
 })
-export class StorageModalComponent implements OnInit, OnDestroy {
+export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
     // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
@@ -32,6 +78,9 @@ export class StorageModalComponent implements OnInit, OnDestroy {
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
+    protected batteryInverters: EdgeConfig.Component[] = [];
+    protected batteryInverterIdsByEssId: { [essId: string]: string[] } = {};
+
     protected readonly environment: Environment = environment;
 
     constructor(
@@ -54,6 +103,19 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             this.chargerComponents = this.config
                 .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 .filter(component => component.isEnabled);
+
+            const BatteryInverterNature = "io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter";
+            this.batteryInverters = this.config
+                .getComponentsImplementingNature(BatteryInverterNature)
+                ?.filter(c => c.isEnabled) || [];
+
+            this.batteryInverterIdsByEssId = {};
+            for (const bi of this.batteryInverters) {
+                const essLink = bi.properties?.["ess.id"];
+                if (essLink) {
+                    (this.batteryInverterIdsByEssId[essLink] ||= []).push(bi.id);
+                }
+            }
 
             // Future Work: Remove when all ems are at least at this version
             this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast("2023.2.5");
@@ -88,6 +150,11 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
                 );
             }
+            for (const batteryInverter of this.batteryInverters) {
+                channelAddresses.push(new ChannelAddress(batteryInverter.id, "ActivePower"));
+                channelAddresses.push(new ChannelAddress(batteryInverter.id, "AirTemperature"));
+            }
+
             this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
 
             this.edge.currentData
@@ -140,12 +207,11 @@ export class StorageModalComponent implements OnInit, OnDestroy {
                                 if ((epochSeconds == null
                                     || epochSeconds == 0)) {
                                     this.isTargetTimeInValid.set(essId, true);
-                                } else if
-
-                                // If expected expectedStartOfpreparation is after targetTime
-                                //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
-                                (isBefore(new Date(targetTime), expectedStartOfPreparation)
+                                } else if (isBefore(new Date(targetTime), expectedStartOfPreparation)
                                     || isBefore(new Date(targetTime), new Date())) {
+
+                                    // If expected expectedStartOfpreparation is after targetTime
+                                    //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
                                     this.isTargetTimeInValid.set(essId, true);
                                 } else {
                                     this.isTargetTimeInValid.set(essId, false);
@@ -244,11 +310,11 @@ export class StorageModalComponent implements OnInit, OnDestroy {
             try {
                 // todo: updateAppConfig for once fixed
                 await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
-                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
                 this.formGroup.markAsPristine();
 
             } catch (reason) {
-                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
+                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason, "danger");
             }
 
         }

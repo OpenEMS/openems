@@ -11,8 +11,7 @@ import { CommonConsumption } from "./common/consumption/common-consumption";
 import { Common_Grid } from "./common/grid/Common_Grid";
 import { Common_Production } from "./common/production/Common_Production";
 import { CommonSelfconsumption } from "./common/selfconsumption/common-selfconsumption";
-import { StorageModalComponent } from "./common/storage/modal/modal.component";
-import { StorageComponent } from "./common/storage/storage.component";
+import { StorageLiveModule } from "./common/storage/storage.module";
 import { WeatherModule } from "./common/weather/weather.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
 import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
@@ -52,6 +51,7 @@ import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-
 
 @NgModule({
     imports: [
+        StorageLiveModule,
         BrowserAnimationsModule,
         BrowserModule,
         Common_Autarchy,
@@ -102,8 +102,6 @@ import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-
         Io_Api_DigitalInput_ModalComponent,
         Io_Api_DigitalInputComponent,
         LiveComponent,
-        StorageComponent,
-        StorageModalComponent,
     ],
 })
 export class LiveModule { }
