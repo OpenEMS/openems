@@ -129,7 +129,8 @@ public final class TimeOfUseProps {
 		return Checkables.checkHome() //
 				.or(Checkables.checkCommercial92()) //
 				.or(Checkables.checkIndustrial()) //
-				.or(Checkables.checkCommercial50Gen3());
+				.or(Checkables.checkCommercial50Gen3())//
+				.or(Checkables.checkCommercial92Master());
 	}
 
 }
