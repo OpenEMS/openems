@@ -46,9 +46,9 @@ import { InfoComponent } from "./info/info.component";
 import { Io_Api_DigitalInputComponent } from "./Io/Api_DigitalInput/Io_Api_DigitalInput";
 import { Io_Api_DigitalInput_ModalComponent } from "./Io/Api_DigitalInput/modal/modal.component";
 import { LiveComponent } from "./live.component";
-import { Evcs_Api_ClusterComponent } from "./Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster";
-import { EvcsChartComponent } from "./Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart";
-import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page";
+import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-api-cluster/flat/flat";
+import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
+import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
 
 @NgModule({
   imports: [
@@ -77,6 +77,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     SharedModule,
     PullToRefreshComponent,
     HelpButtonComponent,
+    EvcsClusterApiChartComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -95,9 +96,8 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
-    Evcs_Api_ClusterComponent,
-    Evcs_Api_ClusterModalComponent,
-    EvcsChartComponent,
+    EvcsClusterApiFlatComponent,
+    EvcsClusterApiModalComponent,
     InfoComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,

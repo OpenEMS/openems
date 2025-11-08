@@ -69,8 +69,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   protected config: EdgeConfig = null;
   protected errorResponse: JsonrpcResponseError | null = null;
   protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
-
-  private channelData: { data: { [name: string]: number[] } } = { data: {} };
+  protected channelData: { data: { [name: string]: number[] } } = { data: {} };
 
   constructor(
     public service: Service,

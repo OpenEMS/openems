@@ -563,7 +563,7 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result["data"])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
+    return (Object.values(arg.result["data"])?.map(element => element as number[])?.every(element => (Array.isArray(element) && (element?.every(elem => elem == null) ?? true)))) ?? true;
   }
 
   /**

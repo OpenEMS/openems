@@ -3,15 +3,15 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../../shared/shared";
-import { Evcs_Api_ClusterModalComponent } from "./modal/evcsCluster-modal.page";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "../../../../../shared/shared";
+import { ModalComponent } from "../modal/modal";
 
 @Component({
-  selector: "Evcs_Api_Cluster",
-  templateUrl: "./Evcs_Api_Cluster.html",
+  selector: "oe-multiple-evcs-api-cluster",
+  templateUrl: "./flat.html",
   standalone: false,
 })
-export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
   public channelAddresses: ChannelAddress[] = [];
   public evcsIdsInCluster: string[] = [];
@@ -21,30 +21,21 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
   public isConnectionSuccessful: boolean;
   public alias: string;
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+  protected modalComponent: Modal | null = null;
 
-  protected get modalComponent(): Modal {
+  protected override afterIsInitialized(): void {
+    this.modalComponent = this.getModalComponent();
+  }
+
+  protected getModalComponent(): Modal {
     return {
-      component: Evcs_Api_ClusterModalComponent,
+      component: ModalComponent,
       componentProps: {
-        config: this.component,
+        component: this.component,
         edge: this.edge,
-        componentId: this.componentId,
         evcsMap: this.evcsMap,
       },
     };
-  }
-
-  async presentModal() {
-    const modal = await this.modalController.create({
-      component: Evcs_Api_ClusterModalComponent,
-      componentProps: {
-        config: this.component,
-        edge: this.edge,
-        componentId: this.componentId,
-        evcsMap: this.evcsMap,
-      },
-    });
-    return await modal.present();
   }
 
   protected override getChannelAddresses() {
@@ -107,5 +98,4 @@ export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
       new ChannelAddress(componentId, "Alias"),
     );
   }
-
 }

@@ -34,8 +34,7 @@ import { WsData } from "./wsdata";
 export class Websocket implements WebsocketInterface {
 
   public static readonly REQUEST_TIMEOUT = 500;
-
-  private static readonly DEFAULT_EDGEID = 0;
+  public pendingRequests: Map<string | number, Promise<JsonrpcResponse>> = new Map();
 
   public status:
     "initial" // before first connection attempt

@@ -1,6 +1,6 @@
 @if (currentHourlyForecast && currentDailyForecast) {
 <ion-card>
-  <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
+  <ion-item lines="full" style="--background: var(--ion-background-color-card-header)" tabindex="0">
     <ion-icon slot="start" size="large" color="normal"
       [name]="currentHourlyForecast.weatherCode | weatherCodeIcon:currentHourlyForecast.isDay">
     </ion-icon>

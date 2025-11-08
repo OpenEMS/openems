@@ -9,6 +9,7 @@ import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
+import { HistoryUtils } from "../../utils/utils";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
@@ -241,6 +242,7 @@ export type OeFormlyField =
   | OeFormlyField.ChildrenLine
   | OeFormlyField.ChannelLine
   | OeFormlyField.HorizontalLine
+  | OeFormlyField.ChartLine
   | OeFormlyField.ValueFromChannelsLine
   | OeFormlyField.ValueFromFormControlLine
   | OeFormlyField.ButtonsFromFormControlLine
@@ -307,5 +309,10 @@ export namespace OeFormlyField {
 
   export type HorizontalLine = {
     type: "horizontal-line",
+  };
+  export type ChartLine = {
+    type: "chart-line",
+    chartData: HistoryUtils.ChartData,
+    component: EdgeConfig.Component,
   };
 }

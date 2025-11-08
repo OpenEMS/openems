@@ -762,8 +762,6 @@ export class EdgeConfig {
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
     }
-
-
 }
 
 export enum PersistencePriority {
