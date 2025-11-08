@@ -59,7 +59,6 @@ public final class AllowedChannels {
 				.put("_sum/ConsumptionActivePowerL3", DataType.LONG) //
 				.put("_sum/GridBuyPrice", DataType.DOUBLE) //
 				.put("_sum/UnmanagedConsumptionActivePower", DataType.LONG) //
-				.putAll(multiChannels(io, "Relay", 1, 9, DataType.LONG)) //
 				.putAll(multiChannels(ctrlIoHeatPump, "Status", DataType.LONG)) //
 				.putAll(multiChannels(ess, "Soc", DataType.LONG)) //
 				.putAll(multiChannels(ess, "ActivePower", DataType.LONG)) //
@@ -90,6 +89,13 @@ public final class AllowedChannels {
 				.putAll(multiChannels(evseChargePoint, "Voltage", DataType.LONG)) //
 				.putAll(multiChannels(evseChargePoint, "CurrentL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(evseChargePoint, "VoltageL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels(io, "Relay", 1, 9, DataType.LONG)) //
+				.putAll(multiChannels(io, "ActivePower", DataType.LONG)) //
+				.putAll(multiChannels(io, "ActivePowerL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels(io, "Current", DataType.LONG)) //
+				.putAll(multiChannels(io, "Voltage", DataType.LONG)) //
+				.putAll(multiChannels(io, "CurrentL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels(io, "VoltageL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(ctrlEvseSingle, "ActualMode", DataType.LONG)) //
 				.putAll(multiChannels(ctrlEvseSingle, "StateMachine", DataType.LONG)) //
 				.put("_sum/EssDischargePower", DataType.LONG) // used for xlsx export
@@ -146,6 +152,9 @@ public final class AllowedChannels {
 				.putAll(multiChannels(meter, "ActiveConsumptionEnergy", DataType.LONG)) //
 				.putAll(multiChannels(meter, "ActiveConsumptionEnergyL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(io, "ActiveProductionEnergy", DataType.LONG)) //
+				.putAll(multiChannels(io, "ActiveProductionEnergyL", 1, 4, DataType.LONG)) //
+				.putAll(multiChannels(io, "ActiveConsumptionEnergy", DataType.LONG)) //
+				.putAll(multiChannels(io, "ActiveConsumptionEnergyL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(pvInverter, "ActiveProductionEnergy", DataType.LONG)) //
 				.putAll(multiChannels(pvInverter, "ActiveProductionEnergyL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(charger, "ActualEnergy", DataType.LONG)) //
