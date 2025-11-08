@@ -112,6 +112,8 @@ export interface Environment {
             readonly RUNDSTEUER: {
                 readonly HOME: string,
                 readonly HOME_GEN_2: string,
+                readonly HOME_20_30: string,
+                readonly COMMERCIAL_50_GEN_3: string,
             },
 
             readonly AVU: string,

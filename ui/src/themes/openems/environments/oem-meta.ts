@@ -89,6 +89,8 @@ export const OemMeta: BaseMeta = {
             RUNDSTEUER: {
                 HOME: "#",
                 HOME_GEN_2: "#",
+                HOME_20_30: "#",
+                COMMERCIAL_50_GEN_3: "#",
             },
 
             AVU: "#",

@@ -198,9 +198,9 @@ export class UserComponent implements OnInit {
 
     //   this.websocket.sendRequest(
     //     new UpdateUserSettingsRequest({ settings: userSettings })).then(() => {
-    //       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+    //       this.service.toast(this.translate.instant('GENERAL.CHANGE_ACCEPTED'), 'success');
     //     }).catch((reason) => {
-    //       this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
+    //       this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
     //     });
     // }
 

@@ -23,10 +23,10 @@ import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox
 import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
-import { FormlyFieldRadioWithImageComponent } from "./components/formly/formly-field-radio-with-image/formly-field-radio-with-image";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
+import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
@@ -82,7 +82,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
                 { name: "form-field", component: FormlyWrapperFormFieldComponent },
                 { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
                 { name: "formly-select-extended-wrapper", component: FormlySelectFieldExtendedWrapperComponent },
-                { name: "formly-field-radio-with-image", component: FormlyFieldRadioWithImageComponent },
                 { name: "form-field-checkbox-hyperlink", component: FormlyCheckBoxHyperlinkWrapperComponent },
                 { name: "formly-wrapper-default-of-cases", component: FormlyWrapperDefaultValueWithCasesComponent },
                 { name: "panel", component: PanelWrapperComponent },
@@ -136,7 +135,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         FormlyFieldModalComponent,
         FormlyFieldNavigationComponent,
         FormlyFieldMultiStepComponent,
-        FormlyFieldRadioWithImageComponent,
         FormlyFieldWithLoadingAnimationComponent,
         FormlySelectFieldExtendedWrapperComponent,
         FormlySelectFieldModalComponent,
@@ -154,6 +152,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         FormlyTariffTableTypeComponent,
         PickDateTimeRangeComponent,
         FormlyRangeTypeComponent,
+        FormlySelectOptionsWithImageModalComponent,
     ],
     exports: [
         AppHeaderComponent,

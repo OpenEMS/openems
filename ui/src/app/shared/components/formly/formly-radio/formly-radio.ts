@@ -1,10 +1,11 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-radio",
     templateUrl: "./formly-radio.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styles: [
         `
     :host {
@@ -13,4 +14,22 @@ import { FieldType } from "@ngx-formly/core";
     `,
     ],
 })
-export class FormlyRadioTypeComponent extends FieldType { }
+export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnChanges {
+
+    protected fieldOptions: any[] = [];
+
+    public ngOnInit(): void {
+        this.updateFieldOptions();
+    }
+
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (changes["props"]?.currentValue?.options) {
+            this.updateFieldOptions();
+        }
+    }
+
+    private updateFieldOptions(): void {
+        const opts = this.props?.options;
+        this.fieldOptions = Array.isArray(opts) ? opts : [];
+    }
+}
