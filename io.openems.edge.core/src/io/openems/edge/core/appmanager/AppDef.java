@@ -446,7 +446,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * 
 	 * <p>
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
-	 * overridden and return a non null value.
+	 * overridden and return a non-null value.
 	 * 
 	 * @param key    the key of the translation
 	 * @param params the parameter of the translation

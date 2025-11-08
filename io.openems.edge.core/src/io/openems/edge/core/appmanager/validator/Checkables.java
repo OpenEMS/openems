@@ -41,6 +41,16 @@ public final class Checkables {
 
 	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is an
+	 * Industrial L.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkIndustrialL() {
+		return empty(CheckIndustrial.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is an
 	 * Industrial.
 	 *
 	 * @return the {@link CheckableConfig}

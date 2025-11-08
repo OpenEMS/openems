@@ -86,6 +86,7 @@ import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
 import io.openems.edge.app.openemshardware.TechbaseCm3;
@@ -978,6 +979,16 @@ public final class Apps {
 	 */
 	public static final JanitzaMeter janitzaMeter(AppManagerTestBundle t) {
 		return app(t, JanitzaMeter::new, "App.Meter.Janitza");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterJanitza}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterJanitza janitzaGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterJanitza::new, "App.GridMeter.Janitza");
 	}
 
 	/**
