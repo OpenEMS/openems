@@ -1,14 +1,20 @@
+import { ArrayUtils } from "../array/array.utils";
+
 export namespace StringUtils {
 
     export const INVALID_STRING = "Passed value is not of type string";
     export type UppercaseString<T extends string> = T extends Uppercase<T> ? T : never;
 
     export function isValidString(val: any): val is string {
-        return typeof val === "string";
+        const isString = typeof val === "string";
+        if (!isString) {
+            throw new Error(INVALID_STRING);
+        }
+        return isString;
     }
 
-    export function validateStrings(...arr: (string | null)[]): boolean {
-        return arr.every(el => el != null && isValidString(el));
+    export function validateStrings(arr: string[] | null): boolean {
+        return arr?.every(el => el != null && isValidString(el)) ?? false;
     }
 
     /**
@@ -19,10 +25,10 @@ export namespace StringUtils {
      * @returns true if passed value is not contained by the array
      */
     export function isNotInArr(val: string | null, arr: string[] | null): boolean {
-        if ((!isValidString(val) || !Array.isArray(arr)) || !(validateStrings(...arr))) {
-            throw new Error(INVALID_STRING);
-        }
-        return arr.every(el => val != el);
+        ArrayUtils.isValidArr(arr);
+        StringUtils.isValidString(val);
+        StringUtils.validateStrings(arr);
+        return arr?.every(el => val != el) ?? true;
     }
 
     /**
@@ -46,7 +52,7 @@ export namespace StringUtils {
      */
     export function getSubstringInBetween(start: string | null, end: string | null, val: string | null): string | null {
 
-        if ((!val || !start || !end) || !(validateStrings(start, end, val))) {
+        if ((!val || !start || !end) || !(validateStrings([start, end, val]))) {
             throw new Error(INVALID_STRING);
         }
 

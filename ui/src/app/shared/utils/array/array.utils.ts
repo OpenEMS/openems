@@ -1,6 +1,16 @@
 import { Utils } from "../../shared";
 
 export namespace ArrayUtils {
+
+    export const INVALID_ARRAY = "Passed value is not a array";
+
+    export function isValidArr<T>(val: T[] | null): val is T[] {
+        const isArray = Array.isArray(val);
+        if (!isArray) {
+            throw new Error(INVALID_ARRAY);
+        }
+        return isArray;
+    }
     export function equalsCheck<T>(a: T[], b: T[]): boolean {
         return a.length === b.length &&
             a.every((v, i) => v === b[i]);
