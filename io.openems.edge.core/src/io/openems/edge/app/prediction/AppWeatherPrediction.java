@@ -16,7 +16,6 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
@@ -30,7 +29,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
@@ -121,7 +119,7 @@ public class AppWeatherPrediction extends
 
 	@Override
 	public OpenemsAppCategory[] getCategories() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
+		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 
 	@Override
@@ -135,13 +133,5 @@ public class AppWeatherPrediction extends
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
-	}
-
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanInstall(Role.OWNER) //
-				.setCanSee(Role.OWNER) //
-				.build();
 	}
 }
