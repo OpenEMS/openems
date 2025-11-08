@@ -3,8 +3,7 @@ package io.openems.edge.controller.evse.cluster;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE;
-import static io.openems.edge.evse.api.chargepoint.Mode.Actual.MINIMUM;
+import static io.openems.edge.controller.evse.cluster.LogVerbosity.TRACE;
 import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_SINGLE_PHASE;
 import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.roundDownToPowerStep;
@@ -197,11 +196,12 @@ public class Utils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
-	 * @param logDebug             a debug log consumer
+	 * @param logVerbosity         the configured {@link LogVerbosity}
+	 * @param logger               a log message consumer
 	 * @return the {@link PowerDistribution}
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, Consumer<String> logDebug) {
+			List<ControllerEvseSingle> ctrls, LogVerbosity logVerbosity, Consumer<String> logger) {
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
 					var params = ctrl.getParams();
@@ -220,8 +220,8 @@ public class Utils {
 
 		// Build Actions
 		powerDistribution.streamWithParams().forEach(e -> {
-			handleApplySetPoint(e, logDebug);
-			handlePhaseSwitch(e, logDebug);
+			handleApplySetPoint(e, logVerbosity, logger);
+			handlePhaseSwitch(e, logVerbosity, logger);
 		});
 
 		return powerDistribution;
@@ -487,29 +487,35 @@ public class Utils {
 	 * Takes the PowerDistribution Entries of one {@link ControllerEvseSingle} and
 	 * sets the {@link ApplySetPoint.Action}.
 	 * 
-	 * @param e        the PowerDistribution Entry
-	 * @param logDebug a debug log consumer
+	 * @param e            the PowerDistribution Entry
+	 * @param logVerbosity the configured {@link LogVerbosity}
+	 * @param logger       a log message consumer
 	 */
-	private static void handleApplySetPoint(PowerDistribution.Entry e, Consumer<String> logDebug) {
+	private static void handleApplySetPoint(PowerDistribution.Entry e, LogVerbosity logVerbosity,
+			Consumer<String> logger) {
 		final var ctrl = e.ctrl;
 		final var params = e.params;
 		final var combinedAbilities = params.combinedAbilities();
 		final var chargePointAbilities = combinedAbilities.chargePointAbilities();
 
 		if (chargePointAbilities == null) {
-			logDebug.accept(ctrl.id() + ": " //
-					+ "Mode [" + params.actualMode() + "] " //
-					+ "ChargePointCapability is null " //
-					+ params);
+			if (logVerbosity == TRACE) {
+				logger.accept(ctrl.id() + ": " //
+						+ "Mode [" + params.actualMode() + "] " //
+						+ "ChargePointCapability is null " //
+						+ params);
+			}
 			return;
 		}
 
 		var value = params.combinedAbilities().chargePointAbilities().applySetPoint().fromPower(e.setPointInWatt);
 
-		logDebug.accept(ctrl.id() + ": " //
-				+ "Mode [" + params.actualMode() + "] " //
-				+ "Set [" + e.setPointInWatt + " W -> " + value + "] " //
-				+ params);
+		if (logVerbosity == TRACE) {
+			logger.accept(ctrl.id() + ": " //
+					+ "Mode [" + params.actualMode() + "] " //
+					+ "Set [" + e.setPointInWatt + " W -> " + value + "] " //
+					+ params);
+		}
 
 		switch (combinedAbilities.chargePointAbilities().applySetPoint()) {
 		case ApplySetPoint.Ability.MilliAmpere ma -> e.actions.setApplySetPointInMilliAmpere(value);
@@ -521,42 +527,43 @@ public class Utils {
 	/**
 	 * Handles a {@link PhaseSwitch} Action for one {@link ControllerEvseSingle}.
 	 * 
-	 * @param e        the PowerDistribution Entry
-	 * @param logDebug a debug log consumer
+	 * @param e            the PowerDistribution Entry
+	 * @param logVerbosity the configured {@link LogVerbosity}
+	 * @param logger       a log message consumer
 	 */
-	private static void handlePhaseSwitch(PowerDistribution.Entry e, Consumer<String> logDebug) {
+	private static void handlePhaseSwitch(PowerDistribution.Entry e, LogVerbosity logVerbosity,
+			Consumer<String> logger) {
 		final var ctrl = e.ctrl;
 		final var params = e.params;
-		final var combinedAbilities = params.combinedAbilities();
-		final var phaseSwitchAbility = combinedAbilities.phaseSwitch();
+		final var phaseSwitchAbility = params.combinedAbilities().phaseSwitch();
 		if (phaseSwitchAbility == null) {
+			// Phase-Switching is not available with ChargePoint and/or ElectricVehicle
 			return;
 		}
+
 		final var actions = e.actions;
-
-		switch (params.phaseSwitching()) {
-		case DISABLE -> doNothing();
-		case AUTOMATIC_SWITCHING -> {
-			if (params.actualMode() == FORCE // Mode is Force-Charge
-					&& phaseSwitchAbility == TO_THREE_PHASE) { // Can switch to Three-Phase
-				logDebug.accept(ctrl.id() + ": Switch from SINGLE to THREE phase in FORCE mode");
-				actions.setPhaseSwitch(TO_THREE_PHASE);
-
-			} else if (params.actualMode() == MINIMUM // Mode is Minimum
-					&& phaseSwitchAbility == TO_SINGLE_PHASE) { // Can switch to Single-Phase
-				logDebug.accept(ctrl.id() + ": Switch from THREE to SINGLE phase in MINIMUM mode");
-				actions.setPhaseSwitch(TO_SINGLE_PHASE);
-			}
+		switch (params.phaseSwitching()) { // Evse.Controller.Single wants...
+		case DISABLE -> {
+			// ...no phase switching -> do not set any PhaseSwitch action
+			doNothing();
 		}
 		case FORCE_SINGLE_PHASE -> {
-			if (phaseSwitchAbility == TO_SINGLE_PHASE) { // Force switch to Single-Phase
-				logDebug.accept(ctrl.id() + ": Force switch to SINGLE phase");
+			// ...force switch to Single-Phase...
+			if (phaseSwitchAbility == TO_SINGLE_PHASE) {
+				// ...and ChargePoint and ElectricVehicle support switch to Single-Phase
+				if (logVerbosity == TRACE) {
+					logger.accept(ctrl.id() + ": Force switch to SINGLE phase");
+				}
 				actions.setPhaseSwitch(TO_SINGLE_PHASE);
 			}
 		}
 		case FORCE_THREE_PHASE -> {
-			if (phaseSwitchAbility == TO_THREE_PHASE) { // Force switch to Three-Phase
-				logDebug.accept(ctrl.id() + ": Force switch to THREE phase");
+			// ... force switch to Three-Phase
+			if (phaseSwitchAbility == TO_THREE_PHASE) {
+				// ...and ChargePoint and ElectricVehicle support switch to Three-Phase
+				if (logVerbosity == TRACE) {
+					logger.accept(ctrl.id() + ": Force switch to THREE phase");
+				}
 				actions.setPhaseSwitch(TO_THREE_PHASE);
 			}
 		}

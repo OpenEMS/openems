@@ -44,8 +44,9 @@ public record CombinedAbilities(//
 					: this.isReadyForCharging == null //
 							? this.chargePointAbilities.isReadyForCharging() //
 							: this.isReadyForCharging && this.chargePointAbilities.isReadyForCharging(); //
-			final var phaseSwitch = this.electricVehicleAbilities != null
+			final var phaseSwitch = this.electricVehicleAbilities != null && this.chargePointAbilities != null
 					&& this.electricVehicleAbilities.canInterrupt() //
+					&& this.chargePointAbilities.phaseSwitch() != null //
 							? this.chargePointAbilities.phaseSwitch() //
 							: null;
 

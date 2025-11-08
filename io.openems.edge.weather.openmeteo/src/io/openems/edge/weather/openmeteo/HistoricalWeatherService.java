@@ -2,14 +2,15 @@ package io.openems.edge.weather.openmeteo;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
@@ -53,11 +54,12 @@ public class HistoricalWeatherService {
 
 		return this.httpBridge.getJson(url).thenApply(response -> {
 			var json = response.data().getAsJsonObject();
-			var responseZone = ZoneId.of(json.get(HistoricalQueryParams.TIMEZONE).getAsString());
+			var responseOffset = ZoneOffset.ofTotalSeconds(//
+					json.get(HistoricalQueryParams.UTC_OFFSET_SECONDS).getAsInt());
 
 			return this.weatherDataParser.parseQuarterly(//
 					json.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY), //
-					responseZone, //
+					responseOffset, //
 					targetZone);
 		});
 	}

@@ -210,6 +210,13 @@ public interface Channel<T> {
 	public void removeOnChangeCallback(BiConsumer<?, ?> callback);
 
 	/**
+	 * Adds a cleanup callback.
+	 *
+	 * @param callback the callback {@link Runnable}
+	 */
+	public void addOnDeactivateCallback(Runnable callback);
+
+	/**
 	 * Deactivates the Channel and makes sure all callbacks are released for garbe
 	 * collection to avoid memory-leaks.
 	 */

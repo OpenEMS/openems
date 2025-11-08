@@ -58,6 +58,8 @@ import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.goodwe.charger.mppt.twostring.GoodWeChargerMpptTwoStringImpl;
+import io.openems.edge.goodwe.charger.mppt.twostring.MpptPort;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
@@ -443,6 +445,73 @@ public class GoodWeBatteryInverterImplTest {
 						}) //
 						.output(MAX_AC_IMPORT, 0) //
 						.output(MAX_AC_EXPORT, 325));
+	}
+
+	@Test
+	public void testMaxAcImportExportCalculation() throws Exception {
+
+		var inverter = new GoodWeBatteryInverterImpl();
+		var charger1 = new GoodWeChargerMpptTwoStringImpl();
+
+		new ComponentTest(charger1) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("essOrBatteryInverter", inverter) //
+				.activate(io.openems.edge.goodwe.charger.mppt.twostring.MyConfig.create() //
+						.setId("charger0") //
+						.setBatteryInverterId("batteryInverter0") //
+						.setMpptPort(MpptPort.MPPT_1) //
+						.build());
+
+		charger1._setActualPower(5000);
+		charger1.getActualPowerChannel().nextProcessImage();
+		inverter.addCharger(charger1);
+
+		new ComponentTest(inverter) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.addComponent(charger1) //
+				.addComponent(new DummyBattery("battery0")) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				// Limited by max apparent power and PV
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, 10000) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, -10000) //
+						.output(MAX_AC_EXPORT, 5000)) // Was -2147453649
+
+				// Limited to zero, because of missing values
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, null) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, 0) //
+						.output(MAX_AC_EXPORT, 0)); //
 	}
 
 	@Test

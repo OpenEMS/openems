@@ -5,9 +5,11 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
+import { Role } from "src/app/shared/type/role";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
-import { StorageModalComponent } from "./modal/modal.component";
+import { AdminStorageModalComponent } from "./admin-modal/admin-modal.component";
+import { InstallerOwnerGuestStorageModalComponent } from "./installer-owner-guest-modal/installer-owner-guest-modal.component";
 
 @Component({
     selector: "storage",
@@ -76,17 +78,6 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: StorageModalComponent,
-            componentProps: {
-                edge: this.edge,
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
-
 
     protected override afterIsInitialized(): void {
         this.modalComponent = this.getModalComponent();
@@ -94,7 +85,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected getModalComponent(): Modal {
         return {
-            component: StorageModalComponent,
+            component: this.edge.roleIsAtLeast(Role.ADMIN) ? AdminStorageModalComponent : InstallerOwnerGuestStorageModalComponent,
             componentProps: {
                 edge: this.edge,
                 component: this.component,

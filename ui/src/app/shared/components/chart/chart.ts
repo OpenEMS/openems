@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, untracked } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,84 +8,89 @@ import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/
 import { UserService } from "../../service/user.service";
 import { Edge, Service } from "../../shared";
 import { DefaultTypes } from "../../type/defaulttypes";
+import { NavigationService } from "../navigation/service/navigation.service";
+import { ViewUtils } from "../navigation/view/shared/shared";
 
 @Component({
-  selector: "oe-chart",
-  templateUrl: "./chart.html",
-  standalone: false,
+    selector: "oe-chart",
+    templateUrl: "./chart.html",
+    standalone: false,
 })
 export class ChartComponent implements OnInit, OnChanges {
 
-  @Input() public title: string = "";
-  @Input() public showPhases: boolean | null = null;
-  @Input() public showTotal: boolean | null = null;
-  @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
-  @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
-  @Input() public isPopoverNeeded: boolean = false;
-  // Manually trigger ChangeDetection through Inputchange
-  @Input() private period?: DefaultTypes.PeriodString;
+    @Input() public title: string = "";
+    @Input() public showPhases: boolean | null = null;
+    @Input() public showTotal: boolean | null = null;
+    @Output() public setShowPhases: EventEmitter<boolean> = new EventEmitter();
+    @Output() public setShowTotal: EventEmitter<boolean> = new EventEmitter();
+    @Input() public isPopoverNeeded: boolean = false;
+    // Manually trigger ChangeDetection through Inputchange
+    @Input() private period?: DefaultTypes.PeriodString;
 
-  public edge: Edge | null = null;
+    public edge: Edge | null = null;
 
-  protected showPopover: boolean = false;
-  protected newNavigationUrlSegment: string;
+    protected showPopover: boolean = false;
+    protected newNavigationUrlSegment: string;
+    protected actionSheetModalHeight: number = 0;
 
-  constructor(
-    protected service: Service,
-    protected userService: UserService,
-    private route: ActivatedRoute,
-    public popoverCtrl: PopoverController,
-    protected translate: TranslateService,
-    protected modalCtr: ModalController,
-    private ref: ChangeDetectorRef,
-  ) { }
+    constructor(
+        protected service: Service,
+        protected userService: UserService,
+        private route: ActivatedRoute,
+        public popoverCtrl: PopoverController,
+        protected translate: TranslateService,
+        protected modalCtr: ModalController,
+        private ref: ChangeDetectorRef,
+        private navigationService: NavigationService,
+    ) { }
 
-  ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-    });
+    ngOnInit() {
+        this.service.getCurrentEdge().then(edge => {
+            this.edge = edge;
+        });
 
-    const _user = this.userService.currentUser();
-    const isNewNavigation = this.userService.isNewNavigation();
-    this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
-  }
-
-  /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
-  ngOnChanges() {
-    this.ref.detectChanges();
-    this.checkIfPopoverNeeded();
-  }
-
-  async presentPopover(ev: any) {
-    const popover = await this.popoverCtrl.create({
-      component: ChartOptionsPopoverComponent,
-      event: ev,
-      componentProps: {
-        showPhases: this.showPhases,
-        showTotal: this.showTotal,
-      },
-    });
-
-    await popover.present();
-    popover.onDidDismiss().then((data) => {
-      this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
-      this.showTotal = data.role == "Total" ? data.data : this.showTotal;
-      this.setShowPhases.emit(this.showPhases);
-      this.setShowTotal.emit(this.showTotal);
-    });
-    await popover.present();
-  }
-
-  private checkIfPopoverNeeded() {
-    if (this.isPopoverNeeded) {
-      if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
-        this.showPopover = false;
-        this.setShowPhases.emit(false);
-        this.setShowTotal.emit(true);
-      } else {
-        this.showPopover = true;
-      }
+        const _user = this.userService.currentUser();
+        const isNewNavigation = this.userService.isNewNavigation();
+        this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(untracked(() => this.navigationService.position()));
     }
-  }
+
+    /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
+    ngOnChanges() {
+        this.ref.detectChanges();
+        this.checkIfPopoverNeeded();
+    }
+
+    async presentPopover(ev: any) {
+        const popover = await this.popoverCtrl.create({
+            component: ChartOptionsPopoverComponent,
+            event: ev,
+            componentProps: {
+                showPhases: this.showPhases,
+                showTotal: this.showTotal,
+            },
+        });
+
+        await popover.present();
+        popover.onDidDismiss().then((data) => {
+            this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
+            this.showTotal = data.role == "Total" ? data.data : this.showTotal;
+            this.setShowPhases.emit(this.showPhases);
+            this.setShowTotal.emit(this.showTotal);
+        });
+        await popover.present();
+    }
+
+    private checkIfPopoverNeeded() {
+        if (this.isPopoverNeeded) {
+            if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+                this.showPopover = false;
+                this.setShowPhases.emit(false);
+                this.setShowTotal.emit(true);
+            } else {
+                this.showPopover = true;
+            }
+        }
+    }
 
 }

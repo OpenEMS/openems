@@ -22,138 +22,138 @@ import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxReque
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
 
 @Component({
-  selector: ProfileComponent.SELECTOR,
-  templateUrl: "./profile.component.html",
-  standalone: true,
-  imports: [
-    CommonUiModule,
-    PipeComponentsModule,
-    NgxSpinnerComponent,
-    RouterModule,
-    LiveDataServiceProvider,
-    LocaleProvider,
-    HelpButtonComponent,
-  ],
+    selector: ProfileComponent.SELECTOR,
+    templateUrl: "./profile.component.html",
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        PipeComponentsModule,
+        NgxSpinnerComponent,
+        RouterModule,
+        LiveDataServiceProvider,
+        LocaleProvider,
+        HelpButtonComponent,
+    ],
 })
 export class ProfileComponent implements OnInit {
 
-  private static readonly SELECTOR = "profile";
+    private static readonly SELECTOR = "profile";
 
-  public environment = environment;
+    public environment = environment;
 
-  public edge: Edge | null = null;
-  public config: EdgeConfig | null = null;
-  public subscribedChannels: ChannelAddress[] = [];
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public subscribedChannels: ChannelAddress[] = [];
 
-  public components: CategorizedComponents[] | null = null;
+    public components: CategorizedComponents[] | null = null;
 
-  protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
-  protected spinnerId: string = ProfileComponent.SELECTOR;
-  protected isLoading: WritableSignal<boolean> = signal(true);
-  protected isAtLeastOwner: boolean = false;
+    protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
+    protected spinnerId: string = ProfileComponent.SELECTOR;
+    protected isLoading: WritableSignal<boolean> = signal(true);
+    protected isAtLeastOwner: boolean = false;
 
-  constructor(
-    private service: Service,
-    private route: ActivatedRoute,
-    public popoverController: PopoverController,
-    private translate: TranslateService,
-    private websocket: Websocket,
-    private platFormService: PlatFormService,
-  ) {
-    effect(() => {
-      const isLoading = this.isLoading();
-      if (isLoading === true) {
-        this.service.startSpinnerTransparentBackground(this.spinnerId);
-      } else {
-        this.service.stopSpinner(this.spinnerId);
-      }
-    });
-  }
+    constructor(
+        private service: Service,
+        private route: ActivatedRoute,
+        public popoverController: PopoverController,
+        private translate: TranslateService,
+        private websocket: Websocket,
+        private platFormService: PlatFormService,
+    ) {
+        effect(() => {
+            const isLoading = this.isLoading();
+            if (isLoading === true) {
+                this.service.startSpinnerTransparentBackground(this.spinnerId);
+            } else {
+                this.service.stopSpinner(this.spinnerId);
+            }
+        });
+    }
 
-  public ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-      this.service.getConfig().then(async config => {
-        this.isAtLeastOwner = EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
-        this.config = config;
-        const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter", "_serialNumber"];
-        this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
-        await this.setLatestSetupProtocolData();
-      });
-    });
-  }
+    public ngOnInit() {
+        this.service.getCurrentEdge().then(edge => {
+            this.edge = edge;
+            this.service.getConfig().then(async config => {
+                this.isAtLeastOwner = EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
+                this.config = config;
+                const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter", "_serialNumber"];
+                this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
+                await this.setLatestSetupProtocolData();
+            });
+        });
+    }
 
-  public getModbusProtocol(componentId: string, type: string) {
-    this.service.getCurrentEdge().then(edge => {
-      const request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
-      edge.sendRequest(this.service.websocket, request).then(response => {
-        Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
-      }).catch(reason => {
-        this.service.toast(this.translate.instant("EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
-      });
-    });
-  }
+    public getModbusProtocol(componentId: string, type: string) {
+        this.service.getCurrentEdge().then(edge => {
+            const request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
+            edge.sendRequest(this.service.websocket, request).then(response => {
+                Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
+            }).catch(reason => {
+                this.service.toast(this.translate.instant("EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
+            });
+        });
+    }
 
-  public getChannelExport(componentId: string) {
-    this.service.getCurrentEdge().then(edge => {
-      const request = new ComponentJsonApiRequest({ componentId: "_componentManager", payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
-      edge.sendRequest(this.service.websocket, request).then(response => {
-        Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
-      }).catch(reason => {
-        console.warn(reason);
-      });
-    });
-  }
+    public getChannelExport(componentId: string) {
+        this.service.getCurrentEdge().then(edge => {
+            const request = new ComponentJsonApiRequest({ componentId: "_componentManager", payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
+            edge.sendRequest(this.service.websocket, request).then(response => {
+                Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
+            }).catch(reason => {
+                console.warn(reason);
+            });
+        });
+    }
 
-  /**
+    /**
    * Downloads the lates setup protocol
    */
-  protected async downloadLatestSetupProtocol(): Promise<void> {
+    protected async downloadLatestSetupProtocol(): Promise<void> {
 
-    if (!(this.latestSetupProtocolData?.setupProtocolId)) {
-      throw Error("Download not possible: setupProtocolId is missing");
+        if (!(this.latestSetupProtocolData?.setupProtocolId)) {
+            throw Error("Download not possible: setupProtocolId is missing");
+        }
+
+        const canExecuteDownload = this.platFormService.deviceHasFilePermissions();
+        if (!canExecuteDownload) {
+            return;
+        }
+
+        this.isLoading.set(true);
+        const setupProtocol: Base64PayloadResponse | null = await this.platFormService.sendRequest(new GetSetupProtocolRequest({ setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString() }), this.websocket);
+        if (!setupProtocol) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
+
+        if (!blob) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        const fileName = getFileName(this.latestSetupProtocolData.setupProtocolType, this.latestSetupProtocolData.createDate, this.edge);
+        this.platFormService.downloadAsPdf(blob, fileName);
+        this.isLoading.set(false);
     }
 
-    const canExecuteDownload = this.platFormService.deviceHasFilePermissions();
-    if (!canExecuteDownload) {
-      return;
+    private async setLatestSetupProtocolData() {
+        this.isLoading.set(true);
+
+        const edge = await this.service.getCurrentEdge();
+        const request = new GetSetupProtocolCoreInfoRequest({ edgeId: edge.id });
+        const setupProtocolsData: GetSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetSetupProtocolCoreInfoResponse;
+        const ibnProtocols: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"] | null = setupProtocolsData?.result?.setupProtocols
+            ?.filter(el => el.setupProtocolType === Type.SETUP_PROTOCOL) ?? null;
+        const latestIbnProtocol: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0] | null = ibnProtocols?.length > 0 ? ibnProtocols.reduce((a, b) => DateUtils.maxDate(a.createDate, b.createDate) ? a : b) : null;
+
+        if (latestIbnProtocol === null) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        this.latestSetupProtocolData = { setupProtocolType: latestIbnProtocol.setupProtocolType, setupProtocolId: latestIbnProtocol.setupProtocolId, createDate: latestIbnProtocol.createDate };
+        this.isLoading.set(false);
     }
-
-    this.isLoading.set(true);
-    const setupProtocol: Base64PayloadResponse | null = await this.platFormService.sendRequest(new GetSetupProtocolRequest({ setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString() }), this.websocket);
-    if (!setupProtocol) {
-      this.isLoading.set(false);
-      return;
-    }
-
-    const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
-
-    if (!blob) {
-      this.isLoading.set(false);
-      return;
-    }
-
-    const fileName = getFileName(this.latestSetupProtocolData.setupProtocolType, this.latestSetupProtocolData.createDate, this.edge);
-    this.platFormService.downloadAsPdf(blob, fileName);
-    this.isLoading.set(false);
-  }
-
-  private async setLatestSetupProtocolData() {
-    this.isLoading.set(true);
-
-    const edge = await this.service.getCurrentEdge();
-    const request = new GetSetupProtocolCoreInfoRequest({ edgeId: edge.id });
-    const setupProtocolsData: GetSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetSetupProtocolCoreInfoResponse;
-    const ibnProtocols: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"] | null = setupProtocolsData?.result?.setupProtocols
-      ?.filter(el => el.setupProtocolType === Type.SETUP_PROTOCOL) ?? null;
-    const latestIbnProtocol: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0] | null = ibnProtocols?.length > 0 ? ibnProtocols.reduce((a, b) => DateUtils.maxDate(a.createDate, b.createDate) ? a : b) : null;
-
-    if (latestIbnProtocol === null) {
-      this.isLoading.set(false);
-      return;
-    }
-
-    this.latestSetupProtocolData = { setupProtocolType: latestIbnProtocol.setupProtocolType, setupProtocolId: latestIbnProtocol.setupProtocolId, createDate: latestIbnProtocol.createDate };
-    this.isLoading.set(false);
-  }
 }
