@@ -27,7 +27,11 @@ common_build_snapshot_version() {
     if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
         # Replace unwanted characters with '.', compliant with Debian version
         # Ref: https://unix.stackexchange.com/a/23673
-        VERSION_DEV_BRANCH="$(git branch --show-current)"
+        if [[ -n "$CI_COMMIT_BRANCH" ]]; then
+            VERSION_DEV_BRANCH="${CI_COMMIT_BRANCH}"
+        else
+            VERSION_DEV_BRANCH="$(git branch --show-current)"
+        fi
         VERSION_DEV_COMMIT=""
         git diff --exit-code --quiet
         if [ $? -ne 0 ]; then
@@ -45,23 +49,31 @@ common_build_snapshot_version() {
 # Inserts the version number into the Code
 common_update_version_in_code() {
     echo "# Update version in Code"
-    echo "## Update $SRC_OPENEMS_CONSTANTS"
-    sed --in-place "s#\(VERSION_MAJOR = \)\([0-9]\+\);#\1$VERSION_MAJOR;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_MINOR = \)\([0-9]\+\);#\1$VERSION_MINOR;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_PATCH = \)\([0-9]\+\);#\1$VERSION_PATCH;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_STRING = \)\"\(.*\)\";#\1\"$VERSION_STRING\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_BRANCH = \)\"\(.*\)\";#\1\"${VERSION_DEV_BRANCH}\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_COMMIT = \)\"\(.*\)\";#\1\"$VERSION_DEV_COMMIT\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
+    if [[ -f "$SRC_OPENEMS_CONSTANTS" ]]; then
+        echo "## Update $SRC_OPENEMS_CONSTANTS"
+        sed --in-place "s#\(VERSION_MAJOR = \)\([0-9]\+\);#\1$VERSION_MAJOR;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_MINOR = \)\([0-9]\+\);#\1$VERSION_MINOR;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_PATCH = \)\([0-9]\+\);#\1$VERSION_PATCH;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_STRING = \)\"\(.*\)\";#\1\"$VERSION_STRING\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_BRANCH = \)\"\(.*\)\";#\1\"${VERSION_DEV_BRANCH}\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_COMMIT = \)\"\(.*\)\";#\1\"$VERSION_DEV_COMMIT\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
+    fi
+    
+    if [[ -f "$SRC_PACKAGE_JSON" ]]; then
+        echo "## Update $SRC_PACKAGE_JSON"
+        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+    fi
+    
+    if [[ -f "$SRC_PACKAGE_LOCK_JSON" ]]; then
+        echo "## Update $SRC_PACKAGE_LOCK_JSON"
+        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+    fi
 
-    echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
-
-    echo "## Update $SRC_PACKAGE_LOCK_JSON"
-    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
-
-    echo "## Update $SRC_CHANGELOG_CONSTANTS"
-    sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+    if [[ -f "$SRC_CHANGELOG_CONSTANTS" ]]; then
+        echo "## Update $SRC_CHANGELOG_CONSTANTS"
+        sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+    fi
 }
 
 common_print_banner() {
@@ -197,17 +209,15 @@ common_build_ios_app() {
 
 common_save_environment() {
     local file=${1:-build.environment}
-    echo "
-    export VERSION=\"$VERSION\"
-    export VERSION_MAJOR=\"$VERSION_MAJOR\"
-    export VERSION_MINOR=\"$VERSION_MINOR\"
-    export VERSION_PATCH=\"$VERSION_PATCH\"
-    export VERSION_STRING=\"$VERSION_STRING\"
-    export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
-    export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
-    export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
-    export VERSION_FULL=\"$VERSION_FULL\"
-    " | tee $file
+    echo "export VERSION=\"$VERSION\"
+export VERSION_MAJOR=\"$VERSION_MAJOR\"
+export VERSION_MINOR=\"$VERSION_MINOR\"
+export VERSION_PATCH=\"$VERSION_PATCH\"
+export VERSION_STRING=\"$VERSION_STRING\"
+export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
+export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
+export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
+export VERSION_FULL=\"$VERSION_FULL\"" | tee $file
 }
 
 common_check_file() {
@@ -217,4 +227,13 @@ common_check_file() {
         echo "Error: $error_message"
         exit 1
     fi
+}
+
+common_create_version_file() {
+    local file="${1:-fems.version}"
+    if [ -f "$file" ]; then
+        echo "File exists: $file; Skip!"
+        return
+    fi
+    echo $VERSION > "$file"
 }
