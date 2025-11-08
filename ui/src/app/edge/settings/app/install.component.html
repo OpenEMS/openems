@@ -10,17 +10,32 @@
                 <ion-label> {{ appName }}</ion-label>
               </ion-item>
               <ion-card-content>
-                <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-                <ion-item>
-                  <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
-                    EDGE.CONFIG.APP.CREATE_APP
-                  </ion-button>
-                  @if (isInstalling) {
-                    <div style="min-height: 100px;">
-                    </div>
+                @for (step of steps; track step) {
+                  @switch(step.type) {
+                    @case('configuration') {
+                      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+                      <ion-item>
+                        <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
+                          Edge.Config.App.createApp
+                        </ion-button>
+                        @if (isInstalling) {
+                          <div style="min-height: 100px;">
+                          </div>
+                        }
+                        <ngx-spinner [name]="appId"></ngx-spinner>
+                      </ion-item>
+                    }
+                    @case('oauth') {
+                      <configuration-oauth [step]="step">
+                      </configuration-oauth>
+                    }
+                    @default {
+                      <p>
+                        {{ 'Edge.Config.App.UNKNOWN_INSTALLATION_STEP' | translate: { step: step.type } }}
+                      </p>
+                    }
                   }
-                  <ngx-spinner [name]="appId"></ngx-spinner>
-                </ion-item>
+                }
               </ion-card-content>
             </ion-card>
           </form>

@@ -2,6 +2,8 @@ package io.openems.edge.core.appmanager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -242,7 +244,12 @@ public abstract class AbstractOpenemsAppWithProps<//
 										.test(this.getApp(), p, language, parameter.get(), user)) //
 								.build()) //
 						.collect(JsonUtils.toJsonArray())) //
+				.steps(this.configurationSteps(user)) //
 				.build();
+	}
+
+	protected List<AppAssistant.AppConfigurationStep> configurationSteps(User user) {
+		return Collections.emptyList();
 	}
 
 	private final String getAlias(Language language, PARAMETER parameter) {

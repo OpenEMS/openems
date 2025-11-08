@@ -71,7 +71,6 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 @Component(name = "App.TimeOfUseTariff.ENTSO-E")
 public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
-	// TODO provide image in folder
 
 	public static enum Property implements Type<Property, EntsoE, Type.Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -80,7 +79,6 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		// TODO make this an Enum
 		BIDDING_ZONE(AppDef.of(EntsoE.class)//
 				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
 				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //

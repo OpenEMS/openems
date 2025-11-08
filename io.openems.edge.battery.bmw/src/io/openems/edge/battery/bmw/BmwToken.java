@@ -23,12 +23,10 @@ public class BmwToken {
 	private static final int FETCH_TOKEN_DELAY = 30;
 
 	private String token;
-	private BridgeHttp http;
 	private HttpBridgeTimeService timeService;
 
 	@Activate
 	public BmwToken(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http) {
-		this.http = http;
 		this.timeService = http.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
 

@@ -15,6 +15,7 @@ import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
 import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
+import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
 
 interface MyInstance {
   instanceId: string, // uuid
@@ -23,6 +24,7 @@ interface MyInstance {
   isUpdating: boolean,
   fields: FormlyFieldConfig[]
   properties: {},
+  steps: GetAppAssistant.AppConfigurationStep[],
 }
 
 @Component({
@@ -36,6 +38,7 @@ interface MyInstance {
     ReactiveFormsModule,
     RouterModule,
     FormlyModule,
+    ConfigurationOAuthComponent,
   ],
 })
 export class UpdateAppComponent implements OnInit {
@@ -63,7 +66,7 @@ export class UpdateAppComponent implements OnInit {
     this.service.startSpinner(this.spinnerId);
     const appId = this.route.snapshot.params["appId"];
     const appName = this.route.snapshot.queryParams["name"] ?? this.service.currentPageTitle;
-    this.service.setCurrentComponent(appName, this.route).then(edge => {
+    this.service.setCurrentComponent(appName ?? "", this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
@@ -86,6 +89,16 @@ export class UpdateAppComponent implements OnInit {
                   "ALIAS": instance.alias,
                   ...instance.properties,
                 };
+
+                // tread configuration as a installation step
+                const steps = [
+                  {
+                    type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
+                    params: {},
+                  },
+                  ...(appAssistant.steps ?? []),
+                ];
+
                 this.instances.push({
                   instanceId: instance.instanceId,
                   form: form,
@@ -93,6 +106,7 @@ export class UpdateAppComponent implements OnInit {
                   isUpdating: false,
                   fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
                   properties: model,
+                  steps: steps,
                 });
               }
 

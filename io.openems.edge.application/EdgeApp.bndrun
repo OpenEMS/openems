@@ -202,6 +202,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.entsoe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.groupe',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.hassfurt',\
+	bnd.identity;id='io.openems.edge.timeofusetariff.luox',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.manual',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
@@ -404,6 +405,7 @@
 	io.openems.edge.timeofusetariff.entsoe;version=snapshot,\
 	io.openems.edge.timeofusetariff.groupe;version=snapshot,\
 	io.openems.edge.timeofusetariff.hassfurt;version=snapshot,\
+	io.openems.edge.timeofusetariff.luox;version=snapshot,\
 	io.openems.edge.timeofusetariff.manual;version=snapshot,\
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\

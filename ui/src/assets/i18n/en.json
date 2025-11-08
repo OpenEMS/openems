@@ -482,7 +482,17 @@
         "DELETE_CONFIRM_DESCRIPTION": "Uninstalling the app will remove all of its components and delete all settings made by it.",
         "TECHNICAL_NAME": "Technical name",
         "CATEGORY": "Category",
-        "CARDINALITY": "Cardinality"
+        "CARDINALITY": "Cardinality",
+        "UNKNOWN_INSTALLATION_STEP": "Unknown installation step: {{ step }}",
+        "OAUTH": {
+          "CONNECT": "Connect with {{ oauthName }}",
+          "BROWSER_ONLY": "Signing in to {{ oauthName }} is done via the web browser, not through the {{ edgeLongName }} app.",
+          "SWITCH_TO_BROWSER": "Switch to browser",
+          "LOG_IN": "{{ oauthName }} sign in",
+          "LOG_OUT": "Log out",
+          "STATES_MISMATCH": "There was a problem logging in. Please try again.",
+          "UNABLE_TO_CONNECT_CODE": "Unable to connect code. Please try again. {{ error }}"
+        }
       }
     },
     "SERVICE": {

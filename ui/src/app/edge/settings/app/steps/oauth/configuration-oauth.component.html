@@ -1,0 +1,46 @@
+<ion-row class="ion-padding-bottom-triple ion-padding-top-triple">
+    <ion-col>
+        <ion-item lines="none">
+            @if (connectionState === 'CONNECTED') {
+                <ion-icon class="ion-padding-end" size="large" color="success"
+                    name="checkmark-circle-outline"></ion-icon>
+            } @else {
+                <ion-icon class="ion-padding-end" size="large" color="danger" name="close-circle-outline"></ion-icon>
+            }
+            <ion-label class="ion-text-wrap"
+                style="display: inline-block; width: auto; max-width: fit-content; white-space: nowrap;">
+                {{ 'Edge.Config.App.OAUTH.CONNECT' | translate: { oauthName: step.params.oauthName } }}
+            </ion-label>
+            @if (step.params.helperText) {
+                <oe-help-popover-button [helpMsg]="step.params.helperText"></oe-help-popover-button>
+            }
+        </ion-item>
+    </ion-col>
+    @if (isApp) {
+        <ion-col size="12">
+            <ion-item lines="none">
+                <ion-label>
+                    <small>
+                        {{ 'Edge.Config.App.OAUTH.BROWSER_ONLY' | translate: { oauthName: step.params.oauthName, edgeLongName: environment.edgeLongName } }}
+                    </small>
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    }
+    <ion-col size="12" class="ion-padding-top">
+        @if (!isApp) {
+            <ion-item lines="none">
+                <oe-flat-button (click)="initiateConnect()"
+                    [disabled]="(!getOAuthProvider()) || connectionState === 'CONNECTED'">
+                    {{ 'Edge.Config.App.OAUTH.LOG_IN' | translate: { oauthName: step.params.oauthName } }}
+                </oe-flat-button>
+                <oe-flat-button (click)="disconnectOAuthConnection()"
+                    [disabled]="(!getOAuthProvider()) || connectionState !== 'CONNECTED'" fill="outline">
+                    <ion-text translate>
+                        Edge.Config.App.OAUTH.LOG_OUT
+                    </ion-text>
+                </oe-flat-button>
+            </ion-item>
+        }
+    </ion-col>
+</ion-row>

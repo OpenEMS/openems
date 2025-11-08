@@ -494,7 +494,17 @@
         "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
         "TECHNICAL_NAME": "Technischer Name",
         "CATEGORY": "Kategorie",
-        "CARDINALITY": "Kardinalität"
+        "CARDINALITY": "Kardinalität",
+        "UNKNOWN_INSTALLATION_STEP": "Unbekannter Installations Schritt: {{ step }}",
+        "OAUTH": {
+          "CONNECT": "Verbindung mit {{ oauthName }}",
+          "BROWSER_ONLY": "Die Anmeldung bei {{ oauthName }} erfolgt über den Web-Browser, nicht über die {{ edgeLongName }} App.",
+          "SWITCH_TO_BROWSER": "Zum Browser wechseln",
+          "LOG_IN": "{{ oauthName }} Anmeldung",
+          "LOG_OUT": "Verbindung trennen",
+          "STATES_MISMATCH": "Es gab ein Problem bei der Anmeldung. Bitte versuchen Sie es erneut.",
+          "UNABLE_TO_CONNECT_CODE": "Verbindung zu konnte nicht hergestellt werden. Bitte versuchen Sie es erneut. {{ error }}"
+        }
       }
     },
     "SERVICE": {

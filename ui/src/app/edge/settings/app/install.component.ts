@@ -20,6 +20,7 @@ import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterI
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
 import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
 import { hasPredefinedKey } from "./permissions";
+import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
 
 @Component({
   selector: InstallAppComponent.SELECTOR,
@@ -32,6 +33,7 @@ import { hasPredefinedKey } from "./permissions";
     FormlyModule,
     FormsModule,
     ReactiveFormsModule,
+    ConfigurationOAuthComponent,
   ],
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
@@ -44,6 +46,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   protected model: any | null = null;
   protected appName: string | null = null;
   protected isInstalling: boolean = false;
+  protected steps: GetAppAssistant.AppConfigurationStep[] = [];
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private key: string | null = null;
@@ -131,6 +134,14 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           this.model = {};
           this.form = new FormGroup({});
 
+          // treat configuration as a installation step
+          this.steps = [
+            {
+              type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
+              params: {},
+            },
+            ...(appAssistant.steps ?? []),
+          ];
         })
         .catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error))
         .finally(() => {
@@ -192,8 +203,12 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         }
 
         this.form.markAsPristine();
-        const navigationExtras = { state: { appInstanceChange: true } };
-        this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+        if (this.steps.length > 1) {
+          this.router.navigate(["device/" + (this.edge.id) + "/settings/app/update/" + (this.appId)], { queryParams: { name: this.appName } });
+        } else {
+          const navigationExtras = { state: { appInstanceChange: true } };
+          this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+        }
       })
         .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error })))
         .finally(() => {

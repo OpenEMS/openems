@@ -56,13 +56,13 @@ public class FeneconCommercial92
 	public enum Property implements Type<Property, FeneconCommercial92, Parameter.BundleParameter> {
 		ALIAS(alias()), //
 
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
 		FEED_IN_TYPE(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION,
-				ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) //
+				ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION)//
 				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 
@@ -144,7 +144,6 @@ public class FeneconCommercial92
 			final var gridMeterId = "meter0";
 			final var essId = "ess0";
 
-			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
 			final var batteryTarget = this.getString(p, Property.BATTERY_TARGET);
