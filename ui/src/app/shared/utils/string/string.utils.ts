@@ -28,7 +28,7 @@ export namespace StringUtils {
      * @param arr the array
      * @returns true if passed value is ocurring in the array
      */
-    export function isIn(val: string, arr: string[]): boolean {
+    export function isInArr(val: string, arr: string[]): boolean {
         return arr.some(el => val == el);
     }
 

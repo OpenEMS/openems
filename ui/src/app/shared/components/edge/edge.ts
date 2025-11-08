@@ -27,6 +27,7 @@ import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigRespo
 import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
 import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
+import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
@@ -477,6 +478,7 @@ export class Edge {
     }
 
     const conf = await this.config.getValue();
+    this.addCommonWidgetNavigation(edge, conf, navigationTree, translate);
     const baseMode: NavigationTree["mode"] = "label";
     for (const [componentId, component] of Object.entries(conf.components)) {
       if (component.isEnabled == false) {
@@ -510,6 +512,20 @@ export class Edge {
     }
 
     return navigationTree;
+  }
+
+  private addCommonWidgetNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {
+    const classes = Widgets.parseWidgets(edge, conf).classes;
+
+    for (const clazz of classes) {
+      const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getCommonNavigationTree(edge, clazz, translate, conf);
+
+      if (navigationTree == null) {
+        continue;
+      }
+
+      currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
+    }
   }
 
   /**

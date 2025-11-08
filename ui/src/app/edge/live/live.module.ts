@@ -10,7 +10,7 @@ import { Common_Autarchy } from "./common/autarchy/Common_Autarchy";
 import { Common_Consumption } from "./common/consumption/Common_Consumption";
 import { Common_Grid } from "./common/grid/Common_Grid";
 import { Common_Production } from "./common/production/Common_Production";
-import { Common_Selfconsumption } from "./common/selfconsumption/Common_Selfconsumption";
+import { CommonSelfconsumption } from "./common/selfconsumption/common-selfconsumption";
 import { StorageModalComponent } from "./common/storage/modal/modal.component";
 import { StorageComponent } from "./common/storage/storage.component";
 import { WeatherModule } from "./common/weather/weather.module";
@@ -58,7 +58,7 @@ import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-
     Common_Consumption,
     Common_Grid,
     Common_Production,
-    Common_Selfconsumption,
+    CommonSelfconsumption,
     Controller_Api_ModbusTcp,
     Controller_EnerixControl,
     Controller_Ess_FixActivePower,

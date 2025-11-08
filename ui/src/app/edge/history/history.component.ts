@@ -5,7 +5,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
-import { Edge, EdgeConfig, EdgePermission, Service, Widgets } from "src/app/shared/shared";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, EdgePermission, Service } from "src/app/shared/shared";
+import { Widgets } from "src/app/shared/type/widgets";
 import { environment } from "src/environments";
 
 @Component({
@@ -28,9 +30,6 @@ export class HistoryComponent implements OnInit {
   // holds the current Edge
   public edge: Edge | null = null;
 
-  // holds Channelthreshold Components to display effective active time in %
-  // public channelthresholdComponents: string[] = [];
-
   public config: EdgeConfig | null = null;
   protected errorResponse: JsonrpcResponseError | null = null;
   protected isModbusTcpWidgetAllowed: boolean = false;
@@ -40,6 +39,7 @@ export class HistoryComponent implements OnInit {
     public translate: TranslateService,
     private route: ActivatedRoute,
     private dataService: DataService,
+    private userService: UserService,
     protected navigationService: NavigationService,
   ) {
 
@@ -52,15 +52,9 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit() {
     this.service.getConfig().then(config => {
-      // gather ControllerIds of Channelthreshold Components
-      // for (let controllerId of
-      //   config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-      //     .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-      //   this.channelthresholdComponents.push(controllerId)
-      // }
       this.config = config;
       config.hasStorage();
-      this.widgets = config.widgets;
+      this.widgets = this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
       // Are we connected to OpenEMS Edge and is a timedata service available?
       if (environment.backend == "OpenEMS Edge"
         && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {

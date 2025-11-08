@@ -50,8 +50,8 @@ export namespace ArrayUtils {
    * @param fn to get a string to sort by
    * @returns sorted array
    */
-  export function sortedAlphabetically<Type>(array: Type[], fn: (arg: Type) => string): Type[] {
-    return array.sort((a: Type, b: Type) => {
+  export function sortedAlphabetically<T>(array: T[], fn: (arg: T) => string): T[] {
+    return array.sort((a: T, b: T) => {
       const aVal = fn(a);
       const bVal = fn(b);
       if (!aVal) {
@@ -91,6 +91,23 @@ export namespace ArrayUtils {
 
   export function sanitize<T>(arr: T[]): T[] {
     return arr.filter(el => el != null);
+  }
+
+  /**
+   * Removes overlapping elements between arrays from input array.
+   *
+   * @param inputArr the arr to remove elements from
+   * @param values the arrays to match against {@link inputArr}
+   * @returns arr1 with distinct elements
+   */
+  export function removeMatching<T extends any[]>(inputArr: T | null, ...values: (T | null)[]): T | null {
+
+    if (inputArr == null || values == null || values?.length === 0) {
+      return null;
+    }
+
+    const restArrays = values.flat(1);
+    return inputArr?.filter(item => restArrays.includes(item) == false) as T ?? null;
   }
 
   export namespace ReducerFunctions {

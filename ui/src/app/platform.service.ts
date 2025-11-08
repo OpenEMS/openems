@@ -168,6 +168,10 @@ export class PlatFormService {
     return Capacitor.getPlatform() !== "web";
   }
 
+  public getDeviceType(): DeviceType {
+    return this.deviceService.deviceType as DeviceType;
+  }
+
   private async updateState() {
     const { isActive } = await App.getState();
     this.setIsActiveAgain(isActive);
@@ -190,3 +194,8 @@ export class PlatFormService {
   }
 }
 
+export enum DeviceType {
+  MOBILE = "mobile",
+  DESKTOP = "desktop",
+  TABLET = "tablet",
+}

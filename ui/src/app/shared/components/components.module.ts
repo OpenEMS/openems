@@ -25,7 +25,6 @@ import { NavigationPageComponent as NavigationViewComponent } from "./navigation
 import { PickdateComponentModule, PickdateModule } from "./pickdate/pickdate.module";
 import { NotificationComponent } from "./shared/notification/notification";
 
-
 @NgModule({
     imports: [
         CommonModule,

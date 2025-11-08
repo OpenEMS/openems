@@ -1,16 +1,29 @@
 @if (breadCrumbs().length > 0) {
-  <ion-breadcrumbs maxItems="3">
+  <ion-breadcrumbs [maxItems]="maxItems" (ionCollapsedClick)="presentPopover($event)">
     @for(parent of breadCrumbs(); track parent.id; let isLast = $last){
-      <ion-breadcrumb [active]="isLast" (keydown.enter)="navigateTo(parent, !isLast)" tabindex="0"
-        (click)="navigateTo(parent, !isLast)" color="primary">
+      <ion-breadcrumb [active]="isLast" (keydown.enter)="navigateTo($event, parent, !isLast)"
+        (click)="navigateTo($event, parent, !isLast, isOpen)" tabindex="0" color="primary">
         @if (parent.mode === 'label') {
           <ion-text [color]="isLast ? 'primary': 'medium'">{{parent.label}}</ion-text>
         }
         @if (parent.mode === 'icon') {
-          <ion-icon [name]="'home-outline'"
-          [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
+          <ion-icon [name]="'home-outline'" [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
         }
       </ion-breadcrumb>
     }
   </ion-breadcrumbs>
+  <ion-popover #popover [isOpen]="isOpen" (didDismiss)="isOpen = false">
+    <ng-template>
+      <ion-content>
+        <ion-list>
+          @for (breadcrumb of collapsedBreadcrumbs; track breadcrumb; let last = $last) {
+            <ion-item (click)="navigateTo($event, breadcrumb, true, false); popover.dismiss()" tabindex="0"
+              [lines]="last ? 'none' : null" style="cursor: pointer;">
+              <ion-label>{{ breadcrumb.label }}</ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-popover>
 }

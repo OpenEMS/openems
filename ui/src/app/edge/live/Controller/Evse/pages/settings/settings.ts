@@ -32,8 +32,8 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
     private energySessionLimitChannel: ChannelAddress | null = null;
 
     constructor(
+        protected override service: Service,
         private route: ActivatedRoute,
-        private service: Service,
     ) {
         super();
     }
@@ -70,7 +70,7 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafely<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
+        this.setFormControlSafelyWithChannel<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
     }
 
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
@@ -95,7 +95,6 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
         if (!component || !component.id) {
             return [];
         }
-        this.energySessionLimitChannel = new ChannelAddress(component.id, "_PropertyManualEnergySessionLimit");
-        return [this.energySessionLimitChannel];
+        return [new ChannelAddress(component.id, "_PropertyManualEnergySessionLimit")];
     }
 }

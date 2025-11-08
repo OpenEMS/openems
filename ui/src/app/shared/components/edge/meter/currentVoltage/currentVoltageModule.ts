@@ -6,11 +6,13 @@ import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { ChartModule } from "../../../chart/chart.module";
+import { ComponentsBaseModule } from "../../../components.module";
 import { HistoryDataErrorModule } from "../../../history-data-error/history-data-error.module";
 import { PickdateModule } from "../../../pickdate/pickdate.module";
 import { CurrentVoltageAsymmetricChartComponent } from "./chart/asymmetricMeter";
 import { CurrentVoltageSymmetricChartComponent } from "./chart/symmetricMeter";
-import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
+import { CurrentVoltageOverviewComponent } from "./new-navigation/new-navigation";
+import { CurrentAndVoltageOverviewComponent } from "./overview/currentVoltage.overview";
 
 @NgModule({
   imports: [
@@ -26,14 +28,17 @@ import { CurrentAndVoltageOverviewComponent } from "./currentVoltage.overview";
     }),
     ChartModule,
     PickdateModule,
+    ComponentsBaseModule,
   ],
   declarations: [
     CurrentAndVoltageOverviewComponent,
+    CurrentVoltageOverviewComponent,
     CurrentVoltageAsymmetricChartComponent,
     CurrentVoltageSymmetricChartComponent,
   ],
   exports: [
     CurrentAndVoltageOverviewComponent,
+    CurrentVoltageOverviewComponent,
     CurrentVoltageAsymmetricChartComponent,
     CurrentVoltageSymmetricChartComponent,
   ],

@@ -19,7 +19,16 @@ import { ModalValueLineComponent } from "./modal-value-line/modal-value-line";
 import { ModalHorizontalLineComponent } from "./model-horizontal-line/modal-horizontal-line";
 
 @NgModule({
-  imports: [ReactiveFormsModule, FormsModule, IonicModule, CommonModule, PipeComponentsModule, TranslateModule, HelpButtonComponent, OeImageComponent],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    IonicModule,
+    CommonModule,
+    PipeComponentsModule,
+    TranslateModule,
+    HelpButtonComponent,
+    OeImageComponent,
+  ],
   declarations: [
     ModalButtonsComponent,
     ModalInfoLineComponent,

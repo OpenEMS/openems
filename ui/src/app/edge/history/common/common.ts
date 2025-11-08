@@ -1,27 +1,27 @@
 import { NgModule } from "@angular/core";
-import { Common_Autarchy } from "./autarchy/Autarchy";
+import { CommonAutarchyHistory } from "../../live/common/autarchy/history/autarchy-history";
+import { CommonGridHistory } from "../../live/common/grid/history/grid-history";
+import { CommonSelfConsumptionHistory } from "../../live/common/selfconsumption/history/common-selfconsumption-history";
 import { Common_Consumption } from "./consumption/Consumption";
 import { CommonEnergyMonitor } from "./energy/energy";
-import { Common_Grid } from "./grid/grid";
 import { Common_Production } from "./production/production";
-import { Common_Selfconsumption } from "./selfconsumption/SelfConsumption";
 
 @NgModule({
   imports: [
-    Common_Autarchy,
+    CommonAutarchyHistory,
+    CommonGridHistory,
+    CommonSelfConsumptionHistory,
     Common_Consumption,
     CommonEnergyMonitor,
-    Common_Grid,
     Common_Production,
-    Common_Selfconsumption,
   ],
   exports: [
-    Common_Autarchy,
+    CommonAutarchyHistory,
+    CommonGridHistory,
+    CommonSelfConsumptionHistory,
     Common_Consumption,
     CommonEnergyMonitor,
-    Common_Grid,
     Common_Production,
-    Common_Selfconsumption,
   ],
 })
 export class Common { }

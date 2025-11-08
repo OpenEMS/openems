@@ -9,7 +9,6 @@ export { ChannelAddress } from "./type/channeladdress";
 export { CurrentData } from "./type/currentdata";
 export { GridMode } from "./type/general";
 export { SystemLog } from "./type/systemlog";
-export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
 export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";

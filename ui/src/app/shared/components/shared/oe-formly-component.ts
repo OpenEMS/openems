@@ -9,7 +9,6 @@ import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
-import { HistoryUtils } from "../../utils/utils";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { Converter } from "./converter";
@@ -19,6 +18,7 @@ import { DataService } from "./dataservice";
 export abstract class AbstractFormlyComponent implements OnDestroy {
 
   protected readonly translate: TranslateService;
+  protected readonly service: Service;
   protected SKIP_COUNT: number = 2;
   protected dataService: DataService;
   protected fields: FormlyFieldConfig[] = [];
@@ -33,19 +33,19 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
   private subscription: EffectRef | null = null;
 
   constructor() {
-    const service = SharedModule.injector.get<Service>(Service);
+    this.service = SharedModule.injector.get<Service>(Service);
     this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
     this.dataService = inject(DataService);
     const websocket = inject(Websocket);
 
-    service.getCurrentEdge().then(async edge => {
+    this.service.getCurrentEdge().then(async edge => {
 
       // Subscribe on channels only once
-      edge.getConfig(service.websocket)
+      edge.getConfig(this.service.websocket)
         .pipe(filter(config => !!config), take(1))
-        .subscribe(() => this.subscribeChannels(service));
+        .subscribe(() => this.subscribeChannels(this.service));
 
-      edge.getConfig(service.websocket)
+      edge.getConfig(this.service.websocket)
         .pipe(filter(config => !!config), takeUntil(this.stopOnDestroy))
         .subscribe((config) => {
           const view = this.generateView(config, edge.role, this.translate);
@@ -61,12 +61,11 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
               required: true,
               options: [{ lines: view.lines, component: view.component }],
               onSubmit: (fg: FormGroup) => {
-                this.applyChanges(fg, service, websocket, view.component ?? null, view.edge ?? null);
+                this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
               },
             },
             className: "ion-full-height",
             wrappers: [this.formlyWrapper],
-            form: this.form,
           }];
         });
     });
@@ -204,7 +203,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
    * @param channel the channel to use
    * @returns the new formGroup
    */
-  protected setFormControlSafely<T>(fg: FormGroup, formControlName: string, currentData: CurrentData, channel: ChannelAddress | null) {
+  protected setFormControlSafelyWithChannel<T>(fg: FormGroup, formControlName: string, currentData: CurrentData, channel: ChannelAddress | null) {
     if (this.skipCurrentData || fg.dirty || fg.touched || !channel || currentData.allComponents[channel.toString()] == null) {
       return;
     }
@@ -215,6 +214,27 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
     if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
       fg.controls[formControlName].setValue(currFormControlValue);
       fg.controls[formControlName].markAsTouched();
+    }
+  }
+
+  /**
+   * Sets the formControls value to a given channel value
+   *
+   * @param fg the formGroup
+   * @param formControlName the control name to change
+   * @param currentData the current data
+   * @param channel the channel to use
+   * @returns the new formGroup
+   */
+  protected setFormControlSafelyWithValue<T>(fg: FormGroup, formControlName: string, value: T | null) {
+    const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
+    const currFormControlValue: T | null = value;
+
+    if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
+      fg.controls[formControlName].setValue(currFormControlValue);
+      console.log("🚀 ~ AbstractFormlyComponent ~ setFormControlSafelyWithValue ~ currFormControlValue:", currFormControlValue);
+      fg.controls[formControlName].markAsTouched();
+      this.form = fg;
     }
   }
 
@@ -230,8 +250,8 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
 export type OeFormlyView = {
   title: string,
-  helpKey?: string | null,
   lines: OeFormlyField[],
+  helpKey?: string | null,
   component?: EdgeConfig.Component,
   edge?: Edge,
 };
@@ -242,11 +262,12 @@ export type OeFormlyField =
   | OeFormlyField.ChildrenLine
   | OeFormlyField.ChannelLine
   | OeFormlyField.HorizontalLine
-  | OeFormlyField.ChartLine
   | OeFormlyField.ValueFromChannelsLine
   | OeFormlyField.ValueFromFormControlLine
   | OeFormlyField.ButtonsFromFormControlLine
-  | OeFormlyField.RangeButtonFromFormControlLine;
+  | OeFormlyField.RangeButtonFromFormControlLine
+  | OeFormlyField.PercentageBarFromFormControlLine
+  ;
 
 export namespace OeFormlyField {
 
@@ -310,9 +331,9 @@ export namespace OeFormlyField {
   export type HorizontalLine = {
     type: "horizontal-line",
   };
-  export type ChartLine = {
-    type: "chart-line",
-    chartData: HistoryUtils.ChartData,
-    component: EdgeConfig.Component,
+
+  export type PercentageBarFromFormControlLine = {
+    type: "percentage-bar-line",
+    controlName: string,
   };
 }
