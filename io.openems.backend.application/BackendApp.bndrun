@@ -54,8 +54,6 @@
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.metrics.prometheus',\
 	bnd.identity;id='io.openems.backend.oauthregistry',\
-	bnd.identity;id='io.openems.backend.oem.fenecon',\
-	bnd.identity;id='io.openems.backend.simulation.engine',\
 	bnd.identity;id='io.openems.backend.simulator',\
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
@@ -86,8 +84,6 @@
 	io.openems.backend.metadata.odoo;version=snapshot,\
 	io.openems.backend.metrics.prometheus;version=snapshot,\
 	io.openems.backend.oauthregistry;version=snapshot,\
-	io.openems.backend.oem.fenecon;version=snapshot,\
-	io.openems.backend.simulation.engine;version=snapshot,\
 	io.openems.backend.simulator;version=snapshot,\
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
@@ -96,6 +92,7 @@
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
+	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.aXMLRPC;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
