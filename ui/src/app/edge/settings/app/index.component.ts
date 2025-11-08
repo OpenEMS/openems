@@ -11,6 +11,7 @@ import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { Role } from "src/app/shared/type/role";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { Environment, environment } from "src/environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
@@ -118,6 +119,7 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     public searchOnChange(event: InstanceType<typeof FilterComponent>["searchParams"]): void {
         this.searchParams = event;
+        console.log("🚀 ~ IndexComponent ~ searchOnChange ~ this.searchParams:", this.searchParams);
         this.updateSelection();
     }
     protected onValueChanged(event: any) {
@@ -159,6 +161,7 @@ export class IndexComponent implements OnInit, OnDestroy {
    * @param event the event of a click on a 'ion-fab-list' to stop it from closing
    */
     protected updateSelection(event?: PointerEvent) {
+
         this.installedApps.appCategories = [];
         this.availableApps.appCategories = [];
         this.incompatibleApps.appCategories = [];
@@ -178,7 +181,7 @@ export class IndexComponent implements OnInit, OnDestroy {
                     }
                 }
                 const cat = this.categories.find(c => c.val.name === category.name);
-                if (!cat.isChecked) {
+                if (cat?.isChecked == false) {
                     return false;
                 }
                 if (this.inputValue &&
@@ -189,7 +192,7 @@ export class IndexComponent implements OnInit, OnDestroy {
                 ) {
                     return false;
                 }
-                const selectedCategories = this.searchParams.get("categories");
+                const selectedCategories = this.searchParams.get("categories") ?? this.categoryFilter().options.map(el => el.option.value);
                 if (selectedCategories != null && selectedCategories != undefined) {
                     if (Array.isArray(selectedCategories)) {
                         if (!selectedCategories.includes(category.name)) {
@@ -205,11 +208,11 @@ export class IndexComponent implements OnInit, OnDestroy {
         sortedApps.forEach(a => {
             if (a.instanceIds.length > 0) {
                 this.pushIntoCategory(a, this.installedApps);
-                if (a.cardinality === "MULTIPLE" && a.status.name !== "INCOMPATIBLE") {
+                if (a.cardinality === "MULTIPLE" && a.status.name !== AppStatusName.INCOMPATIBLE) {
                     this.pushIntoCategory(a, this.availableApps);
                 }
             } else {
-                if (a.status.name === "INCOMPATIBLE") {
+                if (a.status.name === AppStatusName.INCOMPATIBLE) {
                     this.pushIntoCategory(a, this.incompatibleApps);
                 } else {
                     this.pushIntoCategory(a, this.availableApps);
@@ -218,20 +221,20 @@ export class IndexComponent implements OnInit, OnDestroy {
         });
 
         this.appLists = [];
-        const selectedStatuses = this.searchParams.get("appStatus");
+        const selectedStatuses = this.searchParams.get("appStatus") ?? this.statusFilter().options.map(el => el.option.value);
         if (Array.isArray(selectedStatuses)) {
-            if (selectedStatuses.includes("installed")) {
+            if (StringUtils.isInArr(AppStatusName.INSTALLABLE, selectedStatuses)) {
                 this.appLists.push(this.installedApps);
-                if (selectedStatuses.includes("available")) {
-                    this.appLists.push(this.availableApps);
-                }
-                if (selectedStatuses.includes("incompatible")) {
-                    this.appLists.push(this.incompatibleApps);
-                }
             }
-            else {
-                this.appLists = [this.installedApps, this.availableApps, this.incompatibleApps];
+            if (StringUtils.isInArr(AppStatusName.COMPATIBLE, selectedStatuses)) {
+                this.appLists.push(this.availableApps);
             }
+            if (StringUtils.isInArr(AppStatusName.INCOMPATIBLE, selectedStatuses)) {
+                this.appLists.push(this.incompatibleApps);
+            }
+        }
+        else {
+            this.appLists = [this.installedApps, this.availableApps, this.incompatibleApps];
         }
     }
 
@@ -361,10 +364,10 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     private statusFilter(): Filter {
         const filterOptions: FilterOption<string>[] = [
-            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INSTALLED"), option: { value: "installed", default: true } },
-            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_AVAILABLE"), option: { value: "available", default: true } },
+            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INSTALLED"), option: { value: AppStatusName.INSTALLABLE, default: true } },
+            { name: this.translate.instant("EDGE.CONFIG.APP.STATUS_AVAILABLE"), option: { value: AppStatusName.COMPATIBLE, default: true } },
             ...(this.edge.roleIsAtLeast(Role.ADMIN)
-                ? [{ name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INCOMPATIBLE"), option: { value: "incompatible" } }]
+                ? [{ name: this.translate.instant("EDGE.CONFIG.APP.STATUS_INCOMPATIBLE"), option: { value: AppStatusName.INCOMPATIBLE } }]
                 : []),
         ];
         return {
@@ -423,16 +426,19 @@ export class IndexComponent implements OnInit, OnDestroy {
                 });
 
                 // init categories
+                const statusFilter = this.statusFilter();
                 this.apps.forEach(a => {
                     a.categorys.forEach(category => {
-                        if (!this.categories.find(c => c.val.name === category.name)) {
+                        const isCategoryAlreadyExisting = this.categories.filter(c => c.val.name === category.name)?.length > 0;
+                        const isCategoryAllowed = StringUtils.isInArr(a.status.name, statusFilter.options.map(el => el.option.value));
+                        if (!isCategoryAlreadyExisting && isCategoryAllowed) {
                             this.categories.push({ val: category, isChecked: true });
                         }
                     });
                 });
 
-                this.updateSelection();
                 this.filters = [this.categoryFilter(), this.statusFilter()];
+                this.updateSelection();
 
                 edge.sendRequest(this.websocket, new AppCenter.Request({
                     payload: new AppCenterGetRegisteredKeys.Request({}),
@@ -464,4 +470,10 @@ interface AppList {
 interface AppListByCategorie {
     category: GetApps.Category,
     apps: GetApps.App[];
+}
+
+enum AppStatusName {
+    INSTALLABLE = "INSTALLABLE",
+    COMPATIBLE = "COMPATIBLE",
+    INCOMPATIBLE = "INCOMPATIBLE",
 }
