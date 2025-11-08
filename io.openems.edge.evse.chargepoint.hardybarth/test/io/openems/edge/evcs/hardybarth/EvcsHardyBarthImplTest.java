@@ -9,12 +9,14 @@ import org.junit.Test;
 
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public class EvcsHardyBarthImplTest {
@@ -23,19 +25,22 @@ public class EvcsHardyBarthImplTest {
 	public void test() throws Exception {
 		final var phaseRotation = L2_L3_L1;
 		var sut = new EvcsHardyBarthImpl();
-		var ru = sut.readUtils;
-		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
-						DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
-				.addReference("httpBridgeCycleServiceDefinition", new HttpBridgeCycleServiceDefinition(
-						new DummyCycleSubscriber()))
+		var test = new ComponentTest(sut) //
+				.addReference("httpBridgeFactory",
+						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber()))
 				.activate(MyConfig.create() //
 						.setId("evcs0") //
 						.setIp("192.168.8.101") //
 						.setMaxHwCurrent(32_000) //
 						.setMinHwCurrent(6_000) //
-						.setPhaseRotation(phaseRotation).build())
-
+						.setPhaseRotation(phaseRotation) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+		var ru = ReflectionUtils.<HardyBarthReadUtils>getValueViaReflection(sut, "readUtils");
+		test //
 				.next(new TestCase() //
 						.onBeforeProcessImage(
 								() -> ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation)) //
@@ -116,8 +121,7 @@ public class EvcsHardyBarthImplTest {
 	public void testHandleUndefinedCheck() throws Exception {
 		final var phaseRotation = L2_L3_L1;
 		var sut = new EvcsHardyBarthImpl();
-		var ru = sut.readUtils;
-		new ComponentTest(sut) //
+		var test = new ComponentTest(sut) //
 				.addReference("httpBridgeFactory",
 						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
 								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
@@ -129,8 +133,10 @@ public class EvcsHardyBarthImplTest {
 						.setMaxHwCurrent(32_000) //
 						.setMinHwCurrent(6_000) //
 						.setPhaseRotation(phaseRotation) //
-						.build())
-
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+		var ru = ReflectionUtils.<HardyBarthReadUtils>getValueViaReflection(sut, "readUtils");
+		test //
 				.next(new TestCase() //
 						.onBeforeProcessImage(
 								() -> ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation)) //

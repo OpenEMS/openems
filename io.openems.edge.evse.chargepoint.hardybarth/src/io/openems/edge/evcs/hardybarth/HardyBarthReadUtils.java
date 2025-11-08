@@ -13,26 +13,58 @@ import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedVoltageChan
 import static java.lang.Math.round;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.PhaseRotation;
 
 public class HardyBarthReadUtils {
+
+	private final Logger log = LoggerFactory.getLogger(HardyBarthReadUtils.class);
+
 	private final EvcsHardyBarthImpl parent;
+	private final LogVerbosity logVerbosity;
+	private final BiConsumer<Logger, String> logInfoCallback;
 
 	private int errorCounter = 0;
 	private int undefinedErrorCounter = 0;
 
-	public HardyBarthReadUtils(EvcsHardyBarthImpl parent) {
+	public HardyBarthReadUtils(EvcsHardyBarthImpl parent, LogVerbosity logVerbosity,
+			BiConsumer<Logger, String> logInfo) {
 		this.parent = parent;
+		this.logVerbosity = logVerbosity;
+		this.logInfoCallback = logInfo;
+	}
+
+	private void logInfo(String message) {
+		this.logInfoCallback.accept(this.log, message);
+	}
+
+	/**
+	 * Called by {@link OpenemsComponent#debugLog()}.
+	 * 
+	 * @return the debugLog string
+	 */
+	public String debugLog() {
+		final var hb = this.parent;
+
+		var b = new StringBuilder() //
+				.append("L:").append(hb.getActivePower().asString());
+		return b.toString();
 	}
 
 	/**
@@ -111,7 +143,10 @@ public class HardyBarthReadUtils {
 		var phases = evaluatePhaseCountFromCurrent(currentL1, currentL2, currentL3);
 		if (phases != null) {
 			hb._setPhases(phases);
-			hb.debugLog("Used phases: " + phases);
+			switch (this.logVerbosity) {
+			case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+			case READS, WRITES -> this.logInfo("Used phases: " + phases);
+			}
 		}
 
 		// ACTIVE_POWER
@@ -135,7 +170,10 @@ public class HardyBarthReadUtils {
 			var stringValue = TypeUtils.<String>getAsType(STRING, value);
 			if (stringValue == null) {
 				this.errorCounter++;
-				hb.debugLog("Hardy Barth RAW_STATUS would be null! Raw value: " + value);
+				switch (this.logVerbosity) {
+				case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+				case READS, WRITES -> this.logInfo("Hardy Barth RAW_STATUS would be null! Raw value: " + value);
+				}
 				if (this.errorCounter > 3) {
 					return Status.ERROR;
 				}
@@ -160,15 +198,21 @@ public class HardyBarthReadUtils {
 			case "C", "D" -> Status.CHARGING;
 			case "E", "F" -> {
 				this.errorCounter++;
-				hb.debugLog("Hardy Barth RAW_STATUS would be an error! Raw value: " + stringValue + " - Error counter: "
-						+ this.errorCounter);
+				switch (this.logVerbosity) {
+				case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+				case READS, WRITES -> this.logInfo("Hardy Barth RAW_STATUS would be an error! Raw value: " + stringValue
+						+ " - Error counter: " + this.errorCounter);
+				}
 				if (this.errorCounter > 3) {
 					yield Status.ERROR;
 				}
 				yield hb.getStatus();
 			}
 			default -> {
-				hb.debugLog("State " + stringValue + " is not a valid state");
+				switch (this.logVerbosity) {
+				case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+				case READS, WRITES -> this.logInfo("State " + stringValue + " is not a valid state");
+				}
 				yield Status.UNDEFINED;
 			}
 			};
@@ -243,6 +287,10 @@ public class HardyBarthReadUtils {
 	public void handleGetApiCallResponse(HttpResponse<String> response, PhaseRotation phaseRotation)
 			throws OpenemsNamedException {
 		final var json = parseToJsonObject(response.data());
+		switch (this.logVerbosity) {
+		case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+		case READS, WRITES -> this.logInfo("RESPONSE " + json);
+		}
 		for (var channelId : EvcsHardyBarth.ChannelId.values()) {
 			var jsonPaths = channelId.getJsonPaths();
 			var value = getValueFromJson(channelId.doc().getType(), json, channelId.converter, jsonPaths);
