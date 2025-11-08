@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.PhaseRotation;

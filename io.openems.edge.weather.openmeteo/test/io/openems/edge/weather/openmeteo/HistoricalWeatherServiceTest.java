@@ -17,19 +17,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import com.google.gson.JsonElement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
@@ -66,7 +65,7 @@ public class HistoricalWeatherServiceTest {
 		jsonRespone.addProperty(HistoricalQueryParams.TIMEZONE, responseZone.toString());
 		jsonRespone.add(QuarterlyWeatherVariables.JSON_KEY, new JsonObject());
 
-		var httpResponse = new HttpResponse<JsonElement>(HttpStatus.OK, jsonRespone);
+		var httpResponse = HttpResponse.<JsonElement>ok(jsonRespone);
 		when(this.httpBridge.getJson(anyString())).thenReturn(CompletableFuture.completedFuture(httpResponse));
 
 		var historicalWeatherData = List.of(

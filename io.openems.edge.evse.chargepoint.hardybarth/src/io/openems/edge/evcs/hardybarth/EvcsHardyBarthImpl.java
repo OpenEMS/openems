@@ -1,9 +1,9 @@
 package io.openems.edge.evcs.hardybarth;
 
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
-import static io.openems.edge.bridge.http.api.HttpMethod.GET;
-import static io.openems.edge.bridge.http.api.HttpMethod.PUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
+import static io.openems.common.bridge.http.api.HttpMethod.GET;
+import static io.openems.common.bridge.http.api.HttpMethod.PUT;
 import static io.openems.edge.evcs.api.ChargingType.AC;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static java.lang.Math.round;
@@ -30,12 +30,14 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -69,14 +71,17 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	 */
 	protected boolean masterEvcs = true;
 
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+
 	private Config config;
 
 	@Reference
 	private EvcsPower evcsPower;
-
-	@Reference
-	private BridgeHttpFactory httpBridgeFactory;
 
 	public EvcsHardyBarthImpl() {
 		super(//
@@ -104,17 +109,18 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.httpBridge = this.httpBridgeFactory.get();
+		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		if (!this.config.readOnly()) {
 			// The internal heartbeat is currently too fast - it is not enough to write
 			// every second by default. We have to disable it to run the evcs
 			// properly.
-			this.httpBridge.subscribeCycle(1, //
+			this.cycleService.subscribeCycle(1, //
 					this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
 					t -> this._setChargingstationCommunicationFailed(false),
 					t -> this._setChargingstationCommunicationFailed(true));
 		}
-		this.httpBridge.subscribeCycle(1, //
+		this.cycleService.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> {
 					this.readUtils.handleGetApiCallResponse(t, config.phaseRotation());

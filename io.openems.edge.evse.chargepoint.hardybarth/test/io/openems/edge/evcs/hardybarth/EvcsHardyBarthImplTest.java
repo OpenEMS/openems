@@ -1,14 +1,16 @@
 package io.openems.edge.evcs.hardybarth;
 
-import static io.openems.common.types.HttpStatus.OK;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofDummyBridge;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
@@ -23,7 +25,10 @@ public class EvcsHardyBarthImplTest {
 		var sut = new EvcsHardyBarthImpl();
 		var ru = sut.readUtils;
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", ofDummyBridge()) //
+				.addReference("httpBridgeFactory", ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+						DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("httpBridgeCycleServiceDefinition", new HttpBridgeCycleServiceDefinition(
+						new DummyCycleSubscriber()))
 				.activate(MyConfig.create() //
 						.setId("evcs0") //
 						.setIp("192.168.8.101") //
@@ -32,8 +37,8 @@ public class EvcsHardyBarthImplTest {
 						.setPhaseRotation(phaseRotation).build())
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> ru
-								.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE), phaseRotation)) //
+						.onBeforeProcessImage(
+								() -> ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation)) //
 						.output(EvcsHardyBarth.ChannelId.RAW_EVSE_GRID_CURRENT_LIMIT, 16) //
 						.output(EvcsHardyBarth.ChannelId.RAW_PHASE_COUNT, 3) //
 						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PLUG, "locked") //
@@ -113,7 +118,11 @@ public class EvcsHardyBarthImplTest {
 		var sut = new EvcsHardyBarthImpl();
 		var ru = sut.readUtils;
 		new ComponentTest(sut) //
-				.addReference("httpBridgeFactory", ofDummyBridge()) //
+				.addReference("httpBridgeFactory",
+						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber()))
 				.activate(MyConfig.create() //
 						.setId("evcs0") //
 						.setIp("192.168.8.101") //
@@ -123,8 +132,8 @@ public class EvcsHardyBarthImplTest {
 						.build())
 
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> ru
-								.handleGetApiCallResponse(new HttpResponse<String>(OK, API_RESPONSE), phaseRotation)) //
+						.onBeforeProcessImage(
+								() -> ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation)) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 3192) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1044) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1075) //
@@ -140,8 +149,8 @@ public class EvcsHardyBarthImplTest {
 				)
 				// Values are not overwritten when empty/null response from api
 				.next(new TestCase() //
-						.onBeforeProcessImage(() -> ru.handleGetApiCallResponse(
-								new HttpResponse<String>(OK, EMPTY_API_RESPONSE), phaseRotation)) //
+						.onBeforeProcessImage(
+								() -> ru.handleGetApiCallResponse(HttpResponse.ok(EMPTY_API_RESPONSE), phaseRotation)) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 3192) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1044) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1075) //

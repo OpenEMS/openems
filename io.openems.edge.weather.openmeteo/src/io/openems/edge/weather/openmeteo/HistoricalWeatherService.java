@@ -8,8 +8,8 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 

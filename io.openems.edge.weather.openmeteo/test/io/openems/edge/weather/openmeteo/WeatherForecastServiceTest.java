@@ -29,11 +29,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.DailyWeatherSnapshot;
 import io.openems.edge.weather.api.HourlyWeatherSnapshot;
@@ -48,7 +48,7 @@ public class WeatherForecastServiceTest {
 	private WeatherOpenMeteo parent;
 
 	@Mock
-	private BridgeHttp httpBridge;
+	private HttpBridgeTimeService httpBridge;
 
 	@Mock
 	private WeatherDataParser weatherDataParser;
@@ -114,7 +114,7 @@ public class WeatherForecastServiceTest {
 		when(this.weatherDataParser.parseDaily(any())).thenReturn(dailyWeatherForecast);
 
 		// Simulate successful HTTP response
-		var httpResponse = new HttpResponse<>(HttpStatus.OK, responseJson);
+		var httpResponse = HttpResponse.ok(responseJson);
 		onResultCaptor.getValue().accept(httpResponse);
 
 		// Assert HTTP status code

@@ -24,10 +24,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Role;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -130,6 +131,8 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+
 		var weatherDataParser = new DefaultWeatherDataParser();
 		this.historicalWeatherService = new HistoricalWeatherService(//
 				this.httpBridge, //
@@ -137,7 +140,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 				weatherDataParser);
 		this.weatherForecastService = new WeatherForecastService(//
 				this, //
-				this.httpBridge, //
+				timeService, //
 				this.oem.getOpenMeteoApiKey(), //
 				FORECAST_DAYS, //
 				PAST_DAYS, //
