@@ -72,24 +72,33 @@ export class SumStateComponent implements OnInit {
 }
 
 export const SUM_STATES = (translate: TranslateService): Filter => ({
+    multiple: true,
     placeholder: translate.instant("GENERAL.SUM_STATE"),
     category: "sumState",
     options: [
         {
             name: "Ok",
-            value: "ok",
+            option: {
+                value: "ok",
+            },
         },
         {
             name: translate.instant("GENERAL.INFO"),
-            value: "Info",
+            option: {
+                value: "Info",
+            },
         },
         {
             name: translate.instant("GENERAL.WARNING"),
-            value: "Warning",
+            option: {
+                value: "Warning",
+            },
         },
         {
             name: translate.instant("GENERAL.FAULT"),
-            value: "Fault",
+            option: {
+                value: "Fault",
+            },
         },
     ],
     setAdditionalFilter: () => ({

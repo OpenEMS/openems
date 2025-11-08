@@ -14,24 +14,33 @@ import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 export const LOG_LEVEL_FILTER = (translate: TranslateService): Filter => ({
+    multiple: true,
     placeholder: translate.instant("EDGE.CONFIG.LOG.LEVEL"),
     category: "level",
     options: [
         {
             name: "Debug",
-            value: "DEBUG",
+            option: {
+                value: "DEBUG",
+            },
         },
         {
             name: translate.instant("GENERAL.INFO"),
-            value: "INFO",
+            option: {
+                value: "INFO",
+            },
         },
         {
             name: translate.instant("GENERAL.WARNING"),
-            value: "WARN",
+            option: {
+                value: "WARN",
+            },
         },
         {
             name: translate.instant("GENERAL.FAULT"),
-            value: "ERROR",
+            option: {
+                value: "ERROR",
+            },
         },
     ],
 });
@@ -83,7 +92,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     ) { }
 
     public subscribe() {
-    // put placeholder
+        // put placeholder
         if (this.logLines.length > 0) {
             this.logLines.unshift({
                 time: "-------------------",
@@ -181,10 +190,10 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     }
 
     /**
-  * Search on change, triggered by searchbar input-event.
-  *
-  * @param event from template passed event
-  */
+    * Search on change, triggered by searchbar input-event.
+    *
+    * @param event from template passed event
+    */
     protected searchOnChange(searchParams?: SelectCustomEvent): void {
 
         if (searchParams) {
@@ -208,8 +217,8 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     }
 
     /**
-   * Filters the logs
-   */
+     * Filters the logs
+     */
     private filterLogs(): void {
 
         if (this.query === null && this.searchParams === null) {
