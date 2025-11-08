@@ -151,30 +151,39 @@ export class ModalComponent extends AbstractModal {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        if (this.component == null || this.controller == null) {
+        const isDirty = this.formGroup?.dirty;
+        if (this.component == null) {
             return;
         }
 
-        this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false;
-        this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
-        // Do not change values after touching formControls
-        if (!this.formGroup?.pristine) {
-            return;
-        }
-
+        this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false; // 0 !== 3 -> true
+        this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
         if (this.chargePoint != null) {
             this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
         }
 
-        this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-        this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
+        if (this.controller != null) {
+            this.setControllerChannelValues(currentData, isDirty ? isDirty : false);
+        }
+        if (isDirty) {
+            return;
+        }
         this.state = currentData.allComponents[this.component.id + "/Status"];
         this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
         this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
         this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
         this.numberOfPhases = currentData.allComponents[this.component.id + "/Phases"] ? currentData.allComponents[this.component.id + "/Phases"] : 3;
+        this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
+    }
+
+    protected setControllerChannelValues(currentData: CurrentData, isDirty: boolean): void {
         this.defaultChargeMinPower = currentData.allComponents[this.controller?.id + "/_PropertyDefaultChargeMinPower"];
+
+        if (isDirty) {
+            return;
+        }
+        this.awaitingHysteresis = currentData.allComponents[this.controller?.id + "/AwaitingHysteresis"];
     }
 
     protected override onIsInitialized(): void {
