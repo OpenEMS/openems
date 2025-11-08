@@ -52,7 +52,7 @@
                 <ion-label style="white-space: initial; text-align: center;">
                   {{"EDGE.CONFIG.APP.NOT_AVAILABLE" | translate}}</ion-label>
               </ion-item>
-              <div class="ion-padding" slot="content">
+              <div class="ion-padding" slot="content" (ngDomChange)="onDomChange($event, app.appId)">
                 <ion-label>
                   @for (message of app.status.errorCompatibleMessages; track message) {
                     <div>
