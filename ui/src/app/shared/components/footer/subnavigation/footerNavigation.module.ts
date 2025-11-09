@@ -7,32 +7,32 @@ import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { FooterNavigationComponent } from "./footerNavigation";
 @NgModule({
-  imports: [
-    IonicModule,
-    CommonModule,
-    FormsModule,
-    RouterModule,
-  ],
-  declarations: [
-    FooterNavigationComponent,
-  ],
-  exports: [
-    FooterNavigationComponent,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    imports: [
+        IonicModule,
+        CommonModule,
+        FormsModule,
+        RouterModule,
+    ],
+    declarations: [
+        FooterNavigationComponent,
+    ],
+    exports: [
+        FooterNavigationComponent,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class FooterNavigationComponentsModule { }
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    FooterNavigationComponentsModule,
-  ],
-  declarations: [
-  ],
-  exports: [
-    FooterNavigationComponentsModule,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    imports: [
+        BrowserModule,
+        FooterNavigationComponentsModule,
+    ],
+    declarations: [
+    ],
+    exports: [
+        FooterNavigationComponentsModule,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class FooterNavigationModule { }

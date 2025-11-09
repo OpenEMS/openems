@@ -2,8 +2,10 @@ package io.openems.edge.pvinverter.kostal.piko;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
@@ -102,12 +104,15 @@ public class PvInverterKostalPikoImplTest {
 	@Test
 	public void test() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		// Pre-set the response for the initial request
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(SAMPLE_HTML));
 
 		new ComponentTest(new PvInverterKostalPikoImpl()) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setAlias("") //
@@ -119,7 +124,7 @@ public class PvInverterKostalPikoImplTest {
 				.next(new TestCase() //
 						.onBeforeProcessImage(
 								() -> httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(SAMPLE_HTML))) //
-						.onExecuteWriteCallbacks(() -> httpTestBundle.triggerNextCycle()) //
+						.onExecuteWriteCallbacks(() -> dummyCycleSubscriber.triggerNextCycle()) //
 				) //
 				.next(new TestCase() //
 						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42L) //
@@ -139,6 +144,7 @@ public class PvInverterKostalPikoImplTest {
 	@Test
 	public void testWithNoData() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		final String noDataHtml = """
 				<html><body>
@@ -167,6 +173,8 @@ public class PvInverterKostalPikoImplTest {
 
 		new ComponentTest(new PvInverterKostalPikoImpl()) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setAlias("") //
@@ -178,7 +186,7 @@ public class PvInverterKostalPikoImplTest {
 				.next(new TestCase() //
 						.onBeforeProcessImage(
 								() -> httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(noDataHtml))) //
-						.onExecuteWriteCallbacks(() -> httpTestBundle.triggerNextCycle()) //
+						.onExecuteWriteCallbacks(() -> dummyCycleSubscriber.triggerNextCycle()) //
 				) //
 				.next(new TestCase() //
 						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, null) //

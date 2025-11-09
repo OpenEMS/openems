@@ -23,7 +23,6 @@ public class VehicleProps {
 		});
 	}
 
-	
 	/**
 	 * Creates a {@link AppDef} for the max power single phase for a vehicle.
 	 * 
@@ -37,7 +36,7 @@ public class VehicleProps {
 			def.setField(JsonFormlyUtil::buildInputFromNameable);
 		});
 	}
-	
+
 	/**
 	 * Creates a {@link AppDef} for the min power single phase for a vehicle.
 	 * 

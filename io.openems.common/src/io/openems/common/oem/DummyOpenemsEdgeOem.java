@@ -101,7 +101,9 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
+			.put("App.FENECON.ProHybrid.10", "") //
 			.put("App.TimeOfUseTariff.AncillaryCosts", "") //
+			.put("App.TimeOfUseTariff.LuoxEnergy", "") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
 			.put("App.TimeOfUseTariff.GroupeE", "") //
@@ -121,6 +123,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Api.RestJson.ReadOnly", "") //
 			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
+			.put("App.Evcs.Abl.ReadOnly", "")//
 			.put("App.Evcs.Alpitronic", "") //
 			.put("App.Evcs.Cluster", "") //
 			.put("App.Evcs.HardyBarth", "") //
@@ -151,6 +154,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.PqPlus", "") //
 			.put("App.Meter.Janitza", "") //
+			.put("App.GridMeter.Janitza", "") //
 			.put("App.Meter.Discovergy", "")//
 			.put("App.Meter.PhoenixContact", "")//
 			.put("App.Meter.Eastron", "")//

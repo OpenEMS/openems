@@ -1,6 +1,6 @@
 {
   "ABOUT": {
-    "DESCRIPTION": "Dieses Energiemanagementsystem basiert auf OpenEMS, dem Open Source Energy Management System. OpenEMS ist eine modulare Plattform zur Überwachung und Steuerung von Energiesystemen. Die Entwicklung wird von der OpenEMS Association e.V. koordiniert.",
+    "DESCRIPTION": "Dieses Energiemanagementsystem wird auf Basis von OpenEMS als Open-Source-Software entwickelt. OpenEMS - das Open Source Energy Management System - ist eine modulare Plattform für Energiemanagement-Anwendungen. Es wurde von FENECON initiiert und wird mittlerweile von einer großen Zahl an Unternehmen, Universitäten und Instituten sowohl zur Forschung und Entwicklung verwendet, als auch für deren eigene Energiemanagementsysteme eingesetzt. Die Entwicklung wird in der OpenEMS Association e.V. koordiniert.",
     "CONTACT": "Für Fragen oder Anregungen nutzen Sie bitte das <a target=\"_blank\" href=\"https://community.openems.io/\">OpenEMS Community-Forum</a>.",
     "BUILD": "Dieser Build",
     "ENERGY_MANAGEMENT": "Energiemanagementsystem",
@@ -297,8 +297,13 @@
           "CHART_TITLE_ADMIN": "Aktueller Fahrplan (Nur für Admins)"
         },
         "STORAGE": {
+          "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
+          "BATTERY_DC": "Batterie - DC",
+          "INVERTER": "Wechselrichter",
           "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
-          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird"
+          "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird",
+          "TOTAL_AC": "Gesamt AC",
+          "TOTAL_DC": "Gesamt DC"
         }
       },
       "RETROFITTING": {
@@ -314,10 +319,10 @@
         "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
         "INSTANT_START": "Sofortstart",
         "PLANNED_EXPANSION": "Geplante Erweiterung",
-        "INFORMATION_FOR_PL_ANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "INFORMATION_FOR_PLANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "PREPARING": "Kapazitätserweiterung wird vorbereitet",
         "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-        "INFORMATION_FOR_PL_ANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
+        "INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen.",
         "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt"
       },
       "SYSTEMUPDATE": "Systemupdate"
@@ -494,7 +499,17 @@
         "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
         "TECHNICAL_NAME": "Technischer Name",
         "CATEGORY": "Kategorie",
-        "CARDINALITY": "Kardinalität"
+        "CARDINALITY": "Kardinalität",
+        "UNKNOWN_INSTALLATION_STEP": "Unbekannter Installations Schritt: {{ step }}",
+        "OAUTH": {
+          "CONNECT": "Verbindung mit {{ oauthName }}",
+          "BROWSER_ONLY": "Die Anmeldung bei {{ oauthName }} erfolgt über den Web-Browser, nicht über die {{ edgeLongName }} App.",
+          "SWITCH_TO_BROWSER": "Zum Browser wechseln",
+          "LOG_IN": "{{ oauthName }} Anmeldung",
+          "LOG_OUT": "Verbindung trennen",
+          "STATES_MISMATCH": "Es gab ein Problem bei der Anmeldung. Bitte versuchen Sie es erneut.",
+          "UNABLE_TO_CONNECT_CODE": "Verbindung zu konnte nicht hergestellt werden. Bitte versuchen Sie es erneut. {{ error }}"
+        }
       }
     },
     "SERVICE": {
@@ -531,6 +546,9 @@
     "THEME_SELECTION": {
       "TITLE": "Licht aus, Komfort an!",
       "DESCRIPTION": "Ab sofort steht dir unser Monitoring im <b>Darkmode</b> zur Verfügung.<hr>Einfach umschalten und loslegen!"
+    },
+    "GEOLOCATION": {
+      "CHECKBOX_LABEL": "Ich habe den Inhalt der vorliegenden <a href=''>DATENSCHUTZERKLÄRUNG</a> zur Kenntnis genommen und bestätige durch die Validierung der Standortdaten die Richtigkeit der Daten."
     },
     "LIGHT": "Hell",
     "DARK": "Dunkel",
@@ -674,13 +692,14 @@
     "TO": "Bis",
     "FORMLY": {
       "REQUIRED": "Ist erforderlich",
-      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente"
+      "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente",
+      "LINK_TO_DOCS": "Link zu Docs"
     }
   },
   "OFFLINE": {
     "EDGE": {
       "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich",
-      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart abgeschlossen wurde."
+      "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde."
     }
   },
   "INDEX": {
@@ -700,6 +719,15 @@
     "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
     "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme"
   },
+  "ORDER": {
+    "ASCENDING": "Aufsteigend {{ edgeShortName }} Nr.",
+    "DESCENDING": "Absteigend {{ edgeShortName }} Nr.",
+    "A_TO_Z": "Bezeichnung A - Z",
+    "Z_TO_A": "Bezeichnung Z - A",
+    "OK_TO_FAULT": "Systemzustand Ok - Fehler",
+    "FAULT_TO_OK": "Systemzustand Fehler - Ok",
+    "SORTING": "Sortierung"
+  },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
     "BACK": "zurück",
@@ -708,7 +736,9 @@
       "DOWNLOAD": "IBN-Protokoll herunterladen",
       "SUB_TITLE": "Sie haben den {{ value }} erfolgreich in Betrieb genommen.",
       "TITLE": "Abschließen",
-      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren."
+      "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren.",
+      "INVALID_PAYLOAD": "Ungültige Antwort vom Server",
+      "DOWNLOAD_SUCCESS": "Protokoll erfolgreich heruntergeladen"
     },
     "COMPLETE": "Zum Online-Monitoring",
     "CONFIGURATION_EMERGENCY_RESERVE": {
@@ -853,7 +883,7 @@
       "DYNAMIC_LIMITATION": "Dynamische Begrenzung der Einspeisung",
       "EXTERNAL_CONTROLLER_CHECK": "Der Rundsteuerempfänger wurde lt. Anleitung ordnungsgemäß und vollständig installiert.",
       "EXTERNAL_LIMITATION_ACTIVATED": "Rundsteuerempfänger aktiviert?",
-      "EXTERNAL_LIMITATION": "Rundsteuerempfänger (Externe Abregelung durch Netzbetreiber)",
+      "EXTERNAL_LIMITATION": "Rundsteuerempfänger: Abregelung am AC-Ausgang des Wechselrichters",
       "FEED_IN_SETTING_DESCRIPTION": "Wirkleistungsreduzierung bei Überfrequenz",
       "FIXED_POWER_FACTOR": "Fester Verschiebungsfaktor Cos φ",
       "MAXIMUM_FEED_IN_VALUE": "Maximale Einspeiseleistung [W]",
@@ -872,7 +902,8 @@
       "INFO_TEXT": "Ihr Energiespeicher versucht durch intelligentes Laden, eine Abregelung der PV-Anlage zu vermeiden.",
       "WARNING_TEXT": "Dies ersetzt nicht die ordnungsgemäße Konfiguration des PV-Wechselrichters!",
       "DYNAMIC_LIMITATION_TYPE": "Einspeiselimitierung",
-      "EXTERNAL_LIMITATION_TYPE": "Externe Limitierung"
+      "EXTERNAL_LIMITATION_TYPE": "Externe Limitierung",
+      "DYNAMIC_EXTERNAL_LIMITATION": "Dynamischer Rundsteuerempfänger: Abregelung am Netzanschlusspunkt"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "Ort",
@@ -933,7 +964,7 @@
       "ENTER_VALID_ADDRESS": "Um die Einstellungen zu übernehmen, geben Sie gültige Werte ein.",
       "ERROR_SENDING": "Fehler beim Versenden des Protokolls.",
       "INVERTER": "Wechselrichter",
-      "NEXT_BUTTON_DESCRIPTION": "Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch versendet.",
+      "NEXT_BUTTON_DESCRIPTION": "Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch übermittelt.",
       "NUMBER_OF_MODULES_PER_TOWER": "Anzahl Module pro Turm",
       "NUMBER_OF_TOWERS": "Anzahl Türme",
       "READ_DESCRIPTION": "Bitte überprüfen Sie die \"Voreinstellungen\". Bitte lesen Sie die Beschreibung der Felder.",
@@ -1108,7 +1139,8 @@
     "PASSWORD_RESET": "Passwort zurücksetzen",
     "AUTHENTICATION_FAILED": "Authentifizierung fehlgeschlagen",
     "USER": "Benutzer",
-    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
+    "SIGN_IN": "Anmelden"
   },
   "MENU": {
     "ACCESS_LEVEL": "Zugriffslevel",
@@ -1121,9 +1153,6 @@
     "OVERVIEW": "Alle Systeme",
     "SETTINGS": "Einstellungen",
     "USER": "Benutzer",
-    "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
-    "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
-    "OPENEMS_ENERGY_MANAGEMENT_SYSTEM": "Open Energy Management System",
     "DEFAULT_EDGE_LONG_NAME": "Open Energy Management System",
     "CHANGELOG": "Changelog",
     "OTHER_USER": "Weitere Benutzer"
@@ -1223,11 +1252,6 @@
       "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
       "UPDATE_EXECUTE": "Systemupdate durchführen",
       "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?"
-    },
-    "ENERGY_JOURNEY": {
-      "TO_THE_ANALYSIS": "Zur Analyse",
-      "CURRENT_NUMBER_OF_MODULES": "Aktuell",
-      "SIMULATION_NOT_STARTED": "Simulation nicht gestartet"
     }
   },
   "CHANNELS": {

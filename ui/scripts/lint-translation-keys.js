@@ -48,30 +48,8 @@ function lintFile(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(content);
-
-        // Module translation files (translation.json) have language codes as top-level keys
-        // Global translation files (assets/i18n/*.json) have direct translation keys
-        const isModuleTranslation = path.basename(filePath) === 'translation.json';
-
         let errors = [];
-        if (isModuleTranslation) {
-            // For module translations, skip language code validation and check nested content
-            const languageCodes = ['de', 'en', 'es', 'fr', 'nl', 'cz', 'cs', 'ja'];
-            for (const [key, value] of Object.entries(data)) {
-                if (languageCodes.includes(key.toLowerCase())) {
-                    // Check the nested translation keys, not the language code itself
-                    checkKeys(value, '', errors);
-                } else {
-                    // If it's not a language code, validate it normally
-                    checkKeys(data, '', errors);
-                    break;
-                }
-            }
-        } else {
-            // For global translations, check all keys normally
-            errors = checkKeys(data);
-        }
-
+        checkKeys(data, '', errors);
         return { filePath, errors };
     } catch (error) {
         return {
@@ -109,12 +87,48 @@ function findTranslationFiles(dir, fileList = []) {
 }
 
 /**
+ * Recursively search for folders named "i18n", starting from a directory,
+ * and excluding certain folders.
+ *
+ * @param  startDir - The directory to start searching from.
+ * @param  excludeDirs - Folder names to exclude.
+ * @returns List of found i18n folder paths.
+ */
+function findAllI18nFiles(excludeDirs = ["node_modules", "dist", "build", "android"]) {
+  const foundDirectories = [];
+  const startDirectory = path.resolve("./src"); // only search in 
+
+  function search(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (excludeDirs.includes(entry.name)) continue;
+
+        if (entry.name === "i18n") {
+          foundDirectories.push(fullPath);
+        } else {
+          search(fullPath); // recurse deeper
+        }
+      }
+    }
+  }
+
+  search(startDirectory);
+  return foundDirectories
+  .map(el => fs.readdirSync(el, { withFileTypes: true }))
+  .flat()
+  .map(el => path.join(el.parentPath, el.name))
+  .filter(el => el.endsWith('.json'));
+}
+
+/**
  * Main function
  */
 function main() {
     const srcDir = path.join(__dirname, '..', 'src');
-    const globalI18nDir = path.join(srcDir, 'assets', 'i18n');
-    const appDir = path.join(srcDir, 'app');
 
     // Check if source directory exists
     if (!fs.existsSync(srcDir)) {
@@ -123,7 +137,7 @@ function main() {
     }
 
     // Get all translation files (global + module-specific)
-    const files = findTranslationFiles(srcDir).sort();
+    const files = findAllI18nFiles(["node_modules", "dist", "build", ".git"]).sort();
 
     if (files.length === 0) {
         console.error('❌ No translation files found in', srcDir);
@@ -157,6 +171,7 @@ function main() {
         results.forEach(result => {
             if (result.errors.length > 0) {
                 const relativePath = path.relative(srcDir, result.filePath);
+                
                 console.log(`${relativePath}:`);
                 result.errors.forEach(error => {
                     console.log(`  ❌ ${error.path}: '${error.key}' is not UPPER_SNAKE_CASE`);

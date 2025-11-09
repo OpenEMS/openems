@@ -6,6 +6,7 @@ import * as Chart from "chart.js";
 import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { ChannelAddress, Currency, EdgeConfig, Logger, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
@@ -27,8 +28,9 @@ export class ChartComponent extends AbstractHistoryChart {
         protected override translate: TranslateService,
         protected override route: ActivatedRoute,
         protected override logger: Logger,
+        protected override navigationService: NavigationService,
     ) {
-        super(service, cdRef, translate, route, logger);
+        super(service, cdRef, translate, route, logger, navigationService);
         effect(() => {
             const edge = this.service.currentEdge();
 

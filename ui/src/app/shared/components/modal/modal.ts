@@ -34,7 +34,7 @@ export class ModalComponent {
     @Input() protected formGroup: FormGroup = new FormGroup({});
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
-            {}, icon: Icon
+        {}, icon: Icon
     } | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 

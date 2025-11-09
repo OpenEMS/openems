@@ -226,7 +226,7 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> heatPumpRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> heatPumpRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition, //
 				Nameable.of("OUTPUT_CHANNEL_1"), Nameable.of("OUTPUT_CHANNEL_2")),
 				b -> b.setTranslatedLabelWithAppPrefix(".outputChannel" + contactPosition + ".label") //

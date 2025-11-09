@@ -98,10 +98,10 @@ public class AppGoeEvcsReadOnly extends AbstractOpenemsAppWithProps<AppGoeEvcsRe
 
 	@Activate
 	public AppGoeEvcsReadOnly(@Reference ComponentManager componentManager, //
-							  ComponentContext componentContext, //
-							  @Reference ConfigurationAdmin cm, //
-							  @Reference ComponentUtil componentUtil, //
-							  @Reference Host host //
+			ComponentContext componentContext, //
+			@Reference ConfigurationAdmin cm, //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 		this.host = host;
@@ -120,8 +120,7 @@ public class AppGoeEvcsReadOnly extends AbstractOpenemsAppWithProps<AppGoeEvcsRe
 							alias, "Evcs.Goe.Http", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("ip", ip) //
-									.build())
-			);
+									.build()));
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

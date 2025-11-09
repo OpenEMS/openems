@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	BiddingZone biddingZone();
 
 	@AttributeDefinition(name = "Resolution", description = "Resolution corresponding to the price interval")
-	Resolution resolution() default Resolution.HOURLY;
+	Resolution resolution() default Resolution.QUARTERLY;
 
 	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
 	String ancillaryCosts();

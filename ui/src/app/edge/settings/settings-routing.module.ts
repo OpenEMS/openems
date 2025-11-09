@@ -29,6 +29,7 @@ export const settingsRoutes: Routes = [
     { path: "app/install/:appId", loadComponent: () => import("./app/install.component").then(m => m.InstallAppComponent), canActivate: [hasEdgeRole(Role.OWNER)] },
     { path: "app/update/:appId", loadComponent: () => import("./app/update.component").then(m => m.UpdateAppComponent), canActivate: [hasEdgeRole(Role.OWNER)] },
     { path: "app/single/:appId", loadComponent: () => import("./app/single.component").then(m => m.SingleAppComponent), canActivate: [hasEdgeRole(Role.OWNER)] },
+    { path: "app/oauth", data: { navbarTitle: "OAuth" }, loadComponent: () => import("./app/oauth/oauth.component").then(m => m.OAuthIndexComponent), canActivate: [hasEdgeRole(Role.ADMIN)] },
     { path: "alerting", loadChildren: () => import("./alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.ALERTING" } },
     { path: "jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
 ];

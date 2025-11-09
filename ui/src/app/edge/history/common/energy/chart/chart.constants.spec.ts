@@ -6,27 +6,27 @@ import { OeChartTester } from "../../../../../shared/components/shared/testing/t
 import { ChartComponent } from "./chart";
 
 export function expectView(config: EdgeConfig, testContext: TestContext, chartType: "line" | "bar", channels: OeTester.Types.Channels, view: OeChartTester.View): void {
-  expect(TestingUtils.removeFunctions(OeChartTester
-    .apply(ChartComponent
-      .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))
-    .toEqual(TestingUtils.removeFunctions(view));
+    expect(TestingUtils.removeFunctions(OeChartTester
+        .apply(ChartComponent
+            .getChartData(DummyConfig.convertDummyEdgeConfigToRealEdgeConfig(config), chartType, testContext.translate), chartType, channels, testContext, config)))
+        .toEqual(TestingUtils.removeFunctions(view));
 }
 
 export const DATASET = (data: OeChartTester.Dataset.Data, labels: OeChartTester.Dataset.LegendLabel, options: OeChartTester.Dataset.Option) => ({
-  data: data,
-  labels: labels,
-  options: options,
+    data: data,
+    labels: labels,
+    options: options,
 });
 
 export const DATA = (name: string, value: (number | null)[]): OeChartTester.Dataset.Data => ({
-  type: "data",
-  label: name,
-  value: value,
+    type: "data",
+    label: name,
+    value: value,
 });
 
 export const LABELS = (timestamps: string[]): OeChartTester.Dataset.LegendLabel => ({
-  type: "label",
-  timestamps: timestamps.map(element => new Date(element)),
+    type: "label",
+    timestamps: timestamps.map(element => new Date(element)),
 });
 
 export const OPTIONS = (options: OeChartTester.Dataset.Option): OeChartTester.Dataset.Option => options;

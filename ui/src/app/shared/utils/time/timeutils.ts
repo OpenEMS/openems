@@ -8,71 +8,71 @@ import { Language } from "../../type/language";
 
 export class TimeUtils {
 
-  /**
+    /**
    * Formats a value in seconds to hours and minutes
    *
    * @param value the value
    * @returns a time string with hours and minutes
    */
-  public static formatSecondsToDuration(value: number, locale: string): string {
+    public static formatSecondsToDuration(value: number, locale: string): string {
 
-    if (value === null || value === undefined) {
-      return null;
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        const decimalPipe: DecimalPipe = new DecimalPipe(locale ?? Language.DEFAULT.key);
+        let minutes = value / 60;
+        const hours = Math.floor(minutes / 60);
+        minutes -= hours * 60;
+
+        if (hours <= 23 && minutes > 0) {
+            return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
+        } else {
+            return decimalPipe.transform(hours, "1.0-0") + "h";
+        }
     }
 
-    const decimalPipe: DecimalPipe = new DecimalPipe(locale ?? Language.DEFAULT.key);
-    let minutes = value / 60;
-    const hours = Math.floor(minutes / 60);
-    minutes -= hours * 60;
-
-    if (hours <= 23 && minutes > 0) {
-      return decimalPipe.transform(hours, "1.0-0") + "h" + " " + decimalPipe.transform(minutes, "1.0-0") + "m";
-    } else {
-      return decimalPipe.transform(hours, "1.0-0") + "h";
-    }
-  }
-
-  /**
+    /**
    * Formats a value in seconds to a valid duration
    *
    * @param seconds the value
    * @returns a time string with hours and minutes
    */
-  public static formatSecondsToRelevantDuration(seconds: number, threshold: number, locale: string): string {
+    public static formatSecondsToRelevantDuration(seconds: number, threshold: number, locale: string): string {
 
-    if (seconds == null) {
-      return null;
+        if (seconds == null) {
+            return null;
+        }
+
+        if (seconds < threshold) {
+            return null;
+        }
+
+        const decimalPipe: DecimalPipe = new DecimalPipe(locale);
+        const minutes = Math.floor(seconds / 60);
+
+        if (minutes > 0) {
+            return decimalPipe.transform(minutes, "1.0-0") + " min";
+        } else {
+            return decimalPipe.transform(seconds, "1.0-0") + " s";
+        }
     }
 
-    if (seconds < threshold) {
-      return null;
+    public static getDaysFromMilliSeconds(ms: number) {
+        return Utils.floorSafely(Utils.divideSafely(ms, 24 * 60 * 60 * 1000));
+    }
+    public static getHoursFromMilliSeconds(ms: number) {
+        return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
+    }
+    public static getMinutesFromMilliSeconds(ms: number) {
+        return Utils.roundSafely(Utils.divideSafely(ms, 60 * 1000));
     }
 
-    const decimalPipe: DecimalPipe = new DecimalPipe(locale);
-    const minutes = Math.floor(seconds / 60);
-
-    if (minutes > 0) {
-      return decimalPipe.transform(minutes, "1.0-0") + " min";
-    } else {
-      return decimalPipe.transform(seconds, "1.0-0") + " s";
+    public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
+        return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
     }
-  }
 
-  public static getDaysFromMilliSeconds(ms: number) {
-    return Utils.floorSafely(Utils.divideSafely(ms, 24 * 60 * 60 * 1000));
-  }
-  public static getHoursFromMilliSeconds(ms: number) {
-    return Utils.floorSafely(Utils.divideSafely(ms, 60 * 60 * 1000));
-  }
-  public static getMinutesFromMilliSeconds(ms: number) {
-    return Utils.roundSafely(Utils.divideSafely(ms, 60 * 1000));
-  }
-
-  public static getDurationText(ms: number, translate: TranslateService, singular: string, plural: string) {
-    return `${ms} ${translate.instant(ms > 1 ? plural : singular)}`;
-  }
-
-  /**
+    /**
    * Creates a converter that formats “minutes since midnight” into a locale-aware time string.
    * - Uses Intl.DateTimeFormat for HH:mm or h:mm AM/PM
    * - Detects 12h vs 24h and appends locale-specific suffix (Uhr, h, hodin, etc.)
@@ -81,33 +81,33 @@ export class TimeUtils {
    * @param locale     locale tag (e.g. "de", "en", "cs")
    * @returns           (minutes: number) ⇒ formatted time string
   */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string) => {
-    const effectiveLocale = locale ?? translate.currentLang ?? Language.DEFAULT.key;
-    const dtf = new Intl.DateTimeFormat(effectiveLocale, { hour: "2-digit", minute: "2-digit" });
+    public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string) => {
+        const effectiveLocale = locale ?? translate.currentLang ?? Language.DEFAULT.key;
+        const dtf = new Intl.DateTimeFormat(effectiveLocale, { hour: "2-digit", minute: "2-digit" });
 
-    // Helper to get a translated suffix
-    const getHourSuffix = (): string => {
-      const key = "GENERAL.SUFFIX.HOUR";
-      const value = translate.instant(key);
-      return value === key ? "" : value;
+        // Helper to get a translated suffix
+        const getHourSuffix = (): string => {
+            const key = "GENERAL.SUFFIX.HOUR";
+            const value = translate.instant(key);
+            return value === key ? "" : value;
+        };
+
+        return (raw: number): string => {
+            return Converter.IF_NUMBER(raw, (value) => {
+                const date = new Date();
+                date.setHours(0, 0, 0, 0);
+                date.setMinutes(value);
+
+                const timeString = dtf.format(date);
+                const hasDayPeriod = dtf.formatToParts(date).some(p => p.type === "dayPeriod");
+
+                const suffix = getHourSuffix();
+
+                if (hasDayPeriod || !suffix) {
+                    return timeString;
+                }
+                return `${timeString} ${suffix}`;
+            });
+        };
     };
-
-    return (raw: number): string => {
-      return Converter.IF_NUMBER(raw, (value) => {
-        const date = new Date();
-        date.setHours(0, 0, 0, 0);
-        date.setMinutes(value);
-
-        const timeString = dtf.format(date);
-        const hasDayPeriod = dtf.formatToParts(date).some(p => p.type === "dayPeriod");
-
-        const suffix = getHourSuffix();
-
-        if (hasDayPeriod || !suffix) {
-          return timeString;
-        }
-        return `${timeString} ${suffix}`;
-      });
-    };
-  };
 }

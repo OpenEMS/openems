@@ -2,10 +2,12 @@ package io.openems.edge.predictor.profileclusteringmodel.services;
 
 import java.time.LocalDate;
 
+import io.openems.edge.predictor.api.common.TrainingException;
 import io.openems.edge.predictor.api.mlcore.classification.Classifier;
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
 import io.openems.edge.predictor.profileclusteringmodel.ColumnNames;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorConfig.ClassifierFitter;
+import io.openems.edge.predictor.profileclusteringmodel.training.TrainingError;
 
 public class ClassifierTrainingService {
 
@@ -24,13 +26,15 @@ public class ClassifierTrainingService {
 	 *
 	 * @param dataframe the input data containing both features and labels
 	 * @return a trained {@link Classifier}
-	 * @throws IllegalStateException if the number of rows in the data is less than
-	 *                               {@code minTrainingSamplesRequired}
+	 * @throws TrainingException if the number of rows in the data is less than
+	 *                           {@code minTrainingSamplesRequired}
 	 */
-	public Classifier trainClassifier(DataFrame<LocalDate> dataframe) throws IllegalStateException {
+	public Classifier trainClassifier(DataFrame<LocalDate> dataframe) throws TrainingException {
 		if (dataframe.rowCount() < this.minTrainingSamplesRequired) {
-			throw new IllegalStateException("Not enough training data: required at least "
-					+ this.minTrainingSamplesRequired + " rows, but got " + dataframe.rowCount());
+			throw new TrainingException(TrainingError.INSUFFICIENT_TRAINING_DATA, String.format(//
+					"At least %d historical consumption profiles are required, but only %d were available after feature engineering", //
+					this.minTrainingSamplesRequired, //
+					dataframe.rowCount()));
 		}
 
 		var features = dataframe.copy();

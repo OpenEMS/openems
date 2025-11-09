@@ -7,43 +7,43 @@ import { ModalComponent } from "../modal/modal";
 
 
 @Component({
-  selector: "Controller_Io_FixDigitalOutput",
-  templateUrl: "./flat.html",
-  standalone: false,
+    selector: "Controller_Io_FixDigitalOutput",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public state: string = "-";
-  public outputChannel: string;
-  protected modalComponent: Modal | null = null;
-  protected override afterIsInitialized(): void {
-    this.modalComponent = this.getModalComponent();
-  }
-
-  protected getModalComponent(): Modal {
-    return {
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-        edge: this.edge,
-      },
-    };
-  };
-
-  protected override getChannelAddresses(): ChannelAddress[] {
-    this.outputChannel = this.component.properties["outputChannelAddress"];
-    return [ChannelAddress.fromString(this.outputChannel)];
-  }
-
-  protected override onCurrentData(currentData: CurrentData) {
-    const channel = currentData.allComponents[this.outputChannel];
-    if (channel != null) {
-      if (channel == 1) {
-        this.state = this.translate.instant("GENERAL.ON");
-      } else if (channel == 0) {
-        this.state = this.translate.instant("GENERAL.OFF");
-      }
+    public state: string = "-";
+    public outputChannel: string;
+    protected modalComponent: Modal | null = null;
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
     }
-  }
+
+    protected getModalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+            },
+        };
+    };
+
+    protected override getChannelAddresses(): ChannelAddress[] {
+        this.outputChannel = this.component.properties["outputChannelAddress"];
+        return [ChannelAddress.fromString(this.outputChannel)];
+    }
+
+    protected override onCurrentData(currentData: CurrentData) {
+        const channel = currentData.allComponents[this.outputChannel];
+        if (channel != null) {
+            if (channel == 1) {
+                this.state = this.translate.instant("GENERAL.ON");
+            } else if (channel == 0) {
+                this.state = this.translate.instant("GENERAL.OFF");
+            }
+        }
+    }
 
 }

@@ -9,8 +9,8 @@ import { Environment, environment } from "src/environments";
     templateUrl: "./help-button.html",
     standalone: true,
     imports: [
-    IonicModule,
-],
+        IonicModule,
+    ],
 })
 export class HelpButtonComponent implements OnChanges {
 

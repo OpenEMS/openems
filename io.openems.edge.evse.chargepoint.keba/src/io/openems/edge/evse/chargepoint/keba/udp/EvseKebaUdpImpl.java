@@ -43,8 +43,8 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUdp;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
-import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
+import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 import io.openems.edge.evse.chargepoint.keba.udp.core.EvseChargePointKebaUdpCore;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -165,9 +165,9 @@ public class EvseKebaUdpImpl extends AbstractOpenemsComponent implements KebaUdp
 					this.getSetPhaseSwitchSourceChannel().getNextWriteValueAndReset() //
 							.map(pss -> OptionsEnum.getOption(PhaseSwitchSource.class, pss)) //
 							.orElse(PhaseSwitchSource.UNDEFINED), //
-					this.getSetPhaseSwitchStateChannel().getNextWriteValueAndReset() //
-							.map(pss -> OptionsEnum.getOption(PhaseSwitchState.class, pss)) //
-							.orElse(PhaseSwitchState.UNDEFINED)); //
+					this.getSetTriggerPhaseSwitchChannel().getNextWriteValueAndReset() //
+							.map(pss -> OptionsEnum.getOption(TriggerPhaseSwitch.class, pss)) //
+							.orElse(TriggerPhaseSwitch.UNDEFINED)); //
 			this.setDisplayText(Optional.empty()); // TODO
 		}
 		}
@@ -191,17 +191,17 @@ public class EvseKebaUdpImpl extends AbstractOpenemsComponent implements KebaUdp
 		setText.ifPresent(text -> this.send(KebaUdp.preprocessDisplayTest(text)));
 	}
 
-	private void setPhaseSwitch(PhaseSwitchSource phaseSwitchSource, PhaseSwitchState phaseSwitchState) {
+	private void setPhaseSwitch(PhaseSwitchSource phaseSwitchSource, TriggerPhaseSwitch triggerPhaseSwitch) {
 		switch (phaseSwitchSource) {
 		case NONE, UNDEFINED -> doNothing();
 		case VIA_MODBUS, VIA_OCPP, VIA_REST, VIA_UDP //
 			-> this.send("x2src " + phaseSwitchSource.getValue());
 		}
 
-		switch (phaseSwitchState) {
+		switch (triggerPhaseSwitch) {
 		case UNDEFINED -> doNothing();
 		case SINGLE, THREE //
-			-> this.send("x2 " + phaseSwitchState.getValue());
+			-> this.send("x2 " + triggerPhaseSwitch.getValue());
 		}
 	}
 

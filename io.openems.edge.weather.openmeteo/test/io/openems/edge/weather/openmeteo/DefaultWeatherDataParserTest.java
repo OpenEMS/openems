@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -13,7 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
+import io.openems.common.utils.JsonUtils;
 
 public class DefaultWeatherDataParserTest {
 
@@ -21,19 +24,19 @@ public class DefaultWeatherDataParserTest {
 	private JsonObject testJson;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		this.weatherDataParser = new DefaultWeatherDataParser();
-		this.testJson = JsonParser.parseString(JSON_RESPONSE).getAsJsonObject();
+		this.testJson = JsonUtils.parse(JSON_RESPONSE).getAsJsonObject();
 	}
 
 	@Test
-	public void parseQuarterly_ShouldParseAllFieldsCorrectly() {
+	public void testParseQuarterly_ShouldParseAllFieldsCorrectly() {
 		var apiBlock = this.testJson.getAsJsonObject("minutely_15");
-		var responseZone = ZoneId.of(this.testJson.get("timezone").getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
 		var targetZone = ZoneId.of("Europe/Berlin");
 		final var result = this.weatherDataParser.parseQuarterly(//
 				apiBlock, //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		assertEquals(2, result.size());
@@ -56,11 +59,11 @@ public class DefaultWeatherDataParserTest {
 	@Test
 	public void testParseQuarterly_ShouldConvertTimeZoneCorrectly() {
 		var apiBlock = this.testJson.getAsJsonObject("minutely_15");
-		var responseZone = ZoneId.of(this.testJson.get("timezone").getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
 		var targetZone = ZoneId.of("Europe/Moscow");
 		final var result = this.weatherDataParser.parseQuarterly(//
 				apiBlock, //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		assertEquals(ZonedDateTime.parse("2025-03-23T00:00Z", DateTimeFormatter.ISO_DATE_TIME)
@@ -68,13 +71,42 @@ public class DefaultWeatherDataParserTest {
 	}
 
 	@Test
+	public void testParseQuarterly_ShouldConvertTimeZoneCorrectly_WhenDaylightSavingTimeChange() throws Exception {
+		var apiBlock = JsonUtils.parse(JSON_RESPONSE_DST_TRANSITION)//
+				.getAsJsonObject()//
+				.getAsJsonObject("minutely_15");
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
+		var targetZone = ZoneId.of("Europe/Berlin");
+		final var result = this.weatherDataParser.parseQuarterly(//
+				apiBlock, //
+				responseOffset, //
+				targetZone);
+
+		var expectedTimes = new ZonedDateTime[] {
+				LocalDateTime.parse("2025-03-29T23:45").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T00:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T01:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T02:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T03:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone) };
+
+		for (int i = 0; i < expectedTimes.length; i++) {
+			assertEquals(expectedTimes[i], result.get(i).datetime());
+		}
+	}
+
+	@Test
 	public void testParseHourly_ShouldParseAllFieldsCorrectly() {
 		var apiBlock = this.testJson.getAsJsonObject("hourly");
-		var responseZone = ZoneId.of(this.testJson.get("timezone").getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
 		var targetZone = ZoneId.of("Europe/Berlin");
 		final var result = this.weatherDataParser.parseHourly(//
 				apiBlock, //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		assertEquals(2, result.size());
@@ -99,15 +131,44 @@ public class DefaultWeatherDataParserTest {
 	@Test
 	public void testParseHourly_ShouldConvertTimeZoneCorrectly() {
 		var apiBlock = this.testJson.getAsJsonObject("hourly");
-		var responseZone = ZoneId.of(this.testJson.get("timezone").getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
 		var targetZone = ZoneId.of("Europe/Moscow");
 		final var result = this.weatherDataParser.parseHourly(//
 				apiBlock, //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		assertEquals(ZonedDateTime.parse("2025-03-23T00:00Z", DateTimeFormatter.ISO_DATE_TIME)
 				.withZoneSameInstant(ZoneId.of("Europe/Moscow")), result.get(0).datetime());
+	}
+
+	@Test
+	public void testParseHourly_ShouldConvertTimeZoneCorrectly_WhenDaylightSavingTimeChange() throws Exception {
+		var apiBlock = JsonUtils.parse(JSON_RESPONSE_DST_TRANSITION)//
+				.getAsJsonObject()//
+				.getAsJsonObject("hourly");
+		var responseOffset = ZoneOffset.ofTotalSeconds(this.testJson.get("utc_offset_seconds").getAsInt());
+		var targetZone = ZoneId.of("Europe/Berlin");
+		final var result = this.weatherDataParser.parseHourly(//
+				apiBlock, //
+				responseOffset, //
+				targetZone);
+
+		var expectedTimes = new ZonedDateTime[] {
+				LocalDateTime.parse("2025-03-29T23:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T00:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T01:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T02:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone),
+				LocalDateTime.parse("2025-03-30T03:00").atOffset(responseOffset).toZonedDateTime()
+						.withZoneSameInstant(targetZone) };
+
+		for (int i = 0; i < expectedTimes.length; i++) {
+			assertEquals(expectedTimes[i], result.get(i).datetime());
+		}
 	}
 
 	@Test
@@ -137,6 +198,7 @@ public class DefaultWeatherDataParserTest {
 	private static final String JSON_RESPONSE = """
 			{
 			  "timezone": "GMT",
+			  "utc_offset_seconds": 0,
 			  "minutely_15": {
 			    "time": [
 			      "2025-03-23T00:00",
@@ -189,6 +251,46 @@ public class DefaultWeatherDataParserTest {
 			    "sunshine_duration": [
 			      48645.81,
 			      47899.74
+			    ]
+			  }
+			}
+			""".stripIndent();
+
+	private static final String JSON_RESPONSE_DST_TRANSITION = """
+			{
+			  "timezone": "Europe/Berlin",
+			  "utc_offset_seconds": 7200,
+			  "minutely_15": {
+			    "time": [
+			      "2025-03-29T23:45",
+			      "2025-03-30T00:00",
+			      "2025-03-30T01:00",
+			      "2025-03-30T02:00",
+			      "2025-03-30T03:00"
+			    ],
+			    "shortwave_radiation": [
+			      0.0, 1.0, 2.0, 3.0, 4.0
+			    ],
+			    "direct_normal_irradiance": [
+			      100.0, 105.0, 110.0, 115.0, 120.0
+			    ]
+			  },
+			  "hourly": {
+			    "time": [
+			      "2025-03-29T23:00",
+			      "2025-03-30T00:00",
+			      "2025-03-30T01:00",
+			      "2025-03-30T02:00",
+			      "2025-03-30T03:00"
+			    ],
+			    "weather_code": [
+			      3, 3, 0, 0, 1
+			    ],
+			    "temperature_2m": [
+			      10.0, 9.5, 9.0, 8.5, 8.0
+			    ],
+			    "is_day": [
+			      0, 0, 0, 0, 1
 			    ]
 			  }
 			}

@@ -1,13 +1,9 @@
 package io.openems.edge.controller.io.heating.room;
 
-import static io.openems.edge.controller.io.heating.room.Utils.getNextHighPeriod;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,19 +21,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.io.heating.room.Utils.HighPeriod;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.thermometer.api.Thermometer;
@@ -57,12 +50,14 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 	private static final int MINIMUM_SWITCHING_TIME = 180; // [s]
 
 	private final Logger log = LoggerFactory.getLogger(ControllerIoRoomHeatingImpl.class);
-	private final Clock clock;
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private ComponentManager componentManager;
 
 	@Reference
 	private Timedata timedata;
@@ -80,30 +75,25 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 	private List<DigitalOutput> infraredRelayComponents;
 
 	private Config config = null;
-	private ImmutableList<Task<Void>> schedule = ImmutableList.of();
+	private JSCalendar.Tasks<Void> schedule = JSCalendar.Tasks.empty();
 	private final List<ChannelAddress> floorRelays = new ArrayList<>();
 	private final List<ChannelAddress> infraredRelays = new ArrayList<>();
 
-	private HighPeriod highPeriod;
+	private ActualMode actualMode;
 	private RelayState lastFloorRelayState = null;
 	private RelayState lastInfraredRelayState = null;
 
-	public ControllerIoRoomHeatingImpl(Clock clock) {
+	public ControllerIoRoomHeatingImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ControllerIoRoomHeating.ChannelId.values() //
 		);
-		this.clock = clock;
 
 		// Set static Meter channels
 		this._setActiveConsumptionEnergy(0);
 		this._setReactivePower(0);
-	}
-
-	public ControllerIoRoomHeatingImpl() {
-		this(Clock.systemDefaultZone());
 	}
 
 	@Activate
@@ -150,6 +140,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 		case MANUAL_LOW -> ActualMode.LOW;
 		case OFF -> ActualMode.OFF;
 		};
+		this.actualMode = actualMode;
 		var floorTarget = switch (actualMode) {
 		case HIGH -> this.config.highFloorTemperature();
 		case LOW -> this.config.lowFloorTemperature();
@@ -200,19 +191,10 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 	 * @return the {@link ActualMode}
 	 */
 	protected synchronized ActualMode getActualModeFromSchedule() {
-		var hp = this.highPeriod;
-		if (hp == null) {
-			return ActualMode.LOW;
-		}
-		var now = Instant.now(this.clock);
-		if (now.isBefore(hp.from())) {
-			return ActualMode.LOW;
-		}
-		if (now.isAfter(hp.to())) {
-			this.updateHighPeriod();
-			return this.getActualModeFromSchedule();
-		}
-		return ActualMode.HIGH;
+		var ot = this.schedule.getActiveOneTask();
+		return ot == null //
+				? ActualMode.LOW //
+				: ActualMode.HIGH;
 	}
 
 	public static enum Switch {
@@ -256,7 +238,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 	 * @return a new {@link RelayState} information object
 	 */
 	private RelayState switchRelays(List<WriteChannel<Boolean>> channels, RelayState lastRelayState, Switch target) {
-		var now = Instant.now(this.clock);
+		var now = Instant.now(this.componentManager.getClock());
 		if (lastRelayState != null
 				&& Duration.between(lastRelayState.lastChange, now).getSeconds() < MINIMUM_SWITCHING_TIME) {
 			// Hysteresis is active
@@ -409,13 +391,7 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 					this.infraredRelays.stream().map(c -> c.getComponentId()).distinct().toArray(String[]::new));
 		}
 
-		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(config.schedule());
-		this.updateHighPeriod();
-	}
-
-	private synchronized void updateHighPeriod() {
-		var now = ZonedDateTime.now(this.clock);
-		this.highPeriod = getNextHighPeriod(now, this.schedule);
+		this.schedule = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.schedule());
 	}
 
 	@Override
@@ -432,27 +408,22 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 		case MANUAL_HIGH -> b.append("Manual HIGH");
 		case MANUAL_LOW -> b.append("Manual LOW");
 		case AUTOMATIC -> {
-			var hp = this.highPeriod;
-			b.append("Auto|");
-			if (hp == null) {
-				b.append("LOW|NoSchedule");
-			} else {
-				var now = Instant.now(this.clock);
-				if (now.isBefore(hp.from())) {
-					b //
-							.append("LOW|NextHigh:") //
-							.append(LocalDateTime.ofInstant(hp.from(), this.clock.getZone())
-									.format(ISO_LOCAL_DATE_TIME));
-				} else if (now.isAfter(hp.to())) {
-					b.append("LOW|NoSchedule"); //
-				} else {
-					b //
-							.append("HIGH|Till:") //
-							.append(LocalDateTime.ofInstant(hp.to(), this.clock.getZone()).format(ISO_LOCAL_DATE_TIME));
-				}
+			var ot = this.schedule.getLastActiveOneTask();
+			b //
+					.append("Auto|") //
+					.append(//
+							switch (this.actualMode) {
+							case null -> "LOW|NoSchedule";
+							case LOW -> "LOW";
+							case HIGH -> "HIGH";
+							case OFF -> "OFF";
+							});
+			if (ot != null) {
+				b.append("|Till:").append(ot.end().format(ISO_LOCAL_DATE_TIME));
 			}
 		}
 		}
+
 		if (mode != Mode.OFF) {
 			b //
 					.append("|Floor:") //

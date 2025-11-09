@@ -19,19 +19,20 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.osgi.service.component.annotations.Component;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.predictor.api.common.PredictionException;
 import io.openems.edge.predictor.api.mlcore.classification.Classifier;
 import io.openems.edge.predictor.api.mlcore.clustering.Clusterer;
 import io.openems.edge.predictor.api.mlcore.transformer.OneHotEncoder;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorProfileClusteringModelImpl.DefaultPredictorConfig;
 import io.openems.edge.predictor.profileclusteringmodel.TrainingCallback.ModelBundle;
+import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionError;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionOrchestrator;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -63,7 +64,7 @@ public class PredictorProfileClusteringModelImplTest {
 		var clusterer = mock(Clusterer.class);
 		var classifier = mock(Classifier.class);
 		var oneHotEncoder = mock(OneHotEncoder.class);
-		sut.onModelsTrained(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
+		sut.onTrainingSuccess(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
 
 		var todaysProfile = createConstantProfile(0, 10.0);
 		var tomorrowsProfile = createConstantProfile(3, 30.0);
@@ -123,7 +124,7 @@ public class PredictorProfileClusteringModelImplTest {
 		var clusterer = mock(Clusterer.class);
 		var classifier = mock(Classifier.class);
 		var oneHotEncoder = mock(OneHotEncoder.class);
-		sut.onModelsTrained(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
+		sut.onTrainingSuccess(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
 
 		clock.leap(predictorConfig.maxModelAge().plusDays(1).toDays(), ChronoUnit.DAYS);
 
@@ -152,10 +153,10 @@ public class PredictorProfileClusteringModelImplTest {
 		var clusterer = mock(Clusterer.class);
 		var classifier = mock(Classifier.class);
 		var oneHotEncoder = mock(OneHotEncoder.class);
-		sut.onModelsTrained(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
+		sut.onTrainingSuccess(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
 
 		when(orchestrator.predictProfiles(anyInt()))//
-				.thenThrow(OpenemsNamedException.class);
+				.thenThrow(new PredictionException(PredictionError.INSUFFICIENT_PREDICTION_DATA, ""));
 
 		var prediction = sut.getPrediction(DUMMY_CHANNEL_ADDRESS);
 		assertEquals(Prediction.EMPTY_PREDICTION, prediction);

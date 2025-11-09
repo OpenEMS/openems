@@ -113,6 +113,7 @@ public final class CommonProps {
 
 	/**
 	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
+	 * 
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {

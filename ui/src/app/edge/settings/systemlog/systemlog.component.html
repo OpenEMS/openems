@@ -31,12 +31,12 @@
                 }
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-select interface="popover" [multiple]="true" label="Level" fill="outline"
+                    <ion-select interface="popover" [multiple]="filters.multiple" label="Level" fill="outline"
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
                       @for (filter of filters.options; track filter) {
                         <ion-select-option (keydown.enter)="searchOnChange($event)" button
-                          [value]="filter.value">{{filter.name}}
+                          [value]="filter.option.value">{{filter.name}}
                         </ion-select-option>
                       }
                     </ion-select>

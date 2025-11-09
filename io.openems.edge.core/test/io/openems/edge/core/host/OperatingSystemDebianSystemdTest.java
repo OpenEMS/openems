@@ -16,17 +16,17 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 
 public class OperatingSystemDebianSystemdTest {
-	
+
 	@Test
 	public void test() throws OpenemsNamedException {
 		final var lines = """
 				[Match]
 				Name=eth0
-				
+
 				[Network]
 				DHCP=yes
 				LinkLocalAddressing=yes
-				
+
 				[Address]
 				Address=192.168.100.100/24
 				Label=normal
@@ -61,15 +61,15 @@ public class OperatingSystemDebianSystemdTest {
 		final var lines = """
 				[Match]
 				Name=eth0
-				
+
 				[Network]
 				DHCP=yes
 				LinkLocalAddressing=yes
-				
+
 				[Address]
 				Address=192.168.100.100/24
 				Label=normal
-				
+
 				[Address]
 				Address=192.168.123.123/24
 				Label=
@@ -100,15 +100,15 @@ public class OperatingSystemDebianSystemdTest {
 		final var lines = """
 				[Match]
 				Name=eth0
-				
+
 				[Network]
 				DHCP=yes
 				LinkLocalAddressing=yes
-				
+
 				[Address]
 				Address=192.168.100.100/24
 				Label=fallback
-				
+
 				[Address]
 				Label=foo
 				Address=192.168.123.123/24
@@ -139,7 +139,7 @@ public class OperatingSystemDebianSystemdTest {
 				[Network]
 				DHCP=yes
 				""".lines().toList();
-		
+
 		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("enx*", n.getName());
@@ -226,7 +226,7 @@ public class OperatingSystemDebianSystemdTest {
 		assertEquals(true, n.getDhcp().getValue());
 		assertEquals(216, n.getMetric().getValue().intValue());
 	}
-	
+
 	@Test
 	public void test6() throws OpenemsNamedException {
 		final var lines = """

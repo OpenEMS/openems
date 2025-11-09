@@ -32,13 +32,11 @@
               [channelAddress]="'_meta/_PropertyMaximumGridFeedInLimit'">
             </oe-modal-line>
           }
-        } @else {
-          @if (formGroup.value.sellToGridLimitEnabled) {
-            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN' | translate"
-              leftColumnWidth="70" [converter]="Utils.CONVERT_TO_WATT"
-              [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
-            </oe-modal-line>
-          }
+        } @else if (formGroup.value.sellToGridLimitEnabled) {
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN' | translate"
+            leftColumnWidth="70" [converter]="Utils.CONVERT_TO_WATT"
+            [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
+          </oe-modal-line>
         }
       }
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -69,9 +67,9 @@
                 @if (formGroup) {
                   <ion-item button="true" id="open-date-input">
                     <ion-label>
-                      {{this.formGroup.controls["manualTargetTime"].value.match("/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/")?
-                      (this.formGroup.controls["manualTargetTime"].value | date:
-                      "HH:mm") : this.formGroup.controls["manualTargetTime"].value}}
+                      {{ this.formGroup.controls["manualTargetTime"].value.match("/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/")
+                      ? (this.formGroup.controls["manualTargetTime"].value | date:"HH:mm") 
+                      : this.formGroup.controls["manualTargetTime"].value}}
                     </ion-label>
                     <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
                       <ng-template>
@@ -91,8 +89,7 @@
     @if (formGroup.value.mode === 'AUTOMATIC') {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       @if (targetMinute !== null && delayChargeMaximumChargeLimit !== null) {
-        <oe-modal-info-line [info]="[{text:
-                'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DETAILED_DESCRIPTION'| translate:
+        <oe-modal-info-line [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME_DETAILED_DESCRIPTION'| translate:
                  {maxChargingPowerW: delayChargeMaximumChargeLimit | unitvalue:'W', endTime: chargingEndTime }
                 }]">
         </oe-modal-info-line>
@@ -108,9 +105,9 @@
           [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC'| translate},{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC_WITHOUT_SELL_TO_GRID_LIMIT'| translate, lineStyle:'color: #666666'}]">
         </oe-modal-info-line>
         <!-- Chart -->
-        <predictionChart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
+        <predictionchart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
           [targetEpochSeconds]="targetEpochSeconds" [chargeStartEpochSeconds]="chargeStartEpochSeconds">
-        </predictionChart>
+        </predictionchart>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
       </ng-container>
       <!--Risk propensity-->
@@ -125,14 +122,14 @@
       <!-- Risk description -->
       <ng-container style="font-size: smaller">
         <oe-modal-info-line
-          [info]="'Edge.Index.Widgets.GridOptimizedCharge.RiskDescription.' + formGroup.value.delayChargeRiskLevel + '.functionDescription' | translate">
+          [info]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_DESCRIPTION.' + formGroup.value.delayChargeRiskLevel + '.FUNCTION_DESCRIPTION' | translate">
         </oe-modal-info-line>
         <oe-modal-info-line
-          [info]="'Edge.Index.Widgets.GridOptimizedCharge.RiskDescription.' + formGroup.value.delayChargeRiskLevel + '.storageDescription' | translate"
+          [info]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_DESCRIPTION.' + formGroup.value.delayChargeRiskLevel + '.STORAGE_DESCRIPTION' | translate"
           lineStyle="font-size: small" [icon]="{name:'arrow-up-outline'}">
         </oe-modal-info-line>
         <oe-modal-info-line
-          [info]="'Edge.Index.Widgets.GridOptimizedCharge.RiskDescription.' + formGroup.value.delayChargeRiskLevel + '.pvCurtail' | translate"
+          [info]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.RISK_DESCRIPTION.' + formGroup.value.delayChargeRiskLevel + '.PV_CURTAIL' | translate"
           lineStyle="font-size: small" [icon]="{name:'arrow-down-outline'}">
         </oe-modal-info-line>
       </ng-container>

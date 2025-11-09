@@ -1,5 +1,10 @@
 package io.openems.common.test;
 
+import static io.openems.common.utils.DictionaryUtils.getAsBoolean;
+import static io.openems.common.utils.DictionaryUtils.getAsString;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
@@ -8,6 +13,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -132,9 +138,34 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
+	private static final Pattern KEY_VALUE_PATTERN = Pattern.compile("\\((?<key>\\S+)=(?<value>\\S+)\\)");
+
 	@Override
 	public synchronized Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
+		// org.apache.felix.cm.impl.Simplefilter is not available here, so we apply just
+		// a simple parsing. See
+		// https://github.com/apache/felix-dev/blob/master/configadmin/src/main/java/org/apache/felix/cm/impl/SimpleFilter.java
 		return this.configurations.values().stream() //
+				.filter(c -> {
+					if (filter == null) {
+						return true;
+					}
+					var matcher = KEY_VALUE_PATTERN.matcher(filter);
+					if (!matcher.find()) {
+						return true;
+					}
+					final var props = c.getProperties();
+					var key = matcher.group("key");
+					var value = matcher.group("value");
+					if (value.equalsIgnoreCase("true") && getAsBoolean(props, key) == TRUE) {
+						return true;
+					} else if (value.equalsIgnoreCase("false") && getAsBoolean(props, key) == FALSE) {
+						return true;
+					} else if (value.equals(getAsString(props, key))) {
+						return true;
+					}
+					return false;
+				}) //
 				.map(c -> (Configuration) c) //
 				.toArray(Configuration[]::new);
 	}
