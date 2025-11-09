@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonNull;
 
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
@@ -93,19 +92,22 @@ public class EnergyScheduler {
 
 				.setOptimizationContext(gsc -> {
 					var config = configSupplier.get();
-					final OneTask<Payload> ot;
-					if (config.smartConfig.isEmpty()) {
-						ot = null;
-					} else {
-						var firstTime = gsc.periods().getFirst().time();
-						var lastTime = gsc.periods().getLast().time();
-						System.out.println("OPTIMIZER cocFunction smartConfig=" + config.smartConfig + "; firstTime="
-								+ firstTime + "; lastTime=" + lastTime);
-						var ots = JSCalendar.Tasks.getOccurencesBetween(config.smartConfig, firstTime, lastTime);
-						ot = ots.isEmpty() //
-								? null //
-								: ots.getFirst();
-					}
+					final OneTask<Payload> ot = null;
+					// TODO
+					// if (config.smartConfig.isEmpty()) {
+					// ot = null;
+					// } else {
+					// var firstTime = gsc.periods().getFirst().time();
+					// var lastTime = gsc.periods().getLast().time();
+					// System.out.println("OPTIMIZER cocFunction smartConfig=" + config.smartConfig
+					// + "; firstTime="
+					// + firstTime + "; lastTime=" + lastTime);
+					// var ots = JSCalendar.Tasks.getOccurencesBetween(config.smartConfig,
+					// firstTime, lastTime);
+					// ot = ots.isEmpty() //
+					// ? null //
+					// : ots.getFirst();
+					// }
 					System.out.println("OPTIMIZER cocFunction ot=" + ot);
 					return SmartOptimizationContext.from(config, ot);
 				})
@@ -285,6 +287,7 @@ public class EnergyScheduler {
 					);
 				}, obj -> {
 					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
 							.addProperty("mode", obj.mode) //
 							.add("abilities", CombinedAbilities.serializer().serialize(obj.abilities)) //
 							.addProperty("appearsToBeFullyCharged", obj.appearsToBeFullyCharged) //
@@ -306,7 +309,7 @@ public class EnergyScheduler {
 		}
 
 		public static record SmartOptimizationConfig(CombinedAbilities combinedAbilities,
-				boolean appearsToBeFullyCharged, ImmutableList<Task<Payload>> smartConfig) implements Config {
+				boolean appearsToBeFullyCharged, JSCalendar.Tasks<Payload> smartConfig) implements Config {
 
 			/**
 			 * Returns a {@link JsonSerializer} for a {@link SmartOptimizationConfig}.
@@ -316,14 +319,14 @@ public class EnergyScheduler {
 			public static JsonSerializer<SmartOptimizationConfig> serializer() {
 				return jsonObjectSerializer(json -> {
 					return new SmartOptimizationConfig(//
-							json.getObject("combinedAbilities", CombinedAbilities.serializer()), //
+							json.getObject("abilities", CombinedAbilities.serializer()), //
 							json.getBoolean("appearsToBeFullyCharged"), //
-							json.getImmutableList("smartConfig", JSCalendar.Task.serializer(Payload.serializer())) //
+							json.getObject("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer())) //
 					);
 				}, obj -> {
 					return buildJsonObject() //
 							.addProperty("class", obj.getClass().getSimpleName()) //
-							.add("combinedAbilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
+							.add("abilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
 							.addProperty("appearsToBeFullyCharged", obj.appearsToBeFullyCharged) //
 							.add("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer()) //
 									.serialize(obj.smartConfig()))

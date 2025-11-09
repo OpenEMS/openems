@@ -56,6 +56,8 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggrega
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -73,6 +75,7 @@ import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.CheckableFactory;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.ValidatorImpl;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public class AppManagerTestBundle {
 
@@ -130,6 +133,13 @@ public class AppManagerTestBundle {
 							.add("properties", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.add("controllers.ids", JsonUtils.buildJsonArray() //
+											.build()) //
+									.build()) //
+							.build()) //
+					.add(PredictorManager.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
+							.addProperty("factoryId", PredictorManager.SINGLETON_SERVICE_PID) //
+							.add("properties", JsonUtils.buildJsonObject() //
+									.add("predictor.ids", JsonUtils.buildJsonArray() //
 											.build()) //
 									.build()) //
 							.build()) //
@@ -420,6 +430,18 @@ public class AppManagerTestBundle {
 	public PersistencePredictorAggregateTask addPersistencePredictorAggregateTask() {
 		final var persistencePredictorAggregateTaskImpl = new PersistencePredictorAggregateTaskImpl(
 				this.componentManger);
+		this.appHelper.addAggregateTask(persistencePredictorAggregateTaskImpl);
+		return persistencePredictorAggregateTaskImpl;
+	}
+
+	/**
+	 * Adds a {@link PersistencePredictorAggregateTask} to the current active tasks.
+	 *
+	 * @return the created {@link PersistencePredictorAggregateTask}
+	 */
+	public PredictorManagerByCentralOrderAggregateTask addPredictorManagerByCentralOrderAggregateTask() {
+		final var persistencePredictorAggregateTaskImpl = new PredictorManagerByCentralOrderAggregateTaskImpl(
+				this.componentManger, this.appManagerUtil);
 		this.appHelper.addAggregateTask(persistencePredictorAggregateTaskImpl);
 		return persistencePredictorAggregateTaskImpl;
 	}

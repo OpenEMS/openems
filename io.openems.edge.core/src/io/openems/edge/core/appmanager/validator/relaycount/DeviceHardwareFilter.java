@@ -57,7 +57,7 @@ public class DeviceHardwareFilter implements CheckRelayCountFilter {
 						final var configuration = this.appManagerUtil.getAppConfiguration(ConfigurationTarget.UPDATE,
 								instance, Language.DEFAULT);
 
-						return configuration.getComponents().stream().map(t -> t.getId());
+						return configuration.getComponents().stream().map(t -> t.id());
 					} catch (OpenemsNamedException e) {
 						return Stream.empty();
 					}

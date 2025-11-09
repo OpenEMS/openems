@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 import static java.util.Collections.emptyList;
 
 import java.util.AbstractMap;
@@ -564,16 +565,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			final AddAppInstance.Request request, //
 			final boolean ignoreBackend //
 	) throws OpenemsNamedException {
-		// check if key is valid for this app
-		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key(), request.appId())) {
-			throw new OpenemsException("Key not applicable!");
-		}
-
+		final var bundle = AbstractOpenemsApp
+				.getTranslationBundle(user == null ? Language.DEFAULT : user.getLanguage());
 		final var openemsApp = this.findAppByIdOrError(request.appId());
 
 		if (user != null) {
 			if (!openemsApp.getAppPermissions().canInstall().contains(user.getRole())) {
-				throw new OpenemsException("User Role can't install!");
+				throw new OpenemsException(translate(bundle, "AppManager.installApp.permissionDenied"));
 			}
 		}
 
@@ -597,6 +595,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 					if (e.getMessage().contains("Read timed out")) {
 						this.appSynchronizeWorker.setValidBackendResponse(false);
 						this.appSynchronizeWorker.triggerNextRun();
+						throw new OpenemsException(translate(bundle, "AppManager.installApp.timeout"));
 					}
 					throw e;
 				}
@@ -975,7 +974,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * request.
 	 * 
 	 * @param component the {@link ComponentFilter} filter.
-	 * @param instance the instance to be checked.
+	 * @param instance  the instance to be checked.
 	 * @return the filtered instances
 	 */
 	private boolean resolveComponentFilter(ComponentFilter component, OpenemsAppInstance instance) {
@@ -986,8 +985,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			final var appConfig = util.getAppConfiguration(ConfigurationTarget.VALIDATE, //
 					instance, Language.DEFAULT);
 			return appConfig.getComponents().stream().anyMatch(t -> {
-				final var hasComponentId = (componentIds == null || componentIds.contains(t.getId()));
-				final var hasFactoryId = (factoryIds == null || factoryIds.contains(t.getFactoryId()));
+				final var hasComponentId = (componentIds == null || componentIds.contains(t.id()));
+				final var hasFactoryId = (factoryIds == null || factoryIds.contains(t.factoryId()));
 
 				return hasComponentId && hasFactoryId;
 			});
@@ -1007,7 +1006,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private OpenemsAppInstance findInstanceByComponentId(String componentId) throws OpenemsNamedException {
 		for (var appConfig : this.appConfigs()) {
 			var containsComponent = appConfig.getValue().getComponents().stream()
-					.anyMatch(t -> t.getId().equals(componentId));
+					.anyMatch(t -> t.id().equals(componentId));
 			if (containsComponent) {
 				return appConfig.getKey();
 			}
@@ -1026,40 +1025,27 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 */
 	public UpdateAppConfig.Response handleUpdateAppConfigRequest(User user, UpdateAppConfig.Request request)
 			throws OpenemsNamedException {
-
 		final var appInstance = this.findInstanceByComponentId(request.componentId());
-
 		// update Component the old fashioned way if no app exists for the component
 		if (appInstance == null) {
 			this.updateComponentDirectly(user, request);
 			return new UpdateAppConfig.Response(null);
 		}
 		final var app = this.findAppByIdOrError(appInstance.appId);
-
 		final var requestProperties = request.properties().entrySet().stream() //
 				.map(entry -> Map.entry(app.mapPropName(entry.getKey(), request.componentId(), appInstance),
 						entry.getValue()))
 				.filter(entry -> entry.getKey() != null)
 				.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue));
-
 		for (var entry : appInstance.properties.entrySet()) {
 			if (requestProperties.has(entry.getKey())) {
 				continue;
 			}
 			requestProperties.add(entry.getKey(), entry.getValue());
 		}
-
-		final var mappedRequestProperties = new JsonObject();
-
-		// change keys to keys of app properties for updateInstance Method!
-		for (var entry : requestProperties.entrySet()) {
-			final var mappedKey = app.mapPropName(entry.getKey(), request.componentId(), appInstance);
-			mappedRequestProperties.add(mappedKey, entry.getValue());
-		}
-
 		// build UpdateAppInstance Request and pass the request to the
 		// handleUpdateAppInstanceRequest Method
-		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, mappedRequestProperties);
+		var req = new UpdateAppInstance.Request(appInstance.instanceId, appInstance.alias, requestProperties);
 		this.handleUpdateAppInstanceRequest(user, req);
 		return new UpdateAppConfig.Response(appInstance);
 	}
