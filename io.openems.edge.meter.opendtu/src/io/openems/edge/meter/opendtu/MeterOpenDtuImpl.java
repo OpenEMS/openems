@@ -31,9 +31,12 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpResponse;
+
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -77,6 +80,8 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -106,7 +111,8 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/api/livedata/status?inv=" + config.serialNumber(), this::processHttpResult);
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/api/livedata/status?inv=" + config.serialNumber(), this::processHttpResult);
 
 		/*
 		 * this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.serialNumber());
