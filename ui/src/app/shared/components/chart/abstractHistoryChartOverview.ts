@@ -10,101 +10,101 @@ import { DefaultTypes } from "../../type/defaulttypes";
 @Directive()
 export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges, OnDestroy {
 
-  /**
+    /**
    * True after this.edge, this.config and this.component are set.
    */
-  public isInitialized: boolean = false;
-  public config: EdgeConfig = null;
-  public component: EdgeConfig.Component | null = null;
-  public stopOnDestroy: Subject<void> = new Subject<void>();
-  public edge: Edge | null = null;
-  public period: DefaultTypes.HistoryPeriod;
-  protected showTotal: boolean = true;
-  protected showPhases: boolean = false;
+    public isInitialized: boolean = false;
+    public config: EdgeConfig = null;
+    public component: EdgeConfig.Component | null = null;
+    public stopOnDestroy: Subject<void> = new Subject<void>();
+    public edge: Edge | null = null;
+    public period: DefaultTypes.HistoryPeriod;
+    protected showTotal: boolean = true;
+    protected showPhases: boolean = false;
 
 
-  constructor(
-    public service: Service,
-    protected route: ActivatedRoute,
-    public modalCtrl: ModalController,
-  ) { }
+    constructor(
+        public service: Service,
+        protected route: ActivatedRoute,
+        public modalCtrl: ModalController,
+    ) { }
 
-  public ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.service.getConfig().then(config => {
-        // store important variables publically
-        this.edge = edge;
-        this.config = config;
-        this.component = config.getComponent(this.route.snapshot.params.componentId);
+    public ngOnInit() {
+        this.service.getCurrentEdge().then(edge => {
+            this.service.getConfig().then(config => {
+                // store important variables publically
+                this.edge = edge;
+                this.config = config;
+                this.component = config.getComponent(this.route.snapshot.params.componentId);
 
-        this.period = this.service.historyPeriod.value;
+                this.period = this.service.historyPeriod.value;
 
-      }).then(() => {
-        // announce initialized
-        this.isInitialized = true;
-        this.afterIsInitialized();
+            }).then(() => {
+                // announce initialized
+                this.isInitialized = true;
+                this.afterIsInitialized();
 
-        // get the channel addresses that should be subscribed and updateValues if data has changed
+                // get the channel addresses that should be subscribed and updateValues if data has changed
+                this.updateValues();
+            });
+        });
+    }
+
+    public updateValues() {
+        const channelAddresses = this.getChannelAddresses();
+        this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
+            const result = response.result;
+            const allComponents = {};
+            for (const channelAddress of channelAddresses) {
+                const ca = channelAddress.toString();
+                allComponents[ca] = result.data[ca];
+            }
+            this.onCurrentData({ allComponents: allComponents });
+        }).catch(() => {
+            // TODO Error Message
+        });
+    }
+
+    public ngOnChanges() {
         this.updateValues();
-      });
-    });
-  }
+    }
 
-  public updateValues() {
-    const channelAddresses = this.getChannelAddresses();
-    this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-      const result = response.result;
-      const allComponents = {};
-      for (const channelAddress of channelAddresses) {
-        const ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca];
-      }
-      this.onCurrentData({ allComponents: allComponents });
-    }).catch(() => {
-      // TODO Error Message
-    });
-  }
-
-  public ngOnChanges() {
-    this.updateValues();
-  }
-
-  public ngOnDestroy() {
+    public ngOnDestroy() {
     // Unsubscribe from CurrentData subject
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-  }
+        this.stopOnDestroy.next();
+        this.stopOnDestroy.complete();
+    }
 
-  /**
+    /**
    * Called on every new data.
    *
    * @param currentData new data for the subscribed Channel-Addresses
    */
-  protected onCurrentData(currentData: CurrentData): void { }
+    protected onCurrentData(currentData: CurrentData): void { }
 
-  /**
+    /**
    * Gets the ChannelIds of the current Component that should be subscribed.
    */
-  protected getChannelIds(): string[] {
-    return [];
-  }
+    protected getChannelIds(): string[] {
+        return [];
+    }
 
-  /**
+    /**
    * Gets the ChannelAddresses that should be queried.
    *
    * @param edge the current Edge
    * @param config the EdgeConfig
    */
-  protected getChannelAddresses(): ChannelAddress[] {
-    return [];
-  }
+    protected getChannelAddresses(): ChannelAddress[] {
+        return [];
+    }
 
-  protected setShowTotal(event) {
-    this.showTotal = event;
-  }
-  protected setShowPhases(event) {
-    this.showPhases = event;
-  }
+    protected setShowTotal(event) {
+        this.showTotal = event;
+    }
+    protected setShowPhases(event) {
+        this.showPhases = event;
+    }
 
-  protected afterIsInitialized(): void { }
+    protected afterIsInitialized(): void { }
 }

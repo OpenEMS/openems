@@ -164,6 +164,13 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "timezone", ComponentManagerSupplier::getComponentManager))), //
+
+		THIRD_PARTY_USAGE_ACCEPTANCE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.appendIsAllowedToEdit((app, property, l, parameter, user) -> {
+					return user.getRole() == Role.OWNER;
+				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.bidirectional("_meta", "thirdPartyUsageAcceptance", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -214,6 +221,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var latitude = this.getDouble(p, Property.LATITUDE);
 			final var longitude = this.getDouble(p, Property.LONGITUDE);
 			final var timezone = this.getString(p, Property.TIMEZONE);
+			final var thirdPartyUsageAcceptance = this.getString(p, Property.THIRD_PARTY_USAGE_ACCEPTANCE);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -230,6 +238,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.addProperty("latitude", latitude)//
 							.addProperty("longitude", longitude)//
 							.addProperty("timezone", timezone)//
+							.addProperty("thirdPartyUsageAcceptance", thirdPartyUsageAcceptance)//
 							.build()));
 
 			return AppConfiguration.create() //

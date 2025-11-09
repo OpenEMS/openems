@@ -3,13 +3,17 @@ package io.openems.edge.battery.bmw;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import org.junit.Test;
-import org.osgi.service.event.Event;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
@@ -17,13 +21,8 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.battery.bmw.enums.BatteryState;
 import io.openems.edge.battery.bmw.statemachine.StateMachine;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttp;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -92,7 +91,7 @@ public class BmwBatteryImplTest {
 			throw HttpError.ResponseError.notFound();
 		});
 
-		var dummyCycleSubscriber = DummyBridgeHttpFactory.cycleSubscriber();
+		var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		var test = new ComponentTest(new BatteryBmwImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -100,9 +99,10 @@ public class BmwBatteryImplTest {
 				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("token", new BmwToken(new DummyBridgeHttp()))//
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofBridgeImpl(//
-						() -> dummyCycleSubscriber, //
 						() -> fetcher, //
 						() -> executor)) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)//
 						.withIpAddress("127.0.0.1")) //
 				.activate(MyConfig.create() //
@@ -116,43 +116,37 @@ public class BmwBatteryImplTest {
 				.output(STATEMACHINE, StateMachine.State.UNDEFINED));
 		test.next(new TestCase("2")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("3")//
 				.timeleap(clock, 10, ChronoUnit.SECONDS));//
 		test.next(new TestCase("4")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("5")//
 				.output(STATEMACHINE, StateMachine.State.GO_RUNNING));
 		test.next(new TestCase("6")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("7")//
 				.timeleap(clock, 10, ChronoUnit.SECONDS));//
 		test.next(new TestCase("8")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("9")//
 				.input(BATTERY_STATE, BatteryState.OPERATION));
 		test.next(new TestCase("10")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("11")//
 				.timeleap(clock, 10, ChronoUnit.SECONDS));//
 		test.next(new TestCase("12")//
 				.onAfterProcessImage(() -> {
-					dummyCycleSubscriber.handleEvent(
-							new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+					dummyCycleSubscriber.triggerNextCycle();
 				}));
 		test.next(new TestCase("13")//
 				.output(STATEMACHINE, StateMachine.State.RUNNING));

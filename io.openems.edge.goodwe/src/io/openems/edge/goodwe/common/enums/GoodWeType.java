@@ -55,13 +55,13 @@ public enum GoodWeType implements OptionsEnum {
 	public final Function<BatteryFeneconHomeHardwareType, Integer> maxDcCurrent;
 	public final ThrowingFunction<String, Boolean, Exception> serialNrFilter;
 	public final Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery;
-	public final int maxBatChargeP;
-	public final int maxBatDischargeP;
+	public final Integer maxBatChargeP;
+	public final Integer maxBatDischargeP;
 
 	private GoodWeType(int value, String option, Series series,
 			Function<BatteryFeneconHomeHardwareType, Integer> maxDcCurrent,
 			ThrowingFunction<String, Boolean, Exception> serialNrFilter,
-			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery, int maxBatChargeP, int maxBatDischargeP) {
+			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery, Integer maxBatChargeP, Integer maxBatDischargeP) {
 		this.value = value;
 		this.option = option;
 		this.series = series;
@@ -74,7 +74,7 @@ public enum GoodWeType implements OptionsEnum {
 
 	private GoodWeType(int value, String option, Series series, int maxDcCurrent) {
 		// No serial number filter and battery dependency
-		this(value, option, series, (notUsed) -> maxDcCurrent, (t) -> false, (t) -> false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		this(value, option, series, (notUsed) -> maxDcCurrent, (t) -> false, (t) -> false, null, null);
 	}
 
 	@Override

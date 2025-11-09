@@ -43,6 +43,7 @@ public class TestFeneconHome30DefaultRelays {
 
 		this.appManagerTestBundle
 				.addSchedulerByCentralOrderAggregateTask(this.appManagerTestBundle.addComponentAggregateTask());
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
 		this.createFullHomeWithDummyIo();
 	}

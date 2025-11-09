@@ -70,8 +70,8 @@ public interface AppManager extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#HARDWARE_MISMATCH} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#HARDWARE_MISMATCH}
+	 * Channel.
 	 * 
 	 * @param value the next value
 	 */

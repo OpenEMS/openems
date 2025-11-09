@@ -24,7 +24,8 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-content style="position: absolute;height: 87%; width: 100%;">
+  <ion-content style="width: 100%;"
+    [style]="actionSheetModalHeight === 0 ? 'height: 87%; position: absolute;' : 'height: inherit'">
     <ng-content></ng-content>
   </ion-content>
 }

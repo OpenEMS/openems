@@ -1,5 +1,7 @@
 package io.openems.edge.app.timeofusetariff.manual;
 
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.createAncillaryCosts;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -19,6 +21,8 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.timeofusetariff.AncillaryCostsProps;
+import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
 import io.openems.edge.app.timeofusetariff.TimeOfUseProps;
 import io.openems.edge.app.timeofusetariff.manual.OctopusHeat.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -76,7 +80,13 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 
 		STANDARD_PRICE(TimeOfUseProps.price(".standardPrice")), //
 
-		LOW_PRICE(TimeOfUseProps.price(".lowPrice")); //
+		LOW_PRICE(TimeOfUseProps.price(".lowPrice")), //
+
+		PARAGRAPH_14A_CHECK(TimeOfUseProps.paragraph14aCheck()), //
+
+		GERMAN_DSO(AncillaryCostsProps.germanDso(PARAGRAPH_14A_CHECK)), //
+
+		TARIFF_TABLE(AncillaryCostsProps.tariffTable(GERMAN_DSO, TIME_OF_USE_TARIFF_PROVIDER_ID)); //
 
 		private final AppDef<? super OctopusHeat, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -118,6 +128,15 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 			final var standardPrice = this.getDouble(p, Property.STANDARD_PRICE);
 			final var lowPrice = this.getDouble(p, Property.LOW_PRICE);
 
+			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
+			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
+
+			final var tariffTable = paragraph14aCheck && germanDso == GermanDSO.OTHER
+					? this.getJsonArray(p, Property.TARIFF_TABLE)
+					: null;
+
+			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso, tariffTable, t);
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
@@ -128,6 +147,7 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 									.addProperty("highPrice", highPrice) //
 									.addProperty("standardPrice", standardPrice) //
 									.addProperty("lowPrice", lowPrice) //
+									.addProperty("ancillaryCosts", ancillaryCosts) //
 									.build())//
 			);
 

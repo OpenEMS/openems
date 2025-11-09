@@ -2,8 +2,8 @@ import { Component } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 
 @Component({
-  selector: "formly-range-type",
-  template: `
+    selector: "formly-range-type",
+    template: `
     @if (props.note) {
       <p class="ion-padding-top"> {{ props.note }} </p>
     }
@@ -41,19 +41,19 @@ import { FieldType } from "@ngx-formly/core";
       </ion-text>
     }
     `,
-  standalone: false,
+    standalone: false,
 })
 export class FormlyRangeTypeComponent extends FieldType {
-  protected boundPinFormatter = this.pinFormatter.bind(this);
+    protected boundPinFormatter = this.pinFormatter.bind(this);
 
-  public onChange(event: any): void {
-    if (this.props.change) {
-      this.props.change(this.field);
+    public onChange(event: any): void {
+        if (this.props.change) {
+            this.props.change(this.field);
+        }
     }
-  }
 
-  protected pinFormatter(value: number): string {
-    const unit = this.props?.unit || "";
-    return `${value}${unit}`;
-  }
+    protected pinFormatter(value: number): string {
+        const unit = this.props?.unit || "";
+        return `${value}${unit}`;
+    }
 }

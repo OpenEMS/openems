@@ -57,7 +57,7 @@ describe("StatusComponent", () => {
     it("Test add Channels for subscription", async () => {
         await statusComponent.ngOnInit();
         await statusComponent.subscribeInfoChannels(testComponent);
-        expect(statusComponent.subscribedInfoChannels).toHaveSize(2);
+        expect(statusComponent.subscribedInfoChannels.length).toBe(2);
         expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "State"));
         expect(statusComponent.subscribedInfoChannels).toContain(new ChannelAddress(testComponent.id, "testChannel"));
     });

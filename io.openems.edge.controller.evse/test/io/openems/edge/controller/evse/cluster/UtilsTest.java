@@ -116,7 +116,7 @@ public class UtilsTest {
 					this.ctrls.stream() //
 							.<ControllerEvseSingle>map(CtrlBuilder::build) //
 							.toList(), //
-					log -> doNothing()));
+					LogVerbosity.NONE, log -> doNothing()));
 		}
 
 		protected static record PowerDistributionTester(PowerDistribution powerDistribution) {
@@ -346,7 +346,7 @@ public class UtilsTest {
 				.withParams(params);
 		var sum = new DummySum();
 		var powerDistribution = calculate(createDummyClock(), DistributionStrategy.EQUAL_POWER, sum, List.of(ctrl),
-				log -> doNothing());
+				LogVerbosity.NONE, log -> doNothing());
 		assertEquals("PowerDistribution{totalActivePower=0, entries=\n" //
 				+ "Entry{ctrl0, Params[actualMode=FORCE, activePower=null, history=History{entries=0}, " //
 				+ "hysteresis=INACTIVE, phaseSwitching=null, appearsToBeFullyCharged=false, " //

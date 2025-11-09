@@ -67,8 +67,8 @@ public class TestFeneconIndustrialS {
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-				case "App.OpenemsHardware.CM4" -> 1;
-				case "App.Hardware.IoGpio" -> 0;
+			case "App.OpenemsHardware.CM4" -> 1;
+			case "App.Hardware.IoGpio" -> 0;
 			default -> {
 				if (instance.appId.equals(appId)) {
 					yield 0;

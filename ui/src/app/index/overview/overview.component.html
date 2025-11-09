@@ -44,7 +44,7 @@
               <!-- Filter -->
               @if ((service.metadata | async)?.user; as user) {
                 @if (isAtLeastInstaller) {
-                  <oe-filter (setSearchParams)="searchOnChange($event)"></oe-filter>
+                  <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
                 }
               }
               <ion-row class="ion-justify-content-center">

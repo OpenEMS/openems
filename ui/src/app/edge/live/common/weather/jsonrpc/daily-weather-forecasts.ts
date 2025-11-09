@@ -5,10 +5,10 @@ export namespace DailyWeatherForecasts {
 
     export interface Forecast {
         date: Date;
-        weatherCode: number;
-        minTemperature: number;
-        maxTemperature: number;
-        sunshineDuration: number;
+        weatherCode: number | null;
+        minTemperature: number | null;
+        maxTemperature: number | null;
+        sunshineDuration: number | null;
     }
 
     export const METHOD: string = "dailyWeatherForecast";

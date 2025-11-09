@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, Input, untracked } from "@angular/core";
+import { Component, effect, ElementRef, Input, Renderer2, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -38,6 +38,7 @@ export class NavigationPageComponent {
     @Input() protected formGroup: FormGroup = new FormGroup({});
 
     protected contentHeight: number | null = null;
+    protected actionSheetModalHeight: number = 0;
 
     private edge: Edge | null = null;
 
@@ -47,15 +48,19 @@ export class NavigationPageComponent {
         protected navigationService: NavigationService,
         private websocket: Websocket,
         private translate: TranslateService,
+        private el: ElementRef, private renderer: Renderer2,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
+        const hostElement = el.nativeElement;
+        this.renderer.addClass(hostElement, "ion-page");
 
         effect(() => {
             const breakpoint = NavigationComponent.breakPoint();
             if (breakpoint > NavigationComponent.INITIAL_BREAKPOINT) {
                 return;
             }
-            this.contentHeight = ViewUtils.getViewHeight(untracked(() => this.navigationService.position()));
+            this.contentHeight = ViewUtils.getViewHeightInPx(untracked(() => this.navigationService.position()));
+            this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(untracked(() => this.navigationService.position()));
         });
     }
 
@@ -90,6 +95,6 @@ export class NavigationPageComponent {
     }
 
     protected onDomChange() {
-        this.contentHeight = ViewUtils.getViewHeight(this.navigationService.position());
+        this.contentHeight = ViewUtils.getViewHeightInPx(this.navigationService.position());
     }
 }

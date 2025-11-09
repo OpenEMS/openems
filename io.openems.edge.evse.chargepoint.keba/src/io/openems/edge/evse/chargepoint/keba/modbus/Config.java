@@ -29,15 +29,12 @@ public @interface Config {
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
 	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
-	@AttributeDefinition(name = "For P30: Has a S10 phase switching", description = "KEBA P30 with a S10 phase switching device")
-	boolean p30hasS10PhaseSwitching() default false;
-
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.DEBUG_LOG;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge")
 	String modbus_id() default "modbus0";
-	
+
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
 

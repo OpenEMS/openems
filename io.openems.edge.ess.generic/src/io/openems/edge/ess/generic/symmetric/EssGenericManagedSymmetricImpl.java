@@ -2,18 +2,21 @@ package io.openems.edge.ess.generic.symmetric;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State.UNDEFINED;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -25,48 +28,56 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.session.Role;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.api.BatteryTimeoutFailure;
-import io.openems.edge.batteryinverter.api.BatteryInverterTimeoutFailure;
+import io.openems.edge.battery.api.BatteryErrorAcknowledge;
+import io.openems.edge.batteryinverter.api.BatteryInverterErrorAcknowledge;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.EdgeGuards;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.ess.api.EssTimeoutFailure;
+import io.openems.edge.ess.api.EssErrorAcknowledge;
+import io.openems.edge.ess.api.EssErrorAcknowledgeRequest;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
-import io.openems.edge.ess.generic.jsonrpc.ClearTimeoutFailure;
+import io.openems.edge.ess.generic.common.RuntimeChannels;
+import io.openems.edge.ess.generic.common.RuntimeChannelsProvider;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Ess.Generic.ManagedSymmetric", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class EssGenericManagedSymmetricImpl extends
-		AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> implements
-		EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss, OpenemsComponent,
-		EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssTimeoutFailure, ComponentJsonApi {
+public class EssGenericManagedSymmetricImpl
+		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
+		implements EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssErrorAcknowledge,
+		ComponentJsonApi, TimedataProvider, RuntimeChannels {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractGenericManagedEss.class);
+	private final Logger log = LoggerFactory.getLogger(EssGenericManagedSymmetricImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
+
+	protected final RuntimeChannelsProvider runtimeChannelsProvider = new RuntimeChannelsProvider(this);
+
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	private Cycle cycle;
@@ -80,10 +91,10 @@ public class EssGenericManagedSymmetricImpl extends
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private ManagedSymmetricBatteryInverter batteryInverter;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private Battery battery;
 
 	public EssGenericManagedSymmetricImpl() {
@@ -96,7 +107,8 @@ public class EssGenericManagedSymmetricImpl extends
 				HybridEss.ChannelId.values(), //
 				EssGenericManagedSymmetric.ChannelId.values(), //
 				EssProtection.ChannelId.values(), //
-				EssTimeoutFailure.ChannelId.values()//
+				EssErrorAcknowledge.ChannelId.values(), //
+				RuntimeChannels.ChannelId.values() //
 		);
 	}
 
@@ -135,7 +147,15 @@ public class EssGenericManagedSymmetricImpl extends
 
 	@Override
 	public void handleEvent(Event event) {
-		super.handleEvent(event);
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.handleStateMachine();
+			this.runtimeChannelsProvider.updateStateTime(this.getState());
+		}
+		}
 	}
 
 	@Override
@@ -184,7 +204,9 @@ public class EssGenericManagedSymmetricImpl extends
 
 	@Override
 	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
+		return this.cycle != null //
+				? this.cycle.getCycleTime() //
+				: DEFAULT_CYCLE_TIME;
 	}
 
 	@Override
@@ -196,28 +218,28 @@ public class EssGenericManagedSymmetricImpl extends
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new ClearTimeoutFailure(), endpoint -> {
+		builder.handleRequest(new EssErrorAcknowledgeRequest(), endpoint -> {
 			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
 		}, call -> {
-			this.clearEssTimeoutFailure();
+			this.executeErrorAcknowledge();
 			return EmptyObject.INSTANCE;
 		});
 	}
 
 	@Override
-	public void clearEssTimeoutFailure() {
+	public void executeErrorAcknowledge() {
 		try {
 			this._setTimeoutStartBattery(false);
 			this._setTimeoutStartBatteryInverter(false);
 			this._setTimeoutStopBattery(false);
 			this._setTimeoutStopBatteryInverter(false);
 
-			if (this.battery instanceof BatteryTimeoutFailure b) {
-				b.clearBatteryTimeoutFailure();
+			if (this.battery instanceof BatteryErrorAcknowledge b) {
+				b.executeBatteryErrorAcknowledge();
 			}
 
-			if (this.batteryInverter instanceof BatteryInverterTimeoutFailure bi) {
-				bi.clearBatteryInverterTimeoutFailure();
+			if (this.batteryInverter instanceof BatteryInverterErrorAcknowledge bi) {
+				bi.executeBatteryInverterErrorAcknowledge();
 			}
 
 			this.stateMachine.forceNextState(UNDEFINED);
@@ -226,4 +248,8 @@ public class EssGenericManagedSymmetricImpl extends
 		}
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

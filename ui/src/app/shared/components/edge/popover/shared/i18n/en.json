@@ -1,0 +1,19 @@
+{
+    "POPOVER": {
+        "WEATHER_PROGNOSIS": {
+            "TITLE": "New: Forecast now 50% more accurate thanks to weather data",
+            "DESCRIPTION": "By integrating local weather data, we can improve the accuracy of your consumption and production forecast – completely <b>free!</b>",
+            "ADVANTAGES_HEADER": "What does this mean for you:",
+            "ADVANTAGE_1": "More cost savings",
+            "ADVANTAGE_2": "More efficiency",
+            "ADVANTAGE_3": "Including weather forecast in monitoring",
+            "APP": "Now available in the App Center:",
+            "CHECKBOX_LABEL": "I acknowledge that using the app requires sharing my personal data as the main user with third parties. You can find information about how we handle your personal data <a href={{link}} target='_blank'>here</a>.",
+            "DECLINE": "Decline",
+            "ACCEPT": "Accept & Install",
+            "SPINNER_TEXT_ACCEPTED": "Just a moment – the app is installing...",
+            "SPINNER_TEXT_DECLINED": "The app can be installed later at any time from the FEMS App Center.",
+            "APP_WEATHER": "Weather"
+        }
+    }
+}

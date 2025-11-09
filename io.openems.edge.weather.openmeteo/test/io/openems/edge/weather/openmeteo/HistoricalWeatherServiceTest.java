@@ -12,24 +12,24 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import com.google.gson.JsonElement;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
@@ -62,23 +62,27 @@ public class HistoricalWeatherServiceTest {
 		final var targetZone = ZoneId.of("Europe/Berlin");
 
 		var jsonRespone = new JsonObject();
-		var responseZone = ZoneId.of("UTC");
-		jsonRespone.addProperty(HistoricalQueryParams.TIMEZONE, responseZone.toString());
+		int utcOffsetSeconds = 0;
+		jsonRespone.addProperty(HistoricalQueryParams.UTC_OFFSET_SECONDS, utcOffsetSeconds);
 		jsonRespone.add(QuarterlyWeatherVariables.JSON_KEY, new JsonObject());
 
-		var httpResponse = new HttpResponse<JsonElement>(HttpStatus.OK, jsonRespone);
+		var httpResponse = HttpResponse.<JsonElement>ok(jsonRespone);
 		when(this.httpBridge.getJson(anyString())).thenReturn(CompletableFuture.completedFuture(httpResponse));
 
 		var historicalWeatherData = List.of(
 				new QuarterlyWeatherSnapshot(ZonedDateTime.of(2025, 8, 17, 0, 0, 0, 0, ZoneId.of("UTC")), 1.0, 2.0));
 		when(this.weatherDataParser.parseQuarterly(any(), any(), any())).thenReturn(historicalWeatherData);
 
-		var result = this.historicalWeatherService.getWeatherData(coordinates, dateFrom, dateTo, targetZone);
+		var result = this.historicalWeatherService.getWeatherData(//
+				coordinates, //
+				dateFrom, //
+				dateTo, //
+				targetZone);
 
 		assertEquals(historicalWeatherData, result.join());
 		verify(this.weatherDataParser).parseQuarterly(//
 				eq(jsonRespone.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY)), //
-				eq(responseZone), //
+				eq(ZoneOffset.ofTotalSeconds(utcOffsetSeconds)), //
 				eq(targetZone));
 	}
 

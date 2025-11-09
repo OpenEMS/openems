@@ -1,3 +1,4 @@
-<ion-button class="ion-float-right ion-white-space-nowrap" (click)="navigateTo()" color="{{color}}">
+<ion-button class="ion-float-right ion-white-space-nowrap" (click)="navigateTo()" color="{{color}}"
+    [disabled]="disabled" [fill]="fill">
     <ng-content></ng-content>
 </ion-button>

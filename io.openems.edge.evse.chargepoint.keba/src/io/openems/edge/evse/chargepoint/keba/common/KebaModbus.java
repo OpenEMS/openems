@@ -8,7 +8,6 @@ import io.openems.common.types.OpenemsType;
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -26,9 +25,9 @@ public abstract class KebaModbus extends AbstractOpenemsModbusComponent
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ERROR_CODE(Doc.of(INTEGER)), //
 		SERIAL_NUMBER(Doc.of(INTEGER)), //
-		MAX_CHARGING_CURRENT(Doc.of(INTEGER)//
+
+		FAILSAFE_CURRENT_SETTING(Doc.of(INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		FAILSAFE_CURRENT_SETTING(Doc.of(INTEGER)), //
 		FAILSAFE_TIMEOUT_SETTING(Doc.of(INTEGER)), //
 		DEVICE_SOFTWARE_OUTDATED(Doc.of(Level.WARNING)//
 				.translationKey(EvcsKebaModbusImpl.class, "softwareOutdated")),
@@ -56,25 +55,6 @@ public abstract class KebaModbus extends AbstractOpenemsModbusComponent
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_CHARGING_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	protected IntegerReadChannel getMaxChargingCurrentChannel() {
-		return this.channel(ChannelId.MAX_CHARGING_CURRENT);
-	}
-
-	/**
-	 * Gets the maximum current allowed by the hardware in [mA]. See
-	 * {@link ChannelId#MAX_CHARGING_CURRENT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	protected Value<Integer> getMaxChargingCurrent() {
-		return this.getMaxChargingCurrentChannel().value();
 	}
 
 	/**

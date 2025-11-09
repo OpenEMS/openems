@@ -12,8 +12,6 @@ import java.time.ZonedDateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TestUtils;
 import io.openems.edge.timeofusetariff.api.TouManualHelper;
@@ -32,13 +30,16 @@ public class TouOctopusGoTest {
 		this.clock = TestUtils.createDummyClock();
 
 		// Setup Octopus Go schedule
-		final var goSchedule = ImmutableList.of(JSCalendar.Task.<Double>create() //
-				.setStart(LocalTime.of(0, 0)) //
-				.setDuration(Duration.ofHours(5)) //
-				.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
-				.setPayload(GO_LOW_PRICE) //
-				.build());
-		this.goHelper = new TouManualHelper(this.clock, goSchedule, GO_STANDARD_PRICE);
+		final var schedule = JSCalendar.Tasks.<Double>create() //
+				.setClock(this.clock) //
+				.add(t -> t //
+						.setStart(LocalTime.of(0, 0)) //
+						.setDuration(Duration.ofHours(5)) //
+						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
+						.setPayload(GO_LOW_PRICE) //
+						.build()) //
+				.build();
+		this.goHelper = new TouManualHelper(this.clock, schedule, GO_STANDARD_PRICE);
 	}
 
 	// Octopus Go Tests

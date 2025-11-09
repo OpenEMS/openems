@@ -1,18 +1,16 @@
 <ion-row>
-  @for (filter of filters; track filter) {
-    <ion-col size="6">
-      @if (filter) {
-        <ion-select interface="popover" [multiple]="true" [label]="filter.placeholder" label-placement="floating"
-          fill="outline" type="radio" (ionDismiss)="searchOnChange($event, filter)"
-          [interfaceOptions]="{cssClass: 'custom-ion-popover'}"
-          class="custom-ion-popover ion-select-border-color-primary"
-          style="white-space: initial; --color: var(--ion-color-primary)" mode="md">
-          @for (option of filter.options; track option) {
-            <ion-select-option [value]="option.value">{{option.name}}
-            </ion-select-option>
-          }
-        </ion-select>
-      }
+  @for(filter of allFilters; track filter.category) {
+    <ion-col [size]="6">
+      <ion-select interface="popover" [multiple]="filter.multiple" [label]="filter.placeholder"
+        label-placement="floating" fill="outline" type="radio" (ionDismiss)="searchOnChange($event, filter)"
+        [interfaceOptions]="{cssClass: 'custom-ion-popover'}" class="custom-ion-popover ion-select-border-color-primary"
+        style="white-space: initial; --color: var(--ion-color-primary); appearance: none;" mode="md"
+        [value]="defaultFilterValues[filter.category] ?? undefined">
+        @for(option of filter.options; track option.name) {
+          <ion-select-option slot="end" [value]="option.option.id">{{option.name}}
+          </ion-select-option>
+        }
+      </ion-select>
     </ion-col>
   }
 </ion-row>

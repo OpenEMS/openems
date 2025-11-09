@@ -1,0 +1,29 @@
+{
+    "EVSE_SINGLE": {
+        "SETTINGS": {
+            "ENERGY_LIMIT": "Energielimit"
+        },
+        "HOME": {
+            "MODE": {
+                "LABEL": "Modus",
+                "ZERO": "Aus",
+                "MINIMUM": "Minimal",
+                "SURPLUS": "PV",
+                "FORCE": "Schnell"
+            },
+            "STATE_MACHINE": {
+                "LABEL": "Status",
+                "EV_NOT_CONNECTED": "EV nicht verbunden",
+                "EV_CONNECTED": "EV verbunden",
+                "CHARGING": "Lädt",
+                "FINISHED_EV_STOP": "Ladevorgang beendet durch EV",
+                "FINISHED_ENERGY_SESSION_LIMIT": "Ladevorgang beendet durch Energielimit",
+                "PHASE_SWITCH_TO_THREE_PHASE": "Wechsel auf 3-phasig",
+                "PHASE_SWITCH_TO_SINGLE_PHASE": "Wechsel auf 1-phasig"
+            },
+            "POWER": "Leistung",
+            "ENERGY_SINCE_START": "Energie seit Ladebeginn",
+            "VEHICLES": "App Center Fahrzeuge"
+        }
+    }
+}

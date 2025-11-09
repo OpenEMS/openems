@@ -28,6 +28,9 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
+import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
+import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 import io.openems.edge.evse.chargepoint.keba.udp.ReadWorker;
 import io.openems.edge.evse.chargepoint.keba.udp.core.Report;
 
@@ -145,9 +148,9 @@ public abstract class AbstractUdpReadHandler<T extends KebaUdp> implements BiCon
 		this.setBoolean(KebaUdp.ChannelId.AUTH_REQ, j, "Authreq");
 		this.setBoolean(KebaUdp.ChannelId.ENABLE_SYS, j, "Enable sys");
 		this.setBoolean(KebaUdp.ChannelId.ENABLE_USER, j, "Enable user");
-		this.setInt(KebaUdp.ChannelId.MAX_CURR, j, "Max curr");
+		this.setInt(Keba.ChannelId.MAX_CHARGING_CURRENT, j, "Max curr");
 		this.setInt(KebaUdp.ChannelId.MAX_CURR_PERCENT, j, "Max curr %");
-		this.setInt(KebaUdp.ChannelId.CURR_HW, j, "Curr HW");
+		this.setInt(Keba.ChannelId.MAX_SUPPORTED_CURRENT, j, "Curr HW");
 		this.setInt(KebaUdp.ChannelId.CURR_USER, j, "Curr user");
 		this.setInt(KebaUdp.ChannelId.CURR_FAILSAFE, j, "Curr FS");
 		this.setInt(KebaUdp.ChannelId.TIMEOUT_FAILSAFE, j, "Tmo FS");
@@ -156,8 +159,9 @@ public abstract class AbstractUdpReadHandler<T extends KebaUdp> implements BiCon
 		this.setInt(KebaUdp.ChannelId.SETENERGY, j, "Setenergy");
 		this.setInt(KebaUdp.ChannelId.OUTPUT, j, "Output");
 		this.setBoolean(KebaUdp.ChannelId.INPUT, j, "Input");
-		this.setInt(Keba.ChannelId.PHASE_SWITCH_SOURCE, j, "X2 phaseSwitch source");
-		this.setInt(Keba.ChannelId.PHASE_SWITCH_STATE, j, "X2 phaseSwitch");
+		this.setPhaseSwitch(//
+				getAsOptionalInt(j, "X2 phaseSwitch source").orElse(null), //
+				getAsOptionalInt(j, "X2 phaseSwitch").orElse(null));
 
 		this.handleReport2(chargingState, cableState);
 	}
@@ -226,6 +230,31 @@ public abstract class AbstractUdpReadHandler<T extends KebaUdp> implements BiCon
 		setValue(keba, Keba.ChannelId.CABLE_STATE, cableState);
 		this.energySessionHandler.updateCableState(cableState);
 		return cableState;
+	}
+
+	private void setPhaseSwitch(Integer rawPhaseSwitchSource, Integer rawPhaseSwitchState) {
+		final var keba = this.parent;
+		final var phaseSwitchSource = rawPhaseSwitchSource == null //
+				? PhaseSwitchSource.UNDEFINED //
+				: OptionsEnum.getOptionOrUndefined(PhaseSwitchSource.class, rawPhaseSwitchSource);
+		setValue(keba, Keba.ChannelId.PHASE_SWITCH_SOURCE, phaseSwitchSource);
+
+		final var phaseSwitchState = switch (phaseSwitchSource) {
+		case NONE, UNDEFINED -> PhaseSwitchState.UNDEFINED;
+		case VIA_MODBUS, VIA_OCPP, VIA_REST, VIA_UDP -> {
+			// For KEBA P30 with S10 KEBA does not read PhaseSwitchSource enum (i.e. '1' or
+			// '3') but uses semantics of TriggerPhaseSwitch enum (i.e. '0' or '1')
+			final var asTriggerPhaseSwitch = rawPhaseSwitchState == null //
+					? TriggerPhaseSwitch.UNDEFINED //
+					: OptionsEnum.getOptionOrUndefined(TriggerPhaseSwitch.class, rawPhaseSwitchState);
+			yield switch (asTriggerPhaseSwitch) {
+			case UNDEFINED -> PhaseSwitchState.UNDEFINED;
+			case SINGLE -> PhaseSwitchState.SINGLE;
+			case THREE -> PhaseSwitchState.THREE;
+			};
+		}
+		};
+		setValue(keba, Keba.ChannelId.PHASE_SWITCH_STATE, phaseSwitchState);
 	}
 
 	protected record ActivePowerPerPhase(//
