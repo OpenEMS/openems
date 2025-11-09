@@ -20,7 +20,7 @@ public interface MeterOpenDtu extends ElectricityMeter, SinglePhaseMeter, Openem
 		 * system operations.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
+		 * <li>Interface: MeterOpenDtu
 		 * <li>Type: State
 		 * </ul>
 		 */
