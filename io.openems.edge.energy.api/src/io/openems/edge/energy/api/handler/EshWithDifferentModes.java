@@ -61,13 +61,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		return context;
 	}
 
-	/**
-	 * Generates {@link InitialPopulation} for this
-	 * {@link EnergyScheduleHandler.WithDifferentStates}.
-	 * 
-	 * @param goc the {@link GlobalOptimizationContext}
-	 * @return a List of {@link InitialPopulation}s
-	 */
+	@Override
 	public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc) {
 		return this.initialPopulationsProvider.get(goc, this.coc, this.availableModes).stream() //
 				.map(ip -> ip.toTansition(this::getModeIndex)) //

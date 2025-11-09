@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.AcceptRateLimit;
-import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnectionLimit;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.osgi.service.component.ComponentContext;
@@ -82,7 +82,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 			this.server.addConnector(connector);
 			this.server.setHandler(new RestHandler(this));
 			this.server.addBean(new AcceptRateLimit(10, 5, TimeUnit.SECONDS, this.server));
-			this.server.addBean(new ConnectionLimit(connectionlimit, this.server));
+			this.server.addBean(new NetworkConnectionLimit(connectionlimit, this.server));
 			this.server.start();
 			this.logInfo(this.log, this.implementationName + " started on port [" + port + "].");
 			this._setUnableToStart(false);

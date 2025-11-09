@@ -25,6 +25,7 @@ export class DomChangeDirective {
             attributes: true,
             childList: true,
             characterData: true,
+            subtree: true,
         });
     }
 }
