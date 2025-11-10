@@ -63,7 +63,7 @@ public class OperatingSystemMac implements OperatingSystem {
 	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
 		throw new NotImplementedException("This request is not implemented for mac");
 	}
-	
+
 	@Override
 	public Updateable getSystemUpdateable() {
 		return null;

@@ -18,10 +18,10 @@ import org.junit.Test;
 
 import com.google.gson.JsonNull;
 
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -133,7 +133,6 @@ public class ControllerCleverPvImplTest {
 				.addReference("power", power) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofBridgeImpl(//
-						DummyBridgeHttpFactory::cycleSubscriber, //
 						() -> fetcher, //
 						() -> executor))
 				.addComponent(sum) //

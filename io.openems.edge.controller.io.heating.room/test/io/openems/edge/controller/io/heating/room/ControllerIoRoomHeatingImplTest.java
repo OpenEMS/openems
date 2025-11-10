@@ -15,6 +15,7 @@ import org.junit.Test;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -27,9 +28,10 @@ public class ControllerIoRoomHeatingImplTest {
 	public void testLow() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new ControllerIoRoomHeatingImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl();
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
 				.addReference("ambientThermometer", new DummyThermometer("temp1")) //
 				.addReference("floorRelayComponents", List.of(io)) //
@@ -129,9 +131,10 @@ public class ControllerIoRoomHeatingImplTest {
 	public void testAuto() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new ControllerIoRoomHeatingImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl();
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
 				.addReference("ambientThermometer", new DummyThermometer("temp1")) //
 				.addReference("floorRelayComponents", List.of(io)) //
@@ -165,27 +168,28 @@ public class ControllerIoRoomHeatingImplTest {
 						.setHasExternalAmbientHeating(true) //
 						.build())
 				.next(new TestCase() //
-						.onAfterProcessImage(assertLog(sut, //
-								"Auto|LOW|NextHigh:2020-01-01T01:00:00|Floor:UNDEFINED->UNDEFINED|Ambient:UNDEFINED->UNDEFINED|UNDEFINED"))) //
+						.onAfterControllersCallbacks(assertLog(sut, //
+								"Auto|LOW|Floor:UNDEFINED->UNDEFINED|Ambient:UNDEFINED->UNDEFINED|UNDEFINED"))) //
 
 				.next(new TestCase() //
 						.timeleap(clock, 1, HOURS) //
-						.onAfterProcessImage(assertLog(sut, //
+						.onAfterControllersCallbacks(assertLog(sut, //
 								"Auto|HIGH|Till:2020-01-01T02:00:00|Floor:UNDEFINED->150|Ambient:UNDEFINED->160|0 W"))) //
 
 				.next(new TestCase() //
 						.timeleap(clock, 61, MINUTES) //
-						.onAfterProcessImage(assertLog(sut, //
-								"Auto|LOW|NoSchedule|Floor:UNDEFINED->210|Ambient:UNDEFINED->220|0 W")));
+						.onAfterControllersCallbacks(assertLog(sut, //
+								"Auto|LOW|Floor:UNDEFINED->210|Ambient:UNDEFINED->220|0 W")));
 	}
 
 	@Test
 	public void testAutoWrong() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new ControllerIoRoomHeatingImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl();
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
 				.addReference("ambientThermometer", new DummyThermometer("temp1")) //
 				.addReference("floorRelayComponents", List.of(io)) //
@@ -208,9 +212,10 @@ public class ControllerIoRoomHeatingImplTest {
 	public void testOff() throws Exception {
 		final var clock = createDummyClock();
 		final var io = new DummyInputOutput("io0");
-		final var sut = new ControllerIoRoomHeatingImpl(clock);
+		final var sut = new ControllerIoRoomHeatingImpl();
 		new ControllerTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("floorThermometer", new DummyThermometer("temp0")) //
 				.addReference("ambientThermometer", new DummyThermometer("temp1")) //
 				.addReference("floorRelayComponents", List.of(io)) //

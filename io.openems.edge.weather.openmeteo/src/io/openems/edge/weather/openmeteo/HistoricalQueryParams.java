@@ -8,6 +8,7 @@ public final class HistoricalQueryParams {
 	public static final String LATITUDE = "latitude";
 	public static final String LONGITUDE = "longitude";
 	public static final String TIMEZONE = "timezone";
+	public static final String UTC_OFFSET_SECONDS = "utc_offset_seconds";
 
 	private HistoricalQueryParams() {
 		throw new AssertionError("Cannot instantiate utility class");
