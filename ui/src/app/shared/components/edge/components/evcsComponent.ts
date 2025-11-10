@@ -1,5 +1,7 @@
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress } from "src/app/shared/shared";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { HistoryUtils } from "src/app/shared/utils/utils";
 import { Edge } from "../edge";
 import { EdgeConfig } from "../edgeconfig";
@@ -35,22 +37,24 @@ export class EvcsComponent extends EdgeConfig.Component {
     }
 
     public static getComponents(config: EdgeConfig, edge: Edge | null): EvcsComponent[] {
-        return config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component =>
-                !["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]
-                    .includes(component.factoryId))
-            .map(component => EvcsComponent.from(component, config, edge));
+        return ArrayUtils.sanitize(config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+            .filter(component => StringUtils.isNotInArr(
+                component.factoryId,
+                ["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]
+            ))
+            .map(component => EvcsComponent.from(component, config, edge)));
     }
 
-    public static from(component: EdgeConfig.Component, config: EdgeConfig, edge: Edge | null) {
+    public static from(component: EdgeConfig.Component, config: EdgeConfig | null, edge: Edge | null) {
+        if (config === null) {
+            return null;
+        }
         const powerChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ChargePower" : "ActivePower";
         const energyChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ActiveConsumptionEnergy" : "ActiveProductionEnergy";
         return new EvcsComponent(component.id, component.alias, new ChannelAddress(component.id, powerChannelId), new ChannelAddress(component.id, energyChannelId));
     }
 
     public getChartInputChannel(): HistoryUtils.InputChannel {
-        console.log(this.powerChannel);
-        console.log(this.energyChannel);
         return {
             name: this.powerChannel.toString(),
             powerChannel: this.powerChannel,

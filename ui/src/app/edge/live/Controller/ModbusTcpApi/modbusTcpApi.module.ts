@@ -5,16 +5,16 @@ import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ModalComponent,
-  ],
-  exports: [
-    FlatComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ModalComponent,
+    ],
+    exports: [
+        FlatComponent,
+    ],
 })
 export class Controller_Api_ModbusTcp { }

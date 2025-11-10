@@ -3,6 +3,7 @@ package io.openems.edge.weather.openmeteo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,10 @@ public class DefaultWeatherDataParser implements WeatherDataParser {
 	private static final String TIME = "time";
 
 	@Override
-	public List<QuarterlyWeatherSnapshot> parseQuarterly(JsonObject apiBlock, ZoneId responseZone, ZoneId targetZone) {
+	public List<QuarterlyWeatherSnapshot> parseQuarterly(//
+			JsonObject apiBlock, //
+			ZoneOffset responseOffset, //
+			ZoneId targetZone) {
 		var times = toListOfString(apiBlock.getAsJsonArray(TIME));
 		var ghi = toListOfDouble(apiBlock.getAsJsonArray(QuarterlyWeatherVariables.SHORTWAVE_RADIATION));
 		var dni = toListOfDouble(apiBlock.getAsJsonArray(QuarterlyWeatherVariables.DIRECT_NORMAL_IRRADIANCE));
@@ -27,7 +31,7 @@ public class DefaultWeatherDataParser implements WeatherDataParser {
 		var result = new ArrayList<QuarterlyWeatherSnapshot>();
 		for (int i = 0; i < times.size(); i++) {
 			result.add(new QuarterlyWeatherSnapshot(//
-					convertTimeZone(times.get(i), responseZone, targetZone), //
+					convertTimeZone(times.get(i), responseOffset, targetZone), //
 					ghi.get(i), //
 					dni.get(i)));
 		}
@@ -36,7 +40,10 @@ public class DefaultWeatherDataParser implements WeatherDataParser {
 	}
 
 	@Override
-	public List<HourlyWeatherSnapshot> parseHourly(JsonObject apiBlock, ZoneId responseZone, ZoneId targetZone) {
+	public List<HourlyWeatherSnapshot> parseHourly(//
+			JsonObject apiBlock, //
+			ZoneOffset responseOffset, //
+			ZoneId targetZone) {
 		var times = toListOfString(apiBlock.getAsJsonArray(TIME));
 		var weatherCodes = toListOfInt(apiBlock.getAsJsonArray(HourlyWeatherVariables.WEATHER_CODE));
 		var temperatures = toListOfDouble(apiBlock.getAsJsonArray(HourlyWeatherVariables.TEMPERATURE_2M));
@@ -45,7 +52,7 @@ public class DefaultWeatherDataParser implements WeatherDataParser {
 		var result = new ArrayList<HourlyWeatherSnapshot>();
 		for (int i = 0; i < times.size(); i++) {
 			result.add(new HourlyWeatherSnapshot(//
-					convertTimeZone(times.get(i), responseZone, targetZone), //
+					convertTimeZone(times.get(i), responseOffset, targetZone), //
 					weatherCodes.get(i), //
 					temperatures.get(i), //
 					isDay.get(i)));
@@ -99,9 +106,24 @@ public class DefaultWeatherDataParser implements WeatherDataParser {
 		return list;
 	}
 
-	private static ZonedDateTime convertTimeZone(String isoString, ZoneId responseZone, ZoneId targetZone) {
+	/**
+	 * Converts an ISO date-time string to a ZonedDateTime in the target time zone.
+	 * 
+	 * <p>
+	 * It is important to use the offset from the response because the response
+	 * timestamps are provided with their specific offset. This ensures that, even
+	 * if the query period spans a daylight saving time change, the times are
+	 * correctly converted to the target zone.
+	 *
+	 * @param isoString      the ISO date-time string (without offset)
+	 * @param responseOffset the offset provided with the response timestamps
+	 * @param targetZone     the target time zone for conversion
+	 * @return the converted ZonedDateTime in the target time zone
+	 */
+	private static ZonedDateTime convertTimeZone(String isoString, ZoneOffset responseOffset, ZoneId targetZone) {
 		return LocalDateTime.parse(isoString)//
-				.atZone(responseZone)//
+				.atOffset(responseOffset)//
+				.toZonedDateTime()//
 				.withZoneSameInstant(targetZone);
 	}
 }

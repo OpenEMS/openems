@@ -254,7 +254,7 @@ public class WeatherOpenMeteoImplTest {
 		when(meta2.getCoordinates()).thenReturn(Coordinates.of(3.0, 4.0));
 		sut.updatedMeta(meta2);
 
-		verify(weatherForecastService).subscribeToWeatherForecast(any(), eq(Coordinates.of(3, 4)), any());
+		verify(weatherForecastService).subscribeToWeatherForecast(any(), eq(Coordinates.of(3, 4)), any(), any());
 	}
 
 	@Test
@@ -273,7 +273,7 @@ public class WeatherOpenMeteoImplTest {
 
 		sut.updatedMeta(meta1);
 
-		verify(weatherForecastService, never()).subscribeToWeatherForecast(any(), any(), any());
+		verify(weatherForecastService, never()).subscribeToWeatherForecast(any(), any(), any(), any());
 	}
 
 	private static List<QuarterlyWeatherSnapshot> quarterlyWeatherSnapshots(Clock clock) {

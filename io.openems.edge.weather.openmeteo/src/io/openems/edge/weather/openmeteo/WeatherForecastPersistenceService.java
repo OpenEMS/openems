@@ -18,7 +18,6 @@ import io.openems.common.utils.ThreadPoolUtils;
 
 public class WeatherForecastPersistenceService {
 
-	private static final long INITIAL_DELAY_10_SECONDS = 10L;
 	private static final long PERIOD_60_MINUTES = 60L;
 
 	private final Logger log = LoggerFactory.getLogger(WeatherForecastPersistenceService.class);
@@ -40,18 +39,13 @@ public class WeatherForecastPersistenceService {
 	 * job runs immediately and then repeats at every full hour.
 	 */
 	public void startHourlyPersistenceJob() {
+		this.updateWeatherForecastChannels();
+		
 		if (this.scheduler != null) {
 			this.deactivateHourlyPersistenceJob();
 		}
 		this.scheduler = Executors.newSingleThreadScheduledExecutor();
-
-		// Short delay before the first update to ensure that the forecast data from the
-		// API is available
-		this.scheduler.schedule(//
-				this::updateWeatherForecastChannels, //
-				INITIAL_DELAY_10_SECONDS, //
-				TimeUnit.SECONDS);
-
+		
 		long initialDelay = this.computeInitialDelayToNextFullHour();
 		this.scheduler.scheduleAtFixedRate(//
 				this::updateWeatherForecastChannels, //

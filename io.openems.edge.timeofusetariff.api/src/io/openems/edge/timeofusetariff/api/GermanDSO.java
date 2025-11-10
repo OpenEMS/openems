@@ -6,6 +6,7 @@ import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.
 import static java.time.LocalTime.MIDNIGHT;
 import static java.time.LocalTime.MIN;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee;
@@ -389,6 +390,8 @@ public enum GermanDSO {
 							.setTariff(STANDARD)))//
 	);
 
+	private static final ZoneId GERMAN_ZONE_ID = ZoneId.of("Europe/Berlin");
+
 	public final GridFee gridFee;
 
 	private GermanDSO(GridFee.Builder gridFeeBuilder) {
@@ -404,18 +407,21 @@ public enum GermanDSO {
 	 *                               given dateTime.
 	 */
 	public double getPriceAt(ZonedDateTime dateTime) {
+		final var germanDateTime = dateTime.withZoneSameInstant(GERMAN_ZONE_ID);
+
 		// Find the date range that contains the given dateTime
 		var matchingDateRangeOpt = this.gridFee.dateRanges().stream()
-				.filter(dr -> !dateTime.toLocalDate().isBefore(dr.start()) //
-						&& !dateTime.toLocalDate().isAfter(dr.end()))
+				.filter(dr -> !germanDateTime.toLocalDate().isBefore(dr.start()) //
+						&& !germanDateTime.toLocalDate().isAfter(dr.end()))
 				.findFirst();
 
 		if (!matchingDateRangeOpt.isPresent()) {
-			throw new IllegalStateException("No matching date range found for " + dateTime + " in DSO " + this.name());
+			throw new IllegalStateException(
+					"No matching date range found for " + germanDateTime + " in DSO " + this.name());
 		}
 
 		var dateRange = matchingDateRangeOpt.get();
-		final var time = dateTime.toLocalTime();
+		final var time = germanDateTime.toLocalTime();
 
 		// Find the time range within that date range that contains the given time
 		var matchingTimeRangeOpt = dateRange.timeRanges().stream().filter(tr -> {

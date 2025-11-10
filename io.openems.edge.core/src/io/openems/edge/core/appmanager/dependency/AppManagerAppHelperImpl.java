@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -41,7 +40,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.session.Language;
-import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
@@ -58,6 +56,8 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -1498,11 +1498,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			String removeKey = null;
 			for (var entry : copy.entrySet()) {
 				var id = JsonUtils.getAsOptionalString(entry.getValue()).orElse(null);
-				if (id != null && component.getId().startsWith(id)) {
+				if (id != null && component.id().startsWith(id)) {
 					removeKey = entry.getKey();
 					final var myId = id;
-					final var defaultId = component.getId() //
-							.substring(component.getId().indexOf(':') + 1);
+					final var defaultId = component.id() //
+							.substring(component.id().indexOf(':') + 1);
 					defaultIdToCurrentId.put(defaultId, myId);
 					break;
 				}
@@ -1515,14 +1515,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		config = app.getAppConfiguration(ConfigurationTarget.TEST, copy, null);
 
 		for (var comp : config.getComponents()) {
-			copy.addProperty(comp.getId(), prefix);
+			copy.addProperty(comp.id(), prefix);
 		}
 		var configWithNewIds = app.getAppConfiguration(ConfigurationTarget.TEST, copy, null);
 		Map<String, String> replaceableComponentIds = new HashMap<>();
 		for (var comp : configWithNewIds.getComponents()) {
-			if (comp.getId().startsWith(prefix)) {
+			if (comp.id().startsWith(prefix)) {
 				// "METER_ID:meter0"
-				var raw = comp.getId().substring(prefix.length());
+				var raw = comp.id().substring(prefix.length());
 				// ["METER_ID", "meter0"]
 				var pieces = raw.split(":");
 				// "METER_ID"
@@ -1569,7 +1569,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			OpenemsApp app, //
 			OpenemsAppInstance oldAppInstance, //
 			OpenemsAppInstance newAppInstance, //
-			List<EdgeConfig.Component> otherAppComponents, //
+			List<ComponentDef> otherAppComponents, //
 			Language language //
 	) throws OpenemsNamedException {
 
@@ -1607,22 +1607,28 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		for (int i = 0; iterator.hasNext(); i++) {
 			final var comp = iterator.next();
 
-			var isNewComponent = true;
-			final var replacableId = indexToId.get(comp.getId());
+			final var replacableId = indexToId.get(comp.id());
 			final var canBeReplaced = replacableId != null;
-			final var originalId = canBeReplaced ? replacableId.predefinedId : comp.getId();
+			final var originalId = canBeReplaced ? replacableId.predefinedId : comp.id();
 			final var expliciteSet = canBeReplaced && oldAppInstance == null
 					&& newAppInstance.properties.get(replacableId.key) != null;
 			var id = originalId;
-			EdgeConfig.Component foundComponent = null;
+			ComponentDef foundComponent = null;
 
+			if (!canBeReplaced && comp.config().installAlways()) {
+				throw new OpenemsException(
+						"Configuration field 'installAlways' can not be used for static component ids");
+			}
+
+			// if component is configured to always be installed ignore the same config
+			// check
 			// try to find a component with the necessary settings
 			// has to be at first place to make sure no unnecessary components are created
 			if (canBeReplaced) {
 				// TODO include currently creating components
-				foundComponent = this.componentUtil.getComponentByConfig(comp);
+				foundComponent = ComponentDef.from(this.componentUtil.getComponentByConfig(comp));
 				if (foundComponent != null) {
-					id = foundComponent.getId();
+					id = foundComponent.id();
 				}
 			}
 
@@ -1630,29 +1636,33 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			if (foundComponent == null && oldAppInstance != null && canBeReplaced
 					&& oldAppInstance.properties.has(replacableId.key)) {
 				id = oldAppInstance.properties.get(replacableId.key).getAsString();
-				foundComponent = this.componentManager.getEdgeConfig().getComponent(id).orElse(null);
+				foundComponent = ComponentDef.from(this.componentManager.getEdgeConfig().getComponent(id).orElse(null));
 				final var tempId = id;
 				// other app uses the same component because they had the same configuration
 				// now this app needs the component with a different configuration so now create
 				// a new component
-				if (foundComponent != null && (!foundComponent.getFactoryId().equals(comp.getFactoryId())
-						|| otherAppComponents.stream().anyMatch(t -> t.getId().equals(tempId)))) {
+				if (foundComponent != null && (!foundComponent.factoryId().equals(comp.factoryId())
+						|| otherAppComponents.stream().anyMatch(t -> t.id().equals(tempId)))) {
 					foundComponent = null;
 				}
 			}
 
-			isNewComponent = isNewComponent && foundComponent == null;
-			if (isNewComponent) {
+			if (comp.config().installAlways()) {
+				foundComponent = null;
+			}
+
+			if (foundComponent == null) {
 				// if the id is not already set and there is no component with the default id
 				// then use the default id
-				foundComponent = this.componentManager.getEdgeConfig().getComponent(originalId).orElse(null);
+				foundComponent = ComponentDef
+						.from(this.componentManager.getEdgeConfig().getComponent(originalId).orElse(null));
 				if (foundComponent == null) {
 					// find component for currently creating apps
 					for (var entry : this.getAppManagerImpl().appConfigs(
 							this.temporaryApps.currentlyCreatingModifiedApps(),
 							AppManagerImpl.excludingInstanceIds(newAppInstance.instanceId))) {
-						foundComponent = entry.getValue().getComponents().stream()
-								.filter(t -> t.getId().equals(comp.getId())).findFirst().orElse(null);
+						foundComponent = entry.getValue().getComponents().stream().filter(t -> t.id().equals(comp.id()))
+								.findFirst().orElse(null);
 						if (foundComponent != null) {
 							break;
 						}
@@ -1661,8 +1671,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				}
 				var sameIdInComponents = orderedComponents.subList(0, i).stream() //
 						.map(c -> {
-							var repId = indexToId.get(c.getId());
-							return repId != null ? repId.defaultId : c.getId();
+							var repId = indexToId.get(c.id());
+							return repId != null ? repId.defaultId : c.id();
 						}) //
 						.anyMatch(t -> t.equals(originalId));
 
@@ -1684,7 +1694,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					}
 				}
 
-				if (foundComponent == null && !sameIdInComponents && !usedInPreviousConfig) {
+				if (foundComponent == null && !sameIdInComponents && !usedInPreviousConfig
+						&& !comp.config().installAlways()) {
 					id = originalId;
 				} else if (foundComponent != null && expliciteSet) {
 					id = originalId;
@@ -1702,7 +1713,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					} else {
 						var startingNumber = Integer.parseInt(startingNumberString);
 						var ids = new ArrayList<>(orderedComponents).stream() //
-								.map(EdgeConfig.Component::getId) //
+								.map(ComponentDef::id) //
 								.collect(Collectors.toList());
 						// add id if it was in the old configuration
 						ids.addAll(alreadyUsedIds);
@@ -1723,10 +1734,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			if (canBeReplaced) {
 				// replace component with new id
 				final var component = orderedComponents.remove(i);
-				orderedComponents.add(i,
-						new EdgeConfig.Component(id, component.getAlias(), component.getFactoryId(),
-								component.getProperties().entrySet().stream()
-										.collect(JsonUtils.toJsonObject(Entry::getKey, Entry::getValue))));
+				orderedComponents.add(i, new ComponentDef(id, component.alias(), component.factoryId(),
+						component.properties(), Configuration.create().build()));
 				newAppInstance.properties.addProperty(replacableId.key, id);
 			}
 		}

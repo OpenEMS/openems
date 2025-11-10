@@ -1,9 +1,9 @@
 package io.openems.edge.evse.chargepoint.hardybarth;
 
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
-import static io.openems.edge.bridge.http.api.HttpMethod.GET;
-import static io.openems.edge.bridge.http.api.HttpMethod.PUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
+import static io.openems.common.bridge.http.api.HttpMethod.GET;
+import static io.openems.common.bridge.http.api.HttpMethod.PUT;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static java.util.Collections.emptyMap;
@@ -24,11 +24,11 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.utils.FunctionUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -59,6 +59,8 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -84,7 +86,8 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeCycle(1, //
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+		cycleService.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> this.readUtils.handleGetApiCallResponse(t), //
 				t -> FunctionUtils.doNothing());
@@ -97,12 +100,12 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		this.httpBridge = null;
 	}
 
-	private Endpoint createEndpoint(HttpMethod httpMethod, String url, String body) {
+	private BridgeHttp.Endpoint createEndpoint(HttpMethod httpMethod, String url, String body) {
 		return createEndpoint(this.config.ip(), httpMethod, url, body);
 	}
 
-	protected static Endpoint createEndpoint(String ip, HttpMethod httpMethod, String url, String body) {
-		return new Endpoint(//
+	protected static BridgeHttp.Endpoint createEndpoint(String ip, HttpMethod httpMethod, String url, String body) {
+		return new BridgeHttp.Endpoint(//
 				new StringBuilder("http://").append(ip).append(url).toString(), //
 				httpMethod, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, //
 				body, //

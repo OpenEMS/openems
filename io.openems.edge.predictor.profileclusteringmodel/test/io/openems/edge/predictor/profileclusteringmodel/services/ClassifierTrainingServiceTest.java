@@ -15,9 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import io.openems.edge.predictor.api.common.TrainingException;
 import io.openems.edge.predictor.api.mlcore.classification.Classifier;
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorConfig.ClassifierFitter;
+import io.openems.edge.predictor.profileclusteringmodel.training.TrainingError;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClassifierTrainingServiceTest {
@@ -25,7 +27,7 @@ public class ClassifierTrainingServiceTest {
 	private static final String COLUMN_FEATURE = "feature";
 
 	@Test
-	public void testTrainClassifier_ShouldCallFitWithCorrectFeaturesAndLabels() {
+	public void testTrainClassifier_ShouldCallFitWithCorrectFeaturesAndLabels() throws Exception {
 		int minTrainingSamplesRequired = 3;
 
 		var classifierFitter = mock(ClassifierFitter.class);
@@ -75,8 +77,9 @@ public class ClassifierTrainingServiceTest {
 
 		var service = new ClassifierTrainingService(classifierFitter, minTrainingSamplesRequired);
 
-		assertThrows(IllegalStateException.class, () -> {
+		var exception = assertThrows(TrainingException.class, () -> {
 			service.trainClassifier(featureMatrix);
 		});
+		assertEquals(TrainingError.INSUFFICIENT_TRAINING_DATA, exception.getError());
 	}
 }

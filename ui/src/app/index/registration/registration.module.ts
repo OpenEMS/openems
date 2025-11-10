@@ -6,17 +6,17 @@ import { RegistrationModalComponent } from "./modal/modal.component";
 import { RegistrationComponent } from "./registration.component";
 
 @NgModule({
-  declarations: [
-    RegistrationComponent,
-    RegistrationModalComponent,
-  ],
-  imports: [
-    CommonModule,
-    SharedModule,
-    OeCheckboxComponent,
-  ],
-  exports: [
-    RegistrationComponent,
-  ],
+    declarations: [
+        RegistrationComponent,
+        RegistrationModalComponent,
+    ],
+    imports: [
+        CommonModule,
+        SharedModule,
+        OeCheckboxComponent,
+    ],
+    exports: [
+        RegistrationComponent,
+    ],
 })
 export class RegistrationModule { }

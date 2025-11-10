@@ -106,7 +106,8 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 			return;
 		}
 		this.order = this.componentUtil.insertSchedulerOrder(this.componentUtil.getSchedulerIds(), this.order);
-		this.componentUtil.updateScheduler(user, this.order, this.aggregateTask.getCreatedComponents());
+		this.componentUtil.updateSchedulerFromComponentConfig(user, this.order,
+				this.aggregateTask.getCreatedComponents());
 
 		this.delete(user, otherAppConfigurations);
 	}
@@ -152,8 +153,8 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 		}
 
 		// Prepare Queue
-		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(configuration.componentOrder(),
-				appConfiguration.getComponents()));
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
+				configuration.componentOrder(), appConfiguration.getComponents()));
 
 		if (controllers.isEmpty()) {
 			return;

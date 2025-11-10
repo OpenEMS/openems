@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-flat-widget [title]="'General.production' | translate"
+  <oe-flat-widget [title]="'GENERAL.PRODUCTION' | translate"
     [icon]="{name: 'oe-production', color: 'production'}" button
     [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/productionchart'">
     @for (component of productionMeterComponents; track component; let i = $index) {

@@ -8,7 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	Java-WebSocket,\
 	com.squareup.okhttp3,\
 	io.openems.common,\
-	io.openems.edge.bridge.http,\
+	io.openems.common.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.common,\

@@ -15,7 +15,7 @@
                   <ion-item lines="none" (keydown.enter)="toggleSubscribe($event)" (click)="toggleSubscribe($event)">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
-                      {{'Edge.Config.Log.automaticUpdating' | translate}}
+                      {{'EDGE.CONFIG.LOG.AUTOMATIC_UPDATING' | translate}}
                     </ion-checkbox>
                   </ion-item>
                 </ion-col>
@@ -25,18 +25,18 @@
                       <ion-toggle tabindex="0" mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
                         [(ngModel)]="isCondensedOutput">
                       </ion-toggle>
-                      <ion-label class="ion-text-wrap">{{"Edge.Config.Log.CONDENSED_OUTPUT" | translate}}</ion-label>
+                      <ion-label class="ion-text-wrap">{{"EDGE.CONFIG.LOG.CONDENSED_OUTPUT" | translate}}</ion-label>
                     </ion-item>
                   </ion-col>
                 }
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-select interface="popover" [multiple]="true" label="Level" fill="outline"
+                    <ion-select interface="popover" [multiple]="filters.multiple" label="Level" fill="outline"
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
                       @for (filter of filters.options; track filter) {
                         <ion-select-option (keydown.enter)="searchOnChange($event)" button
-                          [value]="filter.value">{{filter.name}}
+                          [value]="filter.option.value">{{filter.name}}
                         </ion-select-option>
                       }
                     </ion-select>

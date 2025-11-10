@@ -6,6 +6,11 @@ import { Service } from "src/app/shared/shared";
     selector: "formly-field-navigation",
     templateUrl: "./formly-field-navigation.html",
     standalone: false,
+    styles: [`
+        ::ng-deep formly-form{
+            height: 100% !important;
+        }`,
+    ],
 })
 export class FormlyFieldNavigationComponent extends FieldWrapper {
 

@@ -228,7 +228,7 @@ public class CombinedHeatAndPower
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition), def -> //
 		def.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
 				.setTranslatedDescription("App.Heat.outputChannel.description"));

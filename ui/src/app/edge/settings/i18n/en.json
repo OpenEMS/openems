@@ -1,0 +1,20 @@
+{
+    "PROFILE": {
+        "SYSTEM_PROTOCOL": {
+            "LABEL": "System protocol",
+            "DOWNLOAD": "Download",
+            "TITLE": "Currently"
+        }
+    },
+    "EDGE": {
+        "CONFIG": {
+            "APP": {
+                "STATUS_INSTALLED": "Installed",
+                "STATUS_AVAILABLE": "Available",
+                "STATUS_INCOMPATIBLE": "Incompatible",
+                "STATUS_FILTER": "Availability",
+                "CATEGORY_FILTER": "App-Categories"
+            }
+        }
+    }
+}

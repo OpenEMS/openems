@@ -23,11 +23,12 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Role;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -97,7 +98,8 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 			this.weatherForecastService.subscribeToWeatherForecast(//
 					new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
 					updatedMeta.getCoordinates(), //
-					() -> this.componentManager.getClock());
+					() -> this.componentManager.getClock(), //
+					() -> this.onFetchWeatherForecastSuccess());
 
 			this.coordinates = updatedMeta.getCoordinates();
 		}
@@ -130,28 +132,31 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		var weatherDataParser = new DefaultWeatherDataParser();
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		final var weatherDataParser = new DefaultWeatherDataParser();
+
 		this.historicalWeatherService = new HistoricalWeatherService(//
 				this.httpBridge, //
 				this.oem.getOpenMeteoApiKey(), //
 				weatherDataParser);
+
 		this.weatherForecastService = new WeatherForecastService(//
 				this, //
-				this.httpBridge, //
+				timeService, //
 				this.oem.getOpenMeteoApiKey(), //
 				FORECAST_DAYS, //
 				PAST_DAYS, //
 				weatherDataParser);
 
-		this.weatherForecastService.subscribeToWeatherForecast(//
-				new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
-				this.meta.getCoordinates(), //
-				() -> this.componentManager.getClock());
-
 		this.weatherForecastPersistenceService = new WeatherForecastPersistenceService(//
 				this, //
 				() -> this.componentManager.getClock());
-		this.weatherForecastPersistenceService.startHourlyPersistenceJob();
+
+		this.weatherForecastService.subscribeToWeatherForecast(//
+				new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
+				this.meta.getCoordinates(), //
+				() -> this.componentManager.getClock(), //
+				() -> this.onFetchWeatherForecastSuccess());
 	}
 
 	@Deactivate
@@ -161,6 +166,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 		this.httpBridge = null;
 		this.weatherForecastPersistenceService.deactivateHourlyPersistenceJob();
+		this.weatherForecastPersistenceService = null;
 	}
 
 	@Override
@@ -253,6 +259,11 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 			return new DailyWeatherForecastEndpoint.Response(//
 					this.getDailyWeatherForecast());
 		});
+	}
+
+	private void onFetchWeatherForecastSuccess() {
+		this.weatherForecastPersistenceService.deactivateHourlyPersistenceJob();
+		this.weatherForecastPersistenceService.startHourlyPersistenceJob();
 	}
 
 	private void assertWeatherForecastServiceAvailable() {

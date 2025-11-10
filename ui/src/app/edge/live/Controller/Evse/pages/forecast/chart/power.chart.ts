@@ -97,7 +97,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.gridBuy"),
+                label: this.translate.instant("GENERAL.GRID_BUY"),
                 data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -109,7 +109,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.gridSell"),
+                label: this.translate.instant("GENERAL.GRID_SELL"),
                 data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -121,7 +121,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.production"),
+                label: this.translate.instant("GENERAL.PRODUCTION"),
                 data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,

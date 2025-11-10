@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import io.openems.common.channel.Level;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -8,7 +9,9 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public interface TouEntsoe extends OpenemsComponent, TimeOfUseTariff {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING) //
+		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
+				.text("Displays the HTTP status code")), //
+		UNABLE_TO_UPDATE_PRICES(Doc.of(Level.WARNING)//
 				.text("Unable to update prices from ENTSO-E API")), //
 		;
 

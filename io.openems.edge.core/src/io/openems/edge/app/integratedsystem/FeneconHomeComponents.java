@@ -21,6 +21,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Task;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
@@ -373,6 +376,17 @@ public final class FeneconHomeComponents {
 										.add("_sum/ConsumptionActivePower") //
 										.build())) //
 						.build());
+	}
+
+	/**
+	 * Creates a default predictor task for a PersistenceModel Predictor.
+	 * 
+	 * @return the {@link Task}
+	 */
+	public static Task<PredictorManagerByCentralOrderConfiguration> persistencePredictorTask() {
+		return Tasks.predictorManagerByCentralOrder(//
+				new PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent("predictor0",
+						"Predictor.PersistenceModel"));
 	}
 
 	/**

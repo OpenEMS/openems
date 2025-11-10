@@ -49,7 +49,7 @@
                 <ion-item color="light">
                   <ion-icon slot="start" name="wifi-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    <h2 translate>Index.connectionInProgress</h2>
+                    <h2 translate>INDEX.CONNECTION_IN_PROGRESS</h2>
                   </ion-label>
                 </ion-item>
               }
@@ -58,7 +58,7 @@
                 <ion-item color="light">
                   <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
+                    <h2 translate [translateParams]="{value: 'OpenEMS'}">INDEX.CONNECTION_FAILED</h2>
                     <p color="light">{{ environment.url }}</p>
                   </ion-label>
                 </ion-item>
@@ -101,7 +101,7 @@
       @if ((service.metadata | async); as service) {
         @if (isUserAllowedToSeeOverview) {
           <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
-            <ion-label>{{"Menu.overview" | translate}}</ion-label>
+            <ion-label>{{"MENU.OVERVIEW" | translate}}</ion-label>
           </ion-item>
         }
       }
@@ -109,7 +109,7 @@
       @if (service.currentEdge(); as edge) {
         <nav>
           <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-            <ion-label>{{"Menu.edgeSettings" | translate}}</ion-label>
+            <ion-label>{{"MENU.EDGE_SETTINGS" | translate}}</ion-label>
           </ion-item>
         </nav>
       }
@@ -128,7 +128,7 @@
         <ion-grid>
           <ion-row class="ion-justify-content-center">
             <ion-col size="12" size-md="6">
-              <span translate>General.SystemOutage</span>
+              <span translate>GENERAL.SYSTEM_OUTAGE</span>
               <span>&nbsp;</span>
               <a href="https://status.fenecon.de/" target="_blank">status.fenecon.de</a>
             </ion-col>

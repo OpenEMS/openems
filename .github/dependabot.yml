@@ -29,6 +29,9 @@ updates:
       prometheus:
         patterns:
           - "io.prometheus:*"
+      squareup:
+        patterns:
+          - "com.squareup.*:*"
 
   - package-ecosystem: npm
     directory: "/ui"
