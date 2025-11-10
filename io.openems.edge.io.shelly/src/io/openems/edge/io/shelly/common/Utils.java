@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;

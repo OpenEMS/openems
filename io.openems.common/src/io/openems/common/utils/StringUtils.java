@@ -11,6 +11,26 @@ import com.google.gson.JsonElement;
 public class StringUtils {
 
 	/**
+	 * Checks if a string is null or empty.
+	 *
+	 * @param s the string
+	 * @return true if the string is null or empty
+	 */
+	public static boolean isNullOrEmpty(String s) {
+		return s == null || s.isEmpty();
+	}
+
+	/**
+	 * Checks if a string is null or blank (empty or only white-space).
+	 *
+	 * @param s the string
+	 * @return true if the string is null or blank
+	 */
+	public static boolean isNullOrBlank(String s) {
+		return s == null || s.isBlank();
+	}
+
+	/**
 	 * Shortens a string to a given length.
 	 *
 	 * <p>

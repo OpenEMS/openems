@@ -27,6 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BatteryState;
@@ -35,10 +39,8 @@ import io.openems.edge.battery.bmw.statemachine.Context;
 import io.openems.edge.battery.bmw.statemachine.StateMachine;
 import io.openems.edge.battery.bmw.statemachine.StateMachine.State;
 import io.openems.edge.battery.protection.BatteryProtection;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
@@ -101,7 +103,10 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -134,6 +139,7 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 				.build();
 
 		this.httpBridge = this.httpBridgeFactory.get();
+		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		final var url = this.getUrl((BridgeModbusTcp) this.getBridgeModbus(), URI_LOGIN, "");
 
@@ -304,7 +310,7 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		try {
-			var context = new Context(this, this.componentManager.getClock(), this.httpBridge);
+			var context = new Context(this, this.componentManager.getClock(), this.httpBridge, this.cycleService);
 			this.stateMachine.run(context);
 			this._setRunFailed(false);
 		} catch (OpenemsNamedException e) {

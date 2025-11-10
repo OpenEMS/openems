@@ -1,11 +1,9 @@
 package io.openems.edge.predictor.profileclusteringmodel.training;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.openems.edge.predictor.api.common.TrainingException;
 
 public class TrainingRunnable implements Runnable {
 
-	private final Logger log = LoggerFactory.getLogger(TrainingRunnable.class);
 	private final TrainingContext trainingContext;
 
 	public TrainingRunnable(TrainingContext trainingContext) {
@@ -15,9 +13,16 @@ public class TrainingRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
-			new TrainingOrchestrator(this.trainingContext).runTraining();
+			var modelBundle = new TrainingOrchestrator(this.trainingContext)//
+					.runTraining();
+			this.trainingContext.callback()//
+					.onTrainingSuccess(modelBundle);
+		} catch (TrainingException e) {
+			this.trainingContext.callback()//
+					.onTrainingError(e.getError(), e.getMessage());
 		} catch (Exception e) {
-			this.log.error("Cannot train profile clustering model: {}", e.getMessage(), e);
+			this.trainingContext.callback()//
+					.onTrainingError(TrainingError.UNKNOWN, e.getMessage());
 		}
 	}
 }
