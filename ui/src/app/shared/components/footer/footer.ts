@@ -37,7 +37,7 @@ import { Role } from "../../type/role";
 export class FooterComponent {
 
   @HostBinding("attr.data-isSmartPhone")
-  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+  public isSmartPhone: boolean = false;
 
   protected user: User | null = null;
   protected edge: Edge | null = null;
@@ -48,7 +48,7 @@ export class FooterComponent {
     protected service: Service,
     private title: Title,
   ) {
-
+    this.isSmartPhone = this.service.isSmartphoneResolution;
     effect(() => {
       const edge = this.service.currentEdge();
 

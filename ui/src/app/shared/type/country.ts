@@ -11,6 +11,8 @@ export enum Country {
     LITHUANIA = "lt",
 }
 
+export type COUNTRY_OPTIONS = { value: Country; label: string };
+
 export const COUNTRY_OPTIONS = (translate: TranslateService) => {
     return [
         { value: Country.GERMANY, label: translate.instant("General.Country.germany") },

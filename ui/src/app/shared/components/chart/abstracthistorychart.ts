@@ -57,7 +57,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
   public edge: Edge | null = null;
   public loading: boolean = true;
   public labels: (Date | string)[] = [];
-  public datasets: Chart.ChartDataset[] = HistoryUtils.createEmptyDataset(this.translate);
+  public datasets: Chart.ChartDataset[];
   public options: Chart.ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS();
   public colors: any[] = [];
   public chartObject: HistoryUtils.ChartData | null = null;
@@ -82,6 +82,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy {
     this.service.historyPeriod.subscribe(() => {
       this.updateChart();
     });
+    this.datasets = HistoryUtils.createEmptyDataset(this.translate);
   }
 
   /**

@@ -20,8 +20,8 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 })
 export class ModalComponent extends AbstractModal {
 
-  public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
-  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
+  public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC: (value: any) => string;
+  public readonly CONVERT_MANUAL_ON_OFF: (value: any) => string;
   protected controller: EdgeConfig.Component;
   protected evcsComponent: EdgeConfig.Component;
   protected isConnectionSuccessful: boolean = false;
@@ -63,6 +63,8 @@ export class ModalComponent extends AbstractModal {
     setInterval(() => {
       this.ref.detectChanges(); // manually trigger change detection
     }, 0);
+    this.CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
+    this.CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
   }
 
   protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);

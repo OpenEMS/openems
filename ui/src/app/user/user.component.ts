@@ -53,22 +53,7 @@ export class UserComponent implements OnInit {
   protected isEditModeDisabled: boolean = true;
   protected form: { formGroup: FormGroup, model: UserInformation | CompanyUserInformation };
   protected showInformation: boolean = false;
-  protected userInformationFields: FormlyFieldConfig[] = [{
-    key: "firstname",
-    type: "input",
-    props: {
-      label: this.translate.instant("Register.Form.firstname"),
-      disabled: true,
-    },
-  },
-  {
-    key: "lastname",
-    type: "input",
-    props: {
-      label: this.translate.instant("Register.Form.lastname"),
-      disabled: true,
-    },
-  }];
+  protected userInformationFields: FormlyFieldConfig[];
   protected companyInformationFields: FormlyFieldConfig[] = [];
 
   protected isAtLeastAdmin: boolean = false;
@@ -95,6 +80,22 @@ export class UserComponent implements OnInit {
         this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
         this.useNewUi = user.getUseNewUIFromSettings();
         this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
+        this.userInformationFields = [{
+          key: "firstname",
+          type: "input",
+          props: {
+            label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
+            disabled: true,
+          },
+        },
+          {
+            key: "lastname",
+            type: "input",
+            props: {
+              label: this.translate.instant("REGISTER.FORM.LASTNAME"),
+              disabled: true,
+            },
+          }];
       }
     });
   }

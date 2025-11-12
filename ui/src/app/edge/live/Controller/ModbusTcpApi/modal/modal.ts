@@ -27,8 +27,7 @@ export class ModalComponent extends AbstractModal {
   protected activePowerEqualsChannel: ChannelAddress | null = null;
   protected activePowerEqualsValue: number | null = null;
   protected channelRegisters = ChannelRegister;
-  private profile = new ProfileComponent(this.service, this.route, null, this.translate, this.websocket, this.platFormService);
-
+  private profile: ProfileComponent;
   constructor(
     protected override websocket: Websocket,
     protected override route: ActivatedRoute,
@@ -40,6 +39,7 @@ export class ModalComponent extends AbstractModal {
     private platFormService: PlatFormService,
   ) {
     super(websocket, route, service, modalController, translate, formBuilder, ref);
+    this.profile = new ProfileComponent(this.service, this.route, null, this.translate, this.websocket, this.platFormService);
   }
 
 

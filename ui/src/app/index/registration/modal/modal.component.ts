@@ -17,7 +17,7 @@ export class RegistrationModalComponent implements OnInit {
 
   protected formGroup: FormGroup;
   protected activeSegment: string = "installer";
-  protected readonly countries = COUNTRY_OPTIONS(this.translate);
+  protected readonly countries: COUNTRY_OPTIONS[];
   protected docsLink: string | null = null;
 
   constructor(
@@ -26,7 +26,9 @@ export class RegistrationModalComponent implements OnInit {
     private translate: TranslateService,
     private service: Service,
     private websocket: Websocket,
-  ) { }
+  ) {
+    this.countries = COUNTRY_OPTIONS(this.translate);
+  }
 
   ngOnInit() {
     this.formGroup = this.getForm(this.activeSegment);

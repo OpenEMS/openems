@@ -34,8 +34,8 @@ export class ModalComponent extends AbstractModal {
 
     protected img: OeImageComponent["img"] | null = null;
 
-    protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
-    protected readonly CONVERT_TO_STATE_MACHINE_LABEL = ControllerEvseSingleShared.CONVERT_TO_STATE_MACHINE_LABEL(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL: (value: any) => string;
+    protected readonly CONVERT_TO_STATE_MACHINE_LABEL: (value: any) => string;
 
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
@@ -47,6 +47,8 @@ export class ModalComponent extends AbstractModal {
         public override ref: ChangeDetectorRef,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
+        this.CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
+        this.CONVERT_TO_STATE_MACHINE_LABEL = ControllerEvseSingleShared.CONVERT_TO_STATE_MACHINE_LABEL(this.translate);
     }
 
     public override async updateComponent(config: EdgeConfig) {

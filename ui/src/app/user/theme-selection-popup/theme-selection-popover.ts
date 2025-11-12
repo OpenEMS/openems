@@ -20,17 +20,18 @@ import { Theme as UserTheme } from "../../edge/history/shared";
 export class ThemePopoverComponent {
   protected userTheme: UserTheme = UserService.DEFAULT_THEME; // Current theme (light, dark, system)
 
-  protected readonly displayThemes = [
-    { key: UserTheme.LIGHT, label: this.translate.instant("General.LIGHT"), img: "assets/img/light-mode-preview.jpg" },
-    { key: UserTheme.DARK, label: this.translate.instant("General.DARK"), img: "assets/img/dark-mode-preview.jpg" },
-    { key: UserTheme.SYSTEM, label: this.translate.instant("General.SYSTEM_THEME"), img: "assets/img/system-mode-preview.jpg" },
-  ];
+  protected readonly displayThemes: { key: string, label: string, img: string }[];
 
   constructor(
     protected modalCtrl: ModalController,
     private translate: TranslateService,
   ) {
     this.userTheme = this.userTheme || UserService.DEFAULT_THEME;
+    this.displayThemes = [
+      { key: UserTheme.LIGHT, label: this.translate.instant("GENERAL.LIGHT"), img: "assets/img/light-mode-preview.jpg" },
+      { key: UserTheme.DARK, label: this.translate.instant("GENERAL.DARK"), img: "assets/img/dark-mode-preview.jpg" },
+      { key: UserTheme.SYSTEM, label: this.translate.instant("GENERAL.SYSTEM_THEME"), img: "assets/img/system-mode-preview.jpg" },
+    ];
   }
 
   /**

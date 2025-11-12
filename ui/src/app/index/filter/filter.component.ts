@@ -14,10 +14,12 @@ import { SUM_STATES } from "../shared/sumState";
 export class FilterComponent {
 
   @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<Map<string, ChosenFilter["value"]>>();
-  protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
+  protected filters: Filter[];
   protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
 
-  constructor(private translate: TranslateService) { }
+  constructor(private translate: TranslateService) {
+    this.filters = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
+  }
 
   /**
    * Collects the search params for a {@link GetEdgesRequest}

@@ -14,10 +14,7 @@ import tr from "./translation.json";
     standalone: false,
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
-    protected readonly STATES: string = `
-    1.${this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_INPUT")}
-    2.${this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.NO_DISCHARGE")} 
-    `;
+  protected readonly STATES: string;
 
     // disabled till next release
     // 3.${this.translate.instant("Edge.Index.Widgets.ENERIX_CONTROL.FORCE_CHARGE")}
@@ -31,6 +28,10 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
+        this.STATES = `
+            1.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_INPUT")}
+            2.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE")}
+        `;
         Language.setAdditionalTranslationFile(tr, this.translate).then(({ lang, translations, shouldMerge }) => {
             this.translate.setTranslation(lang, translations, shouldMerge);
         });

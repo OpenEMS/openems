@@ -58,7 +58,7 @@ export class SystemLogComponent implements OnInit, OnDestroy {
   /** Displayed loglines */
   protected logLines: typeof this._logLines = [];
   protected query: string | null = null;
-  protected filters: Filter = LOG_LEVEL_FILTER(this.translate);
+  protected filters: Filter;
   protected isCondensedOutput: boolean | null = null;
   protected isAtLeastGuest: boolean = false;
 
@@ -80,7 +80,9 @@ export class SystemLogComponent implements OnInit, OnDestroy {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
-  ) { }
+  ) {
+    this.filters = LOG_LEVEL_FILTER(this.translate);
+  }
 
   public subscribe() {
     // put placeholder
