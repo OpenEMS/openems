@@ -43,7 +43,7 @@ public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements P
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if(super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id())) {
 			return;
 		}
@@ -64,7 +64,7 @@ public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements P
                 // VOLTAGE + FREQUENCY
                 new FC3ReadRegistersTask(
                         0x5002, Priority.HIGH,
-//                        m(Pro380modct.ChannelId.VOLTAGE,    new FloatDoublewordElement(0x5000).wordOrder(WordOrder.MSWLSW)),
+                        //m(Pro380modct.ChannelId.VOLTAGE,    new FloatDoublewordElement(0x5000).wordOrder(WordOrder.MSWLSW)),
                         m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(0x5002).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
                         m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(0x5004).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
                         m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(0x5006).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
@@ -105,15 +105,6 @@ public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements P
                         m(Pro380modct.ChannelId.APPARENT_POWER_L1, new FloatDoublewordElement(0x5024).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
                         m(Pro380modct.ChannelId.APPARENT_POWER_L2, new FloatDoublewordElement(0x5026).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
                         m(Pro380modct.ChannelId.APPARENT_POWER_L3, new FloatDoublewordElement(0x5028).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3)
-//                ),
-//
-//                // POWER FACTOR total + L1/L2/L3
-//                new FC3ReadRegistersTask(
-//                        0x502A, Priority.HIGH,
-//                        m(Pro380modct.ChannelId.POWER_FACTOR,    new FloatDoublewordElement(0x502A).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
-//                        m(Pro380modct.ChannelId.POWER_FACTOR_L1, new FloatDoublewordElement(0x502C).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
-//                        m(Pro380modct.ChannelId.POWER_FACTOR_L2, new FloatDoublewordElement(0x502E).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3),
-//                        m(Pro380modct.ChannelId.POWER_FACTOR_L3, new FloatDoublewordElement(0x5030).wordOrder(WordOrder.MSWLSW), ElementToChannelConverter.SCALE_FACTOR_3)
                 )
         );
 
@@ -131,6 +122,6 @@ public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements P
 
 	@Override
 	public MeterType getMeterType() {
-		return config.type();
+		return this.config.type();
 	}
 }
