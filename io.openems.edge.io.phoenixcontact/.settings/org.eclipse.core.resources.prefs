@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/io/phoenixcontact/Config.java=UTF-8
+encoding//src/io/openems/edge/io/phoenixcontact/PlcNextHttpDevice.java=UTF-8
+encoding//src/io/openems/edge/io/phoenixcontact/PlcNextHttpDeviceImpl.java=UTF-8
+encoding//test/io/openems/edge/io/phoenixcontact/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/io/phoenixcontact/MyDeviceTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
