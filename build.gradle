@@ -159,6 +159,13 @@ tasks.register('prepareWrapperReleaseJars', Copy) {
 	}
 }
 
+tasks.register('prepareWrapperBundles') {
+	group = 'OpenEMS-Build'
+	description = 'Ensures cnf/release contains the generated wrapper bundles and an up-to-date index.'
+	dependsOn(tasks.named('prepareWrapperReleaseJars'))
+	dependsOn(':io.openems.wrapper:release')
+}
+
 task cleanEdge() {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Edge-Bundles'
@@ -223,7 +230,7 @@ task assembleBackend() {
 }
 
 tasks.named('build') {
-	dependsOn(tasks.named('prepareWrapperReleaseJars'))
+	dependsOn(tasks.named('prepareWrapperBundles'))
 }
 
 /*

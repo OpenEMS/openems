@@ -23,7 +23,7 @@ jobs:
       - uses: kiancross/checkstyle-annotations-action@v1
 
       - name: Prepare wrapper dependencies
-        run: ./gradlew prepareWrapperReleaseJars --console=plain --warn
+        run: ./gradlew prepareWrapperBundles --console=plain --warn
 
       - name: Checkstyle
         run: ./gradlew checkstyleAll --console=plain --warn
