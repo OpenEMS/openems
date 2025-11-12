@@ -10,6 +10,19 @@ repositories {
 	gradlePluginPortal()
 }
 
+def wrapperReleaseDir = "${rootDir}/cnf/release"
+
+configurations {
+	wrapperReleaseJars
+}
+
+dependencies {
+	wrapperReleaseJars "org.apache.kafka:kafka-clients:3.8.0"
+	wrapperReleaseJars "org.lz4:lz4-java:1.8.0"
+	wrapperReleaseJars "org.xerial.snappy:snappy-java:1.1.10.5"
+	wrapperReleaseJars "com.github.luben:zstd-jni:1.5.6-3"
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
@@ -134,6 +147,18 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+tasks.register('prepareWrapperReleaseJars', Copy) {
+	group = 'OpenEMS-Build'
+	description = 'Downloads third-party jars that are wrapped via bnd and copies them into cnf/release.'
+	from {
+		configurations.wrapperReleaseJars
+	}
+	into wrapperReleaseDir
+	doFirst {
+		file(wrapperReleaseDir).mkdirs()
+	}
+}
+
 task cleanEdge() {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Edge-Bundles'
@@ -195,6 +220,10 @@ task assembleBackend() {
 			}
 		}
 	}
+}
+
+tasks.named('build') {
+	dependsOn(tasks.named('prepareWrapperReleaseJars'))
 }
 
 /*
