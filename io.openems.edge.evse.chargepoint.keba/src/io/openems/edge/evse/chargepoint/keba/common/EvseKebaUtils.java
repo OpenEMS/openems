@@ -2,6 +2,7 @@ package io.openems.edge.evse.chargepoint.keba.common;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
+import static io.openems.edge.evse.api.common.ApplySetPoint.MIN_CURRENT;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,8 +21,8 @@ import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
-import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
+import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 
 public class EvseKebaUtils {
 
@@ -48,11 +49,20 @@ public class EvseKebaUtils {
 	}
 
 	private void applyPhaseSwitch(PhaseSwitch phaseSwitch) {
+		applyPhaseSwitch(this.parent, phaseSwitch);
+	}
+
+	/**
+	 * Applies a {@link PhaseSwitch} action to a given {@link EvseKeba}.
+	 * 
+	 * @param keba        the {@link EvseKeba}
+	 * @param phaseSwitch the {@link PhaseSwitch}
+	 */
+	public static void applyPhaseSwitch(EvseKeba keba, PhaseSwitch phaseSwitch) {
 		if (phaseSwitch == null) {
 			return;
 		}
 
-		final var keba = this.parent;
 		try {
 			// Set correct PhaseSwitchSource
 			final var requiredPhaseSwitchSource = keba.getRequiredPhaseSwitchSource();
@@ -62,10 +72,11 @@ public class EvseKebaUtils {
 			}
 
 			// Apply Phase Switch
-			final var setPhaseSwitchState = keba.getSetPhaseSwitchStateChannel();
-			setPhaseSwitchState.setNextWriteValue(switch (phaseSwitch) {
-			case TO_SINGLE_PHASE -> PhaseSwitchState.SINGLE;
-			case TO_THREE_PHASE -> PhaseSwitchState.THREE;
+			final var setTriggerPhaseSwitch = keba.getSetTriggerPhaseSwitchChannel();
+			setTriggerPhaseSwitch.setNextWriteValue(switch (phaseSwitch) {
+			case null -> null;
+			case TO_SINGLE_PHASE -> TriggerPhaseSwitch.SINGLE;
+			case TO_THREE_PHASE -> TriggerPhaseSwitch.THREE;
 			});
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
@@ -83,10 +94,10 @@ public class EvseKebaUtils {
 		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
 
 		try {
-			keba.getSetEnableChannel().setNextWriteValue(setPointInMilliAmpere == 0 //
+			keba.setSetEnable(setPointInMilliAmpere == 0 //
 					? SetEnable.DISABLE //
 					: SetEnable.ENABLE);
-			keba.getSetChargingCurrentChannel().setNextWriteValue(setPointInMilliAmpere);
+			keba.setSetChargingCurrent(setPointInMilliAmpere);
 
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
@@ -114,18 +125,32 @@ public class EvseKebaUtils {
 	 * @return the value
 	 */
 	public ChargePointAbilities getChargePointAbilities(CommonConfig config) {
-		if (config == null || config.readOnly()) {
+		if (config == null) {
 			return null;
 		}
 		final var phases = this.getWiring(config);
-		if (config == null || config.readOnly() || phases == null) {
+		if (config == null || phases == null) {
 			return null;
 		}
 
+		// Cluster Controller throws exception when abilities are null
+		if (config.readOnly()) {
+			return ChargePointAbilities.create()//
+					.build();
+		}
+
 		final var keba = this.parent;
+		final int maxSupportedCurrent = keba.getMaxSupportedCurrent().orElse(MIN_CURRENT);
+
+		final var isEvConnected = switch (keba.getCableState()) {
+		case UNDEFINED, UNPLUGGED, PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED -> false;
+		case PLUGGED_EV_NOT_LOCKED, PLUGGED_AND_LOCKED -> true;
+		};
+
 		return ChargePointAbilities.create() //
 				// TODO apply actual hardware limit from protocol and/or config
-				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, 32000)) //
+				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxSupportedCurrent)) //
+				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
 				.setPhaseSwitch(this.getPhaseSwitchAbility(config)) //
 				.build();
@@ -137,14 +162,14 @@ public class EvseKebaUtils {
 		// Set Phase-Switching Ability
 		final var phaseSwitchState = keba.getPhaseSwitchState().actual;
 		final var phaseSwitchSource = keba.getPhaseSwitchSource();
-		if (!config.p30hasS10PhaseSwitching() || config.wiring() == SINGLE_PHASE || phaseSwitchState == null
-				|| phaseSwitchSource == PhaseSwitchSource.UNDEFINED) {
+		if (!config.supportsPhaseSwitching() // Does ChargePoint support phase switching?
+				|| config.wiring() == SINGLE_PHASE // SINGLE_PHASE wiring can never do phase switching
+				|| phaseSwitchState == null // PhaseSwitchState is still unknown
+				|| phaseSwitchSource == PhaseSwitchSource.UNDEFINED // PhaseSwitchSource is still unknown
+		) {
 			// Phase-Switching not available or still waiting for all required channels
 			return null;
 		}
-
-		// TODO When switching between the parameters, a cool down time of 5 minutes is
-		// required
 
 		// Query and Set correct PhaseSwitchSource
 		final var requiredPhaseSwitchSource = keba.getRequiredPhaseSwitchSource();
@@ -170,7 +195,7 @@ public class EvseKebaUtils {
 		final var keba = this.parent;
 
 		// Handle P30 with S10
-		if (config.p30hasS10PhaseSwitching()) {
+		if (config.supportsPhaseSwitching()) {
 			return keba.getPhaseSwitchState().actual;
 		}
 

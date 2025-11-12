@@ -16,15 +16,18 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 public interface ControllerEvseSingle extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(StateMachine.State.values()) //
-				.text("Current State of State-Machine")), //
-
-		ACTUAL_MODE(Doc.of(Mode.Actual.values())), //
-		SESSION_ENERGY(Doc.of(INTEGER) //
-				.unit(WATT_HOURS) //
+		STATE_MACHINE(Doc.of(StateMachine.State.values())//
+				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
-		SESSION_LIMIT_REACHED(Doc.of(Level.INFO) //
-				.text("Session Limit reached")) //
+
+		ACTUAL_MODE(Doc.of(Mode.Actual.values())//
+				.persistencePriority(HIGH)), //
+
+		SESSION_ENERGY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+
+		PHASE_SWITCH_FAILED(Doc.of(Level.WARNING)) //
 		;
 
 		private final Doc doc;

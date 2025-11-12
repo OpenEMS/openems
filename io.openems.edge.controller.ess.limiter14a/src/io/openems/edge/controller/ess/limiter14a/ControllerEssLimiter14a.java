@@ -50,11 +50,20 @@ public interface ControllerEssLimiter14a extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Status. See {@link ChannelId#RESTRICTION_MODE}.
+	 * Gets the restriction mode. See {@link ChannelId#RESTRICTION_MODE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Boolean getRestrictionMode() {
 		return this.getRestrictionModeChannel().value().get();
+	}
+
+	/**
+	 * Sets the restriction mode. See {@link ChannelId#RESTRICTION_MODE}.
+	 * 
+	 * @param value the value as boolean.
+	 */
+	public default void _setRestrictionMode(boolean value) {
+		this.getRestrictionModeChannel().setNextValue(value);
 	}
 }

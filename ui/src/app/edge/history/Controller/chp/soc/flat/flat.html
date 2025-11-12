@@ -1,8 +1,10 @@
-<oe-flat-widget *ngIf="isInitialized" [title]="component.alias" [icon]="{name: 'flame-outline', color: 'primary'}"
-    button routerLink="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart">
-    <ng-container *ngFor="let i of [1,2,3]">
-        <oe-flat-widget-line [name]="('Edge.History.ACTIVE_DURATION_WITH_LEVEL'| translate: {level: i})"
-            [channelAddress]="component.id + '/Level' + i + 'CumulatedTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
-        </oe-flat-widget-line>
-    </ng-container>
-</oe-flat-widget>
+@if (isInitialized) {
+  <oe-flat-widget [title]="component.alias" [icon]="{name: 'flame-outline', color: 'primary'}"
+    button link="/device/{{edge.id}}/history/{{componentId}}/heatingelementchart">
+    @for (i of [1,2,3]; track i) {
+      <oe-flat-widget-line [name]="('EDGE.HISTORY.ACTIVE_DURATION_WITH_LEVEL'| translate: {level: i})"
+        [channelAddress]="component.id + '/Level' + i + 'CumulatedTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
+      </oe-flat-widget-line>
+    }
+  </oe-flat-widget>
+}

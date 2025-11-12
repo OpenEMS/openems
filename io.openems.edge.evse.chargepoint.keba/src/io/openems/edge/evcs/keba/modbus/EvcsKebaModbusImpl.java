@@ -46,7 +46,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -60,7 +59,6 @@ import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
@@ -70,8 +68,10 @@ import io.openems.edge.evse.chargepoint.keba.common.Keba;
 import io.openems.edge.evse.chargepoint.keba.common.KebaModbus;
 import io.openems.edge.evse.chargepoint.keba.common.KebaUtils;
 import io.openems.edge.evse.chargepoint.keba.common.ProductTypeAndFeatures;
+import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.modbus.KebaModbusUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -189,7 +189,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 
 	@Override
 	public int getConfiguredMaximumHardwarePower() {
-		return Math.round(this.getMaxChargingCurrent().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f)
+		return Math.round(this.getMaxSupportedCurrent().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f)
 				* DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 	}
 
@@ -214,7 +214,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		 * Limits the charging value because KEBA knows only values between 6000 and
 		 * 32000
 		 */
-		IntegerReadChannel maxHw = this.channel(EvcsKeba.ChannelId.MAX_HARDWARE_CURRENT);
+		var maxHw = this.getMaxSupportedCurrentChannel();
 		current = Math.min(current, maxHw.getNextValue().orElse(DEFAULT_MAXIMUM_HARDWARE_CURRENT));
 
 		if (current < 6000) {
@@ -288,7 +288,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 		final var status = this.<EnumReadChannel>channel(Evcs.ChannelId.STATUS).getNextValue();
 		if (status.isDefined() ? status.get() == 2 : false) {
 			try {
-				this.setSetEnable(1);
+				this.setSetEnable(SetEnable.ENABLE);
 				this.setEnableSet = true;
 			} catch (OpenemsNamedException e) {
 				this.logDebug(
@@ -371,9 +371,9 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 				new FC3ReadRegistersTask(1046, Priority.LOW, //
 						m(Keba.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046), SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(1100, Priority.LOW, //
-						m(KebaModbus.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100))),
+						m(Keba.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100))),
 				new FC3ReadRegistersTask(1110, Priority.LOW, //
-						m(EvcsKeba.ChannelId.MAX_HARDWARE_CURRENT, new UnsignedDoublewordElement(1110))),
+						m(Keba.ChannelId.MAX_SUPPORTED_CURRENT, new UnsignedDoublewordElement(1110))),
 				// todo: read Register 1500 RFID once solution is found
 				// this register is can not always be read with keba firmware 1.1.9 or less
 				// there is currently no way of knowing when it can be read
@@ -400,7 +400,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 					new FC6WriteRegisterTask(5050,
 							m(Keba.ChannelId.SET_PHASE_SWITCH_SOURCE, new UnsignedWordElement(5050))),
 					new FC6WriteRegisterTask(5052,
-							m(Keba.ChannelId.SET_PHASE_SWITCH_STATE, new UnsignedWordElement(5052))));
+							m(Keba.ChannelId.SET_TRIGGER_PHASE_SWITCH, new UnsignedWordElement(5052))));
 		}
 
 		return modbusProtocol;

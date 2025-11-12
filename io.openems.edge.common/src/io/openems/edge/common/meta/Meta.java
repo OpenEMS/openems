@@ -76,7 +76,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: Boolean
 		 * </ul>
 		 */
-		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN) //
+		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN)//
 				.persistencePriority(HIGH)), //
 
 		/**
@@ -87,7 +87,7 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: GridFeedInLimitationType
 		 * </ul>
 		 */
-		GRID_FEED_IN_LIMITATION_TYPE(Doc.of(GridFeedInLimitationType.values()) //
+		GRID_FEED_IN_LIMITATION_TYPE(Doc.of(GridFeedInLimitationType.values())//
 				.persistencePriority(HIGH)), //
 
 		/**
@@ -182,8 +182,8 @@ public interface Meta extends ModbusSlave {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<GridFeedInLimitationType> getGridFeedInLimitationType() {
-		return this.getGridFeedInLimitationTypeChannel().value();
+	public default GridFeedInLimitationType getGridFeedInLimitationType() {
+		return this.getGridFeedInLimitationTypeChannel().value().asEnum();
 	}
 
 	/**
@@ -235,13 +235,20 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Gets the feed to grid power limit.
+	 * Gets the feed to grid power limit as Value.
 	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 *
+	 * <p>
+	 * Use this getter always in combination with
+	 * {@link #getGridFeedInLimitationType()} as 0 could be a valid limit. If there
+	 * is no limit the correct value would be the maximum apparent power of the
+	 * inverter.
+	 * </p>
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default int getMaximumGridFeedInLimit() {
-		return this.getMaximumGridFeedInLimitChannel().value().orElse(0);
+	public default Value<Integer> getMaximumGridFeedInLimitValue() {
+		return this.getMaximumGridFeedInLimitChannel().value();
 	}
 
 	/**
@@ -320,4 +327,12 @@ public interface Meta extends ModbusSlave {
 	 * @return the time zone, or null if not set
 	 */
 	public ZoneId getTimezone();
+
+	/**
+	 * Returns whether the user has accepted, declined, or not yet decided on
+	 * third-party usage.
+	 *
+	 * @return the third party usage acceptance status
+	 */
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
 }

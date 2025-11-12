@@ -23,9 +23,9 @@ export class ChartComponent extends AbstractHistoryChart {
 
         if (consumptionMeter && consumptionMeter.isEnabled) {
             input.push({
-            name: consumptionMeter.id + "/ActivePower",
-            powerChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActivePower"),
-            energyChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActiveProductionEnergy"),
+                name: consumptionMeter.id + "/ActivePower",
+                powerChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActivePower"),
+                energyChannel: ChannelAddress.fromString(consumptionMeter.id + "/ActiveProductionEnergy"),
             });
         }
 
@@ -72,14 +72,14 @@ export class ChartComponent extends AbstractHistoryChart {
 
                 if (consumptionMeter && consumptionMeter.isEnabled){
                     output.push({
-                    name: translate.instant("General.consumption"),
-                    nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
-                        energyValues?.result.data[consumptionMeter.id + "/ActiveProductionEnergy"],
-                    converter: () =>
-                        data[consumptionMeter.id + "/ActivePower"] ?? null,
-                    color: ChartConstants.Colors.YELLOW,
-                    stack: 1,
-                    yAxisId: ChartAxis.RIGHT,
+                        name: translate.instant("GENERAL.CONSUMPTION"),
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues?.result.data[consumptionMeter.id + "/ActiveProductionEnergy"],
+                        converter: () =>
+                            data[consumptionMeter.id + "/ActivePower"] ?? null,
+                        color: ChartConstants.Colors.YELLOW,
+                        stack: 1,
+                        yAxisId: ChartAxis.RIGHT,
                     });
                 }
 
@@ -90,32 +90,32 @@ export class ChartComponent extends AbstractHistoryChart {
             },
             yAxes:
             consumptionMeter && consumptionMeter.isEnabled ?
-            [
-                {
-                    unit:  YAxisType.ENERGY,
-                    position: "right",
-                    yAxisId: ChartAxis.RIGHT,
-                },
-                {
-                    unit: chartType === "line"
-                        ? YAxisType.HEATING_ELEMENT
-                        : YAxisType.TIME,
-                    position: "left",
-                    yAxisId: ChartAxis.LEFT,
+                [
+                    {
+                        unit:  YAxisType.ENERGY,
+                        position: "right",
+                        yAxisId: ChartAxis.RIGHT,
+                    },
+                    {
+                        unit: chartType === "line"
+                            ? YAxisType.HEATING_ELEMENT
+                            : YAxisType.TIME,
+                        position: "left",
+                        yAxisId: ChartAxis.LEFT,
 
-                },
-            ]
-            :
-            [
-                {
-                    unit: chartType === "line"
-                        ? YAxisType.HEATING_ELEMENT
-                        : YAxisType.TIME,
-                    position: "left",
-                    yAxisId: ChartAxis.LEFT,
+                    },
+                ]
+                :
+                [
+                    {
+                        unit: chartType === "line"
+                            ? YAxisType.HEATING_ELEMENT
+                            : YAxisType.TIME,
+                        position: "left",
+                        yAxisId: ChartAxis.LEFT,
 
-                },
-            ],
+                    },
+                ],
         };
     }
 

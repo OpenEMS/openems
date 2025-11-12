@@ -66,6 +66,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Stream.of(CurrencyConfig.values()).map(Enum::name).toList());
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "currency", ComponentManagerSupplier::getComponentManager))), //
 
 		IS_ESS_CHARGE_FROM_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
@@ -83,6 +84,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 									.build())
 							.build());
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER)) //
 				.bidirectional("_meta", "isEssChargeFromGridAllowed", ComponentManagerSupplier::getComponentManager))), //
 		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
@@ -91,6 +93,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.AMPERE, l);
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER)) //
 				.bidirectional("_meta", "gridConnectionPointFuseLimit",
 						ComponentManagerSupplier::getComponentManager))), //
 		SUBDIVISION_CODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
@@ -98,12 +101,14 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Stream.of(SubdivisionCode.values()).map(Enum::name).toList());
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "subdivisionCode", ComponentManagerSupplier::getComponentManager))), //
 		PLACE_NAME(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".placeName.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "placeName", ComponentManagerSupplier::getComponentManager))), //
 
 		GRID_FEED_IN_LIMITATION_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def//
@@ -112,6 +117,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(GridFeedInLimitationType.class), l);
 				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER)) //
 				.bidirectional("_meta", "gridFeedInLimitationType", ComponentManagerSupplier::getComponentManager))), //
 
 		MAXIMUM_GRID_FEED_IN_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
@@ -123,12 +129,14 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.WATT, l);
 				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER)) //
 				.bidirectional("_meta", "maximumGridFeedInLimit", ComponentManagerSupplier::getComponentManager))), //
 		POSTCODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".postcode.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "postcode", ComponentManagerSupplier::getComponentManager))), //
 		LATITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".latitude.label")
@@ -137,6 +145,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
 				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "latitude", ComponentManagerSupplier::getComponentManager))), //
 
 		LONGITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
@@ -146,13 +155,22 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setStep(0.0000001);
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
 				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "longitude", ComponentManagerSupplier::getComponentManager))), //
 		TIMEZONE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".timezone.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
 				.bidirectional("_meta", "timezone", ComponentManagerSupplier::getComponentManager))), //
+
+		THIRD_PARTY_USAGE_ACCEPTANCE(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.appendIsAllowedToEdit((app, property, l, parameter, user) -> {
+					return user.getRole() == Role.OWNER;
+				}) //
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.bidirectional("_meta", "thirdPartyUsageAcceptance", ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -203,6 +221,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 			final var latitude = this.getDouble(p, Property.LATITUDE);
 			final var longitude = this.getDouble(p, Property.LONGITUDE);
 			final var timezone = this.getString(p, Property.TIMEZONE);
+			final var thirdPartyUsageAcceptance = this.getString(p, Property.THIRD_PARTY_USAGE_ACCEPTANCE);
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
@@ -219,6 +238,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.addProperty("latitude", latitude)//
 							.addProperty("longitude", longitude)//
 							.addProperty("timezone", timezone)//
+							.addProperty("thirdPartyUsageAcceptance", thirdPartyUsageAcceptance)//
 							.build()));
 
 			return AppConfiguration.create() //
@@ -257,7 +277,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
 				.setCanDelete(Role.ADMIN) // TODO theoretically not even admin
-				.setCanSee(Role.ADMIN) //
+				.setCanSee(Role.INSTALLER) //
 				.build();
 	}
 

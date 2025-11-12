@@ -35,6 +35,7 @@ export class ModalComponent extends AbstractModal {
     protected img: OeImageComponent["img"] | null = null;
 
     protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
+    protected readonly CONVERT_TO_STATE_MACHINE_LABEL = ControllerEvseSingleShared.CONVERT_TO_STATE_MACHINE_LABEL(this.translate);
 
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
@@ -60,7 +61,7 @@ export class ModalComponent extends AbstractModal {
 
     protected override onIsInitialized(): void {
         const url = ControllerEvseSingleShared.getImgUrlByFactoryId(this.chargePoint.factoryId);
-        this.img = url === null ? null : { url, height: 300, width: 300 };
+        this.img = url === null ? null : { url };
     }
 
     protected override getFormGroup(): FormGroup {

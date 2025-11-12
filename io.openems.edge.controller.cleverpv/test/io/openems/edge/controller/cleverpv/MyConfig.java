@@ -9,6 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String url;
 		private LogVerbosity logVerbosity;
+		private Mode mode;
 
 		private Builder() {
 		}
@@ -25,6 +26,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
 			this.logVerbosity = logVerbosity;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
 			return this;
 		}
 
@@ -57,5 +63,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public LogVerbosity logVerbosity() {
 		return this.builder.logVerbosity;
+	}
+
+	@Override
+	public boolean readOnly() {
+		return false;
+	}
+
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
 	}
 }

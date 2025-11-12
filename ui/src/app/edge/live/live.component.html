@@ -1,10 +1,10 @@
 <oe-navigation-view *ngIf="edge">
-  <oe-refresh-view header [refresh]="handleRefresh" [show]="showRefreshDragDown">
+  <oe-refresh-view [refresh]="handleRefresh" [show]="showRefreshDragDown">
     <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
       <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
     </ion-refresher>
   </oe-refresh-view>
-  <ion-grid *ngIf="edge && edge.isOnline && paddingBottom !== null">
+  <ion-grid *ngIf="edge && edge.isOnline">
     <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">
 
       <!-- Left column -->
@@ -15,7 +15,17 @@
             <ion-col size="12">
               <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
                 <!-- Energymonitor -->
-                <energymonitor *ngSwitchCase="'Energymonitor'"></energymonitor>
+                <energymonitor *ngSwitchCase="'Energymonitor'" [attr.tabindex]="0"></energymonitor>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+                <!-- Weather-->
+                <weather [componentId]="widget.componentId" *ngSwitchCase="'Weather.OpenMeteo'"
+                  class="ion-hide-sm-down">
+                </weather>
               </ng-container>
             </ion-col>
           </ion-row>
@@ -26,6 +36,7 @@
       <ion-col size="12" size-md="8" size-lg="6" class="ion-no-padding">
         <ion-grid class="ion-no-padding">
           <ion-row>
+
             <!-- Regular Widgets -->
             <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
 
@@ -70,11 +81,11 @@
               </ng-container>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.SelfConsumption'" size="12" size-lg="6" class="ion-no-padding">
-                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
+                <oe-multiple-evcs-api-cluster [componentId]="widget.componentId"></oe-multiple-evcs-api-cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Evcs.Cluster.PeakShaving'" size="12" size-lg="6" class="ion-no-padding">
-                <Evcs_Api_Cluster [componentId]="widget.componentId"></Evcs_Api_Cluster>
+                <oe-multiple-evcs-api-cluster [componentId]="widget.componentId"></oe-multiple-evcs-api-cluster>
               </ion-col>
 
               <ion-col *ngSwitchCase="'Controller.ChannelThreshold'" size="12" size-lg="6" class="ion-no-padding">
@@ -151,6 +162,10 @@
                 <Io_Api_DigitalInput></Io_Api_DigitalInput>
               </ion-col>
 
+              <ion-col size="12" *ngSwitchCase="'Controller.Clever-PV'" size-lg="6" class="ion-no-padding">
+                <Controller_EnerixControl [componentId]="widget.componentId"></Controller_EnerixControl>
+              </ion-col>
+
               <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" size-lg="6" class="ion-no-padding">
                 <Controller_Ess_FixActivePower [componentId]="widget.componentId"></Controller_Ess_FixActivePower>
               </ion-col>
@@ -159,6 +174,10 @@
                 class="ion-no-padding">
                 <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">
                 </Controller_Ess_GridOptimizedCharge>
+              </ion-col>
+
+              <ion-col size="12" *ngSwitchCase="'Weather.OpenMeteo'" size-lg="6" class="ion-hide-sm-up ion-no-padding">
+                <weather [componentId]="widget.componentId"></weather>
               </ion-col>
             </ng-container>
 

@@ -7,10 +7,7 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Task;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -75,7 +72,7 @@ public final class Utils {
 		};
 	}
 
-	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
+	protected static boolean isSessionLimitReached(Mode mode, Integer energy, int limit) {
 		if (mode == Mode.SMART) {
 			return false;
 		}
@@ -85,14 +82,14 @@ public final class Utils {
 		return false;
 	}
 
-	protected static ImmutableList<Task<Payload>> parseSmartConfig(String smartConfig) {
+	protected static JSCalendar.Tasks<Payload> parseSmartConfig(String smartConfig) {
 		try {
 			return JSCalendar.Tasks.serializer(Payload.serializer()) //
 					.deserialize(smartConfig);
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ImmutableList.of();
+			return JSCalendar.Tasks.empty();
 		}
 	}
 }

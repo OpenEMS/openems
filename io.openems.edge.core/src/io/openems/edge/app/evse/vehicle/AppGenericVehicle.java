@@ -2,7 +2,6 @@ package io.openems.edge.app.evse.vehicle;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +19,6 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evse.vehicle.AppGenericVehicle.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -39,6 +37,9 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 
 @Component(name = "App.Evse.ElectricVehicle.Generic")
 public class AppGenericVehicle extends
@@ -47,7 +48,9 @@ public class AppGenericVehicle extends
 	public enum Property implements Type<Property, AppGenericVehicle, Parameter.BundleParameter> {
 		VEHICLE_ID(AppDef.componentId("evseElectricVehicle0")), //
 		ALIAS(AppDef.copyOfGeneric(alias())), //
+		MIN_POWER_SINGLE_PHASE(VehicleProps.minPowerSinglePhase()), //
 		MAX_POWER_SINGLE_PHASE(VehicleProps.maxPowerSinglePhase()), //
+		MIN_POWER_THREE_PHASE(VehicleProps.minPowerThreePhase()), //
 		MAX_POWER_THREE_PHASE(VehicleProps.maxPowerThreePhase()), //
 		CAN_INTERRUPT(VehicleProps.canInterupt());
 
@@ -89,21 +92,27 @@ public class AppGenericVehicle extends
 
 			final var id = this.getId(t, p, Property.VEHICLE_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
+
+			final var minPowerSinglePhase = this.getInt(p, Property.MIN_POWER_SINGLE_PHASE);
 			final var maxPowerSinglePhase = this.getInt(p, Property.MAX_POWER_SINGLE_PHASE);
+			final var minPowerThreePhase = this.getInt(p, Property.MIN_POWER_THREE_PHASE);
 			final var maxPowerThreePhase = this.getInt(p, Property.MAX_POWER_THREE_PHASE);
 			final var canInterrupt = this.getBoolean(p, Property.CAN_INTERRUPT);
 
-			final var components = new ArrayList<EdgeConfig.Component>();
-
-			components.add(new EdgeConfig.Component(id, alias, "Evse.ElectricVehicle.Generic",
-					JsonUtils.buildJsonObject()//
+			final var component = new ComponentDef(id, alias, "Evse.ElectricVehicle.Generic",
+					ComponentProperties.fromJson(JsonUtils.buildJsonObject()//
+							.addProperty("minPowerSinglePhase", minPowerSinglePhase)//
 							.addProperty("maxPowerSinglePhase", maxPowerSinglePhase)//
+							.addProperty("minPowerThreePhase", minPowerThreePhase)//
 							.addProperty("maxPowerThreePhase", maxPowerThreePhase)//
 							.addProperty("canInterrupt", canInterrupt)//
-							.build()));
+							.build()), //
+					Configuration.create()//
+							.installAlways(true) //
+							.build());
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.component(component)) //
 					.build();
 		};
 	}

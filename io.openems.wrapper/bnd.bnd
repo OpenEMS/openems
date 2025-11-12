@@ -8,7 +8,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.influxdb:influxdb-client-java;version='6.12.0',\
 	com.influxdb:influxdb-client-utils;version='6.12.0',\
 	com.influxdb:flux-dsl;version='6.12.0',\
-	com.squareup.okhttp3;version='5.1',\
+	com.squareup.okhttp3;version='5.3',\
 	com.squareup.retrofit2:retrofit;version='3.0.0',\
 	com.squareup.retrofit2:converter-gson;version='3.0.0',\
 	com.squareup.retrofit2:converter-scalars;version='3.0.0',\
@@ -21,10 +21,10 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	io.helins:linux-errno;version='1.0.2',\
 	io.helins:linux-i2c;version='1.0.2',\
 	io.helins:linux-io;version='0.0.4',\
-	io.jenetics:jenetics;version='7.2.0',\
+	io.jenetics:jenetics;version='8.3.0',\
 	info.faljse:SDNotify;version='1.5.0',\
 	io.reactivex.rxjava3.rxjava;version='3.1.8',\
-	com.google.gson;version='2.12.1',\
+	com.google.gson;version='2.13.2',\
 	de.bytefish:pgbulkinsert;version='8.1.6',\
 	fr.turri:aXMLRPC;version='1.17.0',\
 	org.dhatim:fastexcel;version='0.18.4',\

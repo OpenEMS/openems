@@ -3,8 +3,8 @@ package io.openems.edge.evcs.keba.udp;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "EVCS KEBA KeContact", //
 		description = "Implements the KEBA KeContact P20/P30 electric vehicle charging station.")

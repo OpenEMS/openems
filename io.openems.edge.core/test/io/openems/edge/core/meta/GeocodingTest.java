@@ -1,10 +1,9 @@
 package io.openems.edge.core.meta;
 
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -19,13 +18,13 @@ import org.junit.Test;
 
 import com.google.gson.JsonParser;
 
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.CurrencyConfig;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.jsonapi.Call;
@@ -34,7 +33,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.core.meta.geocoding.GeoResult;
 import io.openems.edge.core.meta.geocoding.OpenCageGeocodingService;
@@ -43,6 +42,7 @@ public class GeocodingTest {
 
 	@Test
 	public void testGeocodeRequest_ShouldReturnCorrectResults() throws Exception {
+		final var meta = new DummyMeta("_meta");
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -51,13 +51,10 @@ public class GeocodingTest {
 
 		final var clock = createDummyClock();
 		final var fetcher = dummyEndpointFetcher();
-		fetcher.addEndpointHandler(t -> {
-			return HttpResponse.ok(OPEN_CAGE_API_RESPONSE);
-		});
+		fetcher.addEndpointHandler(t -> HttpResponse.ok(OPEN_CAGE_API_RESPONSE));
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//
-				() -> cycleSubscriber(), //
 				() -> fetcher, //
 				() -> executor//
 		);
@@ -65,7 +62,8 @@ public class GeocodingTest {
 		final var sut = new MetaImpl();
 
 		final var config = MyConfig.create()//
-				.setCurrency(CurrencyConfig.EUR)//
+				.setMeta(meta) //
+				.setCurrency(CurrencyConfig.EUR) //
 				.build();
 		new ComponentTest(sut)//
 				.addReference("cm", cm)//
@@ -184,7 +182,6 @@ public class GeocodingTest {
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//
-				DummyBridgeHttpFactory::cycleSubscriber, //
 				() -> fetcher, //
 				() -> executor//
 		);

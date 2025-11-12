@@ -5,10 +5,10 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import io.openems.common.timedata.DurationUnit;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 
 public class OpenMeteoDelayTimeProvider implements DelayTimeProvider {
 
@@ -33,6 +33,8 @@ public class OpenMeteoDelayTimeProvider implements DelayTimeProvider {
 
 	@Override
 	public Delay onSuccessRunDelay(HttpResponse<String> result) {
-		return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofHours(6)).getDelay();
+		return DelayTimeProviderChain.fixedAtEveryFull(this.clock, DurationUnit.ofHours(3))//
+				.plusRandomDelay(300, ChronoUnit.SECONDS)//
+				.getDelay();
 	}
 }

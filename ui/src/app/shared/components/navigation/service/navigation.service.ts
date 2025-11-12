@@ -5,10 +5,13 @@ import { TranslateService } from "@ngx-translate/core";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
+import { TEnumKeys, TMutable } from "src/app/shared/type/utility";
+import { WidgetClass } from "src/app/shared/type/widget";
+import { Widgets } from "src/app/shared/type/widgets";
 import { Edge, EdgeConfig, Service } from "../../../shared";
 import { ArrayUtils } from "../../../utils/array/array.utils";
 import { AssertionUtils } from "../../../utils/assertions/assertions.utils";
-import { NavigationTree } from "../shared";
+import { NavigationConstants, NavigationTree } from "../shared";
 
 @Directive()
 export class NavigationService {
@@ -75,10 +78,10 @@ export class NavigationService {
      * @param translate the translate service
      * @param currentUrl the current url
      */
-    public async updateNavigationNodes(currenUrl: string | null, edge: Edge, translate: TranslateService) {
+    public async updateNavigationNodes(currentUrl: string | null, edge: Edge, translate: TranslateService) {
         const navigationTree = await NavigationService.createNavigationTree(edge, translate);
         this.navigationTree.set(navigationTree);
-        this.initNavigation(currenUrl, navigationTree);
+        this.initNavigation(currentUrl, navigationTree);
     }
 
     /**
@@ -92,12 +95,12 @@ export class NavigationService {
         AssertionUtils.assertIsDefined(currentUrl);
 
         const currentSegments = currentUrl.split("/");
-        const newSegments = link.routerLink.split("/");
+        const newSegments = link.routerLink.baseString.split("/");
 
-        if (ArrayUtils.containsAllStrings(currentSegments, newSegments)) {
+        if (ArrayUtils.containsAll({ strings: currentSegments, arr: newSegments })) {
 
             // Navigate backward
-            const prevRoute = this.getPrevRoute(currentSegments, link.routerLink);
+            const prevRoute = this.getPrevRoute(currentSegments, link.routerLink.baseString);
             this.router.navigate(prevRoute);
         } else {
 
@@ -116,6 +119,25 @@ export class NavigationService {
      */
     public goBack(): void {
         this.location.back();
+    }
+
+    /**
+     * Gets the widgets to build live and history view
+     *
+     * @param widgets the current widgets list
+     * @param user the current user
+     * @param edge the current edge
+     * @returns a new list with widgets
+     */
+    public getWidgets(widgets: Widgets, user: User | null, edge: Edge): Widgets {
+        const isNewNavigation = NavigationService.isNewNavigation(user, edge);
+        if (isNewNavigation === false) {
+            return widgets;
+        }
+
+        const newWidgets: TMutable<Widgets> = { ...widgets };
+        newWidgets.classes = ArrayUtils.removeMatching<TEnumKeys<typeof WidgetClass>[]>(widgets.classes, NavigationConstants.newWidgets);
+        return newWidgets;
     }
 
     /**
@@ -187,11 +209,11 @@ export class NavigationService {
                 const segments: (string | null)[] = [];
                 const current: NavigationTree | null = node;
 
-                segments.unshift(current.routerLink);
-                segments.unshift(current?.parent?.routerLink ?? null);
+                segments.unshift(current.routerLink.baseString);
+                segments.unshift(current?.parent?.routerLink.baseString ?? null);
 
                 const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
-                node.routerLink = routerLink;
+                node.routerLink.baseString = routerLink;
                 return node;
             }
 
@@ -232,9 +254,9 @@ export class NavigationService {
             }
 
             const some = url.split("/").slice().reverse();
-            const urlSegments = tree.routerLink.split("/").slice().reverse();
+            const urlSegments = tree.routerLink.baseString.split("/").slice().reverse();
 
-            const foundNode = ArrayUtils.containsAllStrings(some.slice(0, urlSegments.length), urlSegments);
+            const foundNode = ArrayUtils.containsAll({ strings: some.slice(0, urlSegments.length), arr: urlSegments });
             if (foundNode) {
                 return tree;
             }

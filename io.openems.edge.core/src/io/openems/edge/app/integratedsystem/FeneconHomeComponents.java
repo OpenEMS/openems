@@ -21,6 +21,10 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Task;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
 
@@ -111,6 +115,37 @@ public final class FeneconHomeComponents {
 			final String feedInSetting, //
 			final boolean naProtectionEnabled //
 	) {
+		return batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
+				shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, null);
+	}
+
+	/**
+	 * Creates a default battery inverter component for a FENECON Home.
+	 *
+	 * @param bundle                   the translation bundle
+	 * @param batteryInverterId        the id of the battery inverter
+	 * @param hasEmergencyReserve      if the system has emergency reserve enabled
+	 * @param feedInType               the {@link ExternalLimitationType}
+	 * @param modbusIdExternal         the id of the external modbus bridge
+	 * @param shadowManagementDisabled if shadowmanagement is disabled
+	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param feedInSetting            the feedInSetting
+	 * @param naProtectionEnabled      if NA-protection is enabled
+	 * @param gridCode                 the grid code
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component batteryInverter(//
+			final ResourceBundle bundle, //
+			final String batteryInverterId, //
+			final boolean hasEmergencyReserve, //
+			final ExternalLimitationType feedInType, //
+			final String modbusIdExternal, //
+			final boolean shadowManagementDisabled, //
+			final SafetyCountry safetyCountry, //
+			final String feedInSetting, //
+			final boolean naProtectionEnabled, //
+			final String gridCode //
+	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
 				"GoodWe.BatteryInverter", JsonUtils.buildJsonObject() //
@@ -131,6 +166,7 @@ public final class FeneconHomeComponents {
 												? "ENABLE"
 												: "DISABLE") //
 						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
+						.addPropertyIfNotNull("gridCode", gridCode) //
 						.build());
 	}
 
@@ -343,6 +379,17 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a default predictor task for a PersistenceModel Predictor.
+	 * 
+	 * @return the {@link Task}
+	 */
+	public static Task<PredictorManagerByCentralOrderConfiguration> persistencePredictorTask() {
+		return Tasks.predictorManagerByCentralOrder(//
+				new PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent("predictor0",
+						"Predictor.PersistenceModel"));
+	}
+
+	/**
 	 * Creates a default ctrlEssSurplusFeedToGrid component for a FENECON Home.
 	 *
 	 * @param bundle the translation bundle
@@ -494,6 +541,44 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a dynamic rippleControlReceiver component for a FENECON Home.
+	 *
+	 * @param bundle the translation bundle
+	 * @param ioId   the id of the io component
+	 * @return the {@link Component}
+	 * @throws OpenemsException when the io id is not provided
+	 */
+	public static EdgeConfig.Component dynamicRippleControlReceiverComponent(//
+			final ResourceBundle bundle, //
+			final String ioId //
+	) throws OpenemsException {
+		if (ioId == null) {
+			throw new OpenemsException("Cannot create dynamic ripple control receiver without a valid IO id.");
+		}
+		return new EdgeConfig.Component("ctrlEssRippleControlReceiver0",
+				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.dynamicRippleControlReceiver.alias"),
+				"Controller.Ess.RippleControlReceiver", JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("inputChannelAddress1", ioId + "/DigitalInput2") //
+						.addProperty("inputChannelAddress2", ioId + "/DigitalInput3") //
+						.addProperty("inputChannelAddress3", ioId + "/DigitalInput4") //
+						.build());
+	}
+
+	/**
+	 * Creates a dynamic rippleControlReceiver scheduler config for a FENECON Home.
+	 * 
+	 * @param appId the id of the calling app
+	 * @return the {@link SchedulerByCentralOrderConfiguration.SchedulerComponent}
+	 */
+	public static SchedulerByCentralOrderConfiguration.SchedulerComponent dynamicRippleControlReceiverScheduler(
+			final String appId //
+	) {
+		return new SchedulerByCentralOrderConfiguration.SchedulerComponent("ctrlEssRippleControlReceiver0",
+				"Controller.Ess.RippleControlReceiver", appId);
+	}
+
+	/**
 	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
 	 *
 	 * @param t the {@link ConfigurationTarget}
@@ -566,12 +651,21 @@ public final class FeneconHomeComponents {
 	/**
 	 * Creates a default essLimiter14a dependency for a FENECON Home.
 	 *
-	 * @param ioId the id of the input component
+	 * @param deviceHardware the hardware app which is installed
+	 * @param ioId           the id of the input component
 	 * @return the {@link DependencyDeclaration}
+	 * @throws OpenemsException on error
 	 */
 	public static DependencyDeclaration essLimiter14a(//
+			final OpenemsAppInstance deviceHardware, //
 			final String ioId //
-	) {
+	) throws OpenemsException {
+		if (!isLimiter14aCompatible(deviceHardware)) {
+			throw new OpenemsException("Hardware '" + deviceHardware.appId + "' not supported for ess limiter 14a.");
+		}
+		if (ioId == null) {
+			throw new OpenemsException("Cannot create Limiter14a dependency without a valid IO id.");
+		}
 		return new DependencyDeclaration("ESS_LIMITER_14A", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 				DependencyDeclaration.UpdatePolicy.NEVER, //
@@ -617,12 +711,25 @@ public final class FeneconHomeComponents {
 			AppManagerUtil appManagerUtil, //
 			OpenemsAppInstance deviceHardware //
 	) throws OpenemsNamedException {
-		if (deviceHardware == null) {
-			throw new OpenemsException("Hardware 'null' not supported for ess limiter 14a.");
-		}
+		return essLimiter14a(deviceHardware, getGpioId(appManagerUtil, deviceHardware));
+	}
 
-		if (!isLimiter14aCompatible(deviceHardware)) {
-			throw new OpenemsException("Hardware '" + deviceHardware.appId + "' not supported for ess limiter 14a.");
+	/**
+	 * Gets the gpio id of the provided hardware or throws an error if not
+	 * supported.
+	 *
+	 * @param appManagerUtil the {@link AppManagerUtil} to get the hardware type
+	 * @param deviceHardware the hardware app which is installed
+	 * @return the {@link DependencyDeclaration} of the specific hardware or null if
+	 *         not specified for the current hardware
+	 * @throws OpenemsNamedException on error
+	 */
+	public static String getGpioId(//
+			AppManagerUtil appManagerUtil, //
+			OpenemsAppInstance deviceHardware //
+	) throws OpenemsNamedException {
+		if (deviceHardware == null) {
+			return null;
 		}
 
 		for (var dependency : deviceHardware.dependencies) {
@@ -630,10 +737,9 @@ public final class FeneconHomeComponents {
 				continue;
 			}
 			final var instance = appManagerUtil.findInstanceByIdOrError(dependency.instanceId);
-			final var ioId = instance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();
-			return essLimiter14a(ioId);
+			return instance.properties.get(IoGpio.Property.IO_ID.name()).getAsString();
 		}
-		throw new OpenemsException("Unable to get limiter14a dependency for hardware '" + deviceHardware.appId + "'.");
+		return null;
 	}
 
 	/**

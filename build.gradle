@@ -2,7 +2,7 @@ plugins {
 	id 'base'
 	id 'java'
 	id 'com.github.node-gradle.node'
-	id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+	id 'org.barfuin.gradle.jacocolog'
 }
 
 repositories {
@@ -10,18 +10,16 @@ repositories {
 	gradlePluginPortal()
 }
 
-dependencies {
-	// Use JUnit test framework.
-	testImplementation 'junit:junit:4.13.2'
-	
-	// This dependency is used by the application. 
-	implementation 'biz.aQute.bnd.workspace:biz.aQute.bnd.workspace.gradle.plugin:6.4.0'
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
+}
+
+def isCI = (System.getenv("CI") != null) as Boolean
+
+if (isCI) {
+    println("CI environment detected - suppressing all compiler warnings")
 }
 
 /*
@@ -35,19 +33,64 @@ subprojects {
 		mavenCentral()
 	}
 	
+	if (name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/) {
+		ext.isEdge = true
+	}
+	
+	if (name ==~ /io.openems.(backend|common|shared|wrapper).*/) {
+		ext.isBackend = true
+	}
+
 	tasks.withType(JavaCompile) {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
+
+		if (isCI) {
+			options.compilerArgs += ["-Xlint:none", "-nowarn"]
+			options.deprecation = false
+		}
 	}
 	
 	tasks.withType(Test) {
-		maxParallelForks = 2
-		failOnNoDiscoveredTests = false
+		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
 			junitXml.required = false
+		}
+
+		if (isCI) {
+			testLogging {
+				events = ["failed"]
+				exceptionFormat = 'full'
+				showExceptions = true
+				showStackTraces = true
+				showCauses = true
+			}
+			afterSuite { desc, result ->
+				if (!desc.parent) {
+					def shortName = path.takeRight(36)
+					def padded = String.format("%36s", shortName) 
+					def icon = switch(result.resultType) {
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ"
+						default -> ""
+					}
+					println "> [${padded}] Test summary: ${result.resultType} ${icon} " +
+							"(${result.testCount} tests, " +
+							"${result.successfulTestCount} passed, " +
+							"${result.failedTestCount} failed, " +
+							"${result.skippedTestCount} skipped)"
+				}
+			}
+			afterTest { descriptor, result ->
+				if (result.failedTestCount > 0) {
+					println "\n${descriptor.className}.${descriptor.name} FAILED"
+					result.exception?.printStackTrace(System.out)
+				}
+			}
 		}
 	}
 	
@@ -70,7 +113,7 @@ subprojects {
 		}
 	
 		checkstyle {
-			toolVersion = '10.18.2'
+			toolVersion = '11.1.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures = false
@@ -94,21 +137,8 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
-task cleanEdge() {
-	group = 'OpenEMS-Build'
-	description = 'Clean all Edge-Bundles'
-	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'clean' }) {
-				dependsOn(proj.clean)
-			}
-		}
-	}
-}
-
 task checkstyleAll() {
-	group = 'OpenEMS-Build'
+	group = 'OpenEMS-Test'
 	description = 'Checkstyle all bundles'
 
 	subprojects.each { proj ->
@@ -118,15 +148,46 @@ task checkstyleAll() {
 	}
 }
 
+task testEdge() {
+	group = 'OpenEMS-Test'
+	description = 'Run JUnit tests for all Edge-Bundles'
+	
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('test')) {
+			dependsOn(proj.test)
+		}
+	}
+}
+
+task testBackend() {
+	group = 'OpenEMS-Test'
+	description = 'Run JUnit tests for all Backend-Bundles'
+
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('test')) {
+			dependsOn(proj.test)
+		}
+	}
+}
+
+task cleanEdge() {
+	group = 'OpenEMS-Build'
+	description = 'Clean all Edge-Bundles'
+	
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('clean')) {
+			dependsOn(proj.clean)
+		}
+	}
+}
+
 task cleanBackend() {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Backend-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'clean' }) {
-				dependsOn(proj.clean)
-			}
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('clean')) {
+			dependsOn(proj.clean)
 		}
 	}
 }
@@ -135,11 +196,9 @@ task assembleEdge() {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Edge-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'assemble' }) {
-				dependsOn(proj.assemble)
-			}
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('assemble')) {
+			dependsOn(proj.assemble)
 		}
 	}
 }
@@ -148,11 +207,9 @@ task assembleBackend() {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Backend-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'assemble' }) {
-				dependsOn(proj.assemble)
-			}
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('assemble')) {
+			dependsOn(proj.assemble)
 		}
 	}
 }

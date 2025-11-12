@@ -32,410 +32,417 @@ import { Websocket } from "./websocket";
 @Injectable()
 export class Service extends AbstractService {
 
-  public static readonly TIMEOUT = 15_000;
+    public static readonly TIMEOUT = 15_000;
 
-  public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
+    public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
-  /**
- * Currently selected history period
- */
-  public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
-
-  /**
-   * Currently selected history period string
-   *
-   * initialized as day, is getting changed by pickdate component
+    /**
+   * Currently selected history period
    */
-  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
+    public historyPeriod: BehaviorSubject<DefaultTypes.HistoryPeriod>;
 
-  /**
-   * Represents the resolution of used device
-   * Checks if smartphone resolution is used
-   */
-  public deviceHeight: number = 0;
-  public deviceWidth: number = 0;
-  public isSmartphoneResolution: boolean = false;
-  public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
-  public activeQueryData: string;
+    /**
+     * Currently selected history period string
+     *
+     * initialized as day, is getting changed by pickdate component
+     */
+    public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 
-  /**
-   * Holds the currenty selected Page Title.
-   */
-  public currentPageTitle: string;
+    /**
+     * Represents the resolution of used device
+     * Checks if smartphone resolution is used
+     */
+    public deviceHeight: number = 0;
+    public deviceWidth: number = 0;
+    public isSmartphoneResolution: boolean = false;
+    public isSmartphoneResolutionSubject: Subject<boolean> = new Subject<boolean>();
+    public activeQueryData: string;
 
-  /**
-   * Holds reference to Websocket. This is set by Websocket in constructor.
-  */
-  public websocket: Websocket = null;
-  /**
-   * Holds the currently selected Edge.
-   */
-  public readonly currentEdge: WritableSignal<Edge> = signal(null);
+    /**
+     * Holds the currenty selected Page Title.
+     */
+    public currentPageTitle: string;
 
-  /**
-   * Holds references of Edge-IDs (=key) to Edge objects (=value)
-   */
-  public readonly metadata: BehaviorSubject<{
-    user: User, edges: { [edgeId: string]: Edge }
-  }> = new BehaviorSubject(null);
+    /**
+     * Holds reference to Websocket. This is set by Websocket in constructor.
+    */
+    public websocket: Websocket = null;
+    /**
+     * Holds the currently selected Edge.
+     */
+    public readonly currentEdge: WritableSignal<Edge> = signal(null);
 
-  /**
-   * Holds the current Activated Route
-   */
-  private currentActivatedRoute: ActivatedRoute | null = null;
+    /**
+     * Holds references of Edge-IDs (=key) to Edge objects (=value)
+     */
+    public readonly metadata: BehaviorSubject<{
+        user: User, edges: { [edgeId: string]: Edge }
+    }> = new BehaviorSubject(null);
 
-  private queryEnergyQueue: {
-    fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
-  }[] = [];
-  private queryEnergyTimeout: any = null;
-  private injector = inject(Injector);
+    /**
+     * Holds the current Activated Route
+     */
+    private currentActivatedRoute: ActivatedRoute | null = null;
 
-  constructor(
-    private router: Router,
-    public spinner: NgxSpinnerService,
-    private toaster: ToastController,
-    public translate: TranslateService,
-    private _injector: Injector,
-    private routeService: RouteService,
-  ) {
+    private queryEnergyQueue: {
+        fromDate: Date, toDate: Date, channels: ChannelAddress[], promises: { resolve, reject }[]
+    }[] = [];
+    private queryEnergyTimeout: any = null;
+    private injector = inject(Injector);
 
-    super();
-    // add language
-    translate.addLangs(Language.ALL.map(l => l.key));
-    // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(Language.DEFAULT.key);
+    constructor(
+        private router: Router,
+        public spinner: NgxSpinnerService,
+        private toaster: ToastController,
+        public translate: TranslateService,
+        private _injector: Injector,
+        private routeService: RouteService,
+    ) {
 
-    // initialize history period
-    this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
+        super();
+        // add language
+        translate.addLangs(Language.ALL.map(l => l.key));
+        // this language will be used as a fallback when a translation isn't found in the current language
+        translate.setFallbackLang(Language.DEFAULT.key);
+        // translate.use(Language.DEFAULT.key);
 
-    // React on Language Change and update language
-    translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByKey(event.lang));
-    });
-  }
+        // initialize history period
+        this.historyPeriod = new BehaviorSubject(new DefaultTypes.HistoryPeriod(new Date(), new Date()));
 
-  public setLang(language: Language) {
-    if (language !== null) {
-      registerLocaleData(Language.getLocale(language.key));
-      this.translate.use(language.key);
-    } else {
-      this.translate.use(Language.DEFAULT.key);
+        // React on Language Change and update language
+        translate.onLangChange.subscribe((event: LangChangeEvent) => {
+            registerLocaleData(Language.getLocale(Language.getByKey(event.lang)?.key ?? Language.DEFAULT.key));
+        });
     }
-    // TODO set locale for date-fns: https://date-fns.org/docs/I18n
-  }
 
-  public getDocsLang(): string {
-    if (this.translate.currentLang == "de") {
-      return "de";
-    } else {
-      return "en";
-    }
-  }
+    public setLang(language: Language) {
+        if (language !== null) {
+            registerLocaleData(Language.getLocale(language.key));
 
-  public notify(notification: DefaultTypes.Notification) {
-    this.notificationEvent.next(notification);
-  }
-
-  // https://v16.angular.io/api/core/ErrorHandler#errorhandler
-
-  public override handleError(error: any) {
-    console.error(error);
-    // TODO: show notification
-    // let notification: Notification = {
-    //     type: "error",
-    //     message: error
-    // };
-    // this.notify(notification);
-  }
-
-  public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
-    return new Promise((resolve, reject) => {
-      // Set the currentPageTitle only once per ActivatedRoute
-      if (this.currentActivatedRoute != activatedRoute) {
-        if (typeof currentPageTitle === "string") {
-          // Use given page title directly
-          if (currentPageTitle == null || currentPageTitle.trim() === "") {
-            this.currentPageTitle = environment.uiTitle;
-          } else {
-            this.currentPageTitle = currentPageTitle;
-          }
-
+            /** Reload global translation files */
+            this.translate.setTranslation(language.key, language.json, true);
+            this.translate.use(language.key);
         } else {
-          // Translate from key
-          this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
-            take(1),
-          ).subscribe(title => this.currentPageTitle = title);
+            this.translate.use(Language.DEFAULT.key);
         }
-      }
-      this.currentActivatedRoute = activatedRoute;
-
-      this.getCurrentEdge().then(edge => {
-        resolve(edge);
-      }).catch(reject);
-    });
-  }
-
-  public getCurrentEdge(): Promise<Edge> {
-    return new Promise<Edge>((resolve) => {
-      let isResolved = false; // Flag to ensure the Promise resolves only once
-
-      // Use runInInjectionContext to provide the injector context
-      const dispose = runInInjectionContext(this.injector, () => {
-        return untracked(() => {
-          return effect(() => {
-            const edge = this.currentEdge();
-            if (edge != null && !isResolved) {
-              isResolved = true; // Mark as resolved
-              resolve(edge); // Resolve the Promise with the non-null value
-              dispose.destroy();
-            }
-          });
-        });
-      });
-    });
-  }
-
-  public getConfig(): Promise<EdgeConfig> {
-    return new Promise<EdgeConfig>((resolve, reject) => {
-      this.getCurrentEdge().then(edge => {
-        edge.getFirstValidConfig(this.websocket)
-          .then(resolve)
-          .catch(reject);
-      }).catch(reason => reject(reason));
-    });
-  }
-
-  public getNextConfig(): Promise<EdgeConfig> {
-    return new Promise<EdgeConfig>((resolve, reject) => {
-      this.getCurrentEdge().then(edge => {
-        edge.getFirstValidConfig(this.websocket)
-          .then(resolve)
-          .catch(reject);
-      }).catch(reason => reject(reason));
-    });
-  }
-
-  public onLogout() {
-    this.currentEdge.set(null);
-
-    this.metadata.next(null);
-    this.websocket.state.set(States.NOT_AUTHENTICATED);
-    this.router.navigate(["/login"]);
-  }
-
-  public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
-    return new Promise((resolve) => {
-      resolve(channels);
-    });
-  }
-
-  public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
-    // keep only the date, without time
-    fromDate.setHours(0, 0, 0, 0);
-    toDate.setHours(0, 0, 0, 0);
-    const promise = { resolve: null, reject: null };
-    const response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
-      promise.resolve = resolve;
-      promise.reject = reject;
-    });
-    this.queryEnergyQueue.push({
-      fromDate: fromDate,
-      toDate: toDate,
-      channels: channels,
-      promises: [promise],
-    });
-
-    if (this.queryEnergyTimeout == null) {
-      this.queryEnergyTimeout = setTimeout(() => {
-        this.queryEnergyTimeout = null;
-
-        const mergedRequests: {
-          fromDate: Date,
-          toDate: Date,
-          channels: ChannelAddress[],
-          promises: { resolve, reject }[];
-        }[] = [];
-
-        let request;
-        while ((request = this.queryEnergyQueue.pop())) {
-          if (mergedRequests.length === 0) {
-            mergedRequests.push(request);
-          } else {
-            let merged = false;
-            for (const mergedRequest of mergedRequests) {
-              if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
-                && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
-                // same date -> merge
-                mergedRequest.promises = mergedRequest.promises.concat(request.promises);
-                for (const newChannel of request.channels) {
-                  if (!mergedRequest.channels.some(existingChannel =>
-                    existingChannel.channelId === newChannel.channelId &&
-                    existingChannel.componentId === newChannel.componentId)) {
-                    mergedRequest.channels.push(newChannel);
-                  }
-                }
-                merged = true;
-              }
-            }
-            if (!merged) {
-              mergedRequests.push(request);
-            }
-          }
-        }
-
-        // send merged requests
-        this.getCurrentEdge().then(edge => {
-          for (const source of mergedRequests) {
-
-            // Jump to next request for empty channelAddresses
-            if (!source?.channels?.length) {
-              continue;
-            }
-
-            const request = new QueryHistoricTimeseriesEnergyRequest(
-              DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
-              source.toDate,
-              source.channels,
-            );
-
-            this.activeQueryData = request.id;
-            edge.sendRequest(this.websocket, request)
-              .then(response => {
-                if (this.activeQueryData !== response.id) {
-                  return;
-                }
-
-                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-
-                if (Object.keys(result.data).length === 0) {
-                  for (const promise of source.promises) {
-                    promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
-                  }
-                  return;
-                }
-
-                for (const promise of source.promises) {
-                  promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
-                }
-              })
-              .catch(async reason => {
-                for (const promise of source.promises) {
-                  promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
-                }
-              });
-          }
-        });
-      }, ChartConstants.REQUEST_TIMEOUT);
+        // TODO set locale for date-fns: https://date-fns.org/docs/I18n
     }
-    return response;
-  }
 
-  /**
-   * Gets the page for the given number.
-   *
-   * @param req the get edges request
-   * @returns a promise with the resulting edges
-   */
-  public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
-    return new Promise<Edge[]>((resolve, reject) => {
-      this.websocket.sendSafeRequest(req)
-        .then((response) => {
+    public getDocsLang(): string {
+        return "de";
 
-          const result = (response as GetEdgesResponse).result;
+        // TODO: Redo when translations for docs are available
+        // if (this.translate.getCurrentLang() == "de") {
+        //   return "de";
+        // } else {
+        //   return "en";
+        // }
+    }
 
-          // TODO change edges-map to array or other way around
-          const value = this.metadata.value;
-          const mappedResult = [];
-          for (const edge of result.edges) {
-            const mappedEdge = new Edge(
-              edge.id,
-              edge.comment,
-              edge.producttype,
-              ("version" in edge) ? edge["version"] : "0.0.0",
-              Role.getRole(edge.role.toString()),
-              edge.isOnline,
-              edge.lastmessage,
-              edge.sumState,
-              DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
-            );
-            value.edges[edge.id] = mappedEdge;
-            mappedResult.push(mappedEdge);
-          }
+    public notify(notification: DefaultTypes.Notification) {
+        this.notificationEvent.next(notification);
+    }
 
-          this.metadata.next(value);
-          resolve(mappedResult);
-        }).catch((err) => {
-          reject(err);
+    // https://v16.angular.io/api/core/ErrorHandler#errorhandler
+
+    public override handleError(error: any) {
+        console.error(error);
+        // TODO: show notification
+        // let notification: Notification = {
+        //     type: "error",
+        //     message: error
+        // };
+        // this.notify(notification);
+    }
+
+    public setCurrentComponent(currentPageTitle: string | { languageKey: string, interpolateParams?: {} }, activatedRoute: ActivatedRoute): Promise<Edge> {
+        return new Promise((resolve, reject) => {
+            // Set the currentPageTitle only once per ActivatedRoute
+            if (this.currentActivatedRoute != activatedRoute) {
+                if (typeof currentPageTitle === "string") {
+                    // Use given page title directly
+                    if (currentPageTitle == null || currentPageTitle.trim() === "") {
+                        this.currentPageTitle = environment.uiTitle;
+                    } else {
+                        this.currentPageTitle = currentPageTitle;
+                    }
+
+                } else {
+                    // Translate from key
+                    this.translate.get(currentPageTitle.languageKey, currentPageTitle.interpolateParams).pipe(
+                        take(1),
+                    ).subscribe(title => this.currentPageTitle = title);
+                }
+            }
+            this.currentActivatedRoute = activatedRoute;
+
+            this.getCurrentEdge().then(edge => {
+                resolve(edge);
+            }).catch(reject);
         });
-    });
-  }
+    }
 
-  /**
-   * Updates the currentEdge in metadata
-   *
-   * @param edgeId the edgeId
-   * @returns a empty Promise
-   */
-  public updateCurrentEdge(edgeId: string): Promise<Edge> {
-    return new Promise<Edge>((resolve, reject) => {
-      const existingEdge = this.metadata.value?.edges[edgeId];
-      if (existingEdge) {
-        this.currentEdge.set(existingEdge);
-        resolve(existingEdge);
-        return;
-      }
-      this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-        const edgeData = (response as GetEdgeResponse).result.edge;
-        const value = this.metadata.value;
-        const currentEdge = new Edge(
-          edgeData.id,
-          edgeData.comment,
-          edgeData.producttype,
-          ("version" in edgeData) ? edgeData["version"] : "0.0.0",
-          Role.getRole(edgeData.role.toString()),
-          edgeData.isOnline,
-          edgeData.lastmessage,
-          edgeData.sumState,
-          DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
-        this.currentEdge.set(currentEdge);
-        value.edges[edgeData.id] = currentEdge;
-        this.metadata.next(value);
-        resolve(currentEdge);
-      }).catch(reject);
-    });
-  }
+    public getCurrentEdge(): Promise<Edge> {
+        return new Promise<Edge>((resolve) => {
+            let isResolved = false; // Flag to ensure the Promise resolves only once
 
-  public startSpinner(selector: string) {
-    this.spinner.show(selector, {
-      type: "ball-clip-rotate-multiple",
-      fullScreen: false,
-      bdColor: "rgba(0, 0, 0, 0.8)",
-      size: "medium",
-      color: "#fff",
-    });
-  }
+            // Use runInInjectionContext to provide the injector context
+            const dispose = runInInjectionContext(this.injector, () => {
+                return untracked(() => {
+                    return effect(() => {
+                        const edge = this.currentEdge();
+                        if (edge != null && !isResolved) {
+                            isResolved = true; // Mark as resolved
+                            resolve(edge); // Resolve the Promise with the non-null value
+                            dispose.destroy();
+                        }
+                    });
+                });
+            });
+        });
+    }
 
-  public startSpinnerTransparentBackground(selector: string) {
-    this.spinner.show(selector, {
-      type: "ball-clip-rotate-multiple",
-      fullScreen: false,
-      bdColor: "rgba(0, 0, 0, 0)",
-      size: "medium",
-      color: "var(--ion-color-primary)",
-    });
-  }
+    public getConfig(): Promise<EdgeConfig> {
+        return new Promise<EdgeConfig>((resolve, reject) => {
+            this.getCurrentEdge().then(edge => {
+                edge.getFirstValidConfig(this.websocket)
+                    .then(resolve)
+                    .catch(reject);
+            }).catch(reason => reject(reason));
+        });
+    }
 
-  public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
-  }
+    public getNextConfig(): Promise<EdgeConfig> {
+        return new Promise<EdgeConfig>((resolve, reject) => {
+            this.getCurrentEdge().then(edge => {
+                edge.getFirstValidConfig(this.websocket)
+                    .then(resolve)
+                    .catch(reject);
+            }).catch(reason => reject(reason));
+        });
+    }
 
-  public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
-    const toast = await this.toaster.create({
-      message: message,
-      color: level,
-      duration: duration ?? 2000,
-      cssClass: "container",
-    });
-    toast.present();
-  }
+    public onLogout() {
+        this.currentEdge.set(null);
+
+        this.metadata.next(null);
+        this.websocket.state.set(States.NOT_AUTHENTICATED);
+        this.router.navigate(["/login"]);
+    }
+
+    public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
+        return new Promise((resolve) => {
+            resolve(channels);
+        });
+    }
+
+    public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
+        // keep only the date, without time
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(0, 0, 0, 0);
+        const promise = { resolve: null, reject: null };
+        const response = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+            promise.resolve = resolve;
+            promise.reject = reject;
+        });
+        this.queryEnergyQueue.push({
+            fromDate: fromDate,
+            toDate: toDate,
+            channels: channels,
+            promises: [promise],
+        });
+
+        if (this.queryEnergyTimeout == null) {
+            this.queryEnergyTimeout = setTimeout(() => {
+                this.queryEnergyTimeout = null;
+
+                const mergedRequests: {
+                    fromDate: Date,
+                    toDate: Date,
+                    channels: ChannelAddress[],
+                    promises: { resolve, reject }[];
+                }[] = [];
+
+                let request;
+                while ((request = this.queryEnergyQueue.pop())) {
+                    if (mergedRequests.length === 0) {
+                        mergedRequests.push(request);
+                    } else {
+                        let merged = false;
+                        for (const mergedRequest of mergedRequests) {
+                            if (mergedRequest.fromDate.valueOf() === request.fromDate.valueOf()
+                                && mergedRequest.toDate.valueOf() === request.toDate.valueOf()) {
+                                // same date -> merge
+                                mergedRequest.promises = mergedRequest.promises.concat(request.promises);
+                                for (const newChannel of request.channels) {
+                                    if (!mergedRequest.channels.some(existingChannel =>
+                                        existingChannel.channelId === newChannel.channelId &&
+                                        existingChannel.componentId === newChannel.componentId)) {
+                                        mergedRequest.channels.push(newChannel);
+                                    }
+                                }
+                                merged = true;
+                            }
+                        }
+                        if (!merged) {
+                            mergedRequests.push(request);
+                        }
+                    }
+                }
+
+                // send merged requests
+                this.getCurrentEdge().then(edge => {
+                    for (const source of mergedRequests) {
+
+                        // Jump to next request for empty channelAddresses
+                        if (!source?.channels?.length) {
+                            continue;
+                        }
+
+                        const request = new QueryHistoricTimeseriesEnergyRequest(
+                            DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
+                            source.toDate,
+                            source.channels,
+                        );
+
+                        this.activeQueryData = request.id;
+                        edge.sendRequest(this.websocket, request)
+                            .then(response => {
+                                if (this.activeQueryData !== response.id) {
+                                    return;
+                                }
+
+                                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                                if (Object.keys(result.data).length === 0) {
+                                    for (const promise of source.promises) {
+                                        promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                    }
+                                    return;
+                                }
+
+                                for (const promise of source.promises) {
+                                    promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+                                }
+                            })
+                            .catch(async reason => {
+                                for (const promise of source.promises) {
+                                    promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
+                                }
+                            });
+                    }
+                });
+            }, ChartConstants.REQUEST_TIMEOUT);
+        }
+        return response;
+    }
+
+    /**
+     * Gets the page for the given number.
+     *
+     * @param req the get edges request
+     * @returns a promise with the resulting edges
+     */
+    public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
+        return new Promise<Edge[]>((resolve, reject) => {
+            this.websocket.sendSafeRequest(req)
+                .then((response) => {
+
+                    const result = (response as GetEdgesResponse).result;
+
+                    // TODO change edges-map to array or other way around
+                    const value = this.metadata.value;
+                    const mappedResult = [];
+                    for (const edge of result.edges) {
+                        const mappedEdge = new Edge(
+                            edge.id,
+                            edge.comment,
+                            edge.producttype,
+                            ("version" in edge) ? edge["version"] : "0.0.0",
+                            Role.getRole(edge.role.toString()),
+                            edge.isOnline,
+                            edge.lastmessage,
+                            edge.sumState,
+                            DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
+                        );
+                        value.edges[edge.id] = mappedEdge;
+                        mappedResult.push(mappedEdge);
+                    }
+
+                    this.metadata.next(value);
+                    resolve(mappedResult);
+                }).catch((err) => {
+                    reject(err);
+                });
+        });
+    }
+
+    /**
+     * Updates the currentEdge in metadata
+     *
+     * @param edgeId the edgeId
+     * @returns a empty Promise
+     */
+    public updateCurrentEdge(edgeId: string): Promise<Edge> {
+        return new Promise<Edge>((resolve, reject) => {
+            const existingEdge = this.metadata.value?.edges[edgeId];
+            if (existingEdge) {
+                this.currentEdge.set(existingEdge);
+                resolve(existingEdge);
+                return;
+            }
+            this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
+                const edgeData = (response as GetEdgeResponse).result.edge;
+                const value = this.metadata.value;
+                const currentEdge = new Edge(
+                    edgeData.id,
+                    edgeData.comment,
+                    edgeData.producttype,
+                    ("version" in edgeData) ? edgeData["version"] : "0.0.0",
+                    Role.getRole(edgeData.role.toString()),
+                    edgeData.isOnline,
+                    edgeData.lastmessage,
+                    edgeData.sumState,
+                    DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
+                this.currentEdge.set(currentEdge);
+                value.edges[edgeData.id] = currentEdge;
+                this.metadata.next(value);
+                resolve(currentEdge);
+            }).catch(reject);
+        });
+    }
+
+    public startSpinner(selector: string) {
+        this.spinner.show(selector, {
+            type: "ball-clip-rotate-multiple",
+            fullScreen: false,
+            bdColor: "rgba(0, 0, 0, 0.8)",
+            size: "medium",
+            color: "#fff",
+        });
+    }
+
+    public startSpinnerTransparentBackground(selector: string) {
+        this.spinner.show(selector, {
+            type: "ball-clip-rotate-multiple",
+            fullScreen: false,
+            bdColor: "rgba(0, 0, 0, 0)",
+            size: "medium",
+            color: "var(--ion-color-primary)",
+        });
+    }
+
+    public stopSpinner(selector: string) {
+        this.spinner.hide(selector);
+    }
+
+    public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
+        const toast = await this.toaster.create({
+            message: message,
+            color: level,
+            duration: duration ?? 4000,
+            id: "toast-container",
+        });
+        toast.present();
+    }
 }

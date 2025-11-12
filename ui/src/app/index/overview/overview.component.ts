@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -12,7 +12,8 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
-import { ChosenFilter } from "../filter/filter.component";
+import { ChosenFilter, FilterComponent } from "../filter/filter.component";
+import { SUM_STATES } from "../shared/sumState";
 
 @Component({
     selector: "overview",
@@ -33,6 +34,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     protected loading: boolean = false;
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected isAtLeastInstaller: boolean = false;
+    protected readonly filters: FilterComponent["allFilters"] = [
+        environment.PRODUCT_TYPES(this.translate),
+        SUM_STATES(this.translate),
+    ];
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -49,9 +54,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         public service: Service,
         public websocket: Websocket,
         public utils: Utils,
-        private router: Router,
         public translate: TranslateService,
         public pagination: Pagination,
+        protected route: ActivatedRoute,
+        private router: Router,
         private userService: UserService,
     ) {
 

@@ -29,10 +29,27 @@ export interface Environment {
         },
     },
     readonly links: {
-        readonly COMMON_STORAGE: string | null,
+        readonly REDIRECT: {
+            readonly COMMON_STORAGE: string | null,
+            readonly COMMON_AUTARCHY: string | null,
+            readonly COMMON_CONSUMPTION: string | null,
+            readonly COMMON_GRID: string | null,
+            readonly COMMON_PRODUCTION: string | null,
+            readonly COMMON_SELFCONSUMPTION: string | null,
+
+            readonly EVCS_KEBA: string | null,
+            readonly EVCS_HARDY_BARTH: string | null,
+            readonly EVCS_MENNEKES: string | null,
+            readonly EVCS_GO_E: string | null,
+            readonly EVCS_IES: string | null,
+            readonly EVCS_ALPITRONIC_HYPER: string | null,
+        }
+
+
         readonly DATA_PROTECTION: string | null,
         readonly FORGET_PASSWORD: string,
         readonly EVCS: string | null,
+
         readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
         readonly CONTROLLER_CHP_SOC: string
         readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string,
@@ -81,7 +98,8 @@ export interface Environment {
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,
-                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL_50_GEN_1: string,
+                    readonly COMMERCIAL_50_GEN_3: string,
                     readonly COMMERCIAL_92: string,
                     readonly COMMERCIAL_92_CLUSTER: string,
                 },
@@ -94,6 +112,8 @@ export interface Environment {
             readonly RUNDSTEUER: {
                 readonly HOME: string,
                 readonly HOME_GEN_2: string,
+                readonly HOME_20_30: string,
+                readonly COMMERCIAL_50_GEN_3: string,
             },
 
             readonly AVU: string,
@@ -139,8 +159,8 @@ export interface Environment {
 }
 
 /*
- * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
+ * Return the proper websocket scheme ("ws" or "wss") depending on whether the page is accessed via HTTP or HTTPS.
  */
-export function getWebsocketScheme(): string {
-    return window.location.protocol === "https:" ? "wss://" : "ws://";
+export function getWebsocketScheme(protocol: string = window.location.protocol): string {
+    return protocol === "https:" ? "wss" : "ws";
 }

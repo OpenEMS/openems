@@ -4,12 +4,14 @@ import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.Unit.MILLIAMPERE;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -19,6 +21,7 @@ import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchSource;
 import io.openems.edge.evse.chargepoint.keba.common.enums.PhaseSwitchState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetEnable;
 import io.openems.edge.evse.chargepoint.keba.common.enums.SetUnlock;
+import io.openems.edge.evse.chargepoint.keba.common.enums.TriggerPhaseSwitch;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -37,6 +40,19 @@ public interface Keba extends OpenemsComponent, ElectricityMeter, TimedataProvid
 				.accessMode(WRITE_ONLY)//
 				.onChannelSetNextWriteMirrorToDebugChannel(Keba.ChannelId.DEBUG_SET_ENABLE)),
 
+		/*
+		 * This register contains the maximum current value that can be supported by the
+		 * hardware of the charging station. This value includes the current setting
+		 * (Installer mode), cable coding and temperature reductions.
+		 */
+		MAX_SUPPORTED_CURRENT(Doc.of(INTEGER)//
+				.unit(Unit.MILLIAMPERE)), //
+		/*
+		 * This register contains the maximum charging current of the charging station,
+		 * i.e. the value set via SET_CHARGING_CURRENT
+		 */
+		MAX_CHARGING_CURRENT(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
 		DEBUG_SET_CHARGING_CURRENT(Doc.of(INTEGER)//
 				.unit(MILLIAMPERE)), //
 		SET_CHARGING_CURRENT(Doc.of(INTEGER)//
@@ -49,7 +65,7 @@ public interface Keba extends OpenemsComponent, ElectricityMeter, TimedataProvid
 
 		SET_PHASE_SWITCH_SOURCE(Doc.of(PhaseSwitchSource.values())//
 				.accessMode(WRITE_ONLY)), //
-		SET_PHASE_SWITCH_STATE(Doc.of(PhaseSwitchState.values())//
+		SET_TRIGGER_PHASE_SWITCH(Doc.of(TriggerPhaseSwitch.values())//
 				.accessMode(WRITE_ONLY)), //
 		;
 
@@ -113,11 +129,30 @@ public interface Keba extends OpenemsComponent, ElectricityMeter, TimedataProvid
 	/**
 	 * Sets the next Write Value for {@link ChannelId#SET_ENABLE}.
 	 * 
-	 * @param setEnable one for is enabled
+	 * @param setEnable the {@link SetEnable}
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setSetEnable(int setEnable) throws OpenemsNamedException {
+	public default void setSetEnable(SetEnable setEnable) throws OpenemsNamedException {
 		this.getSetEnableChannel().setNextWriteValue(setEnable);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_SUPPORTED_CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxSupportedCurrentChannel() {
+		return this.channel(ChannelId.MAX_SUPPORTED_CURRENT);
+	}
+
+	/**
+	 * Gets the maximum current allowed by the hardware in [mA]. See
+	 * {@link ChannelId#MAX_SUPPORTED_CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxSupportedCurrent() {
+		return this.getMaxSupportedCurrentChannel().value();
 	}
 
 	/**
@@ -185,12 +220,12 @@ public interface Keba extends OpenemsComponent, ElectricityMeter, TimedataProvid
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SET_PHASE_SWITCH_STATE}.
+	 * Gets the Channel for {@link ChannelId#SET_TRIGGER_PHASE_SWITCH}.
 	 *
 	 * @return the Channel
 	 */
-	public default EnumWriteChannel getSetPhaseSwitchStateChannel() {
-		return this.channel(ChannelId.SET_PHASE_SWITCH_STATE);
+	public default EnumWriteChannel getSetTriggerPhaseSwitchChannel() {
+		return this.channel(ChannelId.SET_TRIGGER_PHASE_SWITCH);
 	}
 
 	/**
