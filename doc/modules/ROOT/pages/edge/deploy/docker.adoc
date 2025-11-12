@@ -118,7 +118,8 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://<hostname>:8085
+      - WEBSOCKET_HOST=<hostname>
+      - WEBSOCKET_PORT=8085
     ports:
       - 80:80
       - 443:443
@@ -130,13 +131,14 @@ volumes:
   openems-ui-log:
 ----
 
-summary of the changes:
+Summary of the changes:
 
 1. Open a Port for UI Websocket (8085) on the `openems-edge` service
 2. Added a new service `openems-ui` to the docker-compose file
 3. Added the volumes `openems-ui-conf` and `openems-ui-log`
+4. Updated environment variables (`WEBSOCKET_HOST` and `WEBSOCKET_PORT`) replacing the deprecated `UI_WEBSOCKET`
 
-NOTE: The `UI_WEBSOCKET` environment variable must be set to the hostname of the OpenEMS Edge container. This URL is used by the UI to connect to the OpenEMS Edge Websocket. Make sure it is reachable from any device you want to use the UI on.
+NOTE: The `UI_WEBSOCKET` variable has been deprecated. Use `WEBSOCKET_HOST` and `WEBSOCKET_PORT` instead. This configuration allows the UI to connect to the OpenEMS Edge Websocket. Ensure the hostname is reachable from any device you want to use the UI on.
 
 === Update docker-compose
 
@@ -151,3 +153,18 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 018187f444b1  openems/ui-edge:latest  "/init"   About a minute ago    Up About a minute
 0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
 ----
+
+== Changing the Language in the UI
+
+To change the language in the OpenEMS UI, open the UI in your browser, click on the settings (⚙️) icon in the top-right corner, and select your preferred language.
+
+== Next Steps
+
+After successful deployment:
+
+1. Open your browser and go to `http://localhost` or the IP address of your device.
+2. Log in using default credentials provided in the documentation.
+3. Verify that your OpenEMS Edge instance is connected and running.
+4. For additional configuration, see:
+   * link:../controllers/[Edge Controllers Configuration]
+   * link:../ui/[OpenEMS UI Usage Guide]
