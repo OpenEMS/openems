@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.DoubleUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficients;
@@ -95,7 +96,7 @@ public class ApparentPowerConstraintUtil {
 
 		// Check for division by zero - if points have same x-coordinate, create
 		// vertical constraint
-		if (Math.abs(deltaX) < 1e-10) {
+		if (DoubleUtils.isCloseToZero(deltaX)) {
 			// Vertical line: x = constant, so we constrain active power directly
 			var constraintValue = p1.x;
 			return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //
