@@ -290,7 +290,6 @@ public class Edge2KafkaBridge extends AbstractOpenemsBackendComponent implements
 				return;
 			}
 			var json = jsonElement.getAsJsonObject();
-
 			var edgeIdOpt = this.getString(json, "edgeId");
 			var componentIdOpt = this.getString(json, "componentId");
 			var channelIdOpt = this.getString(json, "channelId");
