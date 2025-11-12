@@ -45,25 +45,26 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String authUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return "https://jUnit/auth";
 	}
 
 	@Override
 	public String username() {
-		// TODO Auto-generated method stub
-		return null;
+		return "jUnit";
 	}
 
 	@Override
 	public String password() {
-		// TODO Auto-generated method stub
-		return null;
+		return "jUnit";
 	}
 
 	@Override
 	public String dataUrl() {
-		// TODO Auto-generated method stub
-		return null;
+		return "https://jUnit/data";
+	}
+
+	@Override
+	public String dataInstanceName() {
+		return "defaultOpenEmsInstance4JUnit";
 	}
 }
