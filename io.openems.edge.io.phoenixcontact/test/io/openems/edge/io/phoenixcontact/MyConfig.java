@@ -8,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private MeterType meterType;
 
 		private Builder() {
 		}
@@ -17,9 +18,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setType(MeterType meterType) {
+			this.meterType = meterType;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+
 	}
 
 	/**
@@ -67,4 +74,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String dataInstanceName() {
 		return "defaultOpenEmsInstance4JUnit";
 	}
+
 }

@@ -6,7 +6,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface PlcNextHttpDevice extends OpenemsComponent, EventHandler {
+public interface PlcNextDevice extends ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

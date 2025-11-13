@@ -19,13 +19,13 @@ import io.openems.common.types.MeterType;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (= default), Consumption")
 	MeterType type() default MeterType.PRODUCTION;
-	
+
 	@AttributeDefinition(name = "Auth-URL", description = "Defines URL to authorize PLCnext user")
 	String authUrl() default "http://localhost:8888/auth";
-	
+
 	@AttributeDefinition(name = "Username", description = "Credentials: username")
 	String username() default "admin";
 
@@ -34,7 +34,7 @@ import io.openems.common.types.MeterType;
 
 	@AttributeDefinition(name = "Data-URL", description = "Defines base URL to pickup data from GDS")
 	String dataUrl() default "http://localhost:8080/plcnext";
-	
+
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
 	String dataInstanceName() default "gds_openems0";
 

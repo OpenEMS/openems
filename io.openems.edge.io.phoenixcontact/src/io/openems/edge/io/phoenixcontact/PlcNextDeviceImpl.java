@@ -11,6 +11,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,24 +28,26 @@ import io.openems.edge.meter.api.ElectricityMeter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
-public class PlcNextHttpDeviceImpl extends AbstractOpenemsComponent implements PlcNextHttpDevice, ElectricityMeter, OpenemsComponent, EventHandler {
+public class PlcNextDeviceImpl extends AbstractOpenemsComponent
+		implements PlcNextDevice, ElectricityMeter, OpenemsComponent, EventHandler {
+
+	@Reference
+	private PlcNextTokenManager tokenManager;
 
 	private Config config = null;
 
-	@Reference
-	private PlcNextTokenManager token;
-
-	public PlcNextHttpDeviceImpl() {
+	public PlcNextDeviceImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
-				PlcNextHttpDevice.ChannelId.values() //
+				PlcNextDevice.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+
 		this.config = config;
 	}
 

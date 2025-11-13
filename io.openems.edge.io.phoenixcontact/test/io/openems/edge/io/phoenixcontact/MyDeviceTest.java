@@ -7,14 +7,15 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class MyDeviceTest {
 
+	private static final String COMPONENT_ID = "component0";
+
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new PlcNextHttpDeviceImpl()) //
+		new ComponentTest(new PlcNextDeviceImpl()) //
 				.activate(MyConfig.create() //
-						.setId("component0") //
+						.setId(COMPONENT_ID) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
 	}
-
 }
