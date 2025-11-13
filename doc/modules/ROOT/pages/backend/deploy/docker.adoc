@@ -31,7 +31,7 @@ __if not already installed, follow <<Setup docker>>__
 
 === Setup docker
 
-To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+To setup docker follow the instructions from https://docs.docker.com/engine/install/[docs.docker.com].
 
 == Start Container 
 
