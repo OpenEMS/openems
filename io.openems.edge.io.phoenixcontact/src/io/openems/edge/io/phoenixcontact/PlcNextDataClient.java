@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonObject;
+
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.api.HttpMethod;
@@ -29,10 +31,19 @@ public class PlcNextDataClient {
 	}
 
 	// TODO: just a dummy implementation
-	public String fetchSingleGdsDataAspect(String instanceName, String aspectName) {
-		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
+	public String fetchSingleGdsDataAspect(String resourceName, String aspectName) {
+		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);
 		CompletableFuture<String> dataAspectValue = http.requestJson(dataEndPoint)
 				.thenApply(s -> s.data().getAsJsonObject().getAsJsonPrimitive(aspectName).getAsString());
+
+		return dataAspectValue.join();
+	}
+
+	// TODO: just a dummy implementation
+	public JsonObject fetchAllGdsDataAspects(String resourceName) {
+		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);
+		CompletableFuture<JsonObject> dataAspectValue = http.requestJson(dataEndPoint)
+				.thenApply(s -> s.data().getAsJsonObject());
 
 		return dataAspectValue.join();
 	}
@@ -50,13 +61,14 @@ public class PlcNextDataClient {
 		return endPoint;
 	}
 
-	private String buildDataEndpointUrl(String instanceName) {
+	private String buildDataEndpointUrl(String resourceName) {
 		String dataEndpointUrl = this.config.dataUrl();
 
 		if (!dataEndpointUrl.endsWith("/")) {
 			dataEndpointUrl = dataEndpointUrl.concat("/");
 		}
-		dataEndpointUrl = dataEndpointUrl.concat(instanceName);
+		dataEndpointUrl = dataEndpointUrl.concat(config.dataInstanceName())
+				.concat("/").concat(resourceName);
 
 		return dataEndpointUrl;
 	}

@@ -1,5 +1,8 @@
 package io.openems.edge.io.phoenixcontact;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,7 +19,7 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -32,7 +35,7 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		implements PlcNextDevice, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	@Reference
-	private PlcNextTokenManager tokenManager;
+	private List<PlcNextApiCommand> apiCommands;
 
 	private Config config = null;
 
@@ -51,6 +54,7 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -61,11 +65,13 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			// TODO: fill channels
-			break;
+		Optional<PlcNextApiCommand> apiCmdForEvent = apiCommands.stream()
+			.filter(item -> item.eventTriggers().contains(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE))
+			.findFirst();
+		if (apiCmdForEvent.isEmpty()) {
+			return;
 		}
+		apiCmdForEvent.get().execute();
 	}
 
 	@Override
