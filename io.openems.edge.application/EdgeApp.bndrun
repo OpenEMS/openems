@@ -135,7 +135,6 @@
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
-	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
 	bnd.identity;id='io.openems.edge.evse.electricvehicle.generic',\
@@ -210,7 +209,6 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.batteryinverter.victron',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.reversepowerrelay',\
-	bnd.identity;id='io.openems.edge.io.opendtu.inverter',\
 	bnd.identity;id='io.openems.edge.io.siemenslogo',\
 	bnd.identity;id='io.openems.edge.meter.emh',\
 	bnd.identity;id='io.openems.edge.controller.ess.chargedischargelimiter',\
@@ -485,7 +483,6 @@
 	io.openems.edge.batteryinverter.victron;version=snapshot,\
 	io.openems.edge.controller.ess.delaycharge;version=snapshot,\
 	io.openems.edge.controller.pvinverter.reversepowerrelay;version=snapshot,\
-	io.openems.edge.io.opendtu.inverter;version=snapshot,\
 	io.openems.edge.io.siemenslogo;version=snapshot,\
 	io.openems.edge.meter.emh;version=snapshot,\
 	io.openems.edge.controller.ess.chargedischargelimiter;version=snapshot,\
@@ -506,7 +503,6 @@
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.evcs.goe;version=snapshot,\
 	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
-	io.openems.edge.evse.chargepoint.hardybarth;version=snapshot,\
 	io.openems.edge.predictor.profileclusteringmodel;version=snapshot,\
 	io.openems.edge.scheduler.jscalendar;version=snapshot,\
 	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot

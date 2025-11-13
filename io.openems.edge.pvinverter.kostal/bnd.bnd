@@ -12,7 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
-
+	org.jsoup
 
 -testpath: \
 	${testpath},\

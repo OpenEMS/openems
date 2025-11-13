@@ -1,25 +1,25 @@
 <oe-flat-widget button (click)="presentModal()" [title]="component.alias" [icon]="{name: 'trending-down-outline'}">
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.gridConsumption'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="activePower">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.gridConsumptionWithoutEss'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="gridPowerWithoutPeakShaving">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingTarget'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingTargetPower">
-    </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.GRID_CONSUMPTION'| translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="activePower">
+  </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.GRID_CONSUMPTION_WITHOUT_ESS'| translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="gridPowerWithoutPeakShaving">
+  </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_TARGET'| translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingTargetPower">
+  </oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingActive'| translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower">
-    </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_ACTIVE'| translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="peakShavingPower">
+  </oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakshavingPower' | translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyPeakShavingPower">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.rechargePower' | translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyRechargePower">
-    </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Peakshaving.peakShavingThresholdPower' | translate"
-        [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyPeakShavingThresholdPower">
-    </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER' | translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyPeakShavingPower">
+  </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER' | translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyRechargePower">
+  </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_THRESHOLD_POWER' | translate"
+    [converter]="CONVERT_WATT_TO_KILOWATT" [value]="propertyPeakShavingThresholdPower">
+  </oe-flat-widget-line>
 </oe-flat-widget>

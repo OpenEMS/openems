@@ -34,3 +34,4 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.evse.api,\
 	io.openems.edge.meter.api,\
 	org.apache.commons.math3,\
+	io.openems.edge.controller.api

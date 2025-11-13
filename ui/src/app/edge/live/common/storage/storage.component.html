@@ -1,53 +1,81 @@
 @if (isInitialized) {
   <oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
-    [title]="'GENERAL.STORAGE_SYSTEM'| translate" [modalComponent]="modalComponent">
+    [title]="'GENERAL.STORAGE_SYSTEM' | translate" [modalComponent]="modalComponent">
     @for (component of essComponents; track component; let i = $index) {
-      <!-- Show Alias if there are more than one ESS -->
+
+      <!-- Alias zeigen, wenn mehrere ESS existieren -->
       @if (essComponents.length > 1) {
-        <oe-flat-widget-line [name]="component.alias">
-        </oe-flat-widget-line>
+        <oe-flat-widget-line [name]="component.alias"></oe-flat-widget-line>
       }
-      <!-- Shown if a Emergency-Capacity-Reserve-Controller is assigned to this ess -->
-      @if (this.emergencyReserveComponents[component.id]; as reserve) {
+
+      <!-- SoC-Balken mit Markern: EmergencyReserve + ChargeDischargeLimiter -->
+      @if (this.emergencyReserveComponents[component.id] || this.chargeDischargeLimiterComponents?.[component.id]) {
         <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
-          <!-- Shown if emergencyReserve is enabled for this ess -->
-          @if (isEmergencyReserveEnabled[component.id]) {
-            @if (reserve['currentReserveSoc']; as reserveSoc) {
-              <svg>
-                <rect y="2" rx="0" ry="0" width="1%" height="18"
-                  [style]="'x: calc(' + (reserveSoc > 98 ? 98 : reserveSoc) + '% + 2px); fill: #0008;'" />
-              </svg>
+          <svg>
+            <!-- EmergencyReserve-Marker (nur wenn Reserve vorhanden + enabled) -->
+            @if (this.emergencyReserveComponents[component.id]; as reserve) {
+              @if (isEmergencyReserveEnabled[component.id]) {
+                @if (reserve['currentReserveSoc']; as reserveSoc) {
+                  <rect y="2" rx="0" ry="0" width="1%" height="18"
+                    [style]="'x: calc(' + (reserveSoc > 98 ? 98 : reserveSoc) + '% + 2px); fill:#0008;'" />
+                }
+              }
             }
-          }
+
+            <!-- ChargeDischargeLimiter-Marker (falls vorhanden) -->
+            @if (this.chargeDischargeLimiterComponents?.[component.id]; as limiter) {
+              <!-- Min SOC -->
+              @if (limiter['minSoc'] !== undefined) {
+                <rect y="2" rx="0" ry="0" width="1%" height="18"
+                  [style]="'x: calc(' + ((limiter['minSoc'] > 98 ? 98 : limiter['minSoc'])) + '% + 2px); fill:#3c383888;'" />
+              }
+
+              <!-- Max SOC (bei state < 6) -->
+              @if (limiter['state'] < 6) {
+                @if (limiter['maxSoc'] !== undefined) {
+                  <rect y="2" rx="0" ry="0" width="1%" height="18"
+                    [style]="'x: calc(' + ((limiter['maxSoc'] > 98 ? 98 : limiter['maxSoc'])) + '% + 2px); fill:#3c383888;'" />
+                }
+              } @else {
+                <!-- Force SOC (bei state >= 6) -->
+                @if (limiter['forceSoc'] !== undefined) {
+                  <rect y="2" rx="0" ry="0" width="1%" height="18"
+                    [style]="'x: calc(' + ((limiter['forceSoc'] > 98 ? 98 : limiter['forceSoc'])) + '% + 2px); fill:#88000088;'" />
+                }
+              }
+            }
+          </svg>
         </oe-flat-widget-percentagebar>
       } @else {
-        <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'">
-        </oe-flat-widget-percentagebar>
+        <!-- Fallback: nackte SOC-Bar ohne Marker -->
+        <oe-flat-widget-percentagebar [channelAddress]="component.id + '/Soc'"></oe-flat-widget-percentagebar>
       }
+
       @if (!isHybridEss[component.id]) {
-        <!-- For AC system: show ActivePower channel -->
+        <!-- AC-System: ActivePower -->
         <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate" [channelAddress]="component.id + '/ActivePower'"
           [converter]="convertChargePower">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
-          [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
+        <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate" [channelAddress]="component.id + '/ActivePower'"
+          [converter]="convertDischargePower">
         </oe-flat-widget-line>
       } @else {
-        <!-- For DC/hybrid system: show DcDischargePower channel -->
-        <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate"
-          [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
+        <!-- DC/Hybrid-System: DcDischargePower -->
+        <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate" [channelAddress]="component.id + '/DcDischargePower'"
+          [converter]="convertChargePower">
         </oe-flat-widget-line>
         <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
           [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
         </oe-flat-widget-line>
       }
+
       @if (possibleBatteryExtensionMessage.get(component.id); as message) {
         <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-        <oe-flat-widget-line [name]="message.text" leftColumnWidth="100"
-        [style.color]="message.color"></oe-flat-widget-line>
+        <oe-flat-widget-line [name]="message.text" leftColumnWidth="100" [style.color]="message.color">
+        </oe-flat-widget-line>
       }
-      <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i">
-      </oe-flat-widget-horizontal-line>
+
+      <oe-flat-widget-horizontal-line [components]="essComponents" [index]="i"></oe-flat-widget-horizontal-line>
     }
   </oe-flat-widget>
 }

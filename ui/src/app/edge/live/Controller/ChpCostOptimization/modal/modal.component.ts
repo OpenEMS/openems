@@ -209,10 +209,10 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
                 { name: "mode", value: newMode },
             ]).then(() => {
                 this.component.properties.mode = newMode;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
                 this.component.properties.mode = oldMode;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });
         }
@@ -233,10 +233,10 @@ export class Controller_ChpCostOptimizationModalComponent implements OnInit {
                 { name: "priceThreshold", value: newPriceThreshold },
             ]).then(() => {
                 this.component.properties["priceThreshold"] = newPriceThreshold;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
                 this.component.properties["priceThreshold"] = oldPriceThreshold;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });
         }

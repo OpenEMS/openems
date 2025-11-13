@@ -118,13 +118,13 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
         switch (this.modeChannelValue) {
             case "MANUAL_ON":
-                this.mode = this.translate.instant("General.on");
+                this.mode = this.translate.instant("GENERAL.ON");
                 break;
             case "MANUAL_OFF":
-                this.mode = this.translate.instant("General.off");
+                this.mode = this.translate.instant("GENERAL.OFF");
                 break;
             case "AUTOMATIC":
-                this.mode = this.translate.instant("General.automatic");
+                this.mode = this.translate.instant("GENERAL.AUTOMATIC");
         }
 
         // StateMachine
@@ -147,23 +147,23 @@ export class Controller_ChpCostOptimizationComponent extends AbstractFlatWidget 
     private translateState(stateChannelValue: string): string {
         switch (stateChannelValue) {
             case "-1":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.UNDEFINED");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.UNDEFINED");
             case "0":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.NORMAL");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.NORMAL");
             case "1":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.ERROR");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.ERROR");
             case "2":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_ACTIVE");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.CHP_ACTIVE");
             case "3":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_INACTIVE");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.CHP_INACTIVE");
             case "4":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_PREPARING");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.CHP_PREPARING");
             case "5":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.IDLE");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.IDLE");
             case "6":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.OVER_TEMPERATURE");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.OVER_TEMPERATURE");
             case "7":
-                return this.translate.instant("Edge.Index.Widgets.CHP.CHP_STATE.CHP_NOT_READY");
+                return this.translate.instant("EDGE.INDEX.WIDGETS.CHP.CHP_STATE.CHP_NOT_READY");
             default:
                 return "-";
         }

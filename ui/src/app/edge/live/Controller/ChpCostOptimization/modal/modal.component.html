@@ -1,135 +1,134 @@
 <ion-header>
-    <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title>{{ component.alias }}</ion-title>
-        <ion-buttons slot="end">
-            <oe-help-button key="CONTROLLER_CHP_COSTOPTIMIZATION"></oe-help-button>
-            <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
+    <ion-title>{{ component.alias }}</ion-title>
+    <ion-buttons slot="end">
+      <oe-help-button key="CONTROLLER_CHP_COSTOPTIMIZATION"></oe-help-button>
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ng-container *ngIf="edge.currentData | async as currentData">
-        <ion-card-content *ngIf="component as c">
-            <oe-modal-line [name]="'General.mode' | translate" [value]="(c.properties?.mode ?? '') | translate">
+  <ng-container *ngIf="edge.currentData | async as currentData">
+    <ion-card-content *ngIf="component as c">
+      <oe-modal-line [name]="'General.mode' | translate" [value]="(c.properties?.mode ?? '') | translate">
+      </oe-modal-line>
+
+      <ion-segment [value]="c.properties?.mode || 'AUTOMATIC'" (ionChange)="updateMode($event)" scrollable="false">
+        <ion-segment-button value="MANUAL_ON">
+          <ion-label><span translate>GENERAL.ON</span></ion-label>
+          <ion-icon [color]="component.properties['mode'] === 'MANUAL_ON' ? 'success' : 'normal'" style="width:40px"
+            name="power-outline"></ion-icon>
+        </ion-segment-button>
+
+        <ion-segment-button value="AUTOMATIC">
+          <ion-label><span translate>GENERAL.AUTOMATIC</span></ion-label>
+          <ion-icon style="width:40px" name="sunny-outline"
+            [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'"></ion-icon>
+        </ion-segment-button>
+
+        <ion-segment-button value="MANUAL_OFF">
+          <ion-label><span translate>GENERAL.OFF</span></ion-label>
+          <ion-icon name="power-outline" style="width:40px"
+            [color]="component.properties['mode'] === 'MANUAL_OFF' ? 'danger' : 'normal'"></ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+
+
+    <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+      <ng-container *ngIf="component.id as controllerId">
+
+        <!-- Status-Zeilen mit Farb-Highlight -->
+        <ion-item [color]="getBackgroundClass(currentState)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_CHP_STATE' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.CHP_STATE.' + currentState | translate">
             </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingPreparationHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_PREPARATION_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingPreparationHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingStartHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_START_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingStartHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingRunHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_RUN_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingRunHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingTransitionHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_TRANSITION_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingTransitionHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingDeviceHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_DEVICE_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingDeviceHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
+        <ion-item [color]="getBackgroundClass(currentAwaitingReducedPowerHysteresis)">
+          <ion-label>
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.AWAITING_REDUCED_POWER_HYSTERESIS' | translate"
+              [value]="'EDGE.INDEX.WIDGETS.CHP.HYSTERESIS_STATE.' + currentAwaitingReducedPowerHysteresis | translate">
+            </oe-modal-line>
+          </ion-label>
+        </ion-item>
 
-            <ion-segment [value]="c.properties?.mode || 'AUTOMATIC'" (ionChange)="updateMode($event)"
-                scrollable="false">
-                <ion-segment-button value="MANUAL_ON">
-                    <ion-label><span translate>General.on</span></ion-label>
-                    <ion-icon [color]="component.properties['mode'] === 'MANUAL_ON' ? 'success' : 'normal'"
-                        style="width:40px" name="power-outline"></ion-icon>
-                </ion-segment-button>
+        <!-- Datenzeilen -->
+        <ion-card-content class="underline">
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.ACTIVE_POWER' | translate"
+            [value]="(currentData?.channel?.[controllerId + '/ChpActivePower'] >= 0 ? currentData?.channel?.[controllerId + '/ChpActivePower'] : 0) | unitvalue:'W'">
+          </oe-modal-line>
 
-                <ion-segment-button value="AUTOMATIC">
-                    <ion-label><span translate>General.automatic</span></ion-label>
-                    <ion-icon style="width:40px" name="sunny-outline"
-                        [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'"></ion-icon>
-                </ion-segment-button>
+          <oe-modal-line [name]="'GENERAL.GRID_BUY' | translate"
+            [value]="(currentData?.channel?.['_sum/GridActivePower'] >= 0 ? currentData?.channel?.['_sum/GridActivePower'] : 0) | unitvalue:'W'">
+          </oe-modal-line>
 
-                <ion-segment-button value="MANUAL_OFF">
-                    <ion-label><span translate>General.off</span></ion-label>
-                    <ion-icon name="power-outline" style="width:40px"
-                        [color]="component.properties['mode'] === 'MANUAL_OFF' ? 'danger' : 'normal'"></ion-icon>
-                </ion-segment-button>
-            </ion-segment>
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.PRICE_THRESHOLD' | translate"
+            [value]="formatPrice(component.properties['priceThreshold'])">
+          </oe-modal-line>
+
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_PRICE' | translate"
+            [value]="formatPrice(currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] >= 0 ? currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] : 0)">
+          </oe-modal-line>
+
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_COSTS_WITHOUT_CHP' | translate"
+            [value]="formatCosts(currentData?.channel?.[controllerId + '/EnergyCostsWithoutChp'])">
+          </oe-modal-line>
+
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_COSTS' | translate"
+            [value]="formatCosts(currentData?.channel?.[controllerId + '/EnergyCosts'])">
+          </oe-modal-line>
+
+          <ion-range (ionChange)="updateThreshold()" pin color="dark" min="0" max="1000" [(ngModel)]="threshold"
+            debounce="500">
+            <ion-label slot="start">
+              {{ formatPrice(0) }}
+            </ion-label>
+            <ion-label slot="end">
+              {{ formatPrice(1000) }}
+            </ion-label>
+          </ion-range>
         </ion-card-content>
-
-
-        <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
-            <ng-container *ngIf="component.id as controllerId">
-
-                <!-- Status-Zeilen mit Farb-Highlight -->
-                <ion-item [color]="getBackgroundClass(currentState)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentChpState' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.CHP_STATE.' + currentState | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingPreparationHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingPreparationHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingPreparationHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingStartHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingStartHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingStartHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingRunHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingRunHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingRunHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingTransitionHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingTransitionHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingTransitionHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingDeviceHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingDeviceHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingDeviceHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-                <ion-item [color]="getBackgroundClass(currentAwaitingReducedPowerHysteresis)">
-                    <ion-label>
-                        <oe-modal-line [name]="'Edge.Index.Widgets.CHP.awaitingReducedPowerHysteresis' | translate"
-                            [value]="'Edge.Index.Widgets.CHP.HYSTERESIS_STATE.' + currentAwaitingReducedPowerHysteresis | translate">
-                        </oe-modal-line>
-                    </ion-label>
-                </ion-item>
-
-                <!-- Datenzeilen -->
-                <ion-card-content class="underline">
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.activePower' | translate"
-                        [value]="(currentData?.channel?.[controllerId + '/ChpActivePower'] >= 0 ? currentData?.channel?.[controllerId + '/ChpActivePower'] : 0) | unitvalue:'W'">
-                    </oe-modal-line>
-
-                    <oe-modal-line [name]="'General.gridBuy' | translate"
-                        [value]="(currentData?.channel?.['_sum/GridActivePower'] >= 0 ? currentData?.channel?.['_sum/GridActivePower'] : 0) | unitvalue:'W'">
-                    </oe-modal-line>
-
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.priceThreshold' | translate"
-                        [value]="formatPrice(component.properties['priceThreshold'])">
-                    </oe-modal-line>
-
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentEnergyPrice' | translate"
-                        [value]="formatPrice(currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] >= 0 ? currentData?.channel?.[controllerId + '/CurrentEnergyPrice'] : 0)">
-                    </oe-modal-line>
-
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCostsWithoutChp' | translate"
-                        [value]="formatCosts(currentData?.channel?.[controllerId + '/EnergyCostsWithoutChp'])">
-                    </oe-modal-line>
-
-                    <oe-modal-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCosts' | translate"
-                        [value]="formatCosts(currentData?.channel?.[controllerId + '/EnergyCosts'])">
-                    </oe-modal-line>
-
-                    <ion-range (ionChange)="updateThreshold()" pin color="dark" min="0" max="1000"
-                        [(ngModel)]="threshold" debounce="500">
-                        <ion-label slot="start">
-                            {{ formatPrice(0) }}
-                        </ion-label>
-                        <ion-label slot="end">
-                            {{ formatPrice(1000) }}
-                        </ion-label>
-                    </ion-range>
-                </ion-card-content>
-            </ng-container>
-        </ng-container>
+      </ng-container>
     </ng-container>
+  </ng-container>
 </ion-content>

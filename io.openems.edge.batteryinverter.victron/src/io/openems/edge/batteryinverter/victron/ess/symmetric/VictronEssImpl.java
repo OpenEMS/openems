@@ -279,14 +279,14 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 		Integer MaxChargePower = this.batteryInverter.getMaxChargePower(); // [W], positiv
 		Integer MaxDischargePower = this.batteryInverter.getMaxDischargePower(); // [W], positiv
-		if (MaxChargePower == null || MaxDischargePower == null || MaxChargePower <= 0 || MaxDischargePower <= 0) {
+		if (MaxChargePower == null || MaxDischargePower == null || MaxChargePower < 0 || MaxDischargePower < 0) {
 			this.log.warn("BatteryInverter Allowed Charge/Discharge values not available -> System is not ready. Values will not be applied");
 			this.operationalValuesOk = false;
 			return;
 		}
 
 		Integer maxApparentPower = this.batteryInverter.getMaxApparentPower().get();
-		if (maxApparentPower == null || maxApparentPower <= 0) {
+		if (maxApparentPower == null || maxApparentPower < 0) {
 			this.log.warn("BatteryInverter max. Apparent power not available -> System is not ready. Values will not be applied");
 			this.operationalValuesOk = false;
 			return;

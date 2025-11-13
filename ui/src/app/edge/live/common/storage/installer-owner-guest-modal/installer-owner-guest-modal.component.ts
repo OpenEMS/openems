@@ -112,6 +112,19 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
                 );
             }
+            // ChargeDischargeLimiter: subscribe channels
+            for (const ctrl of chargeDischargeLimiterCtrl as EdgeConfig.Component[]) {
+                channelAddresses.push(
+                    new ChannelAddress(ctrl.id, "_PropertyIsChargeDischargeLimiterEnabled"),
+                    new ChannelAddress(ctrl.id, "_PropertyMinSoc"),
+                    new ChannelAddress(ctrl.id, "_PropertyMaxSoc"),
+                    new ChannelAddress(ctrl.id, "_PropertyForceChargeSoc"),
+                    new ChannelAddress(ctrl.id, "_PropertyEnergyBetweenBalancingCycles"),
+                    new ChannelAddress(ctrl.id, "StateMachine"),
+                    new ChannelAddress(ctrl.id, "BalancingRemainingSeconds"),
+                    new ChannelAddress(ctrl.id, "ChargedEnergy"),
+                );
+            }
             this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
 
             this.edge.currentData
@@ -164,7 +177,7 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
 
                                 const isChargeDischargeLimiterEnabled = currentData.channel[controller.id + "/_PropertyIsChargeDischargeLimiterEnabled"] == 1;
                                 const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
-                                //console.log("Current Data:", currentData);
+                                console.log("Current Data:", currentData);
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
                                     this.formBuilder.group({
@@ -204,12 +217,9 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                 if ((epochSeconds == null
                                     || epochSeconds == 0)) {
                                     this.isTargetTimeInValid.set(essId, true);
-                                } else if
-
-                                // If expected expectedStartOfpreparation is after targetTime
-                                //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
-                                (isBefore(new Date(targetTime), expectedStartOfPreparation)
-                                    || isBefore(new Date(targetTime), new Date())) {
+                                } else if (isBefore(new Date(targetTime), expectedStartOfPreparation) || isBefore(new Date(targetTime), new Date())) {
+                                    // If expected expectedStartOfpreparation is after targetTime
+                                    //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
                                     this.isTargetTimeInValid.set(essId, true);
                                 } else {
                                     this.isTargetTimeInValid.set(essId, false);
@@ -239,31 +249,32 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
         );
 
     }
+
     getBackgroundClass(state: number): string {
         switch (state) {
             case -1: // UNDEFINED
             case 1:  // ERROR
-                return "danger"; // Rot f�r Fehler und undefined
+                return "danger"; // Red -> Error or Undefined
             case 0:  // NORMAL
-                return "success"; // Gr�n f�r normal
+                return "success"; // Green -> normal
             case 2:  // BELOW_MIN_SOC
                 return "warning";
             case 3:  // ABOVE_MAX_SOC
                 return "warning";
             case 4:  // Min Soc reached
-                return "success"; // Blinkendes Orange f�r aktives Balancing
+                return "success"; // blinking orange -> active Balancing
             case 5:  // Max Soc reached
-                return "success"; // Blinkendes Orange f�r aktives Balancing
+                return "success"; // blinking orange -> active Balancing
             case 6:  // FORCE_CHARGE_ACTIVE
                 return "warning";
             case 7:  // BALANCING_WANTED
-                return "warning"; // Leichtes Orange f�r SOC-Warnungen
+                return "warning"; // Light orange -> Soc warnings
             case 8:  // BALANCING_ACTIVE
-                return "primary"; // Blinkendes Orange f�r aktives Balancing
+                return "primary"; // blinking orange -> active Balancing
             case 9:  // PRICE_LIMIT
-                return "warning"; // Blinkendes Orange f�r aktives Balancing
+                return "warning"; // blinking orange -> active Balancing
             default:
-                return ""; // Keine Farbe
+                return ""; // no color
         }
     }
 

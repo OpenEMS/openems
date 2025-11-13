@@ -1,27 +1,27 @@
 <oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized" [title]="component.alias" [icon]="{name:
     'flame-outline', color: 'normal'}">
 
-    <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'GENERAL.MODE'| translate" [value]="mode"></oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'General.state' | translate" [value]="state">
-    </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="state">
+  </oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.priceThreshold' | translate" [value]="thresholdPriceWithLabel">
-    </oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.CHP.PRICE_THRESHOLD' | translate" [value]="thresholdPriceWithLabel">
+  </oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.currentEnergyPrice' | translate"
-        [value]="currentEnergyPriceWithLabel"></oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_PRICE' | translate"
+    [value]="currentEnergyPriceWithLabel"></oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCostsWithoutChp' | translate"
-        [value]="currentEnergyCostsWithoutChpWithLabel"></oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_COSTS_WITHOUT_CHP' | translate"
+    [value]="currentEnergyCostsWithoutChpWithLabel"></oe-flat-widget-line>
 
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.CHP.currentEnergyCosts' | translate"
-        [value]="currentEnergyCostsWithLabel"></oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.CHP.CURRENT_ENERGY_COSTS' | translate"
+    [value]="currentEnergyCostsWithLabel"></oe-flat-widget-line>
 
 
 
-    <oe-flat-widget-percentagebar [value]="currentEnergyCostsPercent" [max]="propertyHighCostsThreshold"
-        [color]="barColor" [tooltip]="tooltip">
-    </oe-flat-widget-percentagebar>
+  <oe-flat-widget-percentagebar [value]="currentEnergyCostsPercent" [max]="propertyHighCostsThreshold"
+    [color]="barColor" [tooltip]="tooltip">
+  </oe-flat-widget-percentagebar>
 
 </oe-flat-widget>

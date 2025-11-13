@@ -1,161 +1,158 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title>{{ component.alias }}</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>{{ component.alias }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 
 
 <ion-content>
-    <ng-container *ngIf="!loading">
+  <ng-container *ngIf="!loading">
 
-        <ion-item [color]="getBackgroundClass(currentState)">
-            <ion-label>
-                <oe-modal-line [name]="'Edge.Index.Widgets.Peakshaving.currentPeakShavingState' | translate"
-                    [value]="'Edge.Index.Widgets.Peakshaving.PEAK_SHAVING_STATE.' + currentState | translate">
-                </oe-modal-line>
-            </ion-label>
-        </ion-item>
-
-
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ng-container *ngIf="component.properties['meter.id'] as meterId">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.gridConsumption
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-            </ng-container>
-        </ion-card-content>
-
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
-            <ng-container *ngIf="component.id as controllerId">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.gridConsumptionWithoutEss
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ng-container
-                                *ngIf="(currentData['channel'][controllerId + '/GridPowerWithoutPeakShaving'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-            </ng-container>
-        </ion-card-content>
-
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
-            <ng-container *ngIf="component.id as controllerId">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingTarget
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ng-container
-                                *ngIf="(currentData['channel'][controllerId + '/PeakShavingTargetPower'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-            </ng-container>
-        </ion-card-content>
-
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
-            <ng-container *ngIf="component.id as controllerId">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingActive
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ng-container
-                                *ngIf="(currentData['channel'][controllerId + '/PeakShavingPower'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-            </ng-container>
-        </ion-card-content>
-
-        <form [formGroup]="formGroup">
-            <ion-card-content class="underline">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingPower
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
-                                    style="text-align: end;">
-                                </ion-input>
-                                <ion-label class="regularFont">&nbsp;W</ion-label>
-                            </ion-item>
-                        </td>
-                    </tr>
-                </table>
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.rechargePower
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="rechargePower"
-                                    style="text-align: end;">
-                                </ion-input>
-                                <ion-label class="regularFont">&nbsp;W</ion-label>
-                            </ion-item>
-                        </td>
-                    </tr>
-                </table>
-            </ion-card-content>
-            <ion-card-content class="underline">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakShavingThresholdPower
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" type="number" formControlName="peakShavingThresholdPower"
-                                    style="text-align: end;">
-                                </ion-input>
-                                <ion-label class="regularFont">&nbsp;W</ion-label>
-                            </ion-item>
-                        </td>
-                    </tr>
-
-                </table>
-            </ion-card-content>
-        </form>
-    </ng-container>
+    <ion-item [color]="getBackgroundClass(currentState)">
+      <ion-label>
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.CURRENT_PEAKSHAVING_STATE' | translate"
+          [value]="'EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAK_SHAVING_STATE.' + currentState | translate">
+        </oe-modal-line>
+      </ion-label>
+    </ion-item>
 
 
-    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button (click)="applyChanges()">
-            <ion-icon size="large" name="checkmark-circle-outline">
-            </ion-icon>
-        </ion-fab-button>
-    </ion-fab>
-    <ion-grid *ngIf="loading === true">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </ion-grid>
+    <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
+      <ng-container *ngIf="component.properties['meter.id'] as meterId">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.GRID_CONSUMPTION
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
+                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+              </ng-container>
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </ion-card-content>
+
+    <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
+      <ng-container *ngIf="component.id as controllerId">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.GRID_CONSUMPTION_WITHOUT_ESS
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ng-container
+                *ngIf="(currentData['channel'][controllerId + '/GridPowerWithoutPeakShaving'] || true) as value">
+                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+              </ng-container>
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </ion-card-content>
+
+    <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
+      <ng-container *ngIf="component.id as controllerId">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_TARGET
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ng-container *ngIf="(currentData['channel'][controllerId + '/PeakShavingTargetPower'] || true) as value">
+                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+              </ng-container>
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </ion-card-content>
+
+    <ion-card-content class="underline" *ngIf="(edge.currentData | async) as currentData">
+      <ng-container *ngIf="component.id as controllerId">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_ACTIVE
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ng-container *ngIf="(currentData['channel'][controllerId + '/PeakShavingPower'] || true) as value">
+                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+              </ng-container>
+            </td>
+          </tr>
+        </table>
+      </ng-container>
+    </ion-card-content>
+
+    <form [formGroup]="formGroup">
+      <ion-card-content class="underline">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ion-item lines="inset" class="noPadding">
+                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
+                  style="text-align: end;">
+                </ion-input>
+                <ion-label class="regularFont">&nbsp;W</ion-label>
+              </ion-item>
+            </td>
+          </tr>
+        </table>
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ion-item lines="inset" class="noPadding">
+                <ion-input class="regularFont" type="number" formControlName="rechargePower" style="text-align: end;">
+                </ion-input>
+                <ion-label class="regularFont">&nbsp;W</ion-label>
+              </ion-item>
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+      <ion-card-content class="underline">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_THRESHOLD_POWER
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ion-item lines="inset" class="noPadding">
+                <ion-input class="regularFont" type="number" formControlName="peakShavingThresholdPower"
+                  style="text-align: end;">
+                </ion-input>
+                <ion-label class="regularFont">&nbsp;W</ion-label>
+              </ion-item>
+            </td>
+          </tr>
+
+        </table>
+      </ion-card-content>
+    </form>
+  </ng-container>
+
+
+  <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="applyChanges()">
+      <ion-icon size="large" name="checkmark-circle-outline">
+      </ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-grid *ngIf="loading === true">
+    <ion-progress-bar type="indeterminate"></ion-progress-bar>
+  </ion-grid>
 </ion-content>
