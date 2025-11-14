@@ -129,8 +129,8 @@ public class LstmPredictorBoundsTest {
 		// Create sample data
 		for (int i = 0; i < this.hyperParameters.getWindowSizeTrend(); i++) {
 			data.add(100.0 + i * 10.0);
-			dates.add(
-					now.minusMinutes((this.hyperParameters.getWindowSizeTrend() - i) * this.hyperParameters.getInterval()));
+			dates.add(now.minusMinutes(
+					(this.hyperParameters.getWindowSizeTrend() - i) * this.hyperParameters.getInterval()));
 		}
 
 		// This test verifies that the method doesn't throw an exception

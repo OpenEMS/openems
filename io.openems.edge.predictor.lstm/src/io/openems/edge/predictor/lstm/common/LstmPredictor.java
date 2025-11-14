@@ -32,7 +32,8 @@ public class LstmPredictor {
 		preprocessing.setData(to1DArray(data)).setDates(date);
 		var resized = to2DList((double[][][]) preprocessing.interpolate()//
 				.scale()//
-				.movingAverage().filterOutliers() //
+				.movingAverage() //
+				.filterOutliers() //
 				.groupByHoursAndMinutes()//
 				.execute());
 		preprocessing.setData(resized);
