@@ -244,6 +244,12 @@
             "karmaConfig": "karma.conf.js",
             "polyfills": [
               "src/polyfills.ts"
+            ],
+            "fileReplacements": [
+              {
+                "replace": "src/environments/dummy.ts",
+                "with": "src/themes/openems/environments/karma.ts"
+              },
             ]
           },
           "configurations": {
