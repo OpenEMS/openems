@@ -373,7 +373,9 @@
       "ACTIVE_DURATION": "Einschaltdauer",
       "ACTIVE_DURATION_WITH_LEVEL": "Einschaltdauer Level {{level}}",
       "CURRENT": "Strom",
-      "VOLTAGE": "Spannung"
+      "VOLTAGE": "Spannung",
+      "NO_LOCAL_DATA_INFO": "Historische Daten sind derzeit lokal nicht verfügbar",
+      "NO_LOCAL_DATA_NOTICE": "Bitte besuchen Sie https://github.com/OpenEMS/openems für Updates zu diesem Thema."
     },
     "CONFIG": {
       "INDEX": {

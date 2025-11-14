@@ -42,6 +42,14 @@ export class Language {
     public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR);
     public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
 
+    public static get SYSTEM(): Language | null {
+        return Language.getByBrowserLang(navigator.language || navigator['userLanguage']);
+    }
+
+    public static get LOCAL_STORAGE(): Language | null {
+        return Language.getByKey(localStorage.LANGUAGE)
+    }
+
     public static readonly ALL = [Language.DE, Language.EN, Language.CS, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
 
@@ -117,7 +125,7 @@ export class Language {
      * @returns the i18n locale key
      */
     public static geti18nLocale() {
-        return Language.getByKey(localStorage.LANGUAGE)?.i18nLocaleKey ?? Language.getByBrowserLang(navigator.language)?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+        return Language.getCurrentLanguage().i18nLocaleKey;
     }
 
     /**
@@ -142,6 +150,6 @@ export class Language {
      * @returns the i18n locale key
      */
     public static getCurrentLanguage() {
-        return Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT;
+        return Language.LOCAL_STORAGE ?? Language.SYSTEM ?? Language.DEFAULT
     }
 }

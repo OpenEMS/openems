@@ -221,7 +221,7 @@ export namespace ChartConstants {
             ...ChartDataLabels,
             color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
             formatter: (value, ctx) => {
-                const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+                const locale: string = Language.geti18nLocale();
                 return formatNumber(value, locale, "1.0-0") + "\xa0" + unit;
             },
             ...{
@@ -403,7 +403,7 @@ export namespace ChartConstants {
 
                 return arr;
             }, { min: null, max: null, stepSize: null })
-      ?? null;
+            ?? null;
     }
 
     /**

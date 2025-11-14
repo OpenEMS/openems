@@ -46,12 +46,14 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 	 */
 	@Override
 	public JsonObject getResult() {
+		final String languageName = (this.language != null) ? this.language.name() : null;
+		
 		return JsonUtils.buildJsonObject() //
 				.addProperty("token", this.token) //
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
-						.addProperty("language", this.language.name())//
+						.addPropertyIfNotNull("language", languageName)//
 						.addProperty("hasMultipleEdges", this.user.hasMultipleEdges())//
 						.add("settings", this.user.getSettings()) //
 						.add("globalRole", this.user.getGlobalRole().asJson()) //

@@ -361,7 +361,9 @@
             "CURRENT": "Current",
             "VOLTAGE": "Voltage",
             "PHASE_ACCURATE": "phase-accurate",
-            "EXTERNAL_LIMITATION": "External Limitation"
+            "EXTERNAL_LIMITATION": "External Limitation",
+            "NO_LOCAL_DATA_INFO": "Historical data is currently unavailable locally",
+            "NO_LOCAL_DATA_NOTICE": "Please visit https://github.com/OpenEMS/openems for updates on this topic."
         },
         "CONFIG": {
             "INDEX": {
