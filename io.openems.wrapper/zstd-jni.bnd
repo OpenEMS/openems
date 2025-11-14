@@ -3,6 +3,7 @@ Bundle-Description: Zstandard compression bindings for Java wrapped for OSGi usa
 Bundle-DocURL: https://github.com/luben/zstd-jni
 Bundle-License: https://opensource.org/licenses/BSD-2-Clause
 Bundle-Version: 1.5.6.3
+Bundle-SymbolicName: com.github.luben.zstd-jni
 
 Include-Resource: \
 	@../cnf/release/zstd-jni-1.5.6-3.jar,\

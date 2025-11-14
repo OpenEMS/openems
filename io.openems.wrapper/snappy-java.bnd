@@ -3,6 +3,7 @@ Bundle-Description: Snappy compression library wrapped for OSGi usage
 Bundle-DocURL: https://github.com/xerial/snappy-java
 Bundle-License: https://www.apache.org/licenses/LICENSE-2.0
 Bundle-Version: 1.1.10.5
+Bundle-SymbolicName: org.xerial.snappy.snappy-java
 
 Include-Resource: \
 	@../cnf/release/snappy-java-1.1.10.5.jar,\

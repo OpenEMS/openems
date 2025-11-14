@@ -163,8 +163,7 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 		final HttpResponse<String> response;
 		try {
-			response = this.httpClient.send(request,
-					HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+			response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			this.logWarn(this.log, "Authentication interrupted for email [" + email + "]: " + e.getMessage());
@@ -175,9 +174,8 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 		}
 
 		if (response.statusCode() != 200) {
-			this.logWarn(this.log,
-					"vev-iq authentication failed for email [" + email + "] with HTTP status ["
-							+ response.statusCode() + "]");
+			this.logWarn(this.log, "vev-iq authentication failed for email [" + email + "] with HTTP status ["
+					+ response.statusCode() + "]");
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
 
@@ -215,33 +213,33 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 			jwt = this.jwtVerifier.verify(token);
 		} catch (JWTVerificationException e) {
 			this.log.warn("Failed to verify JWT token: {}", e.getMessage());
-            this.log.warn(token);
+			this.log.warn(token);
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
 
-        final String tenantId = jwt.getClaim("tenantID").asString();
-        final String userId = jwt.getClaim("id").asString();
-        if (tenantId == null || tenantId.isBlank() || userId == null || userId.isBlank()) {
-            this.log.warn("JWT token does not contain required claims");
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-        log.info("Authenticating user {} for tenant {}", userId, tenantId);
-        final var mongo = this.mongoRepository.forTenant(tenantId);
-        log.info("Fetching user {} from tenant {}", userId, tenantId);
-        var mongoUser = mongo.getUser(userId);
-        log.info("Fetching edges for tenant {}", tenantId);
-        var edges = mongo.getEdgeList();
-        this.edgeCache.syncEdgesForTenant(tenantId, edges);
-        log.info("Found {} edges for tenant {}", edges.size(), tenantId);
-        if (mongoUser.isEmpty()) {
-            this.log.warn("User not found in tenant {}", tenantId);
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-        log.info("User {} authenticated successfully", userId);
+		final String tenantId = jwt.getClaim("tenantID").asString();
+		final String userId = jwt.getClaim("id").asString();
+		if (tenantId == null || tenantId.isBlank() || userId == null || userId.isBlank()) {
+			this.log.warn("JWT token does not contain required claims");
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		this.log.info("Authenticating user {} for tenant {}", userId, tenantId);
+		final var mongo = this.mongoRepository.forTenant(tenantId);
+		this.log.info("Fetching user {} from tenant {}", userId, tenantId);
+		var mongoUser = mongo.getUser(userId);
+		this.log.info("Fetching edges for tenant {}", tenantId);
+		var edges = mongo.getEdgeList();
+		this.edgeCache.syncEdgesForTenant(tenantId, edges);
+		this.log.info("Found {} edges for tenant {}", edges.size(), tenantId);
+		if (mongoUser.isEmpty()) {
+			this.log.warn("User not found in tenant {}", tenantId);
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		this.log.info("User {} authenticated successfully", userId);
 
 		final VevUser user = new VevUser(tenantId, mongoUser, edges, Optional.of(token));
 
-        log.info("User {} has {} edges", user.getId(), edges.size());
+		this.log.info("User {} has {} edges", user.getId(), edges.size());
 		return user;
 	}
 
@@ -273,8 +271,8 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 	private void initializeMongoRepository(Config config) {
 		try {
 			this.mongoRepository = new MongoRepository(config.mongoUri(), config.mongoDatabase());
-			this.logInfo(this.log,
-					"MongoDB repository enabled [database=" + config.mongoDatabase() + ", uri=" + config.mongoUri() + "]");
+			this.logInfo(this.log, "MongoDB repository enabled [database=" + config.mongoDatabase() + ", uri="
+					+ config.mongoUri() + "]");
 		} catch (RuntimeException e) {
 			this.mongoRepository = null;
 			this.logWarn(this.log, "MongoDB repository not available: " + e.getMessage());
@@ -288,32 +286,32 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
-        if (this.mongoRepository == null) {
-            return Optional.empty();
-        }
-        var mongo = this.mongoRepository.forDefaultTenant();
-        var mongoEdgeOpt = mongo.getEdgeByApiKey(apikey);
-        if (mongoEdgeOpt.isEmpty()) {
-            this.edgeCache.removeApikey(apikey);
-            return Optional.empty();
-        }
-        var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
-        return Optional.of(edge.getId());
+		if (this.mongoRepository == null) {
+			return Optional.empty();
+		}
+		var mongo = this.mongoRepository.forDefaultTenant();
+		var mongoEdgeOpt = mongo.getEdgeByApiKey(apikey);
+		if (mongoEdgeOpt.isEmpty()) {
+			this.edgeCache.removeApikey(apikey);
+			return Optional.empty();
+		}
+		var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
+		return Optional.of(edge.getId());
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
-        if (this.mongoRepository == null) {
-            return Optional.empty();
-        }
-        var mongo = this.mongoRepository.forDefaultTenant();
-        var mongoEdgeOpt = mongo.getEdgeBySetupPassword(setupPassword);
-        if (mongoEdgeOpt.isEmpty()) {
-            this.edgeCache.removeSetupPassword(setupPassword);
-            return Optional.empty();
-        }
-        var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
-        return Optional.of(edge);
+		if (this.mongoRepository == null) {
+			return Optional.empty();
+		}
+		var mongo = this.mongoRepository.forDefaultTenant();
+		var mongoEdgeOpt = mongo.getEdgeBySetupPassword(setupPassword);
+		if (mongoEdgeOpt.isEmpty()) {
+			this.edgeCache.removeSetupPassword(setupPassword);
+			return Optional.empty();
+		}
+		var edge = this.edgeCache.upsert(mongoEdgeOpt.get());
+		return Optional.of(edge);
 	}
 
 	private static Tuple<String, String> parseId(String fullId) throws IllegalArgumentException {
@@ -326,24 +324,24 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Optional<Edge> getEdge(String fullEdgeId) {
-        if (this.mongoRepository == null) {
-            return this.edgeCache.getCachedEdge(fullEdgeId).map(edge -> edge);
-        }
-        var parsed = MetadataToken.parseId(fullEdgeId);
-        var mongo = this.mongoRepository.forTenant(parsed.a());
-        var edgeDocOpt = mongo.getEdgeById(parsed.b());
-        if (edgeDocOpt.isEmpty()) {
-            this.edgeCache.removeEdge(fullEdgeId);
-            return Optional.empty();
-        }
-        var edgeDoc = edgeDocOpt.get();
-        return Optional.of(this.edgeCache.upsert(edgeDoc));
+		if (this.mongoRepository == null) {
+			return this.edgeCache.getCachedEdge(fullEdgeId).map(edge -> edge);
+		}
+		var parsed = MetadataToken.parseId(fullEdgeId);
+		var mongo = this.mongoRepository.forTenant(parsed.a());
+		var edgeDocOpt = mongo.getEdgeById(parsed.b());
+		if (edgeDocOpt.isEmpty()) {
+			this.edgeCache.removeEdge(fullEdgeId);
+			return Optional.empty();
+		}
+		var edgeDoc = edgeDocOpt.get();
+		return Optional.of(this.edgeCache.upsert(edgeDoc));
 	}
 
 	@Override
 	public Optional<User> getUser(String fullUserId) {
-        var parsed = MetadataToken.parseId(fullUserId);
-        return Optional.of(VevUser.fromFullId(this.mongoRepository, parsed));
+		var parsed = MetadataToken.parseId(fullUserId);
+		return Optional.of(VevUser.fromFullId(this.mongoRepository, parsed));
 	}
 
 	@Override
@@ -358,11 +356,11 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
-        var info = new HashMap<String, Object>();
-        info.put("id", user.getId());
-        info.put("name", user.getName());
-        info.put("language", user.getLanguage().toString());
-        return info;
+		var info = new HashMap<String, Object>();
+		info.put("id", user.getId());
+		info.put("name", user.getName());
+		info.put("language", user.getLanguage().toString());
+		return info;
 	}
 
 	@Override
@@ -475,30 +473,30 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
 			throws OpenemsNamedException {
-        if (!(user instanceof VevUser vevUser)) {
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-        final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
-        var edges = this.edgeCache.syncEdgesForTenant(vevUser.getTenantId(), mongo.getEdgeList());
+		if (!(user instanceof VevUser vevUser)) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
+		var edges = this.edgeCache.syncEdgesForTenant(vevUser.getTenantId(), mongo.getEdgeList());
 		return MetadataUtils.getPageDevice(user, edges, paginationOptions);
 	}
 
 	@Override
 	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
 		if (!(user instanceof VevUser vevUser)) {
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-        final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
-        final var parsedEdgeId = MetadataToken.parseId(edgeId);
-        if (!vevUser.getTenantId().equals(parsedEdgeId.a())) {
-            throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-        }
-        var edgeDocOpt = mongo.getEdgeById(parsedEdgeId.b());
-        if (edgeDocOpt.isEmpty()) {
-            this.edgeCache.removeEdge(parsedEdgeId.a() + ":" + parsedEdgeId.b());
-            return null;
-        }
-        var edge = this.edgeCache.upsert(edgeDocOpt.get());
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		final var mongo = this.mongoRepository.forTenant(vevUser.getTenantId());
+		final var parsedEdgeId = MetadataToken.parseId(edgeId);
+		if (!vevUser.getTenantId().equals(parsedEdgeId.a())) {
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
+		var edgeDocOpt = mongo.getEdgeById(parsedEdgeId.b());
+		if (edgeDocOpt.isEmpty()) {
+			this.edgeCache.removeEdge(parsedEdgeId.a() + ":" + parsedEdgeId.b());
+			return null;
+		}
+		var edge = this.edgeCache.upsert(edgeDocOpt.get());
 		user.setRole(edgeId, Role.ADMIN);
 
 		return new EdgeMetadata(//
@@ -535,7 +533,7 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
-        return this.edgeCache.generateUpdateMetadataCacheNotification();
+		return this.edgeCache.generateUpdateMetadataCacheNotification();
 	}
 
 	private static URI buildVevIqLoginUri(String baseUrl) {
