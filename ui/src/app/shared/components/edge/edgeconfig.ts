@@ -167,14 +167,14 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOs"), icon: "log-in-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOS"), icon: "log-in-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalOutput"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalInput"),
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO-CONTROL"), icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO_CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.IO.ChannelSingleThreshold",
@@ -499,7 +499,7 @@ export class EdgeConfig {
      * @param nature the given Nature.
      * @param componentId the Component-ID
      */
-    public hasComponentNature(nature: string, componentId: string) {
+    public hasComponentNature(nature: EdgeConfig.NatureString, componentId: string) {
         const natureIds = this.getNatureIdsByComponentId(componentId);
         return natureIds.includes(nature);
     }
@@ -909,4 +909,7 @@ export namespace EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
+
+    /** Enforces nature ids with at least 3 dots */
+    export type NatureString = `${string}.${string}.${string}.${string}${string}`;
 }

@@ -12,5 +12,5 @@ public enum LogVerbosity {
 	/**
 	 * Show full JSON on every send.
 	 */
-	FULL_JSON_ON_SEND;
+	FULL_JSON_ON_SEND
 }

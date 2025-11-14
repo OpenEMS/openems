@@ -12,6 +12,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.batteryinverter.api,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.ess.ripplecontrolreceiver,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.generic,\
 	io.openems.edge.meter.api,\

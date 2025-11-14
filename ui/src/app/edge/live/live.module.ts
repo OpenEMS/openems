@@ -13,9 +13,11 @@ import { Common_Production } from "./common/production/Common_Production";
 import { Common_Selfconsumption } from "./common/selfconsumption/Common_Selfconsumption";
 import { StorageModalComponent } from "./common/storage/modal/modal.component";
 import { StorageComponent } from "./common/storage/storage.component";
+import { WeatherModule } from "./common/weather/weather.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
 import { Controller_ChpSocComponent } from "./Controller/ChpSoc/ChpSoc";
 import { Controller_ChpSocModalComponent } from "./Controller/ChpSoc/modal/modal.component";
+import { Controller_EnerixControl } from "./Controller/EnerixControl/EnerixControl";
 import { Controller_Ess_FixActivePower } from "./Controller/Ess/FixActivePower/Ess_FixActivePower";
 import { Controller_Ess_GridOptimizedCharge } from "./Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge";
 import { Controller_Ess_TimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff";
@@ -58,6 +60,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     Common_Production,
     Common_Selfconsumption,
     Controller_Api_ModbusTcp,
+    Controller_EnerixControl,
     Controller_Ess_FixActivePower,
     Controller_Ess_GridOptimizedCharge,
     Controller_Ess_TimeOfUseTariff,
@@ -69,6 +72,7 @@ import { Evcs_Api_ClusterModalComponent } from "./Multiple/Evcs_Api_Cluster/moda
     ControllerIoFixDigitalOutput,
     EdgeOfflineModule,
     EnergymonitorModule,
+    WeatherModule,
     ModalModule,
     SharedModule,
     PullToRefreshComponent,

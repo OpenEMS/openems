@@ -6,35 +6,15 @@ import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
 import static io.openems.edge.bridge.http.api.HttpMethod.GET;
 import static io.openems.edge.evcs.api.Evcs.calculatePhasesFromActivePowerAndPhaseCurrents;
 import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
-import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedCurrentChannels;
-import static io.openems.edge.evcs.api.PhaseRotation.setPhaseRotatedVoltageChannels;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
+import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedCurrentChannels;
+import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedVoltageChannels;
 import static java.util.Collections.emptyMap;
 
-import com.google.gson.JsonObject;
-import io.openems.common.types.MeterType;
-import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.evcs.api.CalculateEnergySession;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.EvcsPower;
-import io.openems.edge.evcs.api.EvcsUtils;
-import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
-import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.goe.api.EvcsGoe;
-import io.openems.edge.evcs.goe.api.StatusConverter;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import java.net.UnknownHostException;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -49,7 +29,29 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import java.net.UnknownHostException;
+import com.google.gson.JsonObject;
+
+import io.openems.common.types.MeterType;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.evcs.api.CalculateEnergySession;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.EvcsPower;
+import io.openems.edge.evcs.api.EvcsUtils;
+import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Status;
+import io.openems.edge.evcs.goe.api.EvcsGoe;
+import io.openems.edge.evcs.goe.api.StatusConverter;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

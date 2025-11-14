@@ -20,6 +20,7 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.BridgeModbusTcpImpl;
 import io.openems.edge.bridge.modbus.MyConfigTcp;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -37,7 +38,6 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class AbstractOpenemsSunSpecComponentTest {
 

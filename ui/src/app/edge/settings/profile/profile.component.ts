@@ -1,17 +1,22 @@
 import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { GetLatestSetupProtocolCoreInfoRequest } from "src/app/shared/jsonrpc/request/getLatestSetupProtocolCoreInfoRequest";
-import { GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
+import { GetSetupProtocolCoreInfoRequest, GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
-import { getFileName, GetLatestSetupProtocolCoreInfoResponse } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { getFileName, GetLatestSetupProtocolCoreInfoResponse, GetSetupProtocolCoreInfoResponse, Type } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { environment } from "../../../../environments";
+import { CommonUiModule } from "../../../shared/common-ui.module";
 import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
 import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxRequest";
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
@@ -19,7 +24,16 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
 @Component({
   selector: ProfileComponent.SELECTOR,
   templateUrl: "./profile.component.html",
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonUiModule,
+    PipeComponentsModule,
+    NgxSpinnerComponent,
+    RouterModule,
+    LiveDataServiceProvider,
+    LocaleProvider,
+    HelpButtonComponent,
+  ],
 })
 export class ProfileComponent implements OnInit {
 
@@ -48,7 +62,6 @@ export class ProfileComponent implements OnInit {
   ) {
     effect(() => {
       const isLoading = this.isLoading();
-
       if (isLoading === true) {
         this.service.startSpinnerTransparentBackground(this.spinnerId);
       } else {
@@ -76,7 +89,7 @@ export class ProfileComponent implements OnInit {
       edge.sendRequest(this.service.websocket, request).then(response => {
         Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
       }).catch(reason => {
-        this.service.toast(this.translate.instant("Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
+        this.service.toast(this.translate.instant("EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
       });
     });
   }
@@ -129,16 +142,18 @@ export class ProfileComponent implements OnInit {
     this.isLoading.set(true);
 
     const edge = await this.service.getCurrentEdge();
-    const request = new GetLatestSetupProtocolCoreInfoRequest({ edgeId: edge.id });
-    const setupProtocolData: GetLatestSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetLatestSetupProtocolCoreInfoResponse;
+    const request = new GetSetupProtocolCoreInfoRequest({ edgeId: edge.id });
+    const setupProtocolsData: GetSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetSetupProtocolCoreInfoResponse;
+    const ibnProtocols: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"] | null = setupProtocolsData?.result?.setupProtocols
+      ?.filter(el => el.setupProtocolType === Type.SETUP_PROTOCOL) ?? null;
+    const latestIbnProtocol: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0] | null = ibnProtocols?.length > 0 ? ibnProtocols.reduce((a, b) => DateUtils.maxDate(a.createDate, b.createDate) ? a : b) : null;
 
-    if (!(ObjectUtils.hasKeys(setupProtocolData.result, ["setupProtocolId", "createDate"]))) {
+    if (latestIbnProtocol === null) {
       this.isLoading.set(false);
       return;
     }
 
-    const result = setupProtocolData.result;
-    this.latestSetupProtocolData = { setupProtocolType: result.setupProtocolType, setupProtocolId: result.setupProtocolId, createDate: result.createDate };
+    this.latestSetupProtocolData = { setupProtocolType: latestIbnProtocol.setupProtocolType, setupProtocolId: latestIbnProtocol.setupProtocolId, createDate: latestIbnProtocol.createDate };
     this.isLoading.set(false);
   }
 }

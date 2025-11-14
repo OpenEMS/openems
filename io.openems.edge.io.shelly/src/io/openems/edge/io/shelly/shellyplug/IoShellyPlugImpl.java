@@ -5,15 +5,17 @@ import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsLong;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.util.Objects;
+import java.util.function.IntFunction;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -33,7 +35,6 @@ import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -43,10 +44,9 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 @Component(//
 		name = "IO.Shelly.Plug", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		implements IoShellyPlug, DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
@@ -56,6 +56,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
+	private boolean invert = false;
 	private String baseUrl;
 
 	private BridgeHttp httpBridge;
@@ -82,6 +83,7 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 
@@ -117,14 +119,16 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE -> {
-			this.executeWrite(this.getRelayChannel(), 0);
-		}
+		case TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.executeWrite(this.getRelayChannel(), 0);
 		}
 	}
 
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
+
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
 		if (error != null) {
 			this._setRelay(null);
 			this._setActivePower(null);
@@ -138,12 +142,18 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 			var relayIson = getAsBoolean(relay1, "ison");
 			var meters = getAsJsonArray(result.data(), "meters");
 			var meter1 = getAsJsonObject(meters.get(0));
-			var power = round(getAsFloat(meter1, "power"));
+			var power = invert.apply(round(getAsFloat(meter1, "power")));
 			var energy = getAsLong(meter1, "total")/* Unit: Wm */ / 60 /* Wh */;
 
 			this._setRelay(relayIson);
 			this._setActivePower(power);
-			this._setActiveProductionEnergy(energy);
+			if (this.invert) {
+				this._setActiveProductionEnergy(0);
+				this._setActiveConsumptionEnergy(energy);
+			} else {
+				this._setActiveProductionEnergy(energy);
+				this._setActiveConsumptionEnergy(0);
+			}
 
 		} catch (OpenemsNamedException e) {
 			this._setRelay(null);

@@ -1,6 +1,10 @@
-<oe-chart [title]="'General.consumption' | translate" [(showPhases)]="showPhases" [period]="service.historyPeriod.value"
-    *ngIf="isInitialized">
+@if (isInitialized) {
+  <oe-chart [title]="'GENERAL.CONSUMPTION' | translate" [(showPhases)]="showPhases" [period]="service.historyPeriod.value"
+    >
     <consumptionchart [isOnlyChart]="true">
     </consumptionchart>
-</oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+  </oe-chart>
+}
+@if (isInitialized) {
+  <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+}

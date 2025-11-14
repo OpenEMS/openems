@@ -35,7 +35,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => this.getDataset(data, 1),
                     color: ChartConstants.Colors.GREEN,
                 }, {
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.PV"),
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS"),
                     converter: () => this.getDataset(data, 2),
                     color: ChartConstants.Colors.BLUE,
                 }, {

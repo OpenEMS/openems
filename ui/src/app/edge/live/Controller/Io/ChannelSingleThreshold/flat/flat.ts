@@ -2,6 +2,7 @@
 import { Component, signal, WritableSignal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -37,6 +38,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   protected switchState: string;
   protected switchValue: string;
   protected switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;
+  protected modalComponent: Modal | null = null;
 
   /**
    * Gets the current value label in the form of e.g. "1000 W"
@@ -87,7 +89,22 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     return await modal.present();
   }
 
+  protected getModalComponent(): Modal {
+    return {
+      component: Controller_Io_ChannelSingleThresholdModalComponent,
+      componentProps: {
+        component: this.component,
+        config: this.config,
+        edge: this.edge,
+        outputChannel: this.outputChannel,
+        inputChannel: this.inputChannel,
+        inputChannelUnit: this.unitOfInputChannel,
+      },
+    };
+  };
+
   protected override async afterIsInitialized(): Promise<void> {
+    this.modalComponent = this.getModalComponent();
     this.inputChannel.set(ChannelAddress.fromStringSafely(
       this.component.getPropertyFromComponent("inputChannelAddress")));
     this.invert.set(this.component.getPropertyFromComponent("invert"));
@@ -134,11 +151,11 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     switch (this.outputChannelValue) {
       case 0:
         this.icon.name = "radio-button-off-outline";
-        this.state = this.translate.instant("General.off");
+        this.state = this.translate.instant("GENERAL.OFF");
         break;
       case 1:
         this.icon.name = "aperture-outline";
-        this.state = this.translate.instant("General.on");
+        this.state = this.translate.instant("GENERAL.ON");
         break;
     }
 
@@ -146,13 +163,13 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
     this.modeValue = currentData.allComponents[this.component.id + "/_PropertyMode"];
     switch (this.modeValue) {
       case "ON":
-        this.mode = this.translate.instant("General.on");
+        this.mode = this.translate.instant("GENERAL.ON");
         break;
       case "OFF":
-        this.mode = this.translate.instant("General.off");
+        this.mode = this.translate.instant("GENERAL.OFF");
         break;
       case "AUTOMATIC":
-        this.mode = this.translate.instant("General.automatic");
+        this.mode = this.translate.instant("GENERAL.AUTOMATIC");
     }
 
     // True when InputAddress doesnt match any of the following channelIds
@@ -235,18 +252,18 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   private createDependenOnLabel(inputChannel: ChannelAddress, currentData: CurrentData | null): string {
     switch (inputChannel.toString()) {
       case "_sum/EssSoc":
-        return this.translate.instant("General.soc");
+        return this.translate.instant("GENERAL.SOC");
       case "_sum/GridActivePower": {
         const propertyThreshold = this.getPropertyThreshold(currentData);
         if (propertyThreshold < 0) {
-          return this.translate.instant("General.gridSell");
+          return this.translate.instant("GENERAL.GRID_SELL");
         }
-        return this.translate.instant("General.gridBuy");
+        return this.translate.instant("GENERAL.GRID_BUY");
       }
       case "_sum/ProductionActivePower":
-        return this.translate.instant("General.production");
+        return this.translate.instant("GENERAL.PRODUCTION");
       default:
-        return this.translate.instant("Edge.Index.Widgets.Singlethreshold.other") + " (" + inputChannel + ")";
+        return this.translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER") + " (" + inputChannel + ")";
     }
   }
 
@@ -279,13 +296,13 @@ enum RelayState {
 }
 
 const SwitchStateLabel = [
-  { propertyThresholdPositive: true, invert: true, outputChannelValue: RelayState.OFF, label: "Edge.Index.Widgets.Singlethreshold.switchOnBelow" },
-  { propertyThresholdPositive: true, invert: true, outputChannelValue: RelayState.ON, label: "Edge.Index.Widgets.Singlethreshold.switchOnBelow" },
-  { propertyThresholdPositive: true, invert: false, outputChannelValue: RelayState.OFF, label: "Edge.Index.Widgets.Singlethreshold.switchOnAbove" },
-  { propertyThresholdPositive: true, invert: false, outputChannelValue: RelayState.ON, label: "Edge.Index.Widgets.Singlethreshold.switchOnAbove" },
-  { propertyThresholdPositive: false, invert: true, outputChannelValue: RelayState.OFF, label: "Edge.Index.Widgets.Singlethreshold.switchOnAbove" },
-  { propertyThresholdPositive: false, invert: true, outputChannelValue: RelayState.ON, label: "Edge.Index.Widgets.Singlethreshold.switchOnAbove" },
-  { propertyThresholdPositive: false, invert: false, outputChannelValue: RelayState.OFF, label: "Edge.Index.Widgets.Singlethreshold.switchOnBelow" },
-  { propertyThresholdPositive: false, invert: false, outputChannelValue: RelayState.ON, label: "Edge.Index.Widgets.Singlethreshold.switchOnBelow" },
+  { propertyThresholdPositive: true, invert: true, outputChannelValue: RelayState.OFF, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW" },
+  { propertyThresholdPositive: true, invert: true, outputChannelValue: RelayState.ON, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW" },
+  { propertyThresholdPositive: true, invert: false, outputChannelValue: RelayState.OFF, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE" },
+  { propertyThresholdPositive: true, invert: false, outputChannelValue: RelayState.ON, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE" },
+  { propertyThresholdPositive: false, invert: true, outputChannelValue: RelayState.OFF, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE" },
+  { propertyThresholdPositive: false, invert: true, outputChannelValue: RelayState.ON, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE" },
+  { propertyThresholdPositive: false, invert: false, outputChannelValue: RelayState.OFF, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW" },
+  { propertyThresholdPositive: false, invert: false, outputChannelValue: RelayState.ON, label: "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW" },
 ] as const;
 
