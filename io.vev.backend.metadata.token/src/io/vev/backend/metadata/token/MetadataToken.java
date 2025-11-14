@@ -226,11 +226,11 @@ public class MetadataToken extends AbstractMetadata implements Metadata, EventHa
 		this.log.info("Authenticating user {} for tenant {}", userId, tenantId);
 		final var mongo = this.mongoRepository.forTenant(tenantId);
 		this.log.info("Fetching user {} from tenant {}", userId, tenantId);
-		var mongoUser = mongo.getUser(userId);
 		this.log.info("Fetching edges for tenant {}", tenantId);
 		var edges = mongo.getEdgeList();
 		this.edgeCache.syncEdgesForTenant(tenantId, edges);
 		this.log.info("Found {} edges for tenant {}", edges.size(), tenantId);
+        var mongoUser = mongo.getUser(userId);
 		if (mongoUser.isEmpty()) {
 			this.log.warn("User not found in tenant {}", tenantId);
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
