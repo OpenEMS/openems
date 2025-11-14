@@ -1,12 +1,15 @@
 package io.openems.edge.evcc.weather;
 
-import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
@@ -20,14 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.weather.api.DailyWeatherSnapshot;
+import io.openems.edge.weather.api.HourlyWeatherSnapshot;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 import io.openems.edge.weather.api.Weather;
-import io.openems.edge.weather.api.WeatherData;
-import io.openems.edge.weather.api.WeatherSnapshot;
 
 @Designate(ocd = Config.class)
 @Component(name = "Weather.Evcc", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -67,55 +72,91 @@ public class WeatherEvccImpl extends AbstractOpenemsComponent implements Weather
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		if (this.forecastService != null) {
+			this.forecastService.cleanup();
+			this.forecastService = null;
+		}
 		if (this.httpBridge != null) {
 			this.httpBridgeFactory.unget(this.httpBridge);
 			this.httpBridge = null;
 		}
-		this.forecastService = null;
 	}
 
 	@Override
-	public WeatherSnapshot getCurrentWeather() {
-		log.warn("getCurrentWeather");
+	public QuarterlyWeatherSnapshot getCurrentWeather() throws OpenemsException {
 		if (this.forecastService == null) {
-			throw new IllegalStateException(
-					"WeatherForecastService is not available. This may happen if the weather API component is not enabled or configured");
-		}
-		return this.forecastService.getWeatherForecast()
-				.getAtOrElse(roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock())), null);
-	}
-
-	@Override
-	public CompletableFuture<WeatherData> getHistoricalWeather(ZonedDateTime dateFrom, ZonedDateTime dateTo) {
-		return CompletableFuture.failedFuture(new IllegalStateException("HistoricalWeatherService is not available."));
-	}
-
-	@Override
-	public WeatherData getWeatherForecast() {
-		if (this.forecastService == null) {
-			throw new IllegalStateException(
+			throw new OpenemsException(
 					"WeatherForecastService is not available. This may happen if the weather API component is not enabled or configured");
 		}
 
-		final var weatherData = this.forecastService.getWeatherForecast();
-		if (weatherData.isEmpty()) {
-			return WeatherData.EMPTY_WEATHER_DATA;
-		}
+		// Validate data freshness
+		this.validateForecastData();
 
 		final var now = roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock()));
-		if (weatherData.getFirstTime().isEqual(now)) {
-			return weatherData;
+		final var forecast = this.forecastService.getWeatherForecast();
+
+		return forecast.stream() //
+				.filter(snapshot -> snapshot.datetime().isEqual(now)) //
+				.findFirst() //
+				.orElse(null);
+	}
+
+	@Override
+	public CompletableFuture<List<QuarterlyWeatherSnapshot>> getHistoricalWeather(//
+			LocalDate dateFrom, //
+			LocalDate dateTo, //
+			ZoneId zone) {
+		return CompletableFuture
+				.failedFuture(new OpenemsException("Historical weather data is not available from EVCC API"));
+	}
+
+	@Override
+	public List<QuarterlyWeatherSnapshot> getQuarterlyWeatherForecast(int forecastQuarters) throws OpenemsException {
+		if (this.forecastService == null) {
+			throw new OpenemsException(
+					"WeatherForecastService is not available. This may happen if the weather API component is not enabled or configured");
 		}
 
-		final var newMap = weatherData.toMapWithAllQuarters().entrySet().stream() //
-				.filter(e -> !now.isAfter(e.getKey())) //
-				.collect(toImmutableSortedMap(Comparator.naturalOrder(), Entry::getKey, Entry::getValue));
+		// Validate data freshness
+		this.validateForecastData();
 
-		if (newMap.isEmpty()) {
-			return WeatherData.EMPTY_WEATHER_DATA;
+		final var now = roundDownToQuarter(ZonedDateTime.now(this.componentManager.getClock()));
+		final var forecast = this.forecastService.getWeatherForecast();
+
+		return forecast.stream() //
+				.filter(snapshot -> !snapshot.datetime().isBefore(now)) //
+				.limit(forecastQuarters) //
+				.toList();
+	}
+
+	@Override
+	public List<HourlyWeatherSnapshot> getHourlyWeatherForecast(int forecastHours) throws OpenemsException {
+		// EVCC only provides quarterly data, no hourly aggregation available
+		return new ArrayList<>();
+	}
+
+	@Override
+	public List<DailyWeatherSnapshot> getDailyWeatherForecast() throws OpenemsException {
+		// EVCC only provides quarterly data, no daily aggregation available
+		return new ArrayList<>();
+	}
+
+	/**
+	 * Validates that the forecast data is available and not stale.
+	 *
+	 * @throws OpenemsException if the forecast data is unavailable or outdated
+	 */
+	private void validateForecastData() throws OpenemsException {
+		final var lastUpdate = this.forecastService.getLastUpdate();
+		final var forecast = this.forecastService.getWeatherForecast();
+
+		if (forecast.isEmpty()) {
+			throw new OpenemsException("Weather forecast data is not available");
 		}
 
-		return WeatherData.from(newMap);
+		if (lastUpdate == null || lastUpdate.isBefore(Instant.now(this.clock).minus(Duration.ofDays(1)))) {
+			throw new OpenemsException("Weather forecast data is outdated (last update: " + lastUpdate + ")");
+		}
 	}
 
 	/**

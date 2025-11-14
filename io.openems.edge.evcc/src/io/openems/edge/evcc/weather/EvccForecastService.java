@@ -2,27 +2,28 @@
 package io.openems.edge.evcc.weather;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.edge.bridge.http.api.BridgeHttp;
 import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.api.BridgeHttpTime.TimeEndpoint;
 import io.openems.edge.bridge.http.api.HttpError;
 import io.openems.edge.bridge.http.api.HttpMethod;
 import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.weather.api.WeatherData;
-import io.openems.edge.weather.api.WeatherSnapshot;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
 public class EvccForecastService {
 
@@ -33,7 +34,9 @@ public class EvccForecastService {
 	private final String apiUrl;
 	private final Config config;
 
-	private WeatherData weatherForecast = WeatherData.EMPTY_WEATHER_DATA;
+	private List<QuarterlyWeatherSnapshot> weatherForecast = new ArrayList<>();
+	private Instant lastUpdate = null;
+	private TimeEndpoint subscription = null;
 
 	public EvccForecastService(String apiUrl, BridgeHttp httpBridge, Clock clock, Config config) {
 		this.apiUrl = apiUrl;
@@ -41,8 +44,8 @@ public class EvccForecastService {
 		this.clock = clock;
 		this.config = config;
 
-		this.httpBridge.subscribeTime(new EvccDelayTimeProvider(this.clock), this::createEndpoint, this::handleResponse,
-				this::handleError);
+		this.subscription = this.httpBridge.subscribeTime(new EvccDelayTimeProvider(this.clock), this::createEndpoint,
+				this::handleResponse, this::handleError);
 	}
 
 	private Endpoint createEndpoint() {
@@ -56,13 +59,14 @@ public class EvccForecastService {
 			try {
 				JsonObject json = com.google.gson.JsonParser.parseString(response.data()).getAsJsonObject();
 				this.parseJson(json);
+				this.lastUpdate = Instant.now(this.clock);
 			} catch (Exception e) {
 				log.error("Error parsing EVCC response: {}", e.getMessage(), e);
 			}
 		} else {
 			log.warn("EVCC API returned status {}", response.status().code());
 		}
-		log.debug("Received {} forecast entries", this.weatherForecast.asArray().length);
+		log.debug("Received {} forecast entries", this.weatherForecast.size());
 	}
 
 	private void handleError(HttpError error) {
@@ -70,7 +74,7 @@ public class EvccForecastService {
 	}
 
 	private void parseJson(JsonObject json) {
-		TreeMap<ZonedDateTime, WeatherSnapshot> result = new TreeMap<>();
+		List<QuarterlyWeatherSnapshot> result = new ArrayList<>();
 		final int interval = 15;
 
 		JsonArray rates;
@@ -85,8 +89,8 @@ public class EvccForecastService {
 
 		for (var element : rates) {
 			JsonObject e = element.getAsJsonObject();
-			Integer ghiValue = e.has("value") ? e.get("value").getAsInt() : null;
-			if (ghiValue == null) {
+			Integer powerValue = e.has("value") ? e.get("value").getAsInt() : null;
+			if (powerValue == null) {
 				continue;
 			}
 
@@ -96,24 +100,26 @@ public class EvccForecastService {
 					.withZoneSameInstant(ZoneId.of("UTC"));
 
 			long duration = ChronoUnit.MINUTES.between(startTime, endTime);
-			int steps = (int) (duration / interval); // fixed interval defined above and reused here and below
+			int steps = (int) (duration / interval);
 
 			for (int i = 0; i < steps; i++) {
-				result.put(startTime.plusMinutes(i * interval), this.createSnapshot(ghiValue));
+				ZonedDateTime datetime = startTime.plusMinutes(i * interval);
+				result.add(this.createSnapshot(datetime, powerValue));
 			}
 		}
 
-		this.weatherForecast = WeatherData.from(ImmutableSortedMap.copyOf(result));
+		this.weatherForecast = result;
 	}
 
-	private WeatherSnapshot createSnapshot(int power) {
+	private QuarterlyWeatherSnapshot createSnapshot(ZonedDateTime datetime, int power) {
 		double factor = 1;
 		if (this.config != null) {
 			factor = this.config.factor();
 		}
-		int ghi = (int) (power / factor);
+		double ghi = power / factor;
 
-		return new WeatherSnapshot(ghi, 0.0, 0.0, 0);
+		// DNI is set to 0.0 since EVCC only provides power forecasts, not actual irradiance data
+		return new QuarterlyWeatherSnapshot(datetime, ghi, 0.0);
 	}
 
 	/**
@@ -121,13 +127,33 @@ public class EvccForecastService {
 	 *
 	 * <p>
 	 * The forecast is periodically updated by the subscribed HTTP bridge from the
-	 * EVCC API. If no valid forecast has been received yet, this method returns
-	 * {@link WeatherData#EMPTY_WEATHER_DATA}.
+	 * EVCC API. If no valid forecast has been received yet, this method returns an
+	 * empty list.
 	 *
-	 * @return the latest {@link WeatherData}, or
-	 *         {@link WeatherData#EMPTY_WEATHER_DATA} if no forecast is available
+	 * @return the latest list of {@link QuarterlyWeatherSnapshot}, or an empty
+	 *         list if no forecast is available
 	 */
-	public WeatherData getWeatherForecast() {
+	public List<QuarterlyWeatherSnapshot> getWeatherForecast() {
 		return this.weatherForecast;
+	}
+
+	/**
+	 * Returns the timestamp of the last successful forecast update.
+	 *
+	 * @return the {@link Instant} of the last update, or null if no update has
+	 *         occurred yet
+	 */
+	public Instant getLastUpdate() {
+		return this.lastUpdate;
+	}
+
+	/**
+	 * Removes the subscription and cleans up resources.
+	 */
+	public void cleanup() {
+		if (this.subscription != null && this.httpBridge != null) {
+			this.httpBridge.removeTimeEndpointIf(t -> t.equals(this.subscription));
+			this.subscription = null;
+		}
 	}
 }
