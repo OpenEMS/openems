@@ -14,6 +14,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestComponentDefConfig;
 import io.openems.edge.app.TestFilter;
 import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
@@ -41,6 +42,7 @@ import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AblEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
 import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
@@ -63,6 +65,7 @@ import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
+import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
@@ -85,6 +88,7 @@ import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
 import io.openems.edge.app.openemshardware.TechbaseCm3;
@@ -103,8 +107,10 @@ import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AncillaryCosts;
+import io.openems.edge.app.timeofusetariff.AppLuoxEnergy;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.EntsoE;
+import io.openems.edge.app.timeofusetariff.Ews;
 import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
@@ -280,6 +286,16 @@ public final class Apps {
 		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
 	}
 
+	/**
+	 * Test method for creating a {@link FeneconProHybrid10}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconProHybrid10 feneconProHybrid10(AppManagerTestBundle t) {
+		return app(t, FeneconProHybrid10::new, "App.FENECON.ProHybrid.10");
+	}
+
 	// TimeOfUseTariff
 
 	/**
@@ -290,6 +306,16 @@ public final class Apps {
 	 */
 	public static final AncillaryCosts ancillaryCosts(AppManagerTestBundle t) {
 		return app(t, AncillaryCosts::new, "App.TimeOfUseTariff.AncillaryCosts");
+	}
+
+	/**
+	 * Test method for creating a {@link AppLuoxEnergy}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppLuoxEnergy luoxEnergy(AppManagerTestBundle t) {
+		return app(t, AppLuoxEnergy::new, "App.TimeOfUseTariff.LuoxEnergy");
 	}
 
 	/**
@@ -310,6 +336,16 @@ public final class Apps {
 	 */
 	public static final EntsoE entsoE(AppManagerTestBundle t) {
 		return app(t, EntsoE::new, "App.TimeOfUseTariff.ENTSO-E");
+	}
+
+	/**
+	 * Test method for creating a {@link Ews}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Ews ews(AppManagerTestBundle t) {
+		return app(t, Ews::new, "App.TimeOfUseTariff.Ews");
 	}
 
 	/**
@@ -490,6 +526,16 @@ public final class Apps {
 	 */
 	public static final TestMapPropName testMapPropName(AppManagerTestBundle t) {
 		return app(t, TestMapPropName::new, "App.Test.TestMapPropName");
+	}
+
+	/**
+	 * Test method for creating a {@link TestComponentDefConfig}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestComponentDefConfig testComponentDefConfig(AppManagerTestBundle t) {
+		return app(t, TestComponentDefConfig::new, "App.Test.TestComponentDefConfig");
 	}
 
 	// Test
@@ -759,6 +805,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AblEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AblEvcsReadOnly ablEvcs(AppManagerTestBundle t) {
+		return app(t, AblEvcsReadOnly::new, "App.Evcs.Abl.ReadOnly");
+	}
+
+	/**
 	 * Test method for creating a {@link AlpitronicEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -956,6 +1012,16 @@ public final class Apps {
 	 */
 	public static final JanitzaMeter janitzaMeter(AppManagerTestBundle t) {
 		return app(t, JanitzaMeter::new, "App.Meter.Janitza");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterJanitza}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterJanitza janitzaGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterJanitza::new, "App.GridMeter.Janitza");
 	}
 
 	/**

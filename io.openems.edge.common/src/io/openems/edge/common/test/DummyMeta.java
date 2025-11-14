@@ -8,6 +8,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -22,6 +23,7 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	private String postcode;
 	private Coordinates coordinates;
 	private ZoneId timezone;
+	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
 
 	public DummyMeta(String id) {
 		super(id, //
@@ -172,5 +174,22 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	public DummyMeta withTimezone(ZoneId timezone) {
 		this.timezone = timezone;
 		return this.self();
+	}
+
+	/**
+	 * Sets the {@link ThirdPartyUsageAcceptance} for this {@link DummyMeta}
+	 * instance and returns the instance itself.
+	 *
+	 * @param thirdPartyUsageAcceptance the acceptance status of third-party usage
+	 * @return myself
+	 */
+	public DummyMeta withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
+		this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
+		return this.self();
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
+		return this.thirdPartyUsageAcceptance;
 	}
 }
