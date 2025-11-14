@@ -34,7 +34,7 @@ public final class MeterProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a boolean for a invertion of a meter.
+	 * Creates a {@link AppDef} for a boolean for an inversion of a meter.
 	 * 
 	 * @param <APP> the type of the app
 	 * @param prop  {@link Nameable} referencing the meter id
@@ -52,7 +52,7 @@ public final class MeterProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a ip for a meter.
+	 * Creates a {@link AppDef} for an ip for a meter.
 	 * 
 	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
@@ -96,9 +96,8 @@ public final class MeterProps {
 	 * @see CommonProps#phaseRotation()
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(
-				CommonProps.phaseRotation() //
-						.setTranslatedDescription("App.Meter.phaseRotation.description"));
+		return AppDef.copyOfGeneric(CommonProps.phaseRotation() //
+				.setTranslatedDescription("App.Meter.phaseRotation.description"));
 	}
 
 }

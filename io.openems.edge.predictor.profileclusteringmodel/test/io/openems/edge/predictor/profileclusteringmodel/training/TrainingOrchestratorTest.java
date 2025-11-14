@@ -1,11 +1,11 @@
 package io.openems.edge.predictor.profileclusteringmodel.training;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -38,8 +38,8 @@ import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineer
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringTrainingService;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringTrainingService.ClusteringResult;
 import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
-import io.openems.edge.predictor.profileclusteringmodel.services.RawTimeSeriesService;
 import io.openems.edge.predictor.profileclusteringmodel.services.TimeSeriesPreprocessingService;
+import io.openems.edge.predictor.profileclusteringmodel.services.TrainingDataService;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -53,13 +53,12 @@ public class TrainingOrchestratorTest {
 	@Test
 	public void testRunTraining_ShouldCallAllServicesInOrder() throws Exception {
 		// Mock services
-		var trainingCallback = mock(TrainingCallback.class);
 		var clock = Clock.fixed(//
 				Instant.parse("2025-07-17T15:45:00Z"), //
 				ZoneOffset.UTC);
 
 		var trainingContext = new TrainingContext(//
-				trainingCallback, //
+				mock(TrainingCallback.class), //
 				() -> clock, //
 				mock(Timedata.class), //
 				mock(ChannelAddress.class), //
@@ -73,7 +72,7 @@ public class TrainingOrchestratorTest {
 		var clusterer = mock(Clusterer.class);
 		var classifier = mock(Classifier.class);
 
-		var rawTimeSeriesService = mock(RawTimeSeriesService.class);
+		var rawTimeSeriesService = mock(TrainingDataService.class);
 		var timeSeriesPreprocessingService = mock(TimeSeriesPreprocessingService.class);
 		var profileClusteringTrainingService = mock(ProfileClusteringTrainingService.class);
 		var featureEngineeringService = mock(FeatureEngineeringService.class);
@@ -92,7 +91,7 @@ public class TrainingOrchestratorTest {
 		// Simulate services
 		when(rawTimeSeriesService.fetchSeriesForWindow(any()))//
 				.thenReturn(rawTimeSeries.copy());
-		when(timeSeriesPreprocessingService.preprocessTimeSeries(any()))//
+		when(timeSeriesPreprocessingService.preprocessTimeSeriesForTraining(any()))//
 				.thenReturn(timeSeriesPerDay.copy());
 		when(profileClusteringTrainingService.clusterTimeSeries(any()))//
 				.thenReturn(new ClusteringResult(clusterer, clusteringResult.copy()));
@@ -110,29 +109,26 @@ public class TrainingOrchestratorTest {
 				featureEngineeringService, //
 				classifierTrainingService);
 
-		orchestrator.runTraining();
+		final var result = orchestrator.runTraining();
 
 		var inOrder = inOrder(//
 				rawTimeSeriesService, //
 				timeSeriesPreprocessingService, //
 				profileClusteringTrainingService, //
 				featureEngineeringService, //
-				classifierTrainingService, //
-				trainingCallback);
+				classifierTrainingService);
 
 		// Verify that all services were called in the correct order with the expected
 		// (unchanged) arguments
 		inOrder.verify(rawTimeSeriesService).fetchSeriesForWindow(eq(trainingContext.trainingWindow()));
-		inOrder.verify(timeSeriesPreprocessingService).preprocessTimeSeries(eq(rawTimeSeries));
+		inOrder.verify(timeSeriesPreprocessingService).preprocessTimeSeriesForTraining(eq(rawTimeSeries));
 		inOrder.verify(profileClusteringTrainingService).clusterTimeSeries(eq(timeSeriesPerDay));
 		inOrder.verify(featureEngineeringService).transformForTraining(eq(clusteringResult));
 		inOrder.verify(classifierTrainingService).trainClassifier(eq(featureMatrix));
 
-		// Verify that models were saved
-		inOrder.verify(trainingCallback)
-				.onModelsTrained(eq(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant())));
-
 		inOrder.verifyNoMoreInteractions();
+		
+		assertEquals(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()), result);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -175,14 +171,12 @@ public class TrainingOrchestratorTest {
 		when(classifierFitter.fit(any(DataFrame.class), any(Series.class))).thenReturn(classifier);
 
 		var orchestrator = new TrainingOrchestrator(trainingContext);
-		orchestrator.runTraining();
+		var result = orchestrator.runTraining();
 
-		verify(trainingCallback).onModelsTrained(//
-				argThat(bundle -> //
-				bundle.clusterer() == clusterer //
-						&& bundle.classifier() == classifier //
-						&& bundle.oneHotEncoder() != null //
-						&& bundle.createdAt().equals(clock.instant())));
+		assertEquals(clusterer, result.clusterer());
+		assertEquals(classifier, result.classifier());
+		assertNotNull(result.oneHotEncoder());
+		assertEquals(clock.instant(), result.createdAt());
 	}
 
 	private static Series<ZonedDateTime> testSeries() {

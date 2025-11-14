@@ -20,13 +20,25 @@
     padding-top: 0;
 }
 
+.ion-padding-top-triple {
+    padding-top: calc(var(--ion-padding) * 3);
+}
+
+.ion-padding-bottom-triple {
+    padding-bottom: calc(var(--ion-padding) * 3);
+}
+
 /** Font */
 .ion-font-size-medium {
     font-size: medium !important;
 }
 
 .ion-font-size-large {
-    font-size: xx-large !important;
+    font-size: large !important;
+}
+
+.ion-font-size-smaller {
+    font-size: smaller !important;
 }
 
 .ion-font-size-smaller {
@@ -37,8 +49,16 @@
     font-size: small !important;
 }
 
+.ion-font-size-large {
+    font-size: large !important;
+}
+
 .ion-font-size-larger {
     font-size: larger !important;
+}
+
+.ion-font-size-x-large {
+    font-size: x-large !important;
 }
 
 .ion-font-size-x-small {

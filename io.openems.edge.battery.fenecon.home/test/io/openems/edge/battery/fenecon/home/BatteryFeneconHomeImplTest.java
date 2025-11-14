@@ -727,8 +727,78 @@ public class BatteryFeneconHomeImplTest {
 						.build()) //
 
 				.next(new TestCase() //
-						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, 0)) //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "0.0")) //
 
+				.deactivate();
+	}
+
+	@Test
+	public void testReadSoftwareVersionModbus() throws Exception {
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegister(18000, (byte) 0x01, (byte) 0x11)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "1.17"))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, 1))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, 17)) 
+				.deactivate();
+		
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegister(18000, (byte) 0x01, (byte) 0x02)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "1.2"))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, 1))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, 2)) 
+				.deactivate();
+		
+		var sut2 = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut2) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) // with no registers
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, null))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, null))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, null)) 
 				.deactivate();
 	}
 }

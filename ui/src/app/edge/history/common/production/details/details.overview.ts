@@ -8,56 +8,56 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
-  templateUrl: "./details.overview.html",
-  standalone: false,
+    templateUrl: "./details.overview.html",
+    standalone: false,
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
-  protected navigationButtons: NavigationOption[] = [];
+    protected navigationButtons: NavigationOption[] = [];
 
-  protected componentSome: { type: "sum" | "productionMeter" | "charger", displayName: string } | null = null;
+    protected componentSome: { type: "sum" | "productionMeter" | "charger", displayName: string } | null = null;
 
-  constructor(
-    public override service: Service,
-    protected override route: ActivatedRoute,
-    public override modalCtrl: ModalController,
-    private router: Router,
-    private translate: TranslateService,
-  ) {
-    super(service, route, modalCtrl);
-  }
-
-  protected override afterIsInitialized() {
-    this.componentSome = this.getComponentType();
-
-    this.service.getCurrentEdge().then(edge => {
-
-      // Hide current & voltage
-      if (this.component?.factoryId === "Core.Sum") {
-        return;
-      }
-
-      this.navigationButtons = [
-        { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
-    });
-  }
-
-  private getComponentType(): typeof this.componentSome {
-    if (!this.component) {
-      return null;
+    constructor(
+        public override service: Service,
+        protected override route: ActivatedRoute,
+        public override modalCtrl: ModalController,
+        private router: Router,
+        private translate: TranslateService,
+    ) {
+        super(service, route, modalCtrl);
     }
 
-    if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
-      return { type: "charger", displayName: this.component.alias };
+    protected override afterIsInitialized() {
+        this.componentSome = this.getComponentType();
+
+        this.service.getCurrentEdge().then(edge => {
+
+            // Hide current & voltage
+            if (this.component?.factoryId === "Core.Sum") {
+                return;
+            }
+
+            this.navigationButtons = [
+                { id: "currentVoltage", isEnabled: edge.roleIsAtLeast(Role.INSTALLER), alias: this.translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), callback: () => { this.router.navigate(["./currentVoltage"], { relativeTo: this.route }); } }];
+        });
     }
 
-    if (this.config.isProducer(this.component) && this.component.isEnabled) {
-      return { type: "productionMeter", displayName: this.component.alias };
-    }
+    private getComponentType(): typeof this.componentSome {
+        if (!this.component) {
+            return null;
+        }
 
-    if (this.component.factoryId === "Core.Sum") {
-      return { type: "sum", displayName: this.translate.instant("GENERAL.TOTAL") };
-    }
+        if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
+            return { type: "charger", displayName: this.component.alias };
+        }
 
-    return null;
-  }
+        if (this.config.isProducer(this.component) && this.component.isEnabled) {
+            return { type: "productionMeter", displayName: this.component.alias };
+        }
+
+        if (this.component.factoryId === "Core.Sum") {
+            return { type: "sum", displayName: this.translate.instant("GENERAL.TOTAL") };
+        }
+
+        return null;
+    }
 }

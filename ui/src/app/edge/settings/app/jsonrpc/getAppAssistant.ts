@@ -59,10 +59,30 @@ export namespace GetAppAssistant {
     }
 
     export interface AppAssistant {
-        name: string,
+        name: string | "configuration" | "oauth",
         alias: string,
         fields: FormlyFieldConfig[],
+        steps?: AppConfigurationStep[],
     }
+
+    export enum AppConfigurationStepType {
+        CONFIGURATION = "configuration",
+        OAUTH = "oauth",
+    }
+
+    export type AppConfigurationStep = {
+        type: string,
+        params: object,
+    } | {
+        type: AppConfigurationStepType.CONFIGURATION,
+    } | {
+        type: AppConfigurationStepType.OAUTH,
+        params: {
+            oauthName: string,
+            componentIdPropertyPath?: string,
+            helperText?: string,
+        },
+    };
 
     export function postprocess(appAssistant: AppAssistant): AppAssistant {
         const fields = appAssistant.fields;

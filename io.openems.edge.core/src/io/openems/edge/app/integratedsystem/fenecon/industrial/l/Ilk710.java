@@ -1,13 +1,20 @@
 package io.openems.edge.app.integratedsystem.fenecon.industrial.l;
 
-import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.TranslationUtil.translate;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.battery;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essCluster;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essGenericManagedSymmetric;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.io;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.modbusInternal;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.modbusToBattery;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.modbusToBatteryInverter;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.power;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.system;
 
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -17,16 +24,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.OptionsFactory;
-import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.l.Ilk710.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -35,6 +38,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -46,7 +50,8 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.FENECON.Industrial.L.ILK710")
-public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, BundleParameter> implements OpenemsApp {
+public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, BundleParameter>
+		implements OpenemsApp, AppManagerUtilSupplier {
 
 	public enum Property implements Type<Property, Ilk710, BundleParameter> {
 		ALIAS(alias()), //
@@ -69,7 +74,7 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 
 		private final AppDef<? super Ilk710, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super Ilk710, ? super Property, ? super BundleParameter> def) {
+		Property(AppDef<? super Ilk710, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -144,67 +149,11 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 			final var isSmokeDetectionInstalled = this.getBoolean(p, Property.IS_SMOKE_DETECTION_INSTALLED);
 
 			final var components = Lists.newArrayList(//
-					new EdgeConfig.Component("_power", "", "Ess.Power", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("strategy", "OPTIMIZE_BY_KEEPING_ALL_EQUAL") //
-									.build()), //
-					new EdgeConfig.Component("system0", "System Industrial L (ILK710)", "System.Fenecon.Industrial.L", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("ess.id", essClusterId) //
-									.addProperty("coolingUnitCoolingSetPoint", 25) //
-									.addProperty("coolingUnitHeatingSetPoint", 24) //
-									.addProperty("coolingUnitModbus.id", modbusIdToCoolingUnit) //
-									.addProperty("coolingUnitModbusUnitId", 1) //
-									.addProperty("coolingUnitMode", "ENABLED") //
-									.addProperty("bmsHardReset", "io0/DigitalOutput1") //
-									.addProperty("acknowledgeEmergencyStop", "io0/DigitalOutput2") //
-									.addProperty("emergencyStopState", "io0/DigitalInput3") //
-									.addProperty("spdTripped", "io0/DigitalInput2") //
-									.addProperty("fuseTripped", "io0/DigitalInput4") //
-									.addProperty("psuTriggered", "io0/DigitalInput1") //
-									.addProperty("isSmokeDetectionInstalled", isSmokeDetectionInstalled) //
-									.addProperty("smokeDetection", "io0/DigitalInputOutput1") //
-									.addProperty("smokeDetectionFailure", "io0/DigitalInputOutput2") //
-									.onlyIf(t == ConfigurationTarget.ADD, b -> {
-										b.addProperty("startStop", "STOP");
-									}) //
-									.add("battery.ids", IntStream.range(0, NUMBER_OF_BATTERIES) //
-											.mapToObj(i -> new JsonPrimitive("battery" + (i + 1))) //
-											.collect(toJsonArray())) //
-									.build()), //
-					new EdgeConfig.Component(modbusIdToCoolingUnit,
-							translate(bundle, "App.FENECON.Industrial.L.modbus0.alias"), "Bridge.Modbus.Serial", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("baudRate", 9600) //
-									.addProperty("databits", 8) //
-									.onlyIf(t == ConfigurationTarget.ADD, b -> b //
-											.addProperty("logVerbosity", "NONE") //
-											.addProperty("invalidateElementsAfterReadErrors", 1)) //
-									.addProperty("parity", Parity.NONE) //
-									.addProperty("portName", "/dev/ttySC0") //
-									.addProperty("stopbits", "ONE") //
-									.build()), //
-					new EdgeConfig.Component(essClusterId, translate(bundle, "App.IntegratedSystem.essCluster0.alias"),
-							"Ess.Cluster", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("startStop", "AUTO") //
-									.add("ess.ids", IntStream.range(0, NUMBER_OF_BATTERIES) //
-											.mapToObj(i -> new JsonPrimitive("ess" + (i + 1))) //
-											.collect(toJsonArray())) //
-									.build()), //
-					// TODO extract translation to generic namespace
-					new EdgeConfig.Component(ioId, translate(bundle, "App.FENECON.Industrial.L.io0"), "IO.Gpio", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("gpioPath", "/sys/class") //
-									.addProperty("hardwareType",
-											isNewHardware ? "MODBERRY_X500_M40804_MAX" : "MODBERRY_X500_M40804_WB") //
-									.build()) //
-
-			);
+					power(), //
+					system(t, essClusterId, modbusIdToCoolingUnit, isSmokeDetectionInstalled, NUMBER_OF_BATTERIES), //
+					modbusInternal(bundle, t, modbusIdToCoolingUnit), //
+					essCluster(bundle, essClusterId, NUMBER_OF_BATTERIES), //
+					io(ioId, bundle, isNewHardware));
 
 			for (int i = 0; i < NUMBER_OF_BATTERIES; i++) {
 				final var oneBased = i + 1;
@@ -213,70 +162,24 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 				final var batteryInverterId = "batteryInverter" + oneBased;
 				final var batteryModbusId = "modbus" + (oneBased + 20);
 				final var batteryInverterModbusId = "modbus" + (oneBased + 10);
+				final var batteryNumber = oneBased + 20;
+				final var batteryInverterNumber = oneBased + 10;
 
-				// TODO: in future remove EnfasBms
 				if (batteryFirmwareVersion == BatteryFirmwareVersion.WUERTH_VERSION_1_0_9) {
-					components.add(new EdgeConfig.Component(batteryId, //
-							translate(bundle, "App.IntegratedSystem.batteryN.alias", oneBased), //
-							"Battery.WuerthBms", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("modbus.id", batteryModbusId) //
-									.addProperty("modbusUnitId", 1) //
-									.addProperty("startStop", "AUTO") //
-									.addProperty("version", batteryFirmwareVersion) //
-									.build()));
+					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
+							batteryFirmwareVersion.getValue(), "Battery.WuerthBms"));
 				} else {
-					components.add(new EdgeConfig.Component(batteryId, //
-							translate(bundle, "App.IntegratedSystem.batteryN.alias", oneBased), //
-							"Battery.EnfasBms", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("modbus.id", batteryModbusId) //
-									.addProperty("modbusUnitId", 1) //
-									.addProperty("startStop", "AUTO") //
-									.addProperty("version", batteryFirmwareVersion) //
-									.build()));
+					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
+							batteryFirmwareVersion.getValue(), "Battery.EnfasBms"));
 				}
 
-				components.add(new EdgeConfig.Component(batteryInverterId, //
-						translate(bundle, "App.IntegratedSystem.batteryInverterN.alias", oneBased), //
-						"Battery-Inverter.Kaco.BlueplanetGridsave", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.addProperty("activateWatchdog", true) //
-								.addProperty("modbus.id", batteryInverterModbusId) //
-								.addProperty("startStop", "AUTO") //
-								.build()));
-
-				components.add(new EdgeConfig.Component(essId, //
-						translate(bundle, "App.IntegratedSystem.essN.alias", oneBased), //
-						"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.addProperty("battery.id", batteryId) //
-								.addProperty("batteryInverter.id", batteryInverterId) //
-								.addProperty("startStop", "AUTO") //
-								.build()));
-
-				components.add(new EdgeConfig.Component(batteryModbusId, //
-						translate(bundle, "App.IntegratedSystem.modbusToBatteryN.alias", oneBased), //
-						"Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.addProperty("ip", "10.4.0.2" + oneBased) //
-								.addProperty("port", 502) //
-								.onlyIf(t == ConfigurationTarget.ADD, b -> b //
-										.addProperty("logVerbosity", "NONE") //
-										.addProperty("invalidateElementsAfterReadErrors", 5)) //
-								.build()));
-
-				components.add(new EdgeConfig.Component(batteryInverterModbusId, //
-						translate(bundle, "App.IntegratedSystem.modbus1N.alias", oneBased), //
-						"Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.addProperty("ip", "10.4.0.1" + oneBased) //
-								.addProperty("port", 502) //
-								.onlyIf(t == ConfigurationTarget.ADD, b -> b //
-										.addProperty("logVerbosity", "NONE") //
-										.addProperty("invalidateElementsAfterReadErrors", 3)) //
-								.build()));
+				components.add(batteryInverter(bundle, oneBased, batteryInverterModbusId));
+				components.add(essGenericManagedSymmetric(bundle, essId, oneBased, batteryId, batteryInverterId));
+				components.add(modbusToBattery(bundle, t, batteryNumber, oneBased));
+				components.add(modbusToBatteryInverter(bundle, t, batteryInverterNumber, oneBased));
+				components.add(essGenericManagedSymmetric(bundle, essId, oneBased, batteryId, batteryInverterId));
 			}
+
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.build();
@@ -290,7 +193,12 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 
 	private static boolean isOpenemsHardwareCM4Max(AppManagerUtil app) {
 		final var deviceHardware = app.getInstantiatedAppsByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
-		return !deviceHardware.isEmpty() && deviceHardware.get(0).appId.equals("App.OpenemsHardware.CM4Max");
+		return !deviceHardware.isEmpty() && deviceHardware.getFirst().appId.equals("App.OpenemsHardware.CM4Max");
+	}
+
+	@Override
+	public AppManagerUtil getAppManagerUtil() {
+		return this.appManagerUtil;
 	}
 
 }

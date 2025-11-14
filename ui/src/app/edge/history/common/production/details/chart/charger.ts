@@ -7,45 +7,45 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-  selector: "chargerChart",
-  templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
-  standalone: false,
+    selector: "chargerChart",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
 })
 export class ChargerChartDetailsComponent extends AbstractHistoryChart {
 
-  public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-    const component = config.getComponent(route.snapshot.params.componentId);
-    return {
-      input: [{
-        name: component.id,
-        powerChannel: ChannelAddress.fromString(component.id + "/ActualPower"),
-        energyChannel: ChannelAddress.fromString(component.id + "/ActualEnergy"),
-      }],
-      output: (data: HistoryUtils.ChannelData) => [{
-        name: component.alias,
-        nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
-          return energyQueryResponse.result.data[component.id + "/ActualEnergy"];
-        },
-        converter: () => {
-          return data[component.id];
-        },
-        color: "rgb(0,152,204)",
-        hiddenOnInit: false,
-        stack: 2,
-      }],
-      tooltip: {
-        formatNumber: "1.1-2",
-        afterTitle: translate.instant("GENERAL.TOTAL"),
-      },
-      yAxes: [{
-        unit: YAxisType.ENERGY,
-        position: "left",
-        yAxisId: ChartAxis.LEFT,
-      }],
-    };
-  }
+    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+        const component = config.getComponent(route.snapshot.params.componentId);
+        return {
+            input: [{
+                name: component.id,
+                powerChannel: ChannelAddress.fromString(component.id + "/ActualPower"),
+                energyChannel: ChannelAddress.fromString(component.id + "/ActualEnergy"),
+            }],
+            output: (data: HistoryUtils.ChannelData) => [{
+                name: component.alias,
+                nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
+                    return energyQueryResponse.result.data[component.id + "/ActualEnergy"];
+                },
+                converter: () => {
+                    return data[component.id];
+                },
+                color: "rgb(0,152,204)",
+                hiddenOnInit: false,
+                stack: 2,
+            }],
+            tooltip: {
+                formatNumber: "1.1-2",
+                afterTitle: translate.instant("GENERAL.TOTAL"),
+            },
+            yAxes: [{
+                unit: YAxisType.ENERGY,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            }],
+        };
+    }
 
-  protected override getChartData(): HistoryUtils.ChartData {
-    return ChargerChartDetailsComponent.getChartData(this.config, this.route, this.translate);
-  }
+    protected override getChartData(): HistoryUtils.ChartData {
+        return ChargerChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+    }
 }

@@ -13,31 +13,31 @@ import { FlatComponent } from "./flat/flat";
 import { OverviewComponent } from "./overview/overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-    FooterNavigationModule,
-    CurrentVoltageModule,
-  ],
-  declarations: [
-    FlatComponent,
-    OverviewComponent,
-    TotalChartComponent,
+    imports: [
+        BrowserModule,
+        SharedModule,
+        FooterNavigationModule,
+        CurrentVoltageModule,
+    ],
+    declarations: [
+        FlatComponent,
+        OverviewComponent,
+        TotalChartComponent,
 
-    ChargerChartDetailsComponent,
-    DetailsOverviewComponent,
-    ProductionMeterChartDetailsComponent,
-    SumChartDetailsComponent,
-  ],
-  exports: [
-    FlatComponent,
-    OverviewComponent,
-    TotalChartComponent,
+        ChargerChartDetailsComponent,
+        DetailsOverviewComponent,
+        ProductionMeterChartDetailsComponent,
+        SumChartDetailsComponent,
+    ],
+    exports: [
+        FlatComponent,
+        OverviewComponent,
+        TotalChartComponent,
 
-    ChargerChartDetailsComponent,
-    DetailsOverviewComponent,
-    ProductionMeterChartDetailsComponent,
-    SumChartDetailsComponent,
-  ],
+        ChargerChartDetailsComponent,
+        DetailsOverviewComponent,
+        ProductionMeterChartDetailsComponent,
+        SumChartDetailsComponent,
+    ],
 })
 export class Common_Production { }
