@@ -126,22 +126,20 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 			var lp = getAsJsonObject(result.data());
 
 			int chargePower = 0;
-
 			if (lp.has("chargePower")) {
 				chargePower = (int) Math.round(getAsDouble(lp, "chargePower"));
-				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.CONSUMPTION_POWER)
-						.setNextValue(chargePower);
 				this._setActivePower(chargePower);
 			} else {
-				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(null);
 				this._setActivePower(null);
 			}
 
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_PHASES).setNextValue(phases);
+
+			// Use double to maintain precision when dividing power across phases
 			double calculatedPower = chargePower;
 			if (phases > 1) {
-				calculatedPower = chargePower / phases;
+				calculatedPower = (double) chargePower / phases;
 			}
 
 			int totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsInt() : 0;
@@ -157,35 +155,19 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 
 				if (voltages.size() > 0 && voltages.get(0) != null && !voltages.get(0).isJsonNull()) {
 					double v1 = voltages.get(0).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1).setNextValue(v1);
 					this._setVoltage((int) Math.round(v1 * 1000));
-				} else {
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1)
-							.setNextValue(null);
-				}
-
-				if (voltages.size() > 0 && voltages.get(1) != null && !voltages.get(1).isJsonNull()) {
+				} else if (voltages.size() > 1 && voltages.get(1) != null && !voltages.get(1).isJsonNull()) {
 					double v2 = voltages.get(1).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2).setNextValue(v2);
 					this._setVoltage((int) Math.round(v2 * 1000));
-				} else {
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2)
-							.setNextValue(null);
-				}
-
-				if (voltages.size() > 0 && voltages.get(2) != null && !voltages.get(2).isJsonNull()) {
+				} else if (voltages.size() > 2 && voltages.get(2) != null && !voltages.get(2).isJsonNull()) {
 					double v3 = voltages.get(2).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3).setNextValue(v3);
 					this._setVoltage((int) Math.round(v3 * 1000));
 				} else {
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3)
-							.setNextValue(null);
+					this._setVoltage(null);
 				}
 			} else {
 				this.logDebug(this.log, "chargeVoltages not provided or null – defaulting voltages");
-
-				var voltage = 230;
-				this._setVoltage(voltage * 1000);
+				this._setVoltage(230 * 1000);
 			}
 
 			if (lp.has("chargeCurrents") && lp.get("chargeCurrents").isJsonArray()) {
@@ -193,18 +175,15 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 
 				if (currents.size() > 0 && currents.get(0) != null && !currents.get(0).isJsonNull()) {
 					double i1 = currents.get(0).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(i1);
-					this._setCurrent((int) i1 * 1000);
-				}
-				if (currents.size() > 0 && currents.get(1) != null && !currents.get(1).isJsonNull()) {
+					this._setCurrent((int) Math.round(i1 * 1000));
+				} else if (currents.size() > 1 && currents.get(1) != null && !currents.get(1).isJsonNull()) {
 					double i2 = currents.get(1).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(i2);
-					this._setCurrent((int) i2 * 1000);
-				}
-				if (currents.size() > 0 && currents.get(2) != null && !currents.get(2).isJsonNull()) {
+					this._setCurrent((int) Math.round(i2 * 1000));
+				} else if (currents.size() > 2 && currents.get(2) != null && !currents.get(2).isJsonNull()) {
 					double i3 = currents.get(2).getAsDouble();
-					this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(i3);
-					this._setCurrent((int) i3 * 1000);
+					this._setCurrent((int) Math.round(i3 * 1000));
+				} else {
+					this._setCurrent(null);
 				}
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
@@ -214,7 +193,6 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 				} else {
 					this._setCurrent(null);
 				}
-
 			}
 
 		} catch (OpenemsNamedException e) {

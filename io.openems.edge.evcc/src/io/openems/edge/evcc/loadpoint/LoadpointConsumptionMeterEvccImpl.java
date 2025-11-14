@@ -102,7 +102,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			if (!this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_ENERGY).value().isDefined()) {
+			if (!this.channel(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY).value().isDefined()) {
 				this.calculateEnergy();
 			}
 			break;
@@ -119,25 +119,6 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			this.logDebug(this.log, "processHttpResult");
 			var lp = getAsJsonObject(result.data());
 
-			Boolean hasSingleValues = false;
-
-			if (lp.has("chargeVoltages") && lp.has("chargeCurrents")) {
-				hasSingleValues = true;
-			}
-
-			// Notwendig? Wird CONSUMPTION_POWER nicht über
-			// calculateSumActivePowerFromPhases berechnet?
-//			int chargePower = 0;
-//
-//			if (lp.has("chargePower")) {
-//				chargePower = (int) Math.round(getAsDouble(lp, "chargePower"));
-//				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(chargePower);
-//				this._setActivePower(chargePower);
-//			} else {
-//				this.channel(LoadpointConsumptionMeterEvcc.ChannelId.CONSUMPTION_POWER).setNextValue(null);
-//				this._setActivePower(null);
-//			}
-
 			int chargePower = 0;
 			if (lp.has("chargePower")) {
 				chargePower = (int) Math.round(getAsDouble(lp, "chargePower"));
@@ -145,9 +126,11 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
 			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_PHASES).setNextValue(phases);
-			int calculatedPower = chargePower;
+
+			// Use double to maintain precision when dividing power across phases
+			double calculatedPower = chargePower;
 			if (phases > 1) {
-				calculatedPower = TypeUtils.divide(chargePower, phases);
+				calculatedPower = (double) chargePower / phases;
 			}
 
 			// Nutzung des Integrators über die Leistung
@@ -166,31 +149,25 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			if (lp.has("chargeVoltages") && lp.get("chargeVoltages").isJsonArray()) {
 				var voltages = lp.getAsJsonArray("chargeVoltages");
 
-				// ToDo Umbau auf setter-Methoden
 				if (voltages.size() > 0 && voltages.get(0) != null && !voltages.get(0).isJsonNull()) {
 					double v1 = voltages.get(0).getAsDouble();
-					//this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1).setNextValue(v1);
-					this._setVoltageL1((int) Math.round(v1 * 1000)); // Doppelt?
+					this._setVoltageL1((int) Math.round(v1 * 1000));
 				} else {
-					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L1).setNextValue(null);
+					this._setVoltageL1(null);
 				}
 
-				if (voltages.size() > 0 && voltages.get(1) != null && !voltages.get(1).isJsonNull()) {
+				if (voltages.size() > 1 && voltages.get(1) != null && !voltages.get(1).isJsonNull()) {
 					double v2 = voltages.get(1).getAsDouble();
-//					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2).setNextValue(v2);
-					 this._setVoltageL2(TypeUtils.multiply((int) Math.round(v2), 1000)); //
-					// Doppelt?
+					this._setVoltageL2((int) Math.round(v2 * 1000));
 				} else {
-					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L2).setNextValue(null);
+					this._setVoltageL2(null);
 				}
 
-				if (voltages.size() > 0 && voltages.get(2) != null && !voltages.get(2).isJsonNull()) {
+				if (voltages.size() > 2 && voltages.get(2) != null && !voltages.get(2).isJsonNull()) {
 					double v3 = voltages.get(2).getAsDouble();
-//					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3).setNextValue(v3);
-					 this._setVoltageL3(TypeUtils.multiply((int) Math.round(v3), 1000)); //
-					// Doppelt?
+					this._setVoltageL3((int) Math.round(v3 * 1000));
 				} else {
-					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_VOLTAGE_L3).setNextValue(null);
+					this._setVoltageL3(null);
 				}
 			} else {
 				this.logDebug(this.log, "chargeVoltages not provided or null – defaulting voltages");
@@ -206,18 +183,21 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 
 				if (currents.size() > 0 && currents.get(0) != null && !currents.get(0).isJsonNull()) {
 					double i1 = currents.get(0).getAsDouble();
-					//this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(i1);
 					this._setCurrentL1((int) Math.round(i1 * 1000));
+				} else {
+					this._setCurrentL1(null);
 				}
-				if (currents.size() > 0 && currents.get(1) != null && !currents.get(1).isJsonNull()) {
+				if (currents.size() > 1 && currents.get(1) != null && !currents.get(1).isJsonNull()) {
 					double i2 = currents.get(1).getAsDouble();
-//					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(i2);
-					this._setCurrentL2((int) Math.round(i2 * 1000)); // Doppelt?
+					this._setCurrentL2((int) Math.round(i2 * 1000));
+				} else {
+					this._setCurrentL2(null);
 				}
-				if (currents.size() > 0 && currents.get(2) != null && !currents.get(2).isJsonNull()) {
+				if (currents.size() > 2 && currents.get(2) != null && !currents.get(2).isJsonNull()) {
 					double i3 = currents.get(2).getAsDouble();
-//					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(i3);
-					this._setCurrentL3((int) Math.round(i3 * 1000)); // Doppelt?
+					this._setCurrentL3((int) Math.round(i3 * 1000));
+				} else {
+					this._setCurrentL3(null);
 				}
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
@@ -225,31 +205,22 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				if (phases > 0) {
 					int currentL1 = (int) (calculatedPower * 1000000 / this.getVoltageL1().get());
 					this._setCurrentL1(currentL1);
-					// this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(currentL1);
 				} else {
 					this._setCurrentL1(null);
-					// this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L1).setNextValue(null);
 				}
 
 				if (phases > 1) {
 					int currentL2 = (int) (calculatedPower * 1000000 / this.getVoltageL2().get());
-					// this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(currentL2);
-					// // Doppelt?
 					this._setCurrentL2(currentL2);
 				} else {
 					this._setCurrentL2(null);
-					// this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L2).setNextValue(null);
-					// // Doppelt?
 				}
 
 				if (phases > 2) {
 					int currentL3 = (int) (calculatedPower * 1000000 / this.getVoltageL3().get());
 					this._setCurrentL3(currentL3);
-					// this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(currentL3);
-					// // Doppelt?
 				} else {
 					this._setCurrentL3(null);
-//					this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_CURRENT_L3).setNextValue(null); // Doppelt?
 				}
 			}
 
