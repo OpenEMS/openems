@@ -49,6 +49,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
+	bnd.identity;id='io.openems.edge.bridge.eebus',\
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -218,12 +219,21 @@
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
 	com.fazecast.jSerialComm;version='[2.11.4,2.11.5)',\
 	com.google.gson;version='[2.13.2,2.13.3)',\
+	com.google.guava;version='[32.0.0,32.0.1)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.squareup.okhttp3;version='[5.3.0,5.3.1)',\
 	com.squareup.okhttp3.logging;version='[5.3.0,5.3.1)',\
 	com.squareup.okio;version='[3.16.2,3.16.3)',\
 	com.sun.jna;version='[5.18.1,5.18.2)',\
+	io.netty.buffer;version='[4.1.112,4.1.113)',\
+	io.netty.codec;version='[4.1.112,4.1.113)',\
+	io.netty.codec-http;version='[4.1.112,4.1.113)',\
+	io.netty.common;version='[4.1.112,4.1.113)',\
+	io.netty.handler;version='[4.1.112,4.1.113)',\
+	io.netty.resolver;version='[4.1.112,4.1.113)',\
+	io.netty.transport;version='[4.1.112,4.1.113)',\
+	io.netty.transport-native-unix-common;version='[4.1.112,4.1.113)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
@@ -239,6 +249,7 @@
 	io.openems.edge.batteryinverter.refu88k;version=snapshot,\
 	io.openems.edge.batteryinverter.sinexcel;version=snapshot,\
 	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
+	io.openems.edge.bridge.eebus;version=snapshot,\
 	io.openems.edge.bridge.http;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
@@ -436,7 +447,7 @@
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
-	javax.jmdns;version='[3.4.1,3.4.2)',\
+	javax.jmdns;version='[3.5.8,3.5.9)',\
 	org.apache.commons.commons-codec;version='[1.17.1,1.17.2)',\
 	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
 	org.apache.commons.commons-csv;version='[1.11.0,1.11.1)',\
@@ -461,6 +472,7 @@
 	org.jetbrains.kotlin.osgi-bundle;version='[2.2.20,2.2.21)',\
 	org.jsoup;version='[1.21.2,1.21.3)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
+	org.openmuc.jeebus.ship;version='[2.1.1,2.1.2)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
