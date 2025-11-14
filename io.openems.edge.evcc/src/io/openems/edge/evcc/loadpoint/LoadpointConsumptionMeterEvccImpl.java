@@ -134,14 +134,15 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			}
 
 			// Nutzung des Integrators über die Leistung
-//			Double totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsDouble() : null;
-//
-//			if (totalImport != null) {
-//				Long consumptionEnergyWh = Math.round(totalImport * 1000.0);
-//				this._setActiveConsumptionEnergy(consumptionEnergyWh);
-//			} else {
-//				this._setActiveConsumptionEnergy((Long) null);
-//			}
+			// Double totalImport = lp.has("chargeTotalImport") ?
+			// lp.get("chargeTotalImport").getAsDouble() : null;
+			//
+			// if (totalImport != null) {
+			// Long consumptionEnergyWh = Math.round(totalImport * 1000.0);
+			// this._setActiveConsumptionEnergy(consumptionEnergyWh);
+			// } else {
+			// this._setActiveConsumptionEnergy((Long) null);
+			// }
 
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
 			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY).setNextValue(sessionEnergy);

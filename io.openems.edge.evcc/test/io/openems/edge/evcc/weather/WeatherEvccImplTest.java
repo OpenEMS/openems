@@ -5,11 +5,13 @@ import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBrid
 import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
 import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -20,7 +22,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
-import io.openems.edge.weather.api.WeatherSnapshot;
+import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
 public class WeatherEvccImplTest {
 
@@ -50,29 +52,32 @@ public class WeatherEvccImplTest {
 						.onAfterProcessImage(() -> {
 							executor.update();
 
-							assertTrue("Forecast should not be empty after polling",
-									sut.getForecastService().getWeatherForecast().asArray().length > 0);
+							List<QuarterlyWeatherSnapshot> forecast = sut.getForecastService().getWeatherForecast();
+							assertFalse("Forecast should not be empty after polling", forecast.isEmpty());
 
-							ZonedDateTime firstKey = sut.getForecastService().getWeatherForecast().getFirstTime();
-							WeatherSnapshot firstSnapshot = sut.getForecastService().getWeatherForecast()
-									.getAt(firstKey);
+							QuarterlyWeatherSnapshot firstSnapshot = forecast.get(0);
+							ZonedDateTime firstKey = firstSnapshot.datetime();
 							assertEquals(this.getGhiValue(firstKey), firstSnapshot.globalHorizontalIrradiance(), 0);
 
-							// check a value 30 minutes later
+							// check a value 30 minutes later (should be at index 2, since 15-min intervals)
 							ZonedDateTime midKey = firstKey.plusMinutes(30);
-							WeatherSnapshot midSnapshot = sut.getForecastService().getWeatherForecast().getAt(midKey);
+							QuarterlyWeatherSnapshot midSnapshot = forecast.stream()
+									.filter(s -> s.datetime().equals(midKey))
+									.findFirst()
+									.orElse(null);
+							assertTrue("Should find snapshot at 30 minutes", midSnapshot != null);
 							assertEquals(this.getGhiValue(midKey), midSnapshot.globalHorizontalIrradiance(), 0);
 						}))
 
 				.next(new TestCase("Next quarter-hour fetch and verify").timeleap(clock, 15, ChronoUnit.MINUTES)
 						.onAfterProcessImage(() -> {
 							executor.update();
-							assertTrue("Forecast should still contain entries",
-									sut.getForecastService().getWeatherForecast().asArray().length > 0);
-							ZonedDateTime k = sut.getForecastService().getWeatherForecast().getFirstTime();
-							assertEquals(this.getGhiValue(k),
-									sut.getForecastService().getWeatherForecast().getAt(k).globalHorizontalIrradiance(),
-									0);
+							List<QuarterlyWeatherSnapshot> forecast = sut.getForecastService().getWeatherForecast();
+							assertFalse("Forecast should still contain entries", forecast.isEmpty());
+
+							QuarterlyWeatherSnapshot firstSnapshot = forecast.get(0);
+							ZonedDateTime k = firstSnapshot.datetime();
+							assertEquals(this.getGhiValue(k), firstSnapshot.globalHorizontalIrradiance(), 0);
 						}))
 
 				.deactivate();

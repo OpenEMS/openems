@@ -105,6 +105,7 @@ public class TimeOfUseGridTariffEvccApi {
 	/**
 	 * Handles the HTTP response received from an API that provides time-of-use
 	 * prices.
+	 *
 	 * <p>
 	 * This method processes the response by parsing the price data, ensuring it
 	 * contains future timestamps, and updating the stored price information
