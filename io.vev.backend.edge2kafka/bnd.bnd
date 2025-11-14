@@ -11,8 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	org.apache.kafka.kafka-clients;version='3.8.0',\
 	org.lz4.lz4-java;version='1.8.0',\
 	org.xerial.snappy.snappy-java;version='1.1.10.5',\
-	com.github.luben.zstd-jni;version='1.5.6.3',\
-	org.slf4j.slf4j-api;version='2.0.13',\
+	com.github.luben.zstd-jni;version='1.5.6.3'
 
 Bundle-ClassPath: .,lib/zstd-jni.jar
 
