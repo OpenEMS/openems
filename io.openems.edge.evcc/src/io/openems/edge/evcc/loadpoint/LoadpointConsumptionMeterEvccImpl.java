@@ -81,6 +81,28 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
+	/**
+	 * Energy calculators for each phase (L1, L2, L3).
+	 *
+	 * <p>
+	 * These calculators provide phase-specific energy values for phase-accurate
+	 * history charts. Each phase has both production and consumption energy
+	 * calculators to handle positive (consumption) and negative (production)
+	 * power values respectively.
+	 */
+	private final CalculateEnergyFromPower calculateProductionEnergyL1 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1);
+	private final CalculateEnergyFromPower calculateConsumptionEnergyL1 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1);
+	private final CalculateEnergyFromPower calculateProductionEnergyL2 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2);
+	private final CalculateEnergyFromPower calculateConsumptionEnergyL2 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2);
+	private final CalculateEnergyFromPower calculateProductionEnergyL3 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3);
+	private final CalculateEnergyFromPower calculateConsumptionEnergyL3 = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3);
+
 	private MeterType meterType;
 
 	public LoadpointConsumptionMeterEvccImpl() {
@@ -126,6 +148,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.calculateEnergy();
+			this.calculateEnergyPerPhase();
 			break;
 		}
 	}
@@ -291,6 +314,56 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			// Negative power = production -> accumulate in ACTIVE_CONSUMPTION_ENERGY
 			this.calculateProductionEnergy.update(0);
 			this.calculateConsumptionEnergy.update(Math.abs(activePower));
+		}
+	}
+
+	/**
+	 * Calculate energy per phase from phase-specific power values.
+	 *
+	 * <p>
+	 * This method calculates energy for each phase (L1, L2, L3) separately,
+	 * enabling phase-accurate history charts in the UI. Positive power values
+	 * are accumulated in ACTIVE_PRODUCTION_ENERGY_LX, negative values in
+	 * ACTIVE_CONSUMPTION_ENERGY_LX.
+	 */
+	private void calculateEnergyPerPhase() {
+		// L1
+		final var activePowerL1 = this.getActivePowerL1().get();
+		if (activePowerL1 == null) {
+			this.calculateProductionEnergyL1.update(null);
+			this.calculateConsumptionEnergyL1.update(null);
+		} else if (activePowerL1 > 0) {
+			this.calculateProductionEnergyL1.update(Math.abs(activePowerL1));
+			this.calculateConsumptionEnergyL1.update(0);
+		} else {
+			this.calculateProductionEnergyL1.update(0);
+			this.calculateConsumptionEnergyL1.update(Math.abs(activePowerL1));
+		}
+
+		// L2
+		final var activePowerL2 = this.getActivePowerL2().get();
+		if (activePowerL2 == null) {
+			this.calculateProductionEnergyL2.update(null);
+			this.calculateConsumptionEnergyL2.update(null);
+		} else if (activePowerL2 > 0) {
+			this.calculateProductionEnergyL2.update(Math.abs(activePowerL2));
+			this.calculateConsumptionEnergyL2.update(0);
+		} else {
+			this.calculateProductionEnergyL2.update(0);
+			this.calculateConsumptionEnergyL2.update(Math.abs(activePowerL2));
+		}
+
+		// L3
+		final var activePowerL3 = this.getActivePowerL3().get();
+		if (activePowerL3 == null) {
+			this.calculateProductionEnergyL3.update(null);
+			this.calculateConsumptionEnergyL3.update(null);
+		} else if (activePowerL3 > 0) {
+			this.calculateProductionEnergyL3.update(Math.abs(activePowerL3));
+			this.calculateConsumptionEnergyL3.update(0);
+		} else {
+			this.calculateProductionEnergyL3.update(0);
+			this.calculateConsumptionEnergyL3.update(Math.abs(activePowerL3));
 		}
 	}
 
