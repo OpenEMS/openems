@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -66,7 +67,8 @@ public class WeatherEvccImpl extends AbstractOpenemsComponent implements Weather
 			return;
 		}
 
-		this.forecastService = new EvccForecastService(config.apiUrl(), this.httpBridge, this.clock, config);
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		this.forecastService = new EvccForecastService(config.apiUrl(), timeService, this.clock, config);
 	}
 
 	@Deactivate

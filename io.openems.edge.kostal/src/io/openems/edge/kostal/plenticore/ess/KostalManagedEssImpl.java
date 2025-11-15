@@ -178,17 +178,13 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 				if (powerToWrite == this.lastSetPower) {
 					shouldSkip = true;
 					log.debug("skipped - power unchanged at " + powerToWrite + "W");
-				}
-				// In SMART mode: skip if change is small or at power limits
-				else if (this.controlMode == ControlMode.SMART) {
+				} else if (this.controlMode == ControlMode.SMART) {
 					// Skip if change from last written value is within tolerance
 					if (Math.abs(powerToWrite - this.lastSetPower) <= this.tolerance) {
 						shouldSkip = true;
 						log.debug("skipped - change within tolerance (" + this.tolerance + "W): "
 								+ this.lastSetPower + "W -> " + powerToWrite + "W");
-					}
-					// Skip if at maximum charge or discharge power limits
-					else if (activePower == this.getMaxChargePower().get()
+					} else if (activePower == this.getMaxChargePower().get()
 							|| Math.abs(activePower) == this.getMaxDischargePower().get()) {
 						shouldSkip = true;
 						log.debug("skipped - at power limit: " + powerToWrite + "W");

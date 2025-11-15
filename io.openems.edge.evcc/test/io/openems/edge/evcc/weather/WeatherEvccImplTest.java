@@ -1,9 +1,8 @@
 package io.openems.edge.evcc.weather;
 
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -16,8 +15,8 @@ import java.util.List;
 import org.junit.Test;
 
 import io.openems.common.test.TimeLeapClock;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -41,7 +40,7 @@ public class WeatherEvccImplTest {
 			throw HttpError.ResponseError.notFound();
 		});
 
-		var factory = ofBridgeImpl(() -> cycleSubscriber(), () -> endpointFetcher, () -> executor);
+		var factory = ofBridgeImpl(() -> endpointFetcher, () -> executor);
 
 		new ComponentTest(sut).addReference("httpBridgeFactory", factory)
 				.addReference("componentManager", new DummyComponentManager(clock))

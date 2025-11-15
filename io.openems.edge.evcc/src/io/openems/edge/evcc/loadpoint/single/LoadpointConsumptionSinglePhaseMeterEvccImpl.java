@@ -23,10 +23,12 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -54,7 +56,10 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
@@ -87,8 +92,9 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 		this.phase = config.phase();
 		if (this.isEnabled() && this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
+			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 			var url = config.apiUrl() + "?jq=.loadpoints[" + config.loadpointIndex() + "]";
-			this.httpBridge.subscribeJsonEveryCycle(url, this::processHttpResult);
+			this.cycleService.subscribeJsonEveryCycle(url, this::processHttpResult);
 		}
 
 	}

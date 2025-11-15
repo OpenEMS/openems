@@ -19,15 +19,17 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
@@ -41,6 +43,7 @@ public class TimeOfUseGridTariffEvccApi {
 
 	private static final Logger log = LoggerFactory.getLogger(TimeOfUseGridTariffEvccApi.class);
 	private BridgeHttp httpBridge;
+	private HttpBridgeTimeService timeService;
 	private Clock clock;
 	private String apiUrl;
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
@@ -70,7 +73,8 @@ public class TimeOfUseGridTariffEvccApi {
 		}
 		if (this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
-			this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
+			this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+			this.timeService.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
 					this::handleError);
 		}
 	}
@@ -80,16 +84,17 @@ public class TimeOfUseGridTariffEvccApi {
 		this.clock = clock;
 		if (this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
-			this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
+			this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+			this.timeService.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
 					this::handleError);
 		}
 	}
 
-	public TimeOfUseGridTariffEvccApi(String apiUrl, BridgeHttp httpBridge, Clock clock) {
+	public TimeOfUseGridTariffEvccApi(String apiUrl, HttpBridgeTimeService timeService, Clock clock) {
 		this.apiUrl = apiUrl;
 		this.clock = clock;
-		this.httpBridge = httpBridge;
-		this.httpBridge.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
+		this.timeService = timeService;
+		this.timeService.subscribeTime(new GridTariffProvider(), this::createEndpoint, this::handleResponse,
 				this::handleError);
 	}
 
@@ -243,12 +248,12 @@ public class TimeOfUseGridTariffEvccApi {
 	}
 
 	/**
-	 * Sets the HTTP bridge for handling network communication.
+	 * Sets the HTTP bridge time service for handling network communication.
 	 *
-	 * @param httpBridge the HTTP bridge to be used.
+	 * @param timeService the HTTP bridge time service to be used.
 	 */
-	public void setHttpBridge(BridgeHttp httpBridge) {
-		this.httpBridge = httpBridge;
+	public void setTimeService(HttpBridgeTimeService timeService) {
+		this.timeService = timeService;
 	}
 
 	/**

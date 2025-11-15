@@ -1,10 +1,9 @@
 package io.openems.edge.evcc.gridtariff;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.common.currency.Currency.EUR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -14,9 +13,9 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -53,7 +52,6 @@ public class TimeOfUseGridTariffEvccImplTest {
 		final var executor = dummyBridgeHttpExecutor();
 
 		final var factory = ofBridgeImpl(//
-				() -> cycleSubscriber(), //
 				() -> endpointFetcher, //
 				() -> executor //
 		);

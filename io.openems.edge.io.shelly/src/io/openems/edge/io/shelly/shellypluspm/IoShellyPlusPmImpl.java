@@ -29,11 +29,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -77,7 +79,10 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 
 	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
 
 	public IoShellyPlusPmImpl() {
 		super(//
@@ -105,14 +110,15 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 
 		this.channel = config.channel();
 		if (config.inverted()) {
-			factor = -1;
+			this.factor = -1;
 		}
 
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+		this.cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
 	@Override
@@ -143,7 +149,7 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 
 		switch (event.getTopic()) {
 		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
-		case TOPIC_CYCLE_EXECUTE_WRITE -> this.executeWrite(this.getRelayChannel(), channel);
+		case TOPIC_CYCLE_EXECUTE_WRITE -> this.executeWrite(this.getRelayChannel(), this.channel);
 		}
 	}
 
@@ -162,8 +168,8 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 		} else {
 			try {
 				var jsonResponse = getAsJsonObject(result.data());
-				var switchX = getAsJsonObject(jsonResponse, "switch:" + channel);
-				power = round(getAsFloat(switchX, "apower")) * factor;
+				var switchX = getAsJsonObject(jsonResponse, "switch:" + this.channel);
+				power = round(getAsFloat(switchX, "apower")) * this.factor;
 				voltage = round(getAsFloat(switchX, "voltage") * 1000);
 				current = round(getAsFloat(switchX, "current") * 1000);
 				relayX = getAsBoolean(switchX, "output");

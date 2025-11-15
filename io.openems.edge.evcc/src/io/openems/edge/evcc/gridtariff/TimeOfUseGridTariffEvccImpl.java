@@ -10,8 +10,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -55,8 +56,9 @@ public class TimeOfUseGridTariffEvccImpl extends AbstractOpenemsComponent
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 
-		this.apiClient = new TimeOfUseGridTariffEvccApi(config.apiUrl(), this.httpBridge,
+		this.apiClient = new TimeOfUseGridTariffEvccApi(config.apiUrl(), timeService,
 				this.componentManager.getClock());
 	}
 

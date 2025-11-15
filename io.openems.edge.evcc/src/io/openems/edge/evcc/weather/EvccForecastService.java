@@ -16,20 +16,21 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpTime.TimeEndpoint;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService.TimeEndpoint;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 
 public class EvccForecastService {
 
 	private static final Logger log = LoggerFactory.getLogger(EvccForecastService.class);
 
-	private final BridgeHttp httpBridge;
+	private final HttpBridgeTimeService timeService;
 	private final Clock clock;
 	private final String apiUrl;
 	private final Config config;
@@ -38,13 +39,13 @@ public class EvccForecastService {
 	private Instant lastUpdate = null;
 	private TimeEndpoint subscription = null;
 
-	public EvccForecastService(String apiUrl, BridgeHttp httpBridge, Clock clock, Config config) {
+	public EvccForecastService(String apiUrl, HttpBridgeTimeService timeService, Clock clock, Config config) {
 		this.apiUrl = apiUrl;
-		this.httpBridge = httpBridge;
+		this.timeService = timeService;
 		this.clock = clock;
 		this.config = config;
 
-		this.subscription = this.httpBridge.subscribeTime(new EvccDelayTimeProvider(this.clock), this::createEndpoint,
+		this.subscription = this.timeService.subscribeTime(new EvccDelayTimeProvider(this.clock), this::createEndpoint,
 				this::handleResponse, this::handleError);
 	}
 
@@ -151,8 +152,8 @@ public class EvccForecastService {
 	 * Removes the subscription and cleans up resources.
 	 */
 	public void cleanup() {
-		if (this.subscription != null && this.httpBridge != null) {
-			this.httpBridge.removeTimeEndpointIf(t -> t.equals(this.subscription));
+		if (this.subscription != null && this.timeService != null) {
+			this.timeService.removeTimeEndpointIf(t -> t.equals(this.subscription));
 			this.subscription = null;
 		}
 	}
