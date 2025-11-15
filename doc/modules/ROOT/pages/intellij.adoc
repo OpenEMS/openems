@@ -42,7 +42,7 @@ image::intellij-build-gradle.png[]
 image::intellij-add-configuration.png[]
 .. creating a new module
 +
-.creating a modul
+.creating a module
 image::intellij-new-module.png[]
 +
 Rightclick on an existing module: New -> Module

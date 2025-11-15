@@ -3,6 +3,7 @@ package io.openems.edge.weather.openmeteo;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,13 +15,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonElement;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpTime.TimeEndpoint;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.weather.api.DailyWeatherSnapshot;
 import io.openems.edge.weather.api.HourlyWeatherSnapshot;
@@ -38,14 +39,14 @@ public class WeatherForecastService {
 	private final Logger log = LoggerFactory.getLogger(WeatherForecastService.class);
 
 	private final WeatherOpenMeteo parent;
-	private final BridgeHttp httpBridge;
+	private final HttpBridgeTimeService timeService;
 	private final String apiKey;
 	private final int forecastDays;
 	private final int pastDays;
 	private final UrlBuilder baseUrl;
 	private final WeatherDataParser weatherDataParser;
 
-	private TimeEndpoint subscription;
+	private HttpBridgeTimeService.TimeEndpoint subscription;
 	private Instant lastUpdate;
 	private List<QuarterlyWeatherSnapshot> quarterlyWeatherForecast;
 	private List<HourlyWeatherSnapshot> hourlyWeatherForecast;
@@ -53,13 +54,13 @@ public class WeatherForecastService {
 
 	public WeatherForecastService(//
 			WeatherOpenMeteo parent, //
-			BridgeHttp httpBridge, //
+			HttpBridgeTimeService timeService, //
 			String apiKey, //
 			int forecastDays, //
 			int pastDays, //
 			WeatherDataParser weatherDataParser) {
 		this.parent = parent;
-		this.httpBridge = httpBridge;
+		this.timeService = timeService;
 		this.apiKey = apiKey;
 		this.forecastDays = forecastDays;
 		this.pastDays = pastDays;
@@ -70,9 +71,10 @@ public class WeatherForecastService {
 	protected void subscribeToWeatherForecast(//
 			OpenMeteoDelayTimeProvider delayTimeProvider, //
 			Coordinates coordinates, //
-			Supplier<Clock> clockSupplier) {
+			Supplier<Clock> clockSupplier, //
+			Runnable onFetchWeatherForecastSuccess) {
 		if (this.subscription != null) {
-			this.httpBridge.removeTimeEndpoint(this.subscription);
+			this.timeService.removeTimeEndpoint(this.subscription);
 			this.subscription = null;
 		}
 
@@ -81,14 +83,15 @@ public class WeatherForecastService {
 			return;
 		}
 
-		this.subscription = this.httpBridge.subscribeJsonTime(//
+		this.subscription = this.timeService.subscribeJsonTime(//
 				delayTimeProvider, //
 				() -> this.createForecastEndpoint(//
 						coordinates, //
 						clockSupplier), //
 				response -> this.handleEndpointResponse(//
 						response, //
-						clockSupplier), //
+						clockSupplier, //
+						onFetchWeatherForecastSuccess), //
 				error -> this.handleEndpointError(//
 						error));
 	}
@@ -99,7 +102,7 @@ public class WeatherForecastService {
 	 */
 	public void deactivateForecastSubscription() {
 		if (this.subscription != null) {
-			this.httpBridge.removeTimeEndpoint(this.subscription);
+			this.timeService.removeTimeEndpoint(this.subscription);
 			this.subscription = null;
 		}
 	}
@@ -149,29 +152,32 @@ public class WeatherForecastService {
 
 	private void handleEndpointResponse(//
 			HttpResponse<JsonElement> response, //
-			Supplier<Clock> clockSupplier) {
+			Supplier<Clock> clockSupplier, //
+			Runnable onFetchWeatherForecastSuccess) {
 		this.parent._setHttpStatusCode(response.status().code());
 
 		var responseJson = response.data().getAsJsonObject();
-		var responseZone = ZoneId.of(responseJson.get(ForecastQueryParams.TIMEZONE).getAsString());
+		var responseOffset = ZoneOffset.ofTotalSeconds(//
+				responseJson.get(ForecastQueryParams.UTC_OFFSET_SECONDS).getAsInt());
 
 		var clock = clockSupplier.get();
 		var targetZone = clock.getZone();
 
 		this.quarterlyWeatherForecast = this.weatherDataParser.parseQuarterly(//
 				responseJson.getAsJsonObject(QuarterlyWeatherVariables.JSON_KEY), //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		this.hourlyWeatherForecast = this.weatherDataParser.parseHourly(//
 				responseJson.getAsJsonObject(HourlyWeatherVariables.JSON_KEY), //
-				responseZone, //
+				responseOffset, //
 				targetZone);
 
 		this.dailyWeatherForecast = this.weatherDataParser.parseDaily(//
 				responseJson.getAsJsonObject(DailyWeatherVariables.JSON_KEY));
 
 		this.lastUpdate = Instant.now(clock);
+		onFetchWeatherForecastSuccess.run();
 	}
 
 	private void handleEndpointError(HttpError error) {

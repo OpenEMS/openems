@@ -9,9 +9,9 @@ import io.openems.common.timedata.Timeout;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.battery.bmw.statemachine.StateMachine.State;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpCycle.CycleEndpoint;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService.CycleEndpoint;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoRunningHandler extends StateHandler<State, Context> {
@@ -107,7 +107,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 	private CycleEndpoint subscribeHttpEndpoints(Context context, String uri) {
 		final var endPoint = context.getEndpoint(uri, null);
-		return context.httpBridge.subscribeCycle(//
+		return context.cycleService.subscribeCycle(//
 				1, //
 				endPoint, //
 				success -> this.getAndSetResult(success, endPoint), //
@@ -158,7 +158,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		context.httpBridge.removeCycleEndpoint(this.cycleStateEndpoint);
-		context.httpBridge.removeCycleEndpoint(this.cycleReleaseEndpoint);
+		context.cycleService.removeCycleEndpoint(this.cycleStateEndpoint);
+		context.cycleService.removeCycleEndpoint(this.cycleReleaseEndpoint);
 	}
 }

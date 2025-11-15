@@ -380,7 +380,7 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
-	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+			AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //

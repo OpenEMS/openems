@@ -36,7 +36,6 @@ public class EvseChargePointKebaModbusImplTest {
 						.setId("evseChargePoint0") //
 						.setModbusId("modbus0") //
 						.setWiring(THREE_PHASE) //
-						.setP30hasS10PhaseSwitching(false) //
 						.setPhaseRotation(L2_L3_L1) //
 						.setLogVerbosity(DEBUG_LOG) //
 						.build()) //
@@ -55,7 +54,6 @@ public class EvseChargePointKebaModbusImplTest {
 						.setId("evseChargePoint0") //
 						.setModbusId("modbus0") //
 						.setWiring(THREE_PHASE) //
-						.setP30hasS10PhaseSwitching(false) //
 						.setPhaseRotation(L2_L3_L1) //
 						.setLogVerbosity(DEBUG_LOG) //
 						.build());
@@ -65,7 +63,7 @@ public class EvseChargePointKebaModbusImplTest {
 				.next(new TestCase().onBeforeProcessImage(() -> bridge //
 						.withRegisters(1018, // FIRMWARE: 1.2.0
 								new int[] { 0x0000, 0x27D8 }))) //
-				.next(new TestCase(), 14) //
+				.next(new TestCase(), 16) //
 				.next(new TestCase()//
 						.output(EvseKeba.ChannelId.ENERGY_SESSION, 65300) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 7747835L))
@@ -88,7 +86,6 @@ public class EvseChargePointKebaModbusImplTest {
 						.setId("evseChargePoint0") //
 						.setModbusId("modbus0") //
 						.setWiring(THREE_PHASE) //
-						.setP30hasS10PhaseSwitching(false) //
 						.setPhaseRotation(L2_L3_L1) //
 						.setLogVerbosity(DEBUG_LOG) //
 						.build());

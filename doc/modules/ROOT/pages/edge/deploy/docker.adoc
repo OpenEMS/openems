@@ -36,7 +36,7 @@ __if not already installed, follow <<Setup docker>>__
 
 === Setup docker
 
-To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+To setup docker follow the instructions from https://docs.docker.com/engine/install/[docs.docker.com].
 
 == Start Container 
 
@@ -118,7 +118,8 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://<hostname>:8085
+      - WEBSOCKET_HOST=openems_edge
+      - WEBSOCKET_PORT=8085
     ports:
       - 80:80
       - 443:443
@@ -135,8 +136,6 @@ summary of the changes:
 1. Open a Port for UI Websocket (8085) on the `openems-edge` service
 2. Added a new service `openems-ui` to the docker-compose file
 3. Added the volumes `openems-ui-conf` and `openems-ui-log`
-
-NOTE: The `UI_WEBSOCKET` environment variable must be set to the hostname of the OpenEMS Edge container. This URL is used by the UI to connect to the OpenEMS Edge Websocket. Make sure it is reachable from any device you want to use the UI on.
 
 === Update docker-compose
 
