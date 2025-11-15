@@ -82,27 +82,30 @@ public class ControllerHeatingElementImplTest10 {
 				.next(new AbstractComponentTest.TestCase() //
 						.timeleap(CLOCK, 8, HOURS) //
 						.input(GRID_ACTIVE_POWER, -3000) //
-						.output(LEVEL, Level.LEVEL_0) //
-						.output(STATUS, Status.INACTIVE)) //
-
-				.next(new AbstractComponentTest.TestCase() //
-						.timeleap(CLOCK, 1, SECONDS).input(GRID_ACTIVE_POWER, -3000) //
 						.output(LEVEL, Level.LEVEL_1) //
 						.output(STATUS, Status.ACTIVE)) //
 
 				.next(new AbstractComponentTest.TestCase() //
-						.timeleap(CLOCK, 3600 - 1, SECONDS).input(GRID_ACTIVE_POWER, 1000) //
+						.timeleap(CLOCK, 1, SECONDS) //
+						.input(GRID_ACTIVE_POWER, -3000) //
+						.output(LEVEL, Level.LEVEL_1) //
+						.output(STATUS, Status.ACTIVE)) //
+
+				.next(new AbstractComponentTest.TestCase() //
+						.timeleap(CLOCK, 3600 - 1, SECONDS) //
+						.input(GRID_ACTIVE_POWER, 1000) //
 						.output(LEVEL, Level.LEVEL_0) //
 						.output(STATUS, Status.INACTIVE)) //
 
 				.next(new AbstractComponentTest.TestCase() //
-						.timeleap(CLOCK, 3600 * 4, SECONDS) //
+						.timeleap(CLOCK, 3600 * 4 + 1, SECONDS) //
 						.input(GRID_ACTIVE_POWER, 1000) //
 						.output(LEVEL, Level.LEVEL_1) //
 						.output(STATUS, Status.ACTIVE_FORCED)) //
 
 				.next(new AbstractComponentTest.TestCase() //
-						.timeleap(CLOCK, 1, HOURS).input(GRID_ACTIVE_POWER, 0) //
+						.timeleap(CLOCK, 1, HOURS) //
+						.input(GRID_ACTIVE_POWER, 0) //
 						.output(LEVEL, Level.LEVEL_0) //
 						.output(STATUS, Status.INACTIVE)) //
 

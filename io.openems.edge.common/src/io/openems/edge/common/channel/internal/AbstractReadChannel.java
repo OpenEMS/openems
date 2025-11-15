@@ -36,6 +36,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final Set<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArraySet<>();
 	private final Set<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArraySet<>();
 	private final Set<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<Runnable> cleanupCallbacks = new CopyOnWriteArraySet<>();
 	private final TreeMap<LocalDateTime, Value<T>> pastValues = new TreeMap<>();
 
 	/**
@@ -89,6 +90,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.onChangeCallbacks.clear();
 		this.onSetNextValueCallbacks.clear();
 		this.onUpdateCallbacks.clear();
+		this.cleanupCallbacks.forEach(Runnable::run);
+		this.cleanupCallbacks.clear();
 		if (this.onSetNextWriteCallbacks != null) {
 			this.onSetNextWriteCallbacks.clear();
 		}
@@ -158,6 +161,11 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public OpenemsType getType() {
 		return this.type;
+	}
+
+	@Override
+	public void addOnDeactivateCallback(Runnable callback) {
+		this.cleanupCallbacks.add(callback);
 	}
 
 	/**

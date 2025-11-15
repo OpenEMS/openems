@@ -23,6 +23,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
+import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.Simulator.EshToMode;
 
 public record SimulationResult(//
@@ -39,6 +40,7 @@ public record SimulationResult(//
 	 */
 	public record Period(//
 			GlobalOptimizationContext.Period period, //
+			ModeCombination modeCombination, //
 			EnergyFlow energyFlow, //
 			int essInitialEnergy //
 	) {
@@ -52,9 +54,9 @@ public record SimulationResult(//
 		 *                         in [Wh]
 		 * @return a {@link Period}
 		 */
-		public static Period from(GlobalOptimizationContext.Period gocPeriod, EnergyFlow energyFlow,
-				int essInitialEnergy) {
-			return new Period(gocPeriod, energyFlow, essInitialEnergy);
+		public static Period from(GlobalOptimizationContext.Period gocPeriod, ModeCombination modeCombination,
+				EnergyFlow energyFlow, int essInitialEnergy) {
+			return new Period(gocPeriod, modeCombination, energyFlow, essInitialEnergy);
 		}
 	}
 
@@ -72,12 +74,13 @@ public record SimulationResult(//
 	 * @param schedule the schedule as defined by {@link EshCodec}
 	 * @return the {@link SimulationResult}
 	 */
-	private static SimulationResult from(GlobalOptimizationContext goc, int[][] schedule) {
+	private static SimulationResult from(GlobalOptimizationContext goc, int[] schedule) {
 		var allPeriods = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
 		var allEshToModes = new ArrayList<EshToMode>();
-		var fitness = Simulator.simulate(goc, schedule, new Simulator.BestScheduleCollector(//
-				p -> allPeriods.put(p.period().time(), p), //
-				allEshToModes::add));
+		var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule,
+				new Simulator.BestScheduleCollector(//
+						p -> allPeriods.put(p.period().time(), p), //
+						allEshToModes::add));
 
 		var schedules = allEshToModes.stream() //
 				.collect(toImmutableMap(EshToMode::esh, //
@@ -110,7 +113,7 @@ public record SimulationResult(//
 	 * @param schedule the schedule as defined by {@link EshCodec}
 	 * @return the {@link SimulationResult}
 	 */
-	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[][] schedule) {
+	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[] schedule) {
 		if (goc == null || schedule.length == 0) {
 			return EMPTY_SIMULATION_RESULT;
 		}
@@ -133,19 +136,11 @@ public record SimulationResult(//
 				case GlobalOptimizationContext.Period.Quarter pq //
 					-> IntStream.of(periodIndex);
 				}) //
-				.mapToObj(periodIndex //
-				-> IntStream.range(0, goc.eshsWithDifferentModes().size()) //
-						.map(eshIndex -> {
-							if (periodIndex < schedule.length && eshIndex < schedule[periodIndex].length) {
-								return schedule[periodIndex][eshIndex];
-							}
-							if (periodIndex < goc.eshsWithDifferentModes().size()) {
-								return goc.eshsWithDifferentModes().get(periodIndex).getDefaultModeIndex();
-							}
-							return 0;
-						}) //
-						.toArray()) //
-				.toArray(int[][]::new);
+				.map(periodIndex -> periodIndex < schedule.length //
+						? schedule[periodIndex] //
+						: 0) // fallback
+				// TODO use default index
+				.toArray();
 
 		return from(quarterGoc, quarterSchedule);
 	}

@@ -18,6 +18,7 @@ public class GetAppAssistantTest {
 					Apps::feneconHome10, //
 					Apps::awattarHourly, //
 					Apps::entsoE, //
+					Apps::ews, //
 					Apps::stromdaoCorrently, //
 					Apps::tibber, //
 					Apps::modbusTcpApiReadOnly, //

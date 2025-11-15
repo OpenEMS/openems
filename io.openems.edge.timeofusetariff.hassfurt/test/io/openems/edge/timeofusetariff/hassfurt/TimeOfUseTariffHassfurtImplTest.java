@@ -9,7 +9,7 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 
@@ -190,7 +190,9 @@ public class TimeOfUseTariffHassfurtImplTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		new ComponentTest(new TimeOfUseTariffHassfurtImpl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.addReference("httpBridgeFactory",
+						DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //

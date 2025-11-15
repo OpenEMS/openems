@@ -8,19 +8,19 @@ import { FlatComponent } from "./flat/flat";
 import { ModalComponent } from "./modal/modal";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-    CommonModule,
-    IonicModule,
-    TranslateModule,
-  ],
-  declarations: [
-    FlatComponent,
-    ModalComponent,
-  ],
-  exports: [
-    FlatComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+    ],
+    declarations: [
+        FlatComponent,
+        ModalComponent,
+    ],
+    exports: [
+        FlatComponent,
+    ],
 })
 export class ControllerHeat { }

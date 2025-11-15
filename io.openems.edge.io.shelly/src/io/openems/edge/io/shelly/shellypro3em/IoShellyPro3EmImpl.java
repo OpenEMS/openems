@@ -30,11 +30,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -68,8 +69,10 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference()
+	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
 
 	public IoShellyPro3EmImpl() {
@@ -91,9 +94,10 @@ public class IoShellyPro3EmImpl extends AbstractOpenemsComponent
 		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		if (this.isEnabled()) {
-			this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/EM.GetStatus?id=0", this::processHttpResult);
+			cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/EM.GetStatus?id=0", this::processHttpResult);
 		}
 	}
 

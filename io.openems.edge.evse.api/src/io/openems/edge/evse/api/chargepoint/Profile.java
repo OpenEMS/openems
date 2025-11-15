@@ -224,8 +224,11 @@ public final class Profile {
 
 			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
 				if (phaseSwitch != null && phaseSwitch != this.abilities.phaseSwitch) {
+					var ability = this.abilities.phaseSwitch == null //
+							? "UNDEFINED" //
+							: this.abilities.phaseSwitch.name();
 					throw new IllegalArgumentException("PhaseSwitch not possible. " //
-							+ "Ability [" + this.abilities.phaseSwitch.name() + "] " //
+							+ "Ability [" + ability + "] " //
 							+ "Actual [" + phaseSwitch + "]");
 				}
 				this.phaseSwitch = phaseSwitch;
@@ -264,7 +267,7 @@ public final class Profile {
 	/**
 	 * Different types of applying a phase-switch.
 	 */
-	public static enum PhaseSwitch { // TODO NOT_AVAILABLE instead of null
+	public static enum PhaseSwitch { // TODO evaluate NOT_AVAILABLE instead of null
 		TO_SINGLE_PHASE, //
 		TO_THREE_PHASE;
 	}
