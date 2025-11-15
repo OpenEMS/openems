@@ -1,4 +1,4 @@
-= Deploy OpenEMS Edge to Docker
+Deploy OpenEMS Edge to Docker
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
@@ -118,7 +118,7 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - WEBSOCKET_HOST=<hostname>
+      - WEBSOCKET_HOST=openems_edge
       - WEBSOCKET_PORT=8085
     ports:
       - 80:80
@@ -133,12 +133,9 @@ volumes:
 
 Summary of the changes:
 
-1. Open a Port for UI Websocket (8085) on the `openems-edge` service
-2. Added a new service `openems-ui` to the docker-compose file
-3. Added the volumes `openems-ui-conf` and `openems-ui-log`
-4. Updated environment variables (`WEBSOCKET_HOST` and `WEBSOCKET_PORT`) replacing the deprecated `UI_WEBSOCKET`
-
-NOTE: The `UI_WEBSOCKET` variable has been deprecated. Use `WEBSOCKET_HOST` and `WEBSOCKET_PORT` instead. This configuration allows the UI to connect to the OpenEMS Edge Websocket. Ensure the hostname is reachable from any device you want to use the UI on.
+1. Open a Port for UI Websocket (8085) on the `openems-edge` service  
+2. Added a new service `openems-ui` to the docker-compose file  
+3. Added the volumes `openems-ui-conf` and `openems-ui-log`  
 
 === Update docker-compose
 
