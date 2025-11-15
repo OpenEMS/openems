@@ -61,6 +61,23 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata;
 
+	/**
+	 * Energy calculators for both positive and negative power values.
+	 *
+	 * <p>
+	 * EVCC loadpoint is a consumption meter that typically reports positive
+	 * ActivePower values (consumption). According to ElectricityMeter API:
+	 * <ul>
+	 * <li>ACTIVE_PRODUCTION_ENERGY = integral over positive ACTIVE_POWER values
+	 * <li>ACTIVE_CONSUMPTION_ENERGY = integral over negative ACTIVE_POWER values
+	 * </ul>
+	 * Both are provided for completeness, though for a wallbox/charging station,
+	 * ACTIVE_PRODUCTION_ENERGY is the primary channel as it accumulates positive
+	 * power (consumption). This ensures compatibility with UI history charts which
+	 * expect consumption meters to use ActiveProductionEnergy.
+	 */
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
@@ -108,9 +125,7 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			if (!this.channel(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY).value().isDefined()) {
-				this.calculateEnergy();
-			}
+			this.calculateEnergy();
 			break;
 		}
 	}
@@ -254,14 +269,28 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Calculate energy from power values, splitting positive and negative values.
+	 *
+	 * <p>
+	 * Positive power values (consumption) are accumulated in ACTIVE_PRODUCTION_ENERGY,
+	 * negative power values (production) are accumulated in ACTIVE_CONSUMPTION_ENERGY.
+	 * For a wallbox/charging station, positive values are expected (consumption only),
+	 * so ACTIVE_PRODUCTION_ENERGY is the primary channel used by UI history charts.
+	 */
 	private void calculateEnergy() {
 		final var activePower = this.getActivePower().get();
 		if (activePower == null) {
+			this.calculateProductionEnergy.update(null);
 			this.calculateConsumptionEnergy.update(null);
-		} else if (activePower < 0) {
+		} else if (activePower > 0) {
+			// Positive power = consumption -> accumulate in ACTIVE_PRODUCTION_ENERGY
+			this.calculateProductionEnergy.update(Math.abs(activePower));
 			this.calculateConsumptionEnergy.update(0);
 		} else {
-			this.calculateConsumptionEnergy.update(TypeUtils.abs(activePower));
+			// Negative power = production -> accumulate in ACTIVE_CONSUMPTION_ENERGY
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(Math.abs(activePower));
 		}
 	}
 
