@@ -87,7 +87,8 @@ public class Cell {
 			this.yT = this.ytMinusOne * (1 - dropOutProb) + this.oT * MathUtils.tanh(this.cT) * dropOutProb;
 			this.error = Math.abs(this.yT - this.outputDataLoc) / Math.sqrt(2);
 		} else {
-			// When not dropping out, apply the scale factor to maintain expected output magnitude
+			// When not dropping out, apply the scale factor to maintain expected output
+			// magnitude
 			this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.ytMinusOne);
 			this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.ytMinusOne);
 			this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.ytMinusOne);
@@ -116,7 +117,7 @@ public class Cell {
 	private boolean dropoutEnabled = false;
 	private double dropoutRate = 0.3; // Default: drop 30% of connections
 	private double dropoutScale = 1.0;
-	
+
 	/**
 	 * Enable or disable dropout regularization.
 	 * 
@@ -125,7 +126,7 @@ public class Cell {
 	public void setDropoutEnabled(boolean enabled) {
 		this.dropoutEnabled = enabled;
 	}
-	
+
 	/**
 	 * Set the dropout rate (percentage of connections to randomly zero out).
 	 * 
@@ -134,7 +135,7 @@ public class Cell {
 	public void setDropoutRate(double rate) {
 		this.dropoutRate = rate;
 	}
-	
+
 	/**
 	 * Set the scale factor to apply to remaining connections after dropout.
 	 * 
@@ -143,11 +144,12 @@ public class Cell {
 	public void setDropoutScale(double scale) {
 		this.dropoutScale = scale;
 	}
-	
+
 	/**
 	 * Generates a random decision with dropout probability. This method generates a
-	 * random boolean decision with a dropout probability configurable via dropoutRate.
-	 * It uses a random number generator to determine whether the decision is true or false.
+	 * random boolean decision with a dropout probability configurable via
+	 * dropoutRate. It uses a random number generator to determine whether the
+	 * decision is true or false.
 	 * 
 	 * <p>
 	 * When dropout is enabled, the probability of returning true is dropoutRate,
@@ -162,7 +164,7 @@ public class Cell {
 		if (!this.dropoutEnabled) {
 			return false;
 		}
-		
+
 		Random random = new Random();
 		double randomValue = random.nextDouble();
 		return randomValue < this.dropoutRate;

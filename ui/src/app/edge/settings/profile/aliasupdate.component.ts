@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
@@ -13,6 +13,7 @@ import { CommonUiModule } from "../../../shared/common-ui.module";
     imports: [
         CommonUiModule,
         RouterModule,
+        ReactiveFormsModule,
     ],
 })
 export class AliasUpdateComponent implements OnInit {

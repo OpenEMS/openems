@@ -16,7 +16,6 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { environment, Environment } from "src/environments";
-import { StorageSystemComponent } from "../admin-modal/storage-system/storage-system";
 
 @Component({
     selector: "storage-modal",
@@ -24,7 +23,6 @@ import { StorageSystemComponent } from "../admin-modal/storage-system/storage-sy
     standalone: true,
     imports: [
         CommonUiModule,
-        StorageSystemComponent,
         HelpButtonComponent,
         ReactiveFormsModule,
         FormsModule,
