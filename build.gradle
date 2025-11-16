@@ -32,6 +32,14 @@ subprojects {
 	repositories {
 		mavenCentral()
 	}
+	
+	if (name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/) {
+		ext.isEdge = true
+	}
+	
+	if (name ==~ /io.openems.(backend|common|shared|wrapper).*/) {
+		ext.isBackend = true
+	}
 
 	tasks.withType(JavaCompile) {
 		options.release.set(project.java_target as Integer)
@@ -129,21 +137,8 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
-task cleanEdge() {
-	group = 'OpenEMS-Build'
-	description = 'Clean all Edge-Bundles'
-	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'clean' }) {
-				dependsOn(proj.clean)
-			}
-		}
-	}
-}
-
 task checkstyleAll() {
-	group = 'OpenEMS-Build'
+	group = 'OpenEMS-Test'
 	description = 'Checkstyle all bundles'
 
 	subprojects.each { proj ->
@@ -153,15 +148,46 @@ task checkstyleAll() {
 	}
 }
 
+task testEdge() {
+	group = 'OpenEMS-Test'
+	description = 'Run JUnit tests for all Edge-Bundles'
+	
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('test')) {
+			dependsOn(proj.test)
+		}
+	}
+}
+
+task testBackend() {
+	group = 'OpenEMS-Test'
+	description = 'Run JUnit tests for all Backend-Bundles'
+
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('test')) {
+			dependsOn(proj.test)
+		}
+	}
+}
+
+task cleanEdge() {
+	group = 'OpenEMS-Build'
+	description = 'Clean all Edge-Bundles'
+	
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('clean')) {
+			dependsOn(proj.clean)
+		}
+	}
+}
+
 task cleanBackend() {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Backend-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'clean' }) {
-				dependsOn(proj.clean)
-			}
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('clean')) {
+			dependsOn(proj.clean)
 		}
 	}
 }
@@ -170,11 +196,9 @@ task assembleEdge() {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Edge-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'assemble' }) {
-				dependsOn(proj.assemble)
-			}
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findByName('assemble')) {
+			dependsOn(proj.assemble)
 		}
 	}
 }
@@ -183,11 +207,9 @@ task assembleBackend() {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Backend-Bundles'
 	
-	subprojects.each { proj ->
-		if( proj.name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/ ) {
-			if (proj.tasks.findAll { it.name == 'assemble' }) {
-				dependsOn(proj.assemble)
-			}
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findByName('assemble')) {
+			dependsOn(proj.assemble)
 		}
 	}
 }
