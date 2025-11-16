@@ -49,6 +49,7 @@ testpath: \
 	net.bytebuddy.byte-buddy,\
 	org.mockito.mockito-core,\
 	org.objenesis,\
+	org.opentest4j,\
 	slf4j.simple,\
 	\${junit}
 

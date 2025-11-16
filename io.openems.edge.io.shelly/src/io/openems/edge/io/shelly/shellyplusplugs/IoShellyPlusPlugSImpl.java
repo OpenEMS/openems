@@ -9,7 +9,6 @@ import static io.openems.edge.io.shelly.common.Utils.executeWrite;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 import static java.lang.Math.round;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
-import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -30,10 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -74,8 +74,10 @@ public class IoShellyPlusPlugSImpl extends AbstractOpenemsComponent implements I
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(cardinality = MANDATORY)
+	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
 
 	public IoShellyPlusPlugSImpl() {
@@ -102,12 +104,13 @@ public class IoShellyPlusPlugSImpl extends AbstractOpenemsComponent implements I
 		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
 	@Override

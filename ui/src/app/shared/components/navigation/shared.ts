@@ -1,13 +1,13 @@
-import { TPartialBy } from "../../type/utility";
-import { Icon } from "../../type/widget";
+import { TEnumKeys, TPartialBy } from "../../type/utility";
+import { Icon, WidgetClass } from "../../type/widget";
 
 export enum NavigationId {
     LIVE = "live",
     HISTORY = "history",
 }
 
-type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning";
-type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
+type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning" | "normal" | "production";
+export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
 
@@ -16,6 +16,8 @@ export class NavigationTree {
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
         public icon: PartialedIcon,
         public label: string,
+
+        // Display mode of chip
         public mode: "icon" | "label",
         public children: NavigationTree[],
 
@@ -34,6 +36,17 @@ export class NavigationTree {
             return null;
         }
         return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
+    }
+
+    public static dummy() {
+        return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
+    }
+
+    public toConstructorParams(): ConstructorParameters<typeof NavigationTree> {
+        return [
+            this.id, this.routerLink, this.icon,
+            this.label, this.mode, this.children, this.parent,
+        ];
     }
 
     public getChildren(): NavigationTree[] | null {
@@ -112,6 +125,10 @@ export class NavigationTree {
 
         return null;
     }
+
+    public updateIconColor(color: IconColor) {
+        this.icon.color = color;
+    }
 }
 
 export type NavigationNode = {
@@ -122,3 +139,17 @@ export type NavigationNode = {
     mode: "icon" | "label",
 };
 
+export namespace NavigationConstants {
+
+    /**
+     * The widgets to show in new navigation
+     */
+    export const newWidgets: TEnumKeys<typeof WidgetClass>[] = [
+        "Common_Autarchy",
+        // "Common_Production",
+        "Common_Selfconsumption",
+        "Consumption",
+        "Grid",
+        // "Storage",
+    ];
+}
