@@ -369,6 +369,12 @@ task copyBundleReadmes() {
 							return // ignore
 						}
 
+					} else if(bundle.startsWith("io.openems.common")) {
+						def commonBundle = bundle.substring("io.openems.common.".length())
+						if(commonBundle.startsWith("bridge.")) {
+							target = targetBridge
+						}
+
 					} else if(bundle.startsWith("io.openems.wrapper")
 						|| bundle.startsWith("io.openems.oem.")) {
 						// ignore
