@@ -373,12 +373,6 @@ task copyBundleReadmes() {
 						def commonBundle = bundle.substring("io.openems.common.".length())
 						if(commonBundle.startsWith("bridge.")) {
 							target = targetBridge
-						} else if(commonBundle.startsWith("timedata.")) {
-							target = targetTimedata
-						} else if(commonBundle.endsWith(".api")) {
-							target = targetNature
-						} else {
-							return // ignore
 						}
 
 					} else if(bundle.startsWith("io.openems.wrapper")
