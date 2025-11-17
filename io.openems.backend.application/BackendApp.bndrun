@@ -161,4 +161,4 @@
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.oem.openems;version=snapshot,\
-	io.openems.shared.influxdb;version='[1.0.0,1.0.1)'
+	io.openems.shared.influxdb;version=snapshot
