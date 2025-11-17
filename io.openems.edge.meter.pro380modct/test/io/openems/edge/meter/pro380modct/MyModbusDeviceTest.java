@@ -1,5 +1,6 @@
 package io.openems.edge.meter.pro380modct;
 
+import io.openems.common.types.MeterType;
 import org.junit.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -17,6 +18,7 @@ public class MyModbusDeviceTest {
 				.activate(MyConfig.create() //
 						.setId("component0") //
 						.setModbusId("modbus0") //
+                        .setType(MeterType.GRID)
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();
