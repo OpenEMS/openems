@@ -21,12 +21,34 @@ dependencies {
 	wrapperReleaseJars "org.lz4:lz4-java:1.8.0"
 	wrapperReleaseJars "org.xerial.snappy:snappy-java:1.1.10.5"
 	wrapperReleaseJars "com.github.luben:zstd-jni:1.5.6-3"
+	wrapperReleaseJars "org.mongodb:mongodb-driver-sync:5.2.1"
+	wrapperReleaseJars "org.mongodb:mongodb-driver-core:5.2.1"
+	wrapperReleaseJars "org.mongodb:bson:5.2.1"
 }
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(project.java_source as Integer)
 	}
+}
+
+tasks.register('prepareWrapperReleaseJars', Copy) {
+	group = 'OpenEMS-Build'
+	description = 'Downloads third-party jars that are wrapped via bnd and copies them into cnf/release.'
+	from {
+		configurations.wrapperReleaseJars
+	}
+	into wrapperReleaseDir
+	doFirst {
+		file(wrapperReleaseDir).mkdirs()
+	}
+}
+
+tasks.register('prepareWrapperBundles') {
+	group = 'OpenEMS-Build'
+	description = 'Ensures cnf/release contains the generated wrapper bundles and an up-to-date index.'
+	dependsOn(tasks.named('prepareWrapperReleaseJars'))
+	dependsOn(':io.openems.wrapper:release')
 }
 
 def isCI = (System.getenv("CI") != null) as Boolean
@@ -51,6 +73,7 @@ subprojects {
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
+		dependsOn(rootProject.tasks.named('prepareWrapperReleaseJars'))
 
 		if (isCI) {
 			options.compilerArgs += ["-Xlint:none", "-nowarn"]
@@ -147,23 +170,13 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
-tasks.register('prepareWrapperReleaseJars', Copy) {
-	group = 'OpenEMS-Build'
-	description = 'Downloads third-party jars that are wrapped via bnd and copies them into cnf/release.'
-	from {
-		configurations.wrapperReleaseJars
+subprojects {
+	tasks.withType(Jar).configureEach {
+		dependsOn(rootProject.tasks.named('prepareWrapperReleaseJars'))
 	}
-	into wrapperReleaseDir
-	doFirst {
-		file(wrapperReleaseDir).mkdirs()
+	tasks.withType(Checkstyle).configureEach {
+		dependsOn(rootProject.tasks.named('prepareWrapperReleaseJars'))
 	}
-}
-
-tasks.register('prepareWrapperBundles') {
-	group = 'OpenEMS-Build'
-	description = 'Ensures cnf/release contains the generated wrapper bundles and an up-to-date index.'
-	dependsOn(tasks.named('prepareWrapperReleaseJars'))
-	dependsOn(':io.openems.wrapper:release')
 }
 
 task cleanEdge() {

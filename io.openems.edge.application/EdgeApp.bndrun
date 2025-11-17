@@ -411,7 +411,6 @@
 	io.openems.edge.weather.openmeteo;version=snapshot,\
 	io.openems.j2mod;version='[3.2.1,3.2.2)',\
 	io.openems.oem.openems;version=snapshot,\
-	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.influxdb-client-core;version=snapshot,\
 	io.openems.wrapper.influxdb-client-java;version=snapshot,\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
@@ -467,4 +466,5 @@
 	io.openems.wrapper.retrofit-converter-gson;version='[3.0.0,3.0.1)',\
 	io.openems.wrapper.retrofit-converter-scalars;version='[3.0.0,3.0.1)',\
 	io.openems.wrapper.retrofit2;version='[3.0.0,3.0.1)',\
-	io.openems.wrapper.sdnotify;version='[1.6.0,1.6.1)'
+	io.openems.wrapper.sdnotify;version='[1.6.0,1.6.1)',\
+	io.openems.shared.influxdb;version='[1.0.0,1.0.1)'
