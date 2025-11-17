@@ -199,7 +199,9 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode) //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				HybridEss.getModbusSlaveNatureTable(accessMode), //
+				StartStoppable.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 
