@@ -1,0 +1,45 @@
+= EVSE Charge-Point ABL
+
+Implementation of the ABL EVCC2/3 electric vehicle charging station for OpenEMS.
+
+== Features
+
+* Modbus TCP communication with ABL EVCC2/3 charging stations
+* Real-time monitoring of charging state and phase currents
+* Dynamic current control (6-32A)
+* Three-phase support
+* Compatible with OpenEMS EVSE API
+
+== Configuration
+
+* *IP Address*: Modbus TCP connection (default: via Modbus bridge)
+* *Modbus Unit-ID*: Device address (default: 1)
+* *Maximum Current*: Maximum supported current in Ampere (default: 32A)
+* *Wiring*: Hardware wiring configuration (SINGLE_PHASE or THREE_PHASE)
+* *Phase Rotation*: Standard or rotated wiring (L1_L2_L3 or rotated variants)
+* *Read Only*: Set to true for monitoring only, false for control capability
+
+== Protocol
+
+Based on ABL EVCC2/3 API specification:
+* Register 0x0001-0x0002: Device ID and firmware version
+* Register 0x0014: Set charging current (write)
+* Register 0x0033-0x0035: Read state and phase currents
+
+== States
+
+The ABL EVCC2/3 reports various states:
+* A1: Waiting for EV
+* B1, B2: EV connected, requesting permission
+* C2, C3, C4: Charging (various conditions)
+* E0-E3: Disabled/setup modes
+* F1-F11: Error states
+
+== Limitations
+
+* Voltage measurement not available (assumes nominal 230V per phase)
+* No phase switching support in current implementation
+* Minimum current: 6A
+* Rate limiting: 5 seconds between current changes
+
+https://fenecon.de[FENECON GmbH]
