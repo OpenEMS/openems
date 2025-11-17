@@ -1,0 +1,22 @@
+Bundle-Name: MongoDB Driver Sync
+Bundle-Description: MongoDB synchronous Java driver wrapped for OSGi usage
+Bundle-DocURL: https://www.mongodb.com/docs/drivers/java
+Bundle-License: https://www.mongodb.com/licensing/server-side-public-license
+Bundle-Version: 5.2.1
+Bundle-SymbolicName: org.mongodb.driver-sync
+
+Include-Resource: \
+	@../cnf/release/mongodb-driver-sync-5.2.1.jar,\
+
+Export-Package: \
+	com.mongodb.client;version=5.2.1,\
+	com.mongodb.client.gridfs;version=5.2.1,\
+	com.mongodb.client.internal;version=5.2.1,\
+	com.mongodb.client.vault;version=5.2.1
+
+Import-Package: \
+	com.mongodb.*;version='[5.2.1,6)',\
+	org.bson.*;version='[5.2.1,6)',\
+	*
+
+-sources: false
