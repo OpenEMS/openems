@@ -151,10 +151,16 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 018187f444b1  openems/ui-edge:latest  "/init"   About a minute ago    Up About a minute
 0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
 ----
-
 == Changing the Language in the UI
 
-To change the language in the OpenEMS UI, open the UI in your browser, click on the settings (⚙️) icon in the top-right corner, and select your preferred language.
+To change the language in the OpenEMS UI:
+
+1. Open the OpenEMS Edge UI in your browser.
+2. Click the user/profile icon (avatar) in the top-right corner of the UI.
+3. Choose your preferred language from the "Language" dropdown in the profile menu.
+4. The UI will immediately switch to the selected language (or you may need to reload).
+
+If helpful, you can add a small screenshot showing the profile menu and language dropdown for clarity.
 
 == Next Steps
 
