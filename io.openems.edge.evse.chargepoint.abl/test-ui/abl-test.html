@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABL EVSE Test UI</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .section h2 {
+            color: #444;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .status-item label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .status-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .status-item.state .value { color: #007bff; }
+        .status-item.power .value { color: #28a745; }
+        .status-item.current .value { color: #ffc107; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #218838; }
+        button.warning { background: #ffc107; color: #333; }
+        button.warning:hover { background: #e0a800; }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input[type="number"], select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+            border-radius: 0;
+        }
+        .tab.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: -2px;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ABL EVSE Test UI</h1>
+        <p class="subtitle">Manual Testing Interface for ABL Charge Point</p>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="switchTab('dummy')">Unit Test (Dummy)</button>
+            <button class="tab" onclick="switchTab('simulator')">Integration Test (Modbus Simulator)</button>
+        </div>
+
+        <!-- Dummy Component Tab -->
+        <div id="dummy-tab" class="tab-content active">
+            <div class="section">
+                <h2>Status</h2>
+                <div id="dummy-status" class="status-grid">
+                    <div class="status-item state">
+                        <label>State</label>
+                        <div class="value" id="dummy-state">-</div>
+                    </div>
+                    <div class="status-item">
+                        <label>EV Connected</label>
+                        <div class="value" id="dummy-ev-connected">-</div>
+                    </div>
+                    <div class="status-item current">
+                        <label>Setpoint (mA)</label>
+                        <div class="value" id="dummy-setpoint">-</div>
+                    </div>
+                    <div class="status-item power">
+                        <label>Power (W)</label>
+                        <div class="value" id="dummy-power">-</div>
+                    </div>
+                </div>
+                <button onclick="refreshDummyStatus()">Refresh Status</button>
+            </div>
+
+            <div class="section">
+                <h2>EV Control</h2>
+                <div class="button-group">
+                    <button class="success" onclick="dummyConnectEv()">Connect EV</button>
+                    <button class="danger" onclick="dummyDisconnectEv()">Disconnect EV</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Charging Control</h2>
+                <label>Current (mA):</label>
+                <input type="number" id="dummy-current-input" value="16000" min="0" max="32000" step="1000">
+                <button onclick="dummySetCurrent()">Set Current</button>
+            </div>
+
+            <div class="section">
+                <h2>Error Injection</h2>
+                <select id="dummy-error-select">
+                    <option value="F1">F1 - Welding Detection</option>
+                    <option value="F2">F2 - Internal Error</option>
+                    <option value="F9">F9 - Overcurrent</option>
+                </select>
+                <button class="danger" onclick="dummyInjectError()">Inject Error</button>
+            </div>
+
+            <div id="dummy-message"></div>
+        </div>
+
+        <!-- Modbus Simulator Tab -->
+        <div id="simulator-tab" class="tab-content">
+            <div class="section">
+                <h2>Simulator Control</h2>
+                <div class="button-group">
+                    <button class="success" onclick="startSimulator()">Start Simulator</button>
+                    <button class="danger" onclick="stopSimulator()">Stop Simulator</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Status</h2>
+                <div id="sim-status" class="status-grid">
+                    <div class="status-item state">
+                        <label>State</label>
+                        <div class="value" id="sim-state">-</div>
+                    </div>
+                    <div class="status-item">
+                        <label>EV Connected</label>
+                        <div class="value" id="sim-ev-connected">-</div>
+                    </div>
+                    <div class="status-item current">
+                        <label>Setpoint</label>
+                        <div class="value" id="sim-setpoint">-</div>
+                    </div>
+                    <div class="status-item power">
+                        <label>Power (W)</label>
+                        <div class="value" id="sim-power">-</div>
+                    </div>
+                </div>
+                <button onclick="refreshSimulatorStatus()">Refresh Status</button>
+            </div>
+
+            <div class="section">
+                <h2>EV Control</h2>
+                <div class="button-group">
+                    <button class="success" onclick="simConnectEv()">Connect EV</button>
+                    <button class="danger" onclick="simDisconnectEv()">Disconnect EV</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Error Injection</h2>
+                <select id="sim-error-select">
+                    <option value="F1">F1 - Welding Detection</option>
+                    <option value="F9">F9 - Overcurrent</option>
+                    <option value="F4">F4 - Communication Timeout</option>
+                </select>
+                <label>Auto-recover after (seconds, 0=never):</label>
+                <input type="number" id="sim-recovery-time" value="10" min="0" max="60">
+                <button class="danger" onclick="simInjectError()">Inject Error</button>
+                <button class="warning" onclick="simClearError()">Clear Error</button>
+            </div>
+
+            <div id="sim-message"></div>
+        </div>
+    </div>
+
+    <script>
+        const DUMMY_API_BASE = '/rest/abl/test';
+        const SIM_API_BASE = '/rest/abl/simulator';
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            if (tab === 'dummy') {
+                document.querySelector('.tab:first-child').classList.add('active');
+                document.getElementById('dummy-tab').classList.add('active');
+                refreshDummyStatus();
+            } else {
+                document.querySelector('.tab:last-child').classList.add('active');
+                document.getElementById('simulator-tab').classList.add('active');
+                refreshSimulatorStatus();
+            }
+        }
+
+        // Helper functions
+        function showMessage(elementId, message, isError = false) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="message ${isError ? 'error' : 'success'}">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 5000);
+        }
+
+        async function apiCall(url, method = 'GET', body = null) {
+            try {
+                const options = { method };
+                if (body) {
+                    options.headers = { 'Content-Type': 'application/json' };
+                    options.body = JSON.stringify(body);
+                }
+                const response = await fetch(url, options);
+                return await response.json();
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Dummy Component Functions
+        async function refreshDummyStatus() {
+            const data = await apiCall(`${DUMMY_API_BASE}/status`);
+            if (data.success) {
+                document.getElementById('dummy-state').textContent = data.state || '-';
+                document.getElementById('dummy-ev-connected').textContent = data.evConnected ? 'Yes' : 'No';
+                document.getElementById('dummy-setpoint').textContent = data.currentSetpoint || '0';
+                document.getElementById('dummy-power').textContent = data.activePower || '0';
+            }
+        }
+
+        async function dummyConnectEv() {
+            const data = await apiCall(`${DUMMY_API_BASE}/ev/connect`, 'POST');
+            showMessage('dummy-message', data.message || data.error, !data.success);
+            if (data.success) refreshDummyStatus();
+        }
+
+        async function dummyDisconnectEv() {
+            const data = await apiCall(`${DUMMY_API_BASE}/ev/disconnect`, 'POST');
+            showMessage('dummy-message', data.message || data.error, !data.success);
+            if (data.success) refreshDummyStatus();
+        }
+
+        async function dummySetCurrent() {
+            const current = document.getElementById('dummy-current-input').value;
+            const data = await apiCall(`${DUMMY_API_BASE}/current/${current}`, 'POST');
+            showMessage('dummy-message', data.message || data.error, !data.success);
+            if (data.success) refreshDummyStatus();
+        }
+
+        async function dummyInjectError() {
+            const error = document.getElementById('dummy-error-select').value;
+            const data = await apiCall(`${DUMMY_API_BASE}/error/${error}`, 'POST');
+            showMessage('dummy-message', data.message || data.error, !data.success);
+            if (data.success) refreshDummyStatus();
+        }
+
+        // Simulator Functions
+        async function startSimulator() {
+            const data = await apiCall(`${SIM_API_BASE}/start`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+            if (data.success) refreshSimulatorStatus();
+        }
+
+        async function stopSimulator() {
+            const data = await apiCall(`${SIM_API_BASE}/stop`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+        }
+
+        async function refreshSimulatorStatus() {
+            const data = await apiCall(`${SIM_API_BASE}/status`);
+            if (data.success && data.running) {
+                document.getElementById('sim-state').textContent = data.state || '-';
+                document.getElementById('sim-ev-connected').textContent = data.evConnected ? 'Yes' : 'No';
+                document.getElementById('sim-setpoint').textContent = data.currentSetpoint || '0';
+                document.getElementById('sim-power').textContent = data.activePower || '0';
+            } else {
+                document.getElementById('sim-state').textContent = 'Not Running';
+            }
+        }
+
+        async function simConnectEv() {
+            const data = await apiCall(`${SIM_API_BASE}/ev/connect`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+            if (data.success) refreshSimulatorStatus();
+        }
+
+        async function simDisconnectEv() {
+            const data = await apiCall(`${SIM_API_BASE}/ev/disconnect`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+            if (data.success) refreshSimulatorStatus();
+        }
+
+        async function simInjectError() {
+            const error = document.getElementById('sim-error-select').value;
+            const recovery = document.getElementById('sim-recovery-time').value;
+            const data = await apiCall(`${SIM_API_BASE}/error/inject?code=${error}&recovery=${recovery}`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+            if (data.success) refreshSimulatorStatus();
+        }
+
+        async function simClearError() {
+            const data = await apiCall(`${SIM_API_BASE}/error/clear`, 'POST');
+            showMessage('sim-message', data.message || data.error, !data.success);
+            if (data.success) refreshSimulatorStatus();
+        }
+
+        // Auto-refresh every 2 seconds
+        setInterval(() => {
+            if (document.getElementById('dummy-tab').classList.contains('active')) {
+                refreshDummyStatus();
+            } else {
+                refreshSimulatorStatus();
+            }
+        }, 2000);
+
+        // Initial load
+        refreshDummyStatus();
+    </script>
+</body>
+</html>

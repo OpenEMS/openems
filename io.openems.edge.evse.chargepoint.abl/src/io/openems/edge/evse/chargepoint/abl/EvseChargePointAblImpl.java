@@ -1,6 +1,6 @@
 package io.openems.edge.evse.chargepoint.abl;
 
-import static io.openems.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.Tuple;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -50,7 +51,6 @@ import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.abl.enums.ChargingState;
 import io.openems.edge.evse.chargepoint.abl.enums.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -169,8 +169,8 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 									return "Unknown";
 								}))),
 
-				// Register 0x0033-0x0035: Read current state and phase currents (short format)
-				// This is the primary register for reading state and currents (1A resolution)
+				// Register 0x0033-0x0035: Read current state, EV connection, and phase currents
+				// Each register is read once; multi-value extraction happens in EventHandler
 				new FC3ReadRegistersTask(0x0033, Priority.HIGH, //
 						m(EvseChargePointAbl.ChannelId.EV_CONNECTED, new UnsignedWordElement(0x0033),
 								new ElementToChannelConverter(value -> {
@@ -184,41 +184,28 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 								})),
 						m(EvseChargePointAbl.ChannelId.CHARGING_STATE, new UnsignedWordElement(0x0034),
 								new ElementToChannelConverter(value -> {
-									// Bits 31..24 contain the state value (0xA1, 0xB1, 0xC2, etc.)
+									// High byte contains state, low byte contains L1 current
+									// We extract state here, L1 current is handled in EventHandler
 									Integer val = TypeUtils.getAsType(INTEGER, value);
 									if (val != null) {
-										int stateValue = (val >> 8) & 0xFF; // High byte contains state
+										int stateValue = (val >> 8) & 0xFF;
+										// Also set L1 current as side effect
+										int currentL1 = val & 0xFF;
+										EvseChargePointAblImpl.this._setPhaseCurrentL1(currentL1 == 0x64 ? null : currentL1);
 										return ChargingState.fromValue(stateValue);
 									}
 									return ChargingState.UNDEFINED;
 								})),
-						m(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L1, new UnsignedWordElement(0x0034),
-								new ElementToChannelConverter(value -> {
-									// Bits 23..16: ICT1 in Ampere (0x64 = not available)
-									Integer val = TypeUtils.getAsType(INTEGER, value);
-									if (val != null) {
-										int current = val & 0xFF; // Low byte contains L1 current
-										return current == 0x64 ? null : current;
-									}
-									return null;
-								})),
 						m(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L2, new UnsignedWordElement(0x0035),
 								new ElementToChannelConverter(value -> {
-									// Bits 15..8: ICT2 in Ampere (0x64 = not available)
+									// High byte contains L2 current, low byte contains L3 current
 									Integer val = TypeUtils.getAsType(INTEGER, value);
 									if (val != null) {
-										int current = (val >> 8) & 0xFF; // High byte contains L2 current
-										return current == 0x64 ? null : current;
-									}
-									return null;
-								})),
-						m(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L3, new UnsignedWordElement(0x0035),
-								new ElementToChannelConverter(value -> {
-									// Bits 7..0: ICT3 in Ampere (0x64 = not available)
-									Integer val = TypeUtils.getAsType(INTEGER, value);
-									if (val != null) {
-										int current = val & 0xFF; // Low byte contains L3 current
-										return current == 0x64 ? null : current;
+										int currentL2 = (val >> 8) & 0xFF;
+										int currentL3 = val & 0xFF;
+										// Set L3 as side effect
+										EvseChargePointAblImpl.this._setPhaseCurrentL3(currentL3 == 0x64 ? null : currentL3);
+										return currentL2 == 0x64 ? null : currentL2;
 									}
 									return null;
 								}))),
@@ -275,6 +262,23 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	// Helper methods to set channel values from Modbus converters
+	private void _setChargingState(ChargingState state) {
+		this.channel(EvseChargePointAbl.ChannelId.CHARGING_STATE).setNextValue(state);
+	}
+
+	private void _setPhaseCurrentL1(Integer current) {
+		this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L1).setNextValue(current);
+	}
+
+	private void _setPhaseCurrentL2(Integer current) {
+		this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L2).setNextValue(current);
+	}
+
+	private void _setPhaseCurrentL3(Integer current) {
+		this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L3).setNextValue(current);
+	}
+
 	@Override
 	public ChargePointAbilities getChargePointAbilities() {
 		var config = this.config;
@@ -287,7 +291,7 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxCurrentMa)) //
-				.setIsEvConnected(this.getEvConnectedChannel().value().orElse(false)) //
+				.setIsEvConnected(this.getEvConnectedChannel().value().orElse(0) != 0) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
 				.build();
 	}
@@ -316,13 +320,13 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 
 			// Map phase currents from ABL channels to ElectricityMeter channels
 			// Convert A to mA (*1000) for meter channels
-			var currentL1 = this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L1).value().asOptional();
-			var currentL2 = this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L2).value().asOptional();
-			var currentL3 = this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L3).value().asOptional();
+			Integer currentL1 = (Integer) this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L1).value().get();
+			Integer currentL2 = (Integer) this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L2).value().get();
+			Integer currentL3 = (Integer) this.channel(EvseChargePointAbl.ChannelId.PHASE_CURRENT_L3).value().get();
 
-			setValue(this, ElectricityMeter.ChannelId.CURRENT_L1, currentL1.map(i -> i * 1000).orElse(null));
-			setValue(this, ElectricityMeter.ChannelId.CURRENT_L2, currentL2.map(i -> i * 1000).orElse(null));
-			setValue(this, ElectricityMeter.ChannelId.CURRENT_L3, currentL3.map(i -> i * 1000).orElse(null));
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L1, currentL1 != null ? currentL1 * 1000 : null);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L2, currentL2 != null ? currentL2 * 1000 : null);
+			setValue(this, ElectricityMeter.ChannelId.CURRENT_L3, currentL3 != null ? currentL3 * 1000 : null);
 
 			// Set voltage to nominal 230V per phase (ABL doesn't provide voltage
 			// measurement)
