@@ -453,6 +453,479 @@ public class {ComponentName}ImplTest {
 }
 ```
 
+### Step 10a: Testing Modbus Components (DummyModbusBridge)
+
+**IMPORTANT**: For components that use Modbus communication (meters, ESS, EVCS, inverters, battery systems, etc.), you MUST use the `DummyModbusBridge` for testing instead of a real Modbus bridge.
+
+#### When to Use DummyModbusBridge
+
+Use `DummyModbusBridge` when your component:
+- Extends `AbstractOpenemsModbusComponent`
+- Implements Modbus-based communication
+- Reads/writes Modbus registers
+- Depends on a Modbus bridge (`BridgeModbus` or `BridgeModbusTcp`)
+
+Common component types that need this:
+- **Meters** (Eastron, Janitza, Carlo Gavazzi, etc.)
+- **ESS/Battery systems** (Fenecon, Soltaro, etc.)
+- **EVCS/Chargers** (KEBA, Goe, Heidelberg, etc.)
+- **Inverters** (Fronius, SMA, Goodwe, Kostal, etc.)
+
+#### DummyModbusBridge Overview
+
+**Location**: `io.openems.edge.bridge.modbus.test.DummyModbusBridge`
+
+The DummyModbusBridge simulates a Modbus TCP/Serial bridge and provides methods to configure register values for testing. It implements:
+- `BridgeModbusTcp` - TCP protocol support
+- `BridgeModbus` - Core Modbus interface
+- `OpenemsComponent` - Standard component interface
+
+#### Basic Usage Pattern
+
+```java
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+
+@Test
+public void test() throws Exception {
+    new ComponentTest(new MeterMyDeviceImpl()) //
+            .addReference("cm", new DummyConfigurationAdmin()) //
+            .addReference("setModbus", new DummyModbusBridge("modbus0")) //
+            .activate(MyConfig.create() //
+                    .setId("meter0") //
+                    .setModbusId("modbus0") //
+                    .build());
+}
+```
+
+**Key points:**
+- Reference name MUST be `"setModbus"` (matches the @Reference in component)
+- Bridge ID should match the `modbusId` in config
+- Add DummyModbusBridge BEFORE activating the component
+
+#### Register Configuration Methods
+
+The DummyModbusBridge provides fluent API methods for configuring registers:
+
+**1. Single Register (16-bit integer)**
+```java
+.withRegister(int address, int value)
+.withRegister(int address, byte b1, byte b2)  // With explicit bytes
+```
+
+**2. Multiple Registers (Holding Registers - FC3)**
+```java
+.withRegisters(int startAddress, int... values)
+```
+
+**3. Input Registers (FC4)**
+```java
+.withInputRegister(int address, int value)
+.withInputRegisters(int startAddress, int... values)
+```
+
+**4. Float32 Values (32-bit floats across 2 registers)**
+```java
+.withRegistersFloat32(int startAddress, float... values)
+```
+
+**5. IP Address Configuration**
+```java
+.withIpAddress(String ipAddress)
+```
+
+**6. Log Verbosity**
+```java
+new DummyModbusBridge(String id, LogVerbosity logVerbosity)
+```
+
+#### Example 1: Simple Meter (Eastron SDM120)
+
+```java
+package io.openems.edge.meter.eastron.sdm120;
+
+import org.junit.Test;
+
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
+import static io.openems.edge.meter.api.MeterType.GRID;
+import static io.openems.common.types.Phase.L1;
+
+public class MeterEastronSdm120ImplTest {
+
+    @Test
+    public void test() throws Exception {
+        new ComponentTest(new MeterEastronSdm120Impl()) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0")) //
+                .activate(MyConfig.create() //
+                        .setId("meter0") //
+                        .setModbusId("modbus0") //
+                        .setType(GRID) //
+                        .setPhase(L1) //
+                        .build());
+    }
+}
+```
+
+#### Example 2: Meter with Register Data (Janitza UMG104)
+
+```java
+package io.openems.edge.meter.janitza.umg104;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
+
+public class MeterJanitzaUmg104ImplTest {
+
+    private ComponentTest test;
+
+    @Before
+    public void setup() throws Exception {
+        this.test = new ComponentTest(new MeterJanitzaUmg104Impl()) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0")//
+                        // Configure voltage registers (Float32 format)
+                        .withRegisters(1317,
+                                // VOLTAGE_L1 (Float32: 1.0 = 0x3F80_0000)
+                                0x3F80, 0x0000,
+                                // VOLTAGE_L2
+                                0x3F80, 0x0000,
+                                // VOLTAGE_L3
+                                0x3F80, 0x0000,
+                                // DUMMY padding
+                                0x0000, 0x0000,
+                                // CURRENT_L1
+                                0x3F80, 0x0000,
+                                // CURRENT_L2
+                                0x3F80, 0x0000,
+                                // CURRENT_L3
+                                0x3F80, 0x0000,
+                                // DUMMY
+                                0x0000, 0x0000,
+                                // ACTIVE_POWER_L1 (Float32: 10000 = 0x461C_4000)
+                                0x461C, 0x4000,
+                                // ACTIVE_POWER_L2
+                                0x461C, 0x4000,
+                                // ACTIVE_POWER_L3
+                                0x461C, 0x4000,
+                                // DUMMY
+                                0x0000, 0x0000,
+                                // REACTIVE_POWER_L1
+                                0x45DA, 0xC000,
+                                // REACTIVE_POWER_L2
+                                0x45DA, 0xC000,
+                                // REACTIVE_POWER_L3
+                                0x45DA, 0xC000)
+                        // Configure frequency registers
+                        .withRegisters(1439,
+                                // FREQUENCY (Float32: 50.0)
+                                0x40A0, 0x0000)
+                        // Configure energy registers
+                        .withRegisters(9851,
+                                // ACTIVE_PRODUCTION_ENERGY
+                                0x464B, 0x2000));
+    }
+
+    @Test
+    public void test() throws Exception {
+        this.test.activate(MyConfig.create() //
+                .setId("meter0") //
+                .setModbusId("modbus0") //
+                .build());
+    }
+}
+```
+
+#### Example 3: Using Float32 Helper Method (Fronius Meter)
+
+```java
+package io.openems.edge.fronius.meter;
+
+import org.junit.Test;
+
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.meter.api.MeterType;
+
+public class MeterFroniusImplTest {
+
+    @Test
+    public void test() throws Exception {
+        new ComponentTest(new MeterFroniusImpl()) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0") //
+                        // SunSpec detection registers
+                        .withRegisters(40000, 0x5375, 0x6e53) // "SunS" signature
+                        .withRegisters(40002, 1, 66) // Block ID and length
+                        // Model name, serial, etc. (string data)
+                        .withRegisters(40004, //
+                                /* MN */ 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+                                /* MD */ 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
+                                /* OPT */ 67, 0, 0, 0, 0, 0, 0, 0, //
+                                /* VR */ 68, 0, 0, 0, 0, 0, 0, 0, //
+                                /* SN */ 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                        // Meter data block
+                        .withRegisters(40070, 213, 124) // Block 213, length 124
+                        // Use Float32 helper for actual meter values
+                        .withRegistersFloat32(40072, //
+                                /* A */ 10.123F, /* APH_A,B,C */ 3.234F, 2.345F, 4.345F, //
+                                /* PH_V */ 230.123F, /* PH_VPH_A,B,C */ 229F, 230F, 231F, //
+                                /* PPV */ 1F, /* P_P_VPH_A_B,B_C,C_A */ 2F, 3F, 4F, //
+                                /* HZ */ 50F, //
+                                /* W */ 12345F, /* WPH_A,B,C */ 5432F, 4321F, 6789F, //
+                                /* VA */ 5F, /* V_APH_A,B,C */ 6F, 7F, 8F, //
+                                /* VAR */ 9F, /* V_A_RPH_A,B,C */ 10F, 11F, 12F, //
+                                /* PF */ 13F, /* P_FPH_A,B,C */ 14F, 15F, 16F, //
+                                /* TOT_WH_EXP */ 17F, /* TOT_WH_EXP_PH_A,B,C */ 18F, 19F, 20F, //
+                                /* TOT_WH_IMP */ 21F) //
+                        .withRegisters(40196, 0xFFFF)) // END_OF_MAP
+                .activate(MyConfig.create() //
+                        .setId("meter0") //
+                        .setModbusId("modbus0") //
+                        .setModbusUnitId(240) //
+                        .setType(MeterType.GRID) //
+                        .build());
+    }
+}
+```
+
+#### Example 4: ESS Component (Fenecon Mini)
+
+```java
+package io.openems.edge.fenecon.mini.ess;
+
+import org.junit.Test;
+
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.ess.power.api.DummyPower;
+import io.openems.edge.ess.test.ManagedSymmetricEssTest;
+import static io.openems.common.types.Phase.L1;
+import static io.openems.edge.fenecon.mini.ess.PcsMode.PCS_MODE;
+import static io.openems.edge.fenecon.mini.ess.SetupMode.SETUP_MODE;
+
+public class FeneconMiniEssImplTest {
+
+    @Test
+    public void test() throws Exception {
+        new ManagedSymmetricEssTest(new FeneconMiniEssImpl()) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addReference("power", new DummyPower()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0")) //
+                .activate(MyConfig.create() //
+                        .setId("ess0") //
+                        .setModbusId("modbus0") //
+                        .setPhase(L1) //
+                        .setReadonly(false) //
+                        .build()) //
+                .next(new TestCase() //
+                        .input(PCS_MODE, PcsMode.ECONOMIC) //
+                        .input(SETUP_MODE, SetupMode.OFF) //
+                        .output(STATE_MACHINE, State.UNDEFINED));
+    }
+}
+```
+
+#### Example 5: EVCS Charger (KEBA with Helper Method)
+
+```java
+package io.openems.edge.evse.chargepoint.keba.modbus;
+
+import org.junit.Test;
+
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
+import static io.openems.edge.evcs.api.Wiring.THREE_PHASE;
+import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
+import static io.openems.edge.common.test.TestUtils.LogVerbosity.DEBUG_LOG;
+
+public class EvcsKebaModbusImplTest {
+
+    // Helper method to set up KEBA registers
+    public static ComponentTest prepareKebaModbus(KebaModbus component) throws Exception {
+        return new ComponentTest(component) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addReference("setModbus", new DummyModbusBridge("modbus0") //
+                        .withRegisters(1000, new int[] { 0x0000, 0x0003 }) // STATUS
+                        .withRegisters(1004, new int[] { 0x0000, 0x0007 }) // PLUG
+                        .withRegisters(1006, new int[] { 0x0000, 0x0000 }) // ERROR_CODE
+                        .withRegisters(1008, new int[] { 0x0000, 0x1B58 }) // CURRENT_L1: 7000
+                        .withRegisters(1010, new int[] { 0x0000, 0x1F40 }) // CURRENT_L2: 8000
+                        .withRegisters(1012, new int[] { 0x0000, 0x2328 }) // CURRENT_L3: 9000
+                        .withRegisters(1020, new int[] { 0x0056, 0xA3B0 }) // ACTIVE_POWER
+                        .withRegisters(1036, new int[] { 0x0076, 0x38FB }) // ENERGY
+                        .withRegisters(1040, new int[] { 0x0000, 0x00E5 }) // VOLTAGE_L1: 229
+                        .withRegisters(1042, new int[] { 0x0000, 0x00E6 }) // VOLTAGE_L2: 230
+                        .withRegisters(1044, new int[] { 0x0000, 0x00E7 }) // VOLTAGE_L3: 231
+                        .withRegisters(1502, new int[] { 0x0000, 0xFF14 })); // ENERGY_SESSION
+    }
+
+    @Test
+    public void test() throws Exception {
+        prepareKebaModbus(new EvcsKebaModbusImpl()) //
+                .activate(MyConfig.create() //
+                        .setId("evcs0") //
+                        .setModbusId("modbus0") //
+                        .setWiring(THREE_PHASE) //
+                        .setPhaseRotation(L2_L3_L1) //
+                        .setLogVerbosity(DEBUG_LOG) //
+                        .build());
+    }
+}
+```
+
+#### Example 6: Dynamic Register Updates During Test
+
+For testing scenarios where register values change during execution:
+
+```java
+@Test
+public void testDynamicRegisterChange() throws Exception {
+    final var component = new MyModbusComponentImpl();
+    final var test = new ComponentTest(component) //
+            .addReference("cm", new DummyConfigurationAdmin()) //
+            .addReference("setModbus", new DummyModbusBridge("modbus0") //
+                    .withRegisters(1000, 100)) // Initial value
+            .activate(MyConfig.create() //
+                    .setId("component0") //
+                    .setModbusId("modbus0") //
+                    .build());
+
+    // Get reference to the bridge for dynamic updates
+    final var bridge = (DummyModbusBridge) component.getBridgeModbus();
+
+    test //
+            // First cycle with initial value
+            .next(new TestCase() //
+                    .output(SOME_CHANNEL, 100)) //
+            // Update register before next cycle
+            .next(new TestCase().onBeforeProcessImage(() -> bridge //
+                    .withRegisters(1000, 200))) //
+            // Verify new value
+            .next(new TestCase() //
+                    .output(SOME_CHANNEL, 200));
+}
+```
+
+#### Best Practices for Modbus Testing
+
+**1. Organize Register Configuration**
+- Group related registers together
+- Add comments explaining what each register represents
+- Use meaningful variable names in complex setups
+
+**2. Use Helper Methods for Complex Setup**
+```java
+public static ComponentTest prepareModbusTest(MyComponent component) {
+    return new ComponentTest(component)
+            .addReference("cm", new DummyConfigurationAdmin())
+            .addReference("setModbus", configureBridge());
+}
+
+private static DummyModbusBridge configureBridge() {
+    return new DummyModbusBridge("modbus0")
+            .withRegisters(/* status registers */)
+            .withRegisters(/* data registers */);
+}
+```
+
+**3. Document Register Values**
+```java
+.withRegisters(1317,
+        // VOLTAGE_L1 (Float32: 230.0V = 0x4366_0000)
+        0x4366, 0x0000,
+        // CURRENT_L1 (Float32: 10.5A = 0x4128_0000)
+        0x4128, 0x0000)
+```
+
+**4. Test Different Scenarios**
+- Normal operation values
+- Edge cases (0, max values)
+- Error conditions
+- State transitions
+
+**5. Required Test Dependencies**
+
+For Modbus component tests, include in bnd.bnd:
+```
+-testpath: \
+    ${testpath},\
+    io.openems.edge.bridge.modbus
+```
+
+**6. Common Modbus Config Parameters**
+
+Most Modbus components need these config parameters:
+```java
+@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge")
+String modbus_id();
+
+@AttributeDefinition(name = "Modbus Unit-ID", description = "Unit ID of Modbus device")
+int modbusUnitId() default 1;
+```
+
+And in the implementation:
+```java
+@Reference
+protected ConfigurationAdmin cm;
+
+@Reference(target = "(&(enabled=true))")
+protected void setModbus(BridgeModbus modbus) {
+    // Set automatically by OSGi
+}
+```
+
+#### Register Value Encoding
+
+**Integer Values (16-bit)**
+```java
+.withRegister(1000, 100)  // Register 1000 = 100
+```
+
+**Long Values (32-bit, two registers)**
+```java
+// Value 5678000 = 0x00_56_A3_B0
+.withRegisters(1020, 0x0056, 0xA3B0)
+```
+
+**Float32 Values**
+```java
+// Use helper method (preferred)
+.withRegistersFloat32(40072, 230.5F, 50.0F, 12345.6F)
+
+// Or manually (big-endian)
+// 230.5 = 0x43_66_80_00
+.withRegisters(40072, 0x4366, 0x8000)
+```
+
+**Boolean/Status Flags**
+```java
+.withRegister(1000, 0x0001)  // Bit 0 set
+.withRegister(1001, 0x0004)  // Bit 2 set
+```
+
+#### Troubleshooting Modbus Tests
+
+**Issue: "No reference found for 'setModbus'"**
+- Solution: Ensure `.addReference("setModbus", new DummyModbusBridge(...))` is called
+- Verify the reference name matches the @Reference annotation in your component
+
+**Issue: "Register not found"**
+- Solution: Configure all registers that your component reads
+- Check the register addresses in your component's protocol definition
+
+**Issue: "Values not matching expected"**
+- Solution: Verify Float32 encoding (use `.withRegistersFloat32()` helper)
+- Check byte order (big-endian vs little-endian)
+- Ensure scale factors match your component's expectations
+
 ### Step 11: Create Eclipse Project Files
 
 **.project template:**
