@@ -1,4 +1,4 @@
-Deploy OpenEMS Edge to Docker
+= Deploy OpenEMS Edge to Docker
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
@@ -7,6 +7,7 @@ Deploy OpenEMS Edge to Docker
 :source-highlighter: highlight.js
 :icons: font
 :imagesdir: ../../../assets/images
+
 
 This chapter explains how OpenEMS can be deployed using our official https://hub.docker.com/r/openems/edge[Docker image].
 
