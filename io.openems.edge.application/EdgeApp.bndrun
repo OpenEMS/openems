@@ -450,7 +450,7 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
 	stax2-api;version='[4.2.2,4.2.3)',\
-	io.openems.shared.influxdb;version='[1.0.0,1.0.1)',\
+	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.eu.chargetime.ocpp;version='[1.1.0,1.1.1)',\
 	io.openems.wrapper.fastexcel;version='[0.19.0,0.19.1)',\
 	io.openems.wrapper.gson;version='[0.0.0,0.0.1)',\
