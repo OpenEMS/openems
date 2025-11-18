@@ -37,7 +37,7 @@ subprojects {
 		ext.isEdge = true
 	}
 	
-	if (name ==~ /io.openems.(backend|common|shared|wrapper).*/) {
+	if (name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/) {
 		ext.isBackend = true
 	}
 
