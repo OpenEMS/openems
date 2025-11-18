@@ -466,4 +466,5 @@
 	io.openems.wrapper.retrofit-converter-gson;version='[3.0.0,3.0.1)',\
 	io.openems.wrapper.retrofit-converter-scalars;version='[3.0.0,3.0.1)',\
 	io.openems.wrapper.retrofit2;version='[3.0.0,3.0.1)',\
-	io.openems.wrapper.sdnotify;version='[1.6.0,1.6.1)'
+	io.openems.wrapper.sdnotify;version='[1.6.0,1.6.1)',\
+	io.openems.wrapper.influxdb-client-core;version='[7.3.0,7.3.1)'
