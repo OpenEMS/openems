@@ -223,7 +223,7 @@
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
 	com.squareup.okhttp3;version='[5.3.1,5.3.2)',\
 	com.squareup.okhttp3.logging;version='[5.3.1,5.3.2)',\
-	com.squareup.okio;version='[3.16.3,3.16.4)',\
+	com.squareup.okio;version='[3.16.4,3.16.5)',\
 	com.sun.jna;version='[5.18.1,5.18.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
