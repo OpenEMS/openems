@@ -90,13 +90,13 @@ jobs:
     needs: [build-java, build-ui]
     steps:
       - name: Load Java build-artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: java-build-artifacts
           path: build
       
       - name: Load UI build-artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: ui-build-artifacts
           path: build
