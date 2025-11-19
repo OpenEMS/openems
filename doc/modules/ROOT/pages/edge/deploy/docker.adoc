@@ -150,3 +150,51 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 018187f444b1  openems/ui-edge:latest  "/init"   About a minute ago    Up About a minute
 0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
 ----
+
+== OpenEMS UI for development
+
+If you just want to have the OpenEMS UI served from a docker container, you can do so by adjusting your `docker-compose.yml` file to look like this:
+
+[source,yaml]
+----
+services:
+  openems-ui:
+    image: openems/ui-edge:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=host.docker.internal
+      - WEBSOCKET_PORT=8085
+    ports:
+      - 4200:80
+      - 443:443
+
+volumes:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+summary of the changes:
+1. Just the service `openems-ui` in the docker-compose file
+2. The WEBSOCKET_HOST is directed to the localhost of the host computer (assumed to be your development machine)
+3. The internal port 80 is mapped to the external port 4200 to allow the links to localhost:4200 in the dev environment and documentation to function
+4. The volumes `openems-ui-conf` and `openems-ui-log`
+
+=== Update docker-compose
+
+Update the compose running with: `docker compose up -d`
+
+==== Check container status
+
+[source,bash]
+----
+admin@ubuntu:~$ docker ps
+CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS            
+018187f444b1  openems/ui-edge:latest  "/init"   About a minute ago    Up About a minute
+0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
+----
+
