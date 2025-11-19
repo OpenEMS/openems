@@ -359,6 +359,11 @@ This script:
 
 ---
 
+## Coding Guidelines
+
+Follow the projects coding guidelines as documented in `./doc/modules/ROOT/pages/contribute/coding-guidelines.adoc`, made public at 
+https://openems.github.io/openems.io/openems/latest/contribute/coding-guidelines.html 
+
 ## Code Organization Patterns
 
 ### Java Component Pattern
