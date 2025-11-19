@@ -28,10 +28,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -63,6 +64,8 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
 	public IoShellyPlugImpl() {
 		super(//
@@ -86,12 +89,13 @@ public class IoShellyPlugImpl extends AbstractOpenemsComponent
 		this.invert = config.invert();
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
+		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/status", this::processHttpResult);
 	}
 
 	@Override

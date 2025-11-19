@@ -75,20 +75,13 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() {
-		calculate(this.componentManager.getClock(), this.config.distributionStrategy(), this.sum, this.ctrls,
-				this::logDebug) //
+		calculate(this.componentManager.getClock(), this.config.distributionStrategy(), this.sum, this.ctrls, //
+				this.config.logVerbosity(), message -> this.logInfo(this.log, message)) //
 				.streamEntries() //
 				.filter(e -> e.params.combinedAbilities().chargePointAbilities() != null) //
 				.forEach(e -> {
 					// Apply actions
 					e.ctrl.apply(e.actions.build());
 				});
-	}
-
-	protected void logDebug(String message) {
-		if (this.config.debugMode()) {
-			// TODO LogVerbosity
-			this.logInfo(this.log, message);
-		}
 	}
 }

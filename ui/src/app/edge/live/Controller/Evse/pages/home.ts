@@ -61,7 +61,7 @@ export class ModalComponent extends AbstractModal {
 
     protected override onIsInitialized(): void {
         const url = ControllerEvseSingleShared.getImgUrlByFactoryId(this.chargePoint.factoryId);
-        this.img = url === null ? null : { url, height: 300, width: 300 };
+        this.img = url === null ? null : { url };
     }
 
     protected override getFormGroup(): FormGroup {

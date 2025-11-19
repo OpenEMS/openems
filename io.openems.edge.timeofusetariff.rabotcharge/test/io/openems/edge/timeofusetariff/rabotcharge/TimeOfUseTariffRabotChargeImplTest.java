@@ -1,10 +1,9 @@
 package io.openems.edge.timeofusetariff.rabotcharge;
 
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_API_URL;
 import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_PRIZE_COMPONENT_URL;
 import static io.openems.edge.timeofusetariff.rabotcharge.TimeOfUseTariffRabotChargeImpl.RABOT_CHARGE_TOKEN_URL;
@@ -16,12 +15,12 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.HttpStatus;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -128,7 +127,6 @@ public class TimeOfUseTariffRabotChargeImplTest {
 		final var executor = dummyBridgeHttpExecutor();
 
 		final var factory = ofBridgeImpl(//
-				() -> cycleSubscriber(), //
 				() -> endpointFetcher, //
 				() -> executor //
 		);

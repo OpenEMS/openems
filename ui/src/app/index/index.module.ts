@@ -9,17 +9,17 @@ import { LoadingScreenComponent } from "./shared/loading-screen";
 import { SumStateComponent } from "./shared/sumState";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    RegistrationModule,
-    FlatWidgetButtonComponent,
-  ],
-  declarations: [
-    FilterComponent,
-    SumStateComponent,
-    LoginComponent,
-    OverViewComponent,
-    LoadingScreenComponent,
-  ],
+    imports: [
+        SharedModule,
+        RegistrationModule,
+        FlatWidgetButtonComponent,
+        FilterComponent,
+    ],
+    declarations: [
+        SumStateComponent,
+        LoginComponent,
+        OverViewComponent,
+        LoadingScreenComponent,
+    ],
 })
 export class IndexModule { }

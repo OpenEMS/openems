@@ -20,7 +20,7 @@ public final class FeneconIndustrialSProps {
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hasGridMeter() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.FENECON.Industrial.S.hasGridMeter.label") //
+				.setTranslatedLabel("App.FENECON.Industrial.hasGridMeter.label") //
 				.setDefaultValue(true) //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
 		);
@@ -39,7 +39,7 @@ public final class FeneconIndustrialSProps {
 			final Nameable hasGridMeter //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.FENECON.Industrial.S.hasSelfConsumptionOptimization.label") //
+				.setTranslatedLabel("App.FENECON.Industrial.hasSelfConsumptionOptimization.label") //
 				.setDefaultValue(true) //
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(hasGridMeter).notNull());

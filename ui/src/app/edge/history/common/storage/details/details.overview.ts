@@ -9,17 +9,17 @@ import { PickdateComponentModule } from "src/app/shared/components/pickdate/pick
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { StorageEssChartComponent } from "./chart/esschart";
 @Component({
-  templateUrl: "./details.overview.html",
-  standalone: true,
-  imports: [
-    CommonUiModule,
-    LocaleProvider,
-    ReactiveFormsModule,
-    ChartComponentsModule,
-    PickdateComponentModule,
-    HistoryDataErrorModule,
-    StorageEssChartComponent,
-    FooterNavigationComponentsModule,
-  ],
+    templateUrl: "./details.overview.html",
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        LocaleProvider,
+        ReactiveFormsModule,
+        ChartComponentsModule,
+        PickdateComponentModule,
+        HistoryDataErrorModule,
+        StorageEssChartComponent,
+        FooterNavigationComponentsModule,
+    ],
 })
 export class DetailsOverviewComponent extends AbstractHistoryChartOverview { }
