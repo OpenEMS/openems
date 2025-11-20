@@ -9,66 +9,66 @@ import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.
 import { ModalComponent } from "../modal/modal";
 
 @Component({
-  selector: "grid",
-  templateUrl: "./flat.html",
-  standalone: false,
+    selector: "grid",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  private static readonly RESTRICTION_MODE_14A: ChannelAddress = new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode");
-  private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress("_sum", "GridActivePower");
-  private static readonly GRID_MODE: ChannelAddress = new ChannelAddress("_sum", "GridMode");
-  private static readonly RESTRICTION_MODE_RCR: ChannelAddress = new ChannelAddress("ctrlEssRippleControlReceiver0", "RestrictionMode");
+    private static readonly RESTRICTION_MODE_14A: ChannelAddress = new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode");
+    private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress("_sum", "GridActivePower");
+    private static readonly GRID_MODE: ChannelAddress = new ChannelAddress("_sum", "GridMode");
+    private static readonly RESTRICTION_MODE_RCR: ChannelAddress = new ChannelAddress("ctrlEssRippleControlReceiver0", "RestrictionMode");
 
-  public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-  public readonly GridMode = GridMode;
-  public gridBuyPower: number;
-  public gridSellPower: number;
+    public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    public readonly GridMode = GridMode;
+    public gridBuyPower: number;
+    public gridSellPower: number;
 
-  protected gridMode: number;
-  protected gridState: string;
-  protected icon: Icon | null = null;
-  protected isActivated: boolean = false;
-  protected modalComponent: Modal | null = null;
-  protected override afterIsInitialized(): void {
-    this.modalComponent = this.getModalComponent();
-  }
+    protected gridMode: number;
+    protected gridState: string;
+    protected icon: Icon | null = null;
+    protected isActivated: boolean = false;
+    protected modalComponent: Modal | null = null;
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
 
-  protected getModalComponent(): Modal {
-    return {
-      component: ModalComponent,
-      componentProps: {
-        edge: this.edge,
-      },
+    protected getModalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                edge: this.edge,
+            },
+        };
     };
-  };
 
-  protected override getChannelAddresses(): ChannelAddress[] {
-    const channelAddresses: ChannelAddress[] = [
-      FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
+    protected override getChannelAddresses(): ChannelAddress[] {
+        const channelAddresses: ChannelAddress[] = [
+            FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
 
-      // TODO should be moved to Modal
-      new ChannelAddress("_sum", "GridActivePowerL1"),
-      new ChannelAddress("_sum", "GridActivePowerL2"),
-      new ChannelAddress("_sum", "GridActivePowerL3"),
-    ];
+            // TODO should be moved to Modal
+            new ChannelAddress("_sum", "GridActivePowerL1"),
+            new ChannelAddress("_sum", "GridActivePowerL2"),
+            new ChannelAddress("_sum", "GridActivePowerL3"),
+        ];
 
-    if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {
-      channelAddresses.push(FlatComponent.RESTRICTION_MODE_14A);
+        if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {
+            channelAddresses.push(FlatComponent.RESTRICTION_MODE_14A);
+        }
+        if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver")) {
+            channelAddresses.push(FlatComponent.RESTRICTION_MODE_RCR);
+        }
+        return channelAddresses;
     }
-    if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver")) {
-      channelAddresses.push(FlatComponent.RESTRICTION_MODE_RCR);
+    protected override onCurrentData(currentData: CurrentData) {
+        this.isActivated = GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a") || GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver");
+        this.gridMode = currentData.allComponents[FlatComponent.GRID_MODE.toString()];
+        this.gridState = Converter.GRID_STATE_TO_MESSAGE(this.translate, currentData);
+        const gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
+        this.gridBuyPower = gridActivePower;
+        this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
+        this.icon = GridSectionComponent.getCurrentGridIcon(currentData);
     }
-    return channelAddresses;
-  }
-  protected override onCurrentData(currentData: CurrentData) {
-    this.isActivated = GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a") || GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver");
-    this.gridMode = currentData.allComponents[FlatComponent.GRID_MODE.toString()];
-    this.gridState = Converter.GRID_STATE_TO_MESSAGE(this.translate, currentData);
-    const gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
-    this.gridBuyPower = gridActivePower;
-    this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
-    this.icon = GridSectionComponent.getCurrentGridIcon(currentData);
-  }
 
 }

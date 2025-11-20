@@ -115,7 +115,7 @@ The control algorithm does not need to know anything about the ESS's specific co
 
 Natures extend normal Java interfaces with 'Channels'.
 If a Component implements a Nature it also needs to provide the required Channels.
-For example the Energy Storage System (ESS) Simulator link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java[Simulator.EssSymmetric.Reacting icon:code[]] implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[Ess interface icon:code[]] and therefor needs to provide a `Soc` Channel that provides the current 'State of Charge' of the battery.
+For example the Energy Storage System (ESS) Simulator link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java[Simulator.EssSymmetric.Reacting icon:code[]] implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[Ess interface icon:code[]] and therefore needs to provide a `Soc` Channel that provides the current 'State of Charge' of the battery.
 
 xref:edge/controller.adoc[Controllers] are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.
 

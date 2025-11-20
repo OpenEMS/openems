@@ -1,0 +1,22 @@
+@if (isInitialized && component) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+      <pickdate *ngIf="!ref.children.length"></pickdate>
+    </ion-buttons>
+    @switch (componentType) {
+      @case ('sum') {
+        <sumChart [isOnlyChart]="true"></sumChart>
+      }
+      @case ('consumptionMeter') {
+        <consumptionMeterChart [isOnlyChart]="true"></consumptionMeterChart>
+      }
+      @case ('evcs') {
+        <evcsChart [isOnlyChart]="true"></evcsChart>
+      }
+      @case ('heat') {
+        <heatChart [isOnlyChart]="true"></heatChart>
+      }
+    }
+  </oe-navigation-view>
+}

@@ -1,12 +1,16 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseSchedule;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.OptionsFactory;
@@ -14,6 +18,7 @@ import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -175,6 +180,54 @@ public final class AncillaryCostsProps {
 									.<JsonElement>map(scheduleArray -> scheduleArray) //
 									.orElse(null);
 						}));
+	}
+
+	/**
+	 * Creates ancillary costs JSON string based on the provided parameters.
+	 *
+	 * @param paragraph14aCheck whether §14a check is enabled
+	 * @param germanDso         the selected German DSO
+	 * @param tariffTable       the tariff table JSON array (only used for OTHER
+	 *                          DSO)
+	 * @param target            the configuration target
+	 * @return the ancillary costs as JSON string
+	 * @throws OpenemsNamedException on Error
+	 */
+	public static String createAncillaryCosts(boolean paragraph14aCheck, GermanDSO germanDso, JsonArray tariffTable,
+			ConfigurationTarget target) throws OpenemsNamedException {
+
+		if (!paragraph14aCheck) {
+			return "";
+		}
+
+		if (germanDso != GermanDSO.OTHER) {
+			return germanDso.getAncillaryCosts();
+		}
+
+		// OTHER DSO -> custom tariff table and parsing here to throw any exceptions.
+		if (!target.isDeleteOrTest()) {
+			parseSchedule(Clock.systemDefaultZone() /* does not matter here */, tariffTable);
+		}
+
+		return buildJsonObject() //
+				.addProperty("dso", germanDso.name()) //
+				.add("schedule", tariffTable) //
+				.build() //
+				.toString();
+	}
+
+	/**
+	 * Creates ancillary costs JSON string based on the provided parameters.
+	 * 
+	 * @param germanDso   the selected German DSO
+	 * @param tariffTable the tariff table JSON array (only used for OTHER DSO)
+	 * @param target      the configuration target
+	 * @return the ancillary costs as JSON string
+	 * @throws OpenemsNamedException on Error
+	 */
+	public static String createAncillaryCosts(GermanDSO germanDso, JsonArray tariffTable, ConfigurationTarget target)
+			throws OpenemsNamedException {
+		return createAncillaryCosts(true, germanDso, tariffTable, target);
 	}
 
 }

@@ -1080,7 +1080,7 @@ msgstr "Die OpenEMS-Dokumentation ist mit https:/antora.org/[Antora icon:externa
 
 #. type: Plain text
 #: documentation.adoc:17
-msgid "OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are seperated on two different repositories."
+msgid "OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are separated on two different repositories."
 msgstr "OpenEMS https://github.com/OpenEMS/openems [Files icon:external-link[]] und https:/github.com/OpenEMS/OpenEMS/openems.io[Dokumentation icon:external-link[]] werden auf zwei verschiedenen Repositories getrennt."
 
 #. type: Plain text

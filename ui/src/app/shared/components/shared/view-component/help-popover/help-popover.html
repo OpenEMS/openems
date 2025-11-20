@@ -3,8 +3,7 @@
 </ion-button>
 <ion-popover [trigger]="uuid" (didDismiss)="didPopoverDismiss.emit()" side="bottom" alignment="center">
     <ng-template>
-        <ion-content class="ion-padding" text-nowrap>
-            {{helpMsg}}
+        <ion-content class="ion-padding" text-nowrap [innerHtml]="helpMsg">
         </ion-content>
     </ng-template>
 </ion-popover>

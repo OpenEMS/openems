@@ -4,6 +4,7 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
+import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -24,7 +25,9 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 
 		SESSION_ENERGY(Doc.of(INTEGER)//
 				.unit(WATT_HOURS)//
-				.persistencePriority(HIGH)) //
+				.persistencePriority(HIGH)), //
+
+		PHASE_SWITCH_FAILED(Doc.of(Level.WARNING)) //
 		;
 
 		private final Doc doc;

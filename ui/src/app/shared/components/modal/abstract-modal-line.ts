@@ -40,7 +40,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @returns converter function
     */
     @Input() public filter: Filter = Filter.NO_FILTER;
-    @Input({ required: true }) public value!: number | string;
+    @Input() public value!: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
 
     /**

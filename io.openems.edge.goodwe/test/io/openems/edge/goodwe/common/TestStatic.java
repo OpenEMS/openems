@@ -302,6 +302,9 @@ public class TestStatic {
 		// Limited by inverter DC maximum
 		assertEquals(new MaxAcPower(-9_000, 6_600), AbstractGoodWe.calculateMaxAcPower(10_000, 50, 50, volt,
 				FENECON_GEN2_6K.maxBatChargeP, FENECON_GEN2_6K.maxBatDischargeP, 0));
+		// -- No Limit for old GoodWe Inverter Type
+		assertEquals(new MaxAcPower(-10000, 10000), AbstractGoodWe.calculateMaxAcPower(10_000, 50, 50, volt,
+				GOODWE_8K_BT.maxBatDischargeP, GOODWE_8K_BT.maxBatDischargeP, 0));
 
 		// Limited by BMS
 		assertEquals(new MaxAcPower(-20_000, 20_000),
@@ -324,5 +327,6 @@ public class TestStatic {
 		assertEquals(new MaxAcPower(1000, 5000), // Positive MaxAcImport was not allowed before refactoring
 				AbstractGoodWe.calculateMaxAcPower(5_000, -2 /* Force Discharge */, 50, Optional.of(500), 30_000,
 						30_000, 3000));
+
 	}
 }

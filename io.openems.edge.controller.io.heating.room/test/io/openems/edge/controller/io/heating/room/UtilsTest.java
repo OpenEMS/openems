@@ -1,9 +1,8 @@
 package io.openems.edge.controller.io.heating.room;
 
-import static io.openems.edge.controller.io.heating.room.Utils.getNextHighPeriod;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertEquals;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
@@ -14,7 +13,8 @@ public class UtilsTest {
 
 	@Test
 	public void test() {
-		var schedule = JSCalendar.Tasks.fromStringOrEmpty("""
+		var clock = createDummyClock();
+		var schedule = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -66,11 +66,14 @@ public class UtilsTest {
 				   }
 				]""");
 
-		assertEquals("HighPeriod[from=2025-01-06T04:30:00Z, to=2025-01-06T07:00:00Z]", getNextHighPeriod(//
-				ZonedDateTime.of(2025, 1, 6, 5, 29, 0, 0, ZoneId.of("Europe/Berlin")), schedule).toString());
-		assertEquals("HighPeriod[from=2025-01-06T04:30:00Z, to=2025-01-06T07:00:00Z]", getNextHighPeriod(//
-				ZonedDateTime.of(2025, 1, 6, 5, 31, 0, 0, ZoneId.of("Europe/Berlin")), schedule).toString());
-		assertEquals("HighPeriod[from=2025-01-06T13:00:00Z, to=2025-01-06T23:00:00Z]", getNextHighPeriod(//
-				ZonedDateTime.of(2025, 1, 6, 9, 0, 0, 0, ZoneId.of("Europe/Berlin")), schedule).toString());
+		var now = ZonedDateTime.now(clock);
+		var ots = schedule.getOneTasksBetween(now, now.plusDays(1));
+		assertEquals(3, ots.size());
+		assertEquals("OneTask{start=2020-01-01T05:30Z, end=2020-01-01T08:00Z, duration=PT2H30M, payload=null}",
+				ots.pollFirst().toString());
+		assertEquals("OneTask{start=2020-01-01T14:00Z, end=2020-01-02T00:00Z, duration=PT10H, payload=null}",
+				ots.pollFirst().toString());
+		assertEquals("OneTask{start=2020-01-04T08:00Z, end=2020-01-02T00:00Z, duration=PT-56H, payload=null}",
+				ots.pollFirst().toString());
 	}
 }

@@ -2,7 +2,6 @@ import { NgOptimizedImage } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { TranslateService } from "@ngx-translate/core";
-import tr from "src/app/edge/live/Controller/Evse/shared/translation.json";
 import { AppModule } from "src/app/edge/settings/app/app.module";
 import { UpdateAppComponent } from "src/app/edge/settings/app/update.component";
 import { ModalModule } from "src/app/shared/components/modal/modal.module";
@@ -20,42 +19,45 @@ import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/hist
 import { ModalComponent } from "./pages/home";
 import { EvseSettingsComponent } from "./pages/settings/settings";
 import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-config";
-
+import de from "./shared/i18n/de.json";
+import en from "./shared/i18n/en.json";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-    PipeComponentsModule,
-    ModalModule,
-    NgOptimizedImage,
-    OeImageComponent,
-    AppModule,
-    UpdateAppComponent,
-  ],
-  declarations: [
-    FlatComponent,
-    ModalComponent,
-    EvseHistoryPageComponent,
-    EvseForecastPageComponent,
-    EvseSettingsComponent,
-    ScheduleChartComponent,
-    SchedulePowerChartComponent,
-    ChartComponent,
-    StatusChartComponent,
-    UpdateAppConfigComponent,
-  ],
-  exports: [
-    FlatComponent,
-    UpdateAppConfigComponent,
-    UpdateAppComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+        PipeComponentsModule,
+        ModalModule,
+        NgOptimizedImage,
+        OeImageComponent,
+        AppModule,
+        UpdateAppComponent,
+    ],
+    declarations: [
+        FlatComponent,
+        ModalComponent,
+        EvseHistoryPageComponent,
+        EvseForecastPageComponent,
+        EvseSettingsComponent,
+        ScheduleChartComponent,
+        SchedulePowerChartComponent,
+        ChartComponent,
+        StatusChartComponent,
+        UpdateAppConfigComponent,
+    ],
+    exports: [
+        FlatComponent,
+        UpdateAppConfigComponent,
+        UpdateAppComponent,
+    ],
 })
 export class ControllerEvseSingle {
 
-  constructor(private translate: TranslateService) {
-    Language.setAdditionalTranslationFile(tr, translate).then(({ lang, translations, shouldMerge }) => {
-      translate.setTranslation(lang, translations, shouldMerge);
-    });
-  }
+    constructor(private translate: TranslateService) {
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
+    }
 }

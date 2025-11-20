@@ -19,30 +19,30 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		CURRENT_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Current temperature in degrees Celsius.")), //
+				.text("Current temperature.")), //
 
 		CURRENT_WEATHER_CODE(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current weather condition code.")), //
 
 		TODAYS_SUNSHINE_DURATION(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.HOUR)//
+				.unit(Unit.SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Today's sunshine duration in hours.")), //
+				.text("Today's sunshine duration.")), //
 
 		TODAYS_MIN_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Today's minimum temperature in degrees Celsius.")), //
+				.text("Today's minimum temperature.")), //
 
 		TODAYS_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Today's maximum temperature in degrees Celsius.")), //
+				.text("Today's maximum temperature.")), //
 
 		TEMPERATURE_IN_4H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 4 hours in degrees Celsius.")), //
+				.text("Temperature in 4 hours.")), //
 
 		WEATHER_CODE_IN_4H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
@@ -51,7 +51,7 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		TEMPERATURE_IN_8H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 8 hours in degrees Celsius.")), //
+				.text("Temperature in 8 hours.")), //
 
 		WEATHER_CODE_IN_8H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
@@ -60,7 +60,7 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		TEMPERATURE_IN_12H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 12 hours in degrees Celsius.")), //
+				.text("Temperature in 12 hours.")), //
 
 		WEATHER_CODE_IN_12H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
@@ -69,7 +69,7 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		TEMPERATURE_IN_16H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 16 hours in degrees Celsius.")), //
+				.text("Temperature in 16 hours.")), //
 
 		WEATHER_CODE_IN_16H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
@@ -78,7 +78,7 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		TEMPERATURE_IN_20H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 20 hours in degrees Celsius.")), //
+				.text("Temperature in 20 hours.")), //
 
 		WEATHER_CODE_IN_20H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
@@ -87,7 +87,7 @@ public interface WeatherOpenMeteo extends Weather, OpenemsComponent {
 		TEMPERATURE_IN_24H(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)//
 				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Temperature in 24 hours in degrees Celsius.")), //
+				.text("Temperature in 24 hours.")), //
 
 		WEATHER_CODE_IN_24H(Doc.of(OpenemsType.INTEGER)//
 				.persistencePriority(PersistencePriority.HIGH)//
