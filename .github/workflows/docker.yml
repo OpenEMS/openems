@@ -49,12 +49,6 @@ jobs:
           REF_NAME=$(echo "${{ github.ref }}" | sed -e 's/refs\/heads\///' -e 's/refs\/tags\///' -e 's/release\/v//')
           echo "branch=${REF_NAME}-test" >> "$GITHUB_OUTPUT"
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -67,8 +61,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            openems/${{ matrix.image }}
-            ghcr.io/openems/${{ matrix.image }}
+            ghcr.io/vev-platform-services/${{ matrix.image }}
           labels: |
             org.opencontainers.image.authors=OpenEMS
             org.opencontainers.image.title=OpenEMS ${{ matrix.image }}
