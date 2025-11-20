@@ -1,0 +1,35 @@
+Bundle-Name: kafka-clients
+Bundle-Description: Apache Kafka client library wrapped for OSGi usage
+Bundle-DocURL: https://kafka.apache.org/
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0
+Bundle-Version: 3.8.0
+Bundle-SymbolicName: org.apache.kafka.kafka-clients
+
+Include-Resource: \
+	@../cnf/release/kafka-clients-3.8.0.jar,\
+
+Export-Package: \
+	org.apache.kafka.*;version=3.8.0
+
+Import-Package: \
+	javax.net.ssl;resolution:=optional,\
+	javax.security.auth.x500;resolution:=optional,\
+	org.slf4j;resolution:=optional,\
+	com.ibm.security.krb5;resolution:=optional,\
+	com.ibm.security.krb5.internal;resolution:=optional,\
+	io.grpc;resolution:=optional,\
+	io.grpc.protobuf;resolution:=optional,\
+	io.grpc.stub;resolution:=optional,\
+	org.jose4j.http;resolution:=optional,\
+	org.jose4j.jwa;resolution:=optional,\
+	org.jose4j.jwk;resolution:=optional,\
+	org.jose4j.jws;resolution:=optional,\
+	org.jose4j.jwt;resolution:=optional,\
+	org.jose4j.jwt.consumer;resolution:=optional,\
+	org.jose4j.jwx;resolution:=optional,\
+	org.jose4j.keys.resolvers;resolution:=optional,\
+	org.jose4j.lang;resolution:=optional,\
+	sun.security.krb5;resolution:=optional,\
+	*
+
+-sources: false

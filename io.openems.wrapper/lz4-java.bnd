@@ -1,0 +1,18 @@
+Bundle-Name: lz4-java
+Bundle-Description: LZ4 compression library wrapped for OSGi usage
+Bundle-DocURL: https://github.com/lz4/lz4-java
+Bundle-License: https://opensource.org/licenses/BSD-2-Clause
+Bundle-Version: 1.8.0
+Bundle-SymbolicName: org.lz4.lz4-java
+
+Include-Resource: \
+	@../cnf/release/lz4-java-1.8.0.jar,\
+
+Export-Package: \
+	net.jpountz.lz4;version=1.8.0,\
+	net.jpountz.xxhash;version=1.8.0
+
+Import-Package: \
+	*
+
+-sources: false

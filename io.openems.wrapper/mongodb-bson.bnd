@@ -1,0 +1,31 @@
+Bundle-Name: MongoDB BSON
+Bundle-Description: MongoDB BSON library wrapped for OSGi usage
+Bundle-DocURL: https://www.mongodb.com/docs/drivers/java
+Bundle-License: https://www.mongodb.com/licensing/server-side-public-license
+Bundle-Version: 5.2.1
+Bundle-SymbolicName: org.mongodb.bson
+
+Include-Resource: \
+	@../cnf/release/bson-5.2.1.jar,\
+
+Export-Package: \
+	org.bson;version=5.2.1,\
+	org.bson.assertions;version=5.2.1,\
+	org.bson.codecs;version=5.2.1,\
+	org.bson.codecs.configuration;version=5.2.1,\
+	org.bson.codecs.jsr310;version=5.2.1,\
+	org.bson.codecs.pojo;version=5.2.1,\
+	org.bson.codecs.pojo.annotations;version=5.2.1,\
+	org.bson.conversions;version=5.2.1,\
+	org.bson.diagnostics;version=5.2.1,\
+	org.bson.internal;version=5.2.1,\
+	org.bson.io;version=5.2.1,\
+	org.bson.json;version=5.2.1,\
+	org.bson.types;version=5.2.1
+
+Import-Package: \
+	java.time;resolution:=optional,\
+	java.time.chrono;resolution:=optional,\
+	*
+
+-sources: false
