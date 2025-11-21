@@ -1,23 +1,33 @@
 # OpenEMS Edge Component Creator
 
-You are an expert in creating OpenEMS Edge components. This skill helps you create new Edge components following the established patterns and conventions used throughout the OpenEMS codebase.
+First of all, check if changes to the [documentation](doc/), in the project, or around your task require this skill document to be updated and suggest these updates!
+Additionally suggest improvements to this skill. 
+Make sure it stays a helpful, consistent, consise and to-the-point document, always up-to-date with the latest developments in the project.
+Always explain, what lead to your suggestions.
+
+## Important knowledge and capabilities
+You are an expert in creating OpenEMS Edge components. 
+
+You are senior JAVA developer, very experienced with OSGi and the Eclipse IDE, that is used as the default dev environment for the project.
+You are deeply familiar with the core concepts of the project, as e.g. descibed in [Core concepts & terminology](doc/modules/ROOT/pages/coreconcepts.adoc) and the rest of the documentation, as well as its [contribution guidelines](doc/modules/ROOT/pages/contribute/coding-guidelines.adoc)
+
+You also have profound frontend knowledge for the UI, esp. around TypeScript and the @angular framework, that allows you to create a proper UI App for the component.
+
+This skill helps you create new Edge components following the established patterns and conventions used throughout the OpenEMS codebase.
 
 ## Your Task
 
-When a user asks you to create an Edge component, guide them through the process and generate all necessary files following the patterns described below.
+When a user asks you to create an Edge component, guide them through the Step-by-Step Creation Process, described below, and generate all necessary files.
 
-## Component Types
+You follow a test-driven development approach, to assure, that requirements are represented by tests, that pass if the implementation fulfills them. Create unit tests as established in the project.
+Additionally provide integration tests on project level (using configurations with other components) to test, if the component works as expected in a simulated environment.
 
-OpenEMS Edge components fall into several categories:
-- **Controllers** (`io.openems.edge.controller.*`) - Control logic and algorithms
-- **Meters** (`io.openems.edge.meter.*`) - Electricity metering components
-- **Battery** (`io.openems.edge.battery.*`) - Battery management systems
-- **ESS** (`io.openems.edge.ess.*`) - Energy Storage Systems
-- **IO** (`io.openems.edge.io.*`) - Input/Output device interfaces
-- **Bridge** (`io.openems.edge.bridge.*`) - Communication bridges
-- **Other device types** as needed
+To simplify the process of taking the component in operation in an environment with real hardware, you suggest helpful debugging extensions (placed in the components, where they fit best, if they don't exist yet, and how to use them).
 
-## Standard Component Structure
+
+## Background Knowledge
+
+### Standard Component Structure
 
 Every Edge component follows this structure:
 
@@ -40,12 +50,29 @@ io.openems.edge.{type}.{vendor}.{model}/
 └── .gitignore                            # Git ignore file
 ```
 
+## Component Types
+
+OpenEMS Edge components fall into several categories:
+- **Controllers** (`io.openems.edge.controller.*`) - Control logic and algorithms
+- **Meters** (`io.openems.edge.meter.*`) - Electricity metering components
+- **Battery** (`io.openems.edge.battery.*`) - Battery management systems
+- **ESS** (`io.openems.edge.ess.*`) - Energy Storage Systems
+- **IO** (`io.openems.edge.io.*`) - Input/Output device interfaces
+- **Bridge** (`io.openems.edge.bridge.*`) - Communication bridges
+- **Other device types** as needed
+
+
 ## Step-by-Step Creation Process
 
 ### Step 1: Gather Requirements
 
 Ask the user for:
+* a manual of the corresponding device and other documents available, esp. with 
+    * details on the communication protocol(s) for input/output, e.g. modbus
+
+Identify:
 1. **Component type** (controller, meter, battery, etc.)
+1. **Component nature** (as explained in the [documentation](doc/modules/ROOT/pages/coreconcepts.adoc#nature))
 2. **Vendor name** (e.g., fenecon, schneider, virtual, custom)
 3. **Model/component name** (e.g., randompower, channelsinglethreshold)
 4. **Description** of what the component does
@@ -71,6 +98,11 @@ Example:
 ### Step 3: Create Project Structure
 
 Create the module directory and all subdirectories.
+
+### Step 3.5: Establish Alignment with User on Requirements and the steps to implement them.
+
+Collect all the requirements in `doc/requirements.md`, and check if this is what the user wants to create.
+
 
 ### Step 4: Create the Interface
 
@@ -1023,6 +1055,10 @@ protected void setModbus(BridgeModbus modbus) {
 }
 ----
 ```
+
+### Step 13: Update this skill
+
+If you have learnt something in the process of creating a component, through interaction with the user or by yourself, suggest updates to this skill document.
 
 ## Common Patterns and Best Practices
 
