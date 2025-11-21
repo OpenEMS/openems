@@ -1,0 +1,31 @@
+<!-- If the select options has images -->
+@if (hasImageOptions){
+  <ion-item lines="none" button detail="false" (click)="openOptionsModal()" class="ion-no-padding custom-select-item">
+    <ion-label class="ion-text-wrap">
+      {{ props.label + (props.required ? '*' : '') }}
+    </ion-label>
+    <div class="select-value-container" slot="end">
+      <ion-text [color]="selectedLabel ? 'dark' : 'medium'">
+        {{ selectedLabel || props.placeholder }}
+      </ion-text>
+      <ion-icon name="caret-down-outline" color="primary"></ion-icon>
+    </div>
+  </ion-item>
+} @else {
+  <!-- Normal text options -->
+  <ion-select [id]="id" [label]="props.label + (to.required ? '*' : '')" interface="alert"
+    [interfaceOptions]="{ cssClass: 'custom-ion-alert' }" justify="space-between" [placeholder]="to.placeholder"
+    [formControl]="formControl" [formlyAttributes]="field" [multiple]="props.multiple ?? false">
+    @for (option of selectOptions; track option) {
+      <ion-select-option [value]="option.value">
+        {{ option.label }}
+      </ion-select-option>
+    }
+  </ion-select>
+}
+
+@if (to.description) {
+  <p style="font-size: x-small;" class="ion-margin-bottom ion-text-secondary">
+    {{ to.description }}
+  </p>
+}

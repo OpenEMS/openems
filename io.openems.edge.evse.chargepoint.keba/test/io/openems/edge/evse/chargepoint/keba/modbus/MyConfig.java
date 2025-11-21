@@ -16,10 +16,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private PhaseRotation phaseRotation;
 		private SingleOrThreePhase wiring;
-		private boolean p30hasS10PhaseSwitching;
 		private LogVerbosity logVerbosity;
 		private int modbusUnitId = 1;
-		
+
 		private Builder() {
 		}
 
@@ -45,11 +44,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setWiring(SingleOrThreePhase wiring) {
 			this.wiring = wiring;
-			return this;
-		}
-
-		public Builder setP30hasS10PhaseSwitching(boolean p30hasS10PhaseSwitching) {
-			this.p30hasS10PhaseSwitching = p30hasS10PhaseSwitching;
 			return this;
 		}
 
@@ -107,11 +101,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public SingleOrThreePhase wiring() {
 		return this.builder.wiring;
-	}
-
-	@Override
-	public boolean p30hasS10PhaseSwitching() {
-		return this.builder.p30hasS10PhaseSwitching;
 	}
 
 	@Override

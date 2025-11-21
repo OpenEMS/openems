@@ -154,8 +154,8 @@ public class ControllerEvseClusterImplTest {
 		final var myConfig = MyConfig.create() //
 				.setId("ctrlEvseCluster0") //
 				.setDistributionStrategy(DistributionStrategy.EQUAL_POWER) //
-				.setDebugMode(false) //
-				.setCtrlIds("ctrlEvseSingle0");
+				.setCtrlIds("ctrlEvseSingle0") //
+				.setLogVerbosity(io.openems.edge.controller.evse.cluster.LogVerbosity.NONE);
 		clusterConfig.accept(myConfig);
 
 		final var ctrlCluster = new ControllerEvseClusterImpl();

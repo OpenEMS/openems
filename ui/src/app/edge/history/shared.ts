@@ -574,4 +574,9 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
             bounds: "data",
         },
     },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
+        },
+    },
 });
