@@ -20,6 +20,7 @@ import io.openems.edge.kostal.plenticore.enums.ControlMode;
 /**
  * Tests ESS with Modbus register patterns according to KOSTAL specification.
  *
+ * <p>
  * Key register addresses from KOSTAL Interface Description:
  * - 210 (0xD2): State of charge (Float, %) LSWMSW
  * - 531 (0x213): Max apparent power (UInt16, VA)
@@ -28,12 +29,14 @@ import io.openems.edge.kostal.plenticore.enums.ControlMode;
  * - 1038 (0x40E): Max charge power (Float, W) LSWMSW
  * - 1040 (0x410): Max discharge power (Float, W) LSWMSW
  *
+ * <p>
  * These tests validate ESS behavior with realistic Modbus data patterns:
  * - testReadFromModbus: Validates component processes realistic register values
  * - testChargingScenario: Validates battery charging state handling
  * - testDischargingScenario: Validates battery discharging state handling
  * - testPowerControlWrite: Validates actual Modbus WRITE to register 1034
  *
+ * <p>
  * Note: Register values are based on real data captured from KOSTAL Plenticore Plus
  * device using mbpoll tool.
  */

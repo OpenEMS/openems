@@ -82,8 +82,8 @@ public class KostalManagedEssImplTest {
 
 	@Test
 	public void testPowerControlWithTolerance() throws Exception {
-		final int TOLERANCE = 50;
-		final int WATCHDOG = 30;
+		final int Tolerance = 50;
+		final int Watchdog = 30;
 		var sut = new KostalManagedEssImpl();
 
 		new ComponentTest(sut) //
@@ -95,8 +95,8 @@ public class KostalManagedEssImplTest {
 						.setReadOnlyMode(false) //
 						.setModbusId(MODBUS_ID) //
 						.setCapacity(10000) //
-						.setWatchdog(WATCHDOG) //
-						.setTolerance(TOLERANCE) //
+						.setWatchdog(Watchdog) //
+						.setTolerance(Tolerance) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setModbusUnitId(71) //
 						.setDebugMode(false) //
@@ -128,8 +128,8 @@ public class KostalManagedEssImplTest {
 
 	@Test
 	public void testPowerControlWithSmartModeAndWatchdog() throws Exception {
-		final int TOLERANCE = 100;
-		final int WATCHDOG = 2; // 2 seconds for testing
+		final int Tolerance = 100;
+		final int Watchdog = 2; // 2 seconds for testing
 		var sut = new KostalManagedEssImpl();
 
 		new ComponentTest(sut) //
@@ -141,8 +141,8 @@ public class KostalManagedEssImplTest {
 						.setReadOnlyMode(false) //
 						.setModbusId(MODBUS_ID) //
 						.setCapacity(10000) //
-						.setWatchdog(WATCHDOG) //
-						.setTolerance(TOLERANCE) //
+						.setWatchdog(Watchdog) //
+						.setTolerance(Tolerance) //
 						.setControlMode(ControlMode.SMART) //
 						.setModbusUnitId(71) //
 						.setDebugMode(false) //

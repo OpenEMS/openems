@@ -23,6 +23,7 @@ import io.openems.edge.common.test.ComponentTest;
 /**
  * Tests GridMeter with Modbus registers according to KOSTAL specification.
  *
+ * <p>
  * Key registers (viaInverter=true): 220-251 (Per-phase frequency/current/power/voltage),
  * 252 (Total active power), 254 (Total reactive power)
  */

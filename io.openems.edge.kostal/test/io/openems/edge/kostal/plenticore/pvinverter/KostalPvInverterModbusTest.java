@@ -23,6 +23,7 @@ import io.openems.edge.common.test.ComponentTest;
 /**
  * Tests PV Inverter with Modbus registers according to KOSTAL specification.
  *
+ * <p>
  * Key registers: 152 (Frequency), 154-170 (Per-phase current/power/voltage),
  * 531 (Max apparent power), 1066 (Total AC active power)
  */
