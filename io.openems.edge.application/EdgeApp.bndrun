@@ -134,7 +134,7 @@
 	bnd.identity;id='io.openems.edge.evcs.spelsberg',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
-    bnd.identity;id='io.openems.edge.evse.chargepoint.abl',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.abl',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\

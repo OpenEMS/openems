@@ -1,0 +1,446 @@
+= Improvement Proposal: EVSE Charge-Point ABL Component
+:toc:
+:toclevels: 3
+
+== Overview
+
+This document proposes improvements to the `io.openems.edge.evse.chargepoint.abl` component to align it with the latest OpenEMS coding guidelines and best practices as defined in `.claude/skills/edge-component.md`.
+
+*Status*: Awaiting approval +
+*Date*: 2025-01-21 +
+*Component*: `io.openems.edge.evse.chargepoint.abl`
+
+== Current State Analysis
+
+=== Strengths
+
+The component is already well-implemented with:
+
+* ✅ Solid architecture (Interface, Impl, Config, Enums)
+* ✅ Full Modbus TCP protocol implementation
+* ✅ EVSE API compliance
+* ✅ ElectricityMeter integration
+* ✅ Comprehensive readme.adoc documentation
+* ✅ Extensive testing infrastructure (ComponentTest, DummyComponent, simulator)
+* ✅ Debug mode support
+* ✅ Rate limiting on setpoint changes
+
+=== Areas for Improvement
+
+After analyzing against the updated OpenEMS component guidelines, the following improvement areas were identified:
+
+== Identified Issues
+
+=== Issue 1: Channel Metadata Incomplete
+
+*Severity*: Medium +
+*Impact*: Data persistence, UI display, channel documentation
+
+*Current Problems*:
+
+. Phase current channels lack unit specification in Doc
+. No persistence priority specified on any channels
+. EV_CONNECTED type mismatch (Boolean value, Integer channel)
+. Missing text descriptions on some channels
+
+*Example from EvseChargePointAbl.java:77*:
+[source,java]
+----
+PHASE_CURRENT_L1(Doc.of(OpenemsType.INTEGER)),
+----
+
+Should be:
+[source,java]
+----
+PHASE_CURRENT_L1(Doc.of(OpenemsType.INTEGER)
+    .unit(Unit.AMPERE)
+    .text("Current of phase 1 in Ampere (resolution 1A)")),
+----
+
+=== Issue 2: Bundle Vendor Inconsistency
+
+*Severity*: Low +
+*Impact*: Project standards compliance
+
+*Current*: `bnd.bnd` line 2
+[source,properties]
+----
+Bundle-Vendor: FENECON GmbH
+----
+
+*Should be*: According to skill guidelines and recent project changes
+[source,properties]
+----
+Bundle-Vendor: OpenEMS Association e.V.
+----
+
+=== Issue 3: Missing requirements.adoc
+
+*Severity*: Low +
+*Impact*: Component documentation completeness
+
+The component lacks a `doc/requirements.adoc` file as per the updated skill guidelines. This document should capture:
+
+* Original requirements specification
+* Functional requirements
+* Hardware specifications
+* Communication protocol details
+* Testing requirements
+
+=== Issue 4: Incomplete Interface Methods
+
+*Severity*: Medium +
+*Impact*: API completeness, usability
+
+*Missing convenience methods*:
+
+. No getters for PHASE_CURRENT_L1/L2/L3 channels
+. No Value<> accessors for convenience
+. Missing `_set` methods for internal use (should be default methods)
+
+*Example - Missing from EvseChargePointAbl.java*:
+[source,java]
+----
+// Missing getter for phase currents
+default IntegerReadChannel getPhaseCurrentL1Channel() {
+    return this.channel(ChannelId.PHASE_CURRENT_L1);
+}
+
+default Value<Integer> getPhaseCurrentL1() {
+    return this.getPhaseCurrentL1Channel().value();
+}
+----
+
+=== Issue 5: Private Helper Methods Pattern
+
+*Severity*: Low +
+*Impact*: Code organization, testability
+
+*Current*: Helper methods in EvseChargePointAblImpl.java:266-280 are private
+[source,java]
+----
+private void _setChargingState(ChargingState state) {
+    this.channel(EvseChargePointAbl.ChannelId.CHARGING_STATE).setNextValue(state);
+}
+----
+
+*Better*: These should be default methods in the interface following OpenEMS patterns, or use the interface's default `_set` methods.
+
+=== Issue 6: Documentation Duplication
+
+*Severity*: Low +
+*Impact*: Maintenance burden, confusion
+
+*Current state*:
+----
+TEST_README.md          # Markdown version
+TEST_README.adoc        # AsciiDoc version
+INTEGRATION_GUIDE.md    # Markdown version
+INTEGRATION_GUIDE.adoc  # AsciiDoc version
+TESTING_PATTERNS.md     # Markdown version
+TESTING_PATTERNS.adoc   # AsciiDoc version
+----
+
+*Should*: Only keep `.adoc` versions per project standards.
+
+=== Issue 7: Config Interface Documentation
+
+*Severity*: Low +
+*Impact*: Configuration clarity
+
+Some config parameters lack detailed descriptions:
+
+[source,java]
+----
+@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+boolean debugMode() default false;
+----
+
+Could be more detailed:
+[source,java]
+----
+@AttributeDefinition(
+    name = "Debug Mode",
+    description = "Activates debug logging. Logs current setpoints, state changes, and rate limiting events to INFO level")
+boolean debugMode() default false;
+----
+
+=== Issue 8: Modern Java 21 Opportunities
+
+*Severity*: Low +
+*Impact*: Code readability, maintainability
+
+Some code could use more modern Java 21 features:
+
+* Pattern matching could be used in some places
+* Some verbose null checks could use modern patterns
+* Record types could be used for internal data structures
+
+=== Issue 9: Missing Test Cases
+
+*Severity*: Medium +
+*Impact*: Test coverage, reliability
+
+*Missing test scenarios*:
+
+. Error state handling (F1-F11 states)
+. EV connection/disconnection transitions
+. Phase current edge cases (0x64 meter not available)
+. Rate limiting verification
+. Channel value propagation from Modbus to ElectricityMeter channels
+
+=== Issue 10: Type Safety Issue - EV_CONNECTED Channel
+
+*Severity*: Medium +
+*Impact*: Type safety, API clarity
+
+*Current*: Line 182 in EvseChargePointAbl.java
+[source,java]
+----
+public default IntegerReadChannel getEvConnectedChannel() {
+    return this.channel(ChannelId.EV_CONNECTED);
+}
+----
+
+But the channel contains Boolean values (line 65):
+[source,java]
+----
+EV_CONNECTED(Doc.of(OpenemsType.BOOLEAN)),
+----
+
+*Should be*:
+[source,java]
+----
+public default BooleanReadChannel getEvConnectedChannel() {
+    return this.channel(ChannelId.EV_CONNECTED);
+}
+
+public default Value<Boolean> getEvConnected() {
+    return this.getEvConnectedChannel().value();
+}
+----
+
+== Proposed Changes
+
+=== Change 1: Complete Channel Metadata
+
+*Impact*: Improves data persistence, UI integration, channel documentation +
+*Breaking*: No +
+*Benefit*: Proper persistence configuration, better UI display, complete documentation
+
+Update all channel definitions in `EvseChargePointAbl.java` to include:
+
+* Proper units (Unit.AMPERE, Unit.MILLIAMPERE)
+* Persistence priorities where applicable
+* Complete text descriptions
+* Fix type mismatches (EV_CONNECTED)
+
+=== Change 2: Update Bundle Vendor
+
+*Impact*: bnd.bnd file only +
+*Breaking*: No +
+*Benefit*: Compliance with project standards
+
+Change `Bundle-Vendor` in `bnd.bnd` from "FENECON GmbH" to "OpenEMS Association e.V."
+
+=== Change 3: Create requirements.adoc
+
+*Impact*: New documentation file +
+*Breaking*: No +
+*Benefit*: Complete documentation, easier onboarding, requirement traceability
+
+Create `doc/requirements.adoc` documenting:
+
+* Component purpose and overview
+* Hardware specifications (ABL EVCC2/3)
+* Modbus protocol requirements
+* Functional requirements (FR1, FR2, etc.)
+* Configuration parameters
+* Channel specifications
+* Dependencies
+* Test requirements
+
+=== Change 4: Complete Interface API
+
+*Impact*: Interface additions (backward compatible) +
+*Breaking*: No +
+*Benefit*: Complete, usable API with convenience methods
+
+Add missing getter methods to `EvseChargePointAbl.java`:
+
+* Phase current channel getters
+* Value accessors for convenience
+* Proper typing for all channels
+
+=== Change 5: Refactor Helper Methods
+
+*Impact*: Move private methods to interface defaults or use existing patterns +
+*Breaking*: No +
+*Benefit*: Better code organization, testability
+
+Options:
+. Move `_setXxx` methods to interface as default methods
+. Use interface's channel access methods directly
+. Keep implementation cleaner
+
+=== Change 6: Remove Duplicate Markdown Files
+
+*Impact*: File deletion (documentation) +
+*Breaking*: No +
+*Benefit*: Single source of truth, cleaner repository
+
+Remove:
+* `TEST_README.md`
+* `INTEGRATION_GUIDE.md`
+* `TESTING_PATTERNS.md`
+
+Keep only `.adoc` versions.
+
+=== Change 7: Enhance Config Documentation
+
+*Impact*: Config.java JavaDoc +
+*Breaking*: No +
+*Benefit*: Clearer configuration guidance
+
+Enhance `@AttributeDefinition` descriptions with:
+
+* What the parameter does
+* Valid ranges
+* Impact of changes
+* When to use each option
+
+=== Change 8: Add Modern Java Patterns
+
+*Impact*: Code readability improvements +
+*Breaking*: No +
+*Benefit*: More maintainable, modern codebase
+
+Apply modern Java 21 patterns where beneficial:
+
+* Use `var` where type is obvious
+* Pattern matching in switch expressions (already used in some places)
+* Enhanced null handling
+* Records for internal DTOs if applicable
+
+=== Change 9: Expand Test Coverage
+
+*Impact*: New test cases +
+*Breaking*: No +
+*Benefit*: Better test coverage, more reliable component
+
+Add tests for:
+
+* Error states (F1-F11)
+* State transitions
+* Edge cases (meter not available, null values)
+* Rate limiting behavior
+* Channel value propagation
+
+=== Change 10: Fix Type Safety Issue
+
+*Impact*: Interface method signature change +
+*Breaking*: Potentially (if external code depends on the wrong type) +
+*Benefit*: Type safety, correct API
+
+Change `getEvConnectedChannel()` return type from `IntegerReadChannel` to `BooleanReadChannel` and add proper Value accessor.
+
+== Priority and Implementation Order
+
+=== High Priority (Breaking or Important)
+
+. **Change 10**: Fix EV_CONNECTED type safety issue
+. **Change 1**: Complete channel metadata
+. **Change 4**: Complete interface API
+
+=== Medium Priority (Quality Improvements)
+
+. **Change 9**: Expand test coverage
+. **Change 3**: Create requirements.adoc
+. **Change 7**: Enhance config documentation
+
+=== Low Priority (Cleanup)
+
+. **Change 2**: Update bundle vendor
+. **Change 6**: Remove duplicate markdown files
+. **Change 5**: Refactor helper methods
+. **Change 8**: Add modern Java patterns
+
+== Testing Strategy
+
+For each change:
+
+. Add regression tests for current behavior
+. Make the change
+. Run all tests: `./gradlew :io.openems.edge.evse.chargepoint.abl:test`
+. Run Checkstyle: `./gradlew :io.openems.edge.evse.chargepoint.abl:checkstyle`
+. Verify with hardware simulator if applicable
+. Update documentation
+
+== Backward Compatibility
+
+=== Breaking Changes
+
+**Change 10** (EV_CONNECTED type fix) could be breaking if:
+
+* External code explicitly casts to `IntegerReadChannel`
+* External code relies on the wrong type
+
+*Mitigation*:
+* This appears to be an internal implementation detail
+* Most usage goes through the component's methods
+* The channel actually contains Boolean values, so the current typing is incorrect
+
+All other changes are backward compatible.
+
+== Migration Path
+
+If Change 10 is considered breaking:
+
+. Add deprecation notice in current method
+. Add new correctly-typed method
+. Update all internal usages
+. Remove deprecated method in next major version
+
+Or: Accept the breaking change as a bug fix since the current typing is incorrect.
+
+== Documentation Updates
+
+After implementation:
+
+. Update `readme.adoc` with any new features
+. Update inline JavaDoc
+. Update or create `requirements.adoc`
+. Remove obsolete markdown files
+. Update changelog section in readme
+
+== Estimated Impact
+
+* *Code Changes*: ~500 lines (mostly additions/enhancements)
+* *Test Changes*: ~300 lines (new test cases)
+* *Documentation*: ~200 lines (requirements.adoc + updates)
+* *Breaking Risk*: Low (only Change 10, which is a bug fix)
+
+== Approval Needed
+
+Before proceeding with implementation, please confirm:
+
+. ☐ Overall approach is acceptable
+. ☐ Priority order is correct
+. ☐ Change 10 (type fix) can be treated as bug fix (not breaking)
+. ☐ Requirements for requirements.adoc are understood
+. ☐ Any specific concerns or additions to this proposal
+
+== Next Steps
+
+Upon approval:
+
+. Create implementation plan with detailed tasks
+. Implement changes incrementally (one at a time)
+. Run tests after each change
+. Update documentation
+. Create pull request with all improvements
+
+---
+
+*Author*: Claude (OpenEMS Edge Component Expert) +
+*Review Required*: User approval needed before implementation

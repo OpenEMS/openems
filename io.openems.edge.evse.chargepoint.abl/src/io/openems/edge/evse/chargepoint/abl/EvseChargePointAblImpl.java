@@ -291,7 +291,7 @@ public class EvseChargePointAblImpl extends AbstractOpenemsModbusComponent
 
 		return ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxCurrentMa)) //
-				.setIsEvConnected(this.getEvConnectedChannel().value().orElse(0) != 0) //
+				.setIsEvConnected(this.getEvConnected().orElse(false)) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
 				.build();
 	}

@@ -1,0 +1,506 @@
+= Component Requirements: EVSE Charge-Point ABL
+:toc:
+:toclevels: 3
+
+== Overview
+
+*Purpose*:: Integration of ABL EVCC2/3 electric vehicle charging stations into the OpenEMS platform for real-time monitoring and dynamic current control.
+
+*Type*:: EVSE Charge Point (Electric Vehicle Supply Equipment)
+
+*Nature(s)*::
+* `OpenemsComponent` (base)
+* `EvseChargePoint` (EVSE API)
+* `ElectricityMeter` (power measurement)
+* `ModbusComponent` (Modbus communication)
+* `TimedataProvider` (historical data)
+* `EventHandler` (cycle synchronization)
+
+== Hardware/External System
+
+*Device*:: ABL EVCC2/3 series electric vehicle charging station
+
+*Communication*::
+* Protocol: Modbus TCP (adapted from Modbus ASCII/RS485 specification)
+* Default port: 502 (Modbus TCP standard)
+* Functions used: FC03 (Read Holding Registers), FC16 (Write Multiple Registers)
+* Unit ID range: 1-16
+
+*Documentation*:: Schnittstellenbeschreibung_Modbus-ASCII.pdf (Interface Specification Rev. B, 2020-03-12)
+
+== Functional Requirements
+
+=== FR1: Device Communication
+
+*Description*:: Establish and maintain reliable Modbus TCP communication with the ABL charging station.
+
+*Acceptance Criteria*::
+* Component can connect to ABL device via Modbus TCP
+* Reads device ID and firmware version successfully
+* Handles communication timeouts gracefully
+* Supports multiple charging stations on same Modbus bus (via Unit ID)
+
+*Test Case*:: `AblModbusIntegrationTest.testRegisterReadWrite()`
+
+=== FR2: Charging State Monitoring
+
+*Description*:: Monitor and report the current charging state of the station in real-time.
+
+*Acceptance Criteria*::
+* All 23 ABL states are supported (A1, B1, B2, C2-C4, E0-E3, F1-F11)
+* State transitions are detected and reported immediately
+* State mapping to high-level status (READY_FOR_CHARGING, CHARGING, ERROR, etc.)
+* State changes trigger channel updates
+
+*Test Case*:: `ChargingStateTest.testStatusMapping()`, `DummyAblChargePointTest.testNormalChargingCycle()`
+
+=== FR3: EV Connection Detection
+
+*Description*:: Detect when an electric vehicle is plugged in or disconnected.
+
+*Acceptance Criteria*::
+* EV connection status based on UCP voltage (≤10V = connected)
+* Channel `EV_CONNECTED` accurately reflects connection state
+* Connection state available for EVSE API integration
+
+*Test Case*:: `DummyAblChargePointTest.testEvConnection()`, `DummyAblChargePointTest.testEvDisconnection()`
+
+=== FR4: Phase Current Measurement
+
+*Description*:: Measure and report current flowing through each phase during charging.
+
+*Acceptance Criteria*::
+* Read L1, L2, L3 currents independently
+* 1 Ampere resolution per ABL specification
+* Handle meter unavailable condition (0x64 value)
+* Null values when meter not available
+
+*Test Case*:: `DummyAblChargePointTest.testPhaseCurrents()`
+
+=== FR5: Dynamic Current Control
+
+*Description*:: Control charging current dynamically between 6A and configured maximum.
+
+*Acceptance Criteria*::
+* Accept current setpoints in milliampere (6000-32000 mA typical)
+* Convert mA to PWM duty cycle correctly
+* Rate limiting: minimum 5 seconds between changes
+* Stop charging when setpoint is 0 mA
+* Respect configured maximum current
+
+*Test Case*:: `DummyAblChargePointTest.testMaxCurrentLimit()`, `AblModbusIntegrationTest.testChargingCycle()`
+
+=== FR6: Power Calculation
+
+*Description*:: Calculate charging power based on current measurements and nominal voltage.
+
+*Acceptance Criteria*::
+* Assumes 230V per phase (ABL doesn't provide voltage measurement)
+* Calculates per-phase power: P = 230V × I
+* Aggregates total power across all active phases
+* Respects wiring configuration (single/three-phase)
+
+*Test Case*:: `DummyAblChargePointTest.testPowerCalculation()`
+
+=== FR7: Energy Metering
+
+*Description*:: Calculate and accumulate energy consumption over time.
+
+*Acceptance Criteria*::
+* Per-phase energy accumulation
+* Uses `CalculateEnergyFromPower` utility
+* Persists energy data with appropriate priority
+* Total energy = sum of phase energies
+
+*Test Case*:: Integration tests verify power-to-energy calculation
+
+=== FR8: EVSE API Compliance
+
+*Description*:: Implement OpenEMS EVSE API for standardized integration with EVSE controllers.
+
+*Acceptance Criteria*::
+* Provides `ChargePointAbilities` with supported features
+* Reports phase configuration and current limits
+* Reports `isEvConnected` and `isReadyForCharging` status
+* Accepts `ChargePointActions` for control
+
+*Test Case*:: `DummyAblChargePointTest.testIsReadyForCharging()`
+
+=== FR9: Read-Only Mode
+
+*Description*:: Support monitoring-only mode without control capability.
+
+*Acceptance Criteria*::
+* When `readOnly = true`, no control commands sent
+* `ChargePointAbilities` returns null (no control)
+* All monitoring functions remain operational
+* MeterType reflects read-only state
+
+*Test Case*:: `EvseChargePointAblImplTest.testReadOnlyMode()`, `DummyAblChargePointTest.testReadOnlyMode()`
+
+=== FR10: Error Handling
+
+*Description*:: Detect, report, and handle error states from the charging station.
+
+*Acceptance Criteria*::
+* All error states F1-F11 recognized
+* Error states mapped to `Status.ERROR`
+* Component continues operation after error cleared
+* Error states logged appropriately
+
+*Test Case*:: `DummyAblChargePointTest.testErrorInjection()`, `AblModbusIntegrationTest.testErrorInjection()`
+
+=== FR11: Configuration Management
+
+*Description*:: Support runtime configuration changes without component restart.
+
+*Acceptance Criteria*::
+* Configuration changes applied via `@Modified` method
+* No restart required for parameter changes
+* Changes take effect immediately or at next cycle
+* Invalid configurations rejected gracefully
+
+*Test Case*:: `EvseChargePointAblImplTest.testConfigurationModification()`
+
+=== FR12: Multi-Device Support
+
+*Description*:: Support multiple ABL charging stations on the same Modbus bus.
+
+*Acceptance Criteria*::
+* Each station has unique component ID
+* Modbus Unit ID differentiates devices (1-16)
+* Independent control of each station
+* No cross-talk between stations
+
+*Test Case*:: `EvseChargePointAblImplTest.testMultipleModbusUnits()`
+
+== Configuration Parameters
+
+[options="header"]
+|===
+| Parameter | Type | Default | Required | Description
+
+| id
+| String
+| evseChargePoint0
+| Yes
+| Unique component ID
+
+| alias
+| String
+| (empty)
+| No
+| Human-readable name
+
+| enabled
+| Boolean
+| true
+| No
+| Enable/disable component
+
+| readOnly
+| Boolean
+| false
+| Yes
+| Read-only (monitoring) vs. control mode
+
+| debugMode
+| Boolean
+| false
+| No
+| Enable debug logging
+
+| wiring
+| SingleOrThreePhase
+| THREE_PHASE
+| Yes
+| Hardware wiring (SINGLE_PHASE or THREE_PHASE)
+
+| phaseRotation
+| PhaseRotation
+| L1_L2_L3
+| No
+| Phase rotation configuration
+
+| modbus_id
+| String
+| modbus0
+| Yes
+| Modbus bridge component ID
+
+| modbusUnitId
+| Integer
+| 1
+| Yes
+| Modbus unit ID (1-16)
+
+| maxCurrent
+| Integer
+| 32
+| Yes
+| Maximum current in Ampere (6-80A)
+
+|===
+
+== Channels
+
+[options="header"]
+|===
+| Channel ID | Type | Access | Unit | Persistence | Description
+
+| CHARGING_STATE
+| ChargingState (Enum)
+| R
+| -
+| HIGH
+| Current charging state (A1, B1, B2, C2, etc.)
+
+| DEBUG_SET_CHARGING_CURRENT
+| Integer
+| R
+| mA
+| -
+| Debug mirror of write commands
+
+| SET_CHARGING_CURRENT
+| Integer
+| W
+| mA
+| -
+| Set charging current limit (6000-32000 mA)
+
+| EV_CONNECTED
+| Boolean
+| R
+| -
+| HIGH
+| Electric vehicle plugged in
+
+| PHASE_CURRENT_L1
+| Integer
+| R
+| A
+| VERY_LOW
+| Phase 1 current (null if unavailable)
+
+| PHASE_CURRENT_L2
+| Integer
+| R
+| A
+| VERY_LOW
+| Phase 2 current (null if unavailable)
+
+| PHASE_CURRENT_L3
+| Integer
+| R
+| A
+| VERY_LOW
+| Phase 3 current (null if unavailable)
+
+| DEVICE_ID
+| Integer
+| R
+| -
+| VERY_LOW
+| ABL device ID (1-16)
+
+| FIRMWARE_VERSION
+| String
+| R
+| -
+| VERY_LOW
+| Firmware version (e.g., "1.2")
+
+| IS_READY_FOR_CHARGING
+| Boolean
+| R
+| -
+| HIGH
+| Ready to charge (inherited from EvseChargePoint)
+
+| *ElectricityMeter channels*
+| (inherited)
+| R
+| various
+| various
+| VOLTAGE_Lx, CURRENT_Lx, ACTIVE_POWER, etc.
+
+|===
+
+== Dependencies
+
+*Required Components*::
+* Modbus Bridge component (for TCP communication)
+* ComponentManager (OSGi service)
+* ConfigurationAdmin (OSGi service)
+
+*OSGi Services*::
+* `@Reference ComponentManager componentManager`
+* `@Reference ConfigurationAdmin cm`
+* `@Reference(optional) Timedata timedata`
+* `@Reference BridgeModbus` (Modbus communication)
+
+*External Libraries*::
+* `io.openems.edge.bridge.modbus` - Modbus protocol implementation
+* `io.openems.edge.evse.api` - EVSE API definitions
+* `io.openems.edge.meter.api` - Electricity meter API
+* `io.openems.edge.timedata.api` - Time series data storage
+
+== Non-Functional Requirements
+
+*Performance*::
+* Modbus read cycle: configurable via bridge (typical: 1-5 seconds)
+* Control response time: < 1 second (after rate limit)
+* Rate limiting: minimum 5 seconds between current changes
+* No blocking operations in main cycle
+
+*Reliability*::
+* Communication timeout handling
+* Automatic reconnection after connection loss
+* Graceful degradation when meter unavailable
+* State machine resilience to transient errors
+
+*Security*::
+* No authentication required for Modbus TCP (network-level security assumed)
+* Input validation on configuration parameters
+* Range checking on current setpoints
+
+*Testing*::
+* Unit test coverage: >80% (target)
+* Integration tests with Modbus simulator
+* Hardware testing guide in documentation
+* Comprehensive test suite (24 test cases)
+
+== Edge Cases & Error Scenarios
+
+*Communication Failures*::
+* Modbus connection loss → Component continues, channels show last valid values
+* Timeout on read → Retry via Modbus bridge, error channel updated
+* Invalid register values → Logged, channel set to null/undefined
+
+*Invalid Data*::
+* Current meter unavailable (0x64) → Channel value set to null
+* Unknown state code → Mapped to `ChargingState.UNDEFINED`
+* Out-of-range values → Validated, rejected if invalid
+
+*State Transitions*::
+* Unexpected state changes → Logged, processed normally
+* Error states (F1-F11) → Mapped to Status.ERROR, charging stops
+* Recovery from error → State machine continues from current state
+
+*Control Scenarios*::
+* Current setpoint exceeds maxCurrent → Clamped to maximum
+* Current setpoint below 6A → Rejected or stops charging
+* Rapid setpoint changes → Rate limited to 5-second intervals
+* Read-only mode control attempt → Silently ignored
+
+*Multi-Device Edge Cases*::
+* Duplicate Unit IDs → Modbus collision, unpredictable behavior (user error)
+* Unit ID out of range → Configuration validation should catch
+* Different firmware versions → Supported if protocol compatible
+
+== Implementation Notes
+
+*State Machine*:: Component-internal state machine not used; relies on ABL device state reporting
+
+*Algorithms*::
+* Current to duty cycle conversion: Linear mapping for 6-32A range
+* Power calculation: P~phase~ = 230V × I~phase~
+* Energy accumulation: Trapezoidal integration over time
+
+*References*::
+* Similar implementation patterns: Other EVSE charge point components
+* Modbus protocol: `AbstractOpenemsModbusComponent` base class
+* EVSE API: `io.openems.edge.evse.api.chargepoint.EvseChargePoint`
+
+*Design Decisions*::
+* **Voltage assumption**: 230V per phase assumed (ABL doesn't measure voltage)
+* **Rate limiting**: 5 seconds chosen based on IEC 61851-1 recommendations
+* **Persistence priorities**: HIGH for state/connection, VERY_LOW for instantaneous values
+* **Error handling**: Non-blocking, component remains operational
+
+== UI Requirements
+
+*Views*::
+* Live view: Current state, power, EV connected status, phase currents
+* History view: Charging sessions, energy consumption, state timeline
+* Control view: Current setpoint adjustment (if not read-only)
+
+*Controls*::
+* Current slider/input: 6A - maxCurrent
+* Emergency stop button: Set current to 0
+* Mode selection: Read-only toggle (requires reconfiguration)
+
+== Testing Requirements
+
+=== Unit Tests
+
+* Component lifecycle (activate, modify, deactivate)
+* Channel initialization and value setting
+* State mapping and transitions
+* Current conversion calculations
+* Rate limiting logic
+* Read-only mode enforcement
+
+=== Integration Tests
+
+* Full Modbus communication cycle
+* Register read/write verification
+* State machine simulation
+* Error injection and recovery
+* Multi-device scenarios
+
+=== Hardware Testing
+
+* Real ABL EVCC2/3 device connection
+* EV plug/unplug cycles
+* Charging session from start to finish
+* Error condition handling
+* Current limit enforcement
+* Phase current measurement accuracy
+
+=== Test Coverage Goals
+
+* Line coverage: >80%
+* Branch coverage: >70%
+* Method coverage: >90%
+* All functional requirements: 100%
+
+== Compliance & Standards
+
+*IEC 61851-1*:: Electric vehicle conductive charging system - Part 1: General requirements
+
+*Modbus Protocol*:: Modbus Application Protocol V1.1b3
+
+*OpenEMS Architecture*:: Complies with OpenEMS component patterns and coding guidelines
+
+*OSGi Specification*:: OSGi R8, Declarative Services
+
+== Version History
+
+|===
+| Version | Date | Changes
+
+| 1.0.0
+| 2024-12
+| Initial implementation with full EVSE API support
+
+| 1.0.1
+| 2025-01
+| Enhanced channel metadata, improved type safety, completed API
+
+|===
+
+== Future Enhancements (Out of Scope)
+
+* Phase switching support (L1 ↔ L3)
+* Direct voltage measurement (if ABL adds this capability)
+* OCPP protocol support (use separate OCPP component)
+* Load management across multiple chargers (use EVSE controller)
+* Billing integration (external system responsibility)
+
+---
+
+*Approval Status*: Approved +
+*Author*: Component development team +
+*Review Date*: 2025-01-21
