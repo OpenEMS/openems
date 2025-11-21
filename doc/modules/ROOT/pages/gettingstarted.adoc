@@ -240,7 +240,7 @@ NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to
 
 == Run OpenEMS UI
 
-NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI or [deploy the OpenEMS UI as docker image](https://openems.github.io/openems.io/openems/latest/edge/deploy/docker.html#_openems_edge_ui).
+NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI or xref:ui/deploy-ui.adoc[deploy the OpenEMS UI as docker image].
 
 . Make sure OpenEMS Edge is running locally and the websocket is running on port `8085`.
 
