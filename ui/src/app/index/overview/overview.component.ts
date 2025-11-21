@@ -63,15 +63,17 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
             }
         });
-    }
 
-    ionViewWillEnter() {
         this.page = 0;
         this.filteredEdges = [];
         this.limitReached = false;
         this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
-            this.init();
+          this.init();
         });
+    }
+
+    ionViewWillEnter() {
+        // move edge list initialization to constructor to prevent race condition
     }
 
     /**
