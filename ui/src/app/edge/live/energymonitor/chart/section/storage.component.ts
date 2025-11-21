@@ -37,14 +37,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         this.unitpipe = unitpipe;
     }
 
-    get stateNameCharge() {
-        return this.showChargeAnimation ? "show" : "hide";
-    }
-
-    get stateNameDischarge() {
-        return this.showDischargeAnimation ? "show" : "hide";
-    }
-
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {

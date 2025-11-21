@@ -36,14 +36,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.unitpipe = unitpipe;
     }
 
-    get stateNameBuy() {
-        return this.showBuyAnimation ? "show" : "hide";
-    }
-
-    get stateNameSell() {
-        return this.showSellAnimation ? "show" : "hide";
-    }
-
     public static getCurrentGridIcon(currentData: CurrentData): Icon {
         const gridMode = currentData.allComponents["_sum/GridMode"];
         const restrictionMode = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"];

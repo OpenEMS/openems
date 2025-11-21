@@ -31,10 +31,6 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         this.unitpipe = unitpipe;
     }
 
-    get stateName() {
-        return this.showAnimation ? "show" : "hide";
-    }
-
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {

@@ -5,6 +5,11 @@ import { BehaviorSubject, interval, Observable } from "rxjs";
     providedIn: "root",
 })
 export class AnimationService {
+    /**
+     * Observable to toggle animation states.
+     * * true = Show Production/Buy Animation </p>
+     * * false = Show Consumption/Sell Animation
+     */
     public readonly toggleAnimation$: Observable<boolean>;
 
     private readonly animationSpeed = 605;
