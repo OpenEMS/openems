@@ -28,9 +28,9 @@
                         </ion-text>
                       </ion-item>
                       <ion-item>
-                        <ion-input #password required type="password" [label]="'LOGIN.PASSWORD_LABEL' | translate"
-                          label-placement="floating" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
-                          value="user"></ion-input>
+                        <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
+                          label-placement="floating" [label]="'LOGIN.PASSWORD_LABEL' | translate">
+                        </ion-input>
                       </ion-item>
                       <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                       <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
