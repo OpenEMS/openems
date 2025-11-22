@@ -102,23 +102,52 @@ public class KostalManagedEssImplTest {
 						.setDebugMode(false) //
 						.build()) //
 
-				// Test 1: Values within tolerance should be set to 0
+				// Test 1: Values within tolerance should be clamped to 0
 				.next(new TestCase("Power within tolerance (+25W) should become 0") //
-						.onExecuteWriteCallbacks(() -> sut.applyPower(25, 0))) //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(25, 0)) //
+						.output(SET_ACTIVE_POWER, 0)) //
 
-				.next(new TestCase("Power within tolerance (-30W) should become 0") //
-						.onExecuteWriteCallbacks(() -> sut.applyPower(-30, 0))) //
+				// Test 2: Boundary cases - exactly at tolerance boundary should be written
+				.next(new TestCase("Power at tolerance (50W) should be set") //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(Tolerance, 0)) //
+						.output(SET_ACTIVE_POWER, Tolerance)) //
 
-				// Test 2: Values outside tolerance should be set correctly
+				.next(new TestCase("Power at -tolerance (-50W) should be set") //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(-Tolerance, 0)) //
+						.output(SET_ACTIVE_POWER, -Tolerance)) //
+
+				// Test 3: Values outside tolerance should be set correctly
 				.next(new TestCase("Power outside tolerance (200W) should be set") //
-						.onExecuteWriteCallbacks(() -> sut.applyPower(200, 0))) //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(200, 0)) //
+						.output(SET_ACTIVE_POWER, 200)) //
 
 				.next(new TestCase("Negative power outside tolerance (-300W) should be set") //
-						.onExecuteWriteCallbacks(() -> sut.applyPower(-300, 0))) //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(-300, 0)) //
+						.output(SET_ACTIVE_POWER, -300)) //
 
-				// Test 3: Large power values should be set
+				// Test 4: Large power values should be set
 				.next(new TestCase("Large power value (3000W) should be set") //
-						.onExecuteWriteCallbacks(() -> sut.applyPower(3000, 0))) //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(3000, 0)) //
+						.output(SET_ACTIVE_POWER, 3000)) //
+
+				// Test 5: Negative values within tolerance also clamped to 0
+				.next(new TestCase("Negative within tolerance (-30W) should become 0") //
+						.input(MAX_CHARGE_POWER, 5000) //
+						.input(MAX_DISCHARGE_POWER, 5000) //
+						.onExecuteWriteCallbacks(() -> sut.applyPower(-30, 0)) //
+						.output(SET_ACTIVE_POWER, 0)) //
 
 				.deactivate();
 

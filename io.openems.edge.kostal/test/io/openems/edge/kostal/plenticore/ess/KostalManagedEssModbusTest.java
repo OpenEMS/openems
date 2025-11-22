@@ -147,8 +147,5 @@ public class KostalManagedEssModbusTest {
 						.output(SET_ACTIVE_POWER, -1000)) //
 				.next(new TestCase(), 2) //
 				.deactivate();
-
-		// Float IEEE 754 LSWMSW encoding: +1000W=[0x0000, 0x447A], -1000W=[0x0000, 0xC47A]
-		System.out.println("✓ Verified register 1034 writes: +1000W/-1000W → [0x0000, 0x447A]/[0x0000, 0xC47A]");
 	}
 }
