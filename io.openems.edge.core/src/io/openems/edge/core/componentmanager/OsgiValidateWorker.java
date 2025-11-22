@@ -130,6 +130,24 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	}
 
 	/**
+	 * Checks if the given component description implements OpenemsComponent.
+	 *
+	 * @param description the {@link ComponentDescriptionDTO}
+	 * @return true if the component implements OpenemsComponent
+	 */
+	private static boolean implementsOpenemsComponent(ComponentDescriptionDTO description) {
+		if (description.serviceInterfaces == null) {
+			return false;
+		}
+		for (String serviceInterface : description.serviceInterfaces) {
+			if (OpenemsComponent.class.getName().equals(serviceInterface)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Updates the inactive Components.
 	 *
 	 * <p>
@@ -143,6 +161,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			ServiceComponentRuntime scr) {
 		var descriptions = scr.getComponentDescriptionDTOs();
 		for (ComponentDescriptionDTO description : descriptions) {
+			// Only validate components that implement OpenemsComponent
+			if (!implementsOpenemsComponent(description)) {
+				continue;
+			}
+
 			var configurations = scr.getComponentConfigurationDTOs(description);
 			for (ComponentConfigurationDTO configuration : configurations) {
 				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
