@@ -4,6 +4,8 @@ services:
     container_name: openems_ui_dev
     hostname: openems_ui
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
@@ -13,7 +15,6 @@ services:
     ports:
       - 4200:80
       - 443:443
-
 
 volumes:
   openems-ui-conf:
