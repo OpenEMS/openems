@@ -52,7 +52,7 @@ In both cases: Access the UI at **http://localhost:4200**
 - `WEBSOCKET_HOST`: Hostname/IP for the Edge WebSocket server (default: `host.docker.internal`)
 - `WEBSOCKET_PORT`: Port for the Edge WebSocket server (default: `8085`)
 
-**Note:** These configure where the **browser** connects to reach OpenEMS Edge, not the container itself.
+**Note:**  The ui container proxies the websocket connection and is the one that has to be able to reach the WEBSOCKET_HOST:WEBSOCKET_PORT
 
 #### Volumes
 
@@ -76,49 +76,15 @@ extra_hosts:
 
 ```
 Browser → UI (nginx:4200) → Static Files
-Browser → Edge (host.docker.internal:8085) → WebSocket
+Browser → UI (nginx:4200) → Edge (host.docker.internal:8085) → WebSocket
 ```
 
-The WebSocket connection is made **directly from your browser** to OpenEMS Edge (proxied through nginx).
+The WebSocket connection is routed (proxied) through nginx in the UI container to OpenEMS Edge.
 
 ### Troubleshooting
-
-#### UI shows "Connection Failed"
-
-**1. Verify Edge is running:**
-```bash
-curl -I http://localhost:8085
-# Expected: HTTP/1.1 404 WebSocket Upgrade Failure
-```
-
-**2. For WSL2 - use the helper script:**
-```bash
-./start-ui.sh
-```
-
-#### Port 4200 already in use
-
-```bash
-docker compose down
-lsof -i :4200  # Find process using port
-```
-
-#### Container won't start
-
-```bash
-docker compose logs -f
-docker compose down
-docker compose up -d
-```
-
-#### WSL2: IP changed after reboot
-
-```bash
-./start-ui.sh  # Auto-detects and updates IP
-```
+Please have a look at the documentation in the [Troubleshooting section](https://openems.github.io/openems.io/openems/latest/ui/deploy.html#Troubleshooting) there.
 
 ---
-
 ## Files
 
 - `Dockerfile.edge` / `Dockerfile.backend` - Build configurations

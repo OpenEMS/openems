@@ -14,7 +14,6 @@ services:
       - WEBSOCKET_PORT=8085
     ports:
       - 4200:80
-      - 443:443
 
 volumes:
   openems-ui-conf:

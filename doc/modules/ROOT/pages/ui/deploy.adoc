@@ -34,7 +34,6 @@ services:
       - WEBSOCKET_PORT=8085
     ports:
       - 4200:80
-      - 443:443
 
 volumes:
   openems-ui-conf:
@@ -73,3 +72,42 @@ If after opening the OpenEMS UI page at http://localhost:4200/ you get an error 
 * The Apache Felix Web Console is reachable at http://localhost:8080/system/console/configMgr,
     * if not, make sure that the OpenEMS Edge is running (Eclipse: `Run OSGi` in `EdgeApp.bndrun` under `io.openems.edge.application`),
 * Check in Apache Felix, that you have configured the openEMS component 'Controller Api Websocket` with Port set to `8085`.
+
+==== UI shows "Connection Failed"
+
+**1. Verify Edge is running:**
+[source,bash]
+----
+curl -I http://localhost:8085
+# Expected: HTTP/1.1 404 WebSocket Upgrade Failure
+----
+
+**2. For WSL2 - use the helper script:**
+[source,bash]
+----
+./start-ui.sh
+----
+
+#### Port 4200 already in use
+
+[source,bash]
+----
+docker compose down
+lsof -i :4200  # Find process using port
+----
+
+#### Container won't start
+
+[source,bash]
+----
+docker compose logs -f
+docker compose down
+docker compose up -d
+----
+
+#### WSL2: IP changed after reboot
+
+[source,bash]
+----
+./start-ui.sh  # Auto-detects and updates IP
+----
