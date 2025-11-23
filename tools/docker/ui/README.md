@@ -35,7 +35,7 @@ docker compose up -d
 **WSL2 Users: (Edge Development on WSL2, Browser for UI on Windows)**
 in `tools/docker/ui` run:
 ```bash
-./start-ui.sh
+./start-dev-ui-wsl.sh
 ```
 
 In both cases: Access the UI at **http://localhost:4200**
@@ -70,7 +70,7 @@ extra_hosts:
 
 - **Windows/Mac Docker Desktop**: Works automatically
 - **Native Linux**: Works automatically
-- **WSL2**: Requires workaround (use `start-ui.sh`)
+- **WSL2**: Requires workaround (use `start-dev-ui-wsl.sh`)
 
 #### WebSocket Connection Flow
 
@@ -89,6 +89,6 @@ Please have a look at the documentation in the [Troubleshooting section](https:/
 
 - `Dockerfile.edge` / `Dockerfile.backend` - Build configurations
 - `docker-compose.yml` - Main configuration to run pre-built UI for development (works on all platforms, except WSL2)
-- `start-ui.sh` - WSL2 helper script (optional) to run pre-built UI for development in WSL2
+- `start-dev-ui-wsl.sh` - WSL2 helper script (optional) to run pre-built UI for development in WSL2
 - `README.md` - This file
 

@@ -82,32 +82,23 @@ curl -I http://localhost:8085
 # Expected: HTTP/1.1 404 WebSocket Upgrade Failure
 ----
 
-**2. For WSL2 - use the helper script:**
+**2. For WSL2 - use the helper script to start the docker UI:**
 [source,bash]
 ----
-./start-ui.sh
+./start-dev-ui-wsl.sh
 ----
 
-#### Port 4200 already in use
-
-[source,bash]
-----
-docker compose down
-lsof -i :4200  # Find process using port
-----
-
-#### Container won't start
+==== WSL2: IP changed after reboot
 
 [source,bash]
 ----
-docker compose logs -f
-docker compose down
-docker compose up -d
+./start-dev-ui-wsl.sh  # Auto-detects and updates IP
 ----
 
-#### WSL2: IP changed after reboot
+==== further Docker related issues
 
-[source,bash]
-----
-./start-ui.sh  # Auto-detects and updates IP
-----
+For more docker related issues, like
+* Port 4200 already in use
+* Container won't start
+
+see xref:edge/deploy/docker.adoc#_troubleshooting_docker[Edge Docker Troubleshooting] or xref:https://docs.docker.com/compose/gettingstarted/[Docker's documentation]
