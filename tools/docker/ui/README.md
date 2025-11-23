@@ -37,6 +37,8 @@ in `tools/docker/ui` run:
 ```bash
 ./start-dev-ui-wsl.sh
 ```
+This creates a `docker-compose.override.yml` that fixes the IP-Address resolution problem in WSL2. 
+If you restart your WSL2, just call the script again, to adjust to the new IP address your WSL2 might have now.
 
 In both cases: Access the UI at **http://localhost:4200**
 
@@ -89,6 +91,6 @@ Please have a look at the documentation in the [Troubleshooting section](https:/
 
 - `Dockerfile.edge` / `Dockerfile.backend` - Build configurations
 - `docker-compose.yml` - Main configuration to run pre-built UI for development (works on all platforms, except WSL2)
-- `start-dev-ui-wsl.sh` - WSL2 helper script (optional) to run pre-built UI for development in WSL2
+- `start-dev-ui-wsl.sh` - WSL2 helper script (optional) to create a suitable `docker-compose.override.yml` with the proper IP address of your current WSL2 instance. 
 - `README.md` - This file
 

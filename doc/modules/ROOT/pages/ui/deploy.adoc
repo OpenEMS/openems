@@ -21,11 +21,13 @@ If you just want to have the OpenEMS UI served from a docker container on your l
 [source,yaml]
 ----
 services:
-  openems-ui:
+  openems-ui-dev:
     image: openems/ui-edge:latest
-    container_name: openems_ui
+    container_name: openems_ui_dev
     hostname: openems_ui
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
@@ -82,10 +84,18 @@ curl -I http://localhost:8085
 # Expected: HTTP/1.1 404 WebSocket Upgrade Failure
 ----
 
-**2. For WSL2 - use the helper script to start the docker UI:**
+**2. For WSL2 - use the helper script **
+This creates/updates a `docker-compose.override.yml` that fixes the IP-Address resolution problem in WSL2:
+
 [source,bash]
 ----
 ./start-dev-ui-wsl.sh
+----
+
+Afterwards you can start the UI container with the usual:
+[source,bash]
+----
+docker compose up -d
 ----
 
 ==== WSL2: IP changed after reboot

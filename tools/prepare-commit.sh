@@ -116,13 +116,6 @@ EOT
 </projectDescription>
 EOT
 
-				# reset tools/docker/ui/docker-compose.yml to standard in case of WSL2
-				if grep -qi microsoft /proc/version 2>/dev/null; then
-					# running in WSL2
-				    sed -i "s/host\.docker\.internal:[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/host.docker.internal:host-gateway/" docker-compose.yml
-				    echo "✓ Set docker-compose.yml back to default, using host-gateway"
-				fi
-
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then
 					start=$(grep -n '${buildpath},' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
