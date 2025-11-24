@@ -2,11 +2,15 @@ package io.openems.edge.io.phoenixcontact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.api.BridgeHttp;
+import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -22,7 +26,8 @@ public class PlcNextDeviceImplTest {
 	
 	private TestConfig myConfig;
 	
-	private BridgeHttp dummyBridgeHttp;
+	private BridgeHttp dummyAuthBridgeHttp;
+	private BridgeHttp dummyDataBridgeHttp;
 	
 	private PlcNextAuthClient authClient;
 	private PlcNextDataClient dataClient;
@@ -41,12 +46,23 @@ public class PlcNextDeviceImplTest {
 				.build();
 		this.componentUnderTest = new PlcNextDeviceImpl();
 		
-		this.dummyBridgeHttp = new DummyBridgeHttp();
+		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, "{'jwtToken': 'dummy'}"));
+			}
+		};
+		this.dummyDataBridgeHttp = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, "{'read_test_value': 123}"));
+			}			
+		};
 		
-		this.authClient = new PlcNextAuthClient(dummyBridgeHttp, myConfig);
+		this.authClient = new PlcNextAuthClient(dummyAuthBridgeHttp, myConfig);
 		this.tokenManager = new PlcNextTokenManager(this.authClient);
 		
-		this.dataClient = new PlcNextDataClient(dummyBridgeHttp, tokenManager, myConfig);
+		this.dataClient = new PlcNextDataClient(dummyDataBridgeHttp, tokenManager, myConfig);
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
 		this.dataProvider.setPlcNextDeviceComponent(componentUnderTest);
 		
@@ -62,8 +78,7 @@ public class PlcNextDeviceImplTest {
 				.addReference("apiCommands", this.apiCommands) //
 				.activate(this.myConfig); //
 		
-		test.next(new TestCase()
-				.onBeforeProcessImage(null)); //
+		test.next(new TestCase()); //
 		
 		test.deactivate();
 	}

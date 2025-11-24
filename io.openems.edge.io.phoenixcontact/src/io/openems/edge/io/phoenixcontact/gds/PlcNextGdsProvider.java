@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.io.phoenixcontact.PlcNextDataClient;
@@ -44,7 +45,7 @@ public class PlcNextGdsProvider {
 		this.deviceComponent = deviceComponent;
 	}
 
-	// TODO: just a dummy implementation
+	// TODO: just a try of generic implementation
 	public void readFromApiToChannels() {
 		Map<ChannelId, Channel<?>> mappedChannels = this.deviceComponent.channels().stream()
 			.filter(channel -> CHANNEL_MAPPING_READ.values().contains(channel.channelId()))
@@ -53,12 +54,32 @@ public class PlcNextGdsProvider {
 		JsonObject apiResponseBody = dataClient.fetchAllGdsDataAspects("test");
 		CHANNEL_MAPPING_READ.keySet().forEach(mappedDataAspect -> {
 			ChannelId dataAspectChannelId = CHANNEL_MAPPING_READ.get(mappedDataAspect);
-			Channel<?> dataAspectChannel = mappedChannels.get(dataAspectChannelId); 
+			Channel<?> dataAspectChannel = mappedChannels.get(dataAspectChannelId);
 			
-			dataAspectChannel.setNextValue(
-					apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsNumber());
-		});
-		
+			if (dataAspectChannel.getType() == OpenemsType.BOOLEAN) {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsBoolean());
+			} else if (dataAspectChannel.getType() == OpenemsType.DOUBLE) {
+					dataAspectChannel.setNextValue(
+							apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsDouble());
+			} else if (dataAspectChannel.getType() == OpenemsType.FLOAT) {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsFloat());
+			} else if (dataAspectChannel.getType() == OpenemsType.INTEGER) {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsInt());
+			} else if (dataAspectChannel.getType() == OpenemsType.LONG) {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsLong());
+			} else if (dataAspectChannel.getType() == OpenemsType.SHORT) {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsShort());
+			} else {
+				dataAspectChannel.setNextValue(
+						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsString());
+				
+			}
+		});		
 	}
 	
 	public void writeToApiFromChannels() {
