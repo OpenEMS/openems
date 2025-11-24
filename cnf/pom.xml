@@ -362,6 +362,16 @@
 		    <version>1.3.0</version>
 		</dependency>
 		<dependency>
+    		<groupId>org.openmuc.jeebus</groupId>
+    		<artifactId>ship</artifactId>
+    		<version>2.1.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.openmuc.jeebus</groupId>
+		    <artifactId>spine</artifactId>
+		    <version>3.1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>osgi.annotation</artifactId>
 			<version>8.1.0</version>
