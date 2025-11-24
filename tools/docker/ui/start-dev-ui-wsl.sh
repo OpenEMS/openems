@@ -31,30 +31,19 @@ fi
 
 echo "✓ Detected WSL2 host IP: $HOST_IP"
 
-# Check if docker-compose.yml exists
-if [ ! -f "docker-compose.override.yml" ]; then
-    echo "docker-compose.override.yml not found in $SCRIPT_DIR - will create it"
-    cp docker-compose.yml docker-compose.override.yml
-    echo "✓ Created docker-compose.override.yml"
-fi
-
-# Update the extra_hosts entry with current IP
-# Replace either host-gateway or existing IP with the WSL2 IP
-sed -i "s/host\.docker\.internal:host-gateway/host.docker.internal:$HOST_IP/" docker-compose.override.yml
-sed -i "s/host\.docker\.internal:[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/host.docker.internal:$HOST_IP/" docker-compose.override.yml
-
-echo "✓ Updated docker-compose.override.yml with WSL2 host IP"
+# Create or update docker-compose.override.yml with host IP
+echo "
+services:
+  openems-ui-dev:
+    extra_hosts:
+      - "host.docker.internal:$HOST_IP"
+" > docker-compose.override.yml
+echo "✓ Created or Updated docker-compose.override.yml with WSL2 host IP"
 echo "Note: Docker merges it with docker-compose.yml on start, so it will use host.docker.internal:$HOST_IP"
 
 
-# Stop existing containers
-if docker ps -a --format '{{.Names}}' | grep -q '^openems_ui$'; then
-    echo "✓ Stopping existing container..."
-    docker compose down
-fi
-
-# Start the container
-echo "✓ Starting OpenEMS UI container..."
+# (re)Start the container
+echo "✓ (Re)Starting OpenEMS UI container..."
 docker compose up -d
 
 # Wait a moment for container to start
@@ -66,7 +55,6 @@ if docker ps --format '{{.Names}}' | grep -q '^openems_ui_dev$'; then
     echo "✅ OpenEMS UI is running!"
     echo ""
     echo "   Web UI:       http://localhost:4200"
-    echo "   HTTPS:        https://localhost:443"
 
     echo "   WebSocket:    host.docker.internal:8085 → $HOST_IP:8085"
 
