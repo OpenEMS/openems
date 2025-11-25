@@ -2,11 +2,11 @@ package io.openems.edge.io.phoenixcontact.utils;
 
 import java.time.Duration;
 
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 
 public class PlcNextDelayTimeProvider implements DelayTimeProvider {
 

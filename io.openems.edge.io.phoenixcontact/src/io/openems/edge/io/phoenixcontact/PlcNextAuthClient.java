@@ -12,12 +12,14 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.JsonElement;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.edge.io.phoenixcontact.utils.PlcNextDelayTimeProvider;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextAuthClient.class)
 public class PlcNextAuthClient {
@@ -26,11 +28,13 @@ public class PlcNextAuthClient {
 
 	private final BridgeHttp http;
 	private final Config config;
+	private final HttpBridgeTimeService timeService;
 
 	@Activate
 	public PlcNextAuthClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http, Config config) {
 		this.http = http;
 		this.config = config;
+		this.timeService = http.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
 
 	// TODO: just a dummy implementation
@@ -46,7 +50,7 @@ public class PlcNextAuthClient {
 	public void fetchAuthenticationPeriodically(BiConsumer<HttpResponse<JsonElement>, HttpError> action) {
 		Endpoint authEndpoint = buildAuthenticationEndpointRepresentation();
 
-		this.http.subscribeJsonTime(new PlcNextDelayTimeProvider(TOKEN_FETCH_DELAY), authEndpoint, action);
+		this.timeService.subscribeJsonTime(new PlcNextDelayTimeProvider(TOKEN_FETCH_DELAY), authEndpoint, action);
 
 	}
 

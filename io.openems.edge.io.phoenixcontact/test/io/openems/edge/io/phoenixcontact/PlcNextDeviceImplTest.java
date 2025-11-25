@@ -2,17 +2,16 @@ package io.openems.edge.io.phoenixcontact;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttp;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
@@ -49,13 +48,13 @@ public class PlcNextDeviceImplTest {
 		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, "{'jwtToken': 'dummy'}"));
+				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'jwtToken': 'dummy'}"));
 			}
 		};
 		this.dummyDataBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, "{'read_test_value': 123}"));
+				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'read_test_value': 123}"));
 			}			
 		};
 		

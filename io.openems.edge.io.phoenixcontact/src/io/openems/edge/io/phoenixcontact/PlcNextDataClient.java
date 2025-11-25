@@ -11,9 +11,9 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import com.google.gson.JsonObject;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextDataClient.class)
