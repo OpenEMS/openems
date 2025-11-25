@@ -28,6 +28,10 @@ public interface ControllerCleverPv extends Controller, OpenemsComponent {
 		CUMULATED_INACTIVE_TIME(Doc.of(LONG)//
 				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
+
+		CUMULATED_CHARGE_FROM_GRID_TIME(Doc.of(LONG)//
+				.unit(CUMULATED_SECONDS) //
+				.persistencePriority(HIGH)), //
 		;
 
 		private final Doc doc;

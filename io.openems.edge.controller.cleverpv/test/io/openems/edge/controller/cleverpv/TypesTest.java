@@ -20,7 +20,7 @@ public class TypesTest {
 		var sut = new SendData(null, null, null, PowerStorageState.IDLE.getValue(), null, //
 				new CurrentData(null, null, null, null), //
 				new AvailableControlModes(ImmutableList.of()), //
-				new ActiveControlModes(new Ess(RemoteControlMode.OFF)), //
+				new ActiveControlModes(new Ess(RemoteControlMode.OFF, null, null)), //
 				"edge0", Level.OK.getValue()); //
 		var json = SendData.serializer().serialize(sut);
 
@@ -57,7 +57,7 @@ public class TypesTest {
 		var sut = new SendData(1, 1, 1, PowerStorageState.IDLE.getValue(), 1, //
 				new CurrentData(1, 1, 1, 1), //
 				new AvailableControlModes(ImmutableList.of()), //
-				new ActiveControlModes(new Ess(RemoteControlMode.NO_DISCHARGE)), //
+				new ActiveControlModes(new Ess(RemoteControlMode.NO_DISCHARGE, null, null)), //
 				"edge0", Level.OK.getValue()); //
 		var json = SendData.serializer().serialize(sut);
 		assertEquals("""

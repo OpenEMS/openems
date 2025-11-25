@@ -2,6 +2,8 @@ package io.openems.edge.controller.cleverpv;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
@@ -9,9 +11,9 @@ import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
+import io.openems.edge.common.meta.Meta;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -36,7 +38,6 @@ import io.openems.edge.common.host.Host;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.cleverpv.Types.SendData;
-import io.openems.edge.controller.cleverpv.Types.SendData.ActivateControlModes;
 import io.openems.edge.controller.cleverpv.Types.SendData.ActiveControlModes;
 import io.openems.edge.controller.cleverpv.Types.SendData.AvailableControlModes;
 import io.openems.edge.controller.cleverpv.Types.SendData.CurrentData;
@@ -58,9 +59,13 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		implements TimedataProvider, ControllerCleverPv, Controller, OpenemsComponent {
 
 	private static final int SEND_SECONDS = 5;
+	private static final int VOLT_PER_AMPERE = 230;
 
 	private final CalculateActiveTime calculateCumulatedNoDischargeTime = new CalculateActiveTime(this,
 			ControllerCleverPv.ChannelId.CUMULATED_NO_DISCHARGE_TIME);
+
+	private final CalculateActiveTime calculateCumulatedChargeFromGridTime = new CalculateActiveTime(this,
+			ControllerCleverPv.ChannelId.CUMULATED_CHARGE_FROM_GRID_TIME);
 
 	private final CalculateActiveTime calculateCumulatedInactiveTime = new CalculateActiveTime(this,
 			ControllerCleverPv.ChannelId.CUMULATED_INACTIVE_TIME);
@@ -88,12 +93,17 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private Host host;
 
 	@Reference
+	protected Meta meta;
+
+	@Reference
 	private Sum sum;
 
 	private Config config;
 
 	private RemoteControlMode remoteControlMode = RemoteControlMode.OFF;
 	private ActiveControlModes activeControlModes = null;
+	private Integer limit = 0;
+	private Integer maxChargePower = 0;
 
 	public ControllerCleverPvImpl() {
 		super(//
@@ -154,6 +164,10 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 			case NO_DISCHARGE -> {
 				this.setActiveMode(RemoteControlMode.NO_DISCHARGE, null);
 			}
+			case CHARGE_FROM_GRID -> {
+				var limit = parsedResponse.activateControlModes().ess().chargePower();
+				this.setActiveMode(RemoteControlMode.CHARGE_FROM_GRID, limit);
+			}
 			}
 		});
 	}
@@ -168,32 +182,51 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.config.readOnly()) {
+			this.setDefaultMode();
+			return;
+		}
 
-		if (!this.config.readOnly() && this.config.controlMode() == ControlMode.REMOTE_CONTROL) {
-			switch (this.remoteControlMode) {
-			case OFF, UNDEFINED -> {
-				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.OFF);
-				this.calculateCumulatedNoDischargeTime.update(false);
-				this.calculateCumulatedInactiveTime.update(true);
-			}
-			case NO_DISCHARGE -> {
+		switch (this.remoteControlMode) {
+		case OFF, UNDEFINED -> {
+			this.setDefaultMode();
+		}
+		case NO_DISCHARGE -> {
+			if (!this.isNoDischargeAllowed()) {
+				this.setDefaultMode();
+			} else {
 				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.NO_DISCHARGE);
+				this.setActiveTime(false, true, false);
 				this.ess.setActivePowerEqualsWithPid(0);
-				this.calculateCumulatedInactiveTime.update(false);
-				this.calculateCumulatedNoDischargeTime.update(true);
-			}
 			}
 		}
+		case CHARGE_FROM_GRID -> {
+			if (!this.isEssChargeFromGridAllowed()) {
+				this.setDefaultMode();
+			} else {
+				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.CHARGE_FROM_GRID);
+				this.setActiveTime(false, false, true);
+				Integer absoluteLimitNegated = (Math.min(Math.abs(this.maxChargePower), Math.abs(this.limit)) * -1);
+				this.ess.setActivePowerEquals(absoluteLimitNegated);
+			}
+		}
+		}
+	}
 
-		if (this.remoteControlMode == RemoteControlMode.OFF) {
-			this.calculateCumulatedInactiveTime.update(true);
-			setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.OFF);
-		}
+	private void setDefaultMode() {
+		this.setActiveTime(true, false, false);
+		setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.OFF);
+	}
+
+	private void setActiveTime(boolean inactive, boolean noDischarge, boolean ChargeFromGrid) {
+		this.calculateCumulatedInactiveTime.update(inactive);
+		this.calculateCumulatedNoDischargeTime.update(noDischarge);
+		this.calculateCumulatedChargeFromGridTime.update(ChargeFromGrid);
 	}
 
 	protected SendData collectData() {
 		final var currentData = CurrentData.fromComponentManager(this.componentManager);
-		final var ess = new Ess(this.remoteControlMode);
+		var currentlyActiveEssMode = new Ess(this.remoteControlMode, null, null);
 
 		final AvailableControlModes availableControlModes;
 
@@ -202,36 +235,67 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		}
 
 		final var essModes = ImmutableList.<Ess>builder();
-		if (Optional.ofNullable(this.timeOfUseTariffController) //
-				.map(TimeOfUseTariffController::getStateMachine) //
-				.map(s -> switch (s) {
-				case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
-				case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
-				}) //
-				.orElse(true)) { // No ToU-Ctrl -> allow NO_DISCHARGE
-			essModes.add(new Ess(RemoteControlMode.NO_DISCHARGE));
+		if (this.isNoDischargeAllowed()) {
+			essModes.add(new Ess(RemoteControlMode.NO_DISCHARGE, null, null));
+		}
+
+		if (this.isEssChargeFromGridAllowed()) {
+			final int gridConnectionPointFuseLimit = this.meta.getGridConnectionPointFuseLimit(); // Ampere
+			final int essMaxPower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
+			final double safetyMargin = 0.1F; // 10% less than max for safety
+
+			int maxGridFeedIn = Optional.of((int)Math.round(gridConnectionPointFuseLimit * (1 - safetyMargin)) * VOLT_PER_AMPERE * 3).orElse(0);
+			int currentConsumption = Optional.ofNullable(this.sum.getConsumptionActivePower().get()).orElse(0);
+			int currentProduction = Optional.ofNullable(this.sum.getProductionActivePower().get()).orElse(0);
+
+			this.maxChargePower = Math.max(0,(maxGridFeedIn - currentConsumption + currentProduction));
+			this.maxChargePower = (int)Math.round(Math.min(essMaxPower, this.maxChargePower) * (1 - safetyMargin));
+
+			currentlyActiveEssMode = new Ess(this.remoteControlMode, null, Math.min(this.limit, this.maxChargePower));
+			essModes.add(new Ess(RemoteControlMode.CHARGE_FROM_GRID, this.maxChargePower, null));
 		}
 
 		availableControlModes = new AvailableControlModes(essModes.build());
-		this.activeControlModes = new ActiveControlModes(ess);
+		this.activeControlModes = new ActiveControlModes(currentlyActiveEssMode);
 
 		return new SendData(currentData, availableControlModes, this.activeControlModes, this.host, this.sum);
 	}
 
+	private boolean isNoDischargeAllowed() {
+		return Optional.ofNullable(this.timeOfUseTariffController).map(TimeOfUseTariffController::getStateMachine)
+				.map(s -> switch (s) {
+					case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
+					case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
+				}).orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
+	}
+
+	private boolean isEssChargeFromGridAllowed() {
+		if (!this.meta.getIsEssChargeFromGridAllowed()) {
+			return false;
+		}
+
+		if (this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE) <= 0) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private void setActiveMode(RemoteControlMode mode, Integer limit) {
 		this.remoteControlMode = mode;
-		int setLimit = 0;
+		this.limit = 0;
+
 		if (limit != null) {
-			setLimit = limit;
+			this.limit = limit;
 		}
 
 		if (mode == RemoteControlMode.NO_DISCHARGE) {
-			setLimit = 0;
+			this.limit = 0;
 		}
 
 		JsonUtils.JsonObjectBuilder builder = buildJsonObject().add("mode", JsonUtils.toJson(mode.toString()));
 
-		builder.add("power", JsonUtils.toJson(setLimit));
+		builder.add("power", JsonUtils.toJson(this.limit));
 	}
 
 	private void resetControlMode() {

@@ -6,7 +6,8 @@ public enum RemoteControlMode implements OptionsEnum {
 
 	UNDEFINED(-1, "Undefined"), //
 	OFF(0, "Off"), //
-	NO_DISCHARGE(1, "No discharge");
+	NO_DISCHARGE(1, "No discharge"), //
+	CHARGE_FROM_GRID(2, "Charge from grid");
 
 	private final int value;
 	private final String name;

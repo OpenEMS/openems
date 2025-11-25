@@ -184,7 +184,7 @@ public final class Types {
 			}
 		}
 
-		public static record Ess(RemoteControlMode remoteControlMode) {
+		public static record Ess(RemoteControlMode remoteControlMode, Integer maxChargePower, Integer chargePower) {
 			/**
 			 * Returns a {@link JsonSerializer} for a {@link Ess}.
 			 *
@@ -193,10 +193,14 @@ public final class Types {
 			protected static JsonSerializer<Ess> serializer() {
 				return jsonObjectSerializer(json -> {
 					return new Ess(//
-							json.getEnumOrNull("mode", RemoteControlMode.class));
+							json.getEnumOrNull("mode", RemoteControlMode.class),
+							json.getOptionalInt("maxChargePower").orElse(null),
+							json.getOptionalInt("chargePower").orElse(null));
 				}, obj -> {
 					return buildJsonObject() //
 							.addPropertyIfNotNull("mode", obj.remoteControlMode) //
+							.addPropertyIfNotNull("maxChargePower", obj.maxChargePower) //
+							.addPropertyIfNotNull("chargePower", obj.chargePower) //
 							.build();
 				});
 			}
