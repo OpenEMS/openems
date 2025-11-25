@@ -1123,6 +1123,14 @@
     "SHARED": {
       "NOTE": "Hinweis",
       "WARNING": "Warnung"
+    },
+    "PROTOCOL_SYSTEM_LOCATION_VALIDATION": {
+      "TITLE": "Adressvalidierung des Speicherstandorts",
+      "BUTTON_LABEL": "Validierung durchführen",
+      "GEO_CODE_RESULT_LABEL": "Bitte wählen Sie die übereinstimmende Adresse aus:",
+      "ADDRESS_LIST_TITLE": "Welche Addresse trifft für den Standort der {{ edgeShortName }}{{ id }} zu?*",
+      "ADDRESS_LIST_NOTE": "Die richtige Adresse ist nicht dabei? Bearbeiten Sie oben Ihre Angaben und führen Sie die Validierung erneut durch.",
+      "UNKNOWN_ADDRESS": "Die Koordinaten werden manuell im Nachgang für den kompletten Funktionsumfang, unter Systemseinstellungen, eingepflegt."
     }
   },
   "LIVE": {

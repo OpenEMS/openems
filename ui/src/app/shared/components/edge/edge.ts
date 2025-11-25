@@ -72,6 +72,19 @@ export class Edge {
     setIsSubscribed(isSubscribed: boolean) {
         this.isSubscribed = isSubscribed;
     }
+
+    /**
+     * Gets the edge number from the edge id.
+     *
+     * @example
+     * If the edge id is "xxxx1234", this method will return 1234.
+     *
+     * @returns The edge number.
+     */
+    public getNameNumber(): number {
+        return Number.parseInt(this.id.replace(/\D/g, ""));
+    }
+
     /**
    * Gets the Config. If not available yet, it requests it via Websocket.
    *

@@ -360,6 +360,11 @@ ion-checkbox {
     }
 }
 
+ion-skeleton-text {
+    --background: var(--ion-skeleton-gradient);
+    --background-rgb: var(--ion-color-light-contrast-rgb);
+}
+
 #toast-container {
     font-family: $font-family;
     text-align: center;
