@@ -403,6 +403,7 @@
     "TITLE": "OpenEMS"
   },
   "GENERAL": {
+    "BACK": "戻る",
     "EDIT": "編集",
     "RESET": "リセット",
     "ACTIVE": "有効",
@@ -446,6 +447,7 @@
     "MODE": "モード",
     "MORE": "もっと...",
     "NO_VALUE": "値がありません",
+    "OPEN": "開く",
     "OFF": "オフ",
     "OFF_GRID": "グリッド接続なし！",
     "OK": "ok",
@@ -458,6 +460,7 @@
     "POWER": "パワー",
     "PRODUCTION": "発電",
     "RENAME": "名前変更",
+    "REPORT": "報告書",
     "REPORT_VALUE": "破損データを報告",
     "SEARCH": "検索",
     "SELF_CONSUMPTION": "自己消費",

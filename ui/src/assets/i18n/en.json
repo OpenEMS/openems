@@ -530,6 +530,7 @@
         }
     },
     "GENERAL": {
+        "BACK": "Back",
         "EDIT": "Edit",
         "THEME_SELECTION": {
             "TITLE": "Lights off, comfort on!",
@@ -586,6 +587,7 @@
         "MODE": "Mode",
         "MORE": "More...",
         "NO_VALUE": "No value",
+        "OPEN": "Open",
         "OFF": "Off",
         "OFF_GRID": "No Grid Connection!",
         "OK": "ok",
@@ -598,6 +600,7 @@
         "POWER": "Power",
         "PRODUCTION": "Production",
         "RENAME": "Rename",
+        "REPORT": "Report",
         "REPORT_VALUE": "Report corrupted data",
         "SEARCH": "Search",
         "SELF_CONSUMPTION": "Self-consumption",
