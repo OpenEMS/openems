@@ -6,7 +6,6 @@ import static io.openems.edge.energy.optimizer.app.AppUtils.period;
 
 import java.time.ZonedDateTime;
 
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.edge.energy.EnergySchedulerTestUtils.Controller;
@@ -79,121 +78,6 @@ public class RunOptimizerApp {
 							.addProperty("id", "ctrlGridOptimizedCharge0") //
 							.add("source", buildJsonObject() //
 									.addProperty("class", "Automatic") //
-									.build()) //
-							.build())
-
-					// EVSE in MANUAL mode
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.EVSE_SINGLE.factoryPid) //
-							.addProperty("id", "ctrlEvseSingle0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "ManualOptimizationContext") //
-									.addProperty("mode", "MINIMUM") //
-									.add("abilities", buildJsonObject() //
-											.add("chargePointAbilities", buildJsonObject() //
-													.add("applySetPoint", buildJsonObject() //
-															.addProperty("class", "MilliAmpere") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 6000) //
-															.addProperty("max", 16000) //
-															.build()) //
-													.add("phaseSwitch", JsonNull.INSTANCE) //
-													.addProperty("isEvConnected", true) //
-													.addProperty("isReadyForCharging", true) //
-													.build()) //
-											.add("electricVehicleAbilities", buildJsonObject() //
-													.add("singlePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "SINGLE_PHASE") //
-															.addProperty("min", 1380) //
-															.addProperty("max", 7360) //
-															.addProperty("step", 1) //
-															.build()) //
-													.add("threePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 4140) //
-															.addProperty("max", 11040) //
-															.addProperty("step", 1) //
-															.build()) //
-													.addProperty("canInterrupt", true) //
-													.build()) //
-											.addProperty("isReadyForCharging", true) //
-											.add("applySetPoint", buildJsonObject() //
-													.addProperty("class", "Watt") //
-													.addProperty("phase", "THREE_PHASE") //
-													.addProperty("min", 4140) //
-													.addProperty("max", 11040) //
-													.addProperty("step", 1) //
-													.build()) //
-											.add("phaseSwitch", JsonNull.INSTANCE) //
-											.build()) //
-									.addProperty("appearsToBeFullyCharged", false) //
-									.addProperty("sessionEnergy", 0) //
-									.addProperty("sessionEnergyLimit", 10000) //
-									.build()) //
-							.build())
-
-					// EVSE in SMART mode
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.EVSE_SINGLE.factoryPid) //
-							.addProperty("id", "ctrlEvseSingle0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "SmartOptimizationConfig") //
-									.add("abilities", buildJsonObject() //
-											.add("chargePointAbilities", buildJsonObject() //
-													.add("applySetPoint", buildJsonObject() //
-															.addProperty("class", "MilliAmpere") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 6000) //
-															.addProperty("max", 16000) //
-															.build()) //
-													.add("phaseSwitch", JsonNull.INSTANCE) //
-													.addProperty("isEvConnected", true) //
-													.addProperty("isReadyForCharging", true) //
-													.build()) //
-											.add("electricVehicleAbilities", buildJsonObject() //
-													.add("singlePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "SINGLE_PHASE") //
-															.addProperty("min", 1380) //
-															.addProperty("max", 7360) //
-															.addProperty("step", 1) //
-															.build()) //
-													.add("threePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 4140) //
-															.addProperty("max", 11040) //
-															.addProperty("step", 1) //
-															.build()) //
-													.addProperty("canInterrupt", true) //
-													.build()) //
-											.addProperty("isReadyForCharging", true) //
-											.add("applySetPoint", buildJsonObject() //
-													.addProperty("class", "Watt") //
-													.addProperty("phase", "THREE_PHASE") //
-													.addProperty("min", 4140) //
-													.addProperty("max", 11040) //
-													.addProperty("step", 1) //
-													.build()) //
-											.add("phaseSwitch", JsonNull.INSTANCE) //
-											.build()) //
-									.addProperty("appearsToBeFullyCharged", false) //
-									.add("smartConfig", buildJsonArray() //
-											.add(buildJsonObject() //
-													.addProperty("@type", "Task") //
-													.addProperty("start", "12:00:00") //
-													.add("recurrenceRules", buildJsonArray() //
-															.add(buildJsonObject() //
-																	.addProperty("frequency", "daily") //
-																	.build())
-															.build())
-													.add("openems.io:payload", buildJsonObject() //
-															.addProperty("sessionEnergyMinimum", 10000) //
-															.build())
-													.build())
-											.build()) //
 									.build()) //
 							.build())
 

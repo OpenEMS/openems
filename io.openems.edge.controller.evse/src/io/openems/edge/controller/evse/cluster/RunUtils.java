@@ -31,7 +31,7 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
-public class Utils {
+public class RunUtils {
 
 	/**
 	 * Max allowed change for increasing power/current. Applied in
@@ -40,7 +40,7 @@ public class Utils {
 	 */
 	private static final float MAX_PERCENTAGE_CHANGE_PER_SECOND = 0.03F;
 
-	private Utils() {
+	private RunUtils() {
 	}
 
 	/**
@@ -71,7 +71,6 @@ public class Utils {
 			@Override
 			public final String toString() {
 				return toStringHelper(Entry.class) //
-						.addValue(this.ctrl.id()) //
 						.addValue(this.params) //
 						.add("activePower", this.activePower) //
 						.add("setPointInWatt", this.setPointInWatt) //
@@ -202,6 +201,7 @@ public class Utils {
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
 			List<ControllerEvseSingle> ctrls, LogVerbosity logVerbosity, Consumer<String> logger) {
+		// Build PowerDistribution
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
 					var params = ctrl.getParams();
@@ -256,7 +256,7 @@ public class Utils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 */
-	protected static void distributeSurplusPower(PowerDistribution powerDistribution,
+	private static void distributeSurplusPower(PowerDistribution powerDistribution,
 			DistributionStrategy distributionStrategy, Sum sum) {
 		var totalExcessPower = calculateTotalExcessPower(powerDistribution, sum);
 		var totalFixedPower = powerDistribution.streamActives() //

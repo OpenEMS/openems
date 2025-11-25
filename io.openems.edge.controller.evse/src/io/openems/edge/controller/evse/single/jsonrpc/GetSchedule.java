@@ -15,15 +15,10 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
-import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
-import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.EshEvseSingle;
 import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule.Response;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EshWithDifferentModes;
-import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 
 /**
  * Represents a JSON-RPC Response for 'getSchedule'.
@@ -101,26 +96,25 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 		/**
 		 * Creates a {@link GetSchedule.Response}.
 		 * 
-		 * @param smartEnergyScheduleHandler  the {@link EshWithDifferentModes}
-		 * @param manualEnergyScheduleHandler the {@link EshWithOnlyOneMode}
+		 * @param eshEvseSingle the {@link EshEvseSingle}
 		 * @return the created {@link GetSchedule.Response}
 		 */
-		public static Response create(
-				EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler,
-				EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> manualEnergyScheduleHandler) {
+		public static Response create(EshEvseSingle eshEvseSingle) {
 			final Stream<Period> future;
-			if (smartEnergyScheduleHandler != null) {
+			if (eshEvseSingle.smartEnergyScheduleHandler() != null) {
 				// TODO historic
-				future = toPeriodsStream(smartEnergyScheduleHandler.getParentId(),
-						smartEnergyScheduleHandler.getSchedule(), //
+				future = toPeriodsStream(//
+						eshEvseSingle.smartEnergyScheduleHandler().getParentId(), //
+						eshEvseSingle.smartEnergyScheduleHandler().getSchedule(), //
 						(p, managedCons) -> managedCons > 0 //
 								? p.mode() //
 								: Mode.Actual.ZERO);
 
-			} else if (manualEnergyScheduleHandler != null) {
-				future = toPeriodsStream(manualEnergyScheduleHandler.getParentId(),
-						manualEnergyScheduleHandler.getSchedule(), //
-						(p, managedCons) -> managedCons > 0 && p.coc().abilities().isReadyForCharging() //
+			} else if (eshEvseSingle.manualEnergyScheduleHandler() != null) {
+				future = toPeriodsStream(//
+						eshEvseSingle.manualEnergyScheduleHandler().getParentId(), //
+						eshEvseSingle.manualEnergyScheduleHandler().getSchedule(), //
+						(p, managedCons) -> managedCons > 0 && p.coc().combinedAbilities().isReadyForCharging() //
 								? p.coc().mode() //
 								: Mode.Actual.ZERO);
 

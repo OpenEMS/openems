@@ -172,13 +172,6 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		}
 
 		/**
-		 * Gets the index of the default Mode.
-		 * 
-		 * @return the index of the default Mode
-		 */
-		public int getDefaultModeIndex();
-
-		/**
 		 * Gets the total number of available modes. This is implemented as
 		 * Array.length.
 		 * 

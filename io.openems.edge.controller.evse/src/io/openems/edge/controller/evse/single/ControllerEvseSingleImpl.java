@@ -37,20 +37,14 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
 import io.openems.edge.controller.evse.single.EnergyScheduler.Config.SmartOptimizationConfig;
-import io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext;
-import io.openems.edge.controller.evse.single.EnergyScheduler.SmartOptimizationContext;
+import io.openems.edge.controller.evse.single.EnergyScheduler.EshEvseSingle;
 import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule;
 import io.openems.edge.controller.evse.single.statemachine.Context;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
-import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EshWithDifferentModes;
-import io.openems.edge.energy.api.handler.EshWithOnlyOneMode;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
@@ -64,8 +58,8 @@ import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implements Controller, ControllerEvseSingle,
-		EnergySchedulable, OpenemsComponent, ComponentJsonApi, EventHandler {
+public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
+		implements Controller, ControllerEvseSingle, OpenemsComponent, ComponentJsonApi, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseSingleImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -87,8 +81,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 	private Config config;
 	private BiConsumer<Value<Boolean>, Value<Boolean>> onChargePointIsReadyForChargingChange = null;
-	private EshWithDifferentModes<Actual, SmartOptimizationContext, ScheduleContext> smartEnergyScheduleHandler = null;
-	private EshWithOnlyOneMode<ManualOptimizationContext, ScheduleContext> manualEnergyScheduleHandler = null;
+	private EshEvseSingle eshEvseSingle = new EshEvseSingle(null, null);
 
 	public ControllerEvseSingleImpl() {
 		this(Clock.systemDefaultZone());
@@ -131,18 +124,16 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 
 		switch (config.mode()) {
 		case SMART -> {
-			this.manualEnergyScheduleHandler = null;
-			this.smartEnergyScheduleHandler = buildSmartEnergyScheduleHandler(this, //
+			this.eshEvseSingle = EshEvseSingle.fromSmart(buildSmartEnergyScheduleHandler(this, //
 					() -> SmartOptimizationConfig.from(//
 							this.chargePoint.getChargePointAbilities(), //
 							this.electricVehicle.getElectricVehicleAbilities(), //
 							this.history.getAppearsToBeFullyCharged(), //
-							config.smartConfig()));
+							config.smartConfig())));
 		}
 
 		case ZERO, MINIMUM, SURPLUS, FORCE -> {
-			this.smartEnergyScheduleHandler = null;
-			this.manualEnergyScheduleHandler = buildManualEnergyScheduleHandler(this, //
+			this.eshEvseSingle = EshEvseSingle.fromManual(buildManualEnergyScheduleHandler(this, //
 					() -> ManualOptimizationContext.from(//
 							config.mode().actual, //
 							this.chargePoint.getChargePointAbilities(), //
@@ -151,7 +142,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 							this.getSessionEnergy().orElse(0), //
 							config.manualEnergySessionLimit() > 0 //
 									? config.manualEnergySessionLimit() //
-									: 30_000 /* fallback */));
+									: 30_000 /* fallback */)));
 		}
 		}
 
@@ -171,12 +162,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	}
 
 	private synchronized void onChargePointIsReadyForChargingChange(Value<Boolean> before, Value<Boolean> after) {
-		if (this.smartEnergyScheduleHandler != null) {
-			// Trigger Reschedule on change of IS_READY_FOR_CHARGING
-			this.smartEnergyScheduleHandler
-					.triggerReschedule("ControllerEvseSingle::onChargePointIsReadyForChargingChange from [" + before
-							+ "] to [" + after + "]");
-		}
+		this.eshEvseSingle.onChargePointIsReadyForChargingChange(before, after);
 
 		// Set AppearsToBeFullyCharged false
 		this.history.unsetAppearsToBeFullyCharged();
@@ -196,7 +182,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 					: this.config.mode().actual;
 
 		case SMART //
-			-> this.getSmartModeActual(Mode.Actual.ZERO);
+			-> this.eshEvseSingle.getSmartModeActual(Mode.Actual.ZERO);
 		};
 
 		final var chargePointAbilities = this.chargePoint.getChargePointAbilities();
@@ -295,18 +281,6 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		}
 	}
 
-	private Mode.Actual getSmartModeActual(Mode.Actual orElse) {
-		var esh = this.smartEnergyScheduleHandler;
-		if (esh == null) {
-			return orElse;
-		}
-		var period = esh.getCurrentPeriod();
-		if (period == null) {
-			return orElse;
-		}
-		return period.mode();
-	}
-
 	@Override
 	public String debugLog() {
 		return switch (this.config.logVerbosity()) {
@@ -319,18 +293,14 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 	}
 
 	@Override
-	public EnergyScheduleHandler getEnergyScheduleHandler() {
-		var esh = this.smartEnergyScheduleHandler;
-		if (esh != null) {
-			return esh;
-		}
-		return this.manualEnergyScheduleHandler;
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetSchedule(), call -> {
+			return GetSchedule.Response.create(this.eshEvseSingle);
+		});
 	}
 
 	@Override
-	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetSchedule(), call -> {
-			return GetSchedule.Response.create(this.smartEnergyScheduleHandler, this.manualEnergyScheduleHandler);
-		});
+	public EshEvseSingle getEshEvseSingle() {
+		return this.eshEvseSingle;
 	}
 }

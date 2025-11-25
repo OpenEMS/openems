@@ -4,7 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
-import static io.openems.edge.controller.evse.cluster.Utils.calculate;
+import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE;
 import static io.openems.edge.evse.api.chargepoint.Mode.Actual.MINIMUM;
@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
-import io.openems.edge.controller.evse.cluster.Utils.PowerDistribution;
+import io.openems.edge.controller.evse.cluster.RunUtils.PowerDistribution;
 import io.openems.edge.controller.evse.single.CombinedAbilities;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
@@ -348,7 +348,7 @@ public class UtilsTest {
 		var powerDistribution = calculate(createDummyClock(), DistributionStrategy.EQUAL_POWER, sum, List.of(ctrl),
 				LogVerbosity.NONE, log -> doNothing());
 		assertEquals("PowerDistribution{totalActivePower=0, entries=\n" //
-				+ "Entry{ctrl0, Params[actualMode=FORCE, activePower=null, history=History{entries=0}, " //
+				+ "Entry{Params[actualMode=FORCE, activePower=null, history=History{entries=0}, " //
 				+ "hysteresis=INACTIVE, phaseSwitching=null, appearsToBeFullyCharged=false, " //
 				+ "combinedAbilities=CombinedAbilities[chargePointAbilities=null, electricVehicleAbilities=null, " //
 				+ "isReadyForCharging=false, applySetPoint=Watt[phase=THREE_PHASE, min=0, max=0, step=1], phaseSwitch=null]], " //

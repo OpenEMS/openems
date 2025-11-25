@@ -1,6 +1,8 @@
 package io.openems.edge.controller.evse.cluster;
 
-import static io.openems.edge.controller.evse.cluster.Utils.calculate;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.edge.controller.evse.cluster.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -19,13 +21,21 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.ScheduleContext;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -34,7 +44,7 @@ import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, ControllerEvseCluster, Controller {
+		implements OpenemsComponent, ControllerEvseCluster, Controller, EnergySchedulable {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEvseClusterImpl.class);
 
@@ -52,6 +62,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	private volatile List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();
 
 	private Config config;
+	private EshWithDifferentModes<SingleModes, OptimizationContext, ScheduleContext> energyScheduleHandler;
 
 	public ControllerEvseClusterImpl() {
 		super(//
@@ -65,6 +76,15 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> new EnergyScheduler.EshConfig(//
+						this.config.distributionStrategy(), //
+						this.config.enabled() //
+								? this.ctrls.stream() //
+										.map(ControllerEvseSingle::getEshEvseSingle) //
+										.collect(toImmutableList()) //
+								: ImmutableList.of()));
 	}
 
 	@Override
@@ -83,5 +103,10 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 					// Apply actions
 					e.ctrl.apply(e.actions.build());
 				});
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

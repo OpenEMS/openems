@@ -78,6 +78,17 @@ public class EnergyFlow {
 	}
 
 	/**
+	 * Returns the total managed consumption.
+	 * 
+	 * @return the total managed consumption value
+	 */
+	public int getManagedConsumption() {
+		return this.managedConsumptions.values().stream() //
+				.mapToInt(Integer::intValue) //
+				.sum();
+	}
+
+	/**
 	 * Returns the managed consumption for a given ID.
 	 * 
 	 * @param id an identifier, e.g., the component ID

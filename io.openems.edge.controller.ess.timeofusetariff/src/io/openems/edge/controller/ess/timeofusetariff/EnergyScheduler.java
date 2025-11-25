@@ -53,7 +53,6 @@ public class EnergyScheduler {
 		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create(parent) //
 				.setSerializer(Config.serializer(), configSupplier) //
 
-				.setDefaultMode(BALANCING) //
 				.setAvailableModes(() -> {
 					var config = configSupplier.get();
 					return config != null //

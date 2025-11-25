@@ -2,6 +2,7 @@ package io.openems.edge.controller.evse.test;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.EnergyScheduler.EshEvseSingle;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 /**
@@ -10,6 +11,8 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
  */
 public class DummyControllerEvseSingle extends AbstractDummyControllerEvseSingle<DummyControllerEvseSingle>
 		implements ControllerEvseSingle, OpenemsComponent {
+
+	private EshEvseSingle eshEvseSingle = new EshEvseSingle(null, null);
 
 	public DummyControllerEvseSingle(String id) {
 		super(id, //
@@ -25,5 +28,10 @@ public class DummyControllerEvseSingle extends AbstractDummyControllerEvseSingle
 	@Override
 	public void apply(ChargePointActions actions) {
 		// do nothing
+	}
+
+	@Override
+	public EshEvseSingle getEshEvseSingle() {
+		return this.eshEvseSingle;
 	}
 }
