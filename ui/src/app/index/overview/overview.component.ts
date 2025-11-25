@@ -68,7 +68,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         this.filteredEdges = [];
         this.limitReached = false;
         this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
-          this.init();
+            this.init();
         });
     }
 
