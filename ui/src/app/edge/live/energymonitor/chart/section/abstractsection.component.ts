@@ -203,7 +203,7 @@ export abstract class AbstractSection {
     }
 
     /**
-     * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
+     * [attr.fill]="fillRef" has to be specific if using Safari (IOS Browser)
      * otherwise Energymonitor wont be displayed correctly
      */
     protected adjustFillRefbyBrowser(): void {

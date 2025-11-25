@@ -12,7 +12,7 @@
             <svg:stop offset="100%" stop-color="var(--ion-color-production)" />
             </svg:linearGradient>
             </svg:defs>
-            <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
+            <svg:polygon [attr.points]="energyFlow.points" [attr.fill]="fillRef" />
             <svg:polygon [@Production]="stateName" [attr.points]="energyFlow.animationPoints"
               style="fill: var(--ion-item-background)" />
             </svg:g>
