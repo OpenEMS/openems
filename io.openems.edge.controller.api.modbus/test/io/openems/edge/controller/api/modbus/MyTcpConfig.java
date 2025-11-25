@@ -1,14 +1,19 @@
-package io.openems.edge.controller.api.modbus.readwrite.tcp;
+package io.openems.edge.controller.api.modbus;
+
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import java.time.Clock;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
-public class MyConfig extends AbstractComponentConfig implements Config {
+public class MyTcpConfig extends AbstractComponentConfig
+		implements io.openems.edge.controller.api.modbus.readonly.tcp.Config,
+		io.openems.edge.controller.api.modbus.readwrite.tcp.Config {
 
-	protected static class Builder {
+	public static class Builder<T> {
+		private final Class<T> clazz;
+
 		private String id;
 		private boolean enabled;
 		private int port;
@@ -18,73 +23,82 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Clock clock;
 		private String[] writeChannels = {};
 		private String[] readChannels = {};
+		private LogVerbosity logVerbosity;
 
-		private Builder() {
+		private Builder(Class<T> clazz) {
+			this.clazz = clazz;
 		}
 
-		public Builder setWriteChannels(String... writeChannels) {
+		public Builder<T> setWriteChannels(String... writeChannels) {
 			this.writeChannels = writeChannels;
 			return this;
 		}
 
-		public Builder setReadChannels(String... readChannels) {
+		public Builder<T> setReadChannels(String... readChannels) {
 			this.readChannels = readChannels;
 			return this;
 		}
 
-		public Builder setId(String id) {
+		public Builder<T> setId(String id) {
 			this.id = id;
 			return this;
 		}
 
-		public Builder setClock(Clock clock) {
+		public Builder<T> setClock(Clock clock) {
 			this.clock = clock;
 			return this;
 		}
 
-		public Builder setEnabled(boolean enabled) {
+		public Builder<T> setEnabled(boolean enabled) {
 			this.enabled = enabled;
 			return this;
 		}
 
-		public Builder setPort(int port) {
+		public Builder<T> setPort(int port) {
 			this.port = port;
 			return this;
 		}
 
-		public Builder setComponentIds(String... componentIds) {
+		public Builder<T> setComponentIds(String... componentIds) {
 			this.componentIds = componentIds;
 			return this;
 		}
 
-		public Builder setMaxConcurrentConnections(int maxConcurrentConnections) {
+		public Builder<T> setMaxConcurrentConnections(int maxConcurrentConnections) {
 			this.maxConcurrentConnections = maxConcurrentConnections;
 			return this;
 		}
 
-		public Builder setApiTimeout(int apiTimeout) {
+		public Builder<T> setApiTimeout(int apiTimeout) {
 			this.apiTimeout = apiTimeout;
 			return this;
 		}
 
-		public MyConfig build() {
-			return new MyConfig(this);
+		public Builder<T> setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
+			return this;
+		}
+
+		public MyTcpConfig build() {
+			return new MyTcpConfig(this);
 		}
 	}
 
 	/**
 	 * Create a Config builder.
 	 *
+	 * @param <T>   type of Config
+	 * @param clazz {@link Class} of Config
 	 * @return a {@link Builder}
 	 */
-	public static Builder create() {
-		return new Builder();
+	public static <T> Builder<T> create(Class<T> clazz) {
+		return new Builder<T>(clazz);
 	}
 
 	private final Builder builder;
 
-	private MyConfig(Builder builder) {
-		super(Config.class, builder.id);
+	private MyTcpConfig(Builder builder) {
+		super(builder.clazz, builder.id);
 		this.builder = builder;
 	}
 
@@ -110,7 +124,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Component_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), false, this.component_ids());
+		return generateReferenceTargetFilter(this.id(), false, this.component_ids());
 	}
 
 	@Override
@@ -128,4 +142,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.writeChannels;
 	}
 
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
+	}
 }
