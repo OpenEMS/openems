@@ -7,7 +7,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.influxdb:influxdb-client-core;version='7.4.0',\
 	com.influxdb:influxdb-client-java;version='7.4.0',\
 	com.influxdb:influxdb-client-utils;version='7.4.0',\
-	com.influxdb:flux-dsl;version='6.12.0',\
+	com.influxdb:flux-dsl;version='7.4.0',\
 	com.squareup.okhttp3;version='5.3',\
 	com.squareup.retrofit2:retrofit;version='3.0.0',\
 	com.squareup.retrofit2:converter-gson;version='3.0.0',\
