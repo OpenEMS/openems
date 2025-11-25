@@ -85,8 +85,8 @@ public class ManualRelayControl extends
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNEL(AppDef.copyOfGeneric(relayContactDef(1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description")) //
+				.setTranslatedLabelWithAppPrefix(".outputChannel.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description"))//
 				.setRequired(true)), //
 		;
 

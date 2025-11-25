@@ -72,8 +72,8 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
-				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description") //
-						.setDefaultValue("192.168.1.199") //
+				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description")//
+						.setDefaultValue("192.168.1.199")//
 						.setRequired(true))), //
 		CHECK(AppDef.copyOfGeneric(CommonProps.installationHint((app, property, l, parameter) -> {
 			return translate(parameter.bundle(), "App.Hardware.KMtronic8Channel.installationHint");
@@ -82,7 +82,7 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 				.wrapField((app, property, l, parameter, field) -> {
 					field.requireTrue(l);
 
-					// TODO find better way to distinguish if the current form is for installing or
+				// TODO find better way to distinguish if the current form is for installing or
 					// updating
 					field.onlyShowIf(Exp.currentModelValue(IO_ID).isNull());
 				})), //

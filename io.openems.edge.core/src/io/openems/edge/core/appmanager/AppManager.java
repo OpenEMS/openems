@@ -12,14 +12,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface AppManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //
+		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING)//
 				.translationKey(AppManager.class, "AppManager.WrongAppConfiguration")), //
-		DEFECTIVE_APP(Doc.of(Level.INFO) //
-				// TODO should be a WARNING eventually
+		DEFECTIVE_APP(Doc.of(Level.INFO)//
+		// TODO should be a WARNING eventually
 				.translationKey(AppManager.class, "AppManager.DefectiveApp")), //
-		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO) //
+		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO)//
 				.translationKey(AppManager.class, "AppManager.AppsNotSynced")), //
-		HARDWARE_MISMATCH(Doc.of(Level.INFO) //
+		HARDWARE_MISMATCH(Doc.of(Level.INFO)//
 				.text("The current installed hardware app is not the same as defined in 'hardware.conf'")), //
 		;
 

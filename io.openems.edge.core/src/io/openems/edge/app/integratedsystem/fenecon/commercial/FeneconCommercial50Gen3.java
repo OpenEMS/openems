@@ -61,7 +61,6 @@ import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
-import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
@@ -95,12 +94,12 @@ public class FeneconCommercial50Gen3 extends
 	public enum Property implements PropertyParent {
 		ALIAS(alias()), //
 
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
 		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY) //
+					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
 							.equal(Exp.staticValue(SafetyCountry.GERMANY)));
 				}))),
 

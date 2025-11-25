@@ -86,8 +86,8 @@ public class ThresholdControl
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNELS(AppDef.copyOfGeneric(relayContactDef(true, 1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannels.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description") //
+				.setTranslatedLabelWithAppPrefix(".outputChannels.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description")//
 				.setRequired(true))), //
 		;
 

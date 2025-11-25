@@ -82,7 +82,7 @@ public class AppShellyMeter
 					field.setOptions(OptionsFactory.of(ShellyType.class), l);
 				}))),
 		PHASE(MeterProps.singlePhase()), //
-		TYPE(MeterProps.type(MeterType.GRID) //
+		TYPE(MeterProps.type(MeterType.GRID)//
 				.setDefaultValue(MeterType.CONSUMPTION_METERED)), //
 		;
 

@@ -9,14 +9,13 @@ import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_ACTIVE_POWER;
+import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.NO_DISCHARGE;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.OFF;
-import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Objects;
 
-import io.openems.edge.common.test.DummyMeta;
 import org.junit.Test;
 
 import com.google.gson.JsonNull;
@@ -30,6 +29,7 @@ import io.openems.edge.common.host.DummyHost;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;

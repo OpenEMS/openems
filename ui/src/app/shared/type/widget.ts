@@ -1,8 +1,7 @@
 // @ts-strict-ignore
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
-import { EdgePermission, Producttype, Utils } from "../shared";
-import { StringUtils } from "../utils/string/string.utils";
+import { EdgePermission } from "../shared";
 import { TEnumKeys } from "./utility";
 
 export enum WidgetClass {

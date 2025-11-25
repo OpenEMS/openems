@@ -1,9 +1,10 @@
 package io.openems.edge.controller.cleverpv;
 
-import io.openems.common.types.DebugMode;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+import io.openems.common.types.DebugMode;
 
 @ObjectClassDefinition(//
 		name = "Controller Clever-PV", //

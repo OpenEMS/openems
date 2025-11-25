@@ -13,7 +13,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.time.Duration;
 import java.util.Optional;
 
-import io.openems.edge.common.meta.Meta;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,6 +34,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.cleverpv.Types.SendData;
@@ -244,12 +244,14 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 			final int essMaxPower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
 			final double safetyMargin = 0.1F; // 10% less than max for safety
 
-			int maxGridFeedIn = Optional.of((int)Math.round(gridConnectionPointFuseLimit * (1 - safetyMargin)) * VOLT_PER_AMPERE * 3).orElse(0);
+			int maxGridFeedIn = Optional
+					.of((int) Math.round(gridConnectionPointFuseLimit * (1 - safetyMargin)) * VOLT_PER_AMPERE * 3)
+					.orElse(0);
 			int currentConsumption = Optional.ofNullable(this.sum.getConsumptionActivePower().get()).orElse(0);
 			int currentProduction = Optional.ofNullable(this.sum.getProductionActivePower().get()).orElse(0);
 
-			this.maxChargePower = Math.max(0,(maxGridFeedIn - currentConsumption + currentProduction));
-			this.maxChargePower = (int)Math.round(Math.min(essMaxPower, this.maxChargePower) * (1 - safetyMargin));
+			this.maxChargePower = Math.max(0, (maxGridFeedIn - currentConsumption + currentProduction));
+			this.maxChargePower = (int) Math.round(Math.min(essMaxPower, this.maxChargePower) * (1 - safetyMargin));
 
 			currentlyActiveEssMode = new Ess(this.remoteControlMode, null, Math.min(this.limit, this.maxChargePower));
 			essModes.add(new Ess(RemoteControlMode.CHARGE_FROM_GRID, this.maxChargePower, null));
@@ -264,8 +266,8 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private boolean isNoDischargeAllowed() {
 		return Optional.ofNullable(this.timeOfUseTariffController).map(TimeOfUseTariffController::getStateMachine)
 				.map(s -> switch (s) {
-					case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
-					case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
+				case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
+				case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
 				}).orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
 	}
 

@@ -23,7 +23,8 @@ public class OAuthRegistryGetTokenByCodeRequest extends JsonrpcRequest {
 	 * @return a {@link OAuthRegistryGetTokenByCodeRequest}
 	 */
 	public static OAuthRegistryGetTokenByCodeRequest from(JsonrpcRequest r) {
-		return new OAuthRegistryGetTokenByCodeRequest(r, OAuthGetTokenByCodeRequest.serializer().deserialize(r.getParams()));
+		return new OAuthRegistryGetTokenByCodeRequest(r,
+				OAuthGetTokenByCodeRequest.serializer().deserialize(r.getParams()));
 	}
 
 	public record OAuthGetTokenByCodeRequest(String identifier, String code, List<String> scopes, String codeVerifier) {

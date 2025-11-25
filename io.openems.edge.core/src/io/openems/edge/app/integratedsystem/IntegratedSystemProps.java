@@ -21,7 +21,6 @@ import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92.Property;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
@@ -49,7 +48,7 @@ public final class IntegratedSystemProps {
 					field.setOptions(SafetyCountry.optionsFactory(), l);
 				}));
 	}
-	
+
 	/**
 	 * Creates a {@link AppDef} for {@link GridCode}.
 	 * 

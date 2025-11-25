@@ -14,7 +14,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerCleverPv extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		UNABLE_TO_SEND(Doc.of(Level.WARNING) //
+		UNABLE_TO_SEND(Doc.of(Level.WARNING)//
 				.translationKey(ControllerCleverPv.class, "unableToSend")), //
 
 		REMOTE_CONTROL_MODE(Doc.of(RemoteControlMode.values())//
@@ -30,7 +30,7 @@ public interface ControllerCleverPv extends Controller, OpenemsComponent {
 				.persistencePriority(HIGH)), //
 
 		CUMULATED_CHARGE_FROM_GRID_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH)), //
 		;
 

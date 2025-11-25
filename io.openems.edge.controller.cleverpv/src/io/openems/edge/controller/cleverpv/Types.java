@@ -86,10 +86,14 @@ public final class Types {
 				});
 			}
 
-			private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.GRID_ACTIVE_POWER.id());
-			private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.PRODUCTION_ACTIVE_POWER.id());
-			private static final ChannelAddress SUM_ESS_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.ESS_SOC.id());
-			private static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.ESS_DISCHARGE_POWER.id());
+			private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+					Sum.ChannelId.GRID_ACTIVE_POWER.id());
+			private static final ChannelAddress SUM_PRODUCTION_ACTIVE_POWER = new ChannelAddress(
+					Sum.SINGLETON_COMPONENT_ID, Sum.ChannelId.PRODUCTION_ACTIVE_POWER.id());
+			private static final ChannelAddress SUM_ESS_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+					Sum.ChannelId.ESS_SOC.id());
+			private static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+					Sum.ChannelId.ESS_DISCHARGE_POWER.id());
 
 			/**
 			 * Creates a {@link CurrentData} instance from the given
