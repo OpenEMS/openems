@@ -31,5 +31,5 @@ public class IntUtils {
 		}
 		return (int) Math.ceil(value / precision) * precision;
 	}
-
+	
 }

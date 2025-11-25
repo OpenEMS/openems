@@ -138,12 +138,12 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 					.map(e -> {
 						var p = e.getValue();
 						final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
-						var managedCons = p.energyFlow().getManagedCons(parentId);
+						var managedCons = p.energyFlow().getManagedConsumption(parentId);
 						return new Response.Period(e.getKey(), p.price(), //
 								modeFunction.apply(p, managedCons).getValue(), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //
-								convertEnergyToPower.applyAsInt(p.energyFlow().getProd()), //
-								convertEnergyToPower.applyAsInt(p.energyFlow().getCons()), //
+								convertEnergyToPower.applyAsInt(p.energyFlow().getProduction()), //
+								convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption()), //
 								convertEnergyToPower.applyAsInt(managedCons));
 					});
 		}

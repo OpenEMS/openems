@@ -158,10 +158,10 @@ public record SimulationResult(//
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append("Time  Price  Prod  Cons   Ess  Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial");
+				.append("Time  Price  Prod  Cons   Ess  Grid  EssInitial");
 		var firstEntry = this.periods.firstEntry();
 		if (firstEntry != null) {
-			firstEntry.getValue().energyFlow.getManagedCons().keySet() //
+			firstEntry.getValue().energyFlow.getManagedConsumptions().keySet() //
 					.forEach(v -> log(b, " %-10s", v.substring(Math.max(0, v.length() - 10))));
 		}
 		b.append("\n");
@@ -172,18 +172,12 @@ public record SimulationResult(//
 			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
 			log(b, "%5.0f ", p.period.price());
-			log(b, "%5d ", ef.getProd());
-			log(b, "%5d ", ef.getCons());
+			log(b, "%5d ", ef.getProduction());
+			log(b, "%5d ", ef.getConsumption());
 			log(b, "%5d ", ef.getEss());
 			log(b, "%5d ", ef.getGrid());
-			log(b, "%10d ", ef.getProdToCons());
-			log(b, "%10d ", ef.getProdToGrid());
-			log(b, "%9d ", ef.getProdToEss());
-			log(b, "%10d ", ef.getGridToCons());
-			log(b, "%9d ", ef.getGridToEss());
-			log(b, "%9d ", ef.getEssToCons());
 			log(b, "%10d ", p.essInitialEnergy);
-			ef.getManagedCons().values().stream() //
+			ef.getManagedConsumptions().values().stream() //
 					.forEach(v -> log(b, "%10d", v));
 			this.schedules.forEach((esh, schedule) -> {
 				log(b, " %-10s ", esh.toModeString(schedule.get(time).modeIndex()));

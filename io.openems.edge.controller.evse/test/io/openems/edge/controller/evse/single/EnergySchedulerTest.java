@@ -9,7 +9,6 @@ import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +29,6 @@ import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
-import io.openems.edge.energy.api.simulation.Coefficient;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Mode.Actual;
@@ -60,8 +58,7 @@ public class EnergySchedulerTest {
 		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
-		assertEquals(4000 /* no discharge limitation */,
-				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(Coefficient.ESS, MAXIMIZE));
+		assertEquals(4000 /* no discharge limitation */, t.simulatePeriod().ef().setEss(4000));
 	}
 
 	@Test

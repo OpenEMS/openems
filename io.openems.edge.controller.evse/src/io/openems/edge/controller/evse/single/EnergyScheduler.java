@@ -149,7 +149,7 @@ public class EnergyScheduler {
 		int chargeEnergy = switch (mode) {
 		case FORCE -> period.duration().convertPowerToEnergy(applySetPointAbility.max());
 		case MINIMUM -> period.duration().convertPowerToEnergy(applySetPointAbility.min());
-		case SURPLUS -> calculateSurplusEnergy(period, applySetPointAbility, ef.production, ef.unmanagedConsumption);
+		case SURPLUS -> calculateSurplusEnergy(period, applySetPointAbility, ef.getSurplus());
 		case ZERO -> 0;
 		};
 
@@ -166,19 +166,18 @@ public class EnergyScheduler {
 	}
 
 	private static void applyChargeEnergy(String id, ScheduleContext csc, EnergyFlow.Model ef, int targetChargeEnergy) {
-		var actualChargeEnergy = ef.addConsumption(id, targetChargeEnergy);
+		var actualChargeEnergy = ef.addManagedConsumption(id, targetChargeEnergy);
 		if (csc != null) {
 			csc.applyCharge(actualChargeEnergy);
 		}
 	}
 
 	private static int calculateSurplusEnergy(Period period, ApplySetPoint.Ability.Watt applySetPointAbility,
-			int production, int consumption) {
+			int surplus) {
 		// TODO consider Non-Interruptable SURPLUS
 		// TODO this would have to be calculated by EVSE-Cluster to handle distribution
 		// correctly; current calculation causes more consumption per period than will
 		// be applied in reality
-		var surplus = production - consumption;
 		if (surplus < period.duration().convertPowerToEnergy(applySetPointAbility.min())) {
 			return 0; // Not sufficient surplus power
 		}
@@ -208,8 +207,8 @@ public class EnergyScheduler {
 				.map(i -> Mode.Actual.ZERO) //
 				.toArray(Mode.Actual[]::new);
 		for (var period : periodsBeforeTargetTime) {
-			remainingEnergy = calculateSurplusEnergy(period, coc.applySetPointAbility, period.production(),
-					period.consumption());
+			remainingEnergy = calculateSurplusEnergy(period, coc.applySetPointAbility,
+					period.production() - period.consumption());
 			modes[period.index()] = Mode.Actual.SURPLUS;
 			if (remainingEnergy < 0) {
 				break;
@@ -223,8 +222,8 @@ public class EnergyScheduler {
 					.toList();
 			for (var period : sortedPeriods) {
 				remainingEnergy += /* Remove SURPLUS from before */
-						calculateSurplusEnergy(period, coc.applySetPointAbility, period.production(),
-								period.consumption())
+						calculateSurplusEnergy(period, coc.applySetPointAbility,
+								period.production() - period.consumption())
 								/* Calculate FORCE energy */
 								- period.duration().convertPowerToEnergy(coc.applySetPointAbility.max());
 				modes[period.index()] = Mode.Actual.FORCE;
@@ -259,7 +258,7 @@ public class EnergyScheduler {
 		if (mode == Mode.Actual.ZERO) {
 			return mode;
 		}
-		var cons = ef.getManagedCons(id);
+		var cons = ef.getManagedConsumption(id);
 		if (cons == 0) {
 			return Mode.Actual.ZERO;
 		}

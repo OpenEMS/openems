@@ -25,8 +25,8 @@ public class RunOptimizerApp {
 			.addProperty("startTime", ZonedDateTime.parse("2025-03-17T07:45:00Z")) //
 			.addProperty("riskLevel", RiskLevel.MEDIUM) //
 			.add("grid", buildJsonObject() //
-					.addProperty("maxBuyPower", 10000) //
-					.addProperty("maxSellPower", 5000) //
+					.addProperty("maxBuyPower", 100000) //
+					.addProperty("maxSellPower", 100000) //
 					.build()) //
 			.add("ess", buildJsonObject() //
 					.addProperty("currentEnergy", 11000) //
