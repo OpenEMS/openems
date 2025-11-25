@@ -14,8 +14,7 @@ public interface AppManager extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING)//
 				.translationKey(AppManager.class, "AppManager.WrongAppConfiguration")), //
-		DEFECTIVE_APP(Doc.of(Level.INFO)//
-		// TODO should be a WARNING eventually
+		DEFECTIVE_APP(Doc.of(Level.INFO)// TODO should be a WARNING eventually
 				.translationKey(AppManager.class, "AppManager.DefectiveApp")), //
 		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO)//
 				.translationKey(AppManager.class, "AppManager.AppsNotSynced")), //
