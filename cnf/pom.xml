@@ -49,13 +49,13 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.1</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.3.1</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
