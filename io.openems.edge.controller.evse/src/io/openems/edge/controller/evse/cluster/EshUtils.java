@@ -1,13 +1,15 @@
 package io.openems.edge.controller.evse.cluster;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 import com.google.common.collect.ImmutableList;
 
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.ScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleScheduleContext;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
-import io.openems.edge.controller.evse.single.EnergyScheduler.Config.ManualOptimizationContext;
 import io.openems.edge.energy.api.simulation.EnergyFlow.Model;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.evse.api.chargepoint.Mode;
@@ -25,59 +27,62 @@ public class EshUtils {
 	public static class EnergyDistribution {
 
 		protected static EnergyDistribution fromSimulator(Period period, OptimizationContext clusterCoc,
-				ScheduleContext clusterCsc, SingleModes mode) {
-			final var surplusEnergy = period.duration()
-					.convertPowerToEnergy(period.production() - period.consumption());
+				ClusterScheduleContext clusterCsc, SingleModes mode) {
+			final var surplusEnergy = period.production() - period.consumption();
 
-			var b = ImmutableList.<EnergyDistribution.Entry>builder();
-			for (int i = 0, eshWithDifferentModesIndex = 0; i < clusterCoc.singleCocs().size(); i++) {
-				final var coc = clusterCoc.singleCocs().get(i);
-				final var abilities = coc.combinedAbilities();
-				final var csc = clusterCsc.singleCscs().get(i);
+			final var entries = clusterCoc.clusterConfig().singleParams().values().stream() //
+					.map(p -> {
+						final var csc = clusterCsc.getCsc(p.componentId());
 
-				final Mode.Actual singleMode;
-				final Integer remainingSessionEnergy;
-				if (coc instanceof ManualOptimizationContext moc) {
-					singleMode = moc.mode();
-					remainingSessionEnergy = moc.sessionEnergyLimit() > 0 //
-							? Math.max(0, moc.sessionEnergyLimit() - csc.getSessionEnergy()) //
-							: null;
-				} else {
-					singleMode = mode.modes().get(eshWithDifferentModesIndex).mode();
-					remainingSessionEnergy = null;
-					eshWithDifferentModesIndex++;
-				}
+						final var singleMode = switch (p.mode()) {
+						case FORCE, MINIMUM, ZERO, SURPLUS -> p.mode().actual;
+						case SMART -> mode.getMode(p.componentId());
+						};
 
-				final int maxEnergy;
-				final int energyInModeMinimum;
-				if (abilities.isReadyForCharging()) {
-					energyInModeMinimum = period.duration().convertPowerToEnergy(abilities.applySetPoint().min());
-					maxEnergy = TypeUtils.min(remainingSessionEnergy,
-							period.duration().convertPowerToEnergy(abilities.applySetPoint().max()));
-				} else {
-					energyInModeMinimum = 0;
-					maxEnergy = 0;
-				}
+						final var remainingSessionEnergy = switch (p.mode()) {
+						case FORCE, MINIMUM, ZERO, SURPLUS -> p.sessionEnergyLimit() > 0 //
+								? Math.max(0, p.sessionEnergyLimit() - csc.getSessionEnergy()) //
+								: null;
+						case SMART -> null;
+						};
 
-				b.add(new EnergyDistribution.Entry(csc, singleMode, energyInModeMinimum, maxEnergy));
-			}
-			return new EnergyDistribution(surplusEnergy, b.build());
+						final var abilities = p.combinedAbilities();
+						final int maxEnergy;
+						final int energyInModeMinimum;
+						if (abilities.isReadyForCharging()) {
+							energyInModeMinimum = period.duration()
+									.convertPowerToEnergy(abilities.applySetPoint().min());
+							maxEnergy = TypeUtils.min(remainingSessionEnergy,
+									period.duration().convertPowerToEnergy(abilities.applySetPoint().max()));
+						} else {
+							energyInModeMinimum = 0;
+							maxEnergy = 0;
+						}
+
+						return new EnergyDistribution.Entry(p.componentId(), csc, singleMode, energyInModeMinimum,
+								maxEnergy);
+					}) //
+					.collect(toImmutableList());
+
+			return new EnergyDistribution(surplusEnergy, entries);
 		}
 
 		/**
 		 * Holds {@link EnergyDistribution} for one single {@link ControllerEvseSingle}.
 		 */
 		public static class Entry {
+			public final String componentId;
 			public final Mode.Actual mode;
 			public final int energyInModeMinimum;
 			public final int maxEnergy;
 
-			private final io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext csc;
+			private final SingleScheduleContext csc;
 
 			protected int actualEnergy;
 
-			public Entry(io.openems.edge.controller.evse.single.EnergyScheduler.ScheduleContext csc, Mode.Actual mode,
-					int energyInModeMinimum, int maxEnergy) {
+			public Entry(String componentId, SingleScheduleContext csc, Mode.Actual mode, int energyInModeMinimum,
+					int maxEnergy) {
+				this.componentId = componentId;
 				this.csc = csc;
 				this.mode = mode;
 				this.energyInModeMinimum = Math.min(energyInModeMinimum, maxEnergy);
@@ -126,27 +131,26 @@ public class EshUtils {
 				return; // avoid divide by zero
 			}
 
-			final var equalEnergy = initialDistributableEnergy / entries.size();
+			final var equalEnergy = Math.ceilDiv(initialDistributableEnergy, entries.size());
 			var remaining = initialDistributableEnergy;
 			for (var e : entries) {
 				var before = e.actualEnergy;
-				var after = TypeUtils.fitWithin(0, e.maxEnergy, before + equalEnergy);
+				var after = TypeUtils.fitWithin(0, e.maxEnergy, before + Math.min(remaining, equalEnergy));
 				remaining -= after - before;
 
 				e.actualEnergy = after;
 			}
 
 			if (initialDistributableEnergy != remaining) {
-				// Recursive call to distribute remaining power
+				// Recursive call to distribute remaining energy
 				this.distributeEnergyEqual(remaining);
 			}
 		}
 
-		protected void applyChargeEnergy(String id, Model ef) {
-			// TODO what if addConsumption returns a smaller value than we want to apply?
-			ef.addManagedConsumption(id, this.sumActualEnergies());
+		protected void applyChargeEnergy(Model ef) {
 			this.entries.forEach(e -> {
-				e.csc.applyCharge(e.actualEnergy);
+				var actualManagedConsumption = ef.addManagedConsumption(e.componentId, e.actualEnergy);
+				e.csc.applyCharge(actualManagedConsumption);
 			});
 		}
 	}

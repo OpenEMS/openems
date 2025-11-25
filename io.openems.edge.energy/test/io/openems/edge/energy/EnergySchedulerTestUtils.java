@@ -43,7 +43,11 @@ public class EnergySchedulerTestUtils {
 		ESS_TIME_OF_USE_TARIFF("Controller.Ess.Time-Of-Use-Tariff",
 				new Factory<io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config>(
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config.serializer()));
+						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config.serializer())),
+		EVSE_CLUSTER("Evse.Controller.Cluster",
+				new Factory<io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig>(
+						io.openems.edge.controller.evse.cluster.EnergyScheduler::buildEnergyScheduleHandler,
+						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer()));
 
 		public final String factoryPid;
 		public final Factory<?> factory;

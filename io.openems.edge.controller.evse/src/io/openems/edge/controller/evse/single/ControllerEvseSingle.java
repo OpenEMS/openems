@@ -9,9 +9,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.evse.single.EnergyScheduler.EshEvseSingle;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
@@ -54,16 +52,10 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	/**
 	 * Apply {@link ChargePointActions}.
 	 * 
-	 * @param actions the {@link ChargePointActions}
+	 * @param actualMode the {@link Mode.Actual}
+	 * @param actions    the {@link ChargePointActions}
 	 */
-	public void apply(ChargePointActions actions);
-
-	/**
-	 * Gets the {@link EshEvseSingle} with {@link EnergyScheduleHandler}s.
-	 * 
-	 * @return the {@link EshEvseSingle}
-	 */
-	public EshEvseSingle getEshEvseSingle();
+	public void apply(Mode.Actual actualMode, ChargePointActions actions);
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SESSION_ENERGY}.

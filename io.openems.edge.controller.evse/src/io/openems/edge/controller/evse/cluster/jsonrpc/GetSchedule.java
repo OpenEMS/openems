@@ -1,27 +1,44 @@
-package io.openems.edge.controller.evse.single.jsonrpc;
+package io.openems.edge.controller.evse.cluster.jsonrpc;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
 import java.time.ZonedDateTime;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.edge.controller.evse.single.EnergyScheduler.EshEvseSingle;
-import io.openems.edge.controller.evse.single.jsonrpc.GetSchedule.Response;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
+import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Request;
+import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Response;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 
 /**
- * Represents a JSON-RPC Response for 'getSchedule'.
+ * Gets a Schedule.
+ *
+ * <p>
+ * Request:
+ *
+ * <pre>
+ * {
+ *   "jsonrpc": "2.0",
+ *   "id": "UUID",
+ *   "method": "getSchedule",
+ *   "params": {
+ *     "componentId": string
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>
+ * Response:
  *
  * <pre>
  * {
@@ -41,7 +58,7 @@ import io.openems.edge.evse.api.chargepoint.Mode;
  * }
  * </pre>
  */
-public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
+public class GetSchedule implements EndpointRequestType<Request, Response> {
 
 	@Override
 	public String getMethod() {
@@ -49,13 +66,33 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 	}
 
 	@Override
-	public JsonSerializer<EmptyObject> getRequestSerializer() {
-		return EmptyObject.serializer();
+	public JsonSerializer<Request> getRequestSerializer() {
+		return Request.serializer();
 	}
 
 	@Override
 	public JsonSerializer<Response> getResponseSerializer() {
 		return Response.serializer();
+	}
+
+	public static record Request(//
+			String componentId //
+	) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link AddAppInstance.Request}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Request> serializer() {
+			return jsonObjectSerializer(Request.class, //
+					json -> new Request(//
+							json.getString("componentId")), //
+					obj -> buildJsonObject() //
+							.addProperty("componentId", obj.componentId()) //
+							.build());
+		}
+
 	}
 
 	public record Response(ImmutableList<Period> schedule) {
@@ -96,50 +133,31 @@ public class GetSchedule implements EndpointRequestType<EmptyObject, Response> {
 		/**
 		 * Creates a {@link GetSchedule.Response}.
 		 * 
-		 * @param eshEvseSingle the {@link EshEvseSingle}
+		 * @param request the {@link Request}
+		 * @param esh     the {@link EnergyScheduleHandler}
+		 * 
 		 * @return the created {@link GetSchedule.Response}
 		 */
-		public static Response create(EshEvseSingle eshEvseSingle) {
-			final Stream<Period> future;
-			if (eshEvseSingle.smartEnergyScheduleHandler() != null) {
-				// TODO historic
-				future = toPeriodsStream(//
-						eshEvseSingle.smartEnergyScheduleHandler().getParentId(), //
-						eshEvseSingle.smartEnergyScheduleHandler().getSchedule(), //
-						(p, managedCons) -> managedCons > 0 //
-								? p.mode() //
-								: Mode.Actual.ZERO);
-
-			} else if (eshEvseSingle.manualEnergyScheduleHandler() != null) {
-				future = toPeriodsStream(//
-						eshEvseSingle.manualEnergyScheduleHandler().getParentId(), //
-						eshEvseSingle.manualEnergyScheduleHandler().getSchedule(), //
-						(p, managedCons) -> managedCons > 0 && p.coc().combinedAbilities().isReadyForCharging() //
-								? p.coc().mode() //
-								: Mode.Actual.ZERO);
-
-			} else {
-				future = Stream.of();
-			}
-
-			return new Response(future.collect(toImmutableList()));
-		}
-
-		private static <PERIOD extends EnergyScheduleHandler.Period<?>> Stream<Response.Period> toPeriodsStream(
-				String parentId, ImmutableSortedMap<ZonedDateTime, PERIOD> schedule,
-				BiFunction<PERIOD, Integer, Mode.Actual> modeFunction) {
-			return schedule.entrySet().stream() //
+		public static Response create(Request request,
+				EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> esh) {
+			return new Response(esh.getSchedule().entrySet().stream() //
 					.map(e -> {
-						var p = e.getValue();
+						final var componentId = request.componentId;
+						final var p = e.getValue();
 						final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
-						var managedCons = p.energyFlow().getManagedConsumption(parentId);
+						final var mode = Optional.ofNullable(//
+								// Mode from Schedule
+								p.mode().getMode(componentId))
+								// Mode configured in Evse.Controller.Single
+								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode().actual);
 						return new Response.Period(e.getKey(), p.price(), //
-								modeFunction.apply(p, managedCons).getValue(), //
+								mode.getValue(), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getProduction()), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption()), //
-								convertEnergyToPower.applyAsInt(managedCons));
-					});
+								convertEnergyToPower.applyAsInt(p.energyFlow().getManagedConsumption(componentId)));
+					}) //
+					.collect(toImmutableList()));
 		}
 
 		/**

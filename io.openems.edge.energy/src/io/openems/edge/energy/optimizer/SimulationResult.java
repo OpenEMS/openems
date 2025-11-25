@@ -158,7 +158,7 @@ public record SimulationResult(//
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append("Time  Price  Prod  Cons   Ess  Grid  EssInitial");
+				.append("Time  Price  Prod  Cons MCons   Ess  Grid  EssInitial");
 		var firstEntry = this.periods.firstEntry();
 		if (firstEntry != null) {
 			firstEntry.getValue().energyFlow.getManagedConsumptions().keySet() //
@@ -173,6 +173,7 @@ public record SimulationResult(//
 			log(b, "%s ", time.format(TIME_FORMATTER));
 			log(b, "%5.0f ", p.period.price());
 			log(b, "%5d ", ef.getProduction());
+			log(b, "%5d ", ef.getUnmanagedConsumption());
 			log(b, "%5d ", ef.getConsumption());
 			log(b, "%5d ", ef.getEss());
 			log(b, "%5d ", ef.getGrid());

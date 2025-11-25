@@ -1,4 +1,4 @@
-package io.openems.edge.controller.evse.single.jsonrpc;
+package io.openems.edge.controller.evse.cluster.jsonrpc;
 
 import static org.junit.Assert.assertEquals;
 
