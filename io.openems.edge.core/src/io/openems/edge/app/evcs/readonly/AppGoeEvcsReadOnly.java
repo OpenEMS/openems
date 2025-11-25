@@ -66,8 +66,8 @@ public class AppGoeEvcsReadOnly extends AbstractOpenemsAppWithProps<AppGoeEvcsRe
 		// Component-IDs
 		EVCS_ID(AppDef.componentId("evcs0")), //
 		ALIAS(CommonProps.alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.11") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
 		;
 

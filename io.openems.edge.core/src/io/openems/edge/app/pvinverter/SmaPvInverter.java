@@ -67,18 +67,18 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 
 	public static enum Property implements Type<Property, SmaPvInverter, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
-		PV_INVERTER_ID(AppDef.of(SmaPvInverter.class) //
+		PV_INVERTER_ID(AppDef.of(SmaPvInverter.class)//
 				.setDefaultValue("pvInverter0")), //
-		MODBUS_ID(AppDef.of(SmaPvInverter.class) //
+		MODBUS_ID(AppDef.of(SmaPvInverter.class)//
 				.setDefaultValue("modbus0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		IP(AppDef.copyOfGeneric(PvInverterProps.ip(), def -> def //
+		IP(AppDef.copyOfGeneric(PvInverterProps.ip(), def -> def//
 				.setRequired(true))), //
-		PORT(AppDef.copyOfGeneric(PvInverterProps.port(), def -> def //
+		PORT(AppDef.copyOfGeneric(PvInverterProps.port(), def -> def//
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
-				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description") //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def//
+				.setTranslatedDescriptionWithAppPrefix(".modbusUnitId.description")//
 				.setRequired(true))), //
 		PHASE(AppDef.copyOfGeneric(PvInverterProps.phase(), def -> def//
 				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager))), //

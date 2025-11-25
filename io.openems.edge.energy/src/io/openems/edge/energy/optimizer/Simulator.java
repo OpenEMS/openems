@@ -33,6 +33,7 @@ import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStream;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
@@ -125,12 +126,24 @@ public class Simulator {
 	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
 	 * @param fitness               the {@link Fitness} result
 	 */
-	public static void simulatePeriod(GlobalScheduleContext gsc, ImmutableMap<EnergyScheduleHandler, Object> cscs,
-			int periodIndex, ModeCombination modeCombination, Fitness fitness,
+	public static void simulatePeriod(//
+			GlobalScheduleContext gsc, //
+			ImmutableMap<EnergyScheduleHandler, Object> cscs, //
+			int periodIndex, //
+			ModeCombination modeCombination, //
+			Fitness fitness, //
 			BestScheduleCollector bestScheduleCollector) {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
-		final var ef = EnergyFlow.Model.from(gsc, period);
+
+		final EnergyFlow.Model ef;
+		try {
+			ef = EnergyFlow.Model.from(gsc, period);
+		} catch (OpenemsException e) {
+			LOG.error("Error while simulating period [" + periodIndex + "]", e);
+			fitness.addHardConstraintViolation();
+			return;
+		}
 
 		var eshsWithDifferentModesIndex = 0;
 		for (var esh : eshs) {
@@ -152,33 +165,33 @@ public class Simulator {
 
 		final EnergyFlow energyFlow = ef.solve();
 
-		if (energyFlow == null) {
-			LOG.error("Error while simulating period [" + periodIndex + "]");
-			// TODO add configurable debug logging
-			// LOG.info(simulation.toString());
-			// model.logConstraints();
-			// model.logMinMaxValues();
-			fitness.addHardConstraintViolation();
-		}
-
 		// Calculate Grid-Buy Cost
 		if (energyFlow.getGrid() > 0) {
 			// Filter negative prices
 			var price = max(0, period.price());
 
+			int buyFromGrid = max(0, energyFlow.getGrid());
+			int chargeEss = max(0, -energyFlow.getEss());
+			int gridToEss = Math.min(buyFromGrid, chargeEss);
+			int gridToCons = buyFromGrid - gridToEss;
 			fitness.addGridBuyCost(
 					// Cost for direct Consumption
-					energyFlow.getGridToCons() * price
+					gridToCons * price
 							// Cost for future Consumption after storage
-							+ max(0, energyFlow.getGridToEss()) * price * gsc.goc.riskLevel().efficiencyFactor);
+							+ max(0, gridToEss) * price * gsc.goc.riskLevel().efficiencyFactor);
 		}
 
 		// Calculate Grid-Sell Revenue
-		if (energyFlow.getGridToEss() < 0) {
+		if (energyFlow.getGrid() < 0) {
+			// Filter negative prices
 			var price = max(0, period.price());
+
+			int sellToGrid = max(0, -energyFlow.getGrid());
+			int dischargeEnergy = max(0, energyFlow.getEss());
+			int essToGrid = Math.min(sellToGrid, dischargeEnergy);
 			fitness.addGridSellRevenue(//
 					// Revenue for Discharge-to-Grid
-					energyFlow.getGridToEss() * -1 * price);
+					essToGrid * price);
 		}
 
 		if (bestScheduleCollector != null) {

@@ -1,5 +1,8 @@
 package io.openems.edge.controller.api.modbus;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+import static io.openems.edge.controller.api.modbus.CommonConfig.DEFAULT_UNIT_ID;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -7,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -21,7 +25,6 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.WriteChannel;
@@ -53,8 +56,8 @@ import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
 public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		implements ModbusApi, ComponentJsonApi, Controller {
 
-	public static final int UNIT_ID = 1;
-	public static final int DEFAULT_MAX_CONCURRENT_CONNECTIONS = 5;
+	protected static final int MAX_IDLE_SECONDS = 60;
+
 	private static final int PROCESS_IMAGE_RESET_TIME = 60;
 
 	/**
@@ -63,10 +66,15 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 */
 	protected final TreeMap<Integer, String> components = new TreeMap<>();
 	protected final TreeMap<Integer, ModbusRecord> records = new TreeMap<>();
-	protected volatile List<ModbusSlave> _components = new CopyOnWriteArrayList<>();
-	protected List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
+	protected final List<ModbusSlave> _components = new CopyOnWriteArrayList<>();
+	protected final List<OpenemsComponent> invalidComponents = new CopyOnWriteArrayList<>();
 	protected final Logger log = LoggerFactory.getLogger(AbstractModbusApi.class);
 	protected final MyProcessImage processImage;
+
+	/** Counts every Access for Read/Write-operations. */
+	private final AtomicInteger accessCounter = new AtomicInteger();
+	/** Counts every Write to a Register. */
+	private final AtomicInteger writeCounter = new AtomicInteger();
 
 	protected Instant lastModbusProcessImageErrorInstant = Instant.MIN;
 	protected Clock clock;
@@ -77,24 +85,27 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	protected final ApiWorker apiWorker = new ApiWorker(this,
 			new WriteHandler(this.handleWrites(), this::setOverrideStatus, this.handleTimeouts()));
 
-	private AbstractModbusConfig config;
+	private CommonConfig config;
 
-	protected AbstractModbusApi(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
+	protected AbstractModbusApi(//
+			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config, Clock clock)
+	protected void activate(ComponentContext context, ConfigurationAdmin cm, CommonConfig config, Clock clock)
 			throws OpenemsException {
 		this.config = config;
 		this.clock = clock;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
+		final var filter = generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
 		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
-		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
+		this.apiWorker.setTimeoutSeconds(config.apiTimeout() != null //
+				? config.apiTimeout() //
+				: 0 /* deactivate timeout */);
 
 		if (!this.isEnabled()) {
 			return;
@@ -105,13 +116,13 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	}
 
-	protected void modified(ComponentContext context, ConfigurationAdmin cm, AbstractModbusConfig config, Clock clock)
+	protected void modified(ComponentContext context, ConfigurationAdmin cm, CommonConfig config, Clock clock)
 			throws OpenemsException {
 		this.config = config;
 		this.clock = clock;
 		super.modified(context, config.id(), config.alias(), config.enabled());
 
-		final var filter = ConfigUtils.generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
+		final var filter = generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
 		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
 		if (this.config.equals(config)) {
@@ -145,6 +156,19 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
+	public final String debugLog() {
+		return switch (this.config.logVerbosity()) {
+		case NONE //
+			-> null;
+		case DEBUG_LOG //
+			-> new StringBuilder() //
+					.append("Access:").append(this.accessCounter.get()) //
+					.append("|Write:").append(this.writeCounter.get()) //
+					.toString();
+		};
+	}
+
 	protected void onStarted() {
 		AbstractModbusApi.this.logInfo(this.log, "ModbusApi started.");
 	}
@@ -171,7 +195,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 		private com.ghgande.j2mod.modbus.slave.ModbusSlave slave = null;
 
-		private AbstractModbusConfig currentConfig = null;
+		private CommonConfig currentConfig = null;
 
 		@Override
 		protected void forever() throws ModbusException {
@@ -180,7 +204,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 					// start new server
 					this.currentConfig = AbstractModbusApi.this.config;
 					this.slave = AbstractModbusApi.this.createSlave();
-					this.slave.addProcessImage(UNIT_ID, AbstractModbusApi.this.processImage);
+					this.slave.addProcessImage(DEFAULT_UNIT_ID, AbstractModbusApi.this.processImage);
 					this.slave.open();
 					if (isEnabled()) {
 						AbstractModbusApi.this.onStarted();
@@ -507,6 +531,20 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	public void setProcessImageFault(Clock clock) {
 		this.lastModbusProcessImageErrorInstant = Instant.now(clock);
 		this._setProcessImageFault(true);
+	}
+
+	/**
+	 * Increase the Read-Counter for DebugLog.
+	 */
+	public void incrementAccessCounter() {
+		this.accessCounter.incrementAndGet();
+	}
+
+	/**
+	 * Increase the Write-Counter for DebugLog.
+	 */
+	public void incrementWriteCounter() {
+		this.writeCounter.incrementAndGet();
 	}
 
 	/**

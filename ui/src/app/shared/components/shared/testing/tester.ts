@@ -13,6 +13,7 @@ import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
 import { ButtonLabel } from "../../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../../modal/modal-line/modal-line";
+import { OeImageComponent } from "../../oe-img/oe-img";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
 import { OeTester } from "./common";
@@ -142,6 +143,17 @@ export class OeFormlyViewTester {
                 return {
                     type: field.type,
                     name: field.name,
+                    style: field.style ?? "",
+                };
+            }
+
+            /**
+             * OeFormlyField.SvgLine
+             */
+            case "image-line": {
+                return {
+                    type: field.type,
+                    img: field.img,
                 };
             }
 
@@ -159,6 +171,18 @@ export class OeFormlyViewTester {
             case "buttons-from-form-control-line": {
                 return {
                     type: "buttons-from-form-control-line",
+                    name: field.name,
+                    controlName: field.controlName,
+                    buttons: field.buttons,
+                };
+            }
+
+            /**
+            * {@link OeFormlyField.RadioButtonsFromFormControlLine}
+            */
+            case "radio-buttons-from-form-control-line": {
+                return {
+                    type: "radio-buttons-from-form-control-line",
                     name: field.name,
                     controlName: field.controlName,
                     buttons: field.buttons,
@@ -376,13 +400,16 @@ export namespace OeFormlyViewTester {
         | Field.ValueLine
         | Field.ButtonsFromFormControlLine
         | Field.RangeButtonFromFormControlLine
+        | Field.RadioButtonsFromFormControlLine
+        | Field.ImageLine
         ;
 
     export namespace Field {
 
         export type InfoLine = {
             type: "info-line",
-            name: string
+            name: string,
+            style?: string,
         };
 
         export type Item = {
@@ -420,11 +447,22 @@ export namespace OeFormlyViewTester {
             controlName: string,
             buttons: ButtonLabel[],
         };
+
+        export type RadioButtonsFromFormControlLine = {
+            type: "radio-buttons-from-form-control-line";
+            name: string;
+            controlName: string;
+            buttons: ButtonLabel[];
+        };
         export type RangeButtonFromFormControlLine<T = any> = {
             type: "range-button-from-form-control-line",
             controlName: string,
             expectedValue: T,
             properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+        };
+        export type ImageLine = {
+            type: "image-line",
+            img: OeImageComponent["img"],
         };
     }
 

@@ -108,9 +108,9 @@ public class AlpitronicEvcs
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		NUMBER_OF_CONNECTORS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(4))),
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
 				.setDefaultValue("192.168.1.100")), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY), def -> {
@@ -122,15 +122,15 @@ public class AlpitronicEvcs
 									.greaterThanEqual(Exp.staticValue(2)));
 							return;
 						}
-						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id) //
-								.map(Exp::staticValue) //
+						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id)//
+								.map(Exp::staticValue)//
 								.collect(Exp.toArrayExpression())
 								.every(v -> v.notEqual(Exp.currentModelValue(Nameable.of(EVCS_ID.apply(0)))));
 
-						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS) //
-								.greaterThanEqual(Exp.staticValue(2)) //
+						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS)//
+								.greaterThanEqual(Exp.staticValue(2))//
 								.or(expressionForSingleUpdate));
-					}); //
+					});//
 				})), //
 		;
 
