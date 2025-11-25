@@ -16,8 +16,8 @@ export class FlatComponent extends AbstractFlatWidget {
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
     protected readonly CONVERT_ENERIX_CONTROL_STATE = Converter.CONVERT_ENERIX_CONTROL_STATE(this.translate);
 
-    protected controlModeNumber: ControlMode | null = null;
-    protected controlMode: State | null = null;
+    protected controlMode: ControlMode | null = null;
+    protected state: State | null = null;
     protected readOnly: boolean | null = null;
     protected overwriteLabel: string | null = null;
     protected unableToSend: boolean | null = null;
@@ -41,7 +41,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_READ_ONLY),
-            new ChannelAddress(this.component.id, "ControlMode"),
+            new ChannelAddress(this.component.id, "RemoteControlMode"),
             new ChannelAddress(this.component.id, "UnableToSend"),
         ];
 
@@ -53,27 +53,27 @@ export class FlatComponent extends AbstractFlatWidget {
         const data = currentData.allComponents;
 
         this.readOnly = data[`${id}/${FlatComponent.PROPERTY_READ_ONLY}`];
-        this.controlModeNumber = data[`${id}/ControlMode`];
+        this.controlMode = data[`${id}/RemoteControlMode`];
         this.unableToSend = data[`${id}/UnableToSend`];
 
         if (this.readOnly) {
-            this.controlMode = this.unableToSend ? State.DISCONNECTED : State.CONNECTED;
+            this.state = this.unableToSend ? State.DISCONNECTED : State.CONNECTED;
             return;
         } else {
 
-            if (this.controlModeNumber === null) {
+            if (this.controlMode === null) {
                 return;
             }
 
-            this.controlMode = this.mapControlMode(this.controlModeNumber);
-            this.overwriteLabel = this.getOverwriteLabel(this.controlModeNumber);
+            this.state = this.mapControlMode(this.controlMode);
+            this.overwriteLabel = this.getOverwriteLabel(this.controlMode);
         }
     }
 
     private mapControlMode(mode: ControlMode): State {
         switch (mode) {
             case ControlMode.IDLE:
-                return this.component.properties.mode === "REMOTE_CONTROL"
+                return this.component.properties.controlMode === "REMOTE_CONTROL"
                     ? State.ON
                     : State.OFF;
             case ControlMode.NO_DISCHARGE:

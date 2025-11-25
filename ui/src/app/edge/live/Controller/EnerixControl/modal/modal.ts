@@ -10,14 +10,14 @@ import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 })
 export class ModalComponent extends AbstractModal {
 
-    private static PROPERTY_MODE: string = "_PropertyMode";
+    private static PROPERTY_CONTROL_MODE: string = "_PropertyControlMode";
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
 
     protected readonly CONVERT_ENERIX_CONTROL_STATE = Converter.CONVERT_ENERIX_CONTROL_STATE(this.translate);
 
     protected propertyMode: string | null = null;
-    protected controlModeNumber: number | null = null;
-    protected controlMode: State | null = null;
+    protected controlMode: ControlMode | null = null;
+    protected state: State | null = null;
     protected readOnly: boolean | null = true;
     protected overwriteLabel: string | null = null;
     protected unableToSend: boolean | null = null;
@@ -26,9 +26,9 @@ export class ModalComponent extends AbstractModal {
         if (!this.component) { return []; }
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
+            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_CONTROL_MODE),
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_READ_ONLY),
-            new ChannelAddress(this.component.id, "ControlMode"),
+            new ChannelAddress(this.component.id, "RemoteControlMode"),
             new ChannelAddress(this.component.id, "UnableToSend"),
         ];
 
@@ -38,35 +38,35 @@ export class ModalComponent extends AbstractModal {
     protected override onCurrentData(currentData: CurrentData) {
         if (!this.component) { return []; }
 
-        this.propertyMode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_MODE];
-        this.controlModeNumber = currentData.allComponents[this.component.id + "/ControlMode"];
+        this.propertyMode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_CONTROL_MODE];
+        this.controlMode = currentData.allComponents[this.component.id + "/RemoteControlMode"];
         this.readOnly = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_READ_ONLY];
         this.unableToSend = currentData.allComponents[this.component.id + "/UnableToSend"];
 
         if (this.readOnly) {
-            this.controlMode = this.unableToSend ? State.disconnected : State.connected;
+            this.state = this.unableToSend ? State.disconnected : State.connected;
             return;
         } else {
-            if (this.controlModeNumber === null) {
+            if (this.controlMode === null) {
                 return;
             }
-            switch (this.controlModeNumber) {
+            switch (this.controlMode) {
                 case ControlMode.idle:
-                    this.controlMode =
-                        this.component.properties.mode === "REMOTE_CONTROL" ? State.on : State.off;
+                    this.state =
+                        this.component.properties.controlMode === "REMOTE_CONTROL" ? State.on : State.off;
                     break;
                 case ControlMode.noDischarge:
-                    this.controlMode = State.noDischarge;
+                    this.state = State.noDischarge;
                     break;
                 case ControlMode.forceCharge:
-                    this.controlMode = State.forceCharge;
+                    this.state = State.forceCharge;
                     break;
                 default:
-                    this.controlMode = State.off;
+                    this.state = State.off;
                     break;
             }
 
-            if (this.controlModeNumber != ControlMode.idle) {
+            if (this.controlMode != ControlMode.idle) {
                 this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE");
             } else {
                 this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
@@ -76,7 +76,7 @@ export class ModalComponent extends AbstractModal {
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
-            mode: new FormControl(this.component?.properties.mode),
+            controlMode: new FormControl(this.component?.properties.controlMode),
         });
     }
 }
