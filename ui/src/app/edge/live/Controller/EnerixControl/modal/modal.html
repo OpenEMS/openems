@@ -1,6 +1,5 @@
 @if(isInitialized){
   <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
-
     @if(readOnly){
       <ng-container>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -26,9 +25,8 @@
         </oe-modal-line>
         <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_INFO' | translate">
         </oe-modal-info-line>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
       }
-
-      <oe-modal-horizontal-line></oe-modal-horizontal-line>
     }
   </oe-modal>
 }

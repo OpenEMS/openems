@@ -245,10 +245,11 @@
           "NO_INPUT": "Kein Befehl",
           "DISCONNECTED": "Keine Verbindung",
           "CONNECTED": "Verbunden",
-          "FORCE_CHARGE": "Beladung erzwungen",
+          "CHARGE_FROM_GRID": "Beladung vom Netz erzwungen",
           "READ_ONLY": "Lesend",
           "NOTE": "Bitte beachten Sie:",
-          "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist."
+          "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist.",
+          "CHARGE_CONSUMPTION": "ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird."
         },
         "HEAT": {
           "TEMPERATURE": "Wassertemperatur",

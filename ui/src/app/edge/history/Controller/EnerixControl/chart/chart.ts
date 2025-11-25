@@ -15,11 +15,10 @@ export class ChartComponent extends AbstractHistoryChart {
     public static getChartData(component: EdgeConfig.Component, chartType: "line" | "bar", translate: TranslateService): HistoryUtils.ChartData {
 
         const input: HistoryUtils.InputChannel[] = [
-            { name: "ControlMode", powerChannel: new ChannelAddress(component.id, "ControlMode") },
+            { name: "RemoteControlMode", powerChannel: new ChannelAddress(component.id, "RemoteControlMode") },
             { name: "CumulatedInactiveTime", energyChannel: new ChannelAddress(component.id, "CumulatedInactiveTime") },
             { name: "CumulatedNoDischargeTime", energyChannel: new ChannelAddress(component.id, "CumulatedNoDischargeTime") },
-            // disabled till next release
-            // { name: "CumulatedForceChargeTime", energyChannel: new ChannelAddress(component.id, "CumulatedForceChargeTime") },
+            { name: "CumulatedChargeFromGridTime", energyChannel: new ChannelAddress(component.id, "CumulatedChargeFromGridTime") },
         ];
 
         return {
@@ -28,7 +27,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 if (chartType === "line") {
                     return [{
                         name: translate.instant("GENERAL.STATE"),
-                        converter: () => data["ControlMode"]?.map(val => {
+                        converter: () => data["RemoteControlMode"]?.map(val => {
                             const value = Utils.multiplySafely(val, 1000);
                             return value != null ? Utils.addSafely(value, 1) : null;
                         }),
@@ -39,7 +38,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
                 return [
                     {
-                        name: translate.instant("'CumulatedInactiveTime'"),
+                        name: translate.instant("GENERAL.OFF"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/CumulatedInactiveTime"],
                         converter: () => data["CumulatedInactiveTime"]?.map(val => {
                             return Utils.multiplySafely(val, 1000);
@@ -48,7 +47,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         stack: 0,
                     },
                     {
-                        name: translate.instant("'CumulatedNoDischargeTime'"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/CumulatedNoDischargeTime"],
                         converter: () => data["CumulatedNoDischargeTime"]?.map(val => {
                             return Utils.multiplySafely(val, 1000);
@@ -56,16 +55,15 @@ export class ChartComponent extends AbstractHistoryChart {
                         color: ChartConstants.Colors.YELLOW,
                         stack: 0,
                     },
-                    // Disabled till next release
-                    // {
-                    //     name: translate.instant("'CumulatedForceChargeTime'"),
-                    //     nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/CumulatedForceChargeTime"],
-                    //     converter: () => data["CumulatedForceChargeTime"]?.map(val => {
-                    //         return Utils.multiplySafely(val, 1000);
-                    //     }),
-                    //     color: ChartConstants.Colors.RED,
-                    //     stack: 0,
-                    // },
+                    {
+                        name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID"),
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/CumulatedChargeFromGridTime"],
+                        converter: () => data["CumulatedChargeFromGridTime"]?.map(val => {
+                            return Utils.multiplySafely(val, 1000);
+                        }),
+                        color: ChartConstants.Colors.RED,
+                        stack: 0,
+                    },
                 ];
 
             },

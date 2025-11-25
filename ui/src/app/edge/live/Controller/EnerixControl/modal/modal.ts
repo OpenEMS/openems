@@ -14,13 +14,14 @@ export class ModalComponent extends AbstractModal {
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
 
     protected readonly CONVERT_ENERIX_CONTROL_STATE = Converter.CONVERT_ENERIX_CONTROL_STATE(this.translate);
-
     protected propertyMode: string | null = null;
     protected controlMode: ControlMode | null = null;
     protected state: State | null = null;
     protected readOnly: boolean | null = true;
     protected overwriteLabel: string | null = null;
     protected unableToSend: boolean | null = null;
+    protected isEssChargeFromGridAllowed: boolean | null = null;
+
 
     protected override getChannelAddresses(): ChannelAddress[] {
         if (!this.component) { return []; }
@@ -30,6 +31,7 @@ export class ModalComponent extends AbstractModal {
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_READ_ONLY),
             new ChannelAddress(this.component.id, "RemoteControlMode"),
             new ChannelAddress(this.component.id, "UnableToSend"),
+            new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"),
         ];
 
         return channelAddresses;
@@ -42,6 +44,7 @@ export class ModalComponent extends AbstractModal {
         this.controlMode = currentData.allComponents[this.component.id + "/RemoteControlMode"];
         this.readOnly = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_READ_ONLY];
         this.unableToSend = currentData.allComponents[this.component.id + "/UnableToSend"];
+        this.isEssChargeFromGridAllowed = currentData.allComponents["_meta" + "/IsEssChargeFromGridAllowed"];
 
         if (this.readOnly) {
             this.state = this.unableToSend ? State.disconnected : State.connected;
@@ -78,6 +81,18 @@ export class ModalComponent extends AbstractModal {
         return this.formBuilder.group({
             controlMode: new FormControl(this.component?.properties.controlMode),
         });
+    }
+
+    protected toggleIsEssChargeFromGridAllowed(event: CustomEvent) {
+        this.service.getCurrentEdge()
+            .then(edge =>
+                edge.updateComponentConfig(this.websocket, "_meta", [{
+                    name: "isEssChargeFromGridAllowed", value: event.detail["checked"],
+                }]).then(() => {
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                }).catch((reason) => {
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
+                }));
     }
 }
 
