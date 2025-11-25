@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplusplugs;
+package io.openems.edge.io.shelly.shellyplugsgen3;
 
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
@@ -31,7 +31,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.Plus.PlugS", //
+		name = "IO.Shelly.PlugSG3", //
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 )
@@ -39,8 +39,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlusPlugSImpl extends IoShellyPlugSBaseImpl implements IoShellyPlusPlugs, DigitalOutput,
-		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShellyPlugSGen3Impl extends IoShellyPlugSBaseImpl implements IoShellyPlugSGen3, IoShellyPlugSBase,
+		DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
@@ -49,17 +49,18 @@ public class IoShellyPlusPlugSImpl extends IoShellyPlugSBaseImpl implements IoSh
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
+
 	@Reference
 	private MDnsDiscovery mDnsDiscovery;
 
-	public IoShellyPlusPlugSImpl() {
+	public IoShellyPlugSGen3Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				SinglePhaseMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				IoShellyPlugSBase.ChannelId.values(), //
-				IoShellyPlusPlugs.ChannelId.values() //
+				IoShellyPlugSGen3.ChannelId.values() //
 		);
 	}
 

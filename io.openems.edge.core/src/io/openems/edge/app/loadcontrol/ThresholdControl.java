@@ -117,7 +117,7 @@ public class ThresholdControl
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);

@@ -19,7 +19,18 @@ public class StreamUtils {
 	 *         Map entries
 	 */
 	public static <K, V> Stream<Entry<K, V>> dictionaryToStream(Dictionary<K, V> dictionary) {
-		Enumeration<K> keys = dictionary.keys();
-		return Collections.list(keys).stream().map(key -> Map.entry(key, dictionary.get(key)));
+		return enumerationToStream(dictionary.keys()).map(key -> Map.entry(key, dictionary.get(key)));
 	}
+
+	/**
+	 * Converts an Enumeration to a Stream.
+	 * 
+	 * @param <T>  the type of elements in the Enumeration
+	 * @param keys the Enumeration to be converted
+	 * @return a Stream containing all elements from the Enumeration
+	 */
+	public static <T> Stream<T> enumerationToStream(Enumeration<T> keys) {
+		return Collections.list(keys).stream();
+	}
+
 }

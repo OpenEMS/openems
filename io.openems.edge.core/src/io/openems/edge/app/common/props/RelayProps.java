@@ -24,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.IoGpio;
+import io.openems.edge.app.meter.shelly.AppShellyMeter;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
@@ -274,6 +275,17 @@ public final class RelayProps {
 	}
 
 	/**
+	 * Creates a {@link RelayContactFilter} for
+	 * {@link AppShellyMeter} components.
+	 *
+	 * @return the {@link RelayContactFilter}
+	 */
+	public static RelayContactFilter shellyFilter() {
+		return RelayContactFilter.create() //
+				.withComponentFilter(t -> !t.serviceFactoryPid().equals("IO.Shelly.Plus.PlugS"));
+	}
+
+	/**
 	 * Creates the {@link PreferredRelay} if a Home 20/30 relay board is installed.
 	 * 
 	 * @param isHomeInstalled if a Home is installed
@@ -339,7 +351,7 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-			AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
+	AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
 		return relayContactDef(false, contactPosition, allContacts);
 	}
 
@@ -357,8 +369,7 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-			AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition,
-					Nameable... allContacts) {
+	AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition, Nameable... allContacts) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
 			def.setDefaultValue((app, property, l, parameter) -> {
 				final var preferredRelay = parameter.relayContactInformation().preferredRelays[contactPosition - 1];

@@ -179,12 +179,6 @@
 			<artifactId>jenetics</artifactId>
 			<version>8.3.0</version>
 		</dependency>
-		<!-- javax -->
-		<dependency>
-			<groupId>javax.jmdns</groupId>
-			<artifactId>jmdns</artifactId>
-			<version>3.4.1</version>
-		</dependency>
 		<!-- net -->
 		<dependency>
 			<!-- Used by SDNotify -->
@@ -309,6 +303,14 @@
 			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
 			<version>1.2.5</version>
 		</dependency>
+		<dependency>
+			<!-- Java mDNS Library -->
+			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
+		    <groupId>org.jmdns</groupId>
+		    <artifactId>jmdns</artifactId>
+		    <version>3.6.2</version>
+		</dependency>
+		<!-- com -->
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>

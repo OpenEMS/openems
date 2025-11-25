@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplusplugs;
+package io.openems.edge.io.shelly.shellyplugsgen3;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -8,8 +8,8 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
-		name = "IO Shelly Plus Plug S", //
-		description = "Implements the Shelly Plus Plug S")
+		name = "IO Shelly Plug S Gen3", //
+		description = "Implements the Shelly Plug S  Gen3")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -39,5 +39,5 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	DebugMode debugMode() default DebugMode.OFF;
 
-	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus Plug S [{id}]";
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Plug S Gen3 [{id}]";
 }

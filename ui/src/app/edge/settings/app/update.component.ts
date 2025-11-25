@@ -104,7 +104,7 @@ export class UpdateAppComponent implements OnInit {
                             form: form,
                             isDeleting: false,
                             isUpdating: false,
-                            fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model)),
+                            fields: GetAppAssistant.setInitialModel(GetAppAssistant.postprocess(structuredClone(appAssistant)).fields, structuredClone(model), instance.instanceId),
                             properties: model,
                             steps: steps,
                         });
