@@ -46,11 +46,11 @@ describe("EVSE phase switching", () => {
                                 name: TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_THREE_PHASE"),
                                 value: PhaseSwitching.FORCE_THREE_PHASE,
                             },
-                            {
-                                name: TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.EVCS.AUTOMATIC_SWITCHING"),
-                                value: PhaseSwitching.AUTOMATIC_SWITCHING, // not implemented yet
-                                disabled: true,
-                            },
+                            // {
+                            //     name: TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.EVCS.AUTOMATIC_SWITCHING"),
+                            //     value: PhaseSwitching.AUTOMATIC_SWITCHING, // not implemented yet
+                            //     disabled: true,
+                            // },
                         ]),
                 ], title: "evseChargePoint0",
             }, new FormGroup({
