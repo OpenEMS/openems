@@ -1,181 +1,136 @@
 {
-  "GENERAL": {
-    "ACTIVE": "aktivně",
-    "ACTUAL_POWER": "E-Car Nabíjecí výkon",
-    "APPLY": "Aplikovat",
-    "AUTARCHY": "Soběstačnost",
-    "AUTOMATIC": "Automaticky",
-    "CANCEL": "zrušení",
-    "CAPACITY": "Kapacita",
-    "CHANGE_ACCEPTED": "Změna byla přijata",
-    "CHANGE_FAILED": "Změna se nezdařila",
-    "CHARGE_DISCHARGE": "Debetní/vybíjení",
-    "COMPONENT_COUNT": "Počet komponentů",
-    "COMPONENT_INACTIVE": "Komponenta je neaktivní!",
-    "CONNECTION_LOST": "Spojení ztraceno. Pokouší se znovu připojit.",
-    "CONSUMPTION": "Spotřeba",
-    "CUMULATIVE": "Kumulativní Hodnoty",
-    "CURRENT_NAME": "Aktuální Jméno",
-    "CURRENT_VALUE": "Aktuální hodnota",
-    "DATE_FORMAT": "dd.MM.yyyy",
-    "DIGITAL_INPUTS": "Digitální vstupy",
-    "NUMBER_OF_COMPONENTS": "Počet komponentů",
-    "DIRECT_CONSUMPTION": "Přímá spotřeba",
-    "FAULT": "Chyba",
-    "GRID": "Síť",
-    "GRID_BUY": "Nákup ze sítě",
-    "GRID_BUY_ADVANCED": "Nákup",
-    "GRID_SELL": "Prodej do sítě",
-    "GRID_SELL_ADVANCED": "Prodej",
-    "HISTORY": "Historie",
-    "INACTIVE": "Neaktivní",
-    "INFO": "Informace",
-    "INPUT_NOT_VALID": "Vstup je neplatný",
-    "INSUFFICIENT_RIGHTS": "Nedostatečná práva",
-    "LIVE": "Live",
-    "LOAD": "nálož",
-    "MANUAL": "pokyny",
-    "MANUALLY": "Ruční",
-    "MEASURED_VALUE": "Měřená Hodnota",
-    "MODE": "Režim",
-    "MORE": "Další",
-    "NO_VALUE": "Žádná hodnota",
-    "OFF": "Pryč",
-    "OFF_GRID": "žádné připojení k síti!",
-    "OK": "ok",
-    "ON": "zapnutý",
-    "OTHER_CONSUMPTION": "jiná spotřeba",
-    "PERCENTAGE": "Procentuální vyjádření",
-    "PERIOD_FROM_TO": "od {{ value1 }} do {{ value2 }}",
-    "POWER": "Výkon",
-    "PRODUCTION": "Výroba",
-    "RENAME": "Přejmenovat",
-    "REPORT_VALUE": "Nahlásit nesprávná data",
-    "REPORT": "Zpráva",
-    "OPEN": "Otevřít",
-    "BACK": "Zpět",
-    "RESET": "Resetovat",
-    "SELF_CONSUMPTION": "Vlastní spotřeba",
-    "SOC": "Stav nabití",
-    "STATE": "Stát",
-    "STORAGE_SYSTEM": "Systém bateriového úložiště",
-    "SYSTEM_STATE": "Stav systému",
-    "TOTAL": "celková spotřeba",
-    "TOTAL_STATE": "Celkový stav",
-    "WARNING": "Varování",
-    "WEEK": {
-      "MONDAY": "Pondělí",
-      "TUESDAY": "Úterý",
-      "WEDNESDAY": "Středa",
-      "THURSDAY": "Čtvrte",
-      "FRIDAY": "Pátek",
-      "SATURDAY": "Sobota",
-      "SUNDAY": "Neděle"
-    },
-    "MONTH": {
-      "JANUARY": "Leden",
-      "FEBRUARY": "Únor",
-      "MARCH": "Březen",
-      "APRIL": "Duben",
-      "MAY": "Květen",
-      "JUNE": "Cerven",
-      "JULY": "Cervenec",
-      "AUGUST": "Srpen",
-      "SEPTEMBER": "Září",
-      "OCTOBER": "Ríjen",
-      "NOVEMBER": "Listopad",
-      "DECEMBER": "Prosinec"
-    },
-    "SAVE": "Uložit",
-    "TEMPERATURE": "Teplota",
-    "SUBSCRIBED_SUCCESSFULLY": "Úspěšně uloženy odebírané kanály",
-    "LOADED_SUBSCRIBED_SUCCESSFULLY": "Načtená uložená konfigurace kanálu",
-    "SUFFIX": {
-      "HOUR": "hodin"
-    },
-    "TIME": {
-      "HOUR": "Hodina",
-      "HOURS": "Hodiny",
-      "MINUTE": "Minuta",
-      "MINUTES": "Minuty",
-      "DAY": "Den",
-      "DAYS": "Dny"
-    },
-    "DISCHARGE": "Vypouštění",
-    "CHARGE": "Načítání"
+  "ABOUT": {
+    "BUILD": "Aktuální verze",
+    "CONTACT": "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
+    "CURRENT_DEVELOPMENTS": "Aktuální vývoj",
+    "DEVELOPED": "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
+    "FAQ": "Často kladené otázky (FAQ)",
+    "INFO": "Jazyk nemůže být trvale změněn v místním online monitorování z technických důvodů.",
+    "LANGUAGE": "Select language:",
+    "OPEN_EMS": "Více o OpenEMS",
+    "PATCHNOTES": "Změny v monitorování tohoto sestavení"
   },
-  "MENU": {
-    "ACCESS_LEVEL": "Úroveň přístupu",
-    "EDGE_SETTINGS": "Předvolby",
-    "GENERAL_SETTINGS": "Obecné Nastavení",
-    "INDEX": "Přehled",
-    "LOGOUT": "Odhlásit",
-    "MENU": "Menu",
-    "NAME": "Název",
-    "OVERVIEW": "Všechny systémy",
-    "SETTINGS": "nastavení",
-    "USER": "Uživatel",
-    "CHANGELOG": "Changelog"
-  },
-  "INDEX": {
-    "ALL_CONNECTED": "Všechna připojení aktivní.",
-    "CONNECTION_IN_PROGRESS": "Navázání spojení...",
-    "CONNECTION_FAILED": "Připojení k {{ value }} selhalo.",
-    "CONNECTION_SUCCESSFUL": "Úspěšně připojeno k {{ value }}.",
-    "DEVICE_OFFLINE": "Zařízení není připojeno!",
-    "IS_OFFLINE": "OpenEMS je ve stavu offline!",
-    "LOGGED_IN_AS": "Registrováno jako",
-    "TO_ENERGYMONITOR": "Do Monitoringu energetických toků…",
-    "TYPE": "Typ"
-  },
-  "LOGIN": {
-    "TITLE": "Přihlásit se",
-    "PREAMBLE": "Pro přihlášení jako host zadejte své heslo nebo potvrďte výchozí zadání.",
-    "PASSWORD_LABEL": "Heslo",
-    "PASSWORD_RESET": "Obnovení hesla",
-    "AUTHENTICATION_FAILED": "Ověření se nezdařilo",
-    "USER": "Uživatel"
-  },
-  "REGISTER": {
-    "SEGMENT": {
-      "USER": "Uživatel",
-      "INSTALLER": "Instalatér"
-    },
-    "FORM": {
-      "USER": {
-        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
-      "INSTALLER": {
-        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
-      "CONTACT_DETAILS": "Kontaktní údaje",
-      "COMPANY_NAME": "název společnosti",
-      "FIRSTNAME": "jméno",
-      "LASTNAME": " Příjmení",
-      "STREET": "Ulice",
-      "ZIP": "Ulice",
-      "CITY": "Město",
-      "COUNTRY": "Město",
-      "PHONE": "Telefonní číslo",
-      "EMAIL": "E-Mailem",
-      "PASSWORD": "Heslo",
-      "CONFIRM_PASSWORD": "Potvrzení hesla",
-      "IS_ELECTRICIAN": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
-      "ACCEPT_AGB": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
-      "SUBSCRIBE_NEWSLETTER": "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON."
-    },
-    "BUTTON": "Vytvořit",
-    "ERRORS": {
-      "REQUIRED_FIELDS": "Vyplňte prosím všechna pole",
-      "PASSWORD_NOT_EQUAL": "Hesla nejsou stejná"
-    },
-    "SUCCESS": "Úspěšná registrace"
-  },
+  "DEBUG_MODE": "Ladění režim",
   "EDGE": {
+    "CONFIG": {
+      "ALERTING": {
+        "ACTIVATE": "Activate",
+        "DELAY": "Delay",
+        "TOAST": {
+          "ERROR": "Chyba při načítání nastavení",
+          "SUCCESS": "Přijatá nastavení"
+        }
+      },
+      "APP": {
+        "AVAILABLE": "Dostupné na",
+        "BUY_APP": "koupit aplikaci",
+        "CREATE_APP": "vytvořit aplikaci",
+        "DELETE_APP": "odstranit aplikaci",
+        "HEADER": "Správce aplikací je v současné době v první testovací verzi.",
+        "INCOMPATIBLE": "Nekompatibilní",
+        "INSTALLED": "Nainstalováno",
+        "MODIFY_APP": "upravit aplikaci",
+        "NOT_AVAILABLE": "Není k dispozici",
+        "UPDATE_APP": "aktualizace aplikace"
+      },
+      "BRIDGE": {
+        "NEW_CONNECTION": "Nové připojení...",
+        "NEW_DEVICE": "Nové zařízení..."
+      },
+      "CONTROLLER": {
+        "APP": "App:",
+        "INTERNALLY_ID": "Vnitřní ID:",
+        "PRIORITY": "Priorita:"
+      },
+      "INDEX": {
+        "ADD_COMPONENTS": "Nainstalujte komponenty",
+        "ADJUST_COMPONENTS": "Nakonfigurujte komponenty",
+        "ALERTING": "Upozornění",
+        "BRIDGE": "Připojená zařízení",
+        "CONTROLLER": "Aplikace",
+        "DATA_STORAGE": "Ukládání dat",
+        "EXECUTE_SIMULATOR": "Zahájit simulaci",
+        "LIVE_LOG": "Live log systému",
+        "LOG": "Log",
+        "MANUAL_CONTROL": "Manuální ovládání",
+        "NETWORK_CONFIGURATION": "Konfigurace sítě",
+        "RENAME_COMPONENTS": "Přejmenovat Komponenty",
+        "SCHEDULER": "Plánovač aplikací",
+        "SIMULATOR": "Simulátor",
+        "SYSTEM_EXECUTE": "Spusťte příkaz systému",
+        "SYSTEM_PROFILE": "Systémový Profil"
+      },
+      "LOG": {
+        "AUTOMATIC_UPDATING": "Automatický update",
+        "LEVEL": "Úroveň",
+        "MESSAGE": "Zpráva",
+        "SOURCE": "Zdroj",
+        "TIMESTAMP": "Časové razítko"
+      },
+      "MORE": {
+        "MANUAL_COMMAND": "Manuální příkaz ",
+        "MANUALPQ_POWER_SPECIFICATION": "Specifikace výkonu",
+        "MANUALPQ_RESET": "Resetovat",
+        "MANUALPQ_SUBMIT": "Zadání",
+        "REFU_INVERTER": "REFU Střídač",
+        "REFU_START": "Začít",
+        "REFU_START_STOP": "Start/Stop střídače",
+        "REFU_STOP": "Stop",
+        "SEND": "Odeslat"
+      },
+      "SCHEDULER": {
+        "ALWAYS": "Vždy",
+        "CLASS": "Třída:",
+        "CONTACT": "Došlo k chybě. Prosím kontaktujte <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
+        "NEW_SCHEDULER": "Nový plánovač...",
+        "NOT_IMPLEMENTED": "Zadání nebylo implementováno:"
+      }
+    },
+    "HISTORY": {
+      "ACTIVE_DURATION": "aktivní trvání",
+      "APR": "Dub",
+      "AUG": "Srp",
+      "BEGIN_DATE": "Vyberte datum zahájení",
+      "DAY": "Den",
+      "DEC": "Pro",
+      "END_DATE": "Vyberte datum ukončení",
+      "EXPORT": "stáhnout jako soubor programu Excel",
+      "FEB": "Úno",
+      "FRI": "Pát",
+      "GO": "Jdi!",
+      "JAN": "Led",
+      "JUL": "ČeC",
+      "JUN": "ČeN",
+      "LAST_MONTH": "Poslední měsíc",
+      "LAST_WEEK": "Poslední týden",
+      "LAST_YEAR": "Poslední rok",
+      "MAR": "Bře",
+      "MAY": "Kvě",
+      "MON": "Pon",
+      "MONTH": "Měsíc",
+      "NO_DATA": "data nejsou k dispozici",
+      "NOV": "Lis",
+      "OCT": "Říj",
+      "OTHER_PERIOD": "Další období",
+      "PERIOD": "Období",
+      "SAT": "Sob",
+      "SELECTED_DAY": "{{ value }}",
+      "SELECTED_PERIOD": "Zvolené období: ",
+      "SEP": "Zář",
+      "SUN": "Ned",
+      "THU": "Čtv",
+      "TODAY": "Dnes",
+      "TRY_AGAIN": "Zkuste to později znovu...",
+      "TUE": "Úte",
+      "WED": "Stř",
+      "WEEK": "Týden",
+      "YEAR": "Rok",
+      "YESTERDAY": "Včera"
+    },
     "INDEX": {
       "EMERGENCY_RESERVE": {
-        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.",
-        "EMERGENCY_RESERVE": "pohotovostní rezerva"
+        "EMERGENCY_RESERVE": "pohotovostní rezerva",
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %."
       },
       "ENERGYMONITOR": {
         "ACTIVE_POWER": "Činný výkon",
@@ -190,51 +145,88 @@
       },
       "WIDGETS": {
         "AUTARCHY_INFO": "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
-        "PHASES_INFO": "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
-        "SELFCONSUMPTION_INFO": "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
-        "TWO_WAY_INFO_GRID": "Záporné hodnoty odpovídají dodávkám ze sítě, Kladné hodnoty odpovídají napájení ze sítě",
-        "INFO_STORAGE_FOR_CHARGE": "Záporné hodnoty odpovídají zatížení paměti",
-        "INFO_STORAGE_FOR_DISCHARGE": "Kladné hodnoty odpovídají vybití paměti",
         "CHANNELTRESHOLD": {
+          "ACTIVE_TIME_OVER_PERIOD": "Čas",
           "OUTPUT": "Výstup",
-          "TITLE": "Řadič prahové úrovně kanálu",
-          "ACTIVE_TIME_OVER_PERIOD": "Čas"
+          "TITLE": "Řadič prahové úrovně kanálu"
         },
-        "SINGLETHRESHOLD": {
-          "ABOVE": "O",
-          "BEHAVIOUR": "Chování",
-          "BELOW": "Níže",
-          "CURRENT_VALUE": "Aktuální hodnota",
-          "DEPENDEND_ON": "Podle toho",
-          "MIN_SWITCHING_TIME": "Minimální přepínací",
-          "MORE_THAN_MAX_POWER": "Hodnota nesmí být nižší než maximální výkon ovládaného zařízení",
-          "OTHER": "Ostatní",
-          "RELATION_ERROR": "Prahová hodnota musí být větší než spínané zatížení",
-          "SWITCHED_LOAD_POWER": "Spínané zatížení",
-          "SWITCH_OFF_ABOVE": "Vypněte pomocí",
-          "SWITCH_OFF_BELOW": "Vypněte pod",
-          "SWITCH_ON_ABOVE": "Zapněte přes",
-          "SWITCH_ON_BELOW": "Zapněte pod",
-          "THRESHOLD": "Prahována"
+        "CHP": {
+          "HIGH_THRESHOLD": "vysoký práh",
+          "LOW_THRESHOLD": "Nízký práh"
         },
         "DELAYED_SELL_TO_GRID": {
-          "SELL_TO_GRID_POWER_LIMIT": "Poplatek výše",
           "CONTINUOUS_SELL_TO_GRID_POWER": "Výboj níže",
-          "RELATION_ERROR": "Limit poplatku musí být vyšší než limit vybití"
+          "RELATION_ERROR": "Limit poplatku musí být vyšší než limit vybití",
+          "SELL_TO_GRID_POWER_LIMIT": "Poplatek výše"
         },
-        "PEAKSHAVING": {
-          "ASYMMETRIC_INFO": "Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.",
-          "END_DATE": "Datum Ukončení",
-          "END_TIME": "Cas ukončení",
-          "MOST_STRESSED_PHASE": "Většinou stresovaná fáze",
-          "PEAKSHAVING": "špičkové holení",
-          "PEAKSHAVING_POWER": "Uvolnění",
-          "RECHARGE": "Nabíjecí Výkon",
-          "RECHARGE_POWER": "Načítání pod",
-          "RELATION_ERROR": "Mez vypouštění musí být větší nebo rovna limitu zatížení",
-          "START_DATE": "Datum Začátku",
-          "START_TIME": "Doba spuštění",
-          "START_TIME_CHARGE": "Čas zahájení načítání"
+        "EVCS": {
+          "ACTIVATE_CHARGING": "Aktivujte nabíjecí stanici",
+          "ADMINISTRATION": {
+            "CAR_ADMINISTRATION": "Správa aut",
+            "CUSTOM_CAR_INFO": "V takovém případě lze vaše vozidlo načíst efektivně pouze z určitého výkonu. Toto tlačítko je součástí vašich možností konfigurace a také automatického načítání.",
+            "RENAULT_ZOE": "Je na této nabíjecí stanici naložen hlavně Renault Zoe?"
+          },
+          "AMOUNT_OF_CHARGING_STATIONS": "Počet nabíjecích stanic",
+          "CABLE": "Kabel",
+          "CABLE_NOT_CONNECTED": "Kabel není připojen",
+          "CAR_FULL": "Auto je plné",
+          "CHARGE_LIMIT_REACHED": "Bylo dosaženo limitu nabíjení",
+          "CHARGE_MODE": "režim načítání",
+          "CHARGE_TARGET": "Cíl nabíjení",
+          "CHARGING": "Se nabíjí",
+          "CHARGING_LIMIT": "Omezení nabíjení",
+          "CHARGING_POWER": "Nabíjecí výkon",
+          "CHARGING_STATION": "Nabíjecí stanice",
+          "CHARGING_STATION_CLUSTER": "Klastr nabíjecí stanice",
+          "CHARGING_STATION_DEACTIVATED": "Nabíjecí stanice byla deaktivována",
+          "CHARGING_STATION_PLUGGED_IN": "Nabíjecí stanice zapojena",
+          "CHARGING_STATION_PLUGGED_IN_EV": "Nabíjecí stanice + e-car připojené",
+          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Nabíjecí stanice + e-car připojené + uzamčena",
+          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Nabíjecí stanice zapojena + uzamčena",
+          "CLUSTER_CONFIG_ERROR": "V konfiguraci clusteru Evcs došlo k chybě",
+          "CURRENT_CHARGE": "Aktuální nabíjení",
+          "ENERGY_LIMIT": "Limit energie",
+          "ENERGY_SINCE_BEGINNING": "Energie od posledního začátku nabíjení",
+          "ENFORCE_CHARGING": "Prosazování poplatků",
+          "ERROR": "Chyba",
+          "FORCE_CHARGE_MODE": {
+            "INFO": "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
+            "MAX_CHARGING": "Maximální síla náboje",
+            "MAX_CHARGING_DETAILS": "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen.",
+            "NAME": "Nucené nakládání",
+            "SHORT_NAME": "Ruční"
+          },
+          "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
+          "NO_CONNECTION": {
+            "DESCRIPTION": "Nelze jej připojit k nabíjecí stanici.",
+            "HELP1": "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě",
+            "HELP1_1": "Při opětovném zapnutí se objeví IP nabíjecí stanice"
+          },
+          "NOT_AUTHORIZED": "Neautorizovaný",
+          "NOT_CHARGING": "Nenabíjí se",
+          "NOT_READY_FOR_CHARGING": "Není připraven k nabíjení",
+          "OPTIMIZED_CHARGE_MODE": {
+            "CHARGING_PRIORITY": {
+              "CAR": "Car",
+              "INFO": "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
+              "STORAGE": "Storage"
+            },
+            "INFO": "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
+            "MIN_CHARGE_POWER": "nakládací sazba",
+            "MIN_CHARGING": "Garance minimálního poplatku",
+            "MIN_INFO": "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
+            "NAME": "Optimalizované zatížení",
+            "SHORT_NAME": "automaticky"
+          },
+          "OVERVIEW_CHARGING_STATIONS": "Přehled nabíjecích stanic",
+          "PRIORITIZATION": "Stanovení priorit",
+          "READY_FOR_CHARGING": "Připraven k nabíjení",
+          "STARTING": "Začínající",
+          "STATUS": "Postavení",
+          "TOTAL_CHARGE": "Celkový poplatek",
+          "TOTAL_CHARGING_POWER": "Celkový nabíjecí výkon",
+          "UNKNOWN": "Neznámý",
+          "UNPLUGGED": "Odpojena"
         },
         "GRID_OPTIMIZED_CHARGE": {
           "CHARGING_DELAYED": "Zpožděné nabíjení",
@@ -258,20 +250,20 @@
           "MEDIUM": "Střední",
           "MINIMUM_CHARGE": "Minimální zatížení",
           "RISK_DESCRIPTION": {
+            "HIGH": {
+              "FUNCTION_DESCRIPTION": "Poměrně pozdější nabíjení úložného systému",
+              "PV_CURTAIL": "Vyšší pravděpodobnost, že nedojde ke zkrácení FV systémuVyšší pravděpodobnost, že nedojde ke zkrácení FV systému",
+              "STORAGE_DESCRIPTION": "Menší pravděpodobnost, že systém úložiště bude plně nabitý"
+            },
             "LOW": {
               "FUNCTION_DESCRIPTION": "Relativně brzké načtení obchodu",
-              "STORAGE_DESCRIPTION": "Vyšší pravděpodobnost, že paměť bude plně načtena",
-              "PV_CURTAIL": "Nižší pravděpodobnost, že nedojde ke zkrácení FV systému"
+              "PV_CURTAIL": "Nižší pravděpodobnost, že nedojde ke zkrácení FV systému",
+              "STORAGE_DESCRIPTION": "Vyšší pravděpodobnost, že paměť bude plně načtena"
             },
             "MEDIUM": {
               "FUNCTION_DESCRIPTION": "Srovnatelně rovnoměrné načítání obchodu",
-              "STORAGE_DESCRIPTION": "Vysoká pravděpodobnost, že úložiště bude plně načteno",
-              "PV_CURTAIL": "Vysoká pravděpodobnost, že nedojde ke zkrácení FV systému"
-            },
-            "HIGH": {
-              "FUNCTION_DESCRIPTION": "Poměrně pozdější nabíjení úložného systému",
-              "STORAGE_DESCRIPTION": "Menší pravděpodobnost, že systém úložiště bude plně nabitý",
-              "PV_CURTAIL": "Vyšší pravděpodobnost, že nedojde ke zkrácení FV systémuVyšší pravděpodobnost, že nedojde ke zkrácení FV systému"
+              "PV_CURTAIL": "Vysoká pravděpodobnost, že nedojde ke zkrácení FV systému",
+              "STORAGE_DESCRIPTION": "Vysoká pravděpodobnost, že úložiště bude plně načteno"
             }
           },
           "RISK_PROPENSITY": "Sklon k riziku",
@@ -284,96 +276,10 @@
             "NO_LIMIT_ACTIVE": "Není aktivní žádný limit načítání",
             "NO_LIMIT_POSSIBLE": "Žádné omezení není možné (omezeno ovládacími prvky s vyšší prioritou)",
             "NOT_DEFINED": "Není definovaný",
-            "STORAGE_ALREADY_FULL": "Paměť je již plná",
-            "PASSED_END_TIME": "Překročen časový limit"
+            "PASSED_END_TIME": "Překročen časový limit",
+            "STORAGE_ALREADY_FULL": "Paměť je již plná"
           },
           "STORAGE_CAPACITY": "skladovací kapacita (viditelné pouze pro správce)"
-        },
-        "CHP": {
-          "HIGH_THRESHOLD": "vysoký práh",
-          "LOW_THRESHOLD": "Nízký práh"
-        },
-        "EVCS": {
-          "ACTIVATE_CHARGING": "Aktivujte nabíjecí stanici",
-          "AMOUNT_OF_CHARGING_STATIONS": "Počet nabíjecích stanic",
-          "CABLE": "Kabel",
-          "CABLE_NOT_CONNECTED": "Kabel není připojen",
-          "CAR_FULL": "Auto je plné",
-          "CHARGE_LIMIT_REACHED": "Bylo dosaženo limitu nabíjení",
-          "CHARGE_MODE": "režim načítání",
-          "CHARGE_TARGET": "Cíl nabíjení",
-          "CHARGING": "Se nabíjí",
-          "CHARGING_LIMIT": "Omezení nabíjení",
-          "CHARGING_POWER": "Nabíjecí výkon",
-          "CHARGING_STATION": "Nabíjecí stanice",
-          "CHARGING_STATION_CLUSTER": "Klastr nabíjecí stanice",
-          "CHARGING_STATION_DEACTIVATED": "Nabíjecí stanice byla deaktivována",
-          "CHARGING_STATION_PLUGGED_IN": "Nabíjecí stanice zapojena",
-          "CHARGING_STATION_PLUGGED_IN_EV": "Nabíjecí stanice + e-car připojené",
-          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "Nabíjecí stanice + e-car připojené + uzamčena",
-          "CHARGING_STATION_PLUGGED_IN_LOCKED": "Nabíjecí stanice zapojena + uzamčena",
-          "CLUSTER_CONFIG_ERROR": "V konfiguraci clusteru Evcs došlo k chybě",
-          "CURRENT_CHARGE": "Aktuální nabíjení",
-          "ENERGY_SINCE_BEGINNING": "Energie od posledního začátku nabíjení",
-          "ENERGY_LIMIT": "Limit energie",
-          "ENFORCE_CHARGING": "Prosazování poplatků",
-          "ERROR": "Chyba",
-          "MAX_ENERGY_RESTRICTION": "Omezte maximální energii na jedno nabití",
-          "NOT_AUTHORIZED": "Neautorizovaný",
-          "NOT_CHARGING": "Nenabíjí se",
-          "NOT_READY_FOR_CHARGING": "Není připraven k nabíjení",
-          "OVERVIEW_CHARGING_STATIONS": "Přehled nabíjecích stanic",
-          "PRIORITIZATION": "Stanovení priorit",
-          "READY_FOR_CHARGING": "Připraven k nabíjení",
-          "STARTING": "Začínající",
-          "STATUS": "Postavení",
-          "TOTAL_CHARGE": "Celkový poplatek",
-          "TOTAL_CHARGING_POWER": "Celkový nabíjecí výkon",
-          "UNKNOWN": "Neznámý",
-          "UNPLUGGED": "Odpojena",
-          "ADMINISTRATION": {
-            "CAR_ADMINISTRATION": "Správa aut",
-            "CUSTOM_CAR_INFO": "V takovém případě lze vaše vozidlo načíst efektivně pouze z určitého výkonu. Toto tlačítko je součástí vašich možností konfigurace a také automatického načítání.",
-            "RENAULT_ZOE": "Je na této nabíjecí stanici naložen hlavně Renault Zoe?"
-          },
-          "NO_CONNECTION": {
-            "DESCRIPTION": "Nelze jej připojit k nabíjecí stanici.",
-            "HELP1_1": "Při opětovném zapnutí se objeví IP nabíjecí stanice",
-            "HELP1": "Zkontrolujte, zda je nabíjecí stanice zapnutá a zda je dostupná prostřednictvím sítě"
-          },
-          "OPTIMIZED_CHARGE_MODE": {
-            "INFO": "V tomto režimu je zatížení vozidla přizpůsobeno aktuální výrobě a spotřebě.",
-            "MIN_CHARGE_POWER": "nakládací sazba",
-            "MIN_CHARGING": "Garance minimálního poplatku",
-            "MIN_INFO": "Pokud chcete zabránit tomu, aby se auto nenabíjelo v noci, můžete nastavit minimální poplatek.",
-            "NAME": "Optimalizované zatížení",
-            "SHORT_NAME": "automaticky",
-            "CHARGING_PRIORITY": {
-              "CAR": "Car",
-              "INFO": "V závislosti na prioritizaci bude vybraná komponenta načtena jako první",
-              "STORAGE": "Storage"
-            }
-          },
-          "FORCE_CHARGE_MODE": {
-            "INFO": "V tomto režimu je vynuceno zatížení vozidla, i. je vždy zaručeno, že vozidlo bude nabíjeno, i když nabíjecí stanice potřebuje přístup k síti.",
-            "MAX_CHARGING": "Maximální síla náboje",
-            "MAX_CHARGING_DETAILS": "Pokud vůz nemůže načíst zadanou maximální hodnotu, je výkon automaticky omezen.",
-            "NAME": "Nucené nakládání",
-            "SHORT_NAME": "Ruční"
-          }
-        },
-        "HEATINGELEMENT": {
-          "ACTIVE_FORCED": "Aktivní (Minimální doba)",
-          "ACTIVE_LEVEL": "Aktivní level",
-          "ENDTIME": "Poslední dny",
-          "ENERGY": "Energie",
-          "GUARANTEE_MINIMUM_HEATING": "Záruka minimálního vytápění",
-          "HEATINGELEMENT": "Topný článek",
-          "MINIMAL_ENERGY_AMOUNT": "Minimální množství energie",
-          "MINIMUM_RUN_TIME": "Minimální doba",
-          "PRIORITY": "Priorita",
-          "TIME": "čas",
-          "TIME_COUNTDOWN": "Čas začít"
         },
         "HEAT_PUMP": {
           "ABOVE_SOC": "a od státu nabití",
@@ -390,49 +296,57 @@
           "SWITCH_ON_REC": "Doporučení k zapnutí",
           "SWITCH_ON_REC_SHORT": "Doporučení",
           "UNDEFINED": "Nedefinováno"
-        }
+        },
+        "HEATINGELEMENT": {
+          "ACTIVE_FORCED": "Aktivní (Minimální doba)",
+          "ACTIVE_LEVEL": "Aktivní level",
+          "ENDTIME": "Poslední dny",
+          "ENERGY": "Energie",
+          "GUARANTEE_MINIMUM_HEATING": "Záruka minimálního vytápění",
+          "HEATINGELEMENT": "Topný článek",
+          "MINIMAL_ENERGY_AMOUNT": "Minimální množství energie",
+          "MINIMUM_RUN_TIME": "Minimální doba",
+          "PRIORITY": "Priorita",
+          "TIME": "čas",
+          "TIME_COUNTDOWN": "Čas začít"
+        },
+        "INFO_STORAGE_FOR_CHARGE": "Záporné hodnoty odpovídají zatížení paměti",
+        "INFO_STORAGE_FOR_DISCHARGE": "Kladné hodnoty odpovídají vybití paměti",
+        "PEAKSHAVING": {
+          "ASYMMETRIC_INFO": "Zadané hodnoty výkonu se vztahují k jednotlivým fázím. Je nastavena na nejvíce namáhanou fázi.",
+          "END_DATE": "Datum Ukončení",
+          "END_TIME": "Cas ukončení",
+          "MOST_STRESSED_PHASE": "Většinou stresovaná fáze",
+          "PEAKSHAVING": "špičkové holení",
+          "PEAKSHAVING_POWER": "Uvolnění",
+          "RECHARGE": "Nabíjecí Výkon",
+          "RECHARGE_POWER": "Načítání pod",
+          "RELATION_ERROR": "Mez vypouštění musí být větší nebo rovna limitu zatížení",
+          "START_DATE": "Datum Začátku",
+          "START_TIME": "Doba spuštění",
+          "START_TIME_CHARGE": "Čas zahájení načítání"
+        },
+        "PHASES_INFO": "Součet jednotlivých fází se může z technických důvodů mírně lišit od celkového počtu.",
+        "SELFCONSUMPTION_INFO": "Vlastní spotřeba označuje procento aktuálně generovaného výstupu, který lze použít přímou spotřebou a samotným zatížením úložiště.",
+        "SINGLETHRESHOLD": {
+          "ABOVE": "O",
+          "BEHAVIOUR": "Chování",
+          "BELOW": "Níže",
+          "CURRENT_VALUE": "Aktuální hodnota",
+          "DEPENDEND_ON": "Podle toho",
+          "MIN_SWITCHING_TIME": "Minimální přepínací",
+          "MORE_THAN_MAX_POWER": "Hodnota nesmí být nižší než maximální výkon ovládaného zařízení",
+          "OTHER": "Ostatní",
+          "RELATION_ERROR": "Prahová hodnota musí být větší než spínané zatížení",
+          "SWITCH_OFF_ABOVE": "Vypněte pomocí",
+          "SWITCH_OFF_BELOW": "Vypněte pod",
+          "SWITCH_ON_ABOVE": "Zapněte přes",
+          "SWITCH_ON_BELOW": "Zapněte pod",
+          "SWITCHED_LOAD_POWER": "Spínané zatížení",
+          "THRESHOLD": "Prahována"
+        },
+        "TWO_WAY_INFO_GRID": "Záporné hodnoty odpovídají dodávkám ze sítě, Kladné hodnoty odpovídají napájení ze sítě"
       }
-    },
-    "HISTORY": {
-      "BEGIN_DATE": "Vyberte datum zahájení",
-      "DAY": "Den",
-      "END_DATE": "Vyberte datum ukončení",
-      "EXPORT": "stáhnout jako soubor programu Excel",
-      "GO": "Jdi!",
-      "LAST_MONTH": "Poslední měsíc",
-      "LAST_WEEK": "Poslední týden",
-      "LAST_YEAR": "Poslední rok",
-      "MONTH": "Měsíc",
-      "NO_DATA": "data nejsou k dispozici",
-      "TRY_AGAIN": "Zkuste to později znovu...",
-      "OTHER_PERIOD": "Další období",
-      "PERIOD": "Období",
-      "SELECTED_DAY": "{{ value }}",
-      "SELECTED_PERIOD": "Zvolené období: ",
-      "TODAY": "Dnes",
-      "WEEK": "Týden",
-      "YEAR": "Rok",
-      "YESTERDAY": "Včera",
-      "SUN": "Ned",
-      "MON": "Pon",
-      "TUE": "Úte",
-      "WED": "Stř",
-      "THU": "Čtv",
-      "FRI": "Pát",
-      "SAT": "Sob",
-      "JAN": "Led",
-      "FEB": "Úno",
-      "MAR": "Bře",
-      "APR": "Dub",
-      "MAY": "Kvě",
-      "JUN": "ČeN",
-      "JUL": "ČeC",
-      "AUG": "Srp",
-      "SEP": "Zář",
-      "OCT": "Říj",
-      "NOV": "Lis",
-      "DEC": "Pro",
-      "ACTIVE_DURATION": "aktivní trvání"
     },
     "INSTALLATION": {
       "ATTENTION_MESSAGE": "Všimněte si, že výběr nelze dodatečně zrušit.",
@@ -442,110 +356,162 @@
       "FORWARD": "dopředu",
       "PLEASE_SELECT_OPTION": "Vyberte možnost"
     },
-    "CONFIG": {
-      "INDEX": {
-        "ADD_COMPONENTS": "Nainstalujte komponenty",
-        "ADJUST_COMPONENTS": "Nakonfigurujte komponenty",
-        "BRIDGE": "Připojená zařízení",
-        "CONTROLLER": "Aplikace",
-        "DATA_STORAGE": "Ukládání dat",
-        "EXECUTE_SIMULATOR": "Zahájit simulaci",
-        "LIVE_LOG": "Live log systému",
-        "LOG": "Log",
-        "MANUAL_CONTROL": "Manuální ovládání",
-        "RENAME_COMPONENTS": "Přejmenovat Komponenty",
-        "SCHEDULER": "Plánovač aplikací",
-        "SIMULATOR": "Simulátor",
-        "SYSTEM_EXECUTE": "Spusťte příkaz systému",
-        "SYSTEM_PROFILE": "Systémový Profil",
-        "ALERTING": "Upozornění",
-        "NETWORK_CONFIGURATION": "Konfigurace sítě"
-      },
-      "MORE": {
-        "MANUAL_COMMAND": "Manuální příkaz ",
-        "MANUALPQ_POWER_SPECIFICATION": "Specifikace výkonu",
-        "MANUALPQ_RESET": "Resetovat",
-        "MANUALPQ_SUBMIT": "Zadání",
-        "REFU_INVERTER": "REFU Střídač",
-        "REFU_START": "Začít",
-        "REFU_START_STOP": "Start/Stop střídače",
-        "REFU_STOP": "Stop",
-        "SEND": "Odeslat"
-      },
-      "SCHEDULER": {
-        "ALWAYS": "Vždy",
-        "CLASS": "Třída:",
-        "CONTACT": "Došlo k chybě. Prosím kontaktujte <a href=\"mailto: {{ value }}\">{{ value }}</a>.",
-        "NEW_SCHEDULER": "Nový plánovač...",
-        "NOT_IMPLEMENTED": "Zadání nebylo implementováno:"
-      },
-      "LOG": {
-        "AUTOMATIC_UPDATING": "Automatický update",
-        "LEVEL": "Úroveň",
-        "MESSAGE": "Zpráva",
-        "SOURCE": "Zdroj",
-        "TIMESTAMP": "Časové razítko"
-      },
-      "CONTROLLER": {
-        "APP": "App:",
-        "INTERNALLY_ID": "Vnitřní ID:",
-        "PRIORITY": "Priorita:"
-      },
-      "BRIDGE": {
-        "NEW_CONNECTION": "Nové připojení...",
-        "NEW_DEVICE": "Nové zařízení..."
-      },
-      "ALERTING": {
-        "ACTIVATE": "Activate",
-        "DELAY": "Delay",
-        "TOAST": {
-          "SUCCESS": "Přijatá nastavení",
-          "ERROR": "Chyba při načítání nastavení"
-        }
-      },
-      "APP": {
-        "HEADER": "Správce aplikací je v současné době v první testovací verzi.",
-        "INSTALLED": "Nainstalováno",
-        "AVAILABLE": "Dostupné na",
-        "INCOMPATIBLE": "Nekompatibilní",
-        "BUY_APP": "koupit aplikaci",
-        "MODIFY_APP": "upravit aplikaci",
-        "CREATE_APP": "vytvořit aplikaci",
-        "DELETE_APP": "odstranit aplikaci",
-        "UPDATE_APP": "aktualizace aplikace",
-        "NOT_AVAILABLE": "Není k dispozici"
-      }
-    },
-    "SERVICE": {
-      "ENTIRE_SYSTEM": "Celý systém",
-      "CELL": {
-        "VOLTAGES": "Napětí článků",
-        "TEMPERATURES": "Teplota buňky",
-        "INSULATION": "Izolace"
-      }
-    },
     "NETWORK": {
+      "ADD_IP": "Přidejte statické IP adresy",
+      "ADVANCED_MODE": "Pokročilý mód",
       "ERROR_READING_CONFIGURATION": "Chyba při čtení aktuální konfigurace sítě:",
-      "MANDATORY_FIELDS": "Vyplňte prosím povinná pole",
-      "SUCCESS_UPDATE": "Konfigurace sítě pro doménu byla úspěšně aktualizována",
       "ERROR_UPDATING": "Při aktualizaci došlo k chybě",
       "IP_ADDRESS": "IP adresa",
+      "MANDATORY_FIELDS": "Vyplňte prosím povinná pole",
       "SUBNETMASK": "Maska podsítě",
-      "ADD_IP": "Přidejte statické IP adresy",
-      "VALID_ADDRESS_WARNING": "V části „Přidat statické IP adresy“ zadejte platnou adresu IP se síťovou maskou, např. 10.4.1.6/24",
-      "ADVANCED_MODE": "Pokročilý mód"
+      "SUCCESS_UPDATE": "Konfigurace sítě pro doménu byla úspěšně aktualizována",
+      "VALID_ADDRESS_WARNING": "V části „Přidat statické IP adresy“ zadejte platnou adresu IP se síťovou maskou, např. 10.4.1.6/24"
+    },
+    "SERVICE": {
+      "CELL": {
+        "INSULATION": "Izolace",
+        "TEMPERATURES": "Teplota buňky",
+        "VOLTAGES": "Napětí článků"
+      },
+      "ENTIRE_SYSTEM": "Celý systém"
     }
   },
-  "ABOUT": {
-    "BUILD": "Aktuální verze",
-    "CONTACT": "S případnými návrhy a pro další informace k systému prosím kontaktujte náš tým na <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
-    "CURRENT_DEVELOPMENTS": "Aktuální vývoj",
-    "DEVELOPED": "Toto uživatelské rozhraní bylo vyvinuto jako open-source software.",
-    "FAQ": "Často kladené otázky (FAQ)",
-    "LANGUAGE": "Select language:",
-    "OPEN_EMS": "Více o OpenEMS",
-    "PATCHNOTES": "Změny v monitorování tohoto sestavení",
-    "INFO": "Jazyk nemůže být trvale změněn v místním online monitorování z technických důvodů."
+  "GENERAL": {
+    "ACTIVE": "aktivně",
+    "ACTUAL_POWER": "E-Car Nabíjecí výkon",
+    "APPLY": "Aplikovat",
+    "AUTARCHY": "Soběstačnost",
+    "AUTOMATIC": "Automaticky",
+    "BACK": "Zpět",
+    "CANCEL": "zrušení",
+    "CAPACITY": "Kapacita",
+    "CHANGE_ACCEPTED": "Změna byla přijata",
+    "CHANGE_FAILED": "Změna se nezdařila",
+    "CHARGE": "Načítání",
+    "CHARGE_DISCHARGE": "Debetní/vybíjení",
+    "COMPONENT_COUNT": "Počet komponentů",
+    "COMPONENT_INACTIVE": "Komponenta je neaktivní!",
+    "CONNECTION_LOST": "Spojení ztraceno. Pokouší se znovu připojit.",
+    "CONSUMPTION": "Spotřeba",
+    "CUMULATIVE": "Kumulativní Hodnoty",
+    "CURRENT_NAME": "Aktuální Jméno",
+    "CURRENT_VALUE": "Aktuální hodnota",
+    "DATE_FORMAT": "dd.MM.yyyy",
+    "DIGITAL_INPUTS": "Digitální vstupy",
+    "DIRECT_CONSUMPTION": "Přímá spotřeba",
+    "DISCHARGE": "Vypouštění",
+    "FAULT": "Chyba",
+    "GRID": "Síť",
+    "GRID_BUY": "Nákup ze sítě",
+    "GRID_BUY_ADVANCED": "Nákup",
+    "GRID_SELL": "Prodej do sítě",
+    "GRID_SELL_ADVANCED": "Prodej",
+    "HISTORY": "Historie",
+    "INACTIVE": "Neaktivní",
+    "INFO": "Informace",
+    "INPUT_NOT_VALID": "Vstup je neplatný",
+    "INSUFFICIENT_RIGHTS": "Nedostatečná práva",
+    "LIVE": "Live",
+    "LOAD": "nálož",
+    "LOADED_SUBSCRIBED_SUCCESSFULLY": "Načtená uložená konfigurace kanálu",
+    "MANUAL": "pokyny",
+    "MANUALLY": "Ruční",
+    "MEASURED_VALUE": "Měřená Hodnota",
+    "MODE": "Režim",
+    "MONTH": {
+      "APRIL": "Duben",
+      "AUGUST": "Srpen",
+      "DECEMBER": "Prosinec",
+      "FEBRUARY": "Únor",
+      "JANUARY": "Leden",
+      "JULY": "Cervenec",
+      "JUNE": "Cerven",
+      "MARCH": "Březen",
+      "MAY": "Květen",
+      "NOVEMBER": "Listopad",
+      "OCTOBER": "Ríjen",
+      "SEPTEMBER": "Září"
+    },
+    "MORE": "Další",
+    "NO_VALUE": "Žádná hodnota",
+    "NUMBER_OF_COMPONENTS": "Počet komponentů",
+    "OFF": "Pryč",
+    "OFF_GRID": "žádné připojení k síti!",
+    "OK": "ok",
+    "ON": "zapnutý",
+    "OPEN": "Otevřít",
+    "OTHER_CONSUMPTION": "jiná spotřeba",
+    "PERCENTAGE": "Procentuální vyjádření",
+    "PERIOD_FROM_TO": "od {{ value1 }} do {{ value2 }}",
+    "POWER": "Výkon",
+    "PRODUCTION": "Výroba",
+    "RENAME": "Přejmenovat",
+    "REPORT": "Zpráva",
+    "REPORT_VALUE": "Nahlásit nesprávná data",
+    "RESET": "Resetovat",
+    "SAVE": "Uložit",
+    "SELF_CONSUMPTION": "Vlastní spotřeba",
+    "SOC": "Stav nabití",
+    "STATE": "Stát",
+    "STORAGE_SYSTEM": "Systém bateriového úložiště",
+    "SUBSCRIBED_SUCCESSFULLY": "Úspěšně uloženy odebírané kanály",
+    "SUFFIX": {
+      "HOUR": "hodin"
+    },
+    "SYSTEM_STATE": "Stav systému",
+    "TEMPERATURE": "Teplota",
+    "TIME": {
+      "DAY": "Den",
+      "DAYS": "Dny",
+      "HOUR": "Hodina",
+      "HOURS": "Hodiny",
+      "MINUTE": "Minuta",
+      "MINUTES": "Minuty"
+    },
+    "TOTAL": "celková spotřeba",
+    "TOTAL_STATE": "Celkový stav",
+    "WARNING": "Varování",
+    "WEEK": {
+      "FRIDAY": "Pátek",
+      "MONDAY": "Pondělí",
+      "SATURDAY": "Sobota",
+      "SUNDAY": "Neděle",
+      "THURSDAY": "Čtvrte",
+      "TUESDAY": "Úterý",
+      "WEDNESDAY": "Středa"
+    }
+  },
+  "INDEX": {
+    "ALL_CONNECTED": "Všechna připojení aktivní.",
+    "CONNECTION_FAILED": "Připojení k {{ value }} selhalo.",
+    "CONNECTION_IN_PROGRESS": "Navázání spojení...",
+    "CONNECTION_SUCCESSFUL": "Úspěšně připojeno k {{ value }}.",
+    "DEVICE_OFFLINE": "Zařízení není připojeno!",
+    "IS_OFFLINE": "OpenEMS je ve stavu offline!",
+    "LOGGED_IN_AS": "Registrováno jako",
+    "TO_ENERGYMONITOR": "Do Monitoringu energetických toků…",
+    "TYPE": "Typ"
+  },
+  "LOGIN": {
+    "AUTHENTICATION_FAILED": "Ověření se nezdařilo",
+    "PASSWORD_LABEL": "Heslo",
+    "PASSWORD_RESET": "Obnovení hesla",
+    "PREAMBLE": "Pro přihlášení jako host zadejte své heslo nebo potvrďte výchozí zadání.",
+    "TITLE": "Přihlásit se",
+    "USER": "Uživatel"
+  },
+  "MENU": {
+    "ACCESS_LEVEL": "Úroveň přístupu",
+    "CHANGELOG": "Changelog",
+    "EDGE_SETTINGS": "Předvolby",
+    "GENERAL_SETTINGS": "Obecné Nastavení",
+    "INDEX": "Přehled",
+    "LOGOUT": "Odhlásit",
+    "MENU": "Menu",
+    "NAME": "Název",
+    "OVERVIEW": "Všechny systémy",
+    "SETTINGS": "nastavení",
+    "USER": "Uživatel"
   },
   "NOTIFICATIONS": {
     "AUTHENTICATION_FAILED": "Žádné připojení: Ověření uživatele selhalo.",
@@ -554,5 +520,39 @@
     "LOGGED_IN": "Přihlášení proběhlo úspěšně.",
     "LOGGED_IN_AS": "Uživatel přihlášen jako {{ value }}."
   },
-  "DEBUG_MODE": "Ladění režim"
+  "REGISTER": {
+    "BUTTON": "Vytvořit",
+    "ERRORS": {
+      "PASSWORD_NOT_EQUAL": "Hesla nejsou stejná",
+      "REQUIRED_FIELDS": "Vyplňte prosím všechna pole"
+    },
+    "FORM": {
+      "ACCEPT_AGB": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
+      "CITY": "Město",
+      "COMPANY_NAME": "název společnosti",
+      "CONFIRM_PASSWORD": "Potvrzení hesla",
+      "CONTACT_DETAILS": "Kontaktní údaje",
+      "COUNTRY": "Město",
+      "EMAIL": "E-Mailem",
+      "FIRSTNAME": "jméno",
+      "INSTALLER": {
+        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
+      },
+      "IS_ELECTRICIAN": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
+      "LASTNAME": " Příjmení",
+      "PASSWORD": "Heslo",
+      "PHONE": "Telefonní číslo",
+      "STREET": "Ulice",
+      "SUBSCRIBE_NEWSLETTER": "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON.",
+      "USER": {
+        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
+      },
+      "ZIP": "Ulice"
+    },
+    "SEGMENT": {
+      "INSTALLER": "Instalatér",
+      "USER": "Uživatel"
+    },
+    "SUCCESS": "Úspěšná registrace"
+  }
 }

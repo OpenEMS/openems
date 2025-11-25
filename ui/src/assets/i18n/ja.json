@@ -9,71 +9,244 @@
     "PATCHNOTES": "このビルドの監視の変更"
   },
   "EDGE": {
+    "CONFIG": {
+      "ALERTING": {
+        "ACTIVATE": "活性化",
+        "DELAY": "遅れ",
+        "INTERVAL": {
+          "DAY": "日",
+          "DAYS": "日々",
+          "HOUR": "時間",
+          "HOURS": "時間",
+          "MINUTE": "分",
+          "MINUTES": "分"
+        },
+        "OPTIONS": {},
+        "SAVE": "保存",
+        "TOAST": {
+          "ERROR": "設定の読み込みエラー",
+          "SUCCESS": "適用された設定"
+        }
+      },
+      "APP": {
+        "AVAILABLE": "利用可能",
+        "BUY_APP": "アプリを購入します",
+        "CARDINALITY": "カーディナリティ",
+        "CATEGORY": "カテゴリ",
+        "CREATE_APP": "アプリをインストールする",
+        "DELETE_APP": "アプリを削除します",
+        "ERROR_COMPATIBLE": "互換性エラー",
+        "ERROR_INSTALLABLE": "インストールエラー",
+        "HEADER": "アプリマネージャーは現在、最初のテストバージョンです。",
+        "INCOMPATIBLE": "非互換",
+        "INSTALLED": "インストール",
+        "MODIFY_APP": "アプリを変更します",
+        "NAME": "App Center",
+        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
+        "TECHNICAL_NAME": "技術名",
+        "UPDATE_APP": "アプリを更新します",
+        "UPDATE_AVAILABLE": "新しい{{edgeshortname}}バージョンがあります！{{edgeshortname}}を更新して、すべての新しい{{edgeshortname}}アプリがアプリセンターに表示されるようにしてください。"
+      },
+      "BRIDGE": {
+        "NEW_CONNECTION": "新しい接続...",
+        "NEW_DEVICE": "新しいデバイス..."
+      },
+      "CONTROLLER": {
+        "APP": "アプリ：",
+        "INTERNALLY_ID": "内部ID：",
+        "PRIORITY": "優先順位："
+      },
+      "INDEX": {
+        "ADD_COMPONENTS": "コンポーネントインストール",
+        "ADJUST_COMPONENTS": "コンポーネント設定",
+        "ALERTING": "警告",
+        "BRIDGE": "接続とデバイス",
+        "CONTROLLER": "アプリケーション",
+        "DATA_STORAGE": "データストレージ",
+        "EXECUTE_SIMULATOR": "シミュレーションを実行します",
+        "LIVE_LOG": "ライブシステムログ",
+        "LOG": "ログ",
+        "MANUAL_CONTROL": "手動制御",
+        "NETWORK_CONFIGURATION": "ネットワーク設定",
+        "RENAME_COMPONENTS": "コンポーネントの名前を変更します",
+        "SCHEDULER": "ApplicationPlanner",
+        "SIMULATOR": "シミュレータ",
+        "SYSTEM_EXECUTE": "システムコマンド実行",
+        "SYSTEM_PROFILE": "システムプロファイル"
+      },
+      "LOG": {
+        "AUTOMATIC_UPDATING": "自動更新",
+        "LEVEL": "レベル",
+        "MESSAGE": "メッセージ",
+        "SOURCE": "ソース",
+        "TIMESTAMP": "タイムスタンプ"
+      },
+      "MORE": {
+        "MANUAL_COMMAND": "手動コマンド",
+        "MANUALPQ_POWER_SPECIFICATION": "電力仕様",
+        "MANUALPQ_RESET": "リセット",
+        "MANUALPQ_SUBMIT": "送信",
+        "REFU_INVERTER": "インバーターをリフルします",
+        "REFU_START": "始める",
+        "REFU_START_STOP": "インバーターを開始/停止します",
+        "REFU_STOP": "ストップ",
+        "SEND": "送信"
+      },
+      "SCHEDULER": {
+        "ALWAYS": "いつも",
+        "CLASS": "クラス：",
+        "CONTACT": "これは起こらないはずです。<a href=\"mailto: {value}} {{value}} </a>にお問い合わせください。",
+        "NEW_SCHEDULER": "新しいスケジューラ...",
+        "NOT_IMPLEMENTED": "フォームは実装されていません："
+      }
+    },
+    "HISTORY": {
+      "ACTIVE_DURATION": "アクティブな期間",
+      "APR": "4月",
+      "AUG": "8月",
+      "BEGIN_DATE": "[開始日]を選択します",
+      "DAY": "日",
+      "DEC": "12月",
+      "END_DATE": "[終了]を選択します",
+      "EXPORT": "Excelファイルとしてダウンロードします",
+      "FEB": "2月",
+      "FRI": "金",
+      "GO": "行く！",
+      "JAN": "1月",
+      "JUL": "7月",
+      "JUN": "6月",
+      "LAST_MONTH": "先月",
+      "LAST_WEEK": "先週",
+      "LAST_YEAR": "去年",
+      "MAR": "3月",
+      "MAY": "5月",
+      "MON": "月",
+      "MONTH": "月",
+      "NO_DATA": "データなし",
+      "NOV": "11月",
+      "OCT": "10月",
+      "OTHER_PERIOD": "他の日付",
+      "PERIOD": "期間",
+      "SAT": "土",
+      "SELECTED_DAY": "{{ value }}",
+      "SELECTED_PERIOD": "選択された期間：",
+      "SEP": "9月",
+      "SUN": "日",
+      "THU": "木",
+      "TODAY": "今日",
+      "TOTAL": "合計",
+      "TRY_AGAIN": "あとでもう一度試してみてください...",
+      "TUE": "火",
+      "WED": "水",
+      "WEEK": "週",
+      "YEAR": "年",
+      "YESTERDAY": "昨日"
+    },
     "INDEX": {
       "EMERGENCY_RESERVE": {
-        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "緊急電力予備を有効にすることで、値は5％から100％まで自由に選択することができます。",
-        "EMERGENCY_RESERVE": "緊急予備"
+        "EMERGENCY_RESERVE": "緊急予備",
+        "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "緊急電力予備を有効にすることで、値は5％から100％まで自由に選択することができます。"
       },
       "ENERGYMONITOR": {
         "ACTIVE_POWER": "アクティブパワー",
         "CONSUMPTION_WARNING": "消費と不明な発電",
+        "ERROR_TEMPORARY": "データの取得中にエラーが発生しました。 後でもう一度試してください。",
+        "ERROR_TOO_LONG": "",
         "GRID_METER": "グリッドメーター",
         "PRODUCTION_METER": "発電メーター",
         "REACTIVE_POWER": "リアクティブパワー",
         "STORAGE": "蓄電池",
         "STORAGE_CHARGE": "蓄電池充電",
         "STORAGE_DISCHARGE": "蓄電池放電",
-        "TITLE": "パワーモニター",
-        "ERROR_TEMPORARY": "データの取得中にエラーが発生しました。 後でもう一度試してください。",
-        "ERROR_TOO_LONG": ""
+        "TITLE": "パワーモニター"
       },
       "WIDGETS": {
         "AUTARCHY_INFO": "自給自足は、発電と蓄電池放電によってカバーできる現在の電力の割合を示します。",
-        "PHASES_INFO": "技術的な理由により、個々のフェーズの合計は、合計の合計とは異なることがあります。",
-        "SELFCONSUMPTION_INFO": "自己消費は、現在発電された出力のうち、直接消費と蓄電池負荷自体に使用できる割合を示します。",
-        "TWO_WAY_INFO_GRID": "負の値はグリッドフィードインに対応し、正の値はメインサプライに対応します",
-        "INFO_STORAGE_FOR_CHARGE": "負の値は蓄電池充電に対応します",
-        "INFO_STORAGE_FOR_DISCHARGE": "正の値は蓄電池放電に対応します",
         "CHANNELTRESHOLD": {
-          "TITLE": "閾値コントローラー",
+          "ACTIVE_TIME_OVER_PERIOD": "アクティブ時間",
           "OUTPUT": "出力",
-          "ACTIVE_TIME_OVER_PERIOD": "アクティブ時間"
+          "TITLE": "閾値コントローラー"
         },
-        "SINGLETHRESHOLD": {
-          "ABOVE": "その上",
-          "BEHAVIOUR": "行動",
-          "BELOW": "下",
-          "CURRENT_VALUE": "現在の価値",
-          "DEPENDEND_ON": "に応じて",
-          "MIN_SWITCHING_TIME": "最小スイッチ時間",
-          "MORE_THAN_MAX_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
-          "OTHER": "他の",
-          "RELATION_ERROR": "しきい値は、スイッチされた負荷電力よりも大きくなければなりません",
-          "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
-          "SWITCH_OFF_ABOVE": "上記のスイッチをオフにします",
-          "SWITCH_OFF_BELOW": "下のスイッチをオフにします",
-          "SWITCH_ON_ABOVE": "上記のスイッチを入れます",
-          "SWITCH_ON_BELOW": "以下を切り替えます",
-          "THRESHOLD": "しきい値"
+        "CHP": {
+          "HIGH_THRESHOLD": "高いしきい値",
+          "LOW_THRESHOLD": "低いしきい値"
         },
         "DELAYED_SELL_TO_GRID": {
-          "SELL_TO_GRID_POWER_LIMIT": "上記の請求",
           "CONTINUOUS_SELL_TO_GRID_POWER": "以下で放電します",
-          "RELATION_ERROR": "充電制限は、排出制限よりも大きくなければなりません"
+          "RELATION_ERROR": "充電制限は、排出制限よりも大きくなければなりません",
+          "SELL_TO_GRID_POWER_LIMIT": "上記の請求"
         },
-        "PEAKSHAVING": {
-          "ASYMMETRIC_INFO": "入力されたパフォーマンス値は、個々のフェーズを指します。最も強調されたフェーズに調整されます。",
-          "END_DATE": "終了日",
-          "END_TIME": "終了時間",
-          "MOST_STRESSED_PHASE": "最もストレスの多い段階",
-          "PEAKSHAVING": "ピークシェービング",
-          "PEAKSHAVING_POWER": "ピークカット目標出力",
-          "RECHARGE": "充電電力",
-          "RECHARGE_POWER": "バッテリー充電可能閾値",
-          "RELATION_ERROR": "排出制限は充電制限以上でなければなりません",
-          "START_DATE": "開始日",
-          "START_TIME": "始まる時間",
-          "START_TIME_CHARGE": "充電開始時間"
+        "EVCS": {
+          "ACTIVATE_CHARGING": "充電ステーションをアクティブにします",
+          "ADMINISTRATION": {
+            "CAR_ADMINISTRATION": "自動車管理",
+            "CUSTOM_CAR_INFO": "この場合、あなたの車は特定の出力から効率的に請求されることができます。このボタンを使用すると、これは構成オプションと自動充電計算に含まれています。",
+            "RENAULT_ZOE": "ルノーゾーイは主にこの充電ステーションで請求されていますか？"
+          },
+          "AMOUNT_OF_CHARGING_STATIONS": "充電ステーションの量",
+          "CABLE": "ケーブル",
+          "CABLE_NOT_CONNECTED": "ケーブルは接続されていません",
+          "CAR_FULL": "車はいっぱいです",
+          "CHARGE_LIMIT_REACHED": "充電制限が到達しました",
+          "CHARGE_MODE": "充電モード",
+          "CHARGE_TARGET": "目標電力設定値",
+          "CHARGING": "充電しています",
+          "CHARGING_LIMIT": "充電制限",
+          "CHARGING_POWER": "充電力",
+          "CHARGING_STATION": "充電ステーション",
+          "CHARGING_STATION_CLUSTER": "充電ステーションクラスター",
+          "CHARGING_STATION_DEACTIVATED": "充電ステーションは無効になっています",
+          "CHARGING_STATION_PLUGGED_IN": "チャリングステーションが接続されています",
+          "CHARGING_STATION_PLUGGED_IN_EV": "充電ステーション + e-vehicleが接続されています",
+          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "充電ステーション + e-vehicleプラグイン +ロックされています",
+          "CHARGING_STATION_PLUGGED_IN_LOCKED": "プラグイン +ロックされたチャリングステーション",
+          "CLUSTER_CONFIG_ERROR": "EVCSクラスターの構成でエラーが発生しました",
+          "CURRENT_CHARGE": "現在の充電",
+          "ENERGY_LIMIT": "充電量制限",
+          "ENERGY_SINCE_BEGINNING": "今回の充電量",
+          "ENFORCE_CHARGING": "充電を実施します",
+          "ERROR": "エラー",
+          "FORCE_CHARGE_MODE": {
+            "INFO": "このモードでは、充電ステーションがグリッドパワーにアクセスする必要がある場合でも、車の積み込みが強制されます。つまり、車が充電されることが常に保証されます。",
+            "MAX_CHARGING": "目標電力設定値",
+            "MAX_CHARGING_DETAILS": "車が入力された最大値をロードできない場合、電源は自動的に制限されます。",
+            "NAME": "強制充電",
+            "SHORT_NAME": "手動で"
+          },
+          "LOCK": "ロック済み",
+          "MAX_ENERGY_RESTRICTION": "充電量制限機能",
+          "NO_CONNECTION": {
+            "DESCRIPTION": "充電ステーションへの接続はありません。",
+            "HELP1": "充電ステーションがオンになっているかどうかを確認し、ネットワークを介して到達できるかどうかを確認してください。",
+            "HELP1_1": "充電ステーションのIPは、再びオンになっているときに表示されます"
+          },
+          "NOT_AUTHORIZED": "許可されていません",
+          "NOT_CHARGING": "停止中",
+          "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
+          "OPTIMIZED_CHARGE_MODE": {
+            "CHARGING_PRIORITY": {
+              "CAR": "車",
+              "INFO": "優先順位付けに応じて、選択したコンポーネントが最初にロードされます",
+              "STORAGE": "蓄電池"
+            },
+            "INFO": "このモードでは、車の負荷は現在の生産と消費に調整されます。",
+            "MIN_CHARGE_POWER": "最低充電電力",
+            "MIN_CHARGING": "最低充電力保証",
+            "MIN_INFO": "車が夜に充電されていないことを防ぎたい場合は、最低充電を設定できます。",
+            "NAME": "最適化された充電",
+            "SHORT_NAME": "自動"
+          },
+          "OVERVIEW_CHARGING_STATIONS": "充電ステーションの概要",
+          "PRIORITIZATION": "優先順位付け",
+          "READY_FOR_CHARGING": "充電の準備ができました",
+          "STARTING": "起動",
+          "STATUS": "ステータス",
+          "TOTAL_CHARGE": "総充電",
+          "TOTAL_CHARGING_POWER": "合計充電パワー",
+          "UNCONTROLLABLE": "この充電ステーションは制御できません。",
+          "UNKNOWN": "確認中",
+          "UNLOCK": "ロック解除済み",
+          "UNPLUGGED": "プラグを外します"
         },
         "GRID_OPTIMIZED_CHARGE": {
           "CHARGING_DELAYED": "充電が遅れました",
@@ -97,20 +270,20 @@
           "MEDIUM": "中くらい",
           "MINIMUM_CHARGE": "最小料金",
           "RISK_DESCRIPTION": {
+            "HIGH": {
+              "FUNCTION_DESCRIPTION": "比較的後で蓄電池システムの充電",
+              "PV_CURTAIL": "PVシステムの削減が回避される可能性が高い",
+              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が低い"
+            },
             "LOW": {
               "FUNCTION_DESCRIPTION": "蓄電池システムの比較的早期充電",
-              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が高い",
-              "PV_CURTAIL": "PVシステムの削減が回避される可能性が低い"
+              "PV_CURTAIL": "PVシステムの削減が回避される可能性が低い",
+              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が高い"
             },
             "MEDIUM": {
               "FUNCTION_DESCRIPTION": "ストアシステムの充電さえ比較的",
-              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が高い",
-              "PV_CURTAIL": "PVシステムの削減が回避される可能性が高い"
-            },
-            "HIGH": {
-              "FUNCTION_DESCRIPTION": "比較的後で蓄電池システムの充電",
-              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が低い",
-              "PV_CURTAIL": "PVシステムの削減が回避される可能性が高い"
+              "PV_CURTAIL": "PVシステムの削減が回避される可能性が高い",
+              "STORAGE_DESCRIPTION": "蓄電池システムが完全に充電される可能性が高い"
             }
           },
           "RISK_PROPENSITY": "リスク傾向",
@@ -128,95 +301,6 @@
           },
           "STORAGE_CAPACITY": "storagecapacity（管理者のみ見える）"
         },
-        "CHP": {
-          "HIGH_THRESHOLD": "高いしきい値",
-          "LOW_THRESHOLD": "低いしきい値"
-        },
-        "EVCS": {
-          "ACTIVATE_CHARGING": "充電ステーションをアクティブにします",
-          "AMOUNT_OF_CHARGING_STATIONS": "充電ステーションの量",
-          "CABLE": "ケーブル",
-          "CABLE_NOT_CONNECTED": "ケーブルは接続されていません",
-          "CAR_FULL": "車はいっぱいです",
-          "CHARGE_LIMIT_REACHED": "充電制限が到達しました",
-          "CHARGE_MODE": "充電モード",
-          "CHARGE_TARGET": "目標電力設定値",
-          "CHARGING": "充電しています",
-          "CHARGING_LIMIT": "充電制限",
-          "CHARGING_POWER": "充電力",
-          "CHARGING_STATION": "充電ステーション",
-          "CHARGING_STATION_CLUSTER": "充電ステーションクラスター",
-          "CHARGING_STATION_DEACTIVATED": "充電ステーションは無効になっています",
-          "CHARGING_STATION_PLUGGED_IN": "チャリングステーションが接続されています",
-          "CHARGING_STATION_PLUGGED_IN_EV": "充電ステーション + e-vehicleが接続されています",
-          "CHARGING_STATION_PLUGGED_IN_EVLOCKED": "充電ステーション + e-vehicleプラグイン +ロックされています",
-          "CHARGING_STATION_PLUGGED_IN_LOCKED": "プラグイン +ロックされたチャリングステーション",
-          "CLUSTER_CONFIG_ERROR": "EVCSクラスターの構成でエラーが発生しました",
-          "CURRENT_CHARGE": "現在の充電",
-          "ENERGY_SINCE_BEGINNING": "今回の充電量",
-          "ENERGY_LIMIT": "充電量制限",
-          "ENFORCE_CHARGING": "充電を実施します",
-          "ERROR": "エラー",
-          "LOCK": "ロック済み",
-          "UNLOCK": "ロック解除済み",
-          "MAX_ENERGY_RESTRICTION": "充電量制限機能",
-          "NOT_AUTHORIZED": "許可されていません",
-          "NOT_CHARGING": "停止中",
-          "NOT_READY_FOR_CHARGING": "充電の準備ができていません",
-          "OVERVIEW_CHARGING_STATIONS": "充電ステーションの概要",
-          "PRIORITIZATION": "優先順位付け",
-          "READY_FOR_CHARGING": "充電の準備ができました",
-          "STARTING": "起動",
-          "STATUS": "ステータス",
-          "TOTAL_CHARGE": "総充電",
-          "TOTAL_CHARGING_POWER": "合計充電パワー",
-          "UNKNOWN": "確認中",
-          "UNPLUGGED": "プラグを外します",
-          "ADMINISTRATION": {
-            "CAR_ADMINISTRATION": "自動車管理",
-            "CUSTOM_CAR_INFO": "この場合、あなたの車は特定の出力から効率的に請求されることができます。このボタンを使用すると、これは構成オプションと自動充電計算に含まれています。",
-            "RENAULT_ZOE": "ルノーゾーイは主にこの充電ステーションで請求されていますか？"
-          },
-          "NO_CONNECTION": {
-            "DESCRIPTION": "充電ステーションへの接続はありません。",
-            "HELP1_1": "充電ステーションのIPは、再びオンになっているときに表示されます",
-            "HELP1": "充電ステーションがオンになっているかどうかを確認し、ネットワークを介して到達できるかどうかを確認してください。"
-          },
-          "OPTIMIZED_CHARGE_MODE": {
-            "INFO": "このモードでは、車の負荷は現在の生産と消費に調整されます。",
-            "MIN_CHARGE_POWER": "最低充電電力",
-            "MIN_CHARGING": "最低充電力保証",
-            "MIN_INFO": "車が夜に充電されていないことを防ぎたい場合は、最低充電を設定できます。",
-            "NAME": "最適化された充電",
-            "SHORT_NAME": "自動",
-            "CHARGING_PRIORITY": {
-              "CAR": "車",
-              "INFO": "優先順位付けに応じて、選択したコンポーネントが最初にロードされます",
-              "STORAGE": "蓄電池"
-            }
-          },
-          "FORCE_CHARGE_MODE": {
-            "INFO": "このモードでは、充電ステーションがグリッドパワーにアクセスする必要がある場合でも、車の積み込みが強制されます。つまり、車が充電されることが常に保証されます。",
-            "MAX_CHARGING": "目標電力設定値",
-            "MAX_CHARGING_DETAILS": "車が入力された最大値をロードできない場合、電源は自動的に制限されます。",
-            "NAME": "強制充電",
-            "SHORT_NAME": "手動で"
-          },
-          "UNCONTROLLABLE": "この充電ステーションは制御できません。"
-        },
-        "HEATINGELEMENT": {
-          "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
-          "ACTIVE_LEVEL": "アクティブレベル",
-          "ENDTIME": "終了時間",
-          "ENERGY": "エネルギー",
-          "GUARANTEE_MINIMUM_HEATING": "最小加熱を保証します",
-          "HEATINGELEMENT": "加熱要素",
-          "MINIMAL_ENERGY_AMOUNT": "最小料金",
-          "MINIMUM_RUN_TIME": "最小ランタイム",
-          "PRIORITY": "優先順位",
-          "TIME": "時間",
-          "TIME_COUNTDOWN": "開始までの時間"
-        },
         "HEAT_PUMP": {
           "ABOVE_SOC": "そして、充電の状態を超えています",
           "BELOW_SOC": "およびの充電の下",
@@ -233,200 +317,125 @@
           "SWITCH_ON_REC_SHORT": "おすすめ",
           "UNDEFINED": "未定義"
         },
+        "HEATINGELEMENT": {
+          "ACTIVE_FORCED": "アクティブ（最小ランタイム）",
+          "ACTIVE_LEVEL": "アクティブレベル",
+          "ENDTIME": "終了時間",
+          "ENERGY": "エネルギー",
+          "GUARANTEE_MINIMUM_HEATING": "最小加熱を保証します",
+          "HEATINGELEMENT": "加熱要素",
+          "MINIMAL_ENERGY_AMOUNT": "最小料金",
+          "MINIMUM_RUN_TIME": "最小ランタイム",
+          "PRIORITY": "優先順位",
+          "TIME": "時間",
+          "TIME_COUNTDOWN": "開始までの時間"
+        },
+        "INFO_STORAGE_FOR_CHARGE": "負の値は蓄電池充電に対応します",
+        "INFO_STORAGE_FOR_DISCHARGE": "正の値は蓄電池放電に対応します",
+        "PEAKSHAVING": {
+          "ASYMMETRIC_INFO": "入力されたパフォーマンス値は、個々のフェーズを指します。最も強調されたフェーズに調整されます。",
+          "END_DATE": "終了日",
+          "END_TIME": "終了時間",
+          "MOST_STRESSED_PHASE": "最もストレスの多い段階",
+          "PEAKSHAVING": "ピークシェービング",
+          "PEAKSHAVING_POWER": "ピークカット目標出力",
+          "RECHARGE": "充電電力",
+          "RECHARGE_POWER": "バッテリー充電可能閾値",
+          "RELATION_ERROR": "排出制限は充電制限以上でなければなりません",
+          "START_DATE": "開始日",
+          "START_TIME": "始まる時間",
+          "START_TIME_CHARGE": "充電開始時間"
+        },
+        "PHASES_INFO": "技術的な理由により、個々のフェーズの合計は、合計の合計とは異なることがあります。",
+        "SELFCONSUMPTION_INFO": "自己消費は、現在発電された出力のうち、直接消費と蓄電池負荷自体に使用できる割合を示します。",
+        "SINGLETHRESHOLD": {
+          "ABOVE": "その上",
+          "BEHAVIOUR": "行動",
+          "BELOW": "下",
+          "CURRENT_VALUE": "現在の価値",
+          "DEPENDEND_ON": "に応じて",
+          "MIN_SWITCHING_TIME": "最小スイッチ時間",
+          "MORE_THAN_MAX_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
+          "OTHER": "他の",
+          "RELATION_ERROR": "しきい値は、スイッチされた負荷電力よりも大きくなければなりません",
+          "SWITCH_OFF_ABOVE": "上記のスイッチをオフにします",
+          "SWITCH_OFF_BELOW": "下のスイッチをオフにします",
+          "SWITCH_ON_ABOVE": "上記のスイッチを入れます",
+          "SWITCH_ON_BELOW": "以下を切り替えます",
+          "SWITCHED_LOAD_POWER": "負荷電源を切り替えました",
+          "THRESHOLD": "しきい値"
+        },
         "TIME_OF_USE_TARIFF": {
+          "CHARGE_CONSUMPTION_ACTIVATE": "ネットワークからのアクティブローディングを有効にする (ベータテスト)",
           "CONTROL_MODE_DESCRIPTION": {
             "CHARGE_CONSUMPTION": ""
           },
-          "CHARGE_CONSUMPTION_ACTIVATE": "ネットワークからのアクティブローディングを有効にする (ベータテスト)",
           "PRICE": "現在の価格",
           "STATE": {
-            "DELAY_DISCHARGE": "遅延退院",
             "BALANCING": "自己消費の最適化",
-            "CHARGE": "ネットワークから解放された負荷"
+            "CHARGE": "ネットワークから解放された負荷",
+            "DELAY_DISCHARGE": "遅延退院"
           }
-        }
-      }
-    },
-    "HISTORY": {
-      "BEGIN_DATE": "[開始日]を選択します",
-      "DAY": "日",
-      "END_DATE": "[終了]を選択します",
-      "EXPORT": "Excelファイルとしてダウンロードします",
-      "GO": "行く！",
-      "LAST_MONTH": "先月",
-      "LAST_WEEK": "先週",
-      "LAST_YEAR": "去年",
-      "MONTH": "月",
-      "NO_DATA": "データなし",
-      "TRY_AGAIN": "あとでもう一度試してみてください...",
-      "OTHER_PERIOD": "他の日付",
-      "PERIOD": "期間",
-      "SELECTED_DAY": "{{ value }}",
-      "SELECTED_PERIOD": "選択された期間：",
-      "TODAY": "今日",
-      "WEEK": "週",
-      "YEAR": "年",
-      "TOTAL": "合計",
-      "YESTERDAY": "昨日",
-      "SUN": "日",
-      "MON": "月",
-      "TUE": "火",
-      "WED": "水",
-      "THU": "木",
-      "FRI": "金",
-      "SAT": "土",
-      "JAN": "1月",
-      "FEB": "2月",
-      "MAR": "3月",
-      "APR": "4月",
-      "MAY": "5月",
-      "JUN": "6月",
-      "JUL": "7月",
-      "AUG": "8月",
-      "SEP": "9月",
-      "OCT": "10月",
-      "NOV": "11月",
-      "DEC": "12月",
-      "ACTIVE_DURATION": "アクティブな期間"
-    },
-    "CONFIG": {
-      "INDEX": {
-        "ADD_COMPONENTS": "コンポーネントインストール",
-        "ADJUST_COMPONENTS": "コンポーネント設定",
-        "BRIDGE": "接続とデバイス",
-        "CONTROLLER": "アプリケーション",
-        "DATA_STORAGE": "データストレージ",
-        "EXECUTE_SIMULATOR": "シミュレーションを実行します",
-        "LIVE_LOG": "ライブシステムログ",
-        "LOG": "ログ",
-        "MANUAL_CONTROL": "手動制御",
-        "RENAME_COMPONENTS": "コンポーネントの名前を変更します",
-        "SCHEDULER": "ApplicationPlanner",
-        "SIMULATOR": "シミュレータ",
-        "SYSTEM_EXECUTE": "システムコマンド実行",
-        "SYSTEM_PROFILE": "システムプロファイル",
-        "ALERTING": "警告",
-        "NETWORK_CONFIGURATION": "ネットワーク設定"
-      },
-      "MORE": {
-        "MANUAL_COMMAND": "手動コマンド",
-        "MANUALPQ_POWER_SPECIFICATION": "電力仕様",
-        "MANUALPQ_RESET": "リセット",
-        "MANUALPQ_SUBMIT": "送信",
-        "REFU_INVERTER": "インバーターをリフルします",
-        "REFU_START": "始める",
-        "REFU_START_STOP": "インバーターを開始/停止します",
-        "REFU_STOP": "ストップ",
-        "SEND": "送信"
-      },
-      "SCHEDULER": {
-        "ALWAYS": "いつも",
-        "CLASS": "クラス：",
-        "CONTACT": "これは起こらないはずです。<a href=\"mailto: {value}} {{value}} </a>にお問い合わせください。",
-        "NEW_SCHEDULER": "新しいスケジューラ...",
-        "NOT_IMPLEMENTED": "フォームは実装されていません："
-      },
-      "LOG": {
-        "AUTOMATIC_UPDATING": "自動更新",
-        "LEVEL": "レベル",
-        "MESSAGE": "メッセージ",
-        "SOURCE": "ソース",
-        "TIMESTAMP": "タイムスタンプ"
-      },
-      "CONTROLLER": {
-        "APP": "アプリ：",
-        "INTERNALLY_ID": "内部ID：",
-        "PRIORITY": "優先順位："
-      },
-      "BRIDGE": {
-        "NEW_CONNECTION": "新しい接続...",
-        "NEW_DEVICE": "新しいデバイス..."
-      },
-      "ALERTING": {
-        "ACTIVATE": "活性化",
-        "DELAY": "遅れ",
-        "SAVE": "保存",
-        "OPTIONS": {},
-        "TOAST": {
-          "SUCCESS": "適用された設定",
-          "ERROR": "設定の読み込みエラー"
         },
-        "INTERVAL": {
-          "HOUR": "時間",
-          "HOURS": "時間",
-          "MINUTE": "分",
-          "MINUTES": "分",
-          "DAY": "日",
-          "DAYS": "日々"
-        }
-      },
-      "APP": {
-        "NAME": "App Center",
-        "NAME_WITH_EDGE_NAME": "{{ edgeShortName }} App Center",
-        "HEADER": "アプリマネージャーは現在、最初のテストバージョンです。",
-        "UPDATE_AVAILABLE": "新しい{{edgeshortname}}バージョンがあります！{{edgeshortname}}を更新して、すべての新しい{{edgeshortname}}アプリがアプリセンターに表示されるようにしてください。",
-        "INSTALLED": "インストール",
-        "AVAILABLE": "利用可能",
-        "INCOMPATIBLE": "非互換",
-        "BUY_APP": "アプリを購入します",
-        "MODIFY_APP": "アプリを変更します",
-        "CREATE_APP": "アプリをインストールする",
-        "DELETE_APP": "アプリを削除します",
-        "UPDATE_APP": "アプリを更新します",
-        "ERROR_INSTALLABLE": "インストールエラー",
-        "ERROR_COMPATIBLE": "互換性エラー",
-        "TECHNICAL_NAME": "技術名",
-        "CATEGORY": "カテゴリ",
-        "CARDINALITY": "カーディナリティ"
-      }
-    },
-    "SERVICE": {
-      "ENTIRE_SYSTEM": "システム全体",
-      "CELL": {
-        "VOLTAGES": "セル電圧",
-        "TEMPERATURES": "セル温度",
-        "INSULATION": "隔離"
+        "TWO_WAY_INFO_GRID": "負の値はグリッドフィードインに対応し、正の値はメインサプライに対応します"
       }
     },
     "NETWORK": {
+      "ADD_IP": "静的IPアドレスを追加します",
+      "ADVANCED_MODE": "アドバンストモード",
       "ERROR_READING": "現在のネットワーク構成を読み取るエラー：",
-      "MANDATORY_FIELDS": "必須フィールドを埋めてください",
-      "SUCCESS_UPDATE": "正常に更新されたネットワーク構成",
       "ERROR_UPDATING": "エラーの更新",
       "IP_ADDRESS": "IPアドレス",
+      "MANDATORY_FIELDS": "必須フィールドを埋めてください",
+      "SUBMIT": "送信",
       "SUBNETMASK": "サブネットマスク",
-      "ADD_IP": "静的IPアドレスを追加します",
-      "VALID_ADDRESS_WARNING": "「静的IPアドレスの追加」で、サブネットマスクで有効なIPアドレスを入力してください。10.4.1.6/24",
-      "ADVANCED_MODE": "アドバンストモード",
-      "SUBMIT": "送信"
+      "SUCCESS_UPDATE": "正常に更新されたネットワーク構成",
+      "VALID_ADDRESS_WARNING": "「静的IPアドレスの追加」で、サブネットマスクで有効なIPアドレスを入力してください。10.4.1.6/24"
+    },
+    "SERVICE": {
+      "CELL": {
+        "INSULATION": "隔離",
+        "TEMPERATURES": "セル温度",
+        "VOLTAGES": "セル電圧"
+      },
+      "ENTIRE_SYSTEM": "システム全体"
     },
     "TITLE": "OpenEMS"
   },
   "GENERAL": {
-    "BACK": "戻る",
-    "EDIT": "編集",
-    "RESET": "リセット",
     "ACTIVE": "有効",
     "ACTUAL_POWER": "e-car充電",
     "APPLY": "適用",
     "AUTARCHY": "再生可能エネルギー率",
     "AUTOMATIC": "自動",
+    "BACK": "戻る",
     "CANCEL": "キャンセル",
     "CAPACITY": "容量",
     "CHANGE_ACCEPTED": "変更が承認されました",
     "CHANGE_FAILED": "変更が失敗しました",
+    "CHARGE": "充電",
     "CHARGE_DISCHARGE": "充電・放電パワー",
     "COMPONENT_COUNT": "部品数",
     "COMPONENT_INACTIVE": "無効化中",
     "CONNECTION_LOST": "接続が切断されました。再接続を試みます。",
     "CONSUMPTION": "消費",
+    "COUNTRY": {
+      "AUSTRIA": "オーストリア",
+      "CZECH": "チェコ共和国",
+      "GERMANY": "ドイツ",
+      "JAPAN": "日本",
+      "NETHERLANDS": "オランダ",
+      "SWEDEN": "スウェーデン",
+      "SWITZERLAND": "スイス"
+    },
     "CUMULATIVE": "累積値",
     "CURRENT_NAME": "現在の名前",
     "CURRENT_VALUE": "現在の値",
     "DATE_FORMAT": "yyyy-MM-dd",
     "DIGITAL_INPUTS": "デジタル入力",
-    "NUMBER_OF_COMPONENTS": "部品数",
     "DIRECT_CONSUMPTION": "直接消費",
+    "DISCHARGE": "放電",
+    "EDIT": "編集",
     "FAULT": "障害",
     "GRID": "グリッド",
     "GRID_BUY": "買電",
@@ -445,13 +454,29 @@
     "MANUALLY": "手動",
     "MEASURED_VALUE": "測定値",
     "MODE": "モード",
+    "MONTH": {
+      "APRIL": "4月",
+      "AUGUST": "8月",
+      "DECEMBER": "12月",
+      "FEBRUARY": "2月",
+      "JANUARY": "1月",
+      "JULY": "7月",
+      "JUNE": "6月",
+      "MARCH": "3月",
+      "MAY": "5月",
+      "NOVEMBER": "11月",
+      "OCTOBER": "10月",
+      "SEPTEMBER": "9月"
+    },
     "MORE": "もっと...",
+    "NO": "いいえ",
     "NO_VALUE": "値がありません",
-    "OPEN": "開く",
+    "NUMBER_OF_COMPONENTS": "部品数",
     "OFF": "オフ",
     "OFF_GRID": "グリッド接続なし！",
     "OK": "ok",
     "ON": "手動",
+    "OPEN": "開く",
     "OTHER_CONSUMPTION": "その他の消費",
     "PERCENTAGE": "パーセンテージ",
     "PERIOD_FROM_TO": "{{ value1 }}から{{ value2 }}まで",
@@ -462,108 +487,88 @@
     "RENAME": "名前変更",
     "REPORT": "報告書",
     "REPORT_VALUE": "破損データを報告",
+    "RESET": "リセット",
+    "SAVE": "保存",
     "SEARCH": "検索",
     "SELF_CONSUMPTION": "自己消費",
     "SOC": "SOC",
     "STATE": "状態",
     "STORAGE_SYSTEM": "蓄電池システム",
+    "SUM_STATE": "システム状態",
+    "SYSTEM_OUTAGE": "メンテナンス作業のため、オンラインモニタリングが一時的に利用できない状況です。後でもう一度お試しください。詳細については、以下を参照してください。",
     "SYSTEM_STATE": "システムの状態",
     "TOTAL": "合計",
     "TOTAL_STATE": "総状態",
+    "VALUE": "値",
     "WARNING": "警告",
     "WEEK": {
-      "MONDAY": "月曜日",
-      "TUESDAY": "火曜日",
-      "WEDNESDAY": "水曜日",
-      "THURSDAY": "木曜日",
       "FRIDAY": "金曜日",
+      "MONDAY": "月曜日",
       "SATURDAY": "土曜日",
-      "SUNDAY": "日曜日"
+      "SUNDAY": "日曜日",
+      "THURSDAY": "木曜日",
+      "TUESDAY": "火曜日",
+      "WEDNESDAY": "水曜日"
     },
-    "MONTH": {
-      "JANUARY": "1月",
-      "FEBRUARY": "2月",
-      "MARCH": "3月",
-      "APRIL": "4月",
-      "MAY": "5月",
-      "JUNE": "6月",
-      "JULY": "7月",
-      "AUGUST": "8月",
-      "SEPTEMBER": "9月",
-      "OCTOBER": "10月",
-      "NOVEMBER": "11月",
-      "DECEMBER": "12月"
-    },
-    "SAVE": "保存",
-    "SYSTEM_OUTAGE": "メンテナンス作業のため、オンラインモニタリングが一時的に利用できない状況です。後でもう一度お試しください。詳細については、以下を参照してください。",
-    "COUNTRY": {
-      "GERMANY": "ドイツ",
-      "AUSTRIA": "オーストリア",
-      "CZECH": "チェコ共和国",
-      "SWEDEN": "スウェーデン",
-      "NETHERLANDS": "オランダ",
-      "SWITZERLAND": "スイス",
-      "JAPAN": "日本"
-    },
-    "YES": "はい",
-    "NO": "いいえ",
-    "VALUE": "値",
-    "SUM_STATE": "システム状態",
-    "DISCHARGE": "放電",
-    "CHARGE": "充電"
+    "YES": "はい"
   },
   "INDEX": {
+    "ADD_EDGE": "新しい{{edgeshortname}}を追加",
     "ALL_CONNECTED": "すべての接続が確立されています。",
-    "CONNECTION_IN_PROGRESS": "接続の確立...",
     "CONNECTION_FAILED": "{{value}}への接続が失敗しました。",
+    "CONNECTION_IN_PROGRESS": "接続の確立...",
     "CONNECTION_SUCCESSFUL": "{{value}}に正常に接続されています。",
     "DEVICE_OFFLINE": "デバイスが接続されていません！",
+    "FIRST_SETUP_PROTOCOL": "初期試運転",
     "IS_OFFLINE": "Openemsはオフラインです！",
     "LOGGED_IN_AS": "ログイン権限",
     "TO_ENERGYMONITOR": "Energymonitorに...",
-    "TYPE": "タイプ",
-    "ADD_EDGE": "新しい{{edgeshortname}}を追加",
-    "FIRST_SETUP_PROTOCOL": "初期試運転"
+    "TYPE": "タイプ"
   },
   "INSTALLATION": {
+    "ALIAS_WITH_LABEL": "エイリアス{{label}} {{number}}",
     "ATTENTION_MESSAGE": "その後、選択を元に戻すことはできないことに注意してください。",
     "BACK": "戻る",
     "COMPLETE": "完了",
     "COMPLETION": {
-      "DOWNLOAD_ERROR": "プロトコルはダウンロードできませんでした",
       "DOWNLOAD": "IBN-Protocolダウンロード",
+      "DOWNLOAD_ERROR": "プロトコルはダウンロードできませんでした",
       "SUB_TITLE": "{{value}}を正常に委託しました。",
       "TITLE": "セットアップ完了"
     },
     "CONFIGURATION_EMERGENCY_RESERVE": {
+      "EMERGENCY_RESERVE": "緊急電源リザーブ{{シンボル}}",
+      "EMERGENCY_RESERVE_LABEL": "緊急電源{{シンボル}}",
       "EMERGENCY_RESERVE_NOTE": "この機能がアクティブになっている場合、バッテリー充電レベルは設定値を下回ることはできません。",
       "EMERGENCY_RESERVE_VALUE": "緊急準備価格",
-      "EMERGENCY_RESERVE": "緊急電源リザーブ{{シンボル}}",
       "IS_ACTIVATED": "緊急電力保護区をアクティブにしますか？",
       "IS_ENABLED": "緊急電源機能をアクティブにする必要がありますか？",
       "RECENT": "現在：",
       "TITLE": "緊急電力保護区",
-      "VALUE": "価値 [％]",
-      "EMERGENCY_RESERVE_LABEL": "緊急電源{{シンボル}}"
+      "VALUE": "価値 [％]"
     },
     "CONFIGURATION_EXECUTE": {
-      "BATTERY_INVERTER": "バッテリーインバーター",
       "BATTERY": "バッテリー",
-      "COMMUNICATION_WITH_BATTERY_INVERTER": "バッテリーインバーターとの通信",
+      "BATTERY_INVERTER": "バッテリーインバーター",
       "COMMUNICATION_WITH_BATTERY": "バッテリーとの通信",
+      "COMMUNICATION_WITH_BATTERY_INVERTER": "バッテリーインバーターとの通信",
+      "COMMUNICATION_WITH_METER": "メーターとの通信",
+      "CONTROL_GRID_POINT": "グリッド切断点の制御",
       "DESCRIPTION_1": "システムのすべてのコンポーネントが正しくセットアップされていることを確認するには、",
       "DESCRIPTION_2": "構成とその後の機能テストは、完了するまでに最大10分かかる場合があります。",
       "EMERGENCY_CAPACITY_RESERVE": "緊急管理保護区",
       "EMERGENCY_POWER_CONSUMER": "緊急電源消費者",
       "ERROR": "エラー",
       "EXISTING_CONFIGURATION": "既存の構成が見つかりました。構成プロセスを手動で開始することにより、これらを上書きできます。",
-      "FUNCTION_TEST_ERROR": "機能テストはエラーで完了しました。",
+      "FIELD_BUS_COUPLER": "フィールドバスカプラー",
       "FUNCTION_TEST": "機能テスト",
+      "FUNCTION_TEST_ERROR": "機能テストはエラーで完了しました。",
       "GRID_METER": "グリッドメーター",
       "GRID_OPTIMIZED_CHARGE": "グリッドに優しい充電",
       "LEGEND": "伝説",
       "NOT_YET_CONFIGURED": "まだ構成 /チェックされていません",
       "PARTIAL_CONFIGURATION": "すべてのコンポーネントを正しく構成できるわけではありません。",
+      "POWER": "力",
       "PRE_CONFIGURED": "事前に設定された /警告",
       "PROGNOSIS": "予後",
       "RELAY_BOARD": "リレーボード",
@@ -573,42 +578,38 @@
       "SUCCESSFULLY_CONFIGURED": "正常に構成 /チェックされました",
       "SURPLUS_ENERGY_FEEDIN": "余剰エネルギーフィードイン",
       "TITLE": "構成",
-      "WAITING": "構成実行...",
-      "WILL_BE_CONFIGURED": "構成 /チェックされます",
-      "POWER": "力",
-      "COMMUNICATION_WITH_METER": "メーターとの通信",
       "WAGO_BRIDGE": "ワゴブリッジ",
-      "FIELD_BUS_COUPLER": "フィールドバスカプラー",
-      "CONTROL_GRID_POINT": "グリッド切断点の制御"
+      "WAITING": "構成実行...",
+      "WILL_BE_CONFIGURED": "構成 /チェックされます"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "回路ブレーカーの現在の値は何ですか？",
-      "OTHER_VALUE": "カスタム値",
       "OTHER": "他の",
+      "OTHER_VALUE": "カスタム値",
       "TITLE_COMMERCIAL": "グリッド接続ポイント /カウンター回路ブレーカーのサーキットブレーカー",
       "TITLE_HOME": "グリッド接続ポイントのサーキットブレーカー",
       "VALUE": "値[a]"
     },
     "CONFIGURATION_SUMMARY": {
-      "BATTERY_LOCATION": "ベスの場所",
+      "APPS": "アプリ",
       "BATTERY": "バッテリー",
+      "BATTERY_LOCATION": "ベスの場所",
       "COUNTRY_SETTING": "国の設定",
       "CUSTOMER": "お客様",
       "DEVICE_ACTIVE_CHECKED": "バッテリーとインバーターがオンになっています",
       "EDGE_NUMBER": "{{edgeshortname}} number",
       "GENERAL": "全般的",
       "GTC_ACCEPT": "GTCの受け入れ",
+      "HECKERT": "選択した無料アプリ",
       "INSTALLER": "インストーラ",
       "INVERTER": "インバーター",
       "NEXT_CLICKED_DESCRIPTION": "[次の]ボタンをクリックすると、蓄電池システムが構成されます。構成プロセス全体でバッテリーとインバーターが電源を入れていることを確認してください。",
+      "PEAK_SHAVING": "ピークシェービング",
       "PRODUCER": "発生器",
       "SUMMARY": "まとめ",
       "TIME_OF_INSTALLATION": "インストールの時間",
       "VALUE_AC": "値AC",
-      "WARRANTY_TERMS": "保証条件の承認",
-      "PEAK_SHAVING": "ピークシェービング",
-      "APPS": "アプリ",
-      "HECKERT": "選択した無料アプリ"
+      "WARRANTY_TERMS": "保証条件の承認"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "開く手順",
@@ -618,12 +619,12 @@
     "CONFIRM_APP_SELECTION": "次のアプリを選択しますか？",
     "CONFIRM_APP_SELECTION_LATER": "後で選択することはできますか？",
     "FORM": {
-      "MANDATORY_FIELD": "これは必須のフィールドです",
       "BATTERY_SERIAL_NUMBER": "{{serialNumber}}は有効なシリアル番号ではありません。有効なシリアル番号は、{{{length}}桁で構成されています。",
-      "MIN": "{{min}}以上の値のみが許可されます。",
-      "MAX": "{{max}}以下の値のみが許可されます。",
-      "EMAIL_MATCH": "電子メールは一致しません。",
       "EMAIL": "{{email}}は有効な電子メールアドレスではありません。",
+      "EMAIL_MATCH": "電子メールは一致しません。",
+      "MANDATORY_FIELD": "これは必須のフィールドです",
+      "MAX": "{{max}}以下の値のみが許可されます。",
+      "MIN": "{{min}}以上の値のみが許可されます。",
       "POSITIVE_INTEGER": "正の数のみが許可されています。"
     },
     "FORWARD": "続く",
@@ -641,31 +642,31 @@
     "PROTOCOL_FEED_IN_MANAGEMENT": {
       "CHOOSE": "選ぶ",
       "CONSTANT_VALUE": "cosφ値",
-      "DYNAMIC_LIMITATION_ACTIVATED": "動的なフィードイン制限がアクティブ化されていますか？",
       "DYNAMIC_LIMITATION": "フィードインの動的制限（例：70％の制限）",
+      "DYNAMIC_LIMITATION_ACTIVATED": "動的なフィードイン制限がアクティブ化されていますか？",
       "EXTERNAL_CONTROLLER_CHECK": "外部コントロール受信者は、指示に従って適切かつ完全にインストールされました。",
-      "EXTERNAL_LIMITATION_ACTIVATED": "外部コントロール受信者がアクティブ化されましたか？",
+      "EXTERNAL_CONTROLLER_RECEIVER": "リップルコントロールレシーバー",
       "EXTERNAL_LIMITATION": "外部コントローラー（DSOによる外部制限）",
+      "EXTERNAL_LIMITATION_ACTIVATED": "外部コントロール受信者がアクティブ化されましたか？",
       "FEED_IN_SETTING_DESCRIPTION": "過度の周波数の場合のアクティブな電力削減",
       "FIXED_POWER_FACTOR": "定数cosφ（p）",
       "MAXIMUM_FEED_IN_VALUE": "最大フィードイン値[W]",
       "MAXIMUM_VALUE_DESCRIPTION": "この値は、DSOによって必要とされる場合があります。",
+      "NO_LIMITATION": "フィードイン管理がない",
+      "PLACE_HOLDER": "オプションを選択",
       "PU_ENABLED_CURVE": "変位力因子cosφ（p）",
       "QU_ENABLED_CURVE": "反応電力-q（u）特性",
       "SHADE_MANAGEMENT_DEACTIVATED": "シェード管理は無効になっていますか？",
-      "TITLE": "フィードイン管理",
-      "EXTERNAL_CONTROLLER_RECEIVER": "リップルコントロールレシーバー",
-      "PLACE_HOLDER": "オプションを選択",
-      "NO_LIMITATION": "フィードイン管理がない"
+      "TITLE": "フィードイン管理"
     },
     "PROTOCOL_INSTALLER_AND_CUSTOMER": {
       "CITY": "街",
       "COMPANY_CUSTOMER": "会社？",
       "COMPANY_NAME": "会社名",
       "COUNTRY": "国",
+      "EMAIL": "電子メールアドレス",
       "EMAIL_CONFIRMATION": "確認",
       "EMAIL_DESCRIPTION": "個人的なアクセスのため",
-      "EMAIL": "電子メールアドレス",
       "FIRST_NAME": "ファーストネーム",
       "LAST_NAME": "苗字",
       "PHONE": "電話番号",
@@ -675,52 +676,55 @@
       "ZIP": "郵便番号"
     },
     "PROTOCOL_PV_AND_ADDITIONAL_AC": {
+      "AC_NOT_CREATED": "ACメーターは作成されていません！",
       "ADD": "ジェネレーターを追加します",
       "ADDITIONAL_GENERATOR": "追加のACジェネレーター",
+      "ALIAS": "説明",
       "ALIAS_DESCRIPTION_ADDITIONAL_AC": "例えば「PV-Roof」",
       "ALIAS_DESCRIPTION_PV": "オンラインモニタリングに表示されます。「PV-Roof」",
-      "ALIAS": "説明",
       "DIRECTIONS": {
         "EAST": "東",
+        "NORTH": "北",
         "NORTH_EAST": "北東",
         "NORTH_WEST": "北西",
-        "NORTH": "北",
+        "SOUTH": "南",
         "SOUTH_EAST": "南東",
         "SOUTH_WEST": "南西",
-        "SOUTH": "南",
         "WEST": "西"
       },
       "INSTALLED_POWER": "インストールされた電源[Wₚ]",
       "MARKED_AS": "mppt {{number}}（「pv {{number}}」とマークされています）",
-      "METER_TYPE_WITH_LABEL": "センサーのタイプ{{label}} {{number}}",
       "METER_TYPE": "センサーのタイプ",
+      "METER_TYPE_WITH_LABEL": "センサーのタイプ{{label}} {{number}}",
+      "MODBUS": "modbus",
       "MODBUS_DESCRIPTION": "センサーは、次の設定で構成する必要があります：通信速度（ボー） \"9600\"、通信パリティ（pasrty） \"n\"、通信stopbit（stop） \"1\"",
       "MODBUS_WITH_LABEL": "modbus {{label}} {{number}}",
-      "MODBUS": "modbus",
+      "MODULE_TYPE": "モジュールの種類",
       "MODULE_TYPE_DESCRIPTION": "例えば製造者と出力",
       "MODULE_TYPE_WITH_LABEL": "モジュールのタイプ{{label}} {{number}}",
-      "MODULE_TYPE": "モジュールの種類",
-      "NUMBER_OF_MODULES_WITH_LABEL": "PVモジュールの数{{label}} {{number}}",
       "NUMBER_OF_MODULES": "PVモジュールの数",
+      "NUMBER_OF_MODULES_WITH_LABEL": "PVモジュールの数{{label}} {{number}}",
       "OPEN_MANUAL": "マニュアルを開きます",
-      "ORIENTATION_WITH_LABEL": "{{label}} {{number}}オリエンテーション",
       "ORIENTATION": "オリエーション{{label}} {{number}}",
-      "SAVE_TO_CONTINUE": "最初にエントリを保存して続行します。",
+      "ORIENTATION_WITH_LABEL": "{{label}} {{number}}オリエンテーション",
       "SAVE": "ジェネレーターを保存します",
+      "SAVE_TO_CONTINUE": "最初にエントリを保存して続行します。",
       "SHADE_MANAGEMENT_DEACTIVATE": "シェード管理を無効にします",
       "SHADE_MANAGEMENT_DESCRIPTION": "シェード管理は、オプティマイザーがインストールされている場合にのみ、無効にする必要があります。",
       "TITLE_ADDITIONAL_AC": "AC-Generator",
-      "TITLE_PV": "DC-PVインストール（インバーター入力）",
-      "VALID_DATA": "保存する有効なデータを入力します。",
       "TITLE_DC": "DC-PVインストール",
-      "AC_NOT_CREATED": "ACメーターは作成されていません！"
+      "TITLE_PV": "DC-PVインストール（インバーター入力）",
+      "VALID_DATA": "保存する有効なデータを入力します。"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "バッテリーモジュール",
+      "BATTERY_STRING": "バッテリーストリング{{StringNumber}}",
       "BATTERY_TOWER": "バッテリータワー{{TowerNumber}}",
       "BESS_COMPONENTS": "Bessコンポーネント",
       "BMS_BOX": "BMSボックス＆ベース",
       "CONFIRM": "確認",
+      "EMS_BOX_HECKERT": "EMSボックス",
+      "EMS_BOX_HOME": "EMSボックス（{{edgeshortname}}ボックス）",
       "ENTER_VALID_ADDRESS": "設定を適用するには、有効な値を入力します。",
       "ERROR_SENDING": "プロトコルの送信エラー。",
       "INVERTER": "インバーター",
@@ -733,10 +737,7 @@
       "SERIAL_NUMBER": "シリアルナンバー",
       "SETUP_NOTE": "プレースホルダー（「x」でマークされた）を適切な文字に置き換えて、シリアル番号を完了します。",
       "SINGLE_SERIAL_NUMBER": "{{label}}シリアル番号",
-      "SYSTEM_SETUP": "システムのセットアップ",
-      "BATTERY_STRING": "バッテリーストリング{{StringNumber}}",
-      "EMS_BOX_HOME": "EMSボックス（{{edgeshortname}}ボックス）",
-      "EMS_BOX_HECKERT": "EMSボックス"
+      "SYSTEM_SETUP": "システムのセットアップ"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "連絡先の名",
@@ -749,32 +750,31 @@
     "SYSTEM_UPDATE": {
       "UPDATE_WARNING": "バージョンは更新する必要があります！"
     },
-    "VALUE_WITH_LABEL": "value {{label}} {{number}} {{symbol}}",
-    "ALIAS_WITH_LABEL": "エイリアス{{label}} {{number}}"
+    "VALUE_WITH_LABEL": "value {{label}} {{number}} {{symbol}}"
   },
   "LOGIN": {
-    "TITLE": "ログイン",
-    "PREAMBLE": "パスワードを入力するか、デフォルト値を提出してゲストとしてログインしてください。",
+    "AUTHENTICATION_FAILED": "認証に失敗しました",
     "PASSWORD_LABEL": "パスワード",
     "PASSWORD_PLACEHOLDER": "パスワード",
     "PASSWORD_RESET": "パスワードのリセット",
-    "AUTHENTICATION_FAILED": "認証に失敗しました",
+    "PREAMBLE": "パスワードを入力するか、デフォルト値を提出してゲストとしてログインしてください。",
+    "TITLE": "ログイン",
     "USER": "ユーザー"
   },
   "MENU": {
     "ABOUT_UI": "Openemsについて",
     "ACCESS_LEVEL": "アクセスレベル",
+    "CHANGELOG": "Changelog",
     "EDGE_SETTINGS": "OpenEMS設定",
     "GENERAL_SETTINGS": "一般設定",
     "INDEX": "索引",
     "LOGOUT": "サインアウト",
     "MENU": "メニュー",
     "NAME": "名前",
+    "OTHER_USER": "他のユーザー",
     "OVERVIEW": "すべてのシステム",
     "SETTINGS": "設定",
-    "USER": "ユーザー",
-    "CHANGELOG": "Changelog",
-    "OTHER_USER": "他のユーザー"
+    "USER": "ユーザー"
   },
   "NOTIFICATIONS": {
     "AUTHENTICATION_FAILED": "接続なし：認証に失敗しました。",
@@ -784,50 +784,50 @@
     "LOGGED_IN_AS": "「{{value}}」としてログインします。"
   },
   "REGISTER": {
-    "TITLE": "アカウントを作る",
-    "SEGMENT": {
-      "USER": "ユーザー",
-      "INSTALLER": "インストーラ"
+    "BUTTON": "作成",
+    "ERRORS": {
+      "PASSWORD_NOT_EQUAL": "パスワードは等しくありません",
+      "REQUIRED_FIELDS": "すべてのフィールドに記入してください"
     },
     "FORM": {
-      "USER": {
-        "ACCEPT_PRIVACY_POLICY": ""
-      },
+      "CITY": "街",
+      "COMPANY_NAME": "会社名",
+      "CONFIRM_PASSWORD": "パスワードを認証する",
+      "CONTACT_DETAILS": "連絡先の詳細",
+      "COUNTRY": "国",
+      "EMAIL": "Eメール",
+      "FIRSTNAME": "ファーストネーム",
       "INSTALLER": {
         "ACCEPT_PRIVACY_POLICY": ""
       },
-      "CONTACT_DETAILS": "連絡先の詳細",
-      "COMPANY_NAME": "会社名",
-      "FIRSTNAME": "ファーストネーム",
       "LASTNAME": "苗字",
-      "STREET": "街",
-      "ZIP": "郵便番号",
-      "CITY": "街",
-      "COUNTRY": "国",
-      "PHONE": "電話番号",
-      "EMAIL": "Eメール",
       "PASSWORD": "パスワード",
-      "CONFIRM_PASSWORD": "パスワードを認証する"
+      "PHONE": "電話番号",
+      "STREET": "街",
+      "USER": {
+        "ACCEPT_PRIVACY_POLICY": ""
+      },
+      "ZIP": "郵便番号"
     },
-    "BUTTON": "作成",
-    "ERRORS": {
-      "REQUIRED_FIELDS": "すべてのフィールドに記入してください",
-      "PASSWORD_NOT_EQUAL": "パスワードは等しくありません"
+    "SEGMENT": {
+      "INSTALLER": "インストーラ",
+      "USER": "ユーザー"
     },
-    "SUCCESS": "登録に成功"
+    "SUCCESS": "登録に成功",
+    "TITLE": "アカウントを作る"
   },
   "ROLE": {
+    "ADMIN": "管理者",
     "GUEST": "ゲスト",
-    "OWNER": "オーナー",
     "INSTALLER": "インストーラー",
-    "ADMIN": "管理者"
+    "OWNER": "オーナー"
   },
   "SETTINGS": {
     "SYSTEM_UPDATE": {
       "INSTALLED_VERSION": "インストールバージョン：",
       "LATEST_VERISON": "システムは最新のソフトウェアで最新です",
-      "NEW_VERSION_INSTALLING": "最新バージョンをインストールします",
       "NEW_VERSION": "最新バージョン：",
+      "NEW_VERSION_INSTALLING": "最新バージョンをインストールします",
       "OFFLINE": "{{edgeshortname}}はオフラインです。",
       "RESTARTING": "{{edge}}が再起動しています...",
       "UPDATE_NOT_POSSIBLE": "システムを更新できません！",
