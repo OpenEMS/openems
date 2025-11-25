@@ -18,8 +18,10 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92.Property;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
@@ -46,6 +48,20 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(SafetyCountry.optionsFactory(), l);
 				}));
+	}
+	
+	/**
+	 * Creates a {@link AppDef} for {@link GridCode}.
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridCode() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.gridCode.label") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GridCode.class), l);
+				})); //
 	}
 
 	/**

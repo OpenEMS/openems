@@ -29,6 +29,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergen
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -59,9 +60,9 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
-import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
 import io.openems.edge.common.component.ComponentManager;
@@ -97,14 +98,11 @@ public class FeneconCommercial50Gen3 extends
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
 				.setRequired(true))), //
 
-		GRID_CODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".gridCode.label") //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(GridCode.class), l);
-					field.onlyShowIf(Exp.currentModelValue(Property.SAFETY_COUNTRY)
+		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY) //
 							.equal(Exp.staticValue(SafetyCountry.GERMANY)));
-				}))), //
+				}))),
 
 		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
@@ -354,23 +352,6 @@ public class FeneconCommercial50Gen3 extends
 	public interface PropertyParent
 			extends Type<FeneconCommercial50Gen3.PropertyParent, FeneconCommercial50Gen3, BundleParameter> {
 
-	}
-
-	public enum GridCode implements TranslatableEnum {
-		VDE_4105("VDE-AR-N 4105"), //
-		VDE_4110("VDE-AR-N 4110"), //
-		;
-
-		private final String displayName;
-
-		GridCode(String displayName) {
-			this.displayName = displayName;
-		}
-
-		@Override
-		public String getTranslation(Language language) {
-			return this.displayName;
-		}
 	}
 
 	private static final class ParentPropertyImpl extends
