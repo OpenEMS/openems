@@ -114,7 +114,6 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
 									.addProperty("readOnly", false)//
-									.addProperty("mode", "OFF")//
 									.build()));
 
 			return AppConfiguration.create() //

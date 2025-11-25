@@ -1,5 +1,6 @@
 package io.openems.edge.controller.cleverpv;
 
+import io.openems.common.types.DebugMode;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -21,14 +22,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "URL", description = "Full API URL. See https://www.clever-pv.com/anleitungen/push-api", type = AttributeType.PASSWORD)
 	String url();
 
-	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
-	LogVerbosity logVerbosity() default LogVerbosity.NONE;
-
-	@AttributeDefinition(name = "Read only", description = "Defines that this controller is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this controller is read only. This permanently disables remote control via Clever-PV.", required = true)
 	boolean readOnly() default true;
 
-	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
-	Mode mode() default Mode.OFF;
+	@AttributeDefinition(name = "Control Mode", description = "Set the type of control mode.")
+	ControlMode controlMode() default ControlMode.OFF;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "Controller Clever-PV [{id}]";
 }
