@@ -139,8 +139,9 @@
         },
         "EVCS": {
           "PHASE_SWITCHING": "Phasenumschaltung",
-          "FORCE_SINGLE_PHASE": "1-phasig Laden",
-          "FORCE_THREE_PHASE": "3-phasig Laden",
+          "PHASE_SWITCHING_INFO": "Mit wie vielen Phasen soll das Fahrzeug beladen werden?",
+          "FORCE_SINGLE_PHASE": "1-phasig",
+          "FORCE_THREE_PHASE": "3-phasig",
           "AUTOMATIC_SWITCHING": "Automatisch",
           "ACTIVATE_CHARGING": "Aktivieren der Ladesäule",
           "AMOUNT_OF_CHARGING_STATIONS": "Anzahl der Ladestationen",

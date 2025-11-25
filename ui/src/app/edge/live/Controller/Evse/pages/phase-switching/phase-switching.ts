@@ -47,12 +47,17 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
                 img: {
                     url: "assets/img/phasenumschaltung.svg",
                     width: 100,
+                    style: {
+                        maxWidth: "30rem",
+                        justifySelf: "center",
+                        paddingBottom: "var(--ion-padding)",
+                    },
                 },
             },
             {
                 type: "info-line",
-                name: "Mit wie vielen Phasen möchten Sie Ihr Auto laden:",
-                style: "font-weight: bold; text-align: center;",
+                name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING_INFO"),
+                style: "font-weight: bold; text-align: center; font-size: 1rem; padding-bottom: calc(var(--ion-padding) * 4)",
             },
             {
                 type: "radio-buttons-from-form-control-line",
@@ -65,18 +70,17 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
                         style: {
                             "color": "red",
                             "fontWeight": "bold",
-                            "text-align": "center",
                         },
                     },
                     {
                         name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_THREE_PHASE"),
                         value: PhaseSwitching.FORCE_THREE_PHASE,
                     },
-                    {
+                    /* {
                         name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.AUTOMATIC_SWITCHING"),
                         value: PhaseSwitching.AUTOMATIC_SWITCHING, // not implemented yet
                         disabled: true,
-                    },
+                    },*/
                 ],
             },
         ];

@@ -25,8 +25,13 @@ describe("EVSE phase switching", () => {
 
             expectView(component, edge, VIEW_CONTEXT, TEST_CONTEXT, {
                 lines: [
-                    IMAGE_LINE({ url: "assets/img/phasenumschaltung.svg", width: 100 }),
-                    LINE_INFO("Mit wie vielen Phasen möchten Sie Ihr Auto laden:", "font-weight: bold; text-align: center;"),
+                    IMAGE_LINE({
+                        url: "assets/img/phasenumschaltung.svg", width: 100, style: {
+                            maxWidth: "30rem", justifySelf: "center",
+                            paddingBottom: "var(--ion-padding)",
+                        },
+                    }),
+                    LINE_INFO(TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING_INFO"), "font-weight: bold; text-align: center; font-size: 1rem; padding-bottom: calc(var(--ion-padding) * 4)"),
                     LINE_RADIO_BUTTONS_FROM_FORM_CONTROL("phase-switching", EvsePhaseSwitchingComponent.formControlName,
                         [
                             {
@@ -35,7 +40,6 @@ describe("EVSE phase switching", () => {
                                 style: {
                                     "color": "red",
                                     "fontWeight": "bold",
-                                    "text-align": "center",
                                 },
                             },
                             {

@@ -24,6 +24,6 @@ export type ButtonLabel = {
     /** Icons for Button, displayed above the corresponding name */
     icon?: Icon;
     callback?: () => void;
-    style?: { [key: string]: string };
+    style?: Exclude<Partial<CSSStyleDeclaration>, "objectFit" | "width" | "height" | "src">,
     disabled?: boolean;
 };

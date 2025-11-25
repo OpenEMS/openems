@@ -1,4 +1,4 @@
-<form [formGroup]="formGroup" style="padding-top: 2%;">
+<form [formGroup]="formGroup" style="padding-top: 2%; justify-self: center;">
     @switch(control.type){
         @case("SELECT"){
             <ion-segment [formControlName]="controlName">
@@ -8,17 +8,15 @@
                     </ion-segment-button>
                 }
             </ion-segment>
-        }
+        } 
         @case("RADIO"){
             <ion-radio-group [formControlName]="controlName">
                 @for (button of buttons; track button) {
-                    <ion-row class="ion-justify-content-center ion-text-nowrap">
-                        <ion-item lines="none" [disabled]="button.disabled" style="--inner-padding-end: 0;">
-                            <ion-radio labelPlacement="end" [value]="button.value" (ionSelect)="button.callback">
-                               <ng-template *ngTemplateOutlet="optionContent; context: {$implicit: button}"></ng-template>
-                            </ion-radio>
-                        </ion-item>
-                    </ion-row>
+                    <ion-item lines="none" [disabled]="button.disabled">
+                        <ion-radio value="end" labelPlacement="end" [value]="button.value" (ionSelect)="button.callback">
+                            <ng-template *ngTemplateOutlet="optionContent; context: {$implicit: button}"></ng-template>
+                        </ion-radio>
+                    </ion-item>
                 }
             </ion-radio-group>
         }
