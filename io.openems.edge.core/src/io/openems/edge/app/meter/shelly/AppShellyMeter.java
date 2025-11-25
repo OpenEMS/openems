@@ -84,7 +84,6 @@ public class AppShellyMeter
 		PHASE(MeterProps.singlePhase()), //
 		TYPE(MeterProps.type(MeterType.GRID) //
 				.setDefaultValue(MeterType.CONSUMPTION_METERED)), //
-		INVERT(MeterProps.invert(METER_ID)), //
 		;
 
 		private final AppDef<? super AppShellyMeter, ? super Property, ? super Parameter.BundleParameter> def;
@@ -133,11 +132,13 @@ public class AppShellyMeter
 			final var discoveryType = this.getEnum(p, DiscoveryType.class, Property.DISCOVERY_TYPE);
 			final var phase = this.getEnum(p, Phase.class, Property.PHASE);
 			final var type = this.getEnum(p, MeterType.class, Property.TYPE);
+			final var invert = type == MeterType.PRODUCTION;
 
 			final var props = JsonUtils.buildJsonObject() //
 					.addProperty("enabled", true) //
 					.addProperty("phase", phase) //
-					.addProperty("type", type);
+					.addProperty("type", type) //
+					.addProperty("invert", invert);
 
 			String factoryId = null;
 			switch (discoveryType) {

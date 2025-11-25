@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.meter.shelly.AppShellyMeter;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -275,14 +276,13 @@ public final class RelayProps {
 	}
 
 	/**
-	 * Creates a {@link RelayContactFilter} for
-	 * {@link AppShellyMeter} components.
+	 * Creates a {@link RelayContactFilter} for {@link AppShellyMeter} components.
 	 *
 	 * @return the {@link RelayContactFilter}
 	 */
 	public static RelayContactFilter shellyFilter() {
 		return RelayContactFilter.create() //
-				.withComponentFilter(t -> !t.serviceFactoryPid().equals("IO.Shelly.Plus.PlugS"));
+				.withComponentFilter(t -> !StringUtils.containsIgnoreCase(t.serviceFactoryPid(), "shelly"));
 	}
 
 	/**
