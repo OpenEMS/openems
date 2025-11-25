@@ -24,7 +24,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     ],
 })
 
-export class EvseSettingsComponent extends AbstractFormlyComponent {
+export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     // Increased skip count
@@ -76,7 +76,7 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
     protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
         this.component = config.getComponent(this.route.snapshot.params.componentId);
         const edge = this.service.currentEdge();
-        return EvseSettingsComponent.generateView(this.translate, this.component, edge);
+        return EvseEnergyLimitComponent.generateView(this.translate, this.component, edge);
     }
 
     protected override getFormGroup(): FormGroup {
@@ -92,9 +92,11 @@ export class EvseSettingsComponent extends AbstractFormlyComponent {
 
         const config = await this.service.getConfig();
         const component = config.getComponent(this.route.snapshot.params.componentId);
+
         if (!component || !component.id) {
             return [];
         }
-        return [new ChannelAddress(component.id, "_PropertyManualEnergySessionLimit")];
+        this.energySessionLimitChannel = new ChannelAddress(component.id, "_PropertyManualEnergySessionLimit");
+        return [this.energySessionLimitChannel];
     }
 }

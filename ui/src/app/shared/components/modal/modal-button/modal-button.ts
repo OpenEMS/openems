@@ -10,6 +10,11 @@ import { AbstractModalLine } from "../abstract-modal-line";
 export class ModalButtonsComponent extends AbstractModalLine {
 
     @Input({ required: true }) public buttons!: ButtonLabel[];
+
+    /** ControlName for interactive Button */
+    @Input({ required: true }) protected control:
+        { type: "RADIO" } |
+        { type: "SELECT" } = { type: "SELECT" };
 }
 
 export type ButtonLabel = {
@@ -20,4 +25,5 @@ export type ButtonLabel = {
     icon?: Icon;
     callback?: () => void;
     style?: { [key: string]: string };
+    disabled?: boolean;
 };

@@ -5,10 +5,10 @@ import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tes
 
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
-import { EvseSettingsComponent } from "./settings";
+import { EvseEnergyLimitComponent } from "./energy-limit";
 
 function expectView(component: EdgeConfig.Component, edge: Edge, viewContext: OeFormlyViewTester.Context, testContext: TestContext, view: OeFormlyViewTester.View, formGroup: FormGroup): void {
-    const generatedView = OeFormlyViewTester.apply(EvseSettingsComponent.generateView(testContext.translate, component, edge), viewContext, formGroup);
+    const generatedView = OeFormlyViewTester.apply(EvseEnergyLimitComponent.generateView(testContext.translate, component, edge), viewContext, formGroup);
     expect(generatedView).toEqual(view);
 }
 

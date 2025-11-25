@@ -86,10 +86,10 @@ export class Edge {
     }
 
     /**
-   * Gets the Config. If not available yet, it requests it via Websocket.
-   *
-   * @param websocket the Websocket connection
-   */
+     * Gets the Config. If not available yet, it requests it via Websocket.
+     *
+     * @param websocket the Websocket connection
+     */
     public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
         if (this.config.value == null || !this.config.value.isValid()) {
             this.refreshConfig(websocket);
@@ -98,17 +98,17 @@ export class Edge {
     }
 
     /**
-   * Gets the current config. If not available null.
-   */
+     * Gets the current config. If not available null.
+     */
     public getCurrentConfig(): EdgeConfig | null {
         return this.config.value;
     }
 
     /**
-   * Gets the first valid Config. If not available yet, it requests it via Websocket.
-   *
-   * @param websocket the Websocket connection
-   */
+     * Gets the first valid Config. If not available yet, it requests it via Websocket.
+     *
+     * @param websocket the Websocket connection
+     */
     public getFirstValidConfig(websocket: Websocket): Promise<EdgeConfig> {
         return this.getConfig(websocket)
             .pipe(filter(config => config != null && config.isValid()),
@@ -117,13 +117,13 @@ export class Edge {
     }
 
     /**
-   * Gets a channel either from {@link EdgeConfig edgeconfig} or requests it from the edge.
-   *
-   * @param websocket the websocket to send a request if the
-   *                  channel is not included in the edgeconfig
-   * @param channel   the address of the channel to get
-   * @returns a promise of the found channel
-   */
+     * Gets a channel either from {@link EdgeConfig edgeconfig} or requests it from the edge.
+     *
+     * @param websocket the websocket to send a request if the
+     *                  channel is not included in the edgeconfig
+     * @param channel   the address of the channel to get
+     * @returns a promise of the found channel
+     */
     public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
         if (EdgePermission.hasChannelsInEdgeConfig(this)) {
             const config = await this.getFirstValidConfig(websocket);
@@ -146,13 +146,13 @@ export class Edge {
     }
 
     /**
-   * Gets all channels of the component with the provided component id.
-   *
-   * @param websocket   the websocket to send a request if the
-   *                    channels are not included in the edgeconfig
-   * @param componentId the id of the component
-   * @returns a promise with the reuslt channels
-   */
+     * Gets all channels of the component with the provided component id.
+     *
+     * @param websocket   the websocket to send a request if the
+     *                    channels are not included in the edgeconfig
+     * @param componentId the id of the component
+     * @returns a promise with the reuslt channels
+     */
     public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
         if (EdgePermission.hasChannelsInEdgeConfig(this)) {
             const config = await this.getFirstValidConfig(websocket);
@@ -187,19 +187,19 @@ export class Edge {
     }
 
     /**
-   * Called by Service, when this Edge is set as currentEdge.
-   */
+     * Called by Service, when this Edge is set as currentEdge.
+     */
     public markAsCurrentEdge(websocket: Websocket): void {
         this.getConfig(websocket);
     }
 
     /**
-   * Add Channels to subscription
-   *
-   * @param websocket the Websocket
-   * @param id        a unique ID for this subscription (e.g. the component selector)
-   * @param channels  the subscribed Channel-Addresses
-   */
+     * Add Channels to subscription
+     *
+     * @param websocket the Websocket
+     * @param id        a unique ID for this subscription (e.g. the component selector)
+     * @param channels  the subscribed Channel-Addresses
+     */
     public subscribeChannels(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
         const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
         this.subscribedChannels[id] = channels;
@@ -214,10 +214,10 @@ export class Edge {
     }
 
     /**
-   * Refreshes Channels subscriptions on websocket reconnect.
-   *
-   * @param websocket the Websocket
-   */
+     * Refreshes Channels subscriptions on websocket reconnect.
+     *
+     * @param websocket the Websocket
+     */
     public subscribeChannelsOnReconnect(websocket: Websocket): void {
         if (Object.keys(this.subscribedChannels).length > 0) {
             this.sendSubscribeChannels(websocket);
@@ -225,14 +225,14 @@ export class Edge {
     }
 
     /**
-   * Removes Channels from subscription
-   *
-   * @param websocket the Websocket
-   * @param id        the unique ID for this subscription
-   * @deprecated Use `unsubscribeFromChannels` instead.
-   *
-   * @todo should be removed
-   */
+     * Removes Channels from subscription
+     *
+     * @param websocket the Websocket
+     * @param id        the unique ID for this subscription
+     * @deprecated Use `unsubscribeFromChannels` instead.
+     *
+     * @todo should be removed
+     */
     public unsubscribeChannels(websocket: Websocket, id: string): void {
         const subscribedChannelsById = this.subscribedChannels[id];
         delete this.subscribedChannels[id];
@@ -248,23 +248,23 @@ export class Edge {
     }
 
     /**
-   * Removes all Channels from subscription
-   *
-   * @param websocket the Websocket
-   */
+     * Removes all Channels from subscription
+     *
+     * @param websocket the Websocket
+     */
     public unsubscribeAllChannels(websocket: Websocket) {
         this.subscribedChannels = {};
         this.sendSubscribeChannels(websocket);
     }
 
     /**
-   * Unsubscribes from passed channels
-   *
-   * @param websocket the Websocket
-   * @param channels the channels
-   *
-   * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
-   */
+     * Unsubscribes from passed channels
+     *
+     * @param websocket the Websocket
+     * @param channels the channels
+     *
+     * @todo should be renamed to `unsubscribeChannels` after unsubscribeChannels is removed
+     */
     public unsubscribeFromChannels(subscribeId: string, websocket: Websocket, channels: ChannelAddress[]) {
         const subscribedChannels = Object.entries(this.subscribedChannels)
             .reduce((arr, [id, subscribedChannels]) => {
@@ -300,86 +300,86 @@ export class Edge {
     }
 
     /**
-   * Subscribe to System-Log
-   *
-   * @param websocket the Websocket
-   */
+     * Subscribe to System-Log
+     *
+     * @param websocket the Websocket
+     */
     public subscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
         return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: true }));
     }
 
     /**
-   * Unsubscribe from System-Log
-   *
-   * @param websocket the Websocket
-   */
+     * Unsubscribe from System-Log
+     *
+     * @param websocket the Websocket
+     */
     public unsubscribeSystemLog(websocket: Websocket): Promise<JsonrpcResponseSuccess> {
         return this.sendRequest(websocket, new SubscribeSystemLogRequest({ subscribe: false }));
     }
 
     /**
-   * Handles a EdgeConfigNotification
-   */
+     * Handles a EdgeConfigNotification
+     */
     public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
         this.config.next(new EdgeConfig(this, message.params));
     }
 
     /**
-   * Handles a CurrentDataNotification
-   */
+     * Handles a CurrentDataNotification
+     */
     public handleCurrentDataNotification(message: CurrentDataNotification): void {
         this.currentData.next(new CurrentData(message.params));
     }
 
     /**
-   * Handles a SystemLogNotification
-   */
+     * Handles a SystemLogNotification
+     */
     public handleSystemLogNotification(message: SystemLogNotification): void {
         this.systemLog.next(message.params.line);
     }
 
     /**
-   * Creates a configuration for a OpenEMS Edge Component.
-   *
-   * @param ws          the Websocket
-   * @param factoryPId  the OpenEMS Edge Factory-PID
-   * @param properties  the properties to be updated.
-   */
+     * Creates a configuration for a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param factoryPId  the OpenEMS Edge Factory-PID
+     * @param properties  the properties to be updated.
+     */
     public createComponentConfig(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
         const request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
         return this.sendRequest(ws, request);
     }
 
     /**
-   * Updates the configuration of a OpenEMS Edge Component.
-   *
-   * @param ws          the Websocket
-   * @param componentId the OpenEMS Edge Component-ID
-   * @param properties  the properties to be updated.
-   */
+     * Updates the configuration of a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param componentId the OpenEMS Edge Component-ID
+     * @param properties  the properties to be updated.
+     */
     public updateComponentConfig(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
         const request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
         return this.sendRequest(ws, request);
     }
 
     /**
-   * Deletes the configuration of a OpenEMS Edge Component.
-   *
-   * @param ws          the Websocket
-   * @param componentId the OpenEMS Edge Component-ID
-   */
+     * Deletes the configuration of a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param componentId the OpenEMS Edge Component-ID
+     */
     public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
         const request = new DeleteComponentConfigRequest({ componentId: componentId });
         return this.sendRequest(ws, request);
     }
 
     /**
-   * Sends a JSON-RPC Request. The Request is wrapped in a EdgeRpcRequest.
-   *
-   * @param ws               the Websocket
-   * @param request          the JSON-RPC Request
-   * @param responseCallback the JSON-RPC Response callback
-   */
+     * Sends a JSON-RPC Request. The Request is wrapped in a EdgeRpcRequest.
+     *
+     * @param ws               the Websocket
+     * @param request          the JSON-RPC Request
+     * @param responseCallback the JSON-RPC Response callback
+     */
     public sendRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
         const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
         return new Promise((resolve, reject) => {
@@ -392,12 +392,12 @@ export class Edge {
     }
 
     /**
-   * Updates the configuration of a OpenEMS Edge App.
-   *
-   * @param ws          the Websocket
-   * @param componentId the OpenEMS Edge Component-ID that the app is searched by
-   * @param properties  the properties to be updated.
-   */
+     * Updates the configuration of a OpenEMS Edge App.
+     *
+     * @param ws          the Websocket
+     * @param componentId the OpenEMS Edge Component-ID that the app is searched by
+     * @param properties  the properties to be updated.
+     */
     public updateAppConfig(ws: Websocket, componentId: string, properties: { name: string, value: string | number | boolean }[]): Promise<JsonrpcResponseSuccess> {
         let request;
         if (!hasUpdateAppVersion(this)) {
@@ -417,64 +417,64 @@ export class Edge {
     }
 
     /**
-   * Mark this edge as online or offline
-   *
-   * @param isOnline
-   */
+     * Mark this edge as online or offline
+     *
+     * @param isOnline
+     */
     public setOnline(isOnline: boolean): void {
         this.isOnline = isOnline;
     }
 
     /**
-   * Returns whether the given version is higher than the Edge' version
-   *
-   * Example: {{ edge.isVersionAtLeast('2018.9') }}
-   *
-   * @param version
-   */
+     * Returns whether the given version is higher than the Edge' version
+     *
+     * Example: {{ edge.isVersionAtLeast('2018.9') }}
+     *
+     * @param version
+     */
     public isVersionAtLeast(version: string): boolean {
         return compareVersions(this.version, version) >= 0;
     }
 
     /**
-   * Determines if the version of the edge is a SNAPSHOT.
-   *
-   * <p>
-   * Version strings are built like `major.minor.patch-branch.date.hash`. So any version string that contains a hyphen is a SNAPSHOT.
-   *
-   * @returns true if the version of the edge is a SNAPSHOT
-   */
+     * Determines if the version of the edge is a SNAPSHOT.
+     *
+     * <p>
+     * Version strings are built like `major.minor.patch-branch.date.hash`. So any version string that contains a hyphen is a SNAPSHOT.
+     *
+     * @returns true if the version of the edge is a SNAPSHOT
+     */
     public isSnapshot(): boolean {
         return this.version.includes("-");
     }
 
     /**
-   * Evaluates whether the current Role is equal or more privileged than the
-   * given Role.
-   *
-   * @param role     the compared Role
-   * @return true if the current Role is equal or more privileged than the given Role
-   */
+     * Evaluates whether the current Role is equal or more privileged than the
+     * given Role.
+     *
+     * @param role     the compared Role
+     * @return true if the current Role is equal or more privileged than the given Role
+     */
     public roleIsAtLeast(role: Role | string): boolean {
         return Role.isAtLeast(this.role, role);
     }
 
     /**
-   * Gets the Role of the Edge as a human-readable string.
-  *
-  * @returns the name of the role
-  */
+     * Gets the Role of the Edge as a human-readable string.
+    *
+    * @returns the name of the role
+    */
     public getRoleString(): string {
         return Role[this.role].toLowerCase();
     }
 
     /**
-   * Gets the navigation tree
-   *
-   * @param navigationTree current navigation tree
-   * @param translate the translate
-   * @returns the new navigation tree
-   */
+     * Gets the navigation tree
+     *
+     * @param navigationTree current navigation tree
+     * @param translate the translate
+     * @returns the new navigation tree
+     */
     public async createNavigationTree(translate: TranslateService, edge: Edge): Promise<NavigationTree> {
         const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (translate) => [
             NavigationId.LIVE, { baseString: "live" }, { name: "home-outline" }, "live", "icon", [],
@@ -493,6 +493,7 @@ export class Edge {
 
         const conf = await this.config.getValue();
         this.addCommonWidgetNavigation(edge, conf, navigationTree, translate);
+        this.addControllerNavigation(edge, conf, navigationTree, translate);
         const baseMode: NavigationTree["mode"] = "label";
         for (const [componentId, component] of Object.entries(conf.components)) {
             if (component.isEnabled == false) {
@@ -503,12 +504,22 @@ export class Edge {
                 case "Evse.Controller.Single":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
-                            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode,
-                            [...(this.roleIsAtLeast(Role.ADMIN)
-                                ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)] : []), new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null), new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), baseMode, [], null),
-                            ...(this.roleIsAtLeast(Role.OWNER) ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" },
-                                { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
-                                : [])], navigationTree));
+                            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+                                ...(this.roleIsAtLeast(Role.ADMIN)
+                                    ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                                    : []),
+
+                                ...(this.roleIsAtLeast(Role.ADMIN)
+                                    ? [new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null)]
+                                    : []),
+
+                                new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
+                                new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
+
+                                ...(this.roleIsAtLeast(Role.OWNER)
+                                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                                    : []),
+                            ], navigationTree));
                     break;
                 case "Controller.IO.Heating.Room":
                     navigationTree.setChild(NavigationId.LIVE,
@@ -523,11 +534,11 @@ export class Edge {
     }
 
     /**
-   * Checks if privacy policy popover should be shown.
-   *
-   * @param websocket the websocket
-   * @returns
-   */
+     * Checks if privacy policy popover should be shown.
+     *
+     * @param websocket the websocket
+     * @returns
+     */
     public async shouldShowPrivacyPolicyPopover(websocket: Websocket): Promise<boolean> {
         const [_err, config] = await PromiseUtils.Functions.handle(this.getFirstValidConfig(websocket));
 
@@ -565,10 +576,23 @@ export class Edge {
             currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
         }
     }
+    private addControllerNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {
+        const list = Widgets.parseWidgets(edge, conf).list;
+
+        for (const item of list) {
+            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getControllerNavigationTree(edge, item.name, translate, conf);
+
+            if (navigationTree == null) {
+                continue;
+            }
+
+            currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
+        }
+    }
 
     /**
- * Refresh the config.
- */
+   * Refresh the config.
+   */
     private refreshConfig(websocket: Websocket): void {
         // make sure to send not faster than every 1000 ms
         if (this.isRefreshConfigBlocked) {
@@ -592,10 +616,10 @@ export class Edge {
     }
 
     /**
- * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
- *
- * @param websocket the Websocket
- */
+   * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
+   *
+   * @param websocket the Websocket
+   */
     private sendSubscribeChannels(websocket: Websocket): void {
         // make sure to send not faster than every 100 ms
         if (this.subscribeChannelsTimeout == null) {
