@@ -50,16 +50,6 @@ public record GeoResult(//
 				return SubdivisionCode.fromCode(code);
 			}).orElse(SubdivisionCode.UNDEFINED);
 
-			var placeName = components.getOptionalString("hamlet")//
-					.or(() -> components.getOptionalString("village"))//
-					.or(() -> components.getOptionalString("suburb"))//
-					.or(() -> components.getOptionalString("town"))//
-					.or(() -> components.getOptionalString("neighbourhood"))//
-					.or(() -> components.getOptionalString("quarter"))//
-					.or(() -> components.getOptionalString("city_district"))//
-					.or(() -> components.getOptionalString("city"))//
-					.orElse(null);
-
 			var currency = annotations.mapIfPresent(ann -> {
 				return ann.getNullableJsonObjectPath("currency").mapIfPresent(curr -> {
 					return curr.getOptionalString("iso_code")//
@@ -94,7 +84,7 @@ public record GeoResult(//
 					countryCode, //
 					components.getStringOrNull("state"), //
 					subdivisionCode, //
-					placeName, //
+					components.getStringOrNull("_normalized_city"), //
 					components.getStringOrNull("postcode"), //
 					components.getStringOrNull("road"), //
 					components.getStringOrNull("house_number"), //
