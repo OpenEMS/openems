@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.OpenemsType;
@@ -20,6 +21,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.io.phoenixcontact.PlcNextDataClient;
 import io.openems.edge.io.phoenixcontact.PlcNextDevice;
+import io.openems.edge.io.phoenixcontact.utils.PlcNextJsonElementHelper;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextGdsProvider.class)
@@ -28,8 +30,8 @@ public class PlcNextGdsProvider {
 	private static final Map<PlcNextGdsDataAspect, ChannelId> CHANNEL_MAPPING_READ = Map.of(
 			PlcNextGdsDataAspect.READ_TEST_VALUE, ElectricityMeter.ChannelId.ACTIVE_POWER);
 	
-	private static final Map<ChannelId, PlcNextGdsDataAspect> CHANNEL_MAPPING_WRITE = Map.of(
-			ElectricityMeter.ChannelId.VOLTAGE, PlcNextGdsDataAspect.WRITE_TEST_VALUE);
+//	private static final Map<ChannelId, PlcNextGdsDataAspect> CHANNEL_MAPPING_WRITE = Map.of(
+//			ElectricityMeter.ChannelId.VOLTAGE, PlcNextGdsDataAspect.WRITE_TEST_VALUE);
 
 	private final PlcNextDataClient dataClient;
 	
@@ -46,44 +48,24 @@ public class PlcNextGdsProvider {
 	}
 
 	// TODO: just a try of generic implementation
-	public void readFromApiToChannels() {
-		Map<ChannelId, Channel<?>> mappedChannels = this.deviceComponent.channels().stream()
+	public void readFromApiToChannels(String namespace) {
+		Map<ChannelId, Channel<?>> mappedChannels = this.deviceComponent.channels().parallelStream()
 			.filter(channel -> CHANNEL_MAPPING_READ.values().contains(channel.channelId()))
 			.collect(Collectors.toMap(Channel::channelId, Function.identity()));
 		
-		JsonObject apiResponseBody = dataClient.fetchAllGdsDataAspects("test");
+		JsonObject apiResponseBody = dataClient.fetchAllGdsDataAspects(namespace);
 		CHANNEL_MAPPING_READ.keySet().forEach(mappedDataAspect -> {
 			ChannelId dataAspectChannelId = CHANNEL_MAPPING_READ.get(mappedDataAspect);
 			Channel<?> dataAspectChannel = mappedChannels.get(dataAspectChannelId);
+			JsonElement responseElement = apiResponseBody.get(mappedDataAspect.getIdentifier());
+			Object jsonValue = PlcNextJsonElementHelper.getJsonValue(responseElement, dataAspectChannel.getType());
 			
-			if (dataAspectChannel.getType() == OpenemsType.BOOLEAN) {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsBoolean());
-			} else if (dataAspectChannel.getType() == OpenemsType.DOUBLE) {
-					dataAspectChannel.setNextValue(
-							apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsDouble());
-			} else if (dataAspectChannel.getType() == OpenemsType.FLOAT) {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsFloat());
-			} else if (dataAspectChannel.getType() == OpenemsType.INTEGER) {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsInt());
-			} else if (dataAspectChannel.getType() == OpenemsType.LONG) {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsLong());
-			} else if (dataAspectChannel.getType() == OpenemsType.SHORT) {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsShort());
-			} else {
-				dataAspectChannel.setNextValue(
-						apiResponseBody.get(mappedDataAspect.getIdentifier()).getAsString());
-				
-			}
+			dataAspectChannel.setNextValue(jsonValue);
 		});		
 	}
 	
-	public void writeToApiFromChannels() {
-		// TODO: implement me!
-	}
+//	public void writeToApiFromChannels() {
+//		// TODO: implement me!
+//	}
 	
 }

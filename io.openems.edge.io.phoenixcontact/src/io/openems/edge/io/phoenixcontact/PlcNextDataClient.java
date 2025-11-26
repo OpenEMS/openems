@@ -9,12 +9,16 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
+import io.openems.edge.io.phoenixcontact.utils.PlcNextJsonElementHelper;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextDataClient.class)
 public class PlcNextDataClient {
@@ -30,15 +34,21 @@ public class PlcNextDataClient {
 		this.config = config;
 	}
 
-	// TODO: just a dummy implementation
-	public String fetchSingleGdsDataAspect(String resourceName, String aspectName) {
+	/**
+	 * Fetches a single data aspect and returns it
+	 * 
+	 * @param resourceName	represents the GDS namespace / resource to query
+	 * @param aspectName	represents the name of the field to fetch a value for
+	 * @return
+	 */
+	public Object fetchSingleGdsDataAspect(String resourceName, String aspectName, OpenemsType type) {
 		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);
-		CompletableFuture<String> dataAspectValue = http.requestJson(dataEndPoint)
-				.thenApply(s -> s.data().getAsJsonObject().getAsJsonPrimitive(aspectName).getAsString());
+		CompletableFuture<Object> dataAspectValue = http.requestJson(dataEndPoint)
+				.thenApply(s -> PlcNextJsonElementHelper.getJsonValue(s.data().getAsJsonObject().getAsJsonPrimitive(aspectName), type));
 
 		return dataAspectValue.join();
 	}
-
+	
 	// TODO: just a dummy implementation
 	public JsonObject fetchAllGdsDataAspects(String resourceName) {
 		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);

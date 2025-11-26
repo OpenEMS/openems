@@ -1,6 +1,7 @@
 package io.openems.edge.io.phoenixcontact;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.types.MeterType;
@@ -29,14 +30,14 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Username", description = "Credentials: username")
 	String username() default "admin";
 
-	@AttributeDefinition(name = "Password", description = "Credentials: password")
+	@AttributeDefinition(name = "Password", description = "Credentials: password", type = AttributeType.PASSWORD)
 	String password() default "admin";
 
 	@AttributeDefinition(name = "Data-URL", description = "Defines base URL to pickup data from GDS")
 	String dataUrl() default "http://localhost:8080/plcnext";
 
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-	String dataInstanceName() default "gds_openems0";
+	String dataInstanceName() default "gds_openems_N";
 
 	String webconsole_configurationFactory_nameHint() default "PxC PLCnext device [{id}]";
 

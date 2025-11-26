@@ -1,12 +1,10 @@
 package io.openems.edge.io.phoenixcontact;
 
-import org.osgi.service.event.EventHandler;
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface PlcNextDevice extends ElectricityMeter, OpenemsComponent, EventHandler {
+public interface PlcNextDevice extends ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

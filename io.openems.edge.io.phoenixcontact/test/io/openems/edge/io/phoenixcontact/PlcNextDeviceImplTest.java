@@ -8,10 +8,19 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.bridge.http.BridgeHttpImpl;
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.HttpBridgeService;
+import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
+import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
+import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
@@ -34,7 +43,7 @@ public class PlcNextDeviceImplTest {
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsProvider dataProvider;
 
-	private List<PlcNextApiCommand> apiCommands;
+	private CycleSubscriber cycleSubscriber;
 	
 	private PlcNextDeviceImpl componentUnderTest;
 	
@@ -49,6 +58,11 @@ public class PlcNextDeviceImplTest {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'jwtToken': 'dummy'}"));
+			}
+			
+			@Override
+			public <T extends HttpBridgeService> T createService(HttpBridgeServiceDefinition<T> serviceDefinition) {
+				return (T)new HttpBridgeTimeServiceImpl(this, new DummyBridgeHttpExecutor(), new DummyEndpointFetcher());
 			}
 		};
 		this.dummyDataBridgeHttp = new DummyBridgeHttp() {
@@ -65,8 +79,7 @@ public class PlcNextDeviceImplTest {
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
 		this.dataProvider.setPlcNextDeviceComponent(componentUnderTest);
 		
-		this.apiCommands = new ArrayList<PlcNextApiCommand>();
-		this.apiCommands.add(new PlcNextReadFromApiResourceCommand(this.dataProvider));	
+		this.cycleSubscriber = new CycleSubscriber();
 	}
 	
 	
@@ -74,7 +87,8 @@ public class PlcNextDeviceImplTest {
 	@Test
 	public void test() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
-				.addReference("apiCommands", this.apiCommands) //
+				.addReference("gdsProvider", this.dataProvider) //
+				.addReference("cycleSubscriber", this.cycleSubscriber)
 				.activate(this.myConfig); //
 		
 		test.next(new TestCase()); //

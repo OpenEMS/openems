@@ -20,19 +20,21 @@ public class PlcNextTokenManager {
 	@Activate
 	public PlcNextTokenManager(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) PlcNextAuthClient authClient) {
 		this.authClient = authClient;
+		
+		fetchToken();
 	}
 
 	/**
 	 * Initialize fetching valid JWT periodically
 	 */
-	public synchronized void fetchToken() {
+	private void fetchToken() {
 		this.authClient.fetchAuthenticationPeriodically((a, b) -> {
 			if (a == null) {
 				return;
 			}
-			// TODO check if the token is expires
-
 			JsonObject jsonObject = a.data().getAsJsonObject();
+			
+			// TODO check if the token is expires
 			this.token = jsonObject.getAsJsonPrimitive("jwtToken").getAsString();
 		});
 	}

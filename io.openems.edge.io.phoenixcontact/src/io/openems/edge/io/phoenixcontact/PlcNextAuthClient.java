@@ -37,7 +37,11 @@ public class PlcNextAuthClient {
 		this.timeService = http.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
 
-	// TODO: just a dummy implementation
+	/**
+	 * Fetches a single auth token
+	 * 
+	 * @return fetched auth token
+	 */
 	public String fetchSingleAuthentication() {
 		Endpoint authEndPoint = buildAuthenticationEndpointRepresentation();
 		CompletableFuture<String> authToken = http.requestJson(authEndPoint)
@@ -46,12 +50,15 @@ public class PlcNextAuthClient {
 		return authToken.join();
 	}
 
-	// TODO: just a dummy implementation
+	/**
+	 * Registers a time based subscription refreshing the auth token in intervals
+	 * 
+	 * @param action	represents an action processing the response
+	 */
 	public void fetchAuthenticationPeriodically(BiConsumer<HttpResponse<JsonElement>, HttpError> action) {
 		Endpoint authEndpoint = buildAuthenticationEndpointRepresentation();
 
 		this.timeService.subscribeJsonTime(new PlcNextDelayTimeProvider(TOKEN_FETCH_DELAY), authEndpoint, action);
-
 	}
 
 	private Endpoint buildAuthenticationEndpointRepresentation() {

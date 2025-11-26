@@ -10,14 +10,14 @@ import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.edge.common.event.EdgeEventConstants;
 
-@Component(scope = ServiceScope.SINGLETON, service = PlcNextReadFromApiResourceCommand.class)
 public class PlcNextReadFromApiResourceCommand implements PlcNextApiCommand {
 
-	public final PlcNextGdsProvider gdsProvider;
+	private final PlcNextGdsProvider gdsProvider;
+	private final String instanceName;
 
-	@Activate
-	public PlcNextReadFromApiResourceCommand(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) PlcNextGdsProvider gdsProvider) {
+	public PlcNextReadFromApiResourceCommand(PlcNextGdsProvider gdsProvider, String instanceName) {
 		this.gdsProvider = gdsProvider;
+		this.instanceName = instanceName;
 	}
 	
 	@Override
@@ -27,7 +27,6 @@ public class PlcNextReadFromApiResourceCommand implements PlcNextApiCommand {
 	
 	@Override
 	public void execute() {
-		gdsProvider.readFromApiToChannels();
+		gdsProvider.readFromApiToChannels(instanceName);
 	}
-
 }
