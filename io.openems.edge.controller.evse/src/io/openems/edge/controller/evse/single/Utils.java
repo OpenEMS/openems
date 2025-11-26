@@ -8,7 +8,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
+import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -83,6 +83,10 @@ public final class Utils {
 	}
 
 	protected static JSCalendar.Tasks<Payload> parseSmartConfig(String smartConfig) {
+		if (smartConfig.isBlank() || smartConfig.equals("[]")) {
+			return JSCalendar.Tasks.empty();
+		}
+
 		try {
 			return JSCalendar.Tasks.serializer(Payload.serializer()) //
 					.deserialize(smartConfig);

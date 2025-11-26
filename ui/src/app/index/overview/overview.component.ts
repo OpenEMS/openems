@@ -13,6 +13,7 @@ import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
+import { ORDER_STATES } from "../shared/order-state";
 import { SUM_STATES } from "../shared/sumState";
 
 @Component({
@@ -35,6 +36,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected isAtLeastInstaller: boolean = false;
     protected readonly filters: FilterComponent["allFilters"] = [
+        ORDER_STATES(this.translate),
         environment.PRODUCT_TYPES(this.translate),
         SUM_STATES(this.translate),
     ];

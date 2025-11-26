@@ -203,16 +203,16 @@ public final class FunctionUtils {
 	}
 
 	/**
-	 * Returns a {@link ThrowingSupplier} that lazily initializes and caches the value from
-	 * the provided supplier. The value is computed and retrieved only once.
-	 * Subsequent calls to {@link ThrowingSupplier#get()} will return the cached value,
-	 * avoiding recomputation.
+	 * Returns a {@link ThrowingSupplier} that lazily initializes and caches the
+	 * value from the provided supplier. The value is computed and retrieved only
+	 * once. Subsequent calls to {@link ThrowingSupplier#get()} will return the
+	 * cached value, avoiding recomputation.
 	 *
 	 * <p>
 	 * This implementation is not thread-safe. If multiple threads invoke
-	 * {@link ThrowingSupplier#get()} concurrently, it may lead to inconsistent behavior,
-	 * such as multiple invocations of the supplier or the value being computed
-	 * multiple times.
+	 * {@link ThrowingSupplier#get()} concurrently, it may lead to inconsistent
+	 * behavior, such as multiple invocations of the supplier or the value being
+	 * computed multiple times.
 	 * </p>
 	 *
 	 * <p>
