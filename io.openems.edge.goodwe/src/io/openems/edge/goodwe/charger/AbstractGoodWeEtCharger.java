@@ -9,7 +9,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -52,17 +51,36 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
 						m(EssDcCharger.ChannelId.VOLTAGE, new UnsignedWordElement(startAddress), //
 								SCALE_FACTOR_2), //
-						m(EssDcCharger.ChannelId.CURRENT, new UnsignedWordElement(startAddress + 1), SCALE_FACTOR_2),
-						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
+						m(EssDcCharger.ChannelId.CURRENT, new UnsignedWordElement(startAddress + 1), SCALE_FACTOR_2)));
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculatePower();
 			this.calculateEnergy();
 			this.updateState();
 			break;
+		}
+	}
+	
+	/**
+	 * Calculate the ActivePower from Current and Voltage.
+	 */
+	private void calculatePower() {
+		var voltage = this.channel(EssDcCharger.ChannelId.VOLTAGE).value().orElse(null);
+		var current = this.channel(EssDcCharger.ChannelId.CURRENT).value().orElse(null);
+		if (voltage == null || current == null) {
+			return;
+		}
+		int milliAmpere = (int)current;
+		int milliVolt = (int)voltage;
+		long powerMicrowatt = (long) milliAmpere * (long) milliVolt; // mA * mV = µW
+		int powerWatt = (int) (powerMicrowatt / 1_000_000L);   // µW -> W	
+		var actualPower = this.getActualPower().orElse(null);
+		if (actualPower == null || actualPower != powerWatt) {
+			this._setActualPower(powerWatt);
 		}
 	}
 
