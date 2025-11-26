@@ -14,7 +14,7 @@ public class GoodWeChargerPv4Test {
 	public void test() throws Exception {
 		new ComponentTest(new GoodWeChargerPv4()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("setModbus", new DummyModbusBridge("modbus0"))
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
 						.setId("charger0") //
 						.setBatteryInverterId("ess0") //
