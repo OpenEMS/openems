@@ -7,6 +7,7 @@ export type NavigationOption = {
     callback: () => void,
     alias?: string,
     isEnabled?: boolean,
+    icon?: string;
 };
 
 @Component({

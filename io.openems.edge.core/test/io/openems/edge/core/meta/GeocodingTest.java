@@ -91,7 +91,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, res1.countryCode());
 		assertEquals("Berlin", res1.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, res1.subdivisionCode());
-		assertEquals("Mitte", res1.placeName());
+		assertEquals("Berlin", res1.placeName());
 		assertEquals("10115", res1.postcode());
 		assertEquals("Invalidenstraße", res1.road());
 		assertEquals("117", res1.houseNumber());
@@ -202,7 +202,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, result.countryCode());
 		assertEquals("Berlin", result.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, result.subdivisionCode());
-		assertEquals("Mitte", result.placeName());
+		assertEquals("Berlin", result.placeName());
 		assertEquals("10115", result.postcode());
 		assertEquals("Invalidenstraße", result.road());
 		assertEquals("117", result.houseNumber());

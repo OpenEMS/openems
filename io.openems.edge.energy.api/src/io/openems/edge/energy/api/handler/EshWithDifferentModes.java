@@ -9,7 +9,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -27,7 +26,6 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		extends AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 		implements EnergyScheduleHandler.WithDifferentModes {
 
-	private final MODE defaultMode;
 	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
@@ -39,7 +37,6 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	protected EshWithDifferentModes(//
 			String parentFactoryPid, String parentId, //
 			Serializer<?> serializer, //
-			MODE defaultMode, //
 			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
@@ -47,7 +44,6 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
 			PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
-		this.defaultMode = defaultMode;
 		this.availableModesFunction = availableModesFunction;
 		this.initialPopulationsProvider = initialPopulationsProvider;
 		this.simulator = simulator;
@@ -66,28 +62,6 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		return this.initialPopulationsProvider.get(goc, this.coc, this.availableModes).stream() //
 				.map(ip -> ip.toTansition(this::getModeIndex)) //
 				.collect(toImmutableList());
-	}
-
-	/**
-	 * Gets the default Mode.
-	 * 
-	 * @return the default Mode
-	 */
-	public MODE getDefaultMode() {
-		return this.defaultMode;
-	}
-
-	@Override
-	public int getDefaultModeIndex() {
-		var modes = this.availableModes;
-		if (modes == null) {
-			throw new IllegalAccessError(
-					"EnergySchedulerHandler is uninitialized. `initialize()` must be called first.");
-		}
-		return IntStream.range(0, modes.length) //
-				.filter(i -> modes[i] == this.defaultMode) //
-				.findFirst() //
-				.orElse(0 /* fallback */);
 	}
 
 	@Override
@@ -169,13 +143,17 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	 * Gets the MODE for the given modeIndex.
 	 * 
 	 * @param modeIndex the modeIndex
-	 * @return the STATE
+	 * @return the given MODE; first MODE as fallback; null if modes is empty
 	 */
-	private MODE getMode(int modeIndex) {
+	public MODE getMode(int modeIndex) {
 		var modes = this.availableModes;
-		return modeIndex < modes.length //
-				? modes[modeIndex] //
-				: this.defaultMode;
+		if (modeIndex < modes.length) {
+			return modes[modeIndex];
+		} else if (modes.length > 0) {
+			return modes[0];
+		} else {
+			return null;
+		}
 	}
 
 	/**

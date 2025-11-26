@@ -58,8 +58,6 @@ public interface EvcsHardyBarth extends OpenemsComponent {
 				"secc", "port0", "salia", "chargemode"), //
 		RAW_SALIA_CHARGE_PAUSE(Doc.of(INTEGER), //
 				"secc", "port0", "salia", "pausecharging"), //
-		RAW_SALIA_HEARTBEAT(Doc.of(STRING), //
-				"secc", "port0", "salia", "heartbeat"), //
 		RAW_SALIA_CHANGE_METER(Doc.of(STRING), //
 				"secc", "port0", "salia", "changemeter"), //
 		RAW_SALIA_AUTHMODE(Doc.of(STRING), //

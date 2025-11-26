@@ -75,12 +75,12 @@ public class EastronMeter extends AbstractOpenemsAppWithProps<EastronMeter, Prop
 		TYPE(MeterProps.type(MeterType.GRID)), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(MeterProps.phaseRotation())), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
-				.setRequired(true) //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def//
+				.setRequired(true)//
 				.setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.setDefaultValue(6))), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(MODBUS_ID, MODBUS_ID.def(), //
 				MODBUS_UNIT_ID, MODBUS_UNIT_ID.def())), //

@@ -50,9 +50,15 @@ public class TestTranslations {
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterMaster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
 			this.apps.add(
 					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
@@ -168,6 +174,12 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.thresholdControl(t), true, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.shellyMeter(t), true, JsonUtils.buildJsonObject() //
+					.add("DEVICE", JsonUtils.buildJsonObject() //
+							.addProperty("name", "dummyName") //
+							.addProperty("type", "PLUS_PLUG_S") //
+							.build()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.discovergyMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("EMAIL", "test@test.test") //

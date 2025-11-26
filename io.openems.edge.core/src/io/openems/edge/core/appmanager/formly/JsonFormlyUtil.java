@@ -7,6 +7,7 @@ import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
 import io.openems.edge.core.appmanager.formly.builder.DateTimeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LazySelectBuilder;
 import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RepeatBuilder;
@@ -115,6 +116,16 @@ public class JsonFormlyUtil {
 	 */
 	public static SelectBuilder buildSelectFromNameable(Nameable nameable) {
 		return new SelectBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Lazy Select Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link SelectBuilder}
+	 */
+	public static LazySelectBuilder buildLazySelect(Nameable nameable) {
+		return new LazySelectBuilder(nameable);
 	}
 
 	/**

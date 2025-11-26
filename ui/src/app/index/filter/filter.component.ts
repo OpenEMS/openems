@@ -7,6 +7,7 @@ import { TKeyValue } from "src/app/shared/type/utility";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { JsonUtils } from "src/app/shared/utils/json/json-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 
 @Component({
@@ -23,6 +24,7 @@ export class FilterComponent {
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected defaultFilterValues: FilterCategory = {};
     protected allFilters: (Filter<string | null> | SortOrderFilter | null)[] = [];
+    protected columnSize: number = 0;
 
     constructor(public service: Service) { }
 
@@ -34,6 +36,7 @@ export class FilterComponent {
         if (this.allFilters == null || this.allFilters.length === 0) {
             return;
         }
+        this.columnSize = Math.max(NumberUtils.divideSafely(12, this.allFilters.length) ?? 0, 4);
 
         this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.allFilters);
 

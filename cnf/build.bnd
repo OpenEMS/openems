@@ -2,6 +2,7 @@
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		snapshotUrl=https://central.sonatype.com/repository/maven-snapshots/; \
 		pom=${build}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"

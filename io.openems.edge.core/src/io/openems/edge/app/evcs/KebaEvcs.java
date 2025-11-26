@@ -85,10 +85,10 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 
 		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)),
 
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.11") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //
@@ -98,7 +98,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255)//
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P40)));
 				}))), //
 		READ_ONLY(EvcsProps.readOnly());

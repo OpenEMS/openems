@@ -108,7 +108,7 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE).equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
-		INVERT(MeterProps.invert(METER_ID) //
+		INVERT(MeterProps.invert(METER_ID)//
 				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))), //
 		;
 

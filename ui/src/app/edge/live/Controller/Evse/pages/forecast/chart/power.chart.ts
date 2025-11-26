@@ -79,7 +79,10 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
         this.edge.sendRequest(
             this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
+            new ComponentJsonApiRequest({
+                componentId: "ctrlEvseCluster0",
+                payload: new GetScheduleRequest({ componentId: this.component.id }),
+            }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
             const schedule = result.schedule;

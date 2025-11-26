@@ -170,6 +170,11 @@
     --ion-color-label: var(--ion-text-color);
     --ion-color-background-pull-to-refresh: lightgray;
     --ion-color-pull-to-refresh: var(--ion-text-color);
+
+    --ion-skeleton-start: rgba(0, 0, 0, 0.6);
+    --ion-skeleton-mid: rgba(0, 0, 0, 0.3);
+    --ion-skeleton-end: rgba(0, 0, 0, 0.6);
+    --ion-skeleton-gradient: linear-gradient(90deg, var(--ion-skeleton-start) 0%, var(--ion-skeleton-mid) 50%, var(--ion-skeleton-end) 100%);
 }
 
 
@@ -276,4 +281,9 @@
     --ion-color-label: var(--ion-item-color);
     --ion-color-background-pull-to-refresh: var(--ion-color-secondary);
     --ion-color-pull-to-refresh: var(--ion-menu-color);
+
+    --ion-skeleton-start: rgba(255, 255, 255, 0.08);
+    --ion-skeleton-mid: rgba(255, 255, 255, 0.04);
+    --ion-skeleton-end: rgba(255, 255, 255, 0.08);
+    --ion-skeleton-gradient: linear-gradient(90deg, var(--ion-skeleton-start) 0%, var(--ion-skeleton-mid) 50%, var(--ion-skeleton-end) 100%);
 }

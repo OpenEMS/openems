@@ -274,7 +274,7 @@ public class UtilsTest {
 	}
 
 	@Test
-	public void testPostprocessSimulatorState() {
+	public void testPostprocessSimulatorState() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 200, //
 				/* consumption */ 500, //
@@ -282,10 +282,8 @@ public class UtilsTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDelayDischarge(m, consumption);
+		applyDelayDischarge(m);
 		var ef = m.solve();
-		m.logMinMaxValues();
 		var goc = new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, null, null, null,
 				new GlobalOptimizationContext.Ess(0, 0, 0, 0), null);
 		var gsc = GlobalScheduleContext.from(goc);

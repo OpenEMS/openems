@@ -62,8 +62,8 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 				throw new HttpError.ResponseError(status, body);
 			}
 			if (mode.equals(DebugMode.DETAILED)) {
-				this.log.debug("Fetched Endpoint for request: " + endpoint.url() + "\n" //
-						+ "method: " + endpoint.method().name() + "\n" //
+				this.log.info("Fetched Endpoint for request: " + "\n" //
+						+ "endpoint: " + endpoint + "\n" //
 						+ "result: " + body //
 				);
 			}

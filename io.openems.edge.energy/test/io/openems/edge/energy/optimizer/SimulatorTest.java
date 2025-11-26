@@ -56,13 +56,12 @@ public class SimulatorTest {
 
 	public static final EshWithDifferentModes<Esh2State, Void, Void> ESH2 = //
 			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
-					.setDefaultMode(Esh2State.BAR) //
 					.setAvailableModes(() -> Esh2State.values()) //
 					.setInitialPopulationsProvider((goc, coc, availableModes) -> {
 						return ImmutableList.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
 								.map(p -> p.index() % 3 == 0 //
-										? Esh2State.FOO // set FOO mode
-										: Esh2State.BAR) // default
+										? Esh2State.BAR // set BAR mode
+										: Esh2State.FOO) // default
 								.toArray(Esh2State[]::new)));
 					}) //
 					.build();
@@ -108,6 +107,6 @@ public class SimulatorTest {
 		});
 
 		assertEquals("BALANCING", ESH_TIME_OF_USE_TARIFF_CTRL.getCurrentPeriod().mode().toString());
-		assertEquals("BAR", ESH2.getCurrentPeriod().mode().toString());
+		assertEquals("FOO", ESH2.getCurrentPeriod().mode().toString());
 	}
 }

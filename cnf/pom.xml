@@ -4,6 +4,19 @@
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
 	<packaging>pom</packaging>
+	<repositories>
+	  <repository>
+	    <name>Central Portal Snapshots</name>
+	    <id>central-portal-snapshots</id>
+	    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+	    <releases>
+	      <enabled>false</enabled>
+	    </releases>
+	    <snapshots>
+	      <enabled>true</enabled>
+	    </snapshots>
+	  </repository>
+	</repositories>
 	<dependencies>
 		<!-- biz -->
 		<dependency>
@@ -20,7 +33,7 @@
 			<version>2.11.4</version>
 		</dependency>
 		<dependency>
-			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
+			<!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
 			<version>3.2.2-openems.2</version>
@@ -179,12 +192,6 @@
 			<artifactId>jenetics</artifactId>
 			<version>8.3.0</version>
 		</dependency>
-		<!-- javax -->
-		<dependency>
-			<groupId>javax.jmdns</groupId>
-			<artifactId>jmdns</artifactId>
-			<version>3.4.1</version>
-		</dependency>
 		<!-- net -->
 		<dependency>
 			<!-- Used by SDNotify -->
@@ -309,6 +316,14 @@
 			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
 			<version>1.2.5</version>
 		</dependency>
+		<dependency>
+			<!-- Java mDNS Library -->
+			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
+		    <groupId>org.jmdns</groupId>
+		    <artifactId>jmdns</artifactId>
+		    <version>3.6.2</version>
+		</dependency>
+		<!-- com -->
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>

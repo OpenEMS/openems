@@ -6,6 +6,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { OeImageComponent } from "../oe-img/oe-img";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -627,11 +628,13 @@ export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
 export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
     type: "info-line",
     name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
+    style: "",
 };
 
-export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
+export const LINE_INFO = (text: string, style: string = ""): OeFormlyViewTester.Field => ({
     type: "info-line",
     name: text,
+    style: style,
 });
 export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
     type: "buttons-from-form-control-line",
@@ -644,6 +647,16 @@ export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, exp
     controlName,
     expectedValue,
     properties,
+});
+export const LINE_RADIO_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
+    type: "radio-buttons-from-form-control-line",
+    name: text,
+    buttons: buttons,
+    controlName: controlName,
+});
+export const SVG_LINE = (img: OeImageComponent["img"]): OeFormlyViewTester.Field => ({
+    type: "image-line",
+    img: img,
 });
 
 export namespace ChartConfig {

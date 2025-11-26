@@ -8,6 +8,7 @@
 :icons: font
 :imagesdir: ../../../assets/images
 
+
 This chapter explains how OpenEMS can be deployed using our official https://hub.docker.com/r/openems/edge[Docker image].
 
 Prerequisites:
@@ -131,11 +132,11 @@ volumes:
   openems-ui-log:
 ----
 
-summary of the changes:
+Summary of the changes:
 
-1. Open a Port for UI Websocket (8085) on the `openems-edge` service
-2. Added a new service `openems-ui` to the docker-compose file
-3. Added the volumes `openems-ui-conf` and `openems-ui-log`
+1. Open a Port for UI Websocket (8085) on the `openems-edge` service  
+2. Added a new service `openems-ui` to the docker-compose file  
+3. Added the volumes `openems-ui-conf` and `openems-ui-log`  
 
 === Update docker-compose
 
@@ -151,3 +152,23 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
 ----
 
+== Changing the Language in the UI
+
+To change the language in the OpenEMS UI:
+
+1. Open the OpenEMS Edge UI in your browser.
+2. Click the menu-icon in the top-left corner of the UI.
+3. Click on the user to enter user settings.
+4. Choose your preferred language from the "Sprache wählen"/"Select language" dropdown.
+5. The UI will immediately switch to the selected language.
+
+== Next Steps
+
+After successful deployment:
+
+1. Open your browser and go to `http://localhost` or the IP address of your device.
+2. Log in using default credentials provided in the documentation.
+3. Verify that your OpenEMS Edge instance is connected and running.
+4. For additional configuration, see:
+   * link:../controllers/[Edge Controllers Configuration]
+   * link:../ui/[OpenEMS UI Usage Guide]

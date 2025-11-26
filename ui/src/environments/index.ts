@@ -26,6 +26,7 @@ export interface Environment {
             readonly KEBA_P30: string | null,
             readonly KEBA_P40: string | null,
             readonly HARDY_BARTH: string | null,
+            readonly ALPITRONIC: string | null,
         },
     },
     readonly links: {

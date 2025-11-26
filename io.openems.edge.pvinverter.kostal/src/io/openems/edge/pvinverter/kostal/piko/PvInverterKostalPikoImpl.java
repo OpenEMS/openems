@@ -25,6 +25,7 @@ import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -53,8 +54,9 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
-
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+
 	private String baseUrl;
 	private Map<String, String> headers;
 
@@ -86,10 +88,11 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		if (this.isEnabled()) {
 			this.logInfo(this.log, "Subscribing to KOSTAL PIKO at " + this.baseUrl);
 
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 			// Subscribe for updates every cycle
-			final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-			cycleService.subscribeCycle(1,
-					new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
+			this.cycleService.subscribeCycle(1, //
+					() -> new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
 							BridgeHttp.DEFAULT_READ_TIMEOUT, null, this.headers),
 					this::handleSuccessfulResult, this::handleError);
 		}
@@ -98,8 +101,10 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.httpBridgeFactory.unget(this.httpBridge);
-		this.httpBridge = null;
+		if (this.httpBridge != null) {
+			this.httpBridgeFactory.unget(this.httpBridge);
+			this.httpBridge = null;
+		}
 	}
 
 	private void handleSuccessfulResult(HttpResponse<String> result) {

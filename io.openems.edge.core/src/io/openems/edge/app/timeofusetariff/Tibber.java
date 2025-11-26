@@ -90,12 +90,12 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 											return null;
 										}
 										return new JsonPrimitive("xxx");
-									}) //
+									})//
 									.orElse(null);
 						}))), //
 		MULTIPLE_HOMES_CHECK(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label") //
-				.setDefaultValue(false) //
+				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label")//
+				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))),
 		FILTER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
@@ -103,7 +103,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				.setDefaultValue("") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull());
-				}) //
+				})//
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
 						ComponentManagerSupplier::getComponentManager))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
