@@ -49,7 +49,7 @@ export const ORDER_STATES = (translate: TranslateService): SortOrderFilter => ({
             option: {
                 value: [{
                     field: "sumState",
-                    sortOrder: "ASC",
+                    sortOrder: "DESC",
                 }],
             },
         },
@@ -58,7 +58,7 @@ export const ORDER_STATES = (translate: TranslateService): SortOrderFilter => ({
             option: {
                 value: [{
                     field: "sumState",
-                    sortOrder: "DESC",
+                    sortOrder: "ASC",
                 }],
             },
         },

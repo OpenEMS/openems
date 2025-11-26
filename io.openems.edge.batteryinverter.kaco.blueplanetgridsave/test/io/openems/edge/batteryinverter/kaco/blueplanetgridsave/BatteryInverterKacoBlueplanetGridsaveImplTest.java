@@ -83,6 +83,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId("modbus0") //
 				.setActivateWatchdog(true) //
+				.setGridCode(GridCode.UNDEFINED) //
 				.build()); //
 
 		// let SunSpec initialize

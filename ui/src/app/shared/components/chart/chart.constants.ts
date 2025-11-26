@@ -87,7 +87,7 @@ export namespace ChartConstants {
                     case 2:
                         return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE");
                     case 3:
-                        return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.FORCE_CHARGE");
+                        return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID");
                     default:
                         return "";
                 }

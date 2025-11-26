@@ -698,8 +698,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 options.scales[element.yAxisId] = {
                     ...baseConfig,
                     min: 1,
-                    // set to 3 for next release
-                    max: 2,
+                    max: 3,
                     beginAtZero: true,
                     ticks: {
                         ...rest,

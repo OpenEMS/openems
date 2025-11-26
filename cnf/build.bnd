@@ -2,6 +2,7 @@
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		snapshotUrl=https://central.sonatype.com/repository/maven-snapshots/; \
 		pom=${build}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"
@@ -49,6 +50,7 @@ testpath: \
 	net.bytebuddy.byte-buddy,\
 	org.mockito.mockito-core,\
 	org.objenesis,\
+	org.opentest4j,\
 	slf4j.simple,\
 	\${junit}
 

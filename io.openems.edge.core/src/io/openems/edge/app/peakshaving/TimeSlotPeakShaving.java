@@ -76,12 +76,12 @@ public class TimeSlotPeakShaving extends
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlTimeSlotPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
-				.setRequired(true) //
+		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess", //
 						ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
-				.setRequired(true) //
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 						ComponentManagerSupplier::getComponentManager))), //
 		;

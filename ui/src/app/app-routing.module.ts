@@ -6,6 +6,7 @@ import { EdgeComponent } from "./edge/edge.component";
 import { DetailsOverviewComponent } from "./edge/history/common/production/details/details.overview";
 import { OverviewComponent as ProductionChartOverviewComponent } from "./edge/history/common/production/overview/overview";
 import { OverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
+import { OverviewComponent as EnerixOverviewComponent } from "./edge/history/Controller/EnerixControl/overview/overview";
 import { OverviewComponent as GridOptimizedChargeChartOverviewComponent } from "./edge/history/Controller/Ess/GridoptimizedCharge/overview/overview";
 import { OverviewComponent as TimeOfUseTariffOverviewComponent } from "./edge/history/Controller/Ess/TimeOfUseTariff/overview/overview";
 import { OverviewComponent as HeatchartOverviewComponent, OverviewComponent as HeatmypvchartOverviewComponent } from "./edge/history/Controller/Heat/overview/overview";
@@ -49,6 +50,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
         { path: ":componentId/heatmypvchart", component: HeatmypvchartOverviewComponent },
         { path: ":componentId/heatchart", component: HeatchartOverviewComponent },
+        { path: ":componentId/enerixchart", component: EnerixOverviewComponent },
         { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/history/Controller/Io/heatpump/heat-pump.module").then(m => m.HeatPumpModule) },
         { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
         { path: ":componentId/scheduleChart", component: TimeOfUseTariffOverviewComponent },
