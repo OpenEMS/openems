@@ -48,17 +48,10 @@ public class KeepAllNearEqual {
 		var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction);
 
 		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
-		if (mergedResult == null) {
+		if (mergedResult == null || mergedResult.length == 0) {
 			return null;
 		}
-
-		var result = Arrays.stream(mergedResult)//
-				.map(d -> reverseAbsoluteData(d, direction))//
-				.toArray();
-		if (result.length == 0) {
-			return null;
-		}
-		return new PointValuePair(result, 0);
+		return new PointValuePair(mergedResult, 0);
 	}
 
 	/**
@@ -188,7 +181,6 @@ public class KeepAllNearEqual {
 				.filter(constraint -> clusterEssId.equals(constraint.getCoefficients()[0].getCoefficient().getEssId()))
 				.filter(constraint -> constraint.getCoefficients()[0].getCoefficient().getPwr() == pwr)
 				.mapToDouble(constraint -> constraint.getValue().get())//
-				.map(c -> absoluteData(c, direction))//
 				.findFirst()//
 				.orElse(noPowerSetPoint);
 	}
@@ -197,36 +189,6 @@ public class KeepAllNearEqual {
 		return esss.stream()//
 				.filter(e -> !(e instanceof MetaEss))//
 				.toList();
-	}
-
-	/**
-	 * Calculate absolute value or zero based on the TargetDirection.
-	 * 
-	 * @param d         the input value to be processed
-	 * @param direction the {@link TargetDirection}
-	 * @return the processed value based on the direction
-	 */
-	private static double absoluteData(double d, TargetDirection direction) {
-		return switch (direction) {
-		case CHARGE -> Math.abs(d);
-		case DISCHARGE -> d;
-		case KEEP_ZERO -> 0.0;
-		};
-	}
-
-	/**
-	 * Calculate reverse absolute value or zero based on the TargetDirection.
-	 * 
-	 * @param d         the input value to be processed
-	 * @param direction the {@link TargetDirection}
-	 * @return the processed value based on the direction
-	 */
-	private static double reverseAbsoluteData(double d, TargetDirection direction) {
-		return switch (direction) {
-		case CHARGE -> -d;
-		case DISCHARGE -> d;
-		case KEEP_ZERO -> 0.0;
-		};
 	}
 
 	/**
