@@ -69,16 +69,16 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Calculate the ActivePower from Current and Voltage.
 	 */
 	private void calculatePower() {
-		var voltage = this.channel(EssDcCharger.ChannelId.VOLTAGE).value().orElse(null);
-		var current = this.channel(EssDcCharger.ChannelId.CURRENT).value().orElse(null);
+		var voltage = this.getVoltage().get();
+		var current = this.getCurrent().get();
 		if (voltage == null || current == null) {
 			return;
 		}
-		int milliAmpere = (int)current;
-		int milliVolt = (int)voltage;
+		int milliAmpere = current;
+		int milliVolt = voltage;
 		long powerMicrowatt = (long) milliAmpere * (long) milliVolt; // mA * mV = µW
 		int powerWatt = (int) (powerMicrowatt / 1_000_000L);   // µW -> W	
-		var actualPower = this.getActualPower().orElse(null);
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null || actualPower != powerWatt) {
 			this._setActualPower(powerWatt);
 		}

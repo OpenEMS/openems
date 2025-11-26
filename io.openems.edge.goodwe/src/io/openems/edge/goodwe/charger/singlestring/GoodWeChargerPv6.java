@@ -53,9 +53,6 @@ public class GoodWeChargerPv6 extends AbstractGoodWeEtCharger
 		super.setModbus(modbus);
 	}
 
-	public GoodWeChargerPv6() {
-	}
-
 	@Activate
 	private void activate(ComponentContext context, ConfigPV6 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,

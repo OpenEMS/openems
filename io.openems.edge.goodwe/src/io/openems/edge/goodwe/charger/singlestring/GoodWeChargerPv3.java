@@ -44,7 +44,7 @@ public class GoodWeChargerPv3 extends AbstractGoodWeEtCharger
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private GoodWe essOrBatteryInverter;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Override
@@ -73,7 +73,9 @@ public class GoodWeChargerPv3 extends AbstractGoodWeEtCharger
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.essOrBatteryInverter.removeCharger(this);
+		if (this.essOrBatteryInverter != null) {
+			this.essOrBatteryInverter.removeCharger(this);
+		}
 		super.deactivate();
 	}
 
