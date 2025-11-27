@@ -1,0 +1,554 @@
+= Getting Started for Newbies
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+This guide helps you set up your first OpenEMS test system without any programming. You'll learn how OpenEMS works by simulating a typical home energy setup with dummy data that you can manipulate to see how the system responds.
+
+== What You'll Build
+
+By the end of this guide, you'll have:
+
+* A running OpenEMS Edge system (using Docker)
+* A simulated home energy setup including:
+** Photovoltaic (PV) system
+** Battery storage system
+** Grid meter
+** Electric vehicle charging station (Wallbox/EVCS)
+** Historical data storage (RRD4j)
+* OpenEMS UI to monitor everything in your browser
+* The ability to experiment with simulated values to see how OpenEMS responds
+
+== Prerequisites
+
+You need:
+
+* A computer with Docker installed (Windows, macOS, or Linux)
+* Basic familiarity with using a terminal/command line
+* A web browser
+
+NOTE: If you don't have Docker installed yet, follow the instructions at https://docs.docker.com/engine/install/[docs.docker.com].
+
+== Step 1: Start OpenEMS with Docker
+
+=== Create the Docker Setup
+
+Create a new directory for your OpenEMS test system:
+
+[source,bash]
+----
+mkdir openems-test
+cd openems-test
+----
+
+Create a file named `docker-compose.yml` with the following content:
+
+[source,yaml]
+----
+services:
+  openems-edge:
+    image: openems/edge:latest
+    container_name: openems_edge
+    hostname: openems_edge
+    restart: unless-stopped
+    volumes:
+      - openems-edge-conf:/var/opt/openems/config:rw
+      - openems-edge-data:/var/opt/openems/data:rw
+    ports:
+      - 8080:8080 # Apache-Felix Web Console
+      - 8085:8085 # UI-Websocket
+
+  openems-ui:
+    image: openems/ui-edge:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=openems_edge
+      - WEBSOCKET_PORT=8085
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openems-edge-conf:
+  openems-edge-data:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+=== Start the Containers
+
+Run the following command to start OpenEMS:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+=== Verify Everything is Running
+
+Check that both containers are running:
+
+[source,bash]
+----
+docker ps
+----
+
+You should see both `openems_edge` and `openems_ui` in the list.
+
+Check the logs to ensure OpenEMS Edge is running properly:
+
+[source,bash]
+----
+docker logs openems_edge
+----
+
+You should see log messages and eventually a warning: *"There are no schedulers configured!"* - this is expected and we'll fix it in the next step.
+
+== Step 2: Configure Your First Simulated System
+
+Now we'll configure a typical home energy system using the Apache Felix Web Console. This is the "backend" configuration interface.
+
+=== Access the Configuration Interface
+
+Open your web browser and go to:
+
+http://localhost:8080/system/console/configMgr
+
+Login with:
+
+* Username: `admin`
+* Password: `admin`
+
+=== Configure the Scheduler
+
+The Scheduler controls when and how often OpenEMS runs its algorithms.
+
+. Click on _**Scheduler All Alphabetically**_
+. Keep the default settings (they're fine for testing)
+. Click btn:[Save]
+
+You've created your first OpenEMS component with ID `scheduler0`.
+
+=== Configure Debug Logging
+
+This will show you what's happening in the logs.
+
+. Click on _**Controller Debug Log**_
+. Keep the default settings
+. Click btn:[Save]
+
+=== Configure the Websocket API
+
+This allows the UI to connect to OpenEMS Edge.
+
+. Click on _**Controller Api Websocket**_
+. Keep the default settings
+. Click btn:[Save]
+
+=== Set Up Data Sources for Simulation
+
+Data sources provide the simulated values that make your virtual devices "come alive."
+
+==== Household Consumption Data
+
+. Click on _**Simulator DataSource: CSV Predefined**_
+. Set the following:
+** Component-ID: `datasource0`
+** Source: `H0_HOUSEHOLD_SUMMER_WEEKDAY_STANDARD_LOAD_PROFILE`
+. Click btn:[Save]
+
+This simulates realistic household power consumption throughout the day.
+
+==== Solar Production Data
+
+. Click on _**Simulator DataSource: CSV Predefined**_ again
+. Set the following:
+** Component-ID: `datasource1`
+** Source: `SOLAR_PRODUCTION_SUMMER_WEEKDAY`
+. Click btn:[Save]
+
+This simulates solar panel production on a typical summer day.
+
+=== Configure Simulated Devices
+
+Now let's add the virtual devices that use these data sources.
+
+==== Grid Meter
+
+The grid meter measures power flow to/from the electrical grid.
+
+. Click on _**Simulator GridMeter Reacting**_
+. Set the following:
+** Component-ID: `meter0`
+. Click btn:[Save]
+
+NOTE: We're using a "Reacting" grid meter, which means it automatically calculates grid power based on all other components - just like in reality!
+
+==== Photovoltaic System (PV)
+
+. Click on _**Simulator ProductionMeter Acting**_
+. Set the following:
+** Component-ID: `pvMeter0`
+** Datasource-ID: `datasource1`
+. Click btn:[Save]
+
+==== Battery Storage System
+
+. Click on _**Simulator EssSymmetric Reacting**_
+. Set the following:
+** Component-ID: `ess0`
+** Initial State of Charge: `50` (starts at 50% charged)
+** Capacity: `10000` (10 kWh battery)
+. Click btn:[Save]
+
+==== Electric Vehicle Charging Station (Wallbox)
+
+. Click on _**Simulator Evcs (Electric Vehicle Charging Station)**_ (if available)
+. Set the following:
+** Component-ID: `evcs0`
+. Click btn:[Save]
+
+NOTE: If the Simulator Evcs component is not available in your Docker image, you can skip this step. The system will work without it.
+
+=== Configure Historical Data Storage
+
+RRD4j stores historical data so you can see charts and trends.
+
+. Click on _**Timedata RRD4J**_ (or _**Timedata.Rrd4j**_)
+. Set the following:
+** Component-ID: `timedata0`
+. Keep other default settings
+. Click btn:[Save]
+
+=== Configure a Simple Controller
+
+Controllers are the "brain" - they make decisions about what to do with your energy.
+
+Let's add a simple controller that tries to maximize self-consumption of solar energy.
+
+. Click on _**Controller Ess Balancing**_
+. Set the following:
+** Component-ID: `ctrlBalancing0`
+** Ess-ID: `ess0`
+** Grid-Meter-ID: `meter0`
+. Click btn:[Save]
+
+This controller will:
+
+* Charge the battery when there's excess solar power
+* Discharge the battery when there's not enough solar power
+* Try to keep grid consumption/feed-in close to 0 W
+
+== Step 3: View Your System in the UI
+
+Now let's see everything in action!
+
+=== Open the OpenEMS UI
+
+Open your web browser and go to:
+
+http://localhost
+
+You should see the OpenEMS UI login screen.
+
+=== Log In
+
+* Username: leave empty or type `guest`
+* Password: leave empty or type `admin`
+
+Click the login button.
+
+=== Explore the Energy Monitor
+
+You should now see the **Energy Monitor** showing:
+
+* Grid power (import/export)
+* Solar production
+* Battery state of charge and power (charging/discharging)
+* Household consumption
+
+Watch the values change as the simulation runs! The system updates once per second by default.
+
+=== Understanding What You See
+
+* **Negative** grid values = feeding power to the grid
+* **Positive** grid values = consuming power from the grid
+* The battery charges when there's excess solar
+* The battery discharges when consumption exceeds production
+* The controller tries to balance everything to minimize grid dependency
+
+== Step 4: Experiment with Your System
+
+Now comes the fun part - playing with the system to understand how it works!
+
+=== Manually Adjust Values
+
+You can manually manipulate values through the Apache Felix Web Console to simulate different scenarios:
+
+==== Simulate Different Times of Day
+
+. Go back to http://localhost:8080/system/console/configMgr
+. Find your data source configurations (`datasource0` and `datasource1`)
+. You can change the data source to different scenarios:
+** `H0_HOUSEHOLD_WINTER_WEEKDAY_STANDARD_LOAD_PROFILE` for winter consumption
+** `SOLAR_PRODUCTION_WINTER_WEEKDAY` for winter solar production
+
+==== Change Battery Parameters
+
+. Find the _**Simulator EssSymmetric Reacting**_ configuration
+. Try changing:
+** State of Charge to see how different battery levels affect the system
+** Capacity to simulate larger/smaller batteries
+
+==== Observe Controller Behavior
+
+Watch in the UI how the controller responds to:
+
+* Times with high solar production (midday)
+* Times with low/no solar production (evening)
+* High consumption periods
+* Low consumption periods
+
+=== View Historical Data
+
+After the system has been running for a while:
+
+. In the OpenEMS UI, look for a "History" or "Chart" view
+. You can see graphs of how values changed over time
+. This is the RRD4j timedata storage in action!
+
+== Step 5: Add Another Controller
+
+Let's add a second controller to see how multiple algorithms work together.
+
+=== Understanding Controller Priority
+
+OpenEMS runs controllers in alphabetical order by default (because we configured the "Scheduler All Alphabetically"). Controllers with higher priority (earlier in the alphabet) run first.
+
+=== Add a Charge/Discharge Time Slot Controller
+
+This controller can force charging or discharging during specific times - useful for using cheap nighttime electricity.
+
+. Go to http://localhost:8080/system/console/configMgr
+. Click on _**Controller Ess Time-Of-Use Tariff**_ or _**Controller Ess Charging Time Slot**_ (depending on what's available)
+. Configure it to charge during specific hours
+. Click btn:[Save]
+
+Watch how this controller's behavior combines with the balancing controller!
+
+== Step 6: Explore Available Components
+
+OpenEMS has many pre-built components for different devices and use cases.
+
+=== View All Available Components
+
+In the Apache Felix Web Console (http://localhost:8080/system/console/configMgr), scroll through the list. You'll see components for:
+
+* **Meters**: Grid meters, production meters, consumption meters
+* **Energy Storage Systems (ESS)**: Various battery brands and types
+* **EVCS (Wallbox)**: Different electric vehicle charger brands
+* **Controllers**: Various algorithms for different optimization goals
+* **IO**: Modbus, REST API, etc.
+* **Schedulers**: Different ways to organize when controllers run
+
+=== Customize Your System
+
+Try adding or changing components to match your desired setup:
+
+* Want to simulate multiple batteries? Add another ESS component
+* Want to test load balancing across multiple chargers? Add an EVCS cluster
+* Want different consumption patterns? Change the datasource
+
+NOTE: Each component needs a unique Component-ID. Use descriptive names like `ess0`, `ess1`, `meter0`, `pvMeter0`, etc.
+
+== Step 7: Connecting Real Devices
+
+Once you're comfortable with the simulation, you can start integrating real hardware.
+
+=== Replace a Simulator with Real Hardware
+
+When you have a real device:
+
+. Find the appropriate non-simulator component in the configuration
+** Example: Instead of "Simulator GridMeter Acting", use "SOCOMEC Meter"
+. Configure it with your device's connection details:
+** Modbus address
+** IP address and port
+** Serial port settings
+** etc.
+. Remove or disable the corresponding simulator component
+. Click btn:[Save]
+
+OpenEMS will now read real data from your device!
+
+=== Mixing Simulation and Reality
+
+You don't have to replace everything at once. You can mix:
+
+* Real battery with simulated solar and meter
+* Real meter with simulated battery
+* Real solar with simulated everything else
+
+This lets you test step by step as you acquire and install devices.
+
+=== Device Compatibility
+
+Many devices with similar interfaces can work with the same OpenEMS component:
+
+* Most Modbus-compatible meters can use generic Modbus meter components
+* Many battery inverters follow common standards
+
+Check the component descriptions and try it out! The worst that can happen is it doesn't work and you try a different component.
+
+== Step 8: When Your Device Isn't Supported
+
+If your specific hardware isn't available as a component yet, you have two options:
+
+=== Option 1: Request Support
+
+. Check the https://github.com/OpenEMS/openems/issues[OpenEMS GitHub Issues] to see if someone else has requested it
+. If not, create a new issue describing your device and its interface
+. The community might help implement it
+
+=== Option 2: Implement It Yourself
+
+If you're ready to start programming, you can implement your own device driver:
+
+. Follow the xref:gettingstarted.adoc[Developer Getting Started Guide] to set up a development environment
+. Use the tutorial at xref:edge/implement.adoc[Implementing a Device]
+. Contribute your implementation back to the project!
+
+This is where you transition from "user" to "developer" and can really extend OpenEMS to your needs.
+
+== Advanced: Creating a Simple Test UI
+
+For even more hands-on experimentation, you can create a simple HTML page to manipulate values via the JSON-RPC API.
+
+=== Understanding the JSON-RPC API
+
+OpenEMS exposes a JSON-RPC API that allows you to:
+
+* Read current channel values
+* Update component configurations
+* Send commands to controllers
+
+See xref:component-communication/index.adoc[Component Communication] for full details.
+
+=== Example: Simple Test Page
+
+Create a file called `test-ui.html`:
+
+[source,html]
+----
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenEMS Test Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .control { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>OpenEMS Simple Test Interface</h1>
+
+    <div class="control">
+        <h2>Solar Production Simulator</h2>
+        <label>Power (W): <input type="number" id="solarPower" value="3000"></label>
+        <button onclick="setSolarPower()">Update Solar Power</button>
+    </div>
+
+    <div class="control">
+        <h2>Current Values</h2>
+        <button onclick="getCurrentData()">Refresh Data</button>
+        <pre id="currentValues">Click refresh to see current values...</pre>
+    </div>
+
+    <script>
+        // Note: This is a simplified example. Real implementation would need
+        // proper WebSocket connection handling and authentication
+
+        const EDGE_HOST = 'localhost';
+        const EDGE_PORT = 8085;
+
+        function setSolarPower() {
+            const power = document.getElementById('solarPower').value;
+            // This would use the JSON-RPC API to update component configuration
+            alert('In a full implementation, this would update the solar production to ' + power + 'W');
+            console.log('Would send JSON-RPC updateComponentConfig request');
+        }
+
+        function getCurrentData() {
+            // This would use the JSON-RPC API to subscribe to channels
+            alert('In a full implementation, this would fetch current values via JSON-RPC');
+            console.log('Would send JSON-RPC subscribeChannels request');
+        }
+    </script>
+</body>
+</html>
+----
+
+NOTE: A full implementation would require establishing a WebSocket connection, proper authentication, and correct JSON-RPC message formatting. This is just a starting point to show the concept. For production use, refer to how the OpenEMS UI implements the connection.
+
+=== Manipulating Values via JSON-RPC
+
+To actually manipulate simulator values, you can use the `updateComponentConfig` JSON-RPC method via a WebSocket connection or REST API wrapper. See xref:edge/configuration.adoc[Edge Configuration] for details on the JSON structure.
+
+== Troubleshooting
+
+=== UI Can't Connect to Edge
+
+* Check that both Docker containers are running: `docker ps`
+* Check that port 8085 is accessible: `docker logs openems_edge | grep 8085`
+* Make sure you configured the _**Controller Api Websocket**_ component
+
+=== No Data Showing in UI
+
+* Verify the scheduler is configured
+* Check that all component IDs match between related components
+** The grid meter needs to know about the ESS
+** Controllers need correct component IDs
+* Check the Docker logs for errors: `docker logs openems_edge`
+
+=== Simulation Not Running
+
+* Make sure the data sources are properly configured
+* Verify the datasource IDs match in both the datasource and device configs
+* Check that the cycle is running (look for periodic log messages)
+
+=== Configuration Changes Not Taking Effect
+
+* Some changes require restarting the component
+* Try restarting the Docker container: `docker restart openems_edge`
+
+== Next Steps
+
+Now that you have a working test system and understand how OpenEMS works, you can:
+
+. **Experiment More**: Try different combinations of components and controllers
+. **Connect Real Hardware**: Replace simulators with your actual devices one by one
+. **Learn About Scheduling**: Explore different scheduler types for more complex controller orchestration
+. **Optimize Your System**: Add controllers for peak shaving, demand response, or grid services
+. **Start Developing**: If your device isn't supported, follow the xref:gettingstarted.adoc[Developer Getting Started] guide
+
+== Get Help
+
+If you run into issues or have questions:
+
+* Visit the https://community.openems.io/[OpenEMS Community Forum]
+* Check the https://github.com/OpenEMS/openems[GitHub Repository]
+* Read more detailed documentation for xref:edge/architecture.adoc[Edge Architecture] and xref:coreconcepts.adoc[Core Concepts]
+
+Welcome to the OpenEMS community!
