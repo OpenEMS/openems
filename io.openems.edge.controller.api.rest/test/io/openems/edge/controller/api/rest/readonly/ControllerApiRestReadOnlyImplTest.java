@@ -69,6 +69,7 @@ public class ControllerApiRestReadOnlyImplTest {
 						.setEnabled(true) //
 						.setConnectionlimit(5) //
 						.setDebugMode(false) //
+						.setIp("127.0.0.1") //
 						.setPort(port) //
 						.build());
 

@@ -1,5 +1,6 @@
 package io.openems.backend.b2brest;
 
+import java.net.InetSocketAddress;
 import org.eclipse.jetty.server.Server;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,6 +27,7 @@ import io.openems.common.exceptions.OpenemsException;
 public class Backend2BackendRest extends AbstractOpenemsBackendComponent {
 
 	public static final int DEFAULT_PORT = 8075;
+	public static final String DEFAULT_IP = "127.0.0.1";
 
 	private final Logger log = LoggerFactory.getLogger(Backend2BackendRest.class);
 
@@ -43,7 +45,7 @@ public class Backend2BackendRest extends AbstractOpenemsBackendComponent {
 
 	@Activate
 	private void activate(Config config) throws OpenemsException {
-		this.startServer(config.port());
+		this.startServer(config.ip(), config.port());
 	}
 
 	@Deactivate
@@ -54,17 +56,18 @@ public class Backend2BackendRest extends AbstractOpenemsBackendComponent {
 	/**
 	 * Create and start new server.
 	 *
+	 * @param ip the IP address
 	 * @param port the port
 	 * @throws OpenemsException on error
 	 */
-	private synchronized void startServer(int port) throws OpenemsException {
+	private synchronized void startServer(String ip, int port) throws OpenemsException {
 		try {
-			this.server = new Server(port);
+			this.server = new Server(new InetSocketAddress(ip, port));
 			this.server.setHandler(new RestHandler(this));
 			this.server.start();
-			this.logInfo(this.log, "Backend2Backend.Rest started on port [" + port + "].");
+			this.logInfo(this.log, "Backend2Backend.Rest started on [" + ip + ":" + port + "].");
 		} catch (Exception e) {
-			throw new OpenemsException("Backend2Backend.Rest failed on port [" + port + "].", e);
+			throw new OpenemsException("Backend2Backend.Rest failed on [" + ip + ":" + port + "].", e);
 		}
 	}
 
