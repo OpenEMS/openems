@@ -15,9 +15,7 @@
 	sun.misc,\
 	com.sun.net.httpserver
 
--runblacklist:\
-	bnd.identity;id='org.osgi.service.cm',\
-
+-runblacklist: bnd.identity;id='org.osgi.service.cm'
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
 	org.apache.felix.configadmin;startlevel=11,\
@@ -54,7 +52,6 @@
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
-	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.common',\
 	bnd.identity;id='io.openems.edge.controller.api.modbus',\
 	bnd.identity;id='io.openems.edge.controller.api.mqtt',\
@@ -223,7 +220,7 @@
 	bnd.identity;id='io.openems.edge.predictor.api',\
 	bnd.identity;id='io.openems.edge.weather.api',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
-	
+	bnd.identity;id='io.openems.edge.controller.api.backend'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.82.0,1.82.1)',\
@@ -259,7 +256,6 @@
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api;version=snapshot,\
-	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
 	io.openems.edge.controller.api.modbus;version=snapshot,\
 	io.openems.edge.controller.api.mqtt;version=snapshot,\
@@ -505,4 +501,5 @@
 	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
 	io.openems.edge.predictor.profileclusteringmodel;version=snapshot,\
 	io.openems.edge.scheduler.jscalendar;version=snapshot,\
-	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot
+	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot,\
+	io.openems.edge.controller.api.backend;version=snapshot
