@@ -7,13 +7,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
-		name = "PxC PLCnext driver", //
-		description = "Implements a driver for PLCnext platform of Phoenix Contact" //
+		name = "PxC PLCnext Component", //
+		description = "Provides adriver for PLCnext based components of Phoenix Contact" //
 )
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "pxc_plcnext_dev0";
+	String id() default "pxc_plcnext_0";
 
 	@AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
 	String alias() default "";
@@ -25,7 +25,7 @@ import io.openems.common.types.MeterType;
 	MeterType type() default MeterType.PRODUCTION;
 
 	@AttributeDefinition(name = "Auth-URL", description = "Defines URL to authorize PLCnext user")
-	String authUrl() default "https://localhost:8888/_pxc_api/v1.3/auth";
+	String authUrl() default "https://192.168.1.10/_pxc_api/v1.3/auth";
 
 	@AttributeDefinition(name = "Username", description = "Credentials: username")
 	String username() default "admin";
@@ -34,10 +34,10 @@ import io.openems.common.types.MeterType;
 	String password() default "admin";
 
 	@AttributeDefinition(name = "Data-URL", description = "Defines base URL to pickup data from GDS")
-	String dataUrl() default "http://localhost:8080/plcnext";
+	String dataUrl() default "https://192.168.1.10/_pxc_api/api";
 
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-	String[] dataInstanceNames() default "gds_openems_N";
+	String[] dataInstanceNames() default "gds_openems_0";
 
 	String webconsole_configurationFactory_nameHint() default "PxC PLCnext device [{id}]";
 

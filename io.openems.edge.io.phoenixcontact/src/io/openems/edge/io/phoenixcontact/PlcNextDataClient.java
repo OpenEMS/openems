@@ -35,9 +35,9 @@ public class PlcNextDataClient {
 	/**
 	 * Fetches a single data aspect and returns it
 	 * 
-	 * @param resourceName	represents the GDS namespace / resource to query
-	 * @param aspectName	represents the name of the field to fetch a value for
-	 * @return
+	 * @param instanceName represents the GDS namespace instance to query
+	 * @param aspectName   represents the name of the field to fetch a value for
+	 * @return an Object containing the value of the given aspect
 	 */
 	public Object fetchSingleGdsDataAspect(String instanceName, String aspectName, OpenemsType type) {
 		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
@@ -46,10 +46,15 @@ public class PlcNextDataClient {
 
 		return dataAspectValue.join();
 	}
-	
-	// TODO: just a dummy implementation
-	public JsonObject fetchAllGdsDataAspects(String resourceName) {
-		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);
+
+	/**
+	 * Fetch all data aspects of given instance name and returns it
+	 * 
+	 * @param instanceName represents the GDS namespace instance to query
+	 * @return a JsonObject containing all fetched data
+	 */
+	public JsonObject fetchAllGdsDataAspects(String instanceName) {
+		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
 		CompletableFuture<JsonObject> dataAspectValue = http.requestJson(dataEndPoint)
 				.thenApply(s -> s.data().getAsJsonObject());
 
