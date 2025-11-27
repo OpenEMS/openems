@@ -12,8 +12,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpMethod;
-import io.openems.common.bridge.http.time.HttpBridgeTimeService;
-import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.edge.io.phoenixcontact.utils.PlcNextUrlStringHelper;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextAuthClient.class)
@@ -24,13 +22,11 @@ public class PlcNextAuthClient {
 
 	private final BridgeHttp http;
 	private final Config config;
-	private final HttpBridgeTimeService timeService;
 
 	@Activate
 	public PlcNextAuthClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http, Config config) {
 		this.http = http;
 		this.config = config;
-		this.timeService = http.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
 
 	/**

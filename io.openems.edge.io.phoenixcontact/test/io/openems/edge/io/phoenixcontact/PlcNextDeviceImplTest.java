@@ -7,13 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.HttpBridgeService;
-import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
-import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
-import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
-import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -60,11 +55,6 @@ public class PlcNextDeviceImplTest {
 					throw new IllegalStateException("Use not suitable!");
 				}
 			}
-			
-			@Override
-			public <T extends HttpBridgeService> T createService(HttpBridgeServiceDefinition<T> serviceDefinition) {
-				return (T)new HttpBridgeTimeServiceImpl(this, new DummyBridgeHttpExecutor(), new DummyEndpointFetcher());
-			}
 		};
 		this.dummyDataBridgeHttp = new DummyBridgeHttp() {
 			@Override
@@ -83,8 +73,6 @@ public class PlcNextDeviceImplTest {
 		this.cycleSubscriber = new CycleSubscriber();
 	}
 	
-	
-	// WIP: make dummy request return sth.
 	@Test
 	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
