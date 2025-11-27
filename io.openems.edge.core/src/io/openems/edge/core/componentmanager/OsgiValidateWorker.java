@@ -143,6 +143,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			ServiceComponentRuntime scr) {
 		var descriptions = scr.getComponentDescriptionDTOs();
 		for (ComponentDescriptionDTO description : descriptions) {
+			// Only validate components that implement OpenemsComponent
+			if (!Stream.of(description.serviceInterfaces)
+					.anyMatch(OpenemsComponent.class.getName()::equals)) {
+				continue;
+			}
 			var configurations = scr.getComponentConfigurationDTOs(description);
 			for (ComponentConfigurationDTO configuration : configurations) {
 				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
