@@ -7,7 +7,7 @@
             <ion-card>
               <ion-item color="light" lines="full">
                 <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.GENERAL_DATA"  | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.GENERAL_DATA"  | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <ion-list class="ion-font-size-small">
@@ -19,13 +19,13 @@
                   }
                   @if (edge.comment) {
                     <ion-item>
-                      <ion-label>{{ 'Edge.Config.Index.COMMENT' | translate }}</ion-label>
+                      <ion-label>{{ 'EDGE.CONFIG.INDEX.COMMENT' | translate }}</ion-label>
                       {{ edge.comment }}
                     </ion-item>
                   }
                   @if (edge.producttype) {
                     <ion-item>
-                      <ion-label>{{ 'Edge.Config.Index.PRODUCT_TYPE' | translate }}</ion-label>
+                      <ion-label>{{ 'EDGE.CONFIG.INDEX.PRODUCT_TYPE' | translate }}</ion-label>
                       {{ edge.producttype }}
                     </ion-item>
                   }
@@ -38,12 +38,12 @@
                     version:edge.role }}</a>
                   </ion-item>
                   <ion-item>
-                    <ion-label>{{ 'Edge.Config.Index.ROLE' | translate }}</ion-label>
+                    <ion-label>{{ 'EDGE.CONFIG.INDEX.ROLE' | translate }}</ion-label>
                     {{ edge.getRoleString() }}
                   </ion-item>
                   @if (edge.firstSetupProtocol) {
                     <ion-item lines="none">
-                      <ion-label>{{"Index.FIRST_SETUP_PROTOCOL"  | translate}}</ion-label>
+                      <ion-label>{{"INDEX.FIRST_SETUP_PROTOCOL"  | translate}}</ion-label>
                       {{ edge.firstSetupProtocol | date:'dd.MM.YYYY HH:mm' }}
                     </ion-item>
                   }
@@ -100,7 +100,7 @@
             <ion-card>
               <ion-item color="light" lines="full">
                 <ion-icon slot="start" name="today-outline" color="primary"></ion-icon>
-                <ion-label>{{ 'Edge.Config.Index.CONFIGURATION' | translate }}</ion-label>
+                <ion-label>{{ 'EDGE.CONFIG.INDEX.CONFIGURATION' | translate }}</ion-label>
               </ion-item>
               <ion-card-content>
                 <ion-list>
@@ -141,7 +141,7 @@
                                 }
                                 <span>&nbsp;{{ item.id }}</span>&nbsp;<span style="color:gray">{{ factory.name }}</span>@if (!item.isEnabled) {
                                 <span
-                                  > - <span translate>General.componentInactive</span></span>
+                                  > - <span translate>GENERAL.COMPONENT_INACTIVE</span></span>
                                 }
                               </p>
                             }
@@ -169,7 +169,7 @@
                                     {{ 'MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL' | translate }} </ion-button>
                                     <oe-help-button key="CONTROLLER_API_MODBUSTCP_READ">
                                       <span translate>
-                                        General.manual
+                                        GENERAL.MANUAL
                                       </span>
                                     </oe-help-button>
                                   </ion-text>
@@ -192,7 +192,7 @@
                                     </ion-button>
                                     <oe-help-button key="CONTROLLER_API_MODBUSTCP_READWRITE">
                                       <span translate>
-                                        General.manual
+                                        GENERAL.MANUAL
                                       </span>
                                     </oe-help-button>
                                   </ion-text>
@@ -210,7 +210,7 @@
                                   <ion-text>
                                     <oe-help-button key="CONTROLLER_API_REST_READ">
                                       <span translate>
-                                        General.manual
+                                        GENERAL.MANUAL
                                       </span>
                                     </oe-help-button>
                                   </ion-text>
@@ -219,7 +219,7 @@
                                   <ion-text>
                                     <oe-help-button key="CONTROLLER_API_REST_READWRITE">
                                       <span translate>
-                                        General.manual
+                                        GENERAL.MANUAL
                                       </span>
                                     </oe-help-button>
                                   </ion-text>
@@ -231,7 +231,7 @@
                               <ion-button (click)="getChannelExport(item.id)">
                                 <ion-icon slot="start" [name]="'download-outline'">
                                 </ion-icon>
-                              {{ 'Edge.Config.Index.EXPORT_CHANNELS' | translate }}</ion-button>
+                              {{ 'EDGE.CONFIG.INDEX.EXPORT_CHANNELS' | translate }}</ion-button>
                             }
                           }
                         </ion-label>

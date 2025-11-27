@@ -225,24 +225,22 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 		final var state = this.stateMachine.getCurrentState();
 		setValue(this, ControllerEvseSingle.ChannelId.STATE_MACHINE, state);
 
-		// Force States
-		if (state != State.EV_NOT_CONNECTED && !input.abilities().isEvConnected()) {
-			this.stateMachine.forceNextState(State.EV_NOT_CONNECTED);
-		}
-		if (state != State.FINISHED_ENERGY_SESSION_LIMIT && isSessionLimitReached(this.config.mode(),
-				this.getSessionEnergy().get(), this.config.manualEnergySessionLimit())) {
-			this.stateMachine.forceNextState(State.FINISHED_ENERGY_SESSION_LIMIT);
+		final State forceNextState = this.getForceNextState(input, state);
+		if (forceNextState != null && state != forceNextState) {
+			this.stateMachine.forceNextState(forceNextState);
 		}
 
 		try {
-			var context = new Context(this, input, this.chargePoint, this.history, (actions) -> {
-				// Callback: forward actions
-				this.chargePoint.apply(actions);
-				this.history.addEntry(Instant.now(this.componentManager.getClock()),
-						this.chargePoint.getActivePower().get(),
-						actions.abilities().applySetPoint().toPower(actions.applySetPoint().value()),
-						actions.abilities().isReadyForCharging());
-			});
+			var context = new Context(this, this.componentManager.getClock(), input, this.chargePoint, this.history,
+					(actions) -> {
+						// Callback: forward actions
+						this.chargePoint.apply(actions);
+						this.history.addEntry(Instant.now(this.componentManager.getClock()),
+								this.chargePoint.getActivePower().get(),
+								actions.abilities().applySetPoint().toPower(actions.applySetPoint().value()),
+								actions.abilities().isReadyForCharging());
+					}, //
+					b -> setValue(this, ControllerEvseSingle.ChannelId.PHASE_SWITCH_FAILED, b));
 
 			this.stateMachine.run(context);
 			this._setRunFailed(false);
@@ -251,6 +249,37 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent implement
 			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+	}
+
+	private State getForceNextState(ChargePointActions input, State state) {
+		// Force State when...
+		return switch (input.phaseSwitch()) {
+		// NOTE: this is before EV_NOT_CONNECTED to allow phase-switching with
+		// not-connected EVs
+		case TO_SINGLE_PHASE -> {
+			// ...phase switching to Single-Phase
+			yield State.PHASE_SWITCH_TO_SINGLE_PHASE;
+		}
+		case TO_THREE_PHASE -> {
+			// ...phase switching to Three-Phase
+			yield State.PHASE_SWITCH_TO_THREE_PHASE;
+		}
+		case null -> {
+			if (state == State.PHASE_SWITCH_TO_SINGLE_PHASE || state == State.PHASE_SWITCH_TO_THREE_PHASE) {
+				yield null; // Do not interrupt Phase-Switch; it has a timeout
+			}
+			if (state != State.EV_NOT_CONNECTED && !input.abilities().isEvConnected()) {
+				// ...EV is not connected
+				yield State.EV_NOT_CONNECTED;
+			}
+			if (state != State.FINISHED_ENERGY_SESSION_LIMIT && isSessionLimitReached(this.config.mode(),
+					this.getSessionEnergy().get(), this.config.manualEnergySessionLimit())) {
+				// ...Session Energy Limit was reached
+				yield State.FINISHED_ENERGY_SESSION_LIMIT;
+			}
+			yield null;
+		}
+		};
 	}
 
 	@Override

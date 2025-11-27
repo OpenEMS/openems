@@ -12,209 +12,210 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER" | "OFF";
 
 
 @Component({
-  selector: "Controller_Evcs",
-  templateUrl: "./flat.html",
-  standalone: false,
+    selector: "Controller_Evcs",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
+    public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
-  protected controller: EdgeConfig.Component;
-  protected evcsComponent: EdgeConfig.Component | null = null;
-  protected isConnectionSuccessful: boolean = false;
-  protected isEnergySinceBeginningAllowed: boolean = false;
-  protected mode: string;
-  protected isChargingEnabled: boolean = false;
-  protected defaultChargeMinPower: number;
-  protected prioritization: string;
-  protected phases: number;
-  protected maxChargingValue: number;
-  protected energySessionLimit: number;
-  protected state: string = "";
-  protected minChargePower: number;
-  protected maxChargePower: number;
-  protected forceChargeMinPower: string;
-  protected chargeMode: ChargeMode | null = null;
-  protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
-  protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
-  protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
-  protected chargeTarget: string;
-  protected energySession: string;
-  protected chargeDischargePower: { name: string, value: number };
-  protected propertyMode: DefaultTypes.ManualOnOff | null = null;
-  protected status: string;
-  protected isReadWrite: boolean;
-  protected modalComponent: Modal | null = null;
+    protected controller: EdgeConfig.Component;
+    protected evcsComponent: EdgeConfig.Component | null = null;
+    protected isConnectionSuccessful: boolean = false;
+    protected isEnergySinceBeginningAllowed: boolean = false;
+    protected mode: string;
+    protected isChargingEnabled: boolean = false;
+    protected defaultChargeMinPower: number;
+    protected prioritization: string;
+    protected phases: number;
+    protected maxChargingValue: number;
+    protected energySessionLimit: number;
+    protected state: string = "";
+    protected minChargePower: number;
+    protected maxChargePower: number;
+    protected forceChargeMinPower: string;
+    protected chargeMode: ChargeMode | null = null;
+    protected readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+    protected readonly CONVERT_TO_KILO_WATTHOURS = Utils.CONVERT_TO_KILO_WATTHOURS;
+    protected readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
+    protected chargeTarget: string;
+    protected energySession: string;
+    protected chargeDischargePower: { name: string, value: number };
+    protected propertyMode: DefaultTypes.ManualOnOff | null = null;
+    protected status: string;
+    protected isReadWrite: boolean;
+    protected modalComponent: Modal | null = null;
 
-  private chargePoint: EvcsComponent;
+    private chargePoint: EvcsComponent;
 
-  protected override afterIsInitialized(): void {
-    this.modalComponent = this.getModalComponent();
-  }
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
 
-  protected getModalComponent(): Modal {
-    return {
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
+    protected getModalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        };
     };
-  };
 
-  protected override getChannelAddresses(): ChannelAddress[] {
-    this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
+    protected override getChannelAddresses(): ChannelAddress[] {
+        this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
 
-    const result = [
-      this.chargePoint.powerChannel,
-      new ChannelAddress(this.component.id, "Phases"),
-      new ChannelAddress(this.component.id, "Plug"),
-      new ChannelAddress(this.component.id, "Status"),
-      new ChannelAddress(this.component.id, "State"),
-      new ChannelAddress(this.component.id, "EnergySession"),
-      // channels for modal component, subscribe here for better UX
-      new ChannelAddress(this.component.id, "MinimumHardwarePower"),
-      new ChannelAddress(this.component.id, "MaximumHardwarePower"),
-      new ChannelAddress(this.component.id, "SetChargePowerLimit"),
-    ];
+        const result = [
+            this.chargePoint.powerChannel,
+            new ChannelAddress(this.component.id, "Phases"),
+            new ChannelAddress(this.component.id, "Plug"),
+            new ChannelAddress(this.component.id, "Status"),
+            new ChannelAddress(this.component.id, "State"),
+            new ChannelAddress(this.component.id, "EnergySession"),
+            // channels for modal component, subscribe here for better UX
+            new ChannelAddress(this.component.id, "MinimumHardwarePower"),
+            new ChannelAddress(this.component.id, "MaximumHardwarePower"),
+            new ChannelAddress(this.component.id, "SetChargePowerLimit"),
+        ];
 
-    const controllers = this.config.getComponentsByFactory("Controller.Evcs");
-    for (const controller of controllers) {
-      const properties = controller.properties;
-      if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
-        this.controller = controller;
-        result.push(new ChannelAddress(controller.id, "_PropertyEnabledCharging"));
-      }
-    }
-    return result;
-  }
-
-  protected override onCurrentData(currentData: CurrentData) {
-
-    this.evcsComponent = this.config.getComponent(this.component.id);
-    this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
-    this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
-    this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
-
-    // Check if Energy since beginning is allowed
-    if (currentData.allComponents[this.chargePoint.powerChannel.toString()] > 0 || currentData.allComponents[this.component.id + "/Status"] == 2 || currentData.allComponents[this.component.id + "/Status"] == 7) {
-      this.isEnergySinceBeginningAllowed = true;
+        const controllers = this.config.getComponentsByFactory("Controller.Evcs");
+        for (const controller of controllers) {
+            const properties = controller.properties;
+            if ("evcs.id" in properties && properties["evcs.id"] === this.componentId) {
+                this.controller = controller;
+                result.push(new ChannelAddress(controller.id, "_PropertyEnabledCharging"));
+            }
+        }
+        return result;
     }
 
-    // Mode
-    if (this.isChargingEnabled) {
-      if (this.chargeMode == "FORCE_CHARGE") {
-        this.mode = this.translate.instant("General.manually");
-      } else if (this.chargeMode == "EXCESS_POWER") {
-        this.mode = this.translate.instant("Edge.Index.Widgets.EVCS.OptimizedChargeMode.shortName");
-      }
+    protected override onCurrentData(currentData: CurrentData) {
+
+        this.evcsComponent = this.config.getComponent(this.component.id);
+        this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
+        this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
+        this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
+
+        // Check if Energy since beginning is allowed
+        if (currentData.allComponents[this.chargePoint.powerChannel.toString()] > 0 || currentData.allComponents[this.component.id + "/Status"] == 2 || currentData.allComponents[this.component.id + "/Status"] == 7) {
+            this.isEnergySinceBeginningAllowed = true;
+        }
+
+        // Mode
+        if (this.isChargingEnabled) {
+            if (this.chargeMode == "FORCE_CHARGE") {
+                this.mode = this.translate.instant("GENERAL.MANUALLY");
+            } else if (this.chargeMode == "EXCESS_POWER") {
+                this.mode = this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.SHORT_NAME");
+            }
+        }
+
+        // Check if Controller is set
+        if (this.controller) {
+
+            // ChargeMode
+            this.chargeMode = this.controller.properties["chargeMode"];
+            // Check if Charging is enabled
+            this.isChargingEnabled = currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 ? true : false;
+            // DefaultChargeMinPower
+            this.defaultChargeMinPower = this.controller.properties["defaultChargeMinPower"];
+            // Prioritization
+            // TODO translation string should be explicit
+            this.prioritization =
+                this.controller.properties["priority"] in Prioritization
+                    ? "EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.CHARGING_PRIORITY." + this.controller.properties["priority"]
+                    : "";
+            // MaxChargingValue
+            if (this.phases) {
+                this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], this.phases);
+            } else {
+                this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], 3);
+            }
+            // EnergySessionLimit
+            this.energySessionLimit = this.controller.properties["energySessionLimit"];
+        }
+
+        // Phases
+        this.phases = currentData.allComponents[this.componentId + "/Phases"];
+
+        this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
+        this.chargeTarget = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
+        this.energySession = Utils.CONVERT_TO_WATT(currentData.allComponents[this.component.id + "/EnergySession"]);
+
+        this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
+        this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
+        this.state = currentData.allComponents[this.component.id + "/Status"];
     }
 
-    // Check if Controller is set
-    if (this.controller) {
+    /**
+   * Returns the state of the EVCS
+   *
+   * @param state the state
+   * @param plug the plug
+   */
+    private getState(enabledCharging: boolean, state: number, plug: number): string {
 
-      // ChargeMode
-      this.chargeMode = this.controller.properties["chargeMode"];
-      // Check if Charging is enabled
-      this.isChargingEnabled = currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 ? true : false;
-      // DefaultChargeMinPower
-      this.defaultChargeMinPower = this.controller.properties["defaultChargeMinPower"];
-      // Prioritization
-      this.prioritization =
-        this.controller.properties["priority"] in Prioritization
-          ? "Edge.Index.Widgets.EVCS.OptimizedChargeMode.ChargingPriority." + this.controller.properties["priority"].toLowerCase()
-          : "";
-      // MaxChargingValue
-      if (this.phases) {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], this.phases);
-      } else {
-        this.maxChargingValue = Utils.multiplySafely(this.controller.properties["forceChargeMinPower"], 3);
-      }
-      // EnergySessionLimit
-      this.energySessionLimit = this.controller.properties["energySessionLimit"];
+        if (enabledCharging === false) {
+            return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
+        }
+
+        if (plug == null) {
+            if (state == null) {
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
+            }
+        } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
+            return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
+        }
+        switch (state) {
+            case ChargeState.STARTING:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.STARTING");
+            case ChargeState.UNDEFINED:
+            case ChargeState.ERROR:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.ERROR");
+            case ChargeState.READY_FOR_CHARGING:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.READY_FOR_CHARGING");
+            case ChargeState.NOT_READY_FOR_CHARGING:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_READY_FOR_CHARGING");
+            case ChargeState.AUTHORIZATION_REJECTED:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
+            case ChargeState.CHARGING:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING");
+            case ChargeState.ENERGY_LIMIT_REACHED:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGE_LIMIT_REACHED");
+            case ChargeState.CHARGING_FINISHED:
+                return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CAR_FULL");
+        }
     }
 
-    // Phases
-    this.phases = currentData.allComponents[this.componentId + "/Phases"];
-
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
-    this.chargeTarget = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
-    this.energySession = Utils.CONVERT_TO_WATT(currentData.allComponents[this.component.id + "/EnergySession"]);
-
-    this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
-    this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
-    this.state = currentData.allComponents[this.component.id + "/Status"];
-  }
-
-  /**
- * Returns the state of the EVCS
- *
- * @param state the state
- * @param plug the plug
- */
-  private getState(enabledCharging: boolean, state: number, plug: number): string {
-
-    if (enabledCharging === false) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.chargingStationDeactivated");
+    private formatNumber(i: number) {
+        const round = Math.ceil(i / 100) * 100;
+        return round;
     }
-
-    if (plug == null) {
-      if (state == null) {
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
-      }
-    } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED) {
-      return this.translate.instant("Edge.Index.Widgets.EVCS.cableNotConnected");
-    }
-    switch (state) {
-      case ChargeState.STARTING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.starting");
-      case ChargeState.UNDEFINED:
-      case ChargeState.ERROR:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.error");
-      case ChargeState.READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.readyForCharging");
-      case ChargeState.NOT_READY_FOR_CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notReadyForCharging");
-      case ChargeState.AUTHORIZATION_REJECTED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.notCharging");
-      case ChargeState.CHARGING:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.charging");
-      case ChargeState.ENERGY_LIMIT_REACHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.chargeLimitReached");
-      case ChargeState.CHARGING_FINISHED:
-        return this.translate.instant("Edge.Index.Widgets.EVCS.carFull");
-    }
-  }
-
-  private formatNumber(i: number) {
-    const round = Math.ceil(i / 100) * 100;
-    return round;
-  }
 }
 
 enum ChargeState {
-  UNDEFINED = -1,           //Undefined
-  STARTING,                 //Starting
-  NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
-  READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
-  CHARGING,                 //Charging
-  ERROR,                    //Error
-  AUTHORIZATION_REJECTED,   //Authorization rejected
-  ENERGY_LIMIT_REACHED,     //Energy limit reached
-  CHARGING_FINISHED,         //Charging has finished
+    UNDEFINED = -1,           //Undefined
+    STARTING,                 //Starting
+    NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+    READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
+    CHARGING,                 //Charging
+    ERROR,                    //Error
+    AUTHORIZATION_REJECTED,   //Authorization rejected
+    ENERGY_LIMIT_REACHED,     //Energy limit reached
+    CHARGING_FINISHED,         //Charging has finished
 }
 
 
 enum ChargePlug {
-  UNDEFINED = -1,                           //Undefined
-  UNPLUGGED,                                //Unplugged
-  PLUGGED_ON_EVCS,                          //Plugged on EVCS
-  PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
-  PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
-  PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
+    UNDEFINED = -1,                           //Undefined
+    UNPLUGGED,                                //Unplugged
+    PLUGGED_ON_EVCS,                          //Plugged on EVCS
+    PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
+    PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
+    PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7,  //Plugged on EVCS and on EV and locked
 }
 enum Prioritization {
-  CAR,
-  STORAGE,
+    CAR,
+    STORAGE,
 }

@@ -37,8 +37,8 @@
           }
           <!-- 'TOGGLE' Line, provides toggle option -->
           @if (control.type === 'TOGGLE') {
-            <td [formGroup]="formGroup"
-              [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
+            <td [formGroup]="formGroup" [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''"
+              class="align_right">
               <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md"
                 [formControlName]="controlName">
               </ion-toggle>
@@ -48,8 +48,8 @@
           @if (control.type === 'SELECT') {
             <td [formGroup]="formGroup">
               @if (control.options) {
-                <ion-select interface="popover" [formControlName]="controlName" [okText]="'General.ok'| translate"
-                  [cancelText]="'General.cancel'| translate" style="text-align:end">
+                <ion-select interface="popover" [formControlName]="controlName" [okText]="'GENERAL.OK'| translate"
+                  [cancelText]="'GENERAL.CANCEL'| translate" style="text-align:end">
                   @for (option of control.options; track option) {
                     <ion-select-option [value]="option.value">
                       {{option.name}}
@@ -60,8 +60,7 @@
             </td>
           }
           @if (control.type === 'TEXT') {
-            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'"
-              [formGroup]="formGroup" class="align_right">
+            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" [formGroup]="formGroup" class="align_right">
               <ng-container>{{formGroup.controls[controlName].value | converter:control.valueConverter }}
               </ng-container>
             </td>
@@ -90,7 +89,7 @@
                 <ion-label slot="start">
                   @if(control.properties.unit){
                     {{ control.properties.tickMin| unitvalue:control.properties.unit}}
-                    }@else{
+                  }@else{
                     {{ control.properties.tickMin
                     | converter:control.properties.tickFormatter ? control.properties.tickFormatter : null}}
                   }
@@ -98,7 +97,7 @@
                 <ion-label slot="end">
                   @if(control.properties.unit){
                     {{ control.properties.tickMax| unitvalue:control.properties.unit}}
-                    }@else{
+                  }@else{
                     {{ control.properties.tickMax
                     | converter:control.properties.tickFormatter ? control.properties.tickFormatter : null}}
                   }

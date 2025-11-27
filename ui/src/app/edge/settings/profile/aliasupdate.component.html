@@ -15,7 +15,7 @@
               <ion-card-content>
                 <form [formGroup]="formGroup">
                   <ion-item lines="full" class="noPadding">
-                    <ion-input formControlName="alias" [label]="'General.currentName' | translate"
+                    <ion-input formControlName="alias" [label]="'GENERAL.CURRENT_NAME' | translate"
                       label-placement="stacked">
                     </ion-input>
                   </ion-item>
@@ -24,12 +24,12 @@
                   <ion-col size="6" class="ion-text-center">
                     <ion-button expand="full" (click)="updateAlias(formGroup.controls['alias'].value)"
                       translate>
-                      General.apply
+                      GENERAL.APPLY
                     </ion-button>
                   </ion-col>
                   <ion-col size="6" class="ion-text-center">
                     <ion-button expand="full" (click)="updateAlias('')" translate>
-                      General.reset
+                      GENERAL.RESET
                     </ion-button>
                   </ion-col>
                 </ion-row>

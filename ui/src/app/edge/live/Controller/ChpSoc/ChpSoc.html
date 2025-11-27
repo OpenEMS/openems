@@ -2,12 +2,12 @@
   <oe-flat-widget tabindex="0" button [modalComponent]="modalComponent" [title]="component.alias"
     [icon]="{name:
     'flame-outline', color: 'normal'}">
-    <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.MODE'| translate" [value]="mode"></oe-flat-widget-line>
     @if (icon.name === '') {
-      <oe-flat-widget-line [name]="'General.state' | translate" [value]="state">
+      <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="state">
       </oe-flat-widget-line>
     } @else {
-      <oe-flat-widget-line [icon]="icon" [name]="'General.state' | translate"></oe-flat-widget-line>
+      <oe-flat-widget-line [icon]="icon" [name]="'GENERAL.STATE' | translate"></oe-flat-widget-line>
     }
     @if (this.modeChannelValue === 'AUTOMATIC') {
       <oe-flat-widget-percentagebar>

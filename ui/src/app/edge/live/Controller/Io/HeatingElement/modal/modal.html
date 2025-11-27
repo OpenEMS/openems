@@ -1,30 +1,30 @@
 @if (isInitialized) {
   <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
     helpKey="CONTROLLER_IO_HEATING_ELEMENT">
-    <oe-modal-line [name]="'General.state' | translate" [value]="runState"
+    <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="runState"
       [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE">
     </oe-modal-line>
     @if (level !== Level.LEVEL_0) {
       <oe-modal-line
-        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel' | translate" [value]="'Level ' + level">
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level">
       </oe-modal-line>
     }
     @if (consumptionMeter) {
       <oe-modal-line
-        [name]="'Edge.Index.Widgets.Heatingelement.HEATING_POWER' | translate"
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate"
         [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT">
       </oe-modal-line>
       <oe-modal-line
-        [name]="'Edge.Index.Widgets.Heatingelement.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'"
+        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'"
         [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
       </oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
-    <oe-modal-line [name]="'General.mode'| translate"></oe-modal-line>
+    <oe-modal-line [name]="'GENERAL.MODE'| translate"></oe-modal-line>
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.on' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'play-outline'}},
-    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
-    { name: ('General.off' | translate), value: 'MANUAL_OFF', icon: {color:'danger', name: 'power'}}]">
+    { name: ('GENERAL.ON' | translate), value: 'MANUAL_ON', icon: {color:'success', name: 'play-outline'}},
+    { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'sunny'}},
+    { name: ('GENERAL.OFF' | translate), value: 'MANUAL_OFF', icon: {color:'danger', name: 'power'}}]">
     </oe-modal-buttons>
     <!-- TODO: with future version there will be a solution for returning the event from the generic modal-line, but at this moment, CustomEvent not working -->
     @if (formGroup.controls['mode'].value === Mode.AUTOMATIC) {
@@ -32,7 +32,7 @@
       <table class=" full_width">
         <tr>
           <td style="width: 65%" translate>
-            Edge.Index.Widgets.Heatingelement.guaranteeMinimumHeating
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_MINIMUM_HEATING
           </td>
           <td style="width: 35%" class="align_right">
             <ion-toggle (ionChange)="switchWorkMode($event, 'TIME')"
@@ -55,7 +55,7 @@
         <tr>
           <td class="text-align: left">
             <ion-text translate>
-              Edge.Index.Widgets.GridOptimizedCharge.endTime
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.END_TIME
             </ion-text>:
           </td>
           <td>
@@ -75,7 +75,7 @@
         </tr>
       </table>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.minimumRunTime' | translate"
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate"
         [value]="formGroup.controls['minTime'].value + ' h'">
       </oe-modal-line>
       <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true}}"
@@ -87,7 +87,7 @@
       <table class="full_width">
         <tr>
           <td style="width: 65%" translate>
-            Edge.Index.Widgets.Heatingelement.GUARANTEE_HEATING
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_HEATING
           </td>
           <td style="width: 35%" class="align_right">
             <ion-toggle (ionChange)="switchWorkMode($event, 'ENERGY')"
@@ -100,7 +100,7 @@
     @if (formGroup.controls['mode'].value === Mode.AUTOMATIC && formGroup.controls['workMode'].value === WorkMode.ENERGY
       && consumptionMeter && consumptionMeter.isEnabled) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      <oe-modal-line [name]="'Edge.Index.Widgets.Heatingelement.MINIMAL_ENERGY_LIMIT' | translate"
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMAL_ENERGY_LIMIT' | translate"
         [value]="formGroup.controls['minEnergyLimitInKwh'].value + ' kWh'">
       </oe-modal-line>
       <oe-modal-line controlName="minEnergyLimitInKwh"
@@ -112,7 +112,7 @@
         <tr>
           <td class="text-align: left">
             <ion-text translate>
-              Edge.Index.Widgets.Heatingelement.endtime
+              EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENDTIME
             </ion-text>:
           </td>
           <td>
@@ -134,7 +134,7 @@
       @if (isUnreachable) {
         <div style="text-align: center; margin-top: 5px;">
           <ion-text color="danger" translate>
-            Edge.Index.Widgets.Heatingelement.MESSAGE_UNREACHABLE
+            EDGE.INDEX.WIDGETS.HEATINGELEMENT.MESSAGE_UNREACHABLE
           </ion-text>
         </div>
       }
