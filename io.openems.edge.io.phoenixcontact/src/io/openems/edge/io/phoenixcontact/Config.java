@@ -25,7 +25,7 @@ import io.openems.common.types.MeterType;
 	MeterType type() default MeterType.PRODUCTION;
 
 	@AttributeDefinition(name = "Auth-URL", description = "Defines URL to authorize PLCnext user")
-	String authUrl() default "http://localhost:8888/auth";
+	String authUrl() default "https://localhost:8888/_pxc_api/v1.3/auth";
 
 	@AttributeDefinition(name = "Username", description = "Credentials: username")
 	String username() default "admin";
@@ -37,7 +37,7 @@ import io.openems.common.types.MeterType;
 	String dataUrl() default "http://localhost:8080/plcnext";
 
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-	String dataInstanceName() default "gds_openems_N";
+	String[] dataInstanceNames() default "gds_openems_N";
 
 	String webconsole_configurationFactory_nameHint() default "PxC PLCnext device [{id}]";
 

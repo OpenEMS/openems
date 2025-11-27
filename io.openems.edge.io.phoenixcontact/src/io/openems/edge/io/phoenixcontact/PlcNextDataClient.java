@@ -9,9 +9,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
@@ -41,8 +39,8 @@ public class PlcNextDataClient {
 	 * @param aspectName	represents the name of the field to fetch a value for
 	 * @return
 	 */
-	public Object fetchSingleGdsDataAspect(String resourceName, String aspectName, OpenemsType type) {
-		Endpoint dataEndPoint = buildDataEndpointRepresentation(resourceName);
+	public Object fetchSingleGdsDataAspect(String instanceName, String aspectName, OpenemsType type) {
+		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
 		CompletableFuture<Object> dataAspectValue = http.requestJson(dataEndPoint)
 				.thenApply(s -> PlcNextJsonElementHelper.getJsonValue(s.data().getAsJsonObject().getAsJsonPrimitive(aspectName), type));
 
@@ -71,14 +69,14 @@ public class PlcNextDataClient {
 		return endPoint;
 	}
 
-	private String buildDataEndpointUrl(String resourceName) {
+	private String buildDataEndpointUrl(String instanceName) {
 		String dataEndpointUrl = this.config.dataUrl();
 
 		if (!dataEndpointUrl.endsWith("/")) {
 			dataEndpointUrl = dataEndpointUrl.concat("/");
 		}
-		dataEndpointUrl = dataEndpointUrl.concat(config.dataInstanceName())
-				.concat("/").concat(resourceName);
+		dataEndpointUrl = dataEndpointUrl.concat(instanceName)
+				.concat("/").concat("data");
 
 		return dataEndpointUrl;
 	}

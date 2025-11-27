@@ -1,14 +1,11 @@
 package io.openems.edge.io.phoenixcontact;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.common.bridge.http.BridgeHttpImpl;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
@@ -16,17 +13,13 @@ import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
-import io.openems.common.bridge.http.time.HttpBridgeTimeService;
-import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextReadFromApiResourceCommand;
 
 public class PlcNextDeviceImplTest {
 
@@ -57,7 +50,15 @@ public class PlcNextDeviceImplTest {
 		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'jwtToken': 'dummy'}"));
+				if (endpoint.url().contains(PlcNextAuthClient.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.supplyAsync(
+							() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'code': 'dummy_auth'}"));
+				} else if (endpoint.url().contains(PlcNextAuthClient.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+							"{'access_token': 'dummy_access'}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
 			}
 			
 			@Override
@@ -85,7 +86,7 @@ public class PlcNextDeviceImplTest {
 	
 	// WIP: make dummy request return sth.
 	@Test
-	public void test() throws Exception {
+	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsProvider", this.dataProvider) //
 				.addReference("cycleSubscriber", this.cycleSubscriber)

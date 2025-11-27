@@ -1,8 +1,9 @@
 package io.openems.edge.io.phoenixcontact;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -21,6 +22,7 @@ import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextReadFromApiResourceCommand;
@@ -46,6 +48,9 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	@Reference
 	private PlcNextGdsProvider gdsProvider;
 	
+	@Reference
+	private PlcNextTokenManager tokenManager;
+
 	private Config config;
 	private List<PlcNextApiCommand> apiCommands;
 
@@ -62,29 +67,43 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.apiCommands = buildCommandsIfNecessary(config, apiCommands);
-		this.cycleSubscriber.subscribe((event) -> {
-			if (!this.isEnabled()) {
-				log.warn("Module deactivated, skipping event processing of event");
-				return;
-			}
-			List<PlcNextApiCommand> apiCmdForEvent = apiCommands.stream()
-					.filter(item -> item.eventTriggers().contains(event.getTopic()))
-					.toList();
-			if (apiCmdForEvent.isEmpty()) {
-				log.info("No commands found to be executed");
-				return;
-			}
-			apiCmdForEvent.parallelStream().forEach(item -> item.execute());
-		});
+
+		if (isCmdListNotInitialized()) {
+			this.apiCommands = buildCommands(config, apiCommands);
+			this.cycleSubscriber.subscribe(event -> {
+				tokenManager.fetchToken();
+			});
+			this.cycleSubscriber.subscribe(event -> {
+				if (!this.isEnabled()) {
+					log.warn("Module deactivated, skipping event processing of event");
+					return;
+				}
+				List<PlcNextApiCommand> suitableApiCommandsForEvent = apiCommands.stream()
+						.filter(item -> item.eventTriggers().contains(event.getTopic())).toList();
+				if (suitableApiCommandsForEvent.isEmpty()) {
+					log.info("No commands found to be executed");
+					return;
+				}
+				suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
+			});
+		}
+	}
+
+	private boolean isCmdListNotInitialized() {
+		return Objects.isNull(apiCommands) || apiCommands.isEmpty();
 	}
 	
-	private List<PlcNextApiCommand> buildCommandsIfNecessary(Config config, List<PlcNextApiCommand> apiCommands) {
+	private List<PlcNextApiCommand> buildCommands(Config config, List<PlcNextApiCommand> apiCommands) {
 		List<PlcNextApiCommand> newApiCommands = apiCommands;
 		
-		if (Objects.isNull(apiCommands) || apiCommands.isEmpty()) {
-			newApiCommands = List.of(new PlcNextReadFromApiResourceCommand(gdsProvider, config.dataInstanceName()));
-		}
+			List<PlcNextApiCommand> cmds = new ArrayList<PlcNextApiCommand>();
+			
+			if (config.dataInstanceNames() != null) {
+				for (String instName : config.dataInstanceNames()) {
+					cmds.add(new PlcNextReadFromApiResourceCommand(gdsProvider, instName));
+				}
+			}
+			newApiCommands = Collections.unmodifiableList(cmds);
 		return newApiCommands;
 	}
 

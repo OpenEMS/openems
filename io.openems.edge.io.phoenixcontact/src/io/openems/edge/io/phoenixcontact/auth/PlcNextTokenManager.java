@@ -6,8 +6,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import com.google.gson.JsonObject;
-
 import io.openems.edge.io.phoenixcontact.PlcNextAuthClient;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextTokenManager.class)
@@ -27,22 +25,11 @@ public class PlcNextTokenManager {
 	/**
 	 * Initialize fetching valid JWT periodically
 	 */
-	private void fetchToken() {
-		this.authClient.fetchAuthenticationPeriodically((a, b) -> {
-			if (a == null) {
-				return;
-			}
-			JsonObject jsonObject = a.data().getAsJsonObject();
-			
-			// TODO check if the token is expires
-			this.token = jsonObject.getAsJsonPrimitive("jwtToken").getAsString();
-		});
+	public void fetchToken() {
+		this.token = this.authClient.fetchSingleAuthentication();
 	}
 
 	public synchronized String getToken() {
-		if (this.token == null) {
-			this.token = authClient.fetchSingleAuthentication();
-		}
 		return this.token;
 	}
 }

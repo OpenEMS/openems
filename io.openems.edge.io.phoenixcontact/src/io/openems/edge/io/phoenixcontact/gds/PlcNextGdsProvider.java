@@ -16,7 +16,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.io.phoenixcontact.PlcNextDataClient;
