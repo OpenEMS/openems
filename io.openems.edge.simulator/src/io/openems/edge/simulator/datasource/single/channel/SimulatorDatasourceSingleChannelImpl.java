@@ -87,6 +87,7 @@ public class SimulatorDatasourceSingleChannelImpl extends AbstractDatasource
 		return TypeUtils.getAsType(type, value);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> List<T> getValues(OpenemsType type, ChannelAddress channelAddress) {
 		var value = this.currentValue;
@@ -94,7 +95,8 @@ public class SimulatorDatasourceSingleChannelImpl extends AbstractDatasource
 			// Fall back to default values from container
 			return super.getValues(type, channelAddress);
 		}
-		return List.of(TypeUtils.getAsType(type, value));
+		T typedValue = (T) TypeUtils.getAsType(type, value);
+		return List.of(typedValue);
 	}
 
 	@Override
