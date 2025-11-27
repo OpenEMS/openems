@@ -126,6 +126,27 @@ export namespace ArrayUtils {
         return inputArr?.filter(item => restArrays.includes(item) == false) as T ?? null;
     }
 
+
+    export function findObjectInArray<T extends object>(array: T[], target: Partial<T>): T | undefined {
+        return array.find(obj =>
+            deepEqual(obj, target)
+        );
+    }
+
+    export function deepEqual(a: any, b: any): boolean {
+        if (a === b) { return true; }
+
+        if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) { return false; }
+
+        const keysA = Object.keys(a);
+        const keysB = Object.keys(b);
+
+        if (keysA.length !== keysB.length) { return false; }
+
+        return keysA.every(key => deepEqual(a[key], b[key]));
+    }
+
+
     export namespace ReducerFunctions {
         export const sum = ((acc: number, val: number) => acc + val);
         export const STRINGIFY_SAFELY: (

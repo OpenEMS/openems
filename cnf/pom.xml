@@ -4,6 +4,19 @@
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
 	<packaging>pom</packaging>
+	<repositories>
+	  <repository>
+	    <name>Central Portal Snapshots</name>
+	    <id>central-portal-snapshots</id>
+	    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+	    <releases>
+	      <enabled>false</enabled>
+	    </releases>
+	    <snapshots>
+	      <enabled>true</enabled>
+	    </snapshots>
+	  </repository>
+	</repositories>
 	<dependencies>
 		<!-- biz -->
 		<dependency>
@@ -20,7 +33,7 @@
 			<version>2.11.4</version>
 		</dependency>
 		<dependency>
-			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
+			<!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
 			<version>3.2.2-openems.2</version>
@@ -49,19 +62,19 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.0</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.3.0</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.16.2</version>
+			<version>3.16.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -178,12 +191,6 @@
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
 			<version>8.3.0</version>
-		</dependency>
-		<!-- javax -->
-		<dependency>
-			<groupId>javax.jmdns</groupId>
-			<artifactId>jmdns</artifactId>
-			<version>3.4.1</version>
 		</dependency>
 		<!-- net -->
 		<dependency>
@@ -310,24 +317,32 @@
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
+			<!-- Java mDNS Library -->
+			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
+		    <groupId>org.jmdns</groupId>
+		    <artifactId>jmdns</artifactId>
+		    <version>3.6.2</version>
+		</dependency>
+		<!-- com -->
+		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -440,7 +455,7 @@
 			<!-- Used by Apache Felix Web Management Console -->
 			<groupId>org.owasp.encoder</groupId>
 			<artifactId>encoder</artifactId>
-			<version>1.3.1</version>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->
@@ -479,7 +494,7 @@
 			<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.32.1</version>
+			<version>4.33.1</version>
 		</dependency>
 		<dependency>
 		  <groupId>org.mockito</groupId>
@@ -490,7 +505,7 @@
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.17.8</version>
+		  <version>1.18.1</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>

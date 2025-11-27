@@ -101,13 +101,16 @@ export namespace GetAppAssistant {
         return appAssistant;
     }
 
-    export function setInitialModel(fields: FormlyFieldConfig[], model: {}): FormlyFieldConfig[] {
+    export function setInitialModel(fields: FormlyFieldConfig[], model: {}, instanceId?: string): FormlyFieldConfig[] {
         return fields.map(f => {
             function recursivIterate(field: FormlyFieldConfig) {
                 if (!field) {
                     return;
                 }
                 field["initialModel"] = structuredClone(model);
+                if (instanceId) {
+                    field["instanceId"] = instanceId;
+                }
                 [field.fieldGroup, field.templateOptions?.fields ?? field.props?.fields].forEach(fieldGroup => {
                     if (!fieldGroup) {
                         return;
@@ -363,4 +366,4 @@ function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: Forml
 }
 
 
-type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} };
+export type FormlyFieldConfigWithInitialModel<PROPS = FormlyFieldConfig["props"]> = FormlyFieldConfig<PROPS> & { initialModel: {}, instanceId?: string };

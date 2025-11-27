@@ -205,8 +205,8 @@ public final class EvcsProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(CommonProps.phaseRotation()
-				.setTranslatedDescription("App.Evcs.phaseRotation.description")); //
+		return AppDef.copyOfGeneric(
+				CommonProps.phaseRotation().setTranslatedDescription("App.Evcs.phaseRotation.description")); //
 	}
 
 	/**

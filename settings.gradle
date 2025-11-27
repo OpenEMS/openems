@@ -7,6 +7,13 @@ pluginManagement {
 	}
 	repositories {
 		maven {
+    		name = 'Central Portal Snapshots'
+    		url = 'https://central.sonatype.com/repository/maven-snapshots/'
+    		content {
+    			includeModule('io.openems', 'j2mod')
+   			}
+  		}
+		maven {
 			name = 'BndRepo'
 			url = uri(bnd_releases)
 			content {
@@ -14,6 +21,7 @@ pluginManagement {
 				includeGroup('biz.aQute.bnd.workspace')
 			}
 		}
+		mavenLocal()
 		mavenCentral()
 		gradlePluginPortal()
 	}

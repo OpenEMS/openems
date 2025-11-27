@@ -73,7 +73,7 @@ public class SolarEdgePvInverter extends
 		ALIAS(CommonProps.alias()), //
 		IP(PvInverterProps.ip()), //
 		PORT(PvInverterProps.port()), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def//
 				.setDefaultValue(1))), //
 		PHASE(AppDef.copyOfGeneric(PvInverterProps.phase(), def -> def//
 				.bidirectional(PV_INVERTER_ID, "phase", ComponentManagerSupplier::getComponentManager))), //
