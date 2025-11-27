@@ -1,0 +1,86 @@
+package io.openems.edge.io.phoenixcontact;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
+import org.osgi.service.metatype.annotations.Designate;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
+import io.openems.edge.meter.api.ElectricityMeter;
+
+@Designate(ocd = Config.class, factory = true)
+@Component(//
+		name = "PxC.PLCnext.Device", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+})
+public class PlcNextDeviceImpl extends AbstractOpenemsComponent
+		implements PlcNextDevice, ElectricityMeter, OpenemsComponent, EventHandler {
+
+	@Reference
+	private List<PlcNextApiCommand> apiCommands;
+
+	private Config config = null;
+
+	public PlcNextDeviceImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				PlcNextDevice.ChannelId.values() //
+		);
+	}
+
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		super.activate(context, config.id(), config.alias(), config.enabled());
+
+		this.config = config;
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		Optional<PlcNextApiCommand> apiCmdForEvent = apiCommands.stream()
+			.filter(item -> item.eventTriggers().contains(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE))
+			.findFirst();
+		if (apiCmdForEvent.isEmpty()) {
+			return;
+		}
+		apiCmdForEvent.get().execute();
+	}
+
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().asString();
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return this.config.type();
+	}
+}
