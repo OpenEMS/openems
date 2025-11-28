@@ -2,7 +2,7 @@
 
 
 === Overview
-This module integrates Esera ECO 501, a OneWire-to-Modbus gateway, into OpenEMS. The ECO 501 supports up to 30 sensors on a single OneWire segment, enabling seamless temperature monitoring via Modbus.
+This module integrates Esera ECO 501/531, a OneWire-to-Modbus gateway, into OpenEMS. The ECO 501 supports up to 30 sensors on a single OneWire segment, enabling seamless temperature monitoring via Modbus.
 
 === Implemented Natures:
 - Thermometer-API

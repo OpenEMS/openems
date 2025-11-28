@@ -37,7 +37,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.thermometer.api.Thermometer;
 import io.openems.edge.thermometer.esera.onewire.enums.OwdStatus;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Thermometer.Esera.OneWire", //
@@ -70,8 +69,7 @@ public class EseraOneWireThermometerImpl extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				Thermometer.ChannelId.values(),
-				EseraOneWireThermometer.ChannelId.values() //
+				Thermometer.ChannelId.values(), EseraOneWireThermometer.ChannelId.values() //
 		);
 	}
 
@@ -84,7 +82,6 @@ public class EseraOneWireThermometerImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		// this.addModbusTask(this.getModbusProtocol());
 		this.logVerbosity = config.logVerbosity();
 
 	}
@@ -146,7 +143,8 @@ public class EseraOneWireThermometerImpl extends AbstractOpenemsModbusComponent
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(this.config.OneWireDevice().getModbusAddress(), Priority.HIGH,
 						m(EseraOneWireThermometer.ChannelId.TEMPERATURE_OWD_DEBUG,
-								new SignedWordElement(this.config.OneWireDevice().getModbusAddress()),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								new SignedWordElement(this.config.OneWireDevice().getModbusAddress()),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						new DummyRegisterElement(this.config.OneWireDevice().getModbusAddress() + 1,
 								this.config.OneWireDevice().getModbusAddress() + 11),
 						m(EseraOneWireThermometer.ChannelId.OWD_STATUS,
