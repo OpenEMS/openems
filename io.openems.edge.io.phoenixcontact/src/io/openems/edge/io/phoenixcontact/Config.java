@@ -7,8 +7,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
-		name = "PxC PLCnext Component", //
-		description = "Provides adriver for PLCnext based components of Phoenix Contact" //
+		name = "IO PxC PLCnext", //
+		description = "Provides driver for PxC PLCnext based components. Take care of GDS shared object." //
 )
 @interface Config {
 

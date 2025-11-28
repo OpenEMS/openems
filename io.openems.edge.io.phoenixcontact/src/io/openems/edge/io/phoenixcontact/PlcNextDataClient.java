@@ -26,7 +26,7 @@ public class PlcNextDataClient {
 
 	@Activate
 	public PlcNextDataClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http,
-			@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) PlcNextTokenManager tokenManager, Config config) {
+			@Reference(scope = ReferenceScope.BUNDLE) PlcNextTokenManager tokenManager, Config config) {
 		this.http = http;
 		this.tokenManager = tokenManager;
 		this.config = config;

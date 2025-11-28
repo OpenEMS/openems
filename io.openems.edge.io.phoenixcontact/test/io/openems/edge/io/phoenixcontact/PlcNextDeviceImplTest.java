@@ -68,7 +68,6 @@ public class PlcNextDeviceImplTest {
 		
 		this.dataClient = new PlcNextDataClient(dummyDataBridgeHttp, tokenManager, myConfig);
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
-		this.dataProvider.setPlcNextDeviceComponent(componentUnderTest);
 		
 		this.cycleSubscriber = new CycleSubscriber();
 	}

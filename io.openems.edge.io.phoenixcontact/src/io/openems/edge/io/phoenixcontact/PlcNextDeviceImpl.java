@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -18,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -35,24 +36,51 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class PlcNextDeviceImpl extends AbstractOpenemsComponent
-		implements PlcNextDevice, ElectricityMeter, OpenemsComponent {
+		implements PlcNextDevice, ElectricityMeter, OpenemsComponent, EventHandler {
+
+	private static final class PlcNextDataProcessor {
+
+		private static final Logger log = LoggerFactory.getLogger(PlcNextDataProcessor.class);
+
+		private final PlcNextDevice device;
+
+		private final List<PlcNextApiCommand> apiCommands;
+
+		public PlcNextDataProcessor(PlcNextDevice device, List<PlcNextApiCommand> apiCommands) {
+			this.device = device;
+			this.apiCommands = apiCommands;
+		}
+
+		public void processData(Event event) {
+			if (!device.isEnabled()) {
+				log.warn("Module deactivated, skipping event processing of event");
+				return;
+			}
+			List<PlcNextApiCommand> suitableApiCommandsForEvent = apiCommands.stream()
+					.filter(item -> item.eventTriggers().contains(event.getTopic())).toList();
+			if (suitableApiCommandsForEvent.isEmpty()) {
+				log.info("No commands found to be executed");
+				return;
+			}
+			suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
+
+		}
+	}
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextDeviceImpl.class);
 
 	@Reference
-	private CycleSubscriber cycleSubscriber;
-
-	@Reference
 	private PlcNextGdsProvider gdsProvider;
-	
+
 	@Reference
 	private PlcNextTokenManager tokenManager;
 
 	private Config config;
-	private List<PlcNextApiCommand> apiCommands;
+
+	private PlcNextDataProcessor dataProcessor;
 
 	public PlcNextDeviceImpl() {
 		super(//
@@ -65,46 +93,30 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
 		this.config = config;
 
-		if (isCmdListNotInitialized()) {
-			this.apiCommands = buildCommands(config, apiCommands);
-			this.cycleSubscriber.subscribe(event -> {
-				tokenManager.fetchToken();
-			});
-			this.cycleSubscriber.subscribe(event -> {
-				if (!this.isEnabled()) {
-					log.warn("Module deactivated, skipping event processing of event");
-					return;
-				}
-				List<PlcNextApiCommand> suitableApiCommandsForEvent = apiCommands.stream()
-						.filter(item -> item.eventTriggers().contains(event.getTopic())).toList();
-				if (suitableApiCommandsForEvent.isEmpty()) {
-					log.info("No commands found to be executed");
-					return;
-				}
-				suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
-			});
+		if (isInitializationOfDataProcessingRequired()) {
+			logInfo(log, "Initializing data processing");
+			List<PlcNextApiCommand> apiCommands = buildCommands(config);
+
+			this.dataProcessor = new PlcNextDataProcessor(this, apiCommands);
 		}
 	}
 
-	private boolean isCmdListNotInitialized() {
-		return Objects.isNull(apiCommands) || apiCommands.isEmpty();
+	private boolean isInitializationOfDataProcessingRequired() {
+		return Objects.isNull(dataProcessor);
 	}
-	
-	private List<PlcNextApiCommand> buildCommands(Config config, List<PlcNextApiCommand> apiCommands) {
-		List<PlcNextApiCommand> newApiCommands = apiCommands;
-		
-			List<PlcNextApiCommand> cmds = new ArrayList<PlcNextApiCommand>();
-			
-			if (config.dataInstanceNames() != null) {
-				for (String instName : config.dataInstanceNames()) {
-					cmds.add(new PlcNextReadFromApiResourceCommand(gdsProvider, instName));
-				}
+
+	private List<PlcNextApiCommand> buildCommands(Config config) {
+		logInfo(log, "Building list of API commands");
+		List<PlcNextApiCommand> cmds = new ArrayList<PlcNextApiCommand>();
+
+		if (config.dataInstanceNames() != null) {
+			for (String instName : config.dataInstanceNames()) {
+				cmds.add(new PlcNextReadFromApiResourceCommand(gdsProvider, instName, this.channels()));
 			}
-			newApiCommands = Collections.unmodifiableList(cmds);
-		return newApiCommands;
+		}
+		return Collections.unmodifiableList(cmds);
 	}
 
 	@Override
@@ -121,5 +133,12 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.config.type();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		logInfo(log, "Handling event '" + event.getTopic() + "'");
+		tokenManager.fetchToken();
+		dataProcessor.processData(event);
 	}
 }

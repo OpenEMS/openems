@@ -1,23 +1,27 @@
 package io.openems.edge.io.phoenixcontact.gds;
 
+import java.util.Collection;
 import java.util.List;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceScope;
-import org.osgi.service.component.annotations.ServiceScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 public class PlcNextReadFromApiResourceCommand implements PlcNextApiCommand {
 
+	private static final Logger log = LoggerFactory.getLogger(PlcNextReadFromApiResourceCommand.class);
+
 	private final PlcNextGdsProvider gdsProvider;
 	private final String instanceName;
+	private final Collection<Channel<?>> availableChannels;
 
-	public PlcNextReadFromApiResourceCommand(PlcNextGdsProvider gdsProvider, String instanceName) {
+	public PlcNextReadFromApiResourceCommand(PlcNextGdsProvider gdsProvider, String instanceName,
+			Collection<Channel<?>> availableChannels) {
 		this.gdsProvider = gdsProvider;
 		this.instanceName = instanceName;
+		this.availableChannels = availableChannels;
 	}
 	
 	@Override
@@ -27,6 +31,7 @@ public class PlcNextReadFromApiResourceCommand implements PlcNextApiCommand {
 	
 	@Override
 	public void execute() {
-		gdsProvider.readFromApiToChannels(instanceName);
+		log.info("Reading GDS data from instance '" + instanceName + "'");
+		gdsProvider.readFromApiToChannels(instanceName, availableChannels);
 	}
 }
