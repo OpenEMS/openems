@@ -76,7 +76,7 @@ public class PlcNextDeviceImplTest {
 	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsProvider", this.dataProvider) //
-				.addReference("cycleSubscriber", this.cycleSubscriber)
+				.addReference("tokenManager", this.tokenManager)
 				.activate(this.myConfig); //
 		
 		test.next(new TestCase()); //
