@@ -24,8 +24,6 @@ public class PlcNextTokenManager {
 	@Activate
 	public PlcNextTokenManager(@Reference(scope = ReferenceScope.BUNDLE) PlcNextAuthClient authClient) {
 		this.authClient = authClient;
-		
-		fetchToken();
 	}
 
 	/**

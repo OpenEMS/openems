@@ -43,7 +43,7 @@ public class PlcNextGdsProvider {
 	public void readFromApiToChannels(String instanceName, Collection<Channel<?>> availableChannels) {
 		log.debug("Building channelID to channel mapping for readable aspects");
 		List<PlcNextGdsDataAspect> gdsDataReadableAspects = Stream.of(PlcNextGdsDataAspect.values())
-				.filter(item -> item.getType() == PlcNextAspectType.READ).toList();
+				.filter(item -> item.getType() == PlcNextGdsDataAspectType.READ).toList();
 		List<ChannelId> gdsDataRedableAspectChannelIds = gdsDataReadableAspects.stream() //
 				.map(item -> item.getChannelId()) //
 				.toList();

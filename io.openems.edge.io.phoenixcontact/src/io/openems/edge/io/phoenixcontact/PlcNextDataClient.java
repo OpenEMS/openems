@@ -2,12 +2,15 @@ package io.openems.edge.io.phoenixcontact;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -20,6 +23,9 @@ import io.openems.edge.io.phoenixcontact.utils.PlcNextJsonElementHelper;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextDataClient.class)
 public class PlcNextDataClient {
+
+	private static final Logger log = LoggerFactory.getLogger(PlcNextDataClient.class);
+
 	private final BridgeHttp http;
 	private final PlcNextTokenManager tokenManager;
 	private final Config config;
@@ -40,11 +46,17 @@ public class PlcNextDataClient {
 	 * @return an Object containing the value of the given aspect
 	 */
 	public Object fetchSingleGdsDataAspect(String instanceName, String aspectName, OpenemsType type) {
-		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
-		CompletableFuture<Object> dataAspectValue = http.requestJson(dataEndPoint)
-				.thenApply(s -> PlcNextJsonElementHelper.getJsonValue(s.data().getAsJsonObject().getAsJsonPrimitive(aspectName), type));
+		try {
+			Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
+			CompletableFuture<Object> dataAspectValue = http.requestJson(dataEndPoint)
+					.thenApply(s -> PlcNextJsonElementHelper
+							.getJsonValue(s.data().getAsJsonObject().getAsJsonPrimitive(aspectName), type));
 
-		return dataAspectValue.join();
+			return dataAspectValue.join();
+		} catch (CompletionException e) {
+			log.error("Error while fetching data from GDS!", e);
+			return null;
+		}
 	}
 
 	/**

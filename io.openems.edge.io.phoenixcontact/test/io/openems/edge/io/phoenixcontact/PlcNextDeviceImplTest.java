@@ -10,7 +10,6 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.cycle.CycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
@@ -31,8 +30,6 @@ public class PlcNextDeviceImplTest {
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsProvider dataProvider;
 
-	private CycleSubscriber cycleSubscriber;
-	
 	private PlcNextDeviceImpl componentUnderTest;
 	
 	@Before
@@ -68,8 +65,6 @@ public class PlcNextDeviceImplTest {
 		
 		this.dataClient = new PlcNextDataClient(dummyDataBridgeHttp, tokenManager, myConfig);
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
-		
-		this.cycleSubscriber = new CycleSubscriber();
 	}
 	
 	@Test

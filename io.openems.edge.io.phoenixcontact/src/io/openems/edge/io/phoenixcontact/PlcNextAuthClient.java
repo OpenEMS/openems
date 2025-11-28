@@ -2,12 +2,15 @@ package io.openems.edge.io.phoenixcontact;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
@@ -17,6 +20,8 @@ import io.openems.edge.io.phoenixcontact.utils.PlcNextUrlStringHelper;
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextAuthClient.class)
 public class PlcNextAuthClient {
 	
+	private static final Logger log = LoggerFactory.getLogger(PlcNextAuthClient.class);
+
 	public static final String PATH_AUTH_TOKEN = "/auth-token";
 	public static final String PATH_ACCESS_TOKEN = "/access-token";
 
@@ -35,15 +40,20 @@ public class PlcNextAuthClient {
 	 * @return fetched auth token
 	 */
 	public String fetchSingleAuthentication() {
-		Endpoint authTokenEndPoint = buildAuthTokenEndpointRepresentation();
-		CompletableFuture<String> authTokenFuture = http.requestJson(authTokenEndPoint)
-				.thenApply(authTokenResponse -> authTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("code")
-						.getAsString())
-				.thenCompose(code -> http.requestJson(buildAccessTokenEndpointRepresentation(code))
-						.thenApply(accessTokenResponse -> accessTokenResponse.data().getAsJsonObject()
-								.getAsJsonPrimitive("access_token").getAsString()));
+		try {
+			Endpoint authTokenEndPoint = buildAuthTokenEndpointRepresentation();
+			CompletableFuture<String> authTokenFuture = http.requestJson(authTokenEndPoint)
+					.thenApply(authTokenResponse -> authTokenResponse.data().getAsJsonObject()
+							.getAsJsonPrimitive("code").getAsString())
+					.thenCompose(code -> http.requestJson(buildAccessTokenEndpointRepresentation(code))
+							.thenApply(accessTokenResponse -> accessTokenResponse.data().getAsJsonObject()
+									.getAsJsonPrimitive("access_token").getAsString()));
 
-		return authTokenFuture.join();
+			return authTokenFuture.join();
+		} catch (CompletionException e) {
+			log.error("Error while fetching auth or access token!", e);
+			return null;
+		}
 	}
 
 	Endpoint buildAuthTokenEndpointRepresentation() {

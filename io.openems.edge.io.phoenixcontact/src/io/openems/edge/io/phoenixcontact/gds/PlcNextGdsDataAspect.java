@@ -4,16 +4,16 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public enum PlcNextGdsDataAspect {
-	READ_TEST_VALUE("read_test_value", PlcNextAspectType.READ, ElectricityMeter.ChannelId.ACTIVE_POWER);
+	READ_TEST_VALUE("read_test_value", PlcNextGdsDataAspectType.READ, ElectricityMeter.ChannelId.ACTIVE_POWER);
 	
 	// WRITE_TEST_VALUE("wride_test_value", PlcNextAspectType.WRITE,
 	// PlcNextGdsDataAspect.WRITE_TEST_VALUE);
 	
 	private final String identifier;
-	private final PlcNextAspectType type;
+	private final PlcNextGdsDataAspectType type;
 	private final ChannelId channelId;
 	
-	private PlcNextGdsDataAspect(String identifier, PlcNextAspectType type, ChannelId channelId) {
+	private PlcNextGdsDataAspect(String identifier, PlcNextGdsDataAspectType type, ChannelId channelId) {
 		this.identifier = identifier;
 		this.type = type;
 		this.channelId = channelId;
@@ -23,7 +23,7 @@ public enum PlcNextGdsDataAspect {
 		return identifier;
 	}
 
-	public PlcNextAspectType getType() {
+	public PlcNextGdsDataAspectType getType() {
 		return type;
 	}
 

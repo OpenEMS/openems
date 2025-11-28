@@ -1,5 +1,5 @@
 package io.openems.edge.io.phoenixcontact.gds;
 
-public enum PlcNextAspectType {
+public enum PlcNextGdsDataAspectType {
 	READ, WRITE;
 }

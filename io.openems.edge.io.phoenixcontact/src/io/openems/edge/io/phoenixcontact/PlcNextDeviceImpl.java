@@ -65,7 +65,8 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 				log.info("No commands found to be executed");
 				return;
 			}
-			suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
+			log.info("ECHO: Fetching data " + suitableApiCommandsForEvent.size() + " commands");
+			// suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
 
 		}
 	}
