@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.shellypluspm;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
@@ -10,10 +11,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String ip;
-		private MeterType type;
-		private SinglePhase phase;
-		private boolean inverted;
-		private int channel;
+		private String mdnsName = "";
+		private MeterType type = MeterType.CONSUMPTION_METERED;
+		private SinglePhase phase = SinglePhase.L1;
+		private boolean invert = false;
+		private int channel = 0;
+		private DebugMode debugMode = DebugMode.OFF;
 
 		private Builder() {
 		}
@@ -33,18 +36,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMdnsName(String mdnsName) {
+			this.mdnsName = mdnsName;
+			return this;
+		}
+
 		public Builder setType(MeterType type) {
 			this.type = type;
 			return this;
 		}
-		
+
 		public Builder setChannel(int channel) {
 			this.channel = channel;
 			return this;
 		}
-		
-		public Builder setInverted(boolean inverted) {
-			this.inverted = inverted;
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
+			return this;
+		}
+
+		public Builder setDebugMode(DebugMode debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -75,6 +88,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String mdnsName() {
+		return this.builder.mdnsName;
+	}
+
+	@Override
 	public MeterType type() {
 		return this.builder.type;
 	}
@@ -85,12 +103,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean inverted() {
-		return this.builder.inverted;
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 	@Override
 	public int channel() {
 		return this.builder.channel;
+	}
+
+	@Override
+	public DebugMode debugMode() {
+		return this.builder.debugMode;
 	}
 }

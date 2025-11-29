@@ -14,6 +14,7 @@ import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -101,7 +102,7 @@ public class IoShellyPlusPmImplTest {
 						.setIp("127.0.0.1") //
 						.setType(CONSUMPTION_METERED) //
 						.setChannel(0) //
-						.setInverted(false)
+						.setInvert(false) //
 						.setPhase(L1) //
 						.build()) //
 
@@ -125,8 +126,8 @@ public class IoShellyPlusPmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPlusPm.ChannelId.RELAY, null) //
-						.output(IoShellyPlusPm.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
@@ -149,14 +150,14 @@ public class IoShellyPlusPmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
-						.output(IoShellyPlusPm.ChannelId.RELAY, null) //
-						.output(IoShellyPlusPm.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				.next(new TestCase("Write") //
 						.onBeforeControllersCallbacks(() -> sut.setRelay(true)) //
 						.also(testCase -> {
-							final var relayTurnedOn = httpTestBundle.expect("http://127.0.0.1/relay/0?turn=on")
-									.toBeCalled();
+							final var relayTurnedOn = httpTestBundle
+									.expect("http://127.0.0.1/rpc/Switch.Set?id=0&on=true").toBeCalled();
 
 							testCase.onAfterWriteCallbacks(
 									() -> assertTrue("Failed to turn on relay", relayTurnedOn.get()));

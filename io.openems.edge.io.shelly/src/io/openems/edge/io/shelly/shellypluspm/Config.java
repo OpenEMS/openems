@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellypluspm;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
@@ -20,20 +21,26 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Is inverted?", description = "Is this Component inverted?")
-	boolean inverted() default false;
-	
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Shelly Plug connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 
+	@AttributeDefinition(name = "MDNS Name")
+	String mdnsName();
+
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
 	String ip();
-	
+
 	@AttributeDefinition(name = "Channel", description = "Which Channel is used?")
-	int channel() default 0;	
+	int channel() default 0;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
 
-	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus 1PM [{id}]";
+	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumption energy, i.e. Power is multiplied with -1.")
+	boolean invert() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	DebugMode debugMode() default DebugMode.OFF;
+
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus PM [{id}]";
 }

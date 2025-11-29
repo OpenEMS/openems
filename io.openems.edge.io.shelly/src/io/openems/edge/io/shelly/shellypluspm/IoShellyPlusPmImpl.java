@@ -5,15 +5,14 @@ import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
-import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
+import static io.openems.edge.io.shelly.common.Utils.executeWrite;
 import static java.lang.Math.round;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
-import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.util.Objects;
+import java.util.function.IntFunction;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,15 +31,17 @@ import com.google.gson.JsonElement;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -57,8 +58,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoShellyPlusPm, DigitalOutput,
-		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoShellyPlusPm, IoShellyPlugSBase,
+		DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -66,34 +67,36 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	private final Logger log = LoggerFactory.getLogger(IoShellyPlusPmImpl.class);
-	private final BooleanWriteChannel[] digitalOutputChannels;
 
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
-	private String baseUrl;
-	private int factor = 1;
+	private boolean invert = false;
 	private int channel = 0;
+	private String baseUrl;
+
+	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+	private AutoCloseable mdnsUnsubscribe;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference(cardinality = MANDATORY)
+	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
-	private BridgeHttp httpBridge;
-	private HttpBridgeCycleService cycleService;
+	@Reference
+	private MDnsDiscovery mDnsDiscovery;
 
 	public IoShellyPlusPmImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
+				SinglePhaseMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
+				IoShellyPlugSBase.ChannelId.values(), //
 				IoShellyPlusPm.ChannelId.values() //
 		);
-		this.digitalOutputChannels = new BooleanWriteChannel[] { //
-				this.channel(IoShellyPlusPm.ChannelId.RELAY) //
-		};
 
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
@@ -105,20 +108,46 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
-		this.baseUrl = "http://" + config.ip();
-		this.httpBridge = this.httpBridgeFactory.get();
-
+		this.invert = config.invert();
 		this.channel = config.channel();
-		if (config.inverted()) {
-			this.factor = -1;
-		}
+		this.httpBridge = this.httpBridgeFactory.get();
+		this.httpBridge.setDebugMode(config.debugMode());
+		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-		this.cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+		if (!StringUtils.isNullOrBlank(config.ip())) {
+			this.subscribe(config.ip());
+			return;
+		}
+
+		if (!StringUtils.isNullOrBlank(config.mdnsName())) {
+			this.mdnsUnsubscribe = this.mDnsDiscovery.subscribeService("_shelly._tcp.local.", config.mdnsName(),
+					event -> {
+						switch (event) {
+						case MDnsDiscovery.MDnsEvent.ServiceAdded serviceAdded -> {
+							// Do nothing, wait for resolved event
+						}
+						case MDnsDiscovery.MDnsEvent.ServiceResolved serviceResolved -> {
+							if (serviceResolved.addresses().isEmpty()) {
+								return;
+							}
+							final var dynamicIp = serviceResolved.addresses().getFirst();
+							this.unsubscribe();
+							this.subscribe(dynamicIp.getHostAddress());
+						}
+						case MDnsDiscovery.MDnsEvent.ServiceRemoved serviceRemoved -> {
+							this.unsubscribe();
+						}
+						}
+					});
+			return;
+		}
+
+		this.logWarn(this.log, "No valid IP or MDNS Name configured.");
+		this._setSlaveCommunicationFailed(true);
 	}
 
 	@Override
@@ -128,17 +157,41 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 			this.httpBridgeFactory.unget(this.httpBridge);
 			this.httpBridge = null;
 		}
+		if (this.mdnsUnsubscribe != null) {
+			try {
+				this.mdnsUnsubscribe.close();
+			} catch (Exception e) {
+				this.logWarn(this.log, "Error during MDNS unsubscribe: " + e.getMessage());
+			}
+			this.mdnsUnsubscribe = null;
+		}
 		super.deactivate();
 	}
 
+	private void subscribe(String ip) {
+		this.log.info("Subscribing to Shelly at IP {} with channel {}", ip, this.channel);
+		this.baseUrl = "http://" + ip;
+		this.cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
+	}
+
+	private void unsubscribe() {
+		this.baseUrl = null;
+		if (this.cycleService != null) {
+			this.cycleService.removeAllCycleEndpoints();
+		}
+	}
+
 	@Override
-	public BooleanWriteChannel[] digitalOutputChannels() {
-		return this.digitalOutputChannels;
+	public io.openems.edge.common.channel.BooleanWriteChannel[] digitalOutputChannels() {
+		return new io.openems.edge.common.channel.BooleanWriteChannel[] { //
+				this.channel(IoShellyPlugSBase.ChannelId.RELAY) //
+		};
 	}
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
+		return io.openems.edge.io.shelly.common.Utils.generateDebugLog(this.digitalOutputChannels(),
+				this.getActivePowerChannel());
 	}
 
 	@Override
@@ -149,73 +202,52 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 
 		switch (event.getTopic()) {
 		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
-		case TOPIC_CYCLE_EXECUTE_WRITE -> this.executeWrite(this.getRelayChannel(), this.channel);
+		case TOPIC_CYCLE_EXECUTE_WRITE -> executeWrite(this.getRelayChannel(), this.baseUrl, this.httpBridge,
+				this.channel);
 		}
 	}
 
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
-		Integer power = null;
-		Integer voltage = null;
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
+		Boolean relayStatus = null;
+		Boolean updatesAvailable = false;
+		Boolean restartRequired = false;
+		Integer activePower = null;
 		Integer current = null;
-		Boolean relayX = null;
-		boolean restartRequired = false;
+		Integer voltage = null;
 
 		if (error != null) {
-			this.logDebug(this.log, error.getMessage());
+			this.logWarn(this.log, error.getMessage());
 
 		} else {
 			try {
-				var jsonResponse = getAsJsonObject(result.data());
-				var switchX = getAsJsonObject(jsonResponse, "switch:" + this.channel);
-				power = round(getAsFloat(switchX, "apower")) * this.factor;
+				var response = getAsJsonObject(result.data());
+				var sysInfo = getAsJsonObject(response, "sys");
+				var update = getAsJsonObject(sysInfo, "available_updates");
+				updatesAvailable = update != null && !update.entrySet().isEmpty();
+				restartRequired = getAsBoolean(sysInfo, "restart_required");
+
+				// Read from the configured channel
+				var switchX = getAsJsonObject(response, "switch:" + this.channel);
+				activePower = invert.apply(round(getAsFloat(switchX, "apower")));
+				current = invert.apply(round(getAsFloat(switchX, "current") * 1000));
 				voltage = round(getAsFloat(switchX, "voltage") * 1000);
-				current = round(getAsFloat(switchX, "current") * 1000);
-				relayX = getAsBoolean(switchX, "output");
+				relayStatus = getAsBoolean(switchX, "output");
 
-				var sys = getAsJsonObject(jsonResponse, "sys");
-				restartRequired = getAsBoolean(sys, "restart_required");
-
-			} catch (OpenemsNamedException e) {
-				this.logDebug(this.log, e.getMessage());
+			} catch (Exception e) {
+				this.logWarn(this.log, e.getMessage());
 			}
 		}
 
-		this._setRelay(relayX);
-		this._setActivePower(power);
+		this._setRelay(relayStatus);
+		this._setActivePower(activePower);
 		this._setCurrent(current);
 		this._setVoltage(voltage);
+		this.channel(IoShellyPlugSBase.ChannelId.HAS_UPDATE).setNextValue(updatesAvailable);
 		this.channel(IoShellyPlusPm.ChannelId.NEEDS_RESTART).setNextValue(restartRequired);
-	}
-
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 * 
-	 * @param channel write channel
-	 * @param index   index
-	 */
-	private void executeWrite(BooleanWriteChannel channel, int index) {
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			// no write value
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			// read value equals write value, so no need to write
-			return;
-		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((response, error) -> {
-			if (error != null) {
-				this.logError(this.log, "HTTP request failed: " + error.getMessage());
-				this._setSlaveCommunicationFailed(true);
-			} else {
-				// Optionally log success or handle response
-				this._setSlaveCommunicationFailed(false);
-			}
-		});
 	}
 
 	/**
@@ -250,4 +282,5 @@ public class IoShellyPlusPmImpl extends AbstractOpenemsComponent implements IoSh
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
+
 }
