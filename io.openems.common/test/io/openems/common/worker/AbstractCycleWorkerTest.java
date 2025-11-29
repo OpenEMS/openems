@@ -14,7 +14,7 @@ public class AbstractCycleWorkerTest {
 
 	@Test
 	public void testCycle() throws InterruptedException, ExecutionException, TimeoutException {
-		final var future = new AtomicReference<CompletableFuture<Void>>(new CompletableFuture<>()); 
+		final var future = new AtomicReference<CompletableFuture<Void>>(new CompletableFuture<>());
 		final var counter = new AtomicInteger(0);
 
 		AbstractCycleWorker worker = new AbstractCycleWorker() {

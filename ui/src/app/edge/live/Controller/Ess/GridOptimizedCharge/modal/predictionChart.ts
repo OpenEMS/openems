@@ -10,7 +10,7 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "predictionChart",
+    selector: "oe-controller-ess-gridoptimizedcharge-prediction-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: false,
 })
@@ -29,7 +29,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super("prediction-chart", service, translate);
+        super("oe-controller-ess-gridoptimizedcharge-prediction-chart", service, translate);
     }
 
     ngOnChanges() {

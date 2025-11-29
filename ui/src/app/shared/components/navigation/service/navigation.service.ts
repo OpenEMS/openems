@@ -51,6 +51,8 @@ export class NavigationService {
         if (config == null) {
             return false;
         }
+
+        // If edgeconfig includes this factories, user gets forced to use new ui navigation
         return config.hasFactories(["Evse.Controller.Single"]);
     }
 
@@ -138,6 +140,54 @@ export class NavigationService {
         const newWidgets: TMutable<Widgets> = { ...widgets };
         newWidgets.classes = ArrayUtils.removeMatching<TEnumKeys<typeof WidgetClass>[]>(widgets.classes, NavigationConstants.newWidgets);
         return newWidgets;
+    }
+
+    setChildToParentNavigation(childNavigationTree: NavigationTree | null) {
+        this.initNavigation(this.routeService.currentUrl(), this.navigationTree());
+        const currentNode = this.currentNode();
+        if (currentNode == null || currentNode.parent == null || childNavigationTree == null) {
+            return;
+        }
+        this.navigationTree.update(tree => {
+            if (tree == null) {
+                return null;
+            }
+            if (currentNode == null || currentNode.parent == null) {
+                return null;
+            }
+            tree.updateNavigationTreeByAbsolutePath(this.navigationTree(), currentNode.parent.routerLink.baseString, node => {
+                node.children.push(childNavigationTree);
+            });
+            return tree;
+        });
+    }
+
+    /**
+     * Sets a child navigation tree to the current navigation node
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public setChildToCurrentNavigation(childNavigationTree: NavigationTree | null) {
+        const currentNode = this.currentNode();
+        if (currentNode == null || childNavigationTree == null) {
+            return;
+        }
+        this.navigationTree.update(tree => {
+            if (tree == null) {
+                return null;
+            }
+            tree.updateNavigationTreeByAbsolutePath(this.navigationTree(), currentNode.routerLink.baseString, node => {
+                node.children.push(childNavigationTree);
+            });
+            // const clone = structuredClone(tree);
+            // tree.setChild(clone.id, clone);
+            return tree;
+        });
+
+        this.initNavigation(this.routeService.currentUrl(), this.navigationTree());
     }
 
     /**

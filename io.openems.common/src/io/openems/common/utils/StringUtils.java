@@ -134,6 +134,31 @@ public class StringUtils {
 	}
 
 	/**
+	 * Checks if the search string is included in the string ignoring case.
+	 * 
+	 * @param str       the string to check
+	 * @param searchStr the sequence to search for
+	 * @return true if the string contains the search string ignoring case
+	 */
+	public static boolean containsIgnoreCase(String str, String searchStr) {
+		if (str == null || searchStr == null) {
+			return false;
+		}
+
+		final int length = searchStr.length();
+		if (length == 0) {
+			return true;
+		}
+
+		for (int i = str.length() - length; i >= 0; i--) {
+			if (str.regionMatches(true, i, searchStr, 0, length)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Returns the 'alternative' if 'original' is null or blank.
 	 *
 	 * @param original    the original value, can be null, empty or filled with

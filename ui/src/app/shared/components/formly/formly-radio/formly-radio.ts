@@ -17,6 +17,7 @@ import { FieldType } from "@ngx-formly/core";
 export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnChanges {
 
     protected fieldOptions: any[] = [];
+    protected defaultOption: any | undefined = undefined;
 
     public ngOnInit(): void {
         this.updateFieldOptions();
@@ -31,5 +32,6 @@ export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnCha
     private updateFieldOptions(): void {
         const opts = this.props?.options;
         this.fieldOptions = Array.isArray(opts) ? opts : [];
+        this.defaultOption = this.fieldOptions.find(el => el.default) ?? null;
     }
 }

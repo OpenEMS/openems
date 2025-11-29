@@ -76,29 +76,25 @@ public class Utils {
 	 */
 	public static CompletableFuture<Void> executeWrite(WriteChannel<Boolean> relayChannel, String baseUrl,
 			BridgeHttp httpBridge, Integer index) {
-		CompletableFuture<Void> future = new CompletableFuture<>();
+		if (baseUrl == null) {
+			return CompletableFuture.completedFuture(null);
+		}
 		Boolean readValue = relayChannel.value().get();
 		Optional<Boolean> writeValue = relayChannel.getNextWriteValueAndReset();
 
 		if (writeValue.isEmpty()) {
-			future.complete(null); // No action needed
-			return future;
+			// No action needed
+			return CompletableFuture.completedFuture(null);
 		}
 		if (Objects.equals(readValue, writeValue.get())) {
-			future.complete(null); // No change in state
-			return future;
+			// No change in state
+			return CompletableFuture.completedFuture(null);
 		}
 
 		final String url = baseUrl + "/rpc/Switch.Set?id=" + index + "&on=" + (writeValue.get() ? "true" : "false");
-		httpBridge.get(url).whenComplete((response, exception) -> {
-			if (exception != null) {
-				future.completeExceptionally(exception);
-			} else {
-				future.complete(null);
-			}
+		return httpBridge.get(url).thenAccept(stringHttpResponse -> {
+			// map to void
 		});
-
-		return future;
 	}
 
 }

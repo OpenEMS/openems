@@ -152,7 +152,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedDescriptionWithAppPrefix(".rippleControlReceiver.description") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //
@@ -160,8 +160,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		FEED_IN_TYPE(AppDef.copyOfGeneric(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
-				}))
-				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
+				})).appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
@@ -182,7 +181,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV1.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger1());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 1 Alias") //
@@ -198,7 +197,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV2.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger2());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 2 Alias") //
