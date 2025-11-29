@@ -16,12 +16,10 @@ import en from "./i18n/en.json";
 })
 export class OverviewComponent extends AbstractHistoryChartOverview {
     protected readonly STATES: string = `
-    1.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_INPUT")}
-    2.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE")} 
+    1.${this.translate.instant("GENERAL.OFF")}
+    2.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE")}
+    3.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID")}
     `;
-
-    // disabled till next release
-    // 3.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.FORCE_CHARGE")}
 
     protected chartType: "line" | "bar" = "line";
 

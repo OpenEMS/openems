@@ -20,15 +20,18 @@ export class Widgets {
         /**
          * List of all Widgets.
          */
-        public readonly list: Widget[],
+        public readonly list: Widget[] | null,
         /**
          * List of Widget-Classes.
          */
         public readonly classes: TEnumKeys<typeof WidgetClass>[] | null,
     ) {
         // fill names
+        if (list === null) {
+            return;
+        }
         for (const widget of list) {
-            const name: string = widget.name.toString();
+            const name: string = widget.toString();
             if (!this.names.includes(name)) {
                 this.names.push(name);
             }
@@ -45,6 +48,13 @@ export class Widgets {
                 return SharedSelfConsumption.getNavigationTree(translate);
             case "Consumption":
                 return SharedConsumption.getNavigationTree(edge, config, translate);
+            default:
+                return null;
+        }
+    }
+
+    public static getControllerNavigationTree(edge: Edge, clazz: TEnumKeys<typeof WidgetFactory> | string, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+        switch (clazz) {
             default:
                 return null;
         }

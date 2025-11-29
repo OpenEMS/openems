@@ -13,7 +13,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
-import io.openems.edge.controller.evse.single.CombinedAbilities;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.ess.power.api.Relationship;
@@ -45,10 +44,10 @@ public class EnergySchedulerTestUtils {
 				new Factory<io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config>(
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler::buildEnergyScheduleHandler,
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config.serializer())),
-		EVSE_SINGLE("Evse.Controller.Single",
-				new Factory<io.openems.edge.controller.evse.single.EnergyScheduler.Config>(
-						io.openems.edge.controller.evse.single.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.evse.single.EnergyScheduler.Config.serializer()));
+		EVSE_CLUSTER("Evse.Controller.Cluster",
+				new Factory<io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig>(
+						io.openems.edge.controller.evse.cluster.EnergyScheduler::buildEnergyScheduleHandler,
+						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer()));
 
 		public final String factoryPid;
 		public final Factory<?> factory;
@@ -210,26 +209,5 @@ public class EnergySchedulerTestUtils {
 				cmp -> io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.timeofusetariff. //
 								EnergyScheduler.Config(controlMode)));
-	}
-
-	/**
-	 * Builds a {@link DummyEnergySchedulable} of Evse.Controller.Single.
-	 * 
-	 * @param componentId        the Component-ID
-	 * @param mode               the configured mode
-	 * @param abilities          the EVSE {@link CombinedAbilities}
-	 * @param sessionEnergyLimit the Session Energy-Limit
-	 * @return the {@link DummyEnergySchedulable}
-	 */
-	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEvseSingle(String componentId,
-			io.openems.edge.evse.api.chargepoint.Mode.Actual mode, CombinedAbilities abilities,
-			int sessionEnergyLimit) {
-		return create(Controller.EVSE_SINGLE, componentId, cmp -> io.openems.edge.controller.evse.single.EnergyScheduler //
-				.buildManualEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.evse.single. //
-						EnergyScheduler.Config.ManualOptimizationContext(mode, //
-								abilities, //
-								false /* appearsToBeFullyCharged */, //
-								0 /* sessionEnergy */, //
-								sessionEnergyLimit)));
 	}
 }

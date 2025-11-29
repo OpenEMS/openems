@@ -280,15 +280,7 @@ public final class FeneconIndustrialLComponents {
 						.addProperty("coolingUnitModbus.id", coolingUnitModbusId) //
 						.addProperty("coolingUnitModbusUnitId", 1) //
 						.addProperty("coolingUnitMode", "ENABLED") //
-						.addProperty("acknowledgeEmergencyStop", "io0/DigitalOutput2") //
-						.addProperty("emergencyStopState", "io0/DigitalInput3") //
-						.addProperty("spdTripped", "io0/DigitalInput2") //
-						.addProperty("fuseTripped", "io0/DigitalInput4") //
-						.addProperty("psuTriggered", "io0/DigitalInput1") //
 						.addProperty("isSmokeDetectionInstalled", isSmokeDetectionInstalled) //
-						.addProperty("smokeDetection", "io0/DigitalInputOutput1") //
-						.addProperty("smokeDetectionFailure", "io0/DigitalInputOutput2") //
-						.addProperty("bmsHardReset", "io0/DigitalOutput1") //
 						.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("startStop", "STOP")) //
 						.add("battery.ids", IntStream.range(0, numberOfBatteries) //
 								.mapToObj(i -> new JsonPrimitive("battery" + (i + 1))) //

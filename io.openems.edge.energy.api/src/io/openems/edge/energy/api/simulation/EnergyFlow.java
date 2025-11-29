@@ -1,218 +1,202 @@
 package io.openems.edge.energy.api.simulation;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
-import static io.openems.edge.energy.api.simulation.Coefficient.CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS_TO_CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.GRID;
-import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.GRID_TO_ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_CONS;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_ESS;
-import static io.openems.edge.energy.api.simulation.Coefficient.PROD_TO_GRID;
-import static java.lang.Double.NaN;
-import static java.lang.Double.isNaN;
+import static com.google.common.base.Preconditions.checkArgument;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
-import static org.apache.commons.math3.optim.linear.Relationship.EQ;
-import static org.apache.commons.math3.optim.linear.Relationship.GEQ;
-import static org.apache.commons.math3.optim.linear.Relationship.LEQ;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.apache.commons.math3.exception.MathIllegalStateException;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.linear.LinearConstraint;
-import org.apache.commons.math3.optim.linear.LinearConstraintSet;
-import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
-import org.apache.commons.math3.optim.linear.Relationship;
-import org.apache.commons.math3.optim.linear.SimplexSolver;
-import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSortedMap;
 
-/**
- * Holds the {@link Solution} of an {@link EnergyFlow.Model} and provides helper
- * functions to access the individual {@link Coefficient}s.
- */
+import io.openems.common.exceptions.OpenemsException;
+
 public class EnergyFlow {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EnergyFlow.class);
-
-	public final int unmanagedConsumption;
-
-	private final double[] point;
+	private final int production;
+	private final int unmanagedConsumption;
 	private final ImmutableSortedMap<String, Integer> managedConsumptions;
+	private final int ess;
+	private final int grid;
 
-	private EnergyFlow(int unmanagedConsumption, PointValuePair pvp,
-			ImmutableSortedMap<String, Integer> managedConsumptions) {
+	private EnergyFlow(//
+			int production, //
+			int unmanagedConsumption, //
+			ImmutableSortedMap<String, Integer> managedConsumptions, //
+			int ess, //
+			int grid) {
+		this.production = production;
 		this.unmanagedConsumption = unmanagedConsumption;
-		this.point = pvp.getPointRef();
 		this.managedConsumptions = managedConsumptions;
+		this.ess = ess;
+		this.grid = grid;
 	}
 
 	/**
-	 * Gets {@link Coefficient#PROD}.
-	 * 
-	 * @return the value
+	 * Returns the production.
+	 *
+	 * @return the production value
 	 */
-	public int getProd() {
-		return this.getValue(PROD);
+	public int getProduction() {
+		return this.production;
 	}
 
 	/**
-	 * Gets {@link Coefficient#CONS}.
-	 * 
-	 * @return the value
+	 * Returns the total consumption, which is the sum of unmanaged consumption and
+	 * all managed consumptions.
+	 *
+	 * @return the total consumption value
 	 */
-	public int getCons() {
-		return this.getValue(CONS);
+	public int getConsumption() {
+		return this.unmanagedConsumption //
+				+ this.managedConsumptions.values().stream() //
+						.mapToInt(Integer::intValue) //
+						.sum();
 	}
 
 	/**
-	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
-	 * 
-	 * @return the values
+	 * Returns the unmanaged consumption.
+	 *
+	 * @return the unmanaged consumption value
 	 */
-	public ImmutableSortedMap<String, Integer> getManagedCons() {
+	public int getUnmanagedConsumption() {
+		return this.unmanagedConsumption;
+	}
+
+	/**
+	 * Returns all managed consumptions.
+	 *
+	 * @return the managed consumptions
+	 */
+	public ImmutableSortedMap<String, Integer> getManagedConsumptions() {
 		return this.managedConsumptions;
 	}
 
 	/**
-	 * Gets the part of {@link Coefficient#CONS} that is actively managed.
+	 * Returns the total managed consumption.
 	 * 
-	 * @param id an identifier, e.g. the Component-ID
-	 * @return the value or zero
+	 * @return the total managed consumption value
 	 */
-	public int getManagedCons(String id) {
+	public int getManagedConsumption() {
+		return this.managedConsumptions.values().stream() //
+				.mapToInt(Integer::intValue) //
+				.sum();
+	}
+
+	/**
+	 * Returns the managed consumption for a given ID.
+	 * 
+	 * @param id an identifier, e.g., the component ID
+	 * @return the managed consumption value, or 0 if not present
+	 */
+	public int getManagedConsumption(String id) {
 		return this.managedConsumptions.getOrDefault(id, 0);
 	}
 
 	/**
-	 * Gets {@link Coefficient#ESS}.
+	 * Returns the ess value (+: discharge, -: charge).
 	 * 
-	 * @return the value
+	 * @return the ess value
 	 */
 	public int getEss() {
-		return this.getValue(ESS);
+		return this.ess;
 	}
 
 	/**
-	 * Gets {@link Coefficient#GRID}.
-	 * 
-	 * @return the value
+	 * Returns the grid value (+: buy, -: sell).
+	 *
+	 * @return the grid value
 	 */
 	public int getGrid() {
-		return this.getValue(GRID);
-	}
-
-	/**
-	 * Gets {@link Coefficient#PROD_TO_CONS}.
-	 * 
-	 * @return the value
-	 */
-	public int getProdToCons() {
-		return this.getValue(PROD_TO_CONS);
-	}
-
-	/**
-	 * Gets {@link Coefficient#PROD_TO_ESS}.
-	 * 
-	 * @return the value
-	 */
-	public int getProdToEss() {
-		return this.getValue(PROD_TO_ESS);
-	}
-
-	/**
-	 * Gets {@link Coefficient#PROD_TO_GRID}.
-	 * 
-	 * @return the value
-	 */
-	public int getProdToGrid() {
-		return this.getValue(PROD_TO_GRID);
-	}
-
-	/**
-	 * Gets {@link Coefficient#GRID_TO_CONS}.
-	 * 
-	 * @return the value
-	 */
-	public int getGridToCons() {
-		return this.getValue(GRID_TO_CONS);
-	}
-
-	/**
-	 * Gets {@link Coefficient#GRID_TO_ESS}.
-	 * 
-	 * @return the value
-	 */
-	public int getGridToEss() {
-		return this.getValue(GRID_TO_ESS);
-	}
-
-	/**
-	 * Gets {@link Coefficient#ESS_TO_CONS}.
-	 * 
-	 * @return the value
-	 */
-	public int getEssToCons() {
-		return this.getValue(ESS_TO_CONS);
-	}
-
-	private int getValue(Coefficient coefficient) {
-		return toInt(this.point[coefficient.ordinal()]);
-	}
-
-	/**
-	 * Prints all {@link Coefficient}s and their values line by line.
-	 */
-	public void print() {
-		for (var c : Coefficient.values()) {
-			LOG.info(c.toCamelCase() + ": " + this.getValue(c));
-		}
+		return this.grid;
 	}
 
 	@Override
 	public String toString() {
-		return toStringHelper(this) //
-				.addValue(stream(Coefficient.values()) //
-						.map(c -> new StringBuilder() //
-								.append(c.toCamelCase()) //
-								.append("=") //
-								.append(this.getValue(c)) //
-								.toString()) //
-						.collect(joining(", "))) //
+		var managedConsStr = this.managedConsumptions.entrySet().stream()//
+				.map(e -> e.getKey() + "=" + e.getValue())//
+				.collect(Collectors.joining(", "));
+
+		return toStringHelper(this)//
+				.add("production", this.production)//
+				.add("unmanagedConsumption", this.unmanagedConsumption)//
+				.add("managedConsumptions", managedConsStr)//
+				.add("ess", this.ess)//
+				.add("grid", this.grid)//
 				.toString();
 	}
 
-	/**
-	 * Models an EnergyFlow as a Linear Equation System with defined
-	 * {@link Coefficient}s for GRID, ESS, CONS, etc.
-	 */
 	public static class Model {
 
+		private final int production;
+		private final int unmanagedConsumption;
+
+		/* -: charge, +: discharge */
+		private Integer ess;
+		private int essMaxCharge;
+		private int essMaxDischarge;
+
+		/* -: sell, +: buy */
+		private Integer grid;
+		private int gridMaxBuy;
+		private int gridMaxSell;
+
+		private int consumption;
+		private int surplus;
+
+		private final Map<String, Integer> managedConsumptions;
+
+		private State state;
+
+		public Model(//
+				int production, //
+				int unmanagedConsumption, //
+				int essMaxCharge, //
+				int essMaxDischarge, //
+				int gridMaxBuy, //
+				int gridMaxSell) throws OpenemsException {
+			this.production = production;
+			this.unmanagedConsumption = unmanagedConsumption;
+
+			this.ess = null;
+			this.essMaxCharge = essMaxCharge;
+			this.essMaxDischarge = essMaxDischarge;
+
+			this.grid = null;
+			this.gridMaxBuy = gridMaxBuy;
+			this.gridMaxSell = gridMaxSell;
+
+			this.consumption = this.unmanagedConsumption;
+			this.surplus = this.production - this.consumption;
+
+			this.managedConsumptions = new HashMap<>();
+
+			this.state = State.UNSET;
+
+			// Check that initial setup is solvable
+			int minPossibleSurplus = -this.essMaxDischarge - this.gridMaxBuy;
+			int maxPossibleSurplus = this.essMaxCharge + this.gridMaxSell;
+			if (this.surplus < minPossibleSurplus || this.surplus > maxPossibleSurplus) {
+				throw new OpenemsException("Initial setup not solvable");
+			}
+		}
+
 		/**
-		 * Generates a {@link EnergyFlow.Model} from a {@link GlobalScheduleContext} and
-		 * a {@link GlobalOptimizationContext.Period}.
+		 * Creates an {@link EnergyFlow.Model} based on the provided
+		 * {@link GlobalScheduleContext} and {@link GlobalOptimizationContext.Period}.
 		 * 
 		 * @param gsc    the {@link GlobalScheduleContext}
 		 * @param period the {@link GlobalOptimizationContext.Period}
 		 * @return a new {@link EnergyFlow.Model}
+		 * @throws OpenemsException if initial setup not solvable
 		 */
-		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period) {
+		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period)
+				throws OpenemsException {
 			final var essGlobal = gsc.goc.ess();
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
@@ -230,411 +214,217 @@ public class EnergyFlow {
 					/* gridMaxSell */ period.duration().convertPowerToEnergy(grid.maxSellPower()));
 		}
 
-		public final int production;
-		public final int unmanagedConsumption;
-		public final int essMaxCharge;
-		public final int essMaxDischarge;
-		public final int gridMaxBuy;
-		public final int gridMaxSell;
-
-		private final List<LinearConstraint> constraints = new ArrayList<LinearConstraint>();
-
-		private final Map<String, Integer> managedConsumptions = new HashMap<>();
-
-		public Model(int production, int unmanagedConsumption, int essMaxCharge, int essMaxDischarge, int gridMaxBuy,
-				int gridMaxSell) {
-			this.production = production;
-			this.unmanagedConsumption = unmanagedConsumption;
-			this.essMaxCharge = essMaxCharge;
-			this.essMaxDischarge = essMaxDischarge;
-			this.gridMaxBuy = gridMaxBuy;
-			this.gridMaxSell = gridMaxSell;
-
-			this
-					// Internal Relationships
-					.addConstraint(c -> c // Sum
-							.setCoefficient(PROD, 1) //
-							.setCoefficient(ESS, 1) //
-							.setCoefficient(GRID, 1) //
-							.setCoefficient(CONS, -1) //
-							.toLinearConstraint(EQ, 0)) //
-					.addConstraint(c -> c // Distribute Production
-							.setCoefficient(PROD, -1) //
-							.setCoefficient(PROD_TO_CONS, 1) //
-							.setCoefficient(PROD_TO_ESS, 1) //
-							.setCoefficient(PROD_TO_GRID, 1) //
-							.toLinearConstraint(EQ, 0)) //
-					.addConstraint(b -> b // Distribute Consumption
-							.setCoefficient(CONS, 1) //
-							.setCoefficient(ESS_TO_CONS, -1) //
-							.setCoefficient(GRID_TO_CONS, -1) //
-							.setCoefficient(PROD_TO_CONS, -1) //
-							.toLinearConstraint(EQ, 0)) //
-					.addConstraint(b -> b // Distribute Grid
-							.setCoefficient(GRID, -1) //
-							.setCoefficient(PROD_TO_GRID, -1) //
-							.setCoefficient(GRID_TO_CONS, 1) //
-							.setCoefficient(GRID_TO_ESS, 1) //
-							.toLinearConstraint(EQ, 0)) //
-					.addConstraint(b -> b // Distribute ESS
-							.setCoefficient(ESS, -1) //
-							.setCoefficient(PROD_TO_ESS, -1) //
-							.setCoefficient(ESS_TO_CONS, 1) //
-							.setCoefficient(GRID_TO_ESS, -1) //
-							.toLinearConstraint(EQ, 0)) //
-					.addConstraint(b -> b // Only Positive PROD_TO_ESS
-							.setCoefficient(PROD_TO_ESS, 1) //
-							.toLinearConstraint(GEQ, 0)) //
-					.addConstraint(b -> b // Only Positive PROD_TO_GRID
-							.setCoefficient(PROD_TO_GRID, 1) //
-							.toLinearConstraint(GEQ, 0)) //
-					.addConstraint(b -> b // Only Positive ESS_TO_CONS
-							.setCoefficient(ESS_TO_CONS, 1) //
-							.toLinearConstraint(GEQ, 0)) //
-					.addConstraint(b -> b // Only Positive GRID_TO_CONS
-							.setCoefficient(GRID_TO_CONS, 1) //
-							.toLinearConstraint(GEQ, 0))
-
-					// Production & Consumption
-					.addConstraint(c -> c //
-							.setCoefficient(PROD, 1) //
-							.toLinearConstraint(EQ, production)) //
-					.addConstraint(c -> c //
-							.setCoefficient(CONS, 1) //
-							.toLinearConstraint(GEQ, unmanagedConsumption))
-					.addConstraint(b -> b //
-							.setCoefficient(PROD_TO_CONS, 1) //
-							.toLinearConstraint(GEQ, min(production, unmanagedConsumption)))
-
-					// ESS Max Charge/Discharge
-					.addConstraint(c -> c //
-							.setCoefficient(ESS, 1) //
-							.toLinearConstraint(GEQ, -essMaxCharge)) //
-					.addConstraint(c -> c //
-							.setCoefficient(ESS, 1) //
-							.toLinearConstraint(LEQ, essMaxDischarge)) //
-					// Grid Max Buy/Sell
-					.addConstraint(c -> c //
-							.setCoefficient(GRID, 1) //
-							.toLinearConstraint(LEQ, gridMaxBuy)) //
-					.addConstraint(c -> c //
-							.setCoefficient(GRID, 1) //
-							.toLinearConstraint(GEQ, -gridMaxSell));
-		}
-
 		/**
-		 * Sets the {@link Coefficient#ESS} Charge/Discharge Energy to the given value,
-		 * while making sure the value fits in the active constraints.
-		 * 
-		 * @param value the value
-		 * @return actually set value; {@link Double#NaN} on error
+		 * Sets the maximum allowed ESS charge, adjusting if necessary to satisfy
+		 * constraints.
+		 *
+		 * @param target the desired maximum ESS charge
+		 * @return the actual maximum ESS charge that was set
 		 */
-		public double setEss(int value) {
-			return this.setFittingCoefficientValue(ESS, EQ, value);
-		}
+		public int setEssMaxCharge(int target) {
+			checkArgument(target >= 0, "target must not be negative");
 
-		/**
-		 * Limits the {@link Coefficient#ESS} Charge Energy to the given value, while
-		 * making sure the value fits in the active constraints.
-		 * 
-		 * @param value the value
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setEssMaxCharge(int value) {
-			return this.setFittingCoefficientValue(ESS, GEQ, -value);
-		}
-
-		/**
-		 * Limits the {@link Coefficient#ESS} Discharge Energy to the given value, while
-		 * making sure the value fits in the active constraints.
-		 * 
-		 * @param value the value
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setEssMaxDischarge(int value) {
-			return this.setFittingCoefficientValue(ESS, LEQ, value);
-		}
-
-		/**
-		 * Limits the {@link Coefficient#GRID} Buy Energy to the given value, while
-		 * making sure the value fits in the active constraints.
-		 * 
-		 * @param value the value
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setGridMaxBuy(int value) {
-			return this.setFittingCoefficientValue(ESS, LEQ, value);
-		}
-
-		/**
-		 * Limits the {@link Coefficient#GRID} Sell Energy to the given value, while
-		 * making sure the value fits in the active constraints.
-		 * 
-		 * @param value the value
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setGridMaxSell(int value) {
-			return this.setFittingCoefficientValue(ESS, GEQ, -value);
-		}
-
-		/**
-		 * Adds {@link Coefficient#CONS} Energy, while making sure the value fits in the
-		 * active constraints.
-		 * 
-		 * @param id    an identifier, e.g. the Component-ID
-		 * @param value the added consumption value
-		 * @return actually set value; 0 on error
-		 */
-		public synchronized int addConsumption(String id, int value) {
-			if (value > 0) {
-				var oldManagedConsumption = this.getManagedConsumption();
-				var newTotalConsumption = this.setFittingCoefficientValue(CONS, GEQ,
-						this.unmanagedConsumption + oldManagedConsumption + value);
-				if (isNaN(newTotalConsumption)) {
-					return 0;
-				}
-				value = (int) (newTotalConsumption - this.unmanagedConsumption - oldManagedConsumption);
+			if (target >= this.essMaxCharge) {
+				return this.essMaxCharge;
 			}
-			this.managedConsumptions.put(id, value);
-			return value;
+
+			int minRequiredCharge = switch (this.state) {
+			case UNSET -> max(0, this.surplus - this.gridMaxSell);
+			case ESS_SET, GRID_SET -> -this.ess;
+			};
+
+			this.essMaxCharge = max(target, minRequiredCharge);
+			return this.essMaxCharge;
 		}
 
 		/**
-		 * Finializes the {@link Coefficient#CONS} Energy.
+		 * Sets the maximum allowed ESS discharge, adjusting if necessary to satisfy
+		 * constraints.
 		 * 
-		 * <p>
-		 * Call this method after all managed Consumptions have been added via
-		 * {@link #addConsumption(String, int)}.
-		 * 
-		 * @return the total Consumption
+		 * @param target the desired maximum ESS discharge
+		 * @return the actual maximum ESS discharge that was set
 		 */
-		public synchronized double finalizeConsumption() {
-			var consumption = this.setExtremeCoefficientValue(CONS, MINIMIZE);
-			this.setFittingCoefficientValue(PROD_TO_CONS, EQ, consumption);
-			return consumption;
+		public int setEssMaxDischarge(int target) {
+			checkArgument(target >= 0, "target must not be negative");
+
+			if (target >= this.essMaxDischarge) {
+				return this.essMaxDischarge;
+			}
+
+			int minRequiredDischarge = switch (this.state) {
+			case UNSET -> max(0, -this.surplus - this.gridMaxBuy);
+			case ESS_SET, GRID_SET -> this.ess;
+			};
+
+			this.essMaxDischarge = max(target, minRequiredDischarge);
+			return this.essMaxDischarge;
 		}
 
 		/**
-		 * Gets the cumulated managed Consumption.
-		 * 
-		 * @return the Managed Consumption
+		 * Sets the maximum allowed grid sell, adjusting if necessary to satisfy
+		 * constraints.
+		 *
+		 * @param target the desired maximum grid sell
+		 * @return the actual maximum grid sell that was set
 		 */
-		public synchronized int getManagedConsumption() {
+		public int setGridMaxSell(int target) {
+			checkArgument(target >= 0, "target must not be negative");
+
+			if (target >= this.gridMaxSell) {
+				return this.gridMaxSell;
+			}
+
+			int minRequiredSell = switch (this.state) {
+			case UNSET -> max(0, this.surplus - this.essMaxCharge);
+			case ESS_SET, GRID_SET -> -this.grid;
+			};
+
+			this.gridMaxSell = max(target, minRequiredSell);
+			return this.gridMaxSell;
+		}
+
+		/**
+		 * Sets the maximum allowed grid buy, adjusting if necessary to satisfy
+		 * constraints.
+		 *
+		 * @param target the desired maximum grid buy
+		 * @return the actual maximum grid buy that was set
+		 */
+		public int setGridMaxBuy(int target) {
+			checkArgument(target >= 0, "target must not be negative");
+
+			if (target >= this.gridMaxBuy) {
+				return this.gridMaxBuy;
+			}
+
+			int minRequiredBuy = switch (this.state) {
+			case UNSET -> max(0, -this.surplus - this.essMaxDischarge);
+			case ESS_SET, GRID_SET -> this.grid;
+			};
+
+			this.gridMaxBuy = max(target, minRequiredBuy);
+			return this.gridMaxBuy;
+		}
+
+		/**
+		 * Adds a managed consumption for the specified ID, adjusted if necessary to
+		 * satisfy constraints.
+		 *
+		 * @param id     the identifier, e.g., the component ID
+		 * @param target the desired consumption value
+		 * @return the actual managed consumption that was set
+		 */
+		public int addManagedConsumption(String id, int target) {
+			checkArgument(target >= 0, "target must not be negative");
+
+			if (this.managedConsumptions.containsKey(id)) {
+				return this.managedConsumptions.get(id);
+			}
+
+			int maxPossibleManagedConsumption = switch (this.state) {
+			case UNSET -> this.surplus + this.essMaxDischarge + this.gridMaxBuy;
+			case ESS_SET -> this.surplus + this.ess + this.gridMaxBuy;
+			case GRID_SET -> this.surplus + this.essMaxDischarge + this.grid;
+			};
+
+			int actualManagedConsumption = min(target, maxPossibleManagedConsumption);
+
+			this.managedConsumptions.put(id, actualManagedConsumption);
+			this.consumption += actualManagedConsumption;
+			this.surplus = this.production - this.consumption;
+
+			switch (this.state) {
+			case UNSET -> doNothing();
+			case ESS_SET -> this.grid = -(this.surplus + this.ess);
+			case GRID_SET -> this.ess = -(this.surplus + this.grid);
+			}
+
+			return actualManagedConsumption;
+		}
+
+		/**
+		 * Sets the ess value (+: discharge, -: charge), adjusted if necessary to
+		 * satisfy constraints.
+		 *
+		 * @param target the desired ess value
+		 * @return the actual ess value that was set
+		 */
+		public int setEss(int target) {
+			switch (this.state) {
+			case UNSET -> {
+				int maxPossibleCharge = min(this.essMaxCharge, this.surplus + this.gridMaxBuy);
+				int maxPossibleDischarge = min(this.essMaxDischarge, -this.surplus + this.gridMaxSell);
+				this.ess = fitWithin(-maxPossibleCharge, maxPossibleDischarge, target);
+
+				this.grid = -(this.surplus + this.ess);
+				this.state = State.ESS_SET;
+			}
+			case ESS_SET, GRID_SET -> doNothing();
+			}
+
+			return this.ess;
+		}
+
+		/**
+		 * Sets the grid value (+: buy, -: sell), adjusted if necessary to satisfy
+		 * constraints.
+		 *
+		 * @param target the desired grid value
+		 * @return the actual grid value that was set
+		 */
+		public int setGrid(int target) {
+			switch (this.state) {
+			case UNSET -> {
+				int maxPossibleSell = min(this.gridMaxSell, this.surplus + this.essMaxDischarge);
+				int maxPossibleBuy = min(this.gridMaxBuy, -this.surplus + this.essMaxCharge);
+				this.grid = fitWithin(-maxPossibleSell, maxPossibleBuy, target);
+
+				this.ess = -(this.surplus + this.grid);
+				this.state = State.GRID_SET;
+			}
+			case ESS_SET, GRID_SET -> doNothing();
+			}
+
+			return this.grid;
+		}
+
+		/**
+		 * Returns the production.
+		 *
+		 * @return the production value
+		 */
+		public int getProduction() {
+			return this.production;
+		}
+
+		/**
+		 * Returns the total consumption, which is the sum of unmanaged consumption and
+		 * all managed consumptions.
+		 *
+		 * @return the total consumption value
+		 */
+		public int getConsumption() {
+			return this.consumption;
+		}
+
+		/**
+		 * Returns the total managed consumption.
+		 * 
+		 * @return the total managed consumption value
+		 */
+		public int getManagedConsumption() {
 			return this.managedConsumptions.values().stream() //
-					.mapToInt(Integer::valueOf) //
+					.mapToInt(Integer::intValue) //
 					.sum();
 		}
 
 		/**
-		 * Gets the cumulated managed and unmanaged Consumption.
+		 * Returns the surplus (production - consumption).
 		 * 
-		 * @return the total Consumption
+		 * @return the surplus value
 		 */
-		public synchronized int getTotalConsumption() {
-			return this.unmanagedConsumption + this.getManagedConsumption();
-		}
-
-		/**
-		 * Prints a table with all constraints.
-		 */
-		public void logConstraints() {
-			{
-				var b = new StringBuilder();
-				for (var coefficient : Coefficient.values()) {
-					b.append(String.format("%s ", coefficient.toCamelCase()));
-				}
-				LOG.info(b.toString());
-			}
-			for (var constraint : this.constraints) {
-				var b = new StringBuilder();
-				var equation = constraint.getCoefficients();
-				for (var coefficient : Coefficient.values()) {
-					b.append(String.format("% " + coefficient.name().length() + ".0f ",
-							equation.getEntry(coefficient.ordinal())));
-				}
-				b.append(String.format("%2s % 10.0f", constraint.getRelationship(), constraint.getValue()));
-				LOG.info(b.toString());
-			}
-		}
-
-		/**
-		 * Prints min/max values for a {@link Coefficient}.
-		 * 
-		 * @param coefficient the {@link Coefficient}
-		 */
-		public void logMinMaxValues(Coefficient coefficient) {
-			var values = this.calculateMinMaxValues(coefficient);
-			var min = values[0];
-			var max = values[1];
-			LOG.info(String.format("%-12s % 5.0f % 5.0f %s", coefficient.toCamelCase(), min, max,
-					min == max ? "fixed" : ""));
-		}
-
-		/**
-		 * Prints a table with all constraints.
-		 */
-		public void logMinMaxValues() {
-			LOG.info(String.format("%-12s %5s %5s", "Coefficient", "Min", "Max"));
-			for (var coefficient : Coefficient.values()) {
-				this.logMinMaxValues(coefficient);
-			}
-		}
-
-		@Override
-		public String toString() {
-			return "EnergyFlow.Model[" //
-					+ Arrays.stream(Coefficient.values()) //
-							.map(coefficient -> {
-								var values = this.calculateMinMaxValues(coefficient);
-								var min = values[0];
-								var max = values[1];
-								var b = new StringBuilder().append(coefficient.toCamelCase()) //
-										.append("=") //
-										.append(min);
-								if (min == max) {
-									b //
-											.append("|fixed");
-								} else {
-									b //
-											.append("|") //
-											.append(max); //
-								}
-								return b.toString();
-							}) //
-							.collect(joining(",")) //
-					+ "]";
-		}
-
-		/**
-		 * Calculates the current Min and Max values for a given {@link Coefficient}.
-		 * 
-		 * @param coefficient the {@link Coefficient}
-		 * @return result[0] is the Min value; result[1] is the Max value
-		 */
-		private double[] calculateMinMaxValues(Coefficient coefficient) {
-			final double[] result = new double[2];
-			try {
-				result[0] = this.getExtremeCoefficientValue(coefficient, MINIMIZE);
-			} catch (MathIllegalStateException e) {
-				result[0] = NaN;
-			}
-			try {
-				result[1] = this.getExtremeCoefficientValue(coefficient, MAXIMIZE);
-			} catch (MathIllegalStateException e) {
-				result[1] = NaN;
-			}
-			return result;
-		}
-
-		private EnergyFlow.Model addConstraint(Function<Coefficients, LinearConstraint> coefficients) {
-			this.constraints.add(coefficients.apply(new Coefficients()));
-			return this;
-		}
-
-		/**
-		 * Gets the minimum or maximum allowed value for the given {@link Coefficient}.
-		 * 
-		 * @param coefficient the {@link Coefficient}
-		 * @param goalType    the {@link GoalType}
-		 * @return the value
-		 * @throws MathIllegalStateException if this {@link EnergyFlow.Model} is
-		 *                                   unsolvable
-		 */
-		public double getExtremeCoefficientValue(Coefficient coefficient, GoalType goalType)
-				throws MathIllegalStateException {
-			return solve(goalType, this.constraints, Coefficients.create() //
-					.setCoefficient(coefficient, 1) //
-					.toLinearObjectiveFunction(0)) //
-					.getPointRef()[coefficient.ordinal()];
-		}
-
-		/**
-		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
-		 * the minimum or maximum allowed value.
-		 * 
-		 * @param coefficient the {@link Coefficient}
-		 * @param goalType    the {@link GoalType}
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setExtremeCoefficientValue(Coefficient coefficient, GoalType goalType) {
-			try {
-				var value = this.getExtremeCoefficientValue(coefficient, goalType);
-				this.setCoefficientValue(coefficient, value);
-				return value;
-			} catch (MathIllegalStateException e) {
-				LOG.warn("[setExtremeCoefficientValue] " //
-						+ "Unable to " + goalType + " " + coefficient + ": " + e.getMessage() + " " //
-						+ this.toString());
-				return NaN;
-			}
-		}
-
-		/**
-		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
-		 * the given value, while making sure the value fits in the active constraints.
-		 * 
-		 * @param coefficient  the {@link Coefficient}
-		 * @param relationship the {@link Relationship}l
-		 * @param value        the value
-		 * @return actually set value; {@link Double#NaN} on error
-		 */
-		public double setFittingCoefficientValue(Coefficient coefficient, Relationship relationship, double value) {
-			// Fit to MIN value
-			try {
-				var min = this.getExtremeCoefficientValue(coefficient, MINIMIZE);
-				if (value <= min) {
-					this.setCoefficientValue(coefficient, relationship, min);
-					return min;
-				}
-			} catch (MathIllegalStateException e) {
-				LOG.warn("[setFittingCoefficientValue] " //
-						+ "Unable to MINIMIZE " + coefficient + ": " + e.getMessage() + " " //
-						+ this.toString());
-				return NaN;
-			}
-
-			// Fit to MAX value
-			try {
-				var max = this.getExtremeCoefficientValue(coefficient, MAXIMIZE);
-				if (value > max) {
-					this.setCoefficientValue(coefficient, relationship, max);
-					return max;
-				}
-			} catch (MathIllegalStateException e) {
-				LOG.warn("[setFittingCoefficientValue] " //
-						+ "Unable to MAXIMIZE " + coefficient + ": " + e.getMessage() + " " //
-						+ this.toString());
-				return NaN;
-			}
-
-			// Apply coefficient value
-			this.setCoefficientValue(coefficient, relationship, value);
-			return value;
-		}
-
-		/**
-		 * Adds a {@link LinearConstraint} that sets the given {@link Coefficient} to
-		 * the given value.
-		 * 
-		 * @param coefficient the {@link Coefficient}
-		 * @param value       the value
-		 */
-		private void setCoefficientValue(Coefficient coefficient, double value) {
-			this.setCoefficientValue(coefficient, Relationship.EQ, value);
-		}
-
-		/**
-		 * Adds a {@link LinearConstraint} that constrains the given {@link Coefficient}
-		 * to the given value and {@link Relationship}.
-		 * 
-		 * @param coefficient  the {@link Coefficient}
-		 * @param relationship the {@link Relationship}
-		 * @param value        the value
-		 */
-		private void setCoefficientValue(Coefficient coefficient, Relationship relationship, double value) {
-			this.addConstraint(c -> c //
-					.setCoefficient(coefficient, 1) //
-					.toLinearConstraint(relationship, value));
+		public int getSurplus() {
+			return this.surplus;
 		}
 
 		/**
@@ -644,108 +434,33 @@ public class EnergyFlow {
 		 *         unsolvable
 		 */
 		public EnergyFlow solve() {
-			final double ess;
-			try {
-				ess = this.getExtremeCoefficientValue(ESS, MAXIMIZE);
-			} catch (MathIllegalStateException e) {
-				LOG.warn("[solve] " //
-						+ "Unable to MAXIMIZE ESS: " + e.getMessage() + " " //
-						+ this.toString());
-				return null;
-			}
-			if (ess <= 0) {
-				// ESS Charge or Zero; GRID_TO_ESS must be >= 0
-				this.setFittingCoefficientValue(GRID_TO_ESS, GEQ, 0);
-				this.setFittingCoefficientValue(ESS_TO_CONS, EQ, 0);
-			}
-			if (ess >= 0) {
-				// ESS Discharge or Zero
-				// Maximize ESS_TO_CONS (1st prio: PROD_TO_CONS; 3rd prio: GRID_TO_CONS)
-				final double essMax;
-				try {
-					essMax = this.getExtremeCoefficientValue(ESS_TO_CONS, MAXIMIZE);
-				} catch (MathIllegalStateException e) {
-					LOG.warn("[solve] " //
-							+ "Unable to MAXIMIZE ESS_TO_CONS: " + e.getMessage() + " " //
-							+ this.toString());
-					return null;
-				}
-				this.setCoefficientValue(ESS_TO_CONS, min(essMax, ess));
+			if (this.state == State.UNSET) {
+				// Apply balancing
+				this.setEss(-this.surplus);
 			}
 
-			var coefficients = initializeCoefficients();
-			Arrays.fill(coefficients, 1);
-			try {
-				return new EnergyFlow(//
-						this.unmanagedConsumption, //
-						solve(MINIMIZE, this.constraints, new LinearObjectiveFunction(coefficients, 0)), //
-						ImmutableSortedMap.copyOf(this.managedConsumptions));
-
-			} catch (MathIllegalStateException e) {
-				LOG.warn("[solve] " //
-						+ "Unable to solve EnergyFlow.Model: " + e.getMessage() + " " //
-						+ this.toString());
-				return null;
-			}
+			return new EnergyFlow(//
+					this.production, //
+					this.unmanagedConsumption, //
+					ImmutableSortedMap.copyOf(this.managedConsumptions), //
+					this.ess, //
+					this.grid);
 		}
 
-		/**
-		 * Solves the linear equation system.
-		 * 
-		 * @param goalType          {@link GoalType#MINIMIZE} or
-		 *                          {@link GoalType#MAXIMIZE} the objective function
-		 * @param constraints       the {@link LinearConstraint}s
-		 * @param objectiveFunction the {@link LinearObjectiveFunction}
-		 * @return the {@link PointValuePair}
-		 * @throws MathIllegalStateException if this {@link EnergyFlow.Model} is
-		 *                                   unsolvable
-		 */
-		private static PointValuePair solve(GoalType goalType, Collection<LinearConstraint> constraints,
-				LinearObjectiveFunction objectiveFunction) throws MathIllegalStateException {
-			return new SimplexSolver().optimize(//
-					objectiveFunction, //
-					new LinearConstraintSet(constraints), //
-					goalType);
-		}
-	}
-
-	/**
-	 * Helper class to provides a Builder-Pattern like way to create a coefficients
-	 * array suitable for a {@link LinearConstraint} or
-	 * {@link LinearObjectiveFunction}.
-	 */
-	private static class Coefficients {
-
-		private static Coefficients create() {
-			return new Coefficients();
+		private enum State {
+			UNSET, //
+			ESS_SET, //
+			GRID_SET
 		}
 
-		private final double[] coefficients;
-
-		private Coefficients() {
-			this.coefficients = initializeCoefficients();
+		@VisibleForTesting
+		int getEss() {
+			return this.ess;
 		}
 
-		private Coefficients setCoefficient(Coefficient coefficient, int value) {
-			this.coefficients[coefficient.ordinal()] = value;
-			return this;
+		@VisibleForTesting
+		int getGrid() {
+			return this.grid;
 		}
-
-		private LinearConstraint toLinearConstraint(Relationship relationship, double value) {
-			return new LinearConstraint(this.coefficients, relationship, value);
-		}
-
-		private LinearObjectiveFunction toLinearObjectiveFunction(int constantTerm) {
-			return new LinearObjectiveFunction(this.coefficients, constantTerm);
-		}
-
-	}
-
-	private static double[] initializeCoefficients() {
-		return new double[Coefficient.values().length];
-	}
-
-	private static int toInt(double value) {
-		return (int) Math.round(value);
 	}
 }

@@ -70,9 +70,9 @@ public class MennekesEvcsReadOnly extends
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
+		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def//
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def//
 				.setDefaultValue(1))), //
 		;
 
