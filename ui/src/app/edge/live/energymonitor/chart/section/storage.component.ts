@@ -44,6 +44,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
     public svgStyle: string;
+    protected socPercentageFontSize: number | null = null;
+    protected socPercentageYPosition: number | null = null;
     private socValue: number;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
@@ -93,6 +95,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
+        if (this.square !== undefined && this.square.valueText !== undefined && this.square.valueText !== null) {
+            const maxFontSize = 14;
+            const minFontSize = 12;
+            const idealFontDistance = this.square.valueText.fontsize * 1.8;
+            this.socPercentageFontSize = Math.min(maxFontSize, Math.max(minFontSize, this.square.valueText.fontsize));
+            this.socPercentageYPosition = this.square.valueText.y + (idealFontDistance >= maxFontSize ? maxFontSize : idealFontDistance);
+        }
 
         this.service.getCurrentEdge()
             .then(async edge => {

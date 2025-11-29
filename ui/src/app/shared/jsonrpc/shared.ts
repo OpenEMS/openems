@@ -78,9 +78,9 @@ export class User {
     }
 
     /**
-     * Gets the current theme from user settings
+     * Checks if new ui is activated from user settings
      *
-     * @returns the theme if existing, else null
+     * @returns true if new ui is activated, else false
      */
     public getUseNewUIFromSettings(): boolean {
 

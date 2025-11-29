@@ -17,7 +17,7 @@ public class SimulationResultTest {
 		final var m00 = 0; // Defaults
 		assertEquals(mc.getDefault(), mc.get(m00));
 		assertEquals("BALANCING", mc.get(m00).mode(0).name());
-		assertEquals("Controller.Dummy:BAR", mc.get(m00).mode(1).name());
+		assertEquals("Controller.Dummy:FOO", mc.get(m00).mode(1).name());
 		final var m11 = 3;
 		assertEquals("DELAY_DISCHARGE", mc.get(m11).mode(0).name());
 		assertEquals("Controller.Dummy:BAR", mc.get(m11).mode(1).name());

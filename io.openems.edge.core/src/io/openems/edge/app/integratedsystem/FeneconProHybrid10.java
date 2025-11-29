@@ -68,14 +68,14 @@ public class FeneconProHybrid10
 	public enum Property implements Type<Property, FeneconProHybrid10, Parameter.BundleParameter> {
 		ALIAS(alias()), //
 		SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".serialNumber.label") //
-				.setTranslatedDescriptionWithAppPrefix(".serialNumber.description") //
-				.setRequired(false) //
+				.setTranslatedLabelWithAppPrefix(".serialNumber.label")//
+				.setTranslatedDescriptionWithAppPrefix(".serialNumber.description")//
+				.setRequired(false)//
 				.setField(JsonFormlyUtil::buildInputFromNameable))), //
 		IP(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".ip.label") //
-				.setTranslatedDescriptionWithAppPrefix(".ip.description") //
-				.setRequired(false) //
+				.setTranslatedLabelWithAppPrefix(".ip.label")//
+				.setTranslatedDescriptionWithAppPrefix(".ip.description")//
+				.setRequired(false)//
 				.setField(JsonFormlyUtil::buildInputFromNameable))), //
 		USER_KEY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".userkey.label") //
@@ -91,7 +91,7 @@ public class FeneconProHybrid10
 									return null;
 								}
 								return new JsonPrimitive("xxx");
-							}) //
+							})//
 							.orElse(null);
 				})));
 

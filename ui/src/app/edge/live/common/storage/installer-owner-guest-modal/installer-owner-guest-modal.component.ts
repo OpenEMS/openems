@@ -30,7 +30,6 @@ import { environment, Environment } from "src/environments";
         PipeComponentsModule,
         ComponentsBaseModule,
         ModalComponentsModule,
-
         LocaleProvider,
         LiveDataServiceProvider,
     ],

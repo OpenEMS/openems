@@ -117,8 +117,10 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 	public static ModeCombinations fromGlobalOptimizationContext(GlobalOptimizationContext goc) {
 		final var result = new ModeCombinations.Builder() //
 				.addInfeasibles(INFEASIBLE_COMBINATIONS);
+
+		// Set first ModeCombination as default (index = 0) Mode for all ESHs.
 		result.addCombination(goc.eshsWithDifferentModes().stream() //
-				.map(esh -> Mode.from(esh, esh.getDefaultModeIndex())) //
+				.map(esh -> Mode.from(esh, 0)) //
 				.toList());
 
 		var cp = Lists.cartesianProduct(//

@@ -1,5 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
+import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
@@ -15,11 +16,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
@@ -30,15 +33,18 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -62,8 +68,8 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @Component(name = "App.TimeOfUseTariff.Ews")
-public class Ews extends
-		AbstractOpenemsAppWithProps<Ews, Property, Type.Parameter.BundleParameter> implements OpenemsApp {
+public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Parameter.BundleParameter>
+		implements OpenemsApp {
 
 	public static enum Property implements Type<Property, Ews, Type.Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -71,12 +77,29 @@ public class Ews extends
 		TIME_OF_USE_TARIFF_PROVIDER_ID(AppDef.componentId("timeOfUseTariff0")), //
 
 		// Properties
-		ALIAS(CommonProps.alias());
-		
+		ALIAS(CommonProps.alias()), //
+		ACCESS_TOKEN(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
+				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
+					field.setInputType(PASSWORD);
+				}) //
+				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",
+						ComponentManagerSupplier::getComponentManager, t -> {
+							return JsonUtils.getAsOptionalString(t) //
+									.map(s -> {
+										if (s.isEmpty()) {
+											return null;
+										}
+										return new JsonPrimitive("xxx");
+									})//
+									.orElse(null);
+						})));
+
 		private final AppDef<? super Ews, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
-		private Property(
-				AppDef<? super Ews, ? super Property, ? super Type.Parameter.BundleParameter> def) {
+		private Property(AppDef<? super Ews, ? super Property, ? super Type.Parameter.BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -97,8 +120,8 @@ public class Ews extends
 	}
 
 	@Activate
-	public Ews(@Reference ComponentManager componentManager, ComponentContext context,
-			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+	public Ews(@Reference ComponentManager componentManager, ComponentContext context, @Reference ConfigurationAdmin cm,
+			@Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
 	}
 
@@ -109,6 +132,7 @@ public class Ews extends
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
@@ -117,7 +141,10 @@ public class Ews extends
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Ews",
 							JsonUtils.buildJsonObject() //
-								    .build())//
+									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
+										b.addProperty("accessToken", accessToken);
+									}) //
+									.build())//
 			);
 
 			return AppConfiguration.create() //
@@ -149,6 +176,14 @@ public class Ews extends
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create() //
+				.setCanDelete(Role.ADMIN) //
+				.setCanSee(Role.ADMIN) //
+				.build();
 	}
 
 	@Override
