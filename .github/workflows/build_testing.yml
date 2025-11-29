@@ -1,15 +1,21 @@
 name: Build & Test (Testing Branches)
 
 on:
+  # Run on every push to specific testing branches
   push:
     branches:
-      - 'testing*'
-      - 'testing-*'
+      - testing
+      - testing-weather
+
+  # Run on pull requests to testing branches
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - 'testing*'
-      - 'testing-*'
+      - testing
+      - testing-weather
+
+  # Optional: Allow manual workflow trigger
+  workflow_dispatch:
 
 jobs:
   validate-structure:
