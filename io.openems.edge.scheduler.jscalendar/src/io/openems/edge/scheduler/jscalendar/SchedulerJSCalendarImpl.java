@@ -13,10 +13,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.GetOneTasks;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.scheduler.api.Scheduler;
 import io.openems.edge.scheduler.jscalendar.Utils.Payload;
 
@@ -31,7 +34,7 @@ import io.openems.edge.scheduler.jscalendar.Utils.Payload;
 		configurationPolicy = REQUIRE)
 //CHECKSTYLE:OFF
 public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
-		implements SchedulerJSCalendar, Scheduler, OpenemsComponent {
+		implements SchedulerJSCalendar, Scheduler, OpenemsComponent, ComponentJsonApi {
 	// CHECKSTYLE:ON
 
 	private Config config = null;
@@ -101,5 +104,12 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 			}
 			result.add(controllerId);
 		}
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetOneTasks<Payload>(Payload.serializer()), call -> {
+			return GetOneTasks.Response.create(call.getRequest(), this.tasks);
+		});
 	}
 }
