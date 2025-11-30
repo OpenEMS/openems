@@ -12,16 +12,16 @@ public interface EvcsOpenWb extends Evcs, OpenemsComponent {
 		 * Slave Communication Failed Fault.
 		 *
 		 * <p>
-		 * Indicates a failure in communication with a slave device, which might affect
-		 * system operations.
+		 * Indicates a failure in communication with the OpenWB charger, which might
+		 * affect system operations.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
+		 * <li>Interface: EvcsOpenWb
 		 * <li>Type: State
 		 * </ul>
 		 */
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)//
-				.text("Communication with slave device failed."));
+				.text("Communication with OpenWB charger failed."));
 
 		private final Doc doc;
 
@@ -33,5 +33,15 @@ public interface EvcsOpenWb extends Evcs, OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSlaveCommunicationFailed(boolean value) {
+		this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED).setNextValue(value);
 	}
 }
