@@ -26,6 +26,7 @@ import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
+import { ObjectUtils } from "../../utils/object/object.utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { NavigationService } from "../navigation/service/navigation.service";
@@ -584,6 +585,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
             });
 
+            function showOrHideYAxis(datasets: Chart.ChartDataset[], chart: Chart.Chart) {
+                for (const key of Object.keys(ObjectUtils.excludeProperties(chart.options.scales, ["x"]))) {
+                    const axisDatasets = datasets.filter(d => d["yAxisID"] === key);
+                    chart.options.scales[key].display = axisDatasets.some(d => !d.hidden);
+                }
+            }
+
             /** needs to be set, cause property async set */
             const _dataSets: Chart.ChartDataset[] = datasets.map((v, k) => {
                 if (k === legendItem.datasetIndex) {
@@ -593,6 +601,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             });
 
             rebuildScales(chart);
+            showOrHideYAxis(_dataSets, chart);
             chart.update();
         };
 

@@ -12,6 +12,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
@@ -217,14 +218,19 @@ export abstract class AbstractHistoryChart {
                     }, []);
 
                     legendItems.forEach(item => {
-                        // original.call(this, event, legendItem1);
                         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
                         const meta = chart.getDatasetMeta(item.index);
-                        // See controller.isDatasetVisible comment
-                        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
+                        meta.hidden = chart.isDatasetVisible(legendItem.datasetIndex);
                     });
 
-                    // We hid a dataset ... rerender the chart
+                    // Show only Y axes that have at least one visible dataset
+                    for (const key of Object.keys(ObjectUtils.excludeProperties(options.scales, ["x"]))) {
+                        const axisDatasets = chart.data.datasets
+                            .map((d, i) => ({ dataset: d, index: i }))
+                            .filter(d => d.dataset["yAxisID"] === key);
+                        chart.scales[key].options.display = axisDatasets.some(d => chart.isDatasetVisible(d.index));
+                    }
+
                     chart.update();
                 };
 
