@@ -190,9 +190,9 @@ export class FilterComponent {
         } else {
             this.searchParams.set(filter.category, values);
 
-          if (additionalFilter) {
-              this.searchParams.set(additionalFilter.key, additionalFilter.value);
-          }
+            if (additionalFilter) {
+                this.searchParams.set(additionalFilter.key, additionalFilter.value);
+            }
         }
 
         this.persistSelection(filter);
