@@ -6,14 +6,27 @@ export const OemMeta: BaseMeta = {
             KEBA_P30: null,
             KEBA_P40: null,
             HARDY_BARTH: null,
+            ALPITRONIC: null,
         },
     },
     links: {
         DATA_PROTECTION: null,
-        COMMON_STORAGE: null,
+        REDIRECT: {
+            COMMON_STORAGE: null,
+            COMMON_AUTARCHY: null,
+            COMMON_CONSUMPTION: null,
+            COMMON_GRID: null,
+            COMMON_PRODUCTION: null,
+            COMMON_SELFCONSUMPTION: null,
+            EVCS_KEBA: null,
+            EVCS_HARDY_BARTH: null,
+            EVCS_MENNEKES: null,
+            EVCS_GO_E: null,
+            EVCS_IES: null,
+            EVCS_ALPITRONIC_HYPER: null,
+        },
         FORGET_PASSWORD: "#",
         EVCS: null,
-
         CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: "io.openems.edge.controller.ess.gridoptimizedcharge/readme.adoc",
         CONTROLLER_CHP_SOC: "io.openems.edge.controller.chp.soc/readme.adoc",
         CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "io.openems.edge.controller.io.channelsinglethreshold/readme.adoc",
@@ -77,6 +90,8 @@ export const OemMeta: BaseMeta = {
             RUNDSTEUER: {
                 HOME: "#",
                 HOME_GEN_2: "#",
+                HOME_20_30: "#",
+                COMMERCIAL_50_GEN_3: "#",
             },
 
             AVU: "#",

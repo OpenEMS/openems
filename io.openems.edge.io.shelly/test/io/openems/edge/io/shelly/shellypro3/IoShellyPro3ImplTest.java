@@ -2,11 +2,13 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static org.junit.Assert.assertEquals;
 
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
@@ -15,9 +17,12 @@ public class IoShellyPro3ImplTest {
 	@Test
 	public void test() throws Exception {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		final var sut = new IoShellyPro3Impl();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
 						.setIp("127.0.0.1") //
@@ -47,7 +52,7 @@ public class IoShellyPro3ImplTest {
 									        "output": true
 									    }
 									"""));
-							httpTestBundle.triggerNextCycle();
+							dummyCycleSubscriber.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("x x -", sut.debugLog()))
 
@@ -60,7 +65,7 @@ public class IoShellyPro3ImplTest {
 				.next(new TestCase("Invalid read response for all relays") //
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
-							httpTestBundle.triggerNextCycle();
+							dummyCycleSubscriber.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("? ? ?", sut.debugLog()))
 

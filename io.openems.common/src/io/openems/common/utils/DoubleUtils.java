@@ -2,6 +2,18 @@ package io.openems.common.utils;
 
 public class DoubleUtils {
 
+	private static final double EPSILON = 1e-10;
+
+	/**
+	 * Checks if a value is close to zero within a small epsilon threshold.
+	 *
+	 * @param value the value to check
+	 * @return true if the absolute value is less than epsilon, false otherwise
+	 */
+	public static boolean isCloseToZero(double value) {
+		return Math.abs(value) < EPSILON;
+	}
+
 	/**
 	 * Normalize a value to a range - normalize values between [100, 1000] to range
 	 * [0, 1].

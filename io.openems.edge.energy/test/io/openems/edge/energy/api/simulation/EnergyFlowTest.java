@@ -15,7 +15,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testBalancingAndCharge() {
+	public void testBalancingAndCharge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 200, //
@@ -23,30 +23,18 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		m.addConsumption("ctrl0", 300);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		m.addManagedConsumption("ctrl0", 300);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-		assertEquals(2000, ef.getProdToEss());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(-2000, ef.getEss());
-		assertEquals(2000, ef.getProdToEss());
-
 		assertEquals(0, ef.getGrid());
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndAddConsumption() {
+	public void testBalancingAndAddConsumption() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 200, //
@@ -54,30 +42,18 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		m.addConsumption("ctrl0", 300);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		m.addManagedConsumption("ctrl0", 300);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-		assertEquals(2000, ef.getProdToEss());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(-2000, ef.getEss());
-		assertEquals(2000, ef.getProdToEss());
-
 		assertEquals(0, ef.getGrid());
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndChargeFull() {
+	public void testBalancingAndChargeFull() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -85,31 +61,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(100, ef.getCons());
-		assertEquals(100, ef.getProdToCons());
-
-		assertEquals(3000, ef.getProd());
-		assertEquals(100, ef.getProdToCons());
-		assertEquals(2400, ef.getProdToEss());
-		assertEquals(500, ef.getProdToGrid());
-
+		assertEquals(100, ef.getConsumption());
+		assertEquals(3000, ef.getProduction());
 		assertEquals(-2400, ef.getEss());
-		assertEquals(2400, ef.getProdToEss());
-
 		assertEquals(-500, ef.getGrid());
-		assertEquals(500, ef.getProdToGrid());
-
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndDischarge() {
+	public void testBalancingAndDischarge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -117,29 +79,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(2500, ef.getCons());
-		assertEquals(2000, ef.getEssToCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(2500, ef.getConsumption());
+		assertEquals(500, ef.getProduction());
 		assertEquals(2000, ef.getEss());
-		assertEquals(2000, ef.getEssToCons());
-
 		assertEquals(0, ef.getGrid());
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndDischargeEmpty() {
+	public void testBalancingAndDischargeEmpty() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 4500, //
@@ -147,30 +97,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 1800, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(4500, ef.getCons());
-		assertEquals(2200, ef.getGridToCons());
-		assertEquals(1800, ef.getEssToCons());
-
-		assertEquals(500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(4500, ef.getConsumption());
+		assertEquals(500, ef.getProduction());
 		assertEquals(1800, ef.getEss());
-		assertEquals(1800, ef.getEssToCons());
-
 		assertEquals(2200, ef.getGrid());
-		assertEquals(2200, ef.getGridToCons());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndChargeMoreThanEssMaxEnergy() {
+	public void testBalancingAndChargeMoreThanEssMaxEnergy() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -178,31 +115,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-		assertEquals(900, ef.getProdToEss());
-		assertEquals(1100, ef.getProdToGrid());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(-900, ef.getEss());
-		assertEquals(900, ef.getProdToEss());
-
 		assertEquals(-1100, ef.getGrid());
-		assertEquals(1100, ef.getProdToGrid());
-
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndDischargeAboveEssMaxEnergy() {
+	public void testBalancingAndDischargeAboveEssMaxEnergy() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -210,31 +133,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(2500, ef.getCons());
-		assertEquals(900, ef.getEssToCons());
-		assertEquals(1100, ef.getGridToCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(2500, ef.getConsumption());
+		assertEquals(500, ef.getProduction());
 		assertEquals(900, ef.getEss());
-		assertEquals(900, ef.getEssToCons());
-
 		assertEquals(1100, ef.getGrid());
-		assertEquals(1100, ef.getGridToCons());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testBalancingAndAboveGridMaxEnergy() {
+	public void testBalancingAndAboveGridMaxEnergy() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 1000, //
 				/* consumption */ 4900, //
@@ -242,27 +151,13 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 2000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
+		applyBalancing(m);
 		var ef = m.solve();
 
-		assertEquals(4900, ef.getCons());
-		assertEquals(2000, ef.getEssToCons());
-		assertEquals(1900, ef.getGridToCons());
-		assertEquals(1000, ef.getProdToCons());
-
-		assertEquals(1000, ef.getProd());
-		assertEquals(1000, ef.getProdToCons());
-
+		assertEquals(4900, ef.getConsumption());
+		assertEquals(1000, ef.getProduction());
 		assertEquals(2000, ef.getEss());
-		assertEquals(2000, ef.getEssToCons());
-
 		assertEquals(1900, ef.getGrid());
-		assertEquals(1900, ef.getGridToCons());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	/*
@@ -270,7 +165,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testDelayDischargeAndCharge() {
+	public void testDelayDischargeAndCharge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -278,29 +173,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDelayDischarge(m, consumption);
+		applyDelayDischarge(m);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(2000, ef.getProdToEss());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(-2000, ef.getEss());
-		assertEquals(2000, ef.getProdToEss());
-
 		assertEquals(0, ef.getGrid());
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testDelayDischargeAndChargeFull() {
+	public void testDelayDischargeAndChargeFull() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -308,31 +191,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDelayDischarge(m, consumption);
+		applyDelayDischarge(m);
 		var ef = m.solve();
 
-		assertEquals(100, ef.getCons());
-		assertEquals(100, ef.getProdToCons());
-
-		assertEquals(3000, ef.getProd());
-		assertEquals(100, ef.getProdToCons());
-		assertEquals(500, ef.getProdToGrid());
-		assertEquals(2400, ef.getProdToEss());
-
+		assertEquals(100, ef.getConsumption());
+		assertEquals(3000, ef.getProduction());
 		assertEquals(-2400, ef.getEss());
-		assertEquals(2400, ef.getProdToEss());
-
 		assertEquals(-500, ef.getGrid());
-		assertEquals(500, ef.getProdToGrid());
-
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	@Test
-	public void testDelayDischargeAndWouldDischarge() {
+	public void testDelayDischargeAndWouldDischarge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 500, //
 				/* consumption */ 2500, //
@@ -340,25 +209,13 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDelayDischarge(m, consumption);
+		applyDelayDischarge(m);
 		var ef = m.solve();
 
-		assertEquals(2500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-		assertEquals(2000, ef.getGridToCons());
-
-		assertEquals(500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(2500, ef.getConsumption());
+		assertEquals(500, ef.getProduction());
 		assertEquals(2000, ef.getGrid());
-		assertEquals(2000, ef.getGridToCons());
-
 		assertEquals(0, ef.getEss());
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToEss());
 	}
 
 	/*
@@ -366,7 +223,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testChargeGridAndCharge() {
+	public void testChargeGridAndCharge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -374,31 +231,17 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyChargeGrid(m, consumption, 2500);
+		applyChargeGrid(m, 2500);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(2000, ef.getProdToEss());
-		assertEquals(500, ef.getProdToCons());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(-4500, ef.getEss());
-		assertEquals(2500, ef.getGridToEss());
-		assertEquals(2000, ef.getProdToEss());
-
 		assertEquals(2500, ef.getGrid());
-		assertEquals(2500, ef.getGridToEss());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
 	}
 
 	@Test
-	public void testChargeGridAndChargeFull() {
+	public void testChargeGridAndChargeFull() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 3000, //
 				/* consumption */ 100, //
@@ -406,31 +249,18 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyChargeGrid(m, consumption, 2500);
+		// var consumption = m.finalizeConsumption();
+		applyChargeGrid(m, 2500);
 		var ef = m.solve();
 
-		assertEquals(100, ef.getCons());
-		assertEquals(100, ef.getProdToCons());
-
-		assertEquals(3000, ef.getProd());
-		assertEquals(100, ef.getProdToCons());
-		assertEquals(2900, ef.getProdToEss());
-
+		assertEquals(100, ef.getConsumption());
+		assertEquals(3000, ef.getProduction());
 		assertEquals(-3400, ef.getEss());
-		assertEquals(500, ef.getGridToEss());
-		assertEquals(2900, ef.getProdToEss());
-
 		assertEquals(500, ef.getGrid());
-		assertEquals(500, ef.getGridToEss());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getGridToCons());
-		assertEquals(0, ef.getEssToCons());
 	}
 
 	@Test
-	public void testChargeGridAndAboveGridMaxEnergy() {
+	public void testChargeGridAndAboveGridMaxEnergy() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 1000, //
 				/* consumption */ 2000, //
@@ -438,27 +268,13 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 1600, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyChargeGrid(m, consumption, 2500);
+		applyChargeGrid(m, 2500);
 		var ef = m.solve();
 
-		assertEquals(2000, ef.getCons());
-		assertEquals(1000, ef.getProdToCons());
-		assertEquals(1000, ef.getGridToCons());
-
-		assertEquals(1000, ef.getProd());
-		assertEquals(1000, ef.getGridToCons());
-
+		assertEquals(2000, ef.getConsumption());
+		assertEquals(1000, ef.getProduction());
 		assertEquals(-600, ef.getEss());
-		assertEquals(600, ef.getGridToEss());
-
 		assertEquals(1600, ef.getGrid());
-		assertEquals(1000, ef.getGridToCons());
-		assertEquals(600, ef.getGridToEss());
-
-		assertEquals(0, ef.getProdToGrid());
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getEssToCons());
 	}
 
 	/*
@@ -466,7 +282,7 @@ public class EnergyFlowTest {
 	 */
 
 	@Test
-	public void testDischargeGridAndCharge() {
+	public void testDischargeGridAndCharge() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 2500, //
 				/* consumption */ 500, //
@@ -474,42 +290,12 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 1600, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDischargeGrid(m, consumption, 2500);
+		applyDischargeGrid(m, 2500);
 		var ef = m.solve();
 
-		assertEquals(500, ef.getCons());
-		assertEquals(500, ef.getProdToCons());
-
-		assertEquals(2500, ef.getProd());
-		assertEquals(500, ef.getProdToCons());
-		assertEquals(2000, ef.getProdToGrid());
-
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
 		assertEquals(2500, ef.getEss());
-		assertEquals(-2500, ef.getGridToEss());
-
 		assertEquals(-4500, ef.getGrid());
-		assertEquals(2000, ef.getProdToGrid());
-		assertEquals(-2500, ef.getGridToEss());
-
-		assertEquals(0, ef.getProdToEss());
-		assertEquals(0, ef.getEssToCons());
-		assertEquals(0, ef.getGridToCons());
-	}
-
-	@Test
-	public void testLog() {
-		// No actual test. Would have to mock Logger
-		var m = new EnergyFlow.Model(//
-				/* production */ 2500, //
-				/* consumption */ 500, //
-				/* essMaxCharge */ 5000, //
-				/* essMaxDischarge */ 0, //
-				/* gridMaxBuy */ 4000, //
-				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyBalancing(m, consumption);
-		m.logConstraints();
-		m.logMinMaxValues();
 	}
 }

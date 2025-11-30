@@ -72,14 +72,14 @@ public class CarloGavazziMeter
 		METER_ID(AppDef.componentId("meter0")), //
 		// Properties
 		ALIAS(alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
-				.setRequired(true) //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def//
+				.setRequired(true)//
 				.setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setDefaultValue(6) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setDefaultValue(6)//
 				.setAutoGenerateField(false))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//

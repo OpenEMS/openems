@@ -3,8 +3,8 @@ package io.openems.edge.core.meta.geocoding;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.UrlBuilder;
 
 public class OpenCageGeocodingService {
 

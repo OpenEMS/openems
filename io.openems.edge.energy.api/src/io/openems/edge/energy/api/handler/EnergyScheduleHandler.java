@@ -4,6 +4,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonObject;
 
@@ -11,6 +12,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentModes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -170,13 +172,6 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		}
 
 		/**
-		 * Gets the index of the default Mode.
-		 * 
-		 * @return the index of the default Mode
-		 */
-		public int getDefaultModeIndex();
-
-		/**
 		 * Gets the total number of available modes. This is implemented as
 		 * Array.length.
 		 * 
@@ -191,6 +186,15 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * @return string representation
 		 */
 		public String toModeString(int modeIndex);
+
+		/**
+		 * Generates {@link InitialPopulation} for this
+		 * {@link EnergyScheduleHandler.WithDifferentModes}.
+		 * 
+		 * @param goc the {@link GlobalOptimizationContext}
+		 * @return a List of {@link InitialPopulation}s
+		 */
+		public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc);
 
 		/**
 		 * Simulates a Mode for one Period of a Schedule.

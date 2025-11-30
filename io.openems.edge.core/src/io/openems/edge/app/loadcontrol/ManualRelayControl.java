@@ -85,8 +85,8 @@ public class ManualRelayControl extends
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNEL(AppDef.copyOfGeneric(relayContactDef(1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description")) //
+				.setTranslatedLabelWithAppPrefix(".outputChannel.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description"))//
 				.setRequired(true)), //
 		;
 
@@ -116,7 +116,7 @@ public class ManualRelayControl extends
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);

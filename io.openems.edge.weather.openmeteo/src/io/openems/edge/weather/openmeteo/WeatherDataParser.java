@@ -1,6 +1,7 @@
 package io.openems.edge.weather.openmeteo;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import com.google.gson.JsonObject;
@@ -14,26 +15,26 @@ public interface WeatherDataParser {
 	/**
 	 * Parses quarterly weather data from the given API JSON block.
 	 *
-	 * @param apiBlock     the JSON object containing the API response block
-	 * @param responseZone the original timezone of the API response
-	 * @param targetZone   the target timezone to which all timestamps should be
-	 *                     converted
+	 * @param apiBlock       the JSON object containing the API response block
+	 * @param responseOffset the original timezone offset of the API response
+	 * @param targetZone     the target timezone to which all timestamps should be
+	 *                       converted
 	 * @return a list of {@link QuarterlyWeatherSnapshot} containing parsed weather
 	 *         data
 	 */
-	List<QuarterlyWeatherSnapshot> parseQuarterly(JsonObject apiBlock, ZoneId responseZone, ZoneId targetZone);
+	List<QuarterlyWeatherSnapshot> parseQuarterly(JsonObject apiBlock, ZoneOffset responseOffset, ZoneId targetZone);
 
 	/**
 	 * Parses hourly weather data from the given API JSON block.
 	 *
-	 * @param apiBlock     the JSON object containing the API response block
-	 * @param responseZone the original timezone of the API response
-	 * @param targetZone   the target timezone to which all timestamps should be
-	 *                     converted
+	 * @param apiBlock       the JSON object containing the API response block
+	 * @param responseOffset the original timezone offset of the API response
+	 * @param targetZone     the target timezone to which all timestamps should be
+	 *                       converted
 	 * @return a list of {@link HourlyWeatherSnapshot} containing parsed weather
 	 *         data
 	 */
-	List<HourlyWeatherSnapshot> parseHourly(JsonObject apiBlock, ZoneId responseZone, ZoneId targetZone);
+	List<HourlyWeatherSnapshot> parseHourly(JsonObject apiBlock, ZoneOffset responseOffset, ZoneId targetZone);
 
 	/**
 	 * Parses daily weather data from the given API JSON block.

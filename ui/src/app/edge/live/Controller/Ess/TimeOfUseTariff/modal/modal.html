@@ -3,10 +3,10 @@
     helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF">
     <!-- Discharge State -->
     <oe-modal-line [name]="'GENERAL.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
-    [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
+      [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
     <!-- Price -->
     <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.PRICE' | translate"
-    [value]="priceWithCurrency"></oe-modal-line>
+      [value]="priceWithCurrency"></oe-modal-line>
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <!--Select Mode-->
     <oe-modal-line [name]="'GENERAL.MODE'| translate"></oe-modal-line>
@@ -19,11 +19,11 @@
       @if (formGroup.value.mode === 'AUTOMATIC') {
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
         <oe-modal-info-line
-        [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_TITLE'| translate"></oe-modal-info-line>
+          [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_TITLE'| translate"></oe-modal-info-line>
         <statePriceChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
         </statePriceChart>
         <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_WARNING_NOTE' | translate"
-        style="font-size: small;"></oe-modal-info-line>
+          style="font-size: small;"></oe-modal-info-line>
         @if (edge.roleIsAtLeast('admin')) {
           <oe-modal-horizontal-line></oe-modal-horizontal-line>
           <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.POWER_SOC_CHART_TITLE' | translate">
@@ -49,7 +49,7 @@
       <ng-container style="font-size: smaller">
         @if (formGroup.value.chargeConsumptionIsActive) {
           <span
-          [innerHtml]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CONTROL_MODE_DESCRIPTION.CHARGE_CONSUMPTION' | translate"></span>
+            [innerHtml]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CONTROL_MODE_DESCRIPTION.CHARGE_CONSUMPTION' | translate"></span>
         }
       </ng-container>
     }
