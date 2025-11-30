@@ -1,17 +1,19 @@
 package io.openems.edge.evcs.openwb;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,27 +26,23 @@ import io.openems.common.types.MeterType;
 import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.meter.api.PhaseRotation;
-
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.OpenWB", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, EventHandler, ModbusSlave {
@@ -54,11 +52,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
-
-	private MeterType meterType = null;
-	//private String baseUrl;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
 	private ReadWorker worker = null;
@@ -74,16 +68,15 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
-		
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config)  throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException {
+	protected void activate(ComponentContext context, Config config)
+			throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.meterType = MeterType.CONSUMPTION_METERED;
-		
-		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.port(), config.chargePoint().getValue());
+		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ip()), config.port(),
+				config.chargePoint());
 		this.worker.activate(config.id());
 	}
 
@@ -94,7 +87,6 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		}
 		super.deactivate();
 	}
-	
 
 	@Override
 	public String debugLog() {
@@ -108,14 +100,13 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE: //
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE: //
 			this.worker.triggerNextRun();
 			this.calculateEnergy();
 
 			break;
 		}
 	}
-
 
 	/**
 	 * Calculate the Energy values from ActivePower.
@@ -142,9 +133,8 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return this.meterType;
+		return MeterType.CONSUMPTION_METERED;
 	}
-
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -159,6 +149,4 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	public PhaseRotation getPhaseRotation() {
 		return PhaseRotation.L1_L2_L3;
 	}
-
-
 }

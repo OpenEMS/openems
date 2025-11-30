@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String ipAddress;
+		private String ip;
 		private int port;
 
 		private Builder() {
@@ -19,7 +19,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setIp(String ip) {
-			this.ipAddress = ip;
+			this.ip = ip;
 			return this;
 		}
 
@@ -50,8 +50,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ipAddress() {
-		return this.builder.ipAddress;
+	public String ip() {
+		return this.builder.ip;
 	}
 
 	@Override
@@ -60,8 +60,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public OpenWbEnums.ChargePoint chargePoint() {
-		return OpenWbEnums.ChargePoint.CP0;
+	public ChargePoint chargePoint() {
+		return ChargePoint.CP0;
 	}
-
 }

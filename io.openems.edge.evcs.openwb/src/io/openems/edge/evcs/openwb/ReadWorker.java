@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.openwb;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +11,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -23,12 +24,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.worker.AbstractCycleWorker;
-
-import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.evcs.api.ChargingType;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
-
 
 public class ReadWorker extends AbstractCycleWorker {
 
@@ -36,28 +33,24 @@ public class ReadWorker extends AbstractCycleWorker {
 	private static final String URL_GET_POWERS = "powers";
 	private static final String URL_GET_VOLTAGES = "voltages";
 	private static final String URL_GET_CURRENTS = "currents";
-
 	private static final String URL_GET_CHARGE_STATE = "charge_state";
 	private static final String URL_GET_PLUG_STATE = "plug_state";
 	private static final String URL_IMPORTED = "imported";
 
-
-	private final EvcsOpenWb parent;
+	private final EvcsOpenWbImpl parent;
 	private final String baseUrl;
-	private Integer energyStartSession = null;
-	private Evcs evcs;
-	private ElectricityMeter meter;
 
-	protected ReadWorker(EvcsOpenWbImpl parent, Inet4Address ipAddress, int port, int chargePoint)
+	private Integer energyStartSession = null;
+
+	protected ReadWorker(EvcsOpenWbImpl parent, Inet4Address ip, int port, ChargePoint chargePoint)
 			throws NoSuchAlgorithmException, KeyManagementException {
 		this.parent = parent;
-		this.meter = ((ElectricityMeter) this.parent);
-		this.evcs = ((Evcs) this.parent);
 
-		this.baseUrl = "https://" + ipAddress.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/" + chargePoint + "/get/";
+		this.baseUrl = "https://" + ip.getHostAddress() + ":" + port + "/v1?topic=openWB/internal_chargepoint/"
+				+ chargePoint.value + "/get/";
 		this.energyStartSession = null;
-		
-		this.evcs._setStatus(Status.NOT_READY_FOR_CHARGING);
+
+		parent._setStatus(Status.NOT_READY_FOR_CHARGING);
 
 		/*
 		 * Disable SSL certificate checking
@@ -82,7 +75,9 @@ public class ReadWorker extends AbstractCycleWorker {
 	}
 
 	@Override
-	protected void forever() throws Throwable {
+	protected void forever() {
+		final var openWb = this.parent;
+
 		Integer activePower = null;
 		Integer activePowerL1 = null;
 		Integer activePowerL2 = null;
@@ -93,98 +88,95 @@ public class ReadWorker extends AbstractCycleWorker {
 		Integer currentL1 = null;
 		Integer currentL2 = null;
 		Integer currentL3 = null;
-		Boolean chargeState = null;
-		Boolean plugState = null;
 		Integer energyTotal = null;
+		Integer energySession = null;
+		Status status = null;
 
-		final var communicationError = new AtomicBoolean(false);
+		var communicationError = false;
 
-			try {
+		try {
+			/**
+			 * ElectricityMeter channels.
+			 */
+			var voltageResponse = this.getResponse(URL_GET_VOLTAGES);
+			var voltages = JsonUtils.getAsJsonArray(voltageResponse, "message");
+			voltageL1 = JsonUtils.getAsInt(voltages.get(0)) * 1000;
+			voltageL2 = JsonUtils.getAsInt(voltages.get(1)) * 1000;
+			voltageL3 = JsonUtils.getAsInt(voltages.get(2)) * 1000;
 
-				/**
-				 * ElectricityMeter channels.
-				 *
-				 */
+			var powerResponse = this.getResponse(URL_GET_POWERS);
+			var powers = JsonUtils.getAsJsonArray(powerResponse, "message");
+			activePowerL1 = JsonUtils.getAsInt(powers.get(0));
+			activePowerL2 = JsonUtils.getAsInt(powers.get(1));
+			activePowerL3 = JsonUtils.getAsInt(powers.get(2));
+			activePower = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_GET_POWER), "message"));
 
-				var voltageResponse = this.getResponse(URL_GET_VOLTAGES);
-				var voltages = JsonUtils.getAsJsonArray(voltageResponse, "message");
-				voltageL1 = JsonUtils.getAsInt(voltages.get(0)) * 1000;
-				voltageL2 = JsonUtils.getAsInt(voltages.get(1)) * 1000;
-				voltageL3 = JsonUtils.getAsInt(voltages.get(2)) * 1000;
-				this.meter._setVoltageL1(voltageL1);
-				this.meter._setVoltageL2(voltageL2);
-				this.meter._setVoltageL3(voltageL3);
+			var currentResponse = this.getResponse(URL_GET_CURRENTS);
+			var currents = JsonUtils.getAsJsonArray(currentResponse, "message");
+			currentL1 = JsonUtils.getAsInt(currents.get(0)) * 1000;
+			currentL2 = JsonUtils.getAsInt(currents.get(1)) * 1000;
+			currentL3 = JsonUtils.getAsInt(currents.get(2)) * 1000;
 
-				
-				var powerResponse = this.getResponse(URL_GET_POWERS);
-				var powers = JsonUtils.getAsJsonArray(powerResponse, "message");
-				activePowerL1 = JsonUtils.getAsInt(powers.get(0));
-				activePowerL2 = JsonUtils.getAsInt(powers.get(1));
-				activePowerL3 = JsonUtils.getAsInt(powers.get(2));
-				this.meter._setActivePowerL1(activePowerL1);
-				this.meter._setActivePowerL2(activePowerL2);
-				this.meter._setActivePowerL3(activePowerL3);
+			/**
+			 * EVCS channels.
+			 */
+			openWb._setChargingType(ChargingType.AC);
 
-				
-				activePower = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_GET_POWER), "message"));
-				this.meter._setActivePower(activePower);
-
-				var currentResponse = this.getResponse(URL_GET_CURRENTS);
-				var currents = JsonUtils.getAsJsonArray(currentResponse, "message");
-				currentL1 = JsonUtils.getAsInt(currents.get(0)) * 1000;
-				currentL2 = JsonUtils.getAsInt(currents.get(1)) * 1000;
-				currentL3 = JsonUtils.getAsInt(currents.get(2)) * 1000;
-				this.meter._setCurrentL1(currentL1);
-				this.meter._setCurrentL2(currentL2);
-				this.meter._setCurrentL3(currentL3);
-
-				/**
-				 * EVCS channels.
-				 *
-				 */
-
-				this.evcs._setChargingType(ChargingType.AC);
-
-				/*
-				 * Read total energy from the box
-				 * and calculate session energy
-				 *
-				 */
-				energyTotal = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_IMPORTED), "message"));
-				if (this.energyStartSession != null) { 
-					this.evcs._setEnergySession((int) Math.max(0, energyTotal - this.energyStartSession));					
-				}
-				
-				/*
-				 * There are only two boolean state values
-				 * plug state (unplugged and plugged) and charge state (charging and not charging)
-				 *
-				 */
-
-				plugState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_PLUG_STATE), "message");
-				
-				chargeState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_CHARGE_STATE), "message");
-
-				if (chargeState) {
-					this.evcs._setStatus(Status.CHARGING);
-					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) { //Session starts if plugged in
-						this.energyStartSession = energyTotal;
-					}
-				} else if (plugState) {
-					if (this.evcs.getStatus() == Status.NOT_READY_FOR_CHARGING) { //Session starts if plugged in
-						this.energyStartSession = energyTotal;
-					}
-
-					this.evcs._setStatus(Status.READY_FOR_CHARGING);
-				} else {
-					this.evcs._setStatus(Status.NOT_READY_FOR_CHARGING);
-				}
-								
-			} catch (OpenemsNamedException e) {
-				communicationError.set(true);
+			/*
+			 * Read total energy from the box and calculate session energy
+			 */
+			energyTotal = Math.round(JsonUtils.getAsFloat(this.getResponse(URL_IMPORTED), "message"));
+			if (this.energyStartSession != null) {
+				energySession = (int) Math.max(0, energyTotal - this.energyStartSession);
 			}
 
-		this.parent._setSlaveCommunicationFailed(communicationError.get());
+			/*
+			 * There are only two boolean state values plug state (unplugged and plugged)
+			 * and charge state (charging and not charging)
+			 */
+			var plugState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_PLUG_STATE), "message");
+			var chargeState = JsonUtils.getAsBoolean(this.getResponse(URL_GET_CHARGE_STATE), "message");
+
+			if (chargeState) {
+				status = Status.CHARGING;
+
+				if (openWb.getStatus() == Status.NOT_READY_FOR_CHARGING) { // Session starts if plugged in
+					this.energyStartSession = energyTotal;
+				}
+
+			} else if (plugState) {
+				status = Status.READY_FOR_CHARGING;
+
+				if (openWb.getStatus() == Status.NOT_READY_FOR_CHARGING) { // Session starts if plugged in
+					this.energyStartSession = energyTotal;
+				}
+
+			} else {
+				status = Status.NOT_READY_FOR_CHARGING;
+			}
+
+		} catch (OpenemsNamedException e) {
+			communicationError = true;
+		}
+
+		openWb._setVoltageL1(voltageL1);
+		openWb._setVoltageL2(voltageL2);
+		openWb._setVoltageL3(voltageL3);
+
+		openWb._setActivePower(activePower);
+		openWb._setActivePowerL1(activePowerL1);
+		openWb._setActivePowerL2(activePowerL2);
+		openWb._setActivePowerL3(activePowerL3);
+
+		openWb._setCurrentL1(currentL1);
+		openWb._setCurrentL2(currentL2);
+		openWb._setCurrentL3(currentL3);
+
+		openWb._setStatus(status);
+
+		openWb._setEnergySession(energySession);
+
+		setValue(openWb, EvcsOpenWb.ChannelId.SLAVE_COMMUNICATION_FAILED, communicationError);
 	}
 
 	/**
@@ -207,5 +199,4 @@ public class ReadWorker extends AbstractCycleWorker {
 			throw new OpenemsException(e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
-
 }
