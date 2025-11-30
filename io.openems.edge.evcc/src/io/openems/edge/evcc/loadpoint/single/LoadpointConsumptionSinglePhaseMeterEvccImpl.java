@@ -48,7 +48,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		property = { "type=CONSUMPTION_METERED" } //
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
-public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenemsComponent
+public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edge.evcc.loadpoint.AbstractLoadpointMeterEvcc
 		implements LoadpointConsumptionSinglePhaseMeterEvcc, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
 		TimedataProvider, EventHandler {
 
@@ -128,10 +128,16 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
 		this.phase = config.phase();
+		this.initializeLoadpointReference(config.loadpointTitle(), config.loadpointIndex());
+
 		if (this.isEnabled() && this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
 			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-			var url = config.apiUrl() + "?jq=.loadpoints[" + config.loadpointIndex() + "]";
+
+			// Build JQ filter: try to match by title first, fallback to index
+			var jqFilter = this.buildLoadpointFilter(config.loadpointTitle(), config.loadpointIndex());
+			var url = config.apiUrl() + "?jq=" + jqFilter;
+			this.logInfo(this.log, "Subscribing to loadpoint with filter: " + jqFilter);
 			this.cycleService.subscribeJsonEveryCycle(url, this::processHttpResult);
 		}
 
@@ -169,6 +175,9 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractOpenem
 		try {
 			this.logDebug(this.log, "processHttpResult");
 			var lp = getAsJsonObject(result.data());
+
+			// Check if we got the expected loadpoint and warn if fallback was used
+			this.checkLoadpointMatch(lp, this.log);
 
 			int chargePower = 0;
 			if (lp.has("chargePower")) {
