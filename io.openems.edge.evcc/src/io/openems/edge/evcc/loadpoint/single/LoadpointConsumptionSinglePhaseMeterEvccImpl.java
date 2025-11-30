@@ -27,6 +27,7 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -136,7 +137,9 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 
 			// Build JQ filter: try to match by title first, fallback to index
 			var jqFilter = this.buildLoadpointFilter(config.loadpointTitle(), config.loadpointIndex());
-			var url = config.apiUrl() + "?jq=" + jqFilter;
+			var url = UrlBuilder.parse(config.apiUrl()) //
+					.withQueryParam("jq", jqFilter) //
+					.toEncodedString();
 			this.logInfo(this.log, "Subscribing to loadpoint with filter: " + jqFilter);
 			this.cycleService.subscribeJsonEveryCycle(url, this::processHttpResult);
 		}
@@ -204,7 +207,8 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY)
 					.setNextValue(sessionEnergy);
 
-			if (lp.has("chargeVoltages") && lp.get("chargeVoltages").isJsonArray()) {
+			if (lp.has("chargeVoltages") && !lp.get("chargeVoltages").isJsonNull()
+				&& lp.get("chargeVoltages").isJsonArray()) {
 				var voltages = lp.getAsJsonArray("chargeVoltages");
 
 				if (voltages.size() > 0 && voltages.get(0) != null && !voltages.get(0).isJsonNull()) {
@@ -224,7 +228,8 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 				this._setVoltage(230 * 1000);
 			}
 
-			if (lp.has("chargeCurrents") && lp.get("chargeCurrents").isJsonArray()) {
+			if (lp.has("chargeCurrents") && !lp.get("chargeCurrents").isJsonNull()
+					&& lp.get("chargeCurrents").isJsonArray()) {
 				var currents = lp.getAsJsonArray("chargeCurrents");
 
 				if (currents.size() > 0 && currents.get(0) != null && !currents.get(0).isJsonNull()) {
