@@ -4,14 +4,20 @@ import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridg
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Status.CHARGING;
 import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collections;
 
 import org.junit.Test;
+import org.osgi.service.event.Event;
 
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
@@ -50,7 +56,7 @@ public class EvcsHardyBarthImplTest {
 						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CONTACTOR, "closed") //
 						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_PWM, "10.00") //
 						.output(EvcsHardyBarth.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, "C") //
-						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE, "manual") //
+						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE, "power") //
 						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_CHANGE_METER, null) //
 						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_AUTHMODE, "free") //
 						.output(EvcsHardyBarth.ChannelId.RAW_SALIA_FIRMWARESTATE, "idle") //
@@ -115,6 +121,48 @@ public class EvcsHardyBarthImplTest {
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 215_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 214_600) //
 				);
+	}
+
+	@Test
+	public void testSetManualMode() throws Exception {
+		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var phaseRotation = L2_L3_L1;
+		final var cycleSub = new DummyCycleSubscriber();
+		var sut = new EvcsHardyBarthImpl();
+		var test = new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition", new HttpBridgeCycleServiceDefinition(cycleSub))
+				.activate(MyConfig.create() //
+						.setId("evcs0") //
+						.setIp("192.168.8.101") //
+						.setMaxHwCurrent(32_000) //
+						.setMinHwCurrent(6_000) //
+						.setPhaseRotation(phaseRotation) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+		var ru = ReflectionUtils.<HardyBarthReadUtils>getValueViaReflection(sut, "readUtils");
+		var expect = httpTestBundle.expect("http://192.168.8.101/api")//
+				.toBeCalled();
+
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> {
+					ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation);
+					httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("ok"));
+				}));
+		cycleSub.handleEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, Collections.emptyMap()));
+		assertTrue(expect.get());
+		expect = httpTestBundle.expect(t -> {
+			// is chargemode set to manual
+			return t.body().equals("{\"salia/chargemode\":\"manual\"}");
+		}).toBeCalled();
+
+		test.next(new TestCase() //
+				.onBeforeProcessImage(() -> {
+					ru.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation);
+					httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("ok"));
+				})).next(new TestCase()); //
+		assertTrue(expect.get());
+
 	}
 
 	@Test
@@ -218,7 +266,7 @@ public class EvcsHardyBarthImplTest {
 			            }
 			         },
 			         "salia":{
-			            "chargemode":"manual",
+			            "chargemode":"power",
 			            "thermal":"52893",
 			            "mem":"392276",
 			            "uptime":" 1:04",

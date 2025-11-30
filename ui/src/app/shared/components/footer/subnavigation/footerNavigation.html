@@ -1,12 +1,13 @@
-<ion-footer>
+<ion-footer style="position: fixed; bottom: 0">
   <ion-item #container lines="none" style="font-size: inherit;" style="--background: var(--ion-color-toolbar-primary);"
     color="secondary">
     <ion-grid style="padding-top: 0;" class="ion-padding-bottom">
       <ion-row class="ion-justify-content-center" style="padding-top: 0; padding-bottom: 0;">
         @if (backButton) {
           <ion-col style="text-align: center;" #myIonCol>
-            <ion-button color="primary" (click)="location.back()">
-              <ion-icon name="arrow-back-outline"></ion-icon>
+            <ion-button color="primary" (click)="location.back()" class="ion-custom-padding">
+              <ng-content>{{ 'GENERAL.BACK' | translate }}</ng-content>
+              <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
             </ion-button>
           </ion-col>
         }
@@ -17,13 +18,13 @@
               <ion-col #buttonCol [size-lg]="popoverButtons.length > 0 ? '11':'12'"
                 [size-md]="popoverButtons.length > 0 ? '8':'4'" [size-sm]="popoverButtons.length > 0 ? '6':'6'">
                 @for (button of (buttons); track button) {
-                  <ion-button style="--border-color:white;" id="{{button.id}}"
+                  <ion-button class="ion-custom-padding" style="--border-color:white;" id="{{button.id}}"
                     (click)="button.callback()" #subnavigationbuttons>
                     {{button.alias ?? button.id}}
                   </ion-button>
                 }
                 @if (popoverButtons.length > 0) {
-                  <ion-button (click)="this.showPopover = true;" #popoverButtons>
+                  <ion-button (click)="this.showPopover = true;" class="ion-custom-padding" #popoverButtons>
                     ...
                   </ion-button>
                 }
