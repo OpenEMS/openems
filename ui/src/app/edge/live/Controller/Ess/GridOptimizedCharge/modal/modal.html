@@ -68,7 +68,7 @@
                   <ion-item button="true" id="open-date-input">
                     <ion-label>
                       {{ this.formGroup.controls["manualTargetTime"].value.match("/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/")
-                      ? (this.formGroup.controls["manualTargetTime"].value | date:"HH:mm") 
+                      ? (this.formGroup.controls["manualTargetTime"].value | date:"HH:mm")
                       : this.formGroup.controls["manualTargetTime"].value}}
                     </ion-label>
                     <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
@@ -105,9 +105,9 @@
           [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC'| translate},{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC_WITHOUT_SELL_TO_GRID_LIMIT'| translate, lineStyle:'color: #666666'}]">
         </oe-modal-info-line>
         <!-- Chart -->
-        <predictionchart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
+        <oe-controller-ess-gridoptimizedcharge-prediction-chart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
           [targetEpochSeconds]="targetEpochSeconds" [chargeStartEpochSeconds]="chargeStartEpochSeconds">
-        </predictionchart>
+        </oe-controller-ess-gridoptimizedcharge-prediction-chart>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
       </ng-container>
       <!--Risk propensity-->

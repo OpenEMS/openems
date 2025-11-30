@@ -1,8 +1,7 @@
 @if (isInitialized && isMeterAsymmetric !== null) {
   <oe-chart [title]="component.alias +  '&nbsp;-&nbsp;' + ('EDGE.HISTORY.CURRENT_AND_VOLTAGE' | translate)"
     [showPhases]="showPhases" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
-    (setShowPhases)="setShowPhases($event)"
-    [period]="service.historyPeriod.value">
+    (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod.value">
     <pickdate custom-pickdate [historyPeriods]="['day', 'week']"></pickdate>
     @if (isMeterAsymmetric) {
       <currentVoltageAsymmetricChart [isOnlyChart]="true"></currentVoltageAsymmetricChart>
@@ -10,8 +9,6 @@
     @if (!isMeterAsymmetric) {
       <currentVoltageChart [isOnlyChart]="true"></currentVoltageChart>
     }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
   </oe-chart>
-}
-@if (isInitialized) {
-  <oe-footer-subnavigation [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
 }

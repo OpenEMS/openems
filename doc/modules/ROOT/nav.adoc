@@ -17,6 +17,7 @@
 *** xref:edge/deploy/docker.adoc[Deploy to Docker]
 
 * OpenEMS UI
+** xref:ui/deploy.adoc[Deploy UI to Docker]
 ** xref:ui/setup-ide.adoc[Setup IDE]
 ** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]

@@ -65,7 +65,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 	public static enum Property implements Type<Property, FeneconHome15, BundleParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //

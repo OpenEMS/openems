@@ -22,8 +22,10 @@ FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
 
 ARG JAVA_VERSION
 
-RUN wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk && \
-    echo 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
+RUN mkdir -p /etc/apk/keys && \
+    wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk && \
+    touch /etc/apk/repositories && \
+    printf '%s\n' 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
 
 RUN apk add --update --no-cache \
     temurin-${JAVA_VERSION}-jre rsync dos2unix
