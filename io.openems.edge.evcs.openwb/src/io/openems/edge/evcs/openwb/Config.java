@@ -7,7 +7,7 @@ import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(//
 		name = "EVCS OpenWB", //
-		description = "Implements the evcs component for OpenWB Series2 with internal chargepoints via HTTP API")
+		description = "Implements the EVCS component for OpenWB Series2 with internal chargepoints via MQTT")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -19,13 +19,16 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station", required = true)
-	String ip();
+	@AttributeDefinition(name = "MQTT URI", description = "The URI of the OpenWB MQTT broker (e.g., tcp://192.168.1.25:1883)", required = true)
+	String mqttUri() default "tcp://192.168.1.25:1883";
 
-	@AttributeDefinition(name = "Port", description = "Port of the charging station")
-	int port() default 8443;
+	@AttributeDefinition(name = "MQTT Username", description = "Username for MQTT authentication (leave empty if not required)")
+	String mqttUsername() default "";
 
-	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint")
+	@AttributeDefinition(name = "MQTT Password", description = "Password for MQTT authentication (leave empty if not required)")
+	String mqttPassword() default "";
+
+	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint (duo_num)")
 	ChargePoint chargePoint() default ChargePoint.CP0;
 
 	@AttributeDefinition(name = "Phase rotation", description = "The way in which the phases are physically rotated.")

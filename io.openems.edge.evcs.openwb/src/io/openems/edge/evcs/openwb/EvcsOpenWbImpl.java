@@ -1,40 +1,34 @@
 package io.openems.edge.evcs.openwb;
 
-import static io.openems.common.utils.JsonUtils.getAsBoolean;
-import static io.openems.common.utils.JsonUtils.getAsFloat;
-import static io.openems.common.utils.JsonUtils.getAsInt;
-import static io.openems.common.utils.JsonUtils.getAsJsonArray;
-import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
+import java.nio.charset.StandardCharsets;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
+import org.eclipse.paho.mqttv5.client.IMqttClient;
+import org.eclipse.paho.mqttv5.client.MqttCallback;
+import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
+import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
+import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.InetAddressUtils;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -54,30 +48,23 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		immediate = true, //
 		configurationPolicy = REQUIRE)
 public class EvcsOpenWbImpl extends AbstractOpenemsComponent
-		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, ModbusSlave {
+		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, ModbusSlave, MqttCallback {
 
-	private static final String URL_GET_POWER = "power";
-	private static final String URL_GET_POWERS = "powers";
-	private static final String URL_GET_VOLTAGES = "voltages";
-	private static final String URL_GET_CURRENTS = "currents";
-	private static final String URL_GET_CHARGE_STATE = "charge_state";
-	private static final String URL_GET_PLUG_STATE = "plug_state";
-	private static final String URL_IMPORTED = "imported";
+	private final Logger log = LoggerFactory.getLogger(EvcsOpenWbImpl.class);
+
+	private static final String TOPIC_PREFIX = "openWB/internal_chargepoint/";
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
-	@Reference
-	private BridgeHttpFactory httpBridgeFactory;
-	@Reference
-	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
-
-	private BridgeHttp httpBridge;
-	private HttpBridgeCycleService cycleService;
-
 	private Config config;
-	private String baseUrl;
+	private IMqttClient mqttClient;
+	private String topicPrefix;
 	private Integer energyStartSession = null;
+
+	// State tracking for status calculation
+	private Boolean lastPlugState = null;
+	private Boolean lastChargeState = null;
 
 	public EvcsOpenWbImpl() {
 		super(//
@@ -93,201 +80,176 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config)
-			throws KeyManagementException, NoSuchAlgorithmException, OpenemsException {
+	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 
-		var ip = InetAddressUtils.parseOrError(config.ip());
-		this.baseUrl = "https://" + ip.getHostAddress() + ":" + config.port() + "/v1?topic=openWB/internal_chargepoint/"
-				+ config.chargePoint().value + "/get/";
+		this.topicPrefix = TOPIC_PREFIX + config.chargePoint().value + "/get/";
 
 		this._setStatus(Status.NOT_READY_FOR_CHARGING);
 		this._setChargingType(ChargingType.AC);
 
-		this.setupSslTrustAll();
-
-		this.httpBridge = this.httpBridgeFactory.get();
-		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-
-		this.subscribeToEndpoints();
+		if (config.enabled()) {
+			this.connectMqtt();
+		}
 	}
 
 	/**
-	 * Disables SSL certificate checking for HTTPS connections. OpenWB Series 2 uses
-	 * self-signed certificates.
+	 * Connects to the OpenWB MQTT broker and subscribes to relevant topics.
 	 */
-	private void setupSslTrustAll() throws NoSuchAlgorithmException, KeyManagementException {
-		var sslContext = SSLContext.getInstance("TLSv1.2");
-		TrustManager[] trustManager = { new X509TrustManager() {
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return new X509Certificate[0];
+	private void connectMqtt() {
+		try {
+			this.mqttClient = new MqttClient(this.config.mqttUri(),
+					this.config.id() + "_" + System.currentTimeMillis());
+			this.mqttClient.setCallback(this);
+
+			var options = new MqttConnectionOptions();
+			options.setAutomaticReconnect(true);
+			options.setCleanStart(true);
+			options.setConnectionTimeout(10);
+
+			if (this.config.mqttUsername() != null && !this.config.mqttUsername().isBlank()) {
+				options.setUserName(this.config.mqttUsername());
+				if (this.config.mqttPassword() != null && !this.config.mqttPassword().isBlank()) {
+					options.setPassword(this.config.mqttPassword().getBytes(StandardCharsets.UTF_8));
+				}
 			}
 
-			@Override
-			public void checkClientTrusted(X509Certificate[] certificate, String str) {
-			}
+			this.mqttClient.connect(options);
+			this.logInfo(this.log, "Connected to OpenWB MQTT broker: " + this.config.mqttUri());
 
-			@Override
-			public void checkServerTrusted(X509Certificate[] certificate, String str) {
+			// Subscribe to all relevant topics with wildcard
+			var subscribeTopicPattern = this.topicPrefix + "#";
+			this.mqttClient.subscribe(subscribeTopicPattern, 1);
+			this.logInfo(this.log, "Subscribed to: " + subscribeTopicPattern);
+
+			this._setSlaveCommunicationFailed(false);
+
+		} catch (MqttException e) {
+			this.logError(this.log, "Failed to connect to MQTT broker: " + e.getMessage());
+			this._setSlaveCommunicationFailed(true);
+		}
+	}
+
+	@Deactivate
+	protected void deactivate() {
+		if (this.mqttClient != null) {
+			try {
+				if (this.mqttClient.isConnected()) {
+					this.mqttClient.disconnect();
+				}
+				this.mqttClient.close();
+			} catch (MqttException e) {
+				this.logWarn(this.log, "Error closing MQTT connection: " + e.getMessage());
 			}
-		} };
-		sslContext.init(null, trustManager, new SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+			this.mqttClient = null;
+		}
+		super.deactivate();
+	}
+
+	@Override
+	public void messageArrived(String topic, MqttMessage message) throws Exception {
+		var payload = new String(message.getPayload(), StandardCharsets.UTF_8);
+
+		try {
+			var json = JsonParser.parseString(payload);
+			this.handleMessage(topic, json);
+			this._setSlaveCommunicationFailed(false);
+		} catch (Exception e) {
+			this.logWarn(this.log, "Failed to parse MQTT message on topic " + topic + ": " + e.getMessage());
+		}
 	}
 
 	/**
-	 * Subscribes to all OpenWB API endpoints.
+	 * Handles an incoming MQTT message.
+	 *
+	 * @param topic the MQTT topic
+	 * @param json  the parsed JSON payload
 	 */
-	private void subscribeToEndpoints() {
-		// Voltages
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_VOLTAGES, //
-				response -> this.handleVoltagesResponse(response.data()), //
-				error -> this.handleError());
+	private void handleMessage(String topic, JsonElement json) {
+		// Extract the subtopic (e.g., "voltages", "currents", etc.)
+		var subtopic = topic.replace(this.topicPrefix, "");
 
-		// Powers
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_POWERS, //
-				response -> this.handlePowersResponse(response.data()), //
-				error -> this.handleError());
-
-		// Total Power
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_POWER, //
-				response -> this.handlePowerResponse(response.data()), //
-				error -> this.handleError());
-
-		// Currents
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_CURRENTS, //
-				response -> this.handleCurrentsResponse(response.data()), //
-				error -> this.handleError());
-
-		// Imported (Energy)
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_IMPORTED, //
-				response -> this.handleImportedResponse(response.data()), //
-				error -> this.handleError());
-
-		// Plug State
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_PLUG_STATE, //
-				response -> this.handlePlugStateResponse(response.data()), //
-				error -> this.handleError());
-
-		// Charge State
-		this.cycleService.subscribeEveryCycle(//
-				this.baseUrl + URL_GET_CHARGE_STATE, //
-				response -> this.handleChargeStateResponse(response.data()), //
-				error -> this.handleError());
-	}
-
-	private void handleVoltagesResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			var voltages = getAsJsonArray(json, "message");
-			this._setVoltageL1(getAsInt(voltages.get(0)) * 1000);
-			this._setVoltageL2(getAsInt(voltages.get(1)) * 1000);
-			this._setVoltageL3(getAsInt(voltages.get(2)) * 1000);
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.resetVoltages();
-			this._setSlaveCommunicationFailed(true);
+		switch (subtopic) {
+		case "voltages" -> this.handleVoltages(json);
+		case "currents" -> this.handleCurrents(json);
+		case "power" -> this.handlePower(json);
+		case "powers" -> this.handlePowers(json);
+		case "imported" -> this.handleImported(json);
+		case "plug_state" -> this.handlePlugState(json);
+		case "charge_state" -> this.handleChargeState(json);
+		case "phases_in_use" -> this.handlePhasesInUse(json);
+		case "fault_state" -> this.handleFaultState(json);
+		default -> {
+			// Ignore other topics
+		}
 		}
 	}
 
-	private void handlePowersResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			var powers = getAsJsonArray(json, "message");
-			this._setActivePowerL1(getAsInt(powers.get(0)));
-			this._setActivePowerL2(getAsInt(powers.get(1)));
-			this._setActivePowerL3(getAsInt(powers.get(2)));
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.resetPowers();
-			this._setSlaveCommunicationFailed(true);
+	private void handleVoltages(JsonElement json) {
+		if (json.isJsonArray()) {
+			var arr = json.getAsJsonArray();
+			this._setVoltageL1(Math.round(arr.get(0).getAsFloat() * 1000)); // V -> mV
+			this._setVoltageL2(Math.round(arr.get(1).getAsFloat() * 1000));
+			this._setVoltageL3(Math.round(arr.get(2).getAsFloat() * 1000));
 		}
 	}
 
-	private void handlePowerResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			this._setActivePower(Math.round(getAsFloat(json, "message")));
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this._setActivePower(null);
-			this._setSlaveCommunicationFailed(true);
+	private void handleCurrents(JsonElement json) {
+		if (json.isJsonArray()) {
+			var arr = json.getAsJsonArray();
+			this._setCurrentL1(Math.round(arr.get(0).getAsFloat() * 1000)); // A -> mA
+			this._setCurrentL2(Math.round(arr.get(1).getAsFloat() * 1000));
+			this._setCurrentL3(Math.round(arr.get(2).getAsFloat() * 1000));
 		}
 	}
 
-	private void handleCurrentsResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			var currents = getAsJsonArray(json, "message");
-			this._setCurrentL1(getAsInt(currents.get(0)) * 1000);
-			this._setCurrentL2(getAsInt(currents.get(1)) * 1000);
-			this._setCurrentL3(getAsInt(currents.get(2)) * 1000);
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.resetCurrents();
-			this._setSlaveCommunicationFailed(true);
+	private void handlePower(JsonElement json) {
+		this._setActivePower(Math.round(json.getAsFloat()));
+	}
+
+	private void handlePowers(JsonElement json) {
+		if (json.isJsonArray()) {
+			var arr = json.getAsJsonArray();
+			this._setActivePowerL1(Math.round(arr.get(0).getAsFloat()));
+			this._setActivePowerL2(Math.round(arr.get(1).getAsFloat()));
+			this._setActivePowerL3(Math.round(arr.get(2).getAsFloat()));
 		}
 	}
 
-	private void handleImportedResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			var energyTotal = Math.round(getAsFloat(json, "message"));
+	private void handleImported(JsonElement json) {
+		var energyTotal = Math.round(json.getAsFloat());
 
-			// Set energy channels directly from OpenWB readings
-			// EVCS only consumes energy, so production is always 0
-			this._setActiveProductionEnergy(0L);
-			this._setActiveConsumptionEnergy(energyTotal);
+		// Set energy channels directly from OpenWB readings
+		// EVCS only consumes energy, so production is always 0
+		this._setActiveProductionEnergy(0L);
+		this._setActiveConsumptionEnergy(energyTotal);
 
-			// Calculate session energy
-			if (this.energyStartSession != null) {
-				var energySession = (int) Math.max(0, energyTotal - this.energyStartSession);
-				this._setEnergySession(energySession);
-			}
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this._setActiveProductionEnergy(null);
-			this._setActiveConsumptionEnergy(null);
-			this._setEnergySession(null);
-			this._setSlaveCommunicationFailed(true);
+		// Calculate session energy
+		if (this.energyStartSession != null) {
+			var energySession = (int) Math.max(0, energyTotal - this.energyStartSession);
+			this._setEnergySession(energySession);
 		}
 	}
 
-	// Keep track of plug/charge states to determine status
-	private Boolean lastPlugState = null;
-	private Boolean lastChargeState = null;
-
-	private void handlePlugStateResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			this.lastPlugState = getAsBoolean(json, "message");
-			this.updateStatus();
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.lastPlugState = null;
-			this._setStatus(null);
-			this._setSlaveCommunicationFailed(true);
-		}
+	private void handlePlugState(JsonElement json) {
+		this.lastPlugState = json.getAsBoolean();
+		this.updateStatus();
 	}
 
-	private void handleChargeStateResponse(String data) {
-		try {
-			var json = parseToJsonObject(data);
-			this.lastChargeState = getAsBoolean(json, "message");
-			this.updateStatus();
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.lastChargeState = null;
-			this._setStatus(null);
+	private void handleChargeState(JsonElement json) {
+		this.lastChargeState = json.getAsBoolean();
+		this.updateStatus();
+	}
+
+	private void handlePhasesInUse(JsonElement json) {
+		this._setPhases(json.getAsInt());
+	}
+
+	private void handleFaultState(JsonElement json) {
+		var faultState = json.getAsInt();
+		// 0: No error, 1: Warning, 2: Error
+		if (faultState >= 2) {
 			this._setSlaveCommunicationFailed(true);
 		}
 	}
@@ -306,13 +268,11 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		if (this.lastChargeState) {
 			newStatus = Status.CHARGING;
 			if (previousStatus == Status.NOT_READY_FOR_CHARGING) {
-				// Session starts when plugged in and charging
 				this.startNewSession();
 			}
 		} else if (this.lastPlugState) {
 			newStatus = Status.READY_FOR_CHARGING;
 			if (previousStatus == Status.NOT_READY_FOR_CHARGING) {
-				// Session starts when plugged in
 				this.startNewSession();
 			}
 		} else {
@@ -326,56 +286,49 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	 * Starts a new charging session by recording the current energy total.
 	 */
 	private void startNewSession() {
-		// Get current energy total from the imported response
-		// This will be set when the next imported response comes in
-		try {
-			var response = this.httpBridge.get(this.baseUrl + URL_IMPORTED).get();
-			var json = parseToJsonObject(response.data());
-			this.energyStartSession = Math.round(getAsFloat(json, "message"));
-		} catch (Exception e) {
-			// Will be set on next cycle
+		var consumptionEnergy = this.getActiveConsumptionEnergy().get();
+		if (consumptionEnergy != null) {
+			this.energyStartSession = consumptionEnergy.intValue();
 		}
 	}
 
-	private void handleError() {
+	// MqttCallback implementations
+
+	@Override
+	public void disconnected(MqttDisconnectResponse disconnectResponse) {
+		this.logWarn(this.log, "Disconnected from MQTT broker: " + disconnectResponse.getReasonString());
 		this._setSlaveCommunicationFailed(true);
-		this.resetAllChannels();
 	}
 
-	private void resetVoltages() {
-		this._setVoltageL1(null);
-		this._setVoltageL2(null);
-		this._setVoltageL3(null);
+	@Override
+	public void mqttErrorOccurred(MqttException exception) {
+		this.logError(this.log, "MQTT error: " + exception.getMessage());
+		this._setSlaveCommunicationFailed(true);
 	}
 
-	private void resetPowers() {
-		this._setActivePowerL1(null);
-		this._setActivePowerL2(null);
-		this._setActivePowerL3(null);
+	@Override
+	public void deliveryComplete(org.eclipse.paho.mqttv5.client.IMqttToken token) {
+		// Not used for subscriptions
 	}
 
-	private void resetCurrents() {
-		this._setCurrentL1(null);
-		this._setCurrentL2(null);
-		this._setCurrentL3(null);
+	@Override
+	public void connectComplete(boolean reconnect, String serverURI) {
+		if (reconnect) {
+			this.logInfo(this.log, "Reconnected to MQTT broker: " + serverURI);
+			// Re-subscribe after reconnection
+			try {
+				var subscribeTopicPattern = this.topicPrefix + "#";
+				this.mqttClient.subscribe(subscribeTopicPattern, 1);
+			} catch (MqttException e) {
+				this.logError(this.log, "Failed to re-subscribe after reconnection: " + e.getMessage());
+			}
+		}
+		this._setSlaveCommunicationFailed(false);
 	}
 
-	private void resetAllChannels() {
-		this.resetVoltages();
-		this.resetPowers();
-		this.resetCurrents();
-		this._setActivePower(null);
-		this._setActiveProductionEnergy(null);
-		this._setActiveConsumptionEnergy(null);
-		this._setStatus(null);
-		this._setEnergySession(null);
-	}
-
-	@Deactivate
-	protected void deactivate() {
-		this.httpBridgeFactory.unget(this.httpBridge);
-		this.httpBridge = null;
-		super.deactivate();
+	@Override
+	public void authPacketArrived(int reasonCode, MqttProperties properties) {
+		// Not used
 	}
 
 	@Override
