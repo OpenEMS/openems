@@ -1,8 +1,6 @@
 @if (isInitialized && component) {
-  <oe-chart [title]="component.alias" >
+  <oe-chart [title]="component.alias">
     <detailChart [isOnlyChart]="true"></detailChart>
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
   </oe-chart>
-}
-@if (isInitialized) {
-  <oe-footer-subnavigation [backButton]="true" [navigationOptions]="[]"></oe-footer-subnavigation>
 }
