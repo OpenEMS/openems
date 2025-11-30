@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -29,6 +29,7 @@ import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
 import { ObjectUtils } from "../../utils/object/object.utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
+import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { ViewUtils } from "../navigation/view/shared/shared";
 import { Converter } from "../shared/converter";
@@ -55,6 +56,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     @Input() public isOnlyChart: boolean = false;
     @Input() public xAxisScalingType: XAxisType = XAxisType.TIMESERIES;
     @Output() public setChartConfig: EventEmitter<ChartTypes.ChartConfig> = new EventEmitter();
+    @ViewChild(FooterNavigationComponent, { static: true })
+    public footerNavigation: FooterNavigationComponent;
 
     public edge: Edge | null = null;
     public loading: boolean = true;
