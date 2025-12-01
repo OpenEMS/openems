@@ -54,7 +54,9 @@ public abstract class AbstractLoadpointMeterEvcc extends AbstractOpenemsComponen
 		if (title != null && !title.trim().isEmpty()) {
 			// Use title with index as fallback
 			// JQ: (.loadpoints[] | select(.title == "Carport")) // .loadpoints[0]
-			return "(.loadpoints[] | select(.title == \"" + title.trim() + "\")) // .loadpoints[" + index + "]";
+			// Escape special characters for JQ string literal
+			var escapedTitle = title.trim().replace("\\", "\\\\").replace("\"", "\\\"");
+			return "(.loadpoints[] | select(.title == \"" + escapedTitle + "\")) // .loadpoints[" + index + "]";
 		}
 		// Use index only
 		return ".loadpoints[" + index + "]";
