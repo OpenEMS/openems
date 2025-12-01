@@ -23,7 +23,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     private unitpipe: UnitvaluePipe;
     private subShow?: Subscription;
     private sellAnimationClass: string = "grid-sell-hide";
-    private buyAnimationClass: string = "grid-buy-hide"
+    private buyAnimationClass: string = "grid-buy-hide";
 
     constructor(
         translate: TranslateService,
