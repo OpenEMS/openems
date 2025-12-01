@@ -40,11 +40,11 @@ import io.openems.edge.victron.enums.VeBusState;
 
 /**
  *
- * <p>This interface defines all channels for the Victron Energy Storage System
+ * This interface defines all channels for the Victron Energy Storage System
  * connected via Modbus to GX. It supports both single-phase
  * and three-phase configurations.
  *
- * <p>Modbus registers are based on Victron´s Modbus-TCP documentation.
+ * <p>Modbus registers are based on VictronÂ´s Modbus-TCP documentation.
  *
  * @see <a href="https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX Modbus-TCP list</a>
  */
