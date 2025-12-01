@@ -13,7 +13,7 @@
             </svg:linearGradient>
             </svg:defs>
             <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
-            <svg:polygon [class]="getAnimationClass()" [attr.points]="energyFlow.animationPoints"
+            <svg:polygon [class]="consumptionAnimationClass" [attr.points]="energyFlow.animationPoints"
               style="fill: var(--ion-item-background)" />
             </svg:g>
           }

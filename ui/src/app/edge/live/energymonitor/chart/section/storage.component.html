@@ -15,13 +15,13 @@
     <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
     @if (chargeAnimationTrigger) {
       <ng-container>
-        <svg:polygon [class]="getChargeAnimationClass()" [attr.points]="energyFlow.animationPoints"
+        <svg:polygon [class]="chargeAnimationClass" [attr.points]="energyFlow.animationPoints"
           style="fill: var(--ion-item-background)" />
       </ng-container>
     }
     @if (dischargeAnimationTrigger) {
       <ng-container>
-        <svg:polygon [class]="getDischargeAnimationClass()" [attr.points]="energyFlow.animationPoints"
+        <svg:polygon [class]="dischargeAnimationClass" [attr.points]="energyFlow.animationPoints"
           style="fill: var(--ion-item-background)" />
       </ng-container>
     }

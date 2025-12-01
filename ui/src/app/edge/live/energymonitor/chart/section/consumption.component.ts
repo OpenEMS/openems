@@ -17,8 +17,7 @@ import { AnimationService } from "./animation.service";
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    private showAnimation: boolean = false;
-    // animation variable to stop animation on destroy
+    private consumptionAnimationClass: string = "consumption-hide";
     private subShow?: Subscription;
 
     constructor(
@@ -34,12 +33,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showAnimation = !show;
+            this.consumptionAnimationClass = show ? "consumption-hide" : "consumption-show";
         });
-    }
-
-    getAnimationClass(): string {
-        return this.showAnimation ? "consumption-show" : "consumption-hide";
     }
 
     ngOnDestroy() {

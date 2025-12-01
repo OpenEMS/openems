@@ -21,10 +21,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     public sellAnimationTrigger: boolean = false;
 
     private unitpipe: UnitvaluePipe;
-    // animation variable to stop animation on destroy
     private subShow?: Subscription;
-    private showBuyAnimation = false;
-    private showSellAnimation = false;
+    private sellAnimationClass: string = "grid-sell-hide";
+    private buyAnimationClass: string = "grid-buy-hide"
 
     constructor(
         translate: TranslateService,
@@ -67,21 +66,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showBuyAnimation = show;
-            this.showSellAnimation = !show;
+            this.buyAnimationClass = show ? "grid-buy-show" : "grid-buy-hide";
+            this.sellAnimationClass = show ? "grid-sell-hide" : "grid-sell-show";
         });
     }
 
     ngOnDestroy() {
         this.subShow?.unsubscribe();
-    }
-
-    getBuyAnimationClass(): string {
-        return this.showBuyAnimation ? "grid-buy-show" : "grid-buy-hide";
-    }
-
-    getSellAnimationClass(): string {
-        return this.showSellAnimation ? "grid-sell-show" : "grid-sell-hide";
     }
 
     toggleBuyAnimation() {

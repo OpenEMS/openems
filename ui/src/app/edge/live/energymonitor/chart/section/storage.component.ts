@@ -24,10 +24,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     protected socPercentageYPosition: number | null = null;
     private socValue: number;
     private unitpipe: UnitvaluePipe;
-    // animation variable to stop animation on destroy
-    private subShow: Subscription;
-    private showChargeAnimation: boolean = false;
-    private showDischargeAnimation: boolean = false;
+    private subShow?: Subscription;
+    private chargeAnimationClass: string = "storage-charge-hide";
+    private dischargeAnimationClass: string = "storage-discharge-hide";
 
     constructor(
         translate: TranslateService,
@@ -42,21 +41,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showChargeAnimation = !show;
-            this.showDischargeAnimation = show;
+            this.chargeAnimationClass = show ? "storage-charge-hide" : "storage-charge-show";
+            this.dischargeAnimationClass = show ? "storage-discharge-show" : "storage-discharge-hide";
         });
     }
 
     ngOnDestroy() {
         this.subShow?.unsubscribe();
-    }
-
-    getChargeAnimationClass(): string {
-        return this.showChargeAnimation ? "storage-charge-show" : "storage-charge-hide";
-    }
-
-    getDischargeAnimationClass(): string {
-        return this.showDischargeAnimation ? "storage-discharge-show" : "storage-discharge-hide";
     }
 
     toggleCharge() {

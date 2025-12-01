@@ -17,9 +17,8 @@ import { AnimationService } from "./animation.service";
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    // animation variable to stop animation on destroy
-    private subShow: Subscription;
-    private showAnimation: boolean = false;
+    private subShow?: Subscription;
+    private productionAnimationClass: string = "production-hide";
     private animationTrigger: boolean = false;
 
     constructor(
@@ -35,16 +34,12 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     ngOnInit() {
         this.adjustFillRefbyBrowser();
         this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
-            this.showAnimation = show;
+            this.productionAnimationClass = show ? "production-show" : "production-hide";
         });
     }
 
     ngOnDestroy() {
         this.subShow?.unsubscribe();
-    }
-
-    getAnimationClass(): string {
-        return this.showAnimation ? "production-show" : "production-hide";
     }
 
     toggleAnimation() {
