@@ -34,6 +34,7 @@ import io.openems.common.types.MeterType;
 /**
  * Implements the Janitza UMG 806 power analyzer.
  *
+ *<p>
  * https://www.janitza.de/umg-806-pro.html
  */
 @Designate(ocd = Config.class, factory = true)
@@ -78,6 +79,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 
