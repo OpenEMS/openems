@@ -1,5 +1,6 @@
 package io.openems.backend.common.metadata;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class Edge {
 	 * ON_SET_LASTMESSAGE event; but only max one event per Minute.
 	 */
 	public void setLastmessage() {
-		this.setLastmessage(ZonedDateTime.now());
+		this.setLastmessage(ZonedDateTime.now(Clock.systemUTC()));
 	}
 
 	/**
@@ -307,6 +308,14 @@ public class Edge {
 		public static final class OnSetConfig {
 			public static final String EDGE = "Edge:Edge";
 			public static final String CONFIG = "Config:EdgeConfig";
+		}
+
+		public static final String ON_UPDATE_CONFIG = Events.TOPIC_BASE + "ON_UPDATE_CONFIG";
+
+		public static final class OnUpdateConfig {
+			public static final String EDGE_ID = "EdgeId:String";
+			public static final String OLD_CONFIG = "OldConfig:EdgeConfig";
+			public static final String NEW_CONFIG = "NewConfig:EdgeConfig";
 		}
 
 		public static final String ON_SET_LASTMESSAGE = Events.TOPIC_BASE + "ON_SET_LASTMESSAGE";

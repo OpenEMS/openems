@@ -55,7 +55,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
- * Describes a App for a PQ-Plus meter.
+ * Describes an App for a PQ-Plus meter.
  *
  * <pre>
   {
@@ -85,21 +85,21 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 		MODBUS_ID(AppDef.componentId("modbus2")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		INTEGRATION_TYPE(CommunicationProps.modbusType() //
+		INTEGRATION_TYPE(CommunicationProps.modbusType()//
 				.setRequired(true)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def //
@@ -108,9 +108,9 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.RTU)));
-				})) //
+				}))//
 				.setAutoGenerateField(false)), //
 		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".productModel") //
@@ -119,9 +119,9 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(PqPlusModel.class), l);
 				}))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.setDefaultValue(6))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
@@ -131,7 +131,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 
 		private final AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def) {
+		Property(AppDef<? super PqPlusMeter, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -254,7 +254,7 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 		private final String value;
 		private final String translation;
 
-		private PqPlusModel(String value, String translation) {
+		PqPlusModel(String value, String translation) {
 			this.value = value;
 			this.translation = translation;
 		}
@@ -274,8 +274,8 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create()//
-				.setCanSee(Role.ADMIN)//
-				.setCanDelete(Role.ADMIN) //
+				.setCanSee(Role.OWNER)//
+				.setCanDelete(Role.OWNER) //
 				.build();
 	}
 

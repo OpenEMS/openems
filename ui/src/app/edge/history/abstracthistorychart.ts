@@ -2,17 +2,18 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -199,6 +200,7 @@ export abstract class AbstractHistoryChart {
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
                             strokeStyle: color.borderColor,
+                            ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
                     return chartLegendLabelItems;
@@ -216,14 +218,19 @@ export abstract class AbstractHistoryChart {
                     }, []);
 
                     legendItems.forEach(item => {
-                        // original.call(this, event, legendItem1);
                         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
                         const meta = chart.getDatasetMeta(item.index);
-                        // See controller.isDatasetVisible comment
-                        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
+                        meta.hidden = chart.isDatasetVisible(legendItem.datasetIndex);
                     });
 
-                    // We hid a dataset ... rerender the chart
+                    // Show only Y axes that have at least one visible dataset
+                    for (const key of Object.keys(ObjectUtils.excludeProperties(options.scales, ["x"]))) {
+                        const axisDatasets = chart.data.datasets
+                            .map((d, i) => ({ dataset: d, index: i }))
+                            .filter(d => d.dataset["yAxisID"] === key);
+                        chart.scales[key].options.display = axisDatasets.some(d => chart.isDatasetVisible(d.index));
+                    }
+
                     chart.update();
                 };
 
@@ -255,6 +262,7 @@ export abstract class AbstractHistoryChart {
                 options.scales[this.chartAxis]["stacked"] = false;
                 options.scales.x["stacked"] = true;
                 options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+
             }).then(() => {
                 this.options = options;
                 resolve();
@@ -410,7 +418,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant("Edge.History.noData");
+        EMPTY_DATASET[0].label = this.translate.instant("EDGE.HISTORY.NO_DATA");
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

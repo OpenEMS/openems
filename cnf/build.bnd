@@ -2,6 +2,7 @@
 -plugin.6.Central: \
 	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
 		releaseUrls=https://repo.maven.apache.org/maven2/; \
+		snapshotUrl=https://central.sonatype.com/repository/maven-snapshots/; \
 		pom=${build}/pom.xml; \
 		readOnly=true; \
 		name="Maven Central"
@@ -40,11 +41,16 @@ buildpath: \
 	org.osgi.service.metatype;version='1.4.1',\
 	org.osgi.service.metatype.annotations;version='1.4.1',\
 	org.osgi.util.promise;version='1.2.0',\
-	com.google.guava;version='33.4.8.jre',\
+	com.google.guava;version='33.5.0.jre',\
 	com.google.guava.failureaccess;version='1.0.2',\
-	com.google.gson;version='2.13.1',\
+	com.google.gson;version='2.13.2',\
 
 testpath: \
+	junit-jupiter-api,\
+	net.bytebuddy.byte-buddy,\
+	org.mockito.mockito-core,\
+	org.objenesis,\
+	org.opentest4j,\
 	slf4j.simple,\
 	\${junit}
 
@@ -52,7 +58,7 @@ testpath: \
 -workingset =  \
 	Backend;member=${filter;${p};io\.openems\.backend\..*},\
 	Common;member=${filter;${p};cnf|io\.openems\.common|io\.openems\.shared\.influxdb|io\.openems\.wrapper},\
-	Edge_Common;member=${filter;${p};io\.openems\.edge\.core|io\.openems\.edge\.application|io\.openems\.edge\.common|io\.openems\.edge\.simulator|io\.openems\.edge\.controller\.api|io\.openems\.edge\.edge2edge},\
+	Edge_Common;member=${filter;${p};io\.openems\.edge\.core|io\.openems\.edge\.application|io\.openems\.edge\.common|io\.openems\.edge\.simulator|io\.openems\.edge\.controller\.api|io\.openems\.edge\.edge2edge|io\.openems\.edge\.oem\..*},\
 	Edge_Battery_Inverter;member=${filter;${p};io\.openems\.edge\.batteryinverter\..*},\
 	Edge_Bridge;member=${filter;${p};io\.openems\.edge\.bridge\..*},\
 	Edge_Battery;member=${filter;${p};io\.openems\.edge\.battery\..*},\
@@ -72,6 +78,7 @@ testpath: \
 	Edge_Predictor;member=${filter;${p};io\.openems\.edge\.predictor\..*},\
 	Edge_PVinverter;member=${filter;${p};io\.openems\.edge\.pvinverter\..*},\
 	Edge_Scheduler;member=${filter;${p};io\.openems\.edge\.scheduler\..*},\
+	Edge_System;member=${filter;${p};io\.openems\.edge\.system\..*},\
 	Edge_Thermometer;member=${filter;${p};io\.openems\.edge\.onewire\.thermometer|io\.openems\.edge\.thermometer\..*},\
 	Edge_Timedata;member=${filter;${p};io\.openems\.edge\.timedata\..*},\
 	Edge_TimeOfUseTariff;member=${filter;${p};io\.openems\.edge\.timeofusetariff\..*},\

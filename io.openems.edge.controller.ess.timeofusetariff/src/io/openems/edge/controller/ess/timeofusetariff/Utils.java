@@ -168,26 +168,23 @@ public final class Utils {
 	 */
 	public static StateMachine postprocessSimulatorState(String id, GlobalOptimizationContext.Period period,
 			GlobalScheduleContext gsc, EnergyFlow ef, OptimizationContext coc, StateMachine state) {
+		if (state == DELAY_DISCHARGE) {
+			if (gsc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
+				// ess is empty or is charging -> switch to balancing
+				state = BALANCING;
+			}
+		}
+
 		if (state == DISCHARGE_GRID) {
-			// DISCHARGE_GRID,...
-			if (ef.getGridToEss() >= 0) {
-				// but battery is not discharged to grid
+			if (!(ef.getEss() > 0 && ef.getGrid() < 0)) {
+				// ess is not discharging to grid -> switch to balancing
 				state = BALANCING;
 			}
 		}
 
 		if (state == CHARGE_GRID) {
-			// CHARGE_GRID,...
-			if (ef.getGridToEss() <= 0) {
-				// but battery is not charged from grid
-				state = DELAY_DISCHARGE;
-			}
-		}
-
-		if (state == DELAY_DISCHARGE) {
-			// DELAY_DISCHARGE,...
-			if (gsc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
-				// but battery is empty or gets charged
+			if (!(ef.getEss() < 0 && ef.getGrid() > 0)) {
+				// ess is not charging from grid -> switch to balancing
 				state = BALANCING;
 			}
 		}

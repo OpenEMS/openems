@@ -4,39 +4,36 @@ import static io.openems.edge.common.test.TestUtils.withValue;
 
 import io.openems.common.types.MeterType;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
+import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.meter.test.AbstractDummyElectricityMeter;
 
 public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvseChargePoint<?>>
 		extends AbstractDummyElectricityMeter<SELF> implements EvseChargePoint {
 
-	private ChargeParams chargeParams;
+	private ChargePointAbilities chargePointAbilities;
 	private PhaseRotation phaseRotation;
+	private boolean isReadOnly;
 
 	protected AbstractDummyEvseChargePoint(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(id, firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.MANAGED_CONSUMPTION_METERED;
-	}
-
 	/**
-	 * Set the {@link ChargeParams}.
+	 * Set the {@link ChargePointAbilities}.
 	 * 
-	 * @param chargeParams the {@link ChargeParams}
+	 * @param chargePointAbilities the {@link ChargePointAbilities}
 	 * @return myself
 	 */
-	public SELF withChargeParams(ChargeParams chargeParams) {
-		this.chargeParams = chargeParams;
+	public SELF withChargePointAbilities(ChargePointAbilities chargePointAbilities) {
+		this.chargePointAbilities = chargePointAbilities;
 		return this.self();
 	}
 
 	@Override
-	public ChargeParams getChargeParams() {
-		return this.chargeParams;
+	public ChargePointAbilities getChargePointAbilities() {
+		return this.chargePointAbilities;
 	}
 
 	/**
@@ -64,5 +61,26 @@ public abstract class AbstractDummyEvseChargePoint<SELF extends AbstractDummyEvs
 	public SELF withIsReadyForCharging(Boolean isReadyForCharging) {
 		withValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, isReadyForCharging);
 		return this.self();
+	}
+
+	/**
+	 * Set isReadOnly.
+	 * 
+	 * @param value the value
+	 * @return myself
+	 */
+	public SELF withIsReadOnly(boolean value) {
+		this.isReadOnly = value;
+		return this.self();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this.isReadOnly;
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return EvseChargePoint.super.getMeterType();
 	}
 }

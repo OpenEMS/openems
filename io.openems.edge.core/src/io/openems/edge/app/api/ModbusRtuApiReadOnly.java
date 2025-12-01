@@ -68,19 +68,19 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusRtu0")), //
 		// Properties
 		ALIAS(alias()), //
-		API_TIMEOUT(ModbusApiProps.apiTimeout() //
+		API_TIMEOUT(ModbusApiProps.apiTimeout()//
 				.setRequired(true)), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false)//
 				.setRequired(true)), //
-		PORT_NAME(ModbusApiProps.portName() //
+		PORT_NAME(ModbusApiProps.portName()//
 				.setRequired(true)), //
-		BAUDRATE(ModbusApiProps.baudrate() //
+		BAUDRATE(ModbusApiProps.baudrate()//
 				.setRequired(true)), //
-		DATABITS(ModbusApiProps.databits() //
+		DATABITS(ModbusApiProps.databits()//
 				.setRequired(true)),
-		STOPBITS(ModbusApiProps.stopbits() //
+		STOPBITS(ModbusApiProps.stopbits()//
 				.setRequired(true)), //
-		PARITY(ModbusApiProps.parity() //
+		PARITY(ModbusApiProps.parity()//
 				.setRequired(true)); //
 
 		private final AppDef<? super ModbusRtuApiReadOnly, ? super Property, ? super BundleParameter> def;
@@ -132,7 +132,7 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var portName = this.getString(p, Property.PORT_NAME);
-			final var alias = this.getString(p, Property.ALIAS);
+			final var alias = this.getString(p, l, Property.ALIAS);
 			final var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
 			final var apiTimeout = this.getInt(p, Property.API_TIMEOUT);
 			final var controllerIds = this.getJsonArray(p, Property.COMPONENT_IDS);

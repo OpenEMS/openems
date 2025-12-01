@@ -3,10 +3,10 @@ import { ActivatedRoute } from "@angular/router";
 import { SumState } from "src/app/index/shared/sumState";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
 import { AbstractService } from "../abstractservice";
-import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
@@ -56,9 +56,6 @@ export class DummyService extends AbstractService {
         throw new Error("Method not implemented.");
     }
     toast(message: string, level: "success" | "warning" | "danger") {
-        throw new Error("Method not implemented.");
-    }
-    isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler

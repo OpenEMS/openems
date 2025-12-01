@@ -2,10 +2,11 @@ import { Validators } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AlertingSettingResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
+import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
 import { AlertingType, DefaultValues, Delay } from "../alerting.component";
 
-export const currentUserRows = (defaultValues: DefaultValues, translate: TranslateService): FormlyFieldConfig[] => {
+export const currentUserRows = (defaultValues: DefaultValues, translate: TranslateService, edgeRole: Role): FormlyFieldConfig[] => {
     return [
         {
             key: "offline",
@@ -47,48 +48,50 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                 },
             ],
         },
-        {
-            key: "fault",
-            props: {
-                icon: {
-                    color: "danger",
-                    size: "large",
-                    name: "alert-circle-outline",
-                    position: "end",
-                },
-                title: translate.instant("ALERTING.FAULT"),
-            },
-            fieldGroup: [
-                {
-                    key: "fault-toggle",
-                    type: "toggle",
-                },
-                {
-                    key: "fault-delay-selection",
-                    type: "radio-buttons",
-                    name: translate.instant("Edge.Config.ALERTING.DELAY"),
 
-                    props: {
-                        options: defaultValues[AlertingType.OFFLINE],
-                        disabledOnFormControl: "fault-toggle",
+        ...(Role.isAtLeast(edgeRole, Role.INSTALLER) ?
+            [{
+                key: "fault",
+                props: {
+                    icon: {
+                        color: "danger",
+                        size: "large",
+                        name: "alert-circle-outline",
+                        position: "end",
                     },
-                    validators: [Validators.required],
+                    title: translate.instant("ALERTING.FAULT"),
                 },
-                {
-                    key: "fault-checkbox",
-                    type: "checkbox",
-                    name: "E-Mail",
-                    props: {
-                        help: translate.instant("ALERTING.CHECKBOX_HELP"),
-                        required: true,
-                        disabledOnFormControl: "fault-toggle",
+                fieldGroup: [
+                    {
+                        key: "fault-toggle",
+                        type: "toggle",
                     },
-                    validators: {
-                        validation: [Validators.required],
+                    {
+                        key: "fault-delay-selection",
+                        type: "radio-buttons",
+                        name: translate.instant("EDGE.CONFIG.ALERTING.DELAY"),
+
+                        props: {
+                            options: defaultValues[AlertingType.OFFLINE],
+                            disabledOnFormControl: "fault-toggle",
+                        },
+                        validators: [Validators.required],
                     },
-                },
-            ],
-        }];
+                    {
+                        key: "fault-checkbox",
+                        type: "checkbox",
+                        name: "E-Mail",
+                        props: {
+                            help: translate.instant("ALERTING.CHECKBOX_HELP"),
+                            required: true,
+                            disabledOnFormControl: "fault-toggle",
+                        },
+                        validators: {
+                            validation: [Validators.required],
+                        },
+                    },
+                ],
+            }] : [])];
 };
 
 
@@ -127,7 +130,7 @@ export const otherUserRow = (key: "fault" | "offline", name: string, delay: Dela
                 {
                     key: key + "-delay-selection",
                     type: "radio-buttons",
-                    name: translate.instant("Edge.Config.ALERTING.DELAY"),
+                    name: translate.instant("EDGE.CONFIG.ALERTING.DELAY"),
                     props: {
                         options: delay,
                         disabledOnFormControl: key + "-toggle",

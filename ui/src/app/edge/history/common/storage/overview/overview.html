@@ -1,0 +1,10 @@
+@if (isInitialized) {
+  <oe-chart [title]="'GENERAL.STORAGE_SYSTEM' | translate" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
+    (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod.value">
+    <common-storage-total-chart [isOnlyChart]="true">
+    </common-storage-total-chart>
+    @if (navigationButtons?.length > 0) {
+      <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+    }
+  </oe-chart>
+}

@@ -15,25 +15,31 @@ WORKDIR /src
 ENV OEMS_EDGE_OUTPUT=/opt/openems-edge.jar
 RUN --mount=type=bind,target=.,readwrite \
     --mount=type=cache,target=/root/.gradle \
-        ./gradlew --no-build-cache buildEdge
+    ./gradlew --no-build-cache buildEdge
 
 ### Build jar container base
 FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
 
 ARG JAVA_VERSION
 
-RUN wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk && \
-    echo 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
+RUN mkdir -p /etc/apk/keys && \
+    wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk && \
+    touch /etc/apk/repositories && \
+    printf '%s\n' 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
 
-RUN apk update && \
-    apk upgrade --no-cache && \
-    apk add --no-cache temurin-${JAVA_VERSION}-jre rsync
+RUN apk add --update --no-cache \
+    temurin-${JAVA_VERSION}-jre rsync dos2unix
 
 ### Build edge container
 FROM base_container
 
 COPY --from=build_edge /opt/root/ /
 COPY --from=build_edge /opt/openems-edge.jar /opt/openems/openems-edge.jar
+
+RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /var/lib/openems-default-config -type f -print0 | xargs -0 dos2unix
 
 VOLUME /var/opt/openems/config
 VOLUME /var/opt/openems/data

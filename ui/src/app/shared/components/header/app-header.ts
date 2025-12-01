@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
-import { MenuController, ModalController } from "@ionic/angular";
+import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
+import { RouteService } from "../../service/route.service";
 import { Edge, Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -22,11 +23,12 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public environment = environment;
     public backUrl: string | boolean = "/";
-    public enableSideMenu: boolean;
+    public enableSideMenu: boolean = false;
     public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -39,7 +41,24 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public service: Service,
         public websocket: Websocket,
         protected navigationService: NavigationService,
-    ) { }
+        public routeService: RouteService,
+        protected navCtrl: NavController,
+    ) {
+        effect(() => {
+            const currentNode = navigationService.currentNode();
+
+            const _currentUrl = routeService.currentUrl();
+
+            if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
+                this.showBackButton = false;
+            } else {
+                this.showBackButton = true;
+            }
+
+            this.updateUrl(this.router.routerState.snapshot.url);
+        });
+    }
+
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
@@ -80,6 +99,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         const file = urlArray.pop();
 
         if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
+
+            if (this.navigationService.position() != "disabled") {
+                this.enableSideMenu = true;
+                return;
+            }
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -88,7 +112,60 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
     }
 
-    updateBackUrl(url: string) {
+    updateCurrentPage(url: string) {
+        const urlArray = url.split("/");
+        let file = urlArray.pop();
+        if (urlArray.length >= 4) {
+            file = urlArray[3];
+        }
+        // Enable Segment Navigation for Edge-Index-Page
+        if ((file == "history" || file == "live") && urlArray.length == 3) {
+            if (file == "history") {
+                this.currentPage = "IndexHistory";
+            } else {
+                this.currentPage = "IndexLive";
+            }
+        } else if (file == "settings" && urlArray.length > 1) {
+            this.currentPage = "EdgeSettings";
+        }
+        else {
+            this.currentPage = "Other";
+        }
+    }
+
+    public segmentChanged(event) {
+        if (event.detail.value == "IndexLive") {
+
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
+            this.cdRef.detectChanges();
+        }
+        if (event.detail.value == "IndexHistory") {
+
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
+            this.cdRef.detectChanges();
+        }
+    }
+
+    async presentSingleStatusModal() {
+        const modal = await this.modalCtrl.create({
+            component: StatusSingleComponent,
+        });
+        return await modal.present();
+    }
+
+    ngOnDestroy() {
+        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
+    }
+
+    private updateBackUrl(url: string) {
 
         if (this._customBackUrl) {
             this.backUrl = this._customBackUrl;
@@ -100,7 +177,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.backUrl = false;
             return;
         }
-
 
         // set backUrl for user when an Edge had been selected before
         const currentEdge: Edge = this.service.currentEdge();
@@ -157,59 +233,12 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.backUrl = backUrl;
     }
 
-    updateCurrentPage(url: string) {
-        const urlArray = url.split("/");
-        let file = urlArray.pop();
-        if (urlArray.length >= 4) {
-            file = urlArray[3];
-        }
-        // Enable Segment Navigation for Edge-Index-Page
-        if ((file == "history" || file == "live") && urlArray.length == 3) {
-            if (file == "history") {
-                this.currentPage = "IndexHistory";
-            } else {
-                this.currentPage = "IndexLive";
-            }
-        } else if (file == "settings" && urlArray.length > 1) {
-            this.currentPage = "EdgeSettings";
-        }
-        else {
-            this.currentPage = "Other";
-        }
-    }
-
-    public segmentChanged(event) {
-        if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
-            this.cdRef.detectChanges();
-        }
-        if (event.detail.value == "IndexHistory") {
-
-            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
-            // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
-            this.cdRef.detectChanges();
-        }
-    }
-
-    async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
-        });
-        return await modal.present();
-    }
-
-    ngOnDestroy() {
-        this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
-    }
-
     private isAllowedForView(url: string): boolean {
 
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
 
-        if (url.includes("/history/")) {
+        if (url.includes("/history/") && this.navigationService.position() === "disabled") {
             return false;
         }
 
@@ -222,4 +251,5 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
                 return true;
         }
     }
+
 }

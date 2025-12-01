@@ -1,5 +1,9 @@
 package io.openems.edge.app.peakshaving;
 
+import static io.openems.edge.core.appmanager.validator.Checkables.checkAppsNotInstalled;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrial;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -37,7 +41,6 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.validator.Checkables;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -71,22 +74,22 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
-				.setRequired(true) //
+		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
 						ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
-				.setRequired(true) //
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 						ComponentManagerSupplier::getComponentManager))), //
-		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPower(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPower(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "peakShavingPower",
 						ComponentManagerSupplier::getComponentManager))), //
-		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePower(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePower(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "rechargePower", //
 						ComponentManagerSupplier::getComponentManager))), //
 		PEAK_SHAVING_RECHARGE_POWER_GROUP(
@@ -177,7 +180,9 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(Checkables.checkHome().invert());
+				.setCompatibleCheckableConfigs(checkIndustrial().or(checkCommercial92())) //
+				.setInstallableCheckableConfigs(checkAppsNotInstalled("App.PeakShaving.PhaseAccuratePeakShaving",
+						"App.PeakShaving.TimeSlotPeakShaving"));
 	}
 
 	@Override

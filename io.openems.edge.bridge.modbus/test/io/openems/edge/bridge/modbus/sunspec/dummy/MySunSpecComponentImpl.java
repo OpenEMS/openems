@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.sunspec.dummy;
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,7 +27,7 @@ import io.openems.edge.common.taskmanager.Priority;
 public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 		implements ModbusComponent, OpenemsComponent {
 
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+	private static final Map<SunSpecModel, Priority> DEFAULT_ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
@@ -45,7 +46,15 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 
 	public MySunSpecComponentImpl() {
 		super(//
-				ACTIVE_MODELS, //
+				DEFAULT_ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values() //
+		);
+	}
+
+	public MySunSpecComponentImpl(List<SunSpecModelEntry> activeModels) {
+		super(//
+				activeModels, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values() //
 		);

@@ -22,6 +22,7 @@ import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.OneMode;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.test.DummyGlobalOptimizationContext;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
@@ -53,21 +54,25 @@ public class SimulatorTest {
 		FOO, BAR;
 	}
 
-	public static final EnergyScheduleHandler.WithDifferentModes ESH2 = //
+	public static final EshWithDifferentModes<Esh2State, Void, Void> ESH2 = //
 			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
-					.setDefaultMode(Esh2State.BAR) //
 					.setAvailableModes(() -> Esh2State.values()) //
 					.setInitialPopulationsProvider((goc, coc, availableModes) -> {
 						return ImmutableList.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
 								.map(p -> p.index() % 3 == 0 //
-										? Esh2State.FOO // set FOO mode
-										: Esh2State.BAR) // default
+										? Esh2State.BAR // set BAR mode
+										: Esh2State.FOO) // default
 								.toArray(Esh2State[]::new)));
 					}) //
 					.build();
 
-	public static final Simulator DUMMY_SIMULATOR = new Simulator(//
-			DummyGlobalOptimizationContext.fromHandlers(ESH0, ESH_TIME_OF_USE_TARIFF_CTRL, ESH2));
+	public static final GlobalOptimizationContext GOC = DummyGlobalOptimizationContext.fromHandlers(ESH0,
+			ESH_TIME_OF_USE_TARIFF_CTRL, ESH2);
+
+	public static final Simulator DUMMY_SIMULATOR = new Simulator(GOC);
+
+	public static final SimulationResult DUMMY_PREVIOUS_RESULT = SimulationResult.fromQuarters(GOC,
+			new int[] { 3, 2, 1 });
 
 	@Before
 	public void before() {
@@ -102,5 +107,6 @@ public class SimulatorTest {
 		});
 
 		assertEquals("BALANCING", ESH_TIME_OF_USE_TARIFF_CTRL.getCurrentPeriod().mode().toString());
+		assertEquals("FOO", ESH2.getCurrentPeriod().mode().toString());
 	}
 }
