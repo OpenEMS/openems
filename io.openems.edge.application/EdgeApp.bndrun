@@ -49,7 +49,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
-	bnd.identity;id='io.openems.edge.batteryinverter.victron'\
+	bnd.identity;id='io.openems.edge.victron'\
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -241,7 +241,7 @@
 	io.openems.edge.batteryinverter.kaco.blueplanetgridsave;version=snapshot,\
 	io.openems.edge.batteryinverter.refu88k;version=snapshot,\
 	io.openems.edge.batteryinverter.sinexcel;version=snapshot,\
-	io.openems.edge.batteryinverter.victron;version=snapshot,\
+	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.bosch.bpts5hybrid;version=snapshot,\
 	io.openems.edge.bridge.http;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
