@@ -117,8 +117,8 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
 			ess.setActivePowerEqualsWithPid(activePower);
-			this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 		}
+		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 	}
 
 	/**
