@@ -34,14 +34,13 @@ import io.openems.common.types.MeterType;
 /**
  * Implements the Janitza UMG 806 power analyzer.
  *
- * <p>
  * https://www.janitza.de/umg-806-pro.html
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.Janitza.UMG806", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		name = "Meter.Janitza.UMG806",
+		immediate = true,
+		configurationPolicy = ConfigurationPolicy.REQUIRE
 )
 public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 		implements MeterJanitzaUmg806, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
@@ -56,7 +55,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 	}
 
 	private MeterType meterType = MeterType.PRODUCTION;
-	/** Invert power values. */
+	// Invert power values
 	private boolean invert = false;
 
 	public MeterJanitzaUmg806Impl() {
@@ -96,7 +95,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		var modbusProtocol = new ModbusProtocol(this,
-			// Register: 19000–19010 → Spannungen
+			// Register: 19000–19010 → Voltages
 			new FC3ReadRegistersTask(19000, Priority.HIGH,
 				m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(19000), SCALE_FACTOR_3),
 				m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002), SCALE_FACTOR_3),
@@ -104,7 +103,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 				new DummyRegisterElement(19006, 19010) //
 			),
 
-			// Register: 19012–19018 → Ströme
+			// Register: 19012–19018 → Currents
 			new FC3ReadRegistersTask(19012, Priority.HIGH,
 				m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012), SCALE_FACTOR_3),
 				m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014), SCALE_FACTOR_3),
@@ -112,7 +111,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 				new DummyRegisterElement(19018, 19018) //
 			),
 
-			// Register: 19020–19026 → Wirkleistung + Summe
+			// Register: 19020–19026 → Active power + sum
 			new FC3ReadRegistersTask(19020, Priority.HIGH,
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020), INVERT_IF_TRUE(this.invert)),
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022), INVERT_IF_TRUE(this.invert)),
@@ -121,7 +120,7 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 				new DummyRegisterElement(19028, 19034) // Apparent Power ???
 			),
 
-			// Register: 19036–19042 → Blindleistung + Summe
+			// Register: 19036–19042 → Reactive power + sum
 			new FC3ReadRegistersTask(19036, Priority.LOW,
 				m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036), INVERT_IF_TRUE(this.invert)),
 				m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038), INVERT_IF_TRUE(this.invert)),
@@ -129,13 +128,13 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 				m(ElectricityMeter.ChannelId.REACTIVE_POWER,    new FloatDoublewordElement(19042), INVERT_IF_TRUE(this.invert))
 			),
 
-			// Register: 19050 → Frequenz
+			// Register: 19050 → Frequency
 			new FC3ReadRegistersTask(19050, Priority.LOW,
 				m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050), SCALE_FACTOR_3)
 			)
 		);
 
-		// Energiezähler: Verbrauch und Lieferung
+		// Energy meters: Consumption and production
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19062, Priority.LOW,
 				m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19062)),
@@ -161,9 +160,9 @@ public class MeterJanitzaUmg806Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
+		return new ModbusSlaveTable(
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode)
 		);
 	}
 }
