@@ -11,14 +11,14 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
+	io.openems.edge.controller.ess.emergencycapacityreserve,\
+	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.core,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.edge.controller.ess.emergencycapacityreserve,\
-	io.openems.edge.controller.ess.limittotaldischarge,\
-	io.openems.j2mod
+	io.openems.j2mod,\
 
 -testpath: \
 	${testpath}
