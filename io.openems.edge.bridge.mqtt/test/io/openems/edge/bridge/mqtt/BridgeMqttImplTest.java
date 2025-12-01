@@ -12,6 +12,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.mqtt.api.MqttMessage;
 import io.openems.edge.bridge.mqtt.api.MqttVersion;
 import io.openems.edge.bridge.mqtt.api.QoS;
+import io.openems.edge.bridge.mqtt.test.DummyBridgeMqtt;
 
 public class BridgeMqttImplTest {
 
