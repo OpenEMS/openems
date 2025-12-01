@@ -12,7 +12,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String alias = "";
 		private boolean enabled = true;
 		private MqttVersion mqttVersion = MqttVersion.V3_1_1;
-		private String uri = "tcp://localhost:1883";
+		private String host = "localhost";
+		private int port = 1883;
+		private boolean secureConnect = false;
 		private String clientId = "";
 		private String username = "";
 		private String password = "";
@@ -55,8 +57,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setUri(String uri) {
-			this.uri = uri;
+		public Builder setHost(String host) {
+			this.host = host;
+			return this;
+		}
+
+		public Builder setPort(int port) {
+			this.port = port;
+			return this;
+		}
+
+		public Builder setSecureConnect(boolean secureConnect) {
+			this.secureConnect = secureConnect;
 			return this;
 		}
 
@@ -172,8 +184,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String uri() {
-		return this.builder.uri;
+	public String host() {
+		return this.builder.host;
+	}
+
+	@Override
+	public int port() {
+		return this.builder.port;
+	}
+
+	@Override
+	public boolean secureConnect() {
+		return this.builder.secureConnect;
 	}
 
 	@Override

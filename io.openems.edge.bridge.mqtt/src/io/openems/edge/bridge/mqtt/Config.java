@@ -24,8 +24,14 @@ public @interface Config {
 	@AttributeDefinition(name = "MQTT Version", description = "The MQTT protocol version to use")
 	MqttVersion mqttVersion() default MqttVersion.V3_1_1;
 
-	@AttributeDefinition(name = "Broker URI", description = "URI of the MQTT broker (e.g., tcp://localhost:1883, ssl://broker.example.com:8883)")
-	String uri() default "tcp://localhost:1883";
+	@AttributeDefinition(name = "Broker Host", description = "Hostname/IP of the MQTT broker (e.g., localhost, 127.0.0.1, broker.example.com)")
+	String host() default "localhost";
+
+	@AttributeDefinition(name = "Broker Port", description = "Port of the MQTT broker (e.g., 1883 or 8883)")
+	int port() default 1883;
+
+	@AttributeDefinition(name = "Use SSL/TLS", description = "Whether to use SSL/TLS for the connection")
+	boolean secureConnect() default false;
 
 	@AttributeDefinition(name = "Client ID", description = "Unique client identifier. Leave empty for auto-generated ID.")
 	String clientId() default "";

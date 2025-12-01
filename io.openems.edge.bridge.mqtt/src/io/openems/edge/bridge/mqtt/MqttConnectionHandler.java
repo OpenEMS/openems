@@ -115,4 +115,42 @@ public interface MqttConnectionHandler {
 		};
 	}
 
+	/**
+	 * Checks if a topic matches a topic filter (supports + and # wildcards).
+	 *
+	 * @param topic  the actual topic to check
+	 * @param filter the topic filter (may contain + and # wildcards)
+	 * @return true if the topic matches the filter
+	 */
+	static boolean topicMatchesFilter(String topic, String filter) {
+		if (filter.equals("#")) {
+			return true;
+		}
+		if (filter.equals(topic)) {
+			return true;
+		}
+
+		var topicParts = topic.split("/");
+		var filterParts = filter.split("/");
+
+		int i = 0;
+		for (; i < filterParts.length; i++) {
+			var filterPart = filterParts[i];
+
+			if (filterPart.equals("#")) {
+				return true; // Multi-level wildcard matches everything
+			}
+
+			if (i >= topicParts.length) {
+				return false; // Topic is shorter than filter
+			}
+
+			if (!filterPart.equals("+") && !filterPart.equals(topicParts[i])) {
+				return false; // Single-level wildcard or exact match failed
+			}
+		}
+
+		return i == topicParts.length; // Lengths must match (except for #)
+	}
+
 }

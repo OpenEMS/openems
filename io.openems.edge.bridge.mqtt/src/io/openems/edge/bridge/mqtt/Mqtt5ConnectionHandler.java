@@ -134,12 +134,11 @@ public class Mqtt5ConnectionHandler implements MqttConnectionHandler, MqttCallba
 
 	@Override
 	public CompletableFuture<Void> publish(String topic, byte[] payload, QoS qos, boolean retained) {
-		var future = new CompletableFuture<Void>();
-
 		if (this.client == null || !this.client.isConnected()) {
-			future.completeExceptionally(new IllegalStateException("Not connected"));
-			return future;
+			return CompletableFuture.failedFuture(new IllegalStateException("Not connected"));
 		}
+
+		var future = new CompletableFuture<Void>();
 
 		try {
 			var message = new MqttMessage(payload);
@@ -233,7 +232,7 @@ public class Mqtt5ConnectionHandler implements MqttConnectionHandler, MqttCallba
 	public void messageArrived(String topic, MqttMessage message) throws Exception {
 		// Find matching subscription
 		for (var entry : this.subscriptions.entrySet()) {
-			if (this.topicMatches(entry.getKey(), topic)) {
+			if (MqttConnectionHandler.topicMatchesFilter(topic, entry.getKey())) {
 				var msg = new io.openems.edge.bridge.mqtt.api.MqttMessage(//
 						topic, //
 						message.getPayload(), //
@@ -270,34 +269,6 @@ public class Mqtt5ConnectionHandler implements MqttConnectionHandler, MqttCallba
 	@Override
 	public void authPacketArrived(int reasonCode, MqttProperties properties) {
 		// Not used
-	}
-
-	/**
-	 * Checks if a topic matches a topic filter (supports + and # wildcards).
-	 *
-	 * @param filter the topic filter (may contain + and # wildcards)
-	 * @param topic  the actual topic to check
-	 * @return true if the topic matches the filter
-	 */
-	private boolean topicMatches(String filter, String topic) {
-		if (filter.equals(topic)) {
-			return true;
-		}
-		var filterParts = filter.split("/");
-		var topicParts = topic.split("/");
-
-		for (int i = 0; i < filterParts.length; i++) {
-			if (filterParts[i].equals("#")) {
-				return true;
-			}
-			if (i >= topicParts.length) {
-				return false;
-			}
-			if (!filterParts[i].equals("+") && !filterParts[i].equals(topicParts[i])) {
-				return false;
-			}
-		}
-		return filterParts.length == topicParts.length;
 	}
 
 }

@@ -87,30 +87,9 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 				? "openems-" + UUID.randomUUID().toString().substring(0, 8) //
 				: this.config.clientId();
 
-		// Parse URI to get host and port
-		var uri = this.config.uri();
-		var host = "localhost";
-		var port = 1883;
-		var useSsl = false;
-
-		if (uri.startsWith("ssl://") || uri.startsWith("tls://")) {
-			useSsl = true;
-			uri = uri.substring(6);
-		} else if (uri.startsWith("tcp://")) {
-			uri = uri.substring(6);
-		}
-
-		var colonIndex = uri.indexOf(':');
-		if (colonIndex > 0) {
-			host = uri.substring(0, colonIndex);
-			try {
-				port = Integer.parseInt(uri.substring(colonIndex + 1));
-			} catch (NumberFormatException e) {
-				this.log.warn("Invalid port in URI, using default: {}", port);
-			}
-		} else {
-			host = uri;
-		}
+		var host = this.config.host();
+		var port = this.config.port();
+		var useSsl = this.config.secureConnect();
 
 		if (this.config.debugMode()) {
 			this.log.info("Connecting to MQTT broker: {}:{} with client ID: {} using MQTT {}", //
@@ -119,8 +98,8 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 		// Create appropriate handler based on MQTT version
 		this.connectionHandler = switch (this.config.mqttVersion()) {
-		case V3_1, V3_1_1 -> new Mqtt3ConnectionHandler(this.config, host, port, clientId, useSsl,
-				this.config.mqttVersion());
+		case V3_1, V3_1_1 ->
+			new Mqtt3ConnectionHandler(this.config, host, port, clientId, useSsl, this.config.mqttVersion());
 		case V5 -> new Mqtt5ConnectionHandler(this.config, host, port, clientId, useSsl);
 		};
 
@@ -172,7 +151,7 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 			}
 
 			this.subscriptions.forEach((f, holder) -> {
-				if (this.topicMatchesFilter(msg.topic(), f)) {
+				if (MqttConnectionHandler.topicMatchesFilter(msg.topic(), f)) {
 					try {
 						holder.callback.accept(msg);
 					} catch (Exception e) {
@@ -226,9 +205,7 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 		}
 
 		if (this.connectionHandler == null) {
-			var future = new CompletableFuture<Void>();
-			future.completeExceptionally(new IllegalStateException("Not connected to MQTT broker"));
-			return future;
+			return CompletableFuture.failedFuture(new IllegalStateException("Not connected to MQTT broker"));
 		}
 
 		return this.connectionHandler.publish(topic, payload, qos, retained);
@@ -267,44 +244,6 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 	private void _setBrokerUnreachable(boolean value) {
 		this.channel(BridgeMqtt.ChannelId.BROKER_UNREACHABLE).setNextValue(value);
-	}
-
-	/**
-	 * Checks if a topic matches a topic filter with wildcards.
-	 *
-	 * @param topic  the topic to check
-	 * @param filter the topic filter (may contain wildcards)
-	 * @return true if the topic matches the filter
-	 */
-	private boolean topicMatchesFilter(String topic, String filter) {
-		if (filter.equals("#")) {
-			return true;
-		}
-		if (filter.equals(topic)) {
-			return true;
-		}
-
-		var topicParts = topic.split("/");
-		var filterParts = filter.split("/");
-
-		int i = 0;
-		for (; i < filterParts.length; i++) {
-			var filterPart = filterParts[i];
-
-			if (filterPart.equals("#")) {
-				return true; // Multi-level wildcard matches everything
-			}
-
-			if (i >= topicParts.length) {
-				return false; // Topic is shorter than filter
-			}
-
-			if (!filterPart.equals("+") && !filterPart.equals(topicParts[i])) {
-				return false; // Single-level wildcard or exact match failed
-			}
-		}
-
-		return i == topicParts.length; // Lengths must match (except for #)
 	}
 
 }

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
@@ -23,7 +22,9 @@ public class Mqtt5ConnectionHandlerTest {
 		var config = MyConfig.create() //
 				.setId("mqtt0") //
 				.setMqttVersion(MqttVersion.V5) //
-				.setUri("tcp://localhost:1883") //
+				.setHost("localhost") //
+				.setPort(1883) //
+				.setSecureConnect(false) //
 				.setClientId("test-client") //
 				.setUsername("") //
 				.setPassword("") //
@@ -42,7 +43,9 @@ public class Mqtt5ConnectionHandlerTest {
 		var config = MyConfig.create() //
 				.setId("mqtt0") //
 				.setMqttVersion(MqttVersion.V5) //
-				.setUri("ssl://localhost:8883") //
+				.setHost("localhost") //
+				.setPort(8883) //
+				.setSecureConnect(true) //
 				.setClientId("test-client-ssl") //
 				.build();
 
@@ -111,73 +114,43 @@ public class Mqtt5ConnectionHandlerTest {
 	}
 
 	@Test
-	public void testTopicMatchesExact() throws Exception {
-		var config = MyConfig.create().build();
-		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
-
-		assertTrue(this.invokeTopicMatches(handler, "sensors/temperature", "sensors/temperature"));
-		assertFalse(this.invokeTopicMatches(handler, "sensors/temperature", "sensors/humidity"));
+	public void testTopicMatchesExact() {
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/temperature", "sensors/temperature"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("sensors/humidity", "sensors/temperature"));
 	}
 
 	@Test
-	public void testTopicMatchesSingleLevelWildcard() throws Exception {
-		var config = MyConfig.create().build();
-		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
-
-		assertTrue(this.invokeTopicMatches(handler, "sensors/+/data", "sensors/temp/data"));
-		assertTrue(this.invokeTopicMatches(handler, "sensors/+/data", "sensors/humidity/data"));
-		assertFalse(this.invokeTopicMatches(handler, "sensors/+/data", "sensors/temp/value"));
-		assertFalse(this.invokeTopicMatches(handler, "sensors/+/data", "devices/temp/data"));
+	public void testTopicMatchesSingleLevelWildcard() {
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/temp/data", "sensors/+/data"));
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/humidity/data", "sensors/+/data"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("sensors/temp/value", "sensors/+/data"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("devices/temp/data", "sensors/+/data"));
 	}
 
 	@Test
-	public void testTopicMatchesMultiLevelWildcard() throws Exception {
-		var config = MyConfig.create().build();
-		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
-
-		assertTrue(this.invokeTopicMatches(handler, "sensors/#", "sensors/temperature"));
-		assertTrue(this.invokeTopicMatches(handler, "sensors/#", "sensors/temperature/value"));
-		assertTrue(this.invokeTopicMatches(handler, "sensors/#", "sensors/a/b/c/d"));
-		assertFalse(this.invokeTopicMatches(handler, "sensors/#", "devices/temperature"));
+	public void testTopicMatchesMultiLevelWildcard() {
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/temperature", "sensors/#"));
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/temperature/value", "sensors/#"));
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("sensors/a/b/c/d", "sensors/#"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("devices/temperature", "sensors/#"));
 	}
 
 	@Test
-	public void testTopicMatchesCombinedWildcards() throws Exception {
-		var config = MyConfig.create().build();
-		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
-
-		assertTrue(this.invokeTopicMatches(handler, "+/sensors/#", "home/sensors/temp"));
-		assertTrue(this.invokeTopicMatches(handler, "+/sensors/#", "office/sensors/temp/value"));
-		assertFalse(this.invokeTopicMatches(handler, "+/sensors/#", "home/devices/temp"));
+	public void testTopicMatchesCombinedWildcards() {
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("home/sensors/temp", "+/sensors/#"));
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("office/sensors/temp/value", "+/sensors/#"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("home/devices/temp", "+/sensors/#"));
 	}
 
 	@Test
-	public void testTopicMatchesEdgeCases() throws Exception {
-		var config = MyConfig.create().build();
-		var handler = new Mqtt5ConnectionHandler(config, "localhost", 1883, "client", false);
-
+	public void testTopicMatchesEdgeCases() {
 		// Empty or single segment
-		assertTrue(this.invokeTopicMatches(handler, "topic", "topic"));
-		assertFalse(this.invokeTopicMatches(handler, "topic", "other"));
+		assertTrue(MqttConnectionHandler.topicMatchesFilter("topic", "topic"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("other", "topic"));
 
 		// Different length paths
-		assertFalse(this.invokeTopicMatches(handler, "a/b", "a/b/c"));
-		assertFalse(this.invokeTopicMatches(handler, "a/b/c", "a/b"));
-	}
-
-	/**
-	 * Invokes the private topicMatches method using reflection.
-	 *
-	 * @param handler the handler instance
-	 * @param filter  the topic filter
-	 * @param topic   the topic to match
-	 * @return true if topic matches filter
-	 * @throws Exception on reflection error
-	 */
-	private boolean invokeTopicMatches(Mqtt5ConnectionHandler handler, String filter, String topic) throws Exception {
-		Method method = Mqtt5ConnectionHandler.class.getDeclaredMethod("topicMatches", String.class, String.class);
-		method.setAccessible(true);
-		return (boolean) method.invoke(handler, filter, topic);
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("a/b/c", "a/b"));
+		assertFalse(MqttConnectionHandler.topicMatchesFilter("a/b", "a/b/c"));
 	}
 
 }
