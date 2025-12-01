@@ -24,10 +24,6 @@ export class NavigationComponent {
         public navigationService: NavigationService,
     ) {
         effect(() => {
-            const currentNode = navigationService.currentNode();
-            if (!currentNode) {
-                this.navigationService.position.set("disabled");
-            }
             this.isVisible = this.navigationService.position() === "bottom";
         });
     }

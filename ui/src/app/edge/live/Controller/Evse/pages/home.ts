@@ -6,9 +6,11 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { EvseChargepoint } from "../shared/evse-chargepoint";
 import { ControllerEvseSingleShared } from "../shared/shared";
 
 @Component({
@@ -30,7 +32,7 @@ export class ModalComponent extends AbstractModal {
 
     protected showNewFooter: boolean = true;
     protected label: string | null = null;
-    protected chargePoint: EdgeConfig.Component | null = null;
+    protected chargePointComponent: EdgeConfig.Component | null = null;
 
     protected img: OeImageComponent["img"] | null = null;
 
@@ -45,6 +47,7 @@ export class ModalComponent extends AbstractModal {
         @Inject(TranslateService) protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
+        private navigationService: NavigationService,
     ) {
         super(websocket, route, service, modalController, translate, formBuilder, ref);
     }
@@ -53,15 +56,19 @@ export class ModalComponent extends AbstractModal {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);
-                this.chargePoint = config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
                 res();
             });
         });
     }
 
     protected override onIsInitialized(): void {
-        const url = ControllerEvseSingleShared.getImgUrlByFactoryId(this.chargePoint.factoryId);
-        this.img = url === null ? null : { url, height: 300, width: 300 };
+        this.chargePointComponent = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
+        const evseChargepoint: EvseChargepoint | null = EvseChargepoint.getEvseChargepoint(this.chargePointComponent);
+        if (evseChargepoint == null || this.chargePointComponent == null) {
+            return;
+        }
+
+        this.img = evseChargepoint.img;
     }
 
     protected override getFormGroup(): FormGroup {

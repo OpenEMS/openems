@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.mapping;
@@ -59,7 +60,7 @@ public class GetEdgesRequest extends JsonrpcRequest {
 		/**
 		 * Returns a {@link JsonSerializer} for a
 		 * {@link GetEdgesRequest.PaginationOptions.SearchParams}.
-		 * 
+		 *
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<GetEdgesRequest.PaginationOptions> serializer() {
@@ -77,16 +78,62 @@ public class GetEdgesRequest extends JsonrpcRequest {
 							.build());
 		}
 
+		public enum SortOrder {
+			ASC, DESC
+		}
+
+		public record OrderItem(String field, SortOrder sortOrder) {
+
+			/**
+			 * Returns a {@link JsonSerializer} for a
+			 * {@link GetEdgesRequest.PaginationOptions.OrderState}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<GetEdgesRequest.PaginationOptions.OrderItem> serializer() {
+				return jsonObjectSerializer(GetEdgesRequest.PaginationOptions.OrderItem.class, json -> {
+					return new GetEdgesRequest.PaginationOptions.OrderItem(//
+							json.getString("field"), //
+							json.getEnum("sortOrder", SortOrder.class) //
+					);
+				}, obj -> JsonUtils.buildJsonObject() //
+						.addProperty("field", obj.field()) //
+						.addProperty("sortOrder", obj.sortOrder()) //
+						.build());
+			}
+
+		}
+
+		public record OrderState(List<OrderItem> orderItems) {
+
+			/**
+			 * Returns a {@link JsonSerializer} for a
+			 * {@link GetEdgesRequest.PaginationOptions.OrderState}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<GetEdgesRequest.PaginationOptions.OrderState> serializer() {
+				return jsonSerializer(GetEdgesRequest.PaginationOptions.OrderState.class, json -> {
+					return new GetEdgesRequest.PaginationOptions.OrderState(//
+							json.getAsObject(OrderItem.serializer().toListSerializer()) //
+					);
+				}, obj -> OrderItem.serializer().toListSerializer().serialize(obj.orderItems()));
+			}
+
+		}
+
 		public record SearchParams(//
 				List<String> productTypes, //
 				List<Level> sumStates, //
+				OrderState orderState, //
 				boolean searchIsOnline, //
 				boolean isOnline //
 		) {
+
 			/**
 			 * Returns a {@link JsonSerializer} for a
 			 * {@link GetEdgesRequest.PaginationOptions.SearchParams}.
-			 * 
+			 *
 			 * @return the created {@link JsonSerializer}
 			 */
 			public static JsonSerializer<GetEdgesRequest.PaginationOptions.SearchParams> serializer() {
@@ -94,7 +141,9 @@ public class GetEdgesRequest extends JsonrpcRequest {
 					final var isOnline = json.getBooleanPathNullable("isOnline");
 					return new GetEdgesRequest.PaginationOptions.SearchParams(//
 							json.getList("producttype", JsonElementPath::getAsString), //
-							json.getJsonArrayPath("sumState").collect(mapping(t -> t.getAsEnum(Level.class), toList())), //
+							json.getJsonArrayPath("sumState") //
+									.collect(mapping(t -> t.getAsEnum(Level.class), toList())), //
+							json.getObjectOrNull("orderState", OrderState.serializer()), //
 							isOnline.isPresent(), //
 							isOnline.getOrDefault(false));
 				}, obj -> JsonUtils.buildJsonObject() //
@@ -105,13 +154,16 @@ public class GetEdgesRequest extends JsonrpcRequest {
 								.map(Level::name) //
 								.map(JsonPrimitive::new) //
 								.collect(toJsonArray()))
+						.onlyIf(obj.orderState() != null, b -> {
+							b.add("orderState", OrderState.serializer().serialize(obj.orderState()));
+						}) //
 						.onlyIf(obj.searchIsOnline(), t -> t.addProperty("isOnline", obj.isOnline())) //
 						.build());
 			}
 
 			/**
 			 * Creates a {@link SearchParams} from a {@link JsonObject}.
-			 * 
+			 *
 			 * @param obj the {@link JsonObject}
 			 * @return the {@link SearchParams}
 			 */
@@ -122,12 +174,17 @@ public class GetEdgesRequest extends JsonrpcRequest {
 								JsonUtils::getAsString), //
 						exceptionalParsing(JsonUtils.getAsOptionalJsonArray(obj, "sumState").orElse(null), t -> {
 							return Level.valueOf(JsonUtils.getAsString(t).toUpperCase());
-						}), isOnline.isPresent(), isOnline.orElse(false));
+						}), //
+						JsonUtils.getAsOptionalJsonArray(obj, "orderState") //
+								.map(OrderState.serializer()::deserialize) //
+								.orElse(null), //
+						isOnline.isPresent(), isOnline.orElse(false) //
+				);
 			}
 
 			/**
 			 * Creates a {@link JsonElement} out of this {@link SearchParams}.
-			 * 
+			 *
 			 * @return the created {@link JsonElement}
 			 */
 			public JsonElement toJson() {
@@ -141,6 +198,8 @@ public class GetEdgesRequest extends JsonrpcRequest {
 										.map(Enum::name) //
 										.map(JsonPrimitive::new) //
 										.collect(JsonUtils.toJsonArray()))) //
+						.onlyIf(this.orderState() != null, b -> b //
+								.add("orderState", OrderState.serializer().serialize(this.orderState())))
 						.onlyIf(this.searchIsOnline(), b -> b.addProperty("isOnline", this.isOnline())) //
 						.build();
 				if (result.isEmpty()) {
@@ -196,7 +255,7 @@ public class GetEdgesRequest extends JsonrpcRequest {
 
 		/**
 		 * Returns {@link JsonObject} from current {@link PaginationOptions}.
-		 * 
+		 *
 		 * @return {@link JsonObject} from {@link PaginationOptions}
 		 */
 		public JsonObject toJsonObject() {

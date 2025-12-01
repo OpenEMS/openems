@@ -50,9 +50,15 @@ public class TestTranslations {
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterMaster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial92ClusterSlave(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
 			this.apps.add(
 					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
@@ -60,10 +66,14 @@ public class TestTranslations {
 					new TestTranslation(Apps.feneconIndustrialSIsk110(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(
 					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.feneconProHybrid10(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("USER_KEY", "xxx") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
 					.addProperty("GERMAN_DSO", GermanDSO.BAYERNWERK) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.luoxEnergy(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.awattarHourly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.entsoE(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("BIDDING_ZONE", "GERMANY") //
@@ -119,6 +129,8 @@ public class TestTranslations {
 					.addProperty("API_KEY", "123456789") //
 					.addProperty("BUCKET", "bucket")//
 					.build()));
+			this.apps.add(new TestTranslation(Apps.ablEvcs(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.hardyBarthEvcsReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kebaEvcs(t), true, new JsonObject()));
@@ -127,7 +139,6 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.heidelbergEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.mennekesEvcsReadOnlyEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.iesKeywattEvcs(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
@@ -164,6 +175,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.thresholdControl(t), true, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.shellyMeter(t), true, JsonUtils.buildJsonObject() //
+					.add("DEVICE", JsonUtils.buildJsonObject() //
+							.addProperty("name", "dummyName") //
+							.addProperty("type", "PLUS_PLUG_S") //
+							.build()) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.discovergyMeter(t), false, JsonUtils.buildJsonObject() //
 					.addProperty("EMAIL", "test@test.test") //
 					.addProperty("PASSWORD", "xxxx") //
@@ -179,6 +196,9 @@ public class TestTranslations {
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.janitzaMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.janitzaGridMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.kdkMeter(t), true, JsonUtils.buildJsonObject() //

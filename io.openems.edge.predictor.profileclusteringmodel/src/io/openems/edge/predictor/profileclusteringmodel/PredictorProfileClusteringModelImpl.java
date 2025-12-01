@@ -33,6 +33,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.predictor.api.common.PredictionException;
+import io.openems.edge.predictor.api.common.PredictionState;
+import io.openems.edge.predictor.api.common.TrainingError;
+import io.openems.edge.predictor.api.common.TrainingState;
 import io.openems.edge.predictor.api.mlcore.classification.BernoulliNaiveBayesClassifier;
 import io.openems.edge.predictor.api.mlcore.clustering.AutoKMeansClusterer;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
@@ -117,18 +121,24 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	protected void deactivate() {
 		super.deactivate();
 		shutdownAndAwaitTermination(this.scheduler, 5);
-		this.predictionPersistenceService.deactivateShiftingJob();
+		if (this.predictionPersistenceService != null) {
+			this.predictionPersistenceService.deactivateShiftingJob();
+		}
+		this._setTrainingState(TrainingState.DEACTIVATED);
+		this._setPredictionState(PredictionState.DEACTIVATED);
 	}
 
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 		if (this.currentModels == null) {
-			this.logError(this.log, "Prediction failed: No trained model available");
+			this._setPredictionState(PredictionState.FAILED_NO_MODEL);
+			this.logPredictionError(PredictionState.FAILED_NO_MODEL, "No trained model available");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
 		if (this.isModelTooOld()) {
-			this.logError(this.log, "Prediction failed: Model is too old");
+			this._setPredictionState(PredictionState.FAILED_MODEL_OUTDATED);
+			this.logPredictionError(PredictionState.FAILED_MODEL_OUTDATED, "Trained model outdated");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
@@ -138,8 +148,13 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 		List<Profile> predictedProfiles;
 		try {
 			predictedProfiles = predictionOchestrator.predictProfiles(this.predictorConfig.forecastDays());
+		} catch (PredictionException e) {
+			this._setPredictionState(e.getError().getFailedState());
+			this.logPredictionError(e.getError().getFailedState(), e.getMessage());
+			return Prediction.EMPTY_PREDICTION;
 		} catch (Exception e) {
-			this.logError(this.log, "Prediction failed: " + e.getMessage());
+			this._setPredictionState(PredictionState.FAILED_UNKNOWN);
+			this.logPredictionError(PredictionState.FAILED_UNKNOWN, e.getMessage());
 			return Prediction.EMPTY_PREDICTION;
 		}
 
@@ -151,13 +166,24 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 		this.predictionPersistenceService.updatePredictionAheadChannels(prediction);
 
+		this._setPredictionState(PredictionState.SUCCESSFUL);
 		return prediction;
 	}
 
 	@Override
-	public void onModelsTrained(ModelBundle bundle) {
+	public void onTrainingSuccess(ModelBundle bundle) {
 		this.currentModels = bundle;
 		this.currentProfile = null;
+		this._setTrainingState(TrainingState.SUCCESSFUL);
+		this.logInfo(this.log, String.format(//
+				"Training succeeded [%s]", //
+				TrainingState.SUCCESSFUL.getName()));
+	}
+
+	@Override
+	public void onTrainingError(TrainingError error, String message) {
+		this._setTrainingState(error.getFailedState());
+		this.logTrainingError(error.getFailedState(), message);
 	}
 
 	private boolean isModelTooOld() {
@@ -217,6 +243,20 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 				() -> this.meta.getSubdivisionCode(), //
 				this.predictorConfig.profileSwitcherFactory(), //
 				this.currentProfile);
+	}
+
+	private void logTrainingError(TrainingState state, String message) {
+		this.logError(this.log, String.format(//
+				"Training failed [%s]: %s", //
+				state.getName(), //
+				message));
+	}
+
+	private void logPredictionError(PredictionState state, String message) {
+		this.logError(this.log, String.format(//
+				"Prediction failed [%s]: %s", //
+				state.getName(), //
+				message));
 	}
 
 	@Override

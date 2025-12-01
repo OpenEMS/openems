@@ -30,20 +30,22 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem.OAuthClientRegistration;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.bridge.http.time.DefaultDelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProvider.Delay;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -88,6 +90,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	private BridgeHttp httpBridge;
+	private HttpBridgeTimeService timeService;
 
 	private OAuthClientRegistration clientRegistration;
 	private String zipcode;
@@ -127,6 +130,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		this.zipcode = config.zipcode();
 
 		this.httpBridge = this.httpBridgeFactory.get();
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 
 		this.scheduleRequest();
 	}
@@ -147,7 +151,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 				Map.of("Content-Type", "application/x-www-form-urlencoded"));
 
 		final var tokenFuture = new CompletableFuture<String>();
-		this.httpBridge.subscribeJsonTime(new DefaultDelayTimeProvider(() -> Delay.immediate(), t -> Delay.infinite(),
+		this.timeService.subscribeJsonTime(new DefaultDelayTimeProvider(() -> Delay.immediate(), t -> Delay.infinite(),
 				error -> Delay.of(Duration.ofMinutes(30))), endpoint, response -> {
 					final var token = response.data().getAsJsonObject().get("access_token").getAsString();
 					this._setStatusAuthenticationFailed(false);
@@ -192,7 +196,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 						}
 						this._setHttpStatusCode(HttpStatus.OK.code());
 
-						this.httpBridge.subscribeTime(
+						this.timeService.subscribeTime(
 								new RabotChargeDelayTimeProvider(this.componentManager.getClock()), //
 								this.createRabotChargeEndpoint(token), //
 								// pass priceComponent
