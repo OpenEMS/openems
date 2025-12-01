@@ -3,8 +3,6 @@ package io.openems.edge.bridge.mqtt;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import com.hivemq.client.mqtt.datatypes.MqttQos;
-
 import io.openems.edge.bridge.mqtt.api.MqttMessage;
 import io.openems.edge.bridge.mqtt.api.QoS;
 
@@ -12,8 +10,7 @@ import io.openems.edge.bridge.mqtt.api.QoS;
  * Common interface for MQTT connection handlers.
  *
  * <p>
- * Implementations handle protocol-specific connection logic for MQTT 3.x and
- * MQTT 5.0.
+ * Implementations handle protocol-specific connection logic for MQTT.
  */
 public interface MqttConnectionHandler {
 
@@ -90,30 +87,31 @@ public interface MqttConnectionHandler {
 	}
 
 	/**
-	 * Converts OpenEMS QoS to HiveMQ QoS.
+	 * Converts OpenEMS QoS to Paho QoS int value.
 	 *
 	 * @param qos the OpenEMS QoS
-	 * @return the HiveMQ QoS
+	 * @return the Paho QoS int (0, 1, or 2)
 	 */
-	static MqttQos toHiveMqQos(QoS qos) {
+	static int toPahoQos(QoS qos) {
 		return switch (qos) {
-		case AT_MOST_ONCE -> MqttQos.AT_MOST_ONCE;
-		case AT_LEAST_ONCE -> MqttQos.AT_LEAST_ONCE;
-		case EXACTLY_ONCE -> MqttQos.EXACTLY_ONCE;
+		case AT_MOST_ONCE -> 0;
+		case AT_LEAST_ONCE -> 1;
+		case EXACTLY_ONCE -> 2;
 		};
 	}
 
 	/**
-	 * Converts HiveMQ QoS to OpenEMS QoS.
+	 * Converts Paho QoS int to OpenEMS QoS.
 	 *
-	 * @param qos the HiveMQ QoS
+	 * @param qos the Paho QoS int (0, 1, or 2)
 	 * @return the OpenEMS QoS
 	 */
-	static QoS fromHiveMqQos(MqttQos qos) {
+	static QoS fromPahoQos(int qos) {
 		return switch (qos) {
-		case AT_MOST_ONCE -> QoS.AT_MOST_ONCE;
-		case AT_LEAST_ONCE -> QoS.AT_LEAST_ONCE;
-		case EXACTLY_ONCE -> QoS.EXACTLY_ONCE;
+		case 0 -> QoS.AT_MOST_ONCE;
+		case 1 -> QoS.AT_LEAST_ONCE;
+		case 2 -> QoS.EXACTLY_ONCE;
+		default -> QoS.AT_MOST_ONCE;
 		};
 	}
 

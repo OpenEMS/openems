@@ -1,199 +1,286 @@
 package io.openems.edge.bridge.mqtt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hivemq.client.mqtt.MqttClient;
-import com.hivemq.client.mqtt.MqttClientState;
-import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedContext;
-import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedListener;
-import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext;
-import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedListener;
-import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
-
-import io.openems.edge.bridge.mqtt.api.MqttMessage;
+import io.openems.edge.bridge.mqtt.api.MqttVersion;
 import io.openems.edge.bridge.mqtt.api.QoS;
 
 /**
- * MQTT 3.1.1 connection handler using HiveMQ client.
+ * MQTT 3.1/3.1.1 connection handler using Eclipse Paho v3 client.
  */
-public class Mqtt3ConnectionHandler
-		implements MqttConnectionHandler, MqttClientConnectedListener, MqttClientDisconnectedListener {
+public class Mqtt3ConnectionHandler implements MqttConnectionHandler, MqttCallback {
 
 	private final Logger log = LoggerFactory.getLogger(Mqtt3ConnectionHandler.class);
 
 	private final Config config;
-	private final String host;
-	private final int port;
+	private final String serverUri;
 	private final String clientId;
-	private final boolean useSsl;
+	private final MqttVersion mqttVersion;
 
-	private Mqtt3AsyncClient client;
+	private MqttAsyncClient client;
 	private ConnectionCallback connectionCallback;
+	private final Map<String, Consumer<io.openems.edge.bridge.mqtt.api.MqttMessage>> subscriptions = new ConcurrentHashMap<>();
+	private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+	private volatile boolean shouldReconnect = true;
 
 	/**
 	 * Creates a new MQTT 3 connection handler.
 	 *
-	 * @param config   the configuration
-	 * @param host     the broker host
-	 * @param port     the broker port
-	 * @param clientId the client ID
-	 * @param useSsl   whether to use SSL
+	 * @param config      the configuration
+	 * @param host        the broker host
+	 * @param port        the broker port
+	 * @param clientId    the client ID
+	 * @param useSsl      whether to use SSL
+	 * @param mqttVersion the MQTT version (V3_1 or V3_1_1)
 	 */
-	public Mqtt3ConnectionHandler(Config config, String host, int port, String clientId, boolean useSsl) {
+	public Mqtt3ConnectionHandler(Config config, String host, int port, String clientId, boolean useSsl,
+			MqttVersion mqttVersion) {
 		this.config = config;
-		this.host = host;
-		this.port = port;
+		this.serverUri = (useSsl ? "ssl://" : "tcp://") + host + ":" + port;
 		this.clientId = clientId;
-		this.useSsl = useSsl;
+		this.mqttVersion = mqttVersion;
 	}
 
 	@Override
 	public void connect(ConnectionCallback callback) {
 		this.connectionCallback = callback;
+		this.shouldReconnect = true;
 
-		var builder = MqttClient.builder() //
-				.useMqttVersion3() //
-				.identifier(this.clientId) //
-				.serverHost(this.host) //
-				.serverPort(this.port) //
-				.addConnectedListener(this) //
-				.addDisconnectedListener(this) //
-				.automaticReconnect() //
-				.initialDelay(this.config.reconnectDelayMs(), TimeUnit.MILLISECONDS) //
-				.maxDelay(this.config.maxReconnectDelayMs(), TimeUnit.MILLISECONDS) //
-				.applyAutomaticReconnect();
+		try {
+			this.client = new MqttAsyncClient(this.serverUri, this.clientId);
+			this.client.setCallback(this);
 
-		if (this.useSsl) {
-			builder.sslWithDefaultConfig();
+			var options = new MqttConnectOptions();
+			options.setCleanSession(this.config.cleanSession());
+			options.setKeepAliveInterval(this.config.keepAliveInterval());
+			options.setAutomaticReconnect(false); // We handle reconnect ourselves
+			options.setConnectionTimeout(30);
+
+			// Set MQTT version
+			if (this.mqttVersion == MqttVersion.V3_1) {
+				options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
+			} else {
+				options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
+			}
+
+			// Authentication
+			if (!this.config.username().isEmpty()) {
+				options.setUserName(this.config.username());
+				options.setPassword(this.config.password().toCharArray());
+			}
+
+			// Last Will and Testament
+			if (!this.config.lwtTopic().isEmpty()) {
+				options.setWill(this.config.lwtTopic(),
+						this.config.lwtMessage().getBytes(StandardCharsets.UTF_8),
+						MqttConnectionHandler.toPahoQos(this.config.lwtQos()),
+						this.config.lwtRetained());
+			}
+
+			this.client.connect(options).waitForCompletion(30000);
+			this.log.info("Connected to MQTT broker using {}: {}", this.mqttVersion.getDisplayName(), this.serverUri);
+			callback.onConnected();
+
+		} catch (MqttException e) {
+			this.log.error("{} connection failed: {}", this.mqttVersion.getDisplayName(), e.getMessage());
+			callback.onConnectionFailed(e.getMessage());
+			this.scheduleReconnect();
 		}
+	}
 
-		this.client = builder.buildAsync();
-
-		var connectBuilder = this.client.connectWith() //
-				.cleanSession(this.config.cleanSession()) //
-				.keepAlive(this.config.keepAliveInterval());
-
-		// Authentication
-		if (!this.config.username().isEmpty()) {
-			connectBuilder.simpleAuth() //
-					.username(this.config.username()) //
-					.password(this.config.password().getBytes(StandardCharsets.UTF_8)) //
-					.applySimpleAuth();
+	private void scheduleReconnect() {
+		if (!this.shouldReconnect) {
+			return;
 		}
-
-		// Last Will and Testament
-		if (!this.config.lwtTopic().isEmpty()) {
-			connectBuilder.willPublish() //
-					.topic(this.config.lwtTopic()) //
-					.payload(this.config.lwtMessage().getBytes(StandardCharsets.UTF_8)) //
-					.qos(MqttConnectionHandler.toHiveMqQos(this.config.lwtQos())) //
-					.retain(this.config.lwtRetained()) //
-					.applyWillPublish();
-		}
-
-		connectBuilder.send() //
-				.whenComplete((connAck, throwable) -> {
-					if (throwable != null) {
-						this.log.error("MQTT 3.1.1 connection failed: {}", throwable.getMessage());
-						callback.onConnectionFailed(throwable.getMessage());
-					} else {
-						this.log.info("Connected to MQTT broker using MQTT 3.1.1");
-						callback.onConnected();
-					}
-				});
+		this.reconnectExecutor.schedule(() -> {
+			if (this.shouldReconnect && (this.client == null || !this.client.isConnected())) {
+				this.log.info("Attempting to reconnect to MQTT broker...");
+				this.connect(this.connectionCallback);
+			}
+		}, this.config.reconnectDelayMs(), TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	public void disconnect() {
+		this.shouldReconnect = false;
+		if (this.client != null && this.client.isConnected()) {
+			try {
+				this.client.disconnect().waitForCompletion(5000);
+			} catch (MqttException e) {
+				this.log.warn("Error disconnecting MQTT 3 client: {}", e.getMessage());
+			}
+		}
 		if (this.client != null) {
 			try {
-				this.client.disconnect().get(5, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				this.log.warn("Error disconnecting MQTT 3 client: {}", e.getMessage());
+				this.client.close();
+			} catch (MqttException e) {
+				this.log.warn("Error closing MQTT 3 client: {}", e.getMessage());
 			}
 			this.client = null;
 		}
+		this.reconnectExecutor.shutdownNow();
 	}
 
 	@Override
 	public boolean isConnected() {
-		return this.client != null && this.client.getState() == MqttClientState.CONNECTED;
+		return this.client != null && this.client.isConnected();
 	}
 
 	@Override
 	public CompletableFuture<Void> publish(String topic, byte[] payload, QoS qos, boolean retained) {
-		if (this.client == null) {
-			var future = new CompletableFuture<Void>();
+		var future = new CompletableFuture<Void>();
+
+		if (this.client == null || !this.client.isConnected()) {
 			future.completeExceptionally(new IllegalStateException("Not connected"));
 			return future;
 		}
 
-		return this.client.publishWith() //
-				.topic(topic) //
-				.payload(payload) //
-				.qos(MqttConnectionHandler.toHiveMqQos(qos)) //
-				.retain(retained) //
-				.send() //
-				.thenApply(publish -> null);
+		try {
+			var message = new MqttMessage(payload);
+			message.setQos(MqttConnectionHandler.toPahoQos(qos));
+			message.setRetained(retained);
+
+			this.client.publish(topic, message, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
+				@Override
+				public void onSuccess(IMqttToken asyncActionToken) {
+					future.complete(null);
+				}
+
+				@Override
+				public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+					future.completeExceptionally(exception);
+				}
+			});
+		} catch (MqttException e) {
+			future.completeExceptionally(e);
+		}
+
+		return future;
 	}
 
 	@Override
-	public void subscribe(String topicFilter, QoS qos, Consumer<MqttMessage> callback) {
-		if (this.client == null) {
+	public void subscribe(String topicFilter, QoS qos, Consumer<io.openems.edge.bridge.mqtt.api.MqttMessage> callback) {
+		if (this.client == null || !this.client.isConnected()) {
 			return;
 		}
 
-		this.client.subscribeWith() //
-				.topicFilter(topicFilter) //
-				.qos(MqttConnectionHandler.toHiveMqQos(qos)) //
-				.callback(publish -> {
-					var msg = new MqttMessage(//
-							publish.getTopic().toString(), //
-							publish.getPayloadAsBytes(), //
-							MqttConnectionHandler.fromHiveMqQos(publish.getQos()), //
-							publish.isRetain());
-					callback.accept(msg);
-				}) //
-				.send();
+		this.subscriptions.put(topicFilter, callback);
 
-		if (this.config.debugMode()) {
-			this.log.debug("Subscribed to {} with QoS {}", topicFilter, qos);
+		try {
+			this.client.subscribe(topicFilter, MqttConnectionHandler.toPahoQos(qos));
+			if (this.config.debugMode()) {
+				this.log.debug("Subscribed to {} with QoS {}", topicFilter, qos);
+			}
+		} catch (MqttException e) {
+			this.log.error("Failed to subscribe to {}: {}", topicFilter, e.getMessage());
 		}
 	}
 
 	@Override
 	public CompletableFuture<Void> unsubscribe(String topicFilter) {
-		if (this.client == null || !this.isConnected()) {
-			return CompletableFuture.completedFuture(null);
+		var future = new CompletableFuture<Void>();
+
+		if (this.client == null || !this.client.isConnected()) {
+			future.complete(null);
+			return future;
 		}
 
-		return this.client.unsubscribeWith() //
-				.topicFilter(topicFilter) //
-				.send() //
-				.thenApply(unsub -> null);
-	}
+		this.subscriptions.remove(topicFilter);
 
-	@Override
-	public void onConnected(MqttClientConnectedContext context) {
-		this.log.info("Connected to MQTT broker (MQTT 3.1.1)");
-		if (this.connectionCallback != null) {
-			this.connectionCallback.onConnected();
+		try {
+			this.client.unsubscribe(topicFilter, null, new org.eclipse.paho.client.mqttv3.IMqttActionListener() {
+				@Override
+				public void onSuccess(IMqttToken asyncActionToken) {
+					future.complete(null);
+				}
+
+				@Override
+				public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+					future.completeExceptionally(exception);
+				}
+			});
+		} catch (MqttException e) {
+			future.completeExceptionally(e);
 		}
+
+		return future;
 	}
 
+	// MqttCallback implementation
+
 	@Override
-	public void onDisconnected(MqttClientDisconnectedContext context) {
-		var reason = context.getCause() != null ? context.getCause().getMessage() : "Unknown";
+	public void connectionLost(Throwable cause) {
+		var reason = cause != null ? cause.getMessage() : "Unknown";
 		this.log.warn("Disconnected from MQTT broker: {}", reason);
 		if (this.connectionCallback != null) {
 			this.connectionCallback.onDisconnected(reason);
 		}
+		this.scheduleReconnect();
+	}
+
+	@Override
+	public void messageArrived(String topic, MqttMessage message) throws Exception {
+		// Find matching subscription
+		for (var entry : this.subscriptions.entrySet()) {
+			if (this.topicMatches(entry.getKey(), topic)) {
+				var msg = new io.openems.edge.bridge.mqtt.api.MqttMessage(//
+						topic, //
+						message.getPayload(), //
+						MqttConnectionHandler.fromPahoQos(message.getQos()), //
+						message.isRetained());
+				entry.getValue().accept(msg);
+			}
+		}
+	}
+
+	@Override
+	public void deliveryComplete(IMqttDeliveryToken token) {
+		// Not used for async publishing
+	}
+
+	/**
+	 * Checks if a topic matches a topic filter (supports + and # wildcards).
+	 *
+	 * @param filter the topic filter (may contain + and # wildcards)
+	 * @param topic  the actual topic to check
+	 * @return true if the topic matches the filter
+	 */
+	private boolean topicMatches(String filter, String topic) {
+		if (filter.equals(topic)) {
+			return true;
+		}
+		var filterParts = filter.split("/");
+		var topicParts = topic.split("/");
+
+		for (int i = 0; i < filterParts.length; i++) {
+			if (filterParts[i].equals("#")) {
+				return true;
+			}
+			if (i >= topicParts.length) {
+				return false;
+			}
+			if (!filterParts[i].equals("+") && !filterParts[i].equals(topicParts[i])) {
+				return false;
+			}
+		}
+		return filterParts.length == topicParts.length;
 	}
 
 }

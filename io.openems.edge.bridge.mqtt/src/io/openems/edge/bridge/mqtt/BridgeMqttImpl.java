@@ -119,7 +119,8 @@ public class BridgeMqttImpl extends AbstractOpenemsComponent
 
 		// Create appropriate handler based on MQTT version
 		this.connectionHandler = switch (this.config.mqttVersion()) {
-		case V3_1, V3_1_1 -> new Mqtt3ConnectionHandler(this.config, host, port, clientId, useSsl);
+		case V3_1, V3_1_1 -> new Mqtt3ConnectionHandler(this.config, host, port, clientId, useSsl,
+				this.config.mqttVersion());
 		case V5 -> new Mqtt5ConnectionHandler(this.config, host, port, clientId, useSsl);
 		};
 
