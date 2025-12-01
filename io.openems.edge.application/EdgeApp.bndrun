@@ -52,6 +52,7 @@
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
+	bnd.identity;id='io.openems.edge.bridge.mqtt',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
 	bnd.identity;id='io.openems.edge.controller.api.backend',\
@@ -244,6 +245,7 @@
 	io.openems.edge.bridge.http;version=snapshot,\
 	io.openems.edge.bridge.mbus;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
+	io.openems.edge.bridge.mqtt;version=snapshot,\
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api;version=snapshot,\
@@ -462,6 +464,7 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
+	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[2.2.21,2.2.22)',\
 	org.jsoup;version='[1.21.2,1.21.3)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
