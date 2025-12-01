@@ -3,7 +3,8 @@ package io.openems.edge.victron.enums;
 import io.openems.common.types.OptionsEnum;
 
 /*
- * Attention!. Differs from ChargeStateEss
+ *
+ * ATTENTION: Differs from ChargeStateEss
  *
  * */
 public enum ChargeState implements OptionsEnum {

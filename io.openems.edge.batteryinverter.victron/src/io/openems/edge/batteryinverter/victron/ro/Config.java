@@ -40,8 +40,11 @@ public @interface Config {
     @AttributeDefinition(name = "Threshold for DC PV Feed-In in [W]", description = "DC PV Generation below this threshold will not be fed into grid.")
     int dcFeedInThreshold() default 100;
 
-	@AttributeDefinition(name = "Max Charge/Discharge Power", description = "max. Charge Power")
+	@AttributeDefinition(name = "Max Charge Power", description = "Maximum charge power in W")
 	int maxChargePower() default 2000;
+
+	@AttributeDefinition(name = "Max Discharge Power", description = "Maximum discharge power in W")
+	int maxDischargePower() default 2000;
 
     @AttributeDefinition(name = "Debug", description = "Enable debug mode?")
     boolean debugMode() default false;

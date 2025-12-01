@@ -22,7 +22,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.victron.ess.symmetric.VictronEss;
 import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverterImpl;
-//import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -42,8 +41,6 @@ import io.openems.edge.controller.ess.chargedischargelimiter.ControllerEssCharge
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 
-//import io.openems.edge.core.appmanager.ComponentUtil;
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Battery.Victron", //
@@ -56,9 +53,7 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 	public static final int DEFAULT_UNIT_ID = 225;
 	public static final int BATTERY_VOLTAGE = 48;
 
-	public Integer batteryMaxChargePower;
-	public Integer batteryMaxDischargePower;
-	public int minSocPercentage;
+	private int minSocPercentage;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -105,22 +100,15 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		
 
-		// update filter for 'Controllers'
-//		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Controllers", config.ess_id())) {
-//			return;
-//		}
-
-		// update filter for 'Ess'
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id()) || OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
+				config.modbus_id())
+				|| OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 
 		if (this.ess != null) {
 			this.ess.setBattery(this);
-			// return;
 		}
 
 		this.installListener();

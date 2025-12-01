@@ -5,44 +5,31 @@ import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 
+/**
+ * Handles the RUNNING state - active power control operation.
+ *
+ * <p>
+ * Note: Actual power setpoints are written by {@link VictronEssImpl#applyPower}
+ * which calls {@code batteryInverter.run()}. This handler only manages the
+ * state machine transitions and ensures the inverter is ready for operation.
+ */
 public class RunningHandler extends StateHandler<State, Context> {
 
-    @Override
-    public State runAndGetNextState(Context context) throws OpenemsNamedException {
-	final var inverter = context.getParent();
+	@Override
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		final var inverter = context.getParent();
 
-	// if (inverter.hasFaults() || inverter.getBatteryInverterState().get() ==
-	// Boolean.FALSE) {
-	// return State.UNDEFINED;
-	// }
+		// Check for faults - transition to UNDEFINED if problems detected
+		if (inverter.hasFaults()) {
+			return State.UNDEFINED;
+		}
 
-	// Mark as started
-	inverter._setStartStop(StartStop.START);
+		// Mark as started
+		inverter._setStartStop(StartStop.START);
 
-	// Apply Active and Reactive Power Set-Points
-	this.applyPower(context);
+		// Enable soft start for smooth power ramp-up
+		inverter.softStart(true);
 
-	inverter.softStart(true);
-	// inverter.setStartInverter();
-	return State.RUNNING;
-    }
-
-    /**
-     * Applies the Active and Reactive Power Set-Points.
-     *
-     * @param context the {@link Context}
-     * @throws OpenemsNamedException on error
-     */
-    private void applyPower(Context context) throws OpenemsNamedException {
-
-	// final VictronBatteryInverterImpl inverter = context.getParent();
-
-	// IntegerWriteChannel setActivePower =
-	// inverter.channel(Victron.ChannelId.SET_ACTIVE_POWER);
-	// setActivePower.setNextWriteValue(context.setActivePower);
-
-	// IntegerWriteChannel setReactivePower =
-	// inverter.channel(Victron.ChannelId.SET_REACTIVE_POWER);
-	// setReactivePower.setNextWriteValue(context.setReactivePower);
-    }
+		return State.RUNNING;
+	}
 }

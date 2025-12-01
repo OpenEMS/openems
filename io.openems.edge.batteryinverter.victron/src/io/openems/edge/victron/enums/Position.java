@@ -6,8 +6,7 @@ public enum Position implements OptionsEnum {
     UNDEFINED(-1, "undefined"), //
     AC_INPUT_1(0, "AC input 1"), //
     AC_OUTPUT(1, "AC output"), //
-    AC_INPUT_2(2, "AC input 2") //
-    ;
+    AC_INPUT_2(2, "AC input 2");
 
     private final int value;
     private final String option;

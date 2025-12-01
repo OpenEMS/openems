@@ -23,7 +23,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.victron.VictronBattery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.victron.ess.symmetric.VictronEss;
 import io.openems.edge.batteryinverter.victron.statemachine.Context;
@@ -62,9 +61,8 @@ import io.openems.edge.victron.enums.DeviceType;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
-		implements VictronBatteryInverter, OffGridBatteryInverter, ManagedSymmetricBatteryInverter, 
-		SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
+public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent implements VictronBatteryInverter,
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 
@@ -90,7 +88,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricBatteryInverter.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				// OffGridBatteryInverter.ChannelId.values(), //
 				VictronBatteryInverter.ChannelId.values() //
 		);
 
@@ -121,20 +118,19 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 
 		// update filter for 'Ess'
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id()) ) {
+				"Modbus", config.modbus_id())) {
 			return;
 		}
-		
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id());		
+
+		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id());
 
 		this._setMaxApparentPower(this.config.DeviceType().getApparentPowerLimit());
-		this._setGridMode(GridMode.ON_GRID);		
-		
+		this._setGridMode(GridMode.ON_GRID);
+
 		if (this.ess != null) {
 			this.ess.setBatteryInverter(this);
 			// return;
 		}
-
 
 	}
 
@@ -198,7 +194,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Gets BatteryInverter limits. Keep in mind that these may differ  battery
+	 * Gets BatteryInverter limits. Keep in mind that these may differ battery
 	 * limits.
 	 *
 	 */
@@ -273,8 +269,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 		// Victron: Negative values for Discharge
 		// OpenEMS: Negative values for Charge
 
-
-
 	}
 
 	// /**
@@ -312,8 +306,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 	// }
 	// }
 	// }
-	
-
 
 	/**
 	 * Sets some default settings on the inverter, like Timeout.
@@ -459,12 +451,11 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L2, new UnsignedWordElement(812)),
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L3, new UnsignedWordElement(813)),
 						new DummyRegisterElement(814, 816),
-						
+
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L1, new UnsignedWordElement(817)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L2, new UnsignedWordElement(818)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L3, new UnsignedWordElement(819)),
-						
-					
+
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L1, new SignedWordElement(820)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L2, new SignedWordElement(821)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L3, new SignedWordElement(822)),
@@ -477,7 +468,11 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						this.m(VictronBatteryInverter.ChannelId.DC_BATTERY_CURRENT, new SignedWordElement(841),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842),  // this is actually the value for DC power!!
+						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842), // this is
+																											// actually
+																											// the value
+																											// for DC
+																											// power!!
 								ElementToChannelConverter.INVERT),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_SOC, new UnsignedWordElement(843)),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_STATE, new UnsignedWordElement(844)),

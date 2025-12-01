@@ -5,8 +5,7 @@ import io.openems.common.types.OptionsEnum;
 public enum AllowDisallow implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DISALLOWED(0, "Disallowed"), //
-	ALLOWED(1, "Allowed") //
-	;
+	ALLOWED(1, "Allowed");
 
 	private final int value;
 	private final String name;
