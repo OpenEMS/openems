@@ -22,7 +22,7 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.PRODUCTION;
 
-	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge to use. This type of meter can by default only be connected via Modbus TCP enabled master device like the UMG604.")
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device. Defaults to '1' for Modbus/TCP.")
