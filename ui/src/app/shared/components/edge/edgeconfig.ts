@@ -1,7 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { ChannelAddress, Widgets } from "../../shared";
-import { baseNavigationTree, NavigationId, NavigationTree } from "../navigation/shared";
-import { Name } from "../shared/name";
+import { ChannelAddress } from "../../shared";
+import { Widgets } from "../../type/widgets";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -42,15 +41,21 @@ export class EdgeConfig {
      */
     public readonly widgets: Widgets;
 
-    public readonly navigation: NavigationTree;
-
     constructor(edge: Edge, source?: EdgeConfig) {
+
         if (source) {
-            this.components = source.components;
+            this.components = Object.entries(source.components).reduce((obj, [k, v]) => {
+                const component = EdgeConfig.Component.of(v);
+                if (component == null) {
+                    return obj;
+                }
+
+                obj[k] = component;
+                return obj;
+            }, {} as { [id: string]: EdgeConfig.Component });
+
             this.factories = source.factories;
         }
-
-        this.navigation = this.createNavigationTree(this.components, this.factories);
 
         // initialize Components
         for (const componentId in this.components) {
@@ -163,19 +168,20 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOs"), icon: "log-in-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOS"), icon: "log-in-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalOutput"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalInput"),
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO-CONTROL"), icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO_CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.IO.ChannelSingleThreshold",
                         "Controller.Io.FixDigitalOutput",
                         "Controller.IO.HeatingElement",
+                        "Controller.Heat.Heatingelement",
                         "Controller.IO.Heating.Room",
                         "Controller.Io.HeatPump.SgReady",
                     ]),
@@ -494,9 +500,29 @@ export class EdgeConfig {
      * @param nature the given Nature.
      * @param componentId the Component-ID
      */
-    public hasComponentNature(nature: string, componentId: string) {
+    public hasComponentNature(nature: EdgeConfig.NatureString, componentId: string) {
         const natureIds = this.getNatureIdsByComponentId(componentId);
         return natureIds.includes(nature);
+    }
+
+    /**
+     * Determines if component has factory id
+     *
+     * @param nature the given Nature.
+     * @param componentId the Component-ID
+     */
+    public hasComponentFactory(factoryId: string, component: EdgeConfig.Component) {
+        return component.factoryId === factoryId;
+    }
+
+    /**
+     * Determines if component has at least one of the given factory ids
+     *
+     * @param factoryIds the given factory ids.
+     * @returns true, if at least one of the passed factory ids, exists in config
+     */
+    public hasFactories(factoryIds: string[]): boolean {
+        return Object.entries(this.components).some(([id, component]) => factoryIds.includes(component.factoryId));
     }
 
     /**
@@ -571,9 +597,11 @@ export class EdgeConfig {
      * @returns true for CONSUMPTION_METERED
      */
     public isTypeConsumptionMetered(component: EdgeConfig.Component) {
+
         if (component.properties["type"] == "CONSUMPTION_METERED") {
             return true;
         }
+
         switch (component.factoryId) {
             case "GoodWe.EmergencyPowerMeter":
             case "Controller.IO.Heating.Room":
@@ -584,6 +612,9 @@ export class EdgeConfig {
             return true;
         }
         if (natures.includes("io.openems.edge.evse.api.chargepoint.EvseChargePoint")) {
+            return true;
+        }
+        if (natures.includes("io.openems.edge.heat.api.Heat")) {
             return true;
         }
         return false;
@@ -732,43 +763,6 @@ export class EdgeConfig {
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
     }
-
-    /**
-     * Creates a navigation Tree
-     *
-     * @param components the edgeconfig components
-     * @param factories the edgeconfig factories
-     * @returns a navigationTree
-     */
-    private createNavigationTree(components: { [id: string]: EdgeConfig.Component; }, factories: { [id: string]: EdgeConfig.Factory; }): NavigationTree {
-
-        // Create copy of navigationTree, avoid call by reference
-        const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree.slice() as ConstructorParameters<typeof NavigationTree>;
-        const navigationTree: NavigationTree = new NavigationTree(..._baseNavigationTree);
-
-        const baseMode: NavigationTree["mode"] = "label";
-        for (const [componentId, component] of Object.entries(components)) {
-            switch (component.factoryId) {
-                case "Evse.Controller.Single":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "evse/" + componentId, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-                            new NavigationTree("history", "history", { name: "stats-chart-outline", color: "warning" }, "Historie", baseMode, [], null),
-                            new NavigationTree("forecast", "forecast", { name: "stats-chart-outline", color: "success" }, "Prognose", baseMode, [], null),
-                        ], navigationTree));
-                    break;
-                case "Controller.IO.Heating.Room":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, "io-heating-room/" + componentId, { name: "flame", color: "danger" }, Name.METER_ALIAS_OR_ID(component), baseMode, [],
-                            navigationTree,));
-                    break;
-            }
-        }
-        return navigationTree;
-    }
-
-
 }
 
 export enum PersistencePriority {
@@ -812,15 +806,21 @@ export namespace EdgeConfig {
     }
 
     export class Component {
-        public id: string = "";
-        public alias: string = "";
-        public isEnabled: boolean = false;
-
         constructor(
+            public id: string = "",
+            public alias: string = "",
+            public isEnabled: boolean = false,
             public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {},
             public readonly channels?: { [channelId: string]: ComponentChannel },
         ) { }
+
+        public static of(component: EdgeConfig.Component | null): EdgeConfig.Component | null {
+            if (component == null) {
+                return null;
+            }
+            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.factoryId, component.properties, component.channels ?? {});
+        }
 
         /* Safely gets a property from a component, if it exists, else returns null.
         *
@@ -830,6 +830,38 @@ export namespace EdgeConfig {
         */
         public getPropertyFromComponent<T>(property: string): T | null {
             return this.properties[property] ?? null;
+        }
+
+        /**
+         * Checks if property has a given value
+         *
+         *@param propertyName - The name of the property to check.
+         *@param value - The value to compare against.
+         *@returns True if the property exists and has the given value; otherwise, false.
+         */
+        public hasPropertyValue<T>(propertyName: string, value: T): boolean {
+            const propertyValue = this.getPropertyFromComponent<T>(propertyName);
+            if (!propertyValue) {
+                return false;
+            }
+
+            if (typeof value === "boolean" && typeof propertyValue === "string") {
+                return propertyValue.toLowerCase() === String(value);
+            }
+
+            if (typeof value === "string" && typeof propertyValue === "boolean") {
+                return String(propertyValue) === value.toLowerCase();
+            }
+
+            if (typeof value === "number" && typeof propertyValue === "string") {
+                return Number(propertyValue) === value;
+            }
+
+            if (typeof value === "string" && typeof propertyValue === "number") {
+                return propertyValue === Number(value);
+            }
+
+            return propertyValue === value;
         }
     }
 
@@ -876,4 +908,7 @@ export namespace EdgeConfig {
         public name: string = "";
         public factoryIds: string[] = [];
     }
+
+    /** Enforces nature ids with at least 3 dots */
+    export type NatureString = `${string}.${string}.${string}.${string}${string}`;
 }

@@ -3,7 +3,6 @@ package io.openems.edge.app.evcs;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -13,6 +12,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.enums.KebaHardwareType;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
@@ -30,13 +32,26 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
-import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public final class EvcsProps {
 
 	public static final int NUMBER_OF_PHASES = 3;
 
 	private EvcsProps() {
+	}
+
+	/**
+	 * Creates a {@link AppDef} for configuring the reaad only of a evcs app.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> readOnly() {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.readOnly.label") //
+				.setTranslatedDescription("App.Evcs.readOnly.description") //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setDefaultValue(false);
 	}
 
 	/**
@@ -186,18 +201,30 @@ public final class EvcsProps {
 
 	/**
 	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
-	 * 
+	 *
 	 * @return the {@link AppDef}
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.Evcs.phaseRotation.label") //
-				.setTranslatedDescription("App.Evcs.phaseRotation.description") //
-				.setDefaultValue(PhaseRotation.L1_L2_L3) //
+		return AppDef.copyOfGeneric(
+				CommonProps.phaseRotation().setTranslatedDescription("App.Evcs.phaseRotation.description")); //
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a {@link KebaHardwareType}.
+	 * 
+	 * @param evcsId {@link Nameable} of evcs id
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> hardwareType(Nameable evcsId) {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.Keba.hardwareType.label")
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(PhaseRotation.values()) //
-							.map(PhaseRotation::name) //
-							.toList());
-				}));
+					field.setOptions(OptionsFactory.of(KebaHardwareType.class), l);
+				})//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
+				})//
+				.setRequired(true)//
+				.setDefaultValue(KebaHardwareType.P30);
 	}
 }

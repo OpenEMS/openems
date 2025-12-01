@@ -1,9 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkOr;
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.createAncillaryCosts;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -26,6 +24,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.TranslatableEnum;
+import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
 import io.openems.edge.app.timeofusetariff.EntsoE.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -71,7 +70,6 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 @Component(name = "App.TimeOfUseTariff.ENTSO-E")
 public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
-	// TODO provide image in folder
 
 	public static enum Property implements Type<Property, EntsoE, Type.Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -80,20 +78,19 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		// TODO make this an Enum
 		BIDDING_ZONE(AppDef.of(EntsoE.class)//
 				.setTranslatedLabelWithAppPrefix(".biddingZone.label") //
 				.setTranslatedDescriptionWithAppPrefix(".biddingZone.description") //
+				.setRequired(true)
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(BiddingZone.optionsFactory(), l);
-					field.isRequired(true);
 				})),
 
 		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".resolution.label") //
 				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
 				.setRequired(true)//
-				.setDefaultValue(Resolution.HOURLY)//
+				.setDefaultValue(Resolution.QUARTERLY)//
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Resolution.optionsFactory(), l);
 					final var isInBiddingZone = Exp
@@ -101,8 +98,14 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
 					field.onlyShowIf(isInBiddingZone);
 				}))), //
+
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
-		;
+
+		PARAGRAPH_14A_CHECK(TimeOfUseProps.paragraph14aCheck(BIDDING_ZONE)), //
+
+		GERMAN_DSO(AncillaryCostsProps.germanDso(PARAGRAPH_14A_CHECK)),
+
+		TARIFF_TABLE(AncillaryCostsProps.tariffTable(GERMAN_DSO, TIME_OF_USE_TARIFF_PROVIDER_ID));
 
 		private final AppDef<? super EntsoE, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -141,6 +144,13 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var biddingZone = this.getString(p, l, Property.BIDDING_ZONE);
 			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
+			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
+			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
+			final var tariffTable = paragraph14aCheck && germanDso == GermanDSO.OTHER
+					? this.getJsonArray(p, Property.TARIFF_TABLE)
+					: null;
+
+			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso, tariffTable, t);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
@@ -151,7 +161,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.ENTSO-E",
 							JsonUtils.buildJsonObject() //
 									.addPropertyIfNotNull("biddingZone", biddingZone) //
-									.build())//
+									.addProperty("ancillaryCosts", ancillaryCosts) //
+									.build()) //
 			);
 
 			return AppConfiguration.create() //
@@ -188,7 +199,7 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

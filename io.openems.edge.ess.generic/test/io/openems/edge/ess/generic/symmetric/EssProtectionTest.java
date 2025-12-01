@@ -6,8 +6,8 @@ import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURREN
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MIN_VOLTAGE;
 import static io.openems.edge.battery.api.Battery.ChannelId.SOC;
 import static io.openems.edge.battery.api.Battery.ChannelId.VOLTAGE;
-import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_CHARGE_MAX_CURRENT;
+import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
@@ -17,6 +17,7 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
@@ -24,7 +25,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 

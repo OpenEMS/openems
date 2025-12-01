@@ -47,7 +47,9 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 	public static enum Property implements Type<Property, AppCleverPv, BundleParameter>, Nameable {
 		CONTROLLER_ID(AppDef.componentId("ctrlCleverPv0")), //
 		ALIAS(alias()), //
-		URL(CleverPvProps.url(CONTROLLER_ID));
+		URL(CleverPvProps.url(CONTROLLER_ID)), //
+		PRIVACY_POLICY(CleverPvProps.privacyPolicy(CONTROLLER_ID)), //
+		;
 
 		private final AppDef<? super AppCleverPv, ? super Property, ? super BundleParameter> def;
 
@@ -110,6 +112,7 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
+									.addProperty("readOnly", true)//
 									.build()));
 
 			return AppConfiguration.create() //
@@ -127,8 +130,7 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create() //
-				.setCanDelete(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
+				.setCanInstall(Role.ADMIN, Role.OWNER) //
 				.build();
 	}
 

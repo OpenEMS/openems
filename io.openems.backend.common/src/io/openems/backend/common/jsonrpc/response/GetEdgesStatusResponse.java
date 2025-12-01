@@ -30,12 +30,7 @@ import io.openems.common.utils.JsonUtils;
  */
 public class GetEdgesStatusResponse extends JsonrpcResponseSuccess {
 
-	public static class EdgeInfo {
-		protected final boolean online;
-
-		public EdgeInfo(boolean online) {
-			this.online = online;
-		}
+	public static record EdgeInfo(boolean online) {
 	}
 
 	private final Map<String, EdgeInfo> edgeInfos;

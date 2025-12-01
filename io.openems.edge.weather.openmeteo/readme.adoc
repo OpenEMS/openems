@@ -1,0 +1,5 @@
+= Weather Open-Meteo
+
+Implements a subscription to the Open-Meteo API to fetch weather forecasts for the upcoming days at fixed time intervals. The system periodically polls the API to update forecast data. Historical weather data can be retrieved on demand through individual API calls. All weather data is provided with a resolution of 15 minutes.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.weather.openmeteo[Source Code icon:github[]]

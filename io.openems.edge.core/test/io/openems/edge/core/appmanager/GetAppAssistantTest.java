@@ -18,10 +18,13 @@ public class GetAppAssistantTest {
 					Apps::feneconHome10, //
 					Apps::awattarHourly, //
 					Apps::entsoE, //
+					Apps::ews, //
 					Apps::stromdaoCorrently, //
 					Apps::tibber, //
 					Apps::modbusTcpApiReadOnly, //
 					Apps::modbusTcpApiReadWrite, //
+					Apps::modbusRtuApiReadOnly, //
+					Apps::modbusRtuApiReadWrite, //
 					Apps::restJsonApiReadOnly, //
 					Apps::hardyBarthEvcs, //
 					Apps::kebaEvcs, //

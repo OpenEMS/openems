@@ -3,30 +3,41 @@ package io.openems.edge.ess.generic.symmetric;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.ACTIVE_POWER;
+import static io.openems.edge.common.component.OpenemsComponent.ChannelId.STATE;
 import static io.openems.edge.common.startstop.StartStoppable.ChannelId.START_STOP;
+import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER;
+import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;
 import static io.openems.edge.ess.generic.common.GenericManagedEss.EFFICIENCY_FACTOR;
+import static io.openems.edge.ess.generic.common.RuntimeChannels.ChannelId.CUMULATED_TIME_INFO_STATE;
+import static io.openems.edge.ess.generic.common.RuntimeChannels.ChannelId.CUMULATED_TIME_OK_STATE;
 import static io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetric.ChannelId.STATE_MACHINE;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import org.junit.Test;
+import org.osgi.service.event.Event;
 
+import io.openems.common.channel.Level;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
+import io.openems.edge.timedata.test.DummyTimedata;
 
 public class EssGenericManagedSymmetricImplTest {
 
@@ -152,5 +163,37 @@ public class EssGenericManagedSymmetricImplTest {
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.ERROR)) //
 		;
+	}
+
+	@Test
+	public void testStateRuntimeChannels() throws Exception {
+		var sut = new EssGenericManagedSymmetricImpl(); //
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var timedata = new DummyTimedata("timedata");
+		final var event = new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, Map.of());
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
+				.addReference("battery", new DummyBattery("battery0")) //
+				.addReference("timedata", timedata) //
+				.addComponent(new DummyCycle(1000)) //
+				.activate(MyConfig.create() //
+						.setId("ess0") //
+						.setStartStopConfig(StartStopConfig.START) //
+						.setBatteryInverterId("batteryInverter0") //
+						.setBatteryId("battery0") //
+						.build()) //
+				.next(new TestCase("Waiting for the battery and inverter to start")
+						.onAfterProcessImage(sut::handleStateMachine), 10) //
+				.next(new TestCase() //
+						.input(STATE, Level.OK) //
+						.input(ALLOWED_CHARGE_POWER, 0) //
+						.input(SOC, 96)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> sut.handleEvent(event)))
+				.next(new TestCase() //
+						.output(CUMULATED_TIME_OK_STATE, 0) //
+						.output(CUMULATED_TIME_INFO_STATE, 0));
 	}
 }

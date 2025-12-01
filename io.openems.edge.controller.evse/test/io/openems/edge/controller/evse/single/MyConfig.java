@@ -8,14 +8,15 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String chargePointId;
 		private Mode mode;
 		private String electricVehicleId;
+		private PhaseSwitching phaseSwitching;
 		private String smartConfig;
 		private int manualEnergySessionLimit;
-		private boolean debugMode;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setPhaseSwitching(PhaseSwitching phaseSwitching) {
+			this.phaseSwitching = phaseSwitching;
+			return this;
+		}
+
 		public Builder setElectricVehicleId(String electricVehicleId) {
 			this.electricVehicleId = electricVehicleId;
 			return this;
@@ -50,8 +56,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -92,6 +98,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public PhaseSwitching phaseSwitching() {
+		return this.builder.phaseSwitching;
+	}
+
+	@Override
 	public String smartConfig() {
 		return this.builder.smartConfig;
 	}
@@ -102,8 +113,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 
 	@Override

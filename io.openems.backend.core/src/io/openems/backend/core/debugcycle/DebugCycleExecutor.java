@@ -1,6 +1,6 @@
 package io.openems.backend.core.debugcycle;
 
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,12 +17,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonElement;
-
 import io.openems.backend.common.debugcycle.DebugLoggable;
-import io.openems.backend.common.timedata.TimedataManager;
-import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
+import io.openems.backend.common.debugcycle.MetricsConsumer;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Component(//
@@ -31,10 +27,15 @@ import io.openems.common.utils.ThreadPoolUtils;
 )
 public class DebugCycleExecutor implements Runnable {
 
-	private static final String EDGE_ID = "backend0";
-
 	private final Logger log = LoggerFactory.getLogger(DebugCycleExecutor.class);
-
+	
+	@Reference(//
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY //
+	)
+	private volatile List<MetricsConsumer> debugCycleConsumer;
+	
 	@Reference(//
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			policy = ReferencePolicy.DYNAMIC, //
@@ -42,14 +43,13 @@ public class DebugCycleExecutor implements Runnable {
 	)
 	private volatile List<DebugLoggable> debugCycledObjects;
 
-	@Reference
-	private TimedataManager timedataManager;
-
 	private final ScheduledExecutorService debugCycleScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Activate
 	public DebugCycleExecutor() {
-		this.debugCycleScheduledExecutor.scheduleAtFixedRate(this, 5, 5, TimeUnit.SECONDS);
+		final int updateInterval = 5;
+		this.log.info("Update metrics all {} Seconds", updateInterval);
+		this.debugCycleScheduledExecutor.scheduleAtFixedRate(this, updateInterval, updateInterval, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -57,12 +57,16 @@ public class DebugCycleExecutor implements Runnable {
 	 */
 	@Deactivate
 	public void deactivate() {
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugCycleScheduledExecutor, 0);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugCycleScheduledExecutor, 1);
 	}
 
 	@Override
 	public void run() {
-		final var now = Instant.now().toEpochMilli();
+		final var now = ZonedDateTime.now();
+		if (this.debugCycleConsumer.isEmpty()) {
+			return;
+		}
+		
 		for (var debugCycle : this.debugCycledObjects) {
 			// handle console logs
 			try {
@@ -71,21 +75,21 @@ public class DebugCycleExecutor implements Runnable {
 					this.log.info(debugLog);
 				}
 			} catch (Exception e) {
-				this.log.warn("An Exception occured while getting debugLog from " + debugCycle, e);
+				this.log.warn("An Exception occurred while getting debugLog from " + debugCycle, e);
 			}
 
 			// handle database metrics
-			try {
-				final var metrics = debugCycle.debugMetrics();
-				if (metrics != null && !metrics.isEmpty()) {
-					final var data = TreeBasedTable.<Long, String, JsonElement>create();
-					for (var entry : metrics.entrySet()) {
-						data.put(now, entry.getKey(), entry.getValue());
-					}
-					this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
+			final var metrics = debugCycle.debugMetrics();
+			if (metrics == null || metrics.isEmpty())  {
+				continue;
+			}
+			
+			for (var consumer : this.debugCycleConsumer) {
+				try {				
+					consumer.consumeMetrics(now, metrics);
+				} catch (Throwable e) {
+					this.log.warn("An Exception occurred while getting debugMetrics from {}", debugCycle, e);
 				}
-			} catch (Exception e) {
-				this.log.warn("An Exception occured while getting debugMetrics from " + debugCycle, e);
 			}
 		}
 	}

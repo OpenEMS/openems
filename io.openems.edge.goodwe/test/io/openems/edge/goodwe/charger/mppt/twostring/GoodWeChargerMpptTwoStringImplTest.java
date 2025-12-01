@@ -2,6 +2,7 @@ package io.openems.edge.goodwe.charger.mppt.twostring;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
@@ -9,7 +10,7 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.test.DummyPower;
@@ -22,6 +23,8 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 public class GoodWeChargerMpptTwoStringImplTest {
+
+	private static final DummyMeta META = new DummyMeta("meta0");
 
 	@Test
 	public void test() throws Exception {
@@ -62,6 +65,7 @@ public class GoodWeChargerMpptTwoStringImplTest {
 		inverter.addCharger(charger3);
 
 		new ComponentTest(inverter) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -80,7 +84,6 @@ public class GoodWeChargerMpptTwoStringImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //

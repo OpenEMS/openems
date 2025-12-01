@@ -1,9 +1,10 @@
 import { TranslateService } from "@ngx-translate/core";
 import { Filter } from "src/app/index/filter/filter.component";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
 export type Theme = "OpenEMS";
+export type BaseMeta = Pick<Environment, "links" | "images">;
 
 export interface Environment {
     readonly theme: Theme;
@@ -20,13 +21,35 @@ export interface Environment {
     debugMode: boolean;
 
     readonly docsUrlPrefix: string;
+    readonly images: {
+        readonly EVSE: {
+            readonly KEBA_P30: string | null,
+            readonly KEBA_P40: string | null,
+            readonly HARDY_BARTH: string | null,
+            readonly ALPITRONIC: string | null,
+        },
+    },
     readonly links: {
+        readonly REDIRECT: {
+            readonly COMMON_STORAGE: string | null,
+            readonly COMMON_AUTARCHY: string | null,
+            readonly COMMON_CONSUMPTION: string | null,
+            readonly COMMON_GRID: string | null,
+            readonly COMMON_PRODUCTION: string | null,
+            readonly COMMON_SELFCONSUMPTION: string | null,
 
-        readonly COMMON_STORAGE: string | null,
+            readonly EVCS_KEBA: string | null,
+            readonly EVCS_HARDY_BARTH: string | null,
+            readonly EVCS_MENNEKES: string | null,
+            readonly EVCS_GO_E: string | null,
+            readonly EVCS_IES: string | null,
+            readonly EVCS_ALPITRONIC_HYPER: string | null,
+        }
+
+
+        readonly DATA_PROTECTION: string | null,
         readonly FORGET_PASSWORD: string,
-        readonly EVCS_KEBA_KECONTACT: string,
-        readonly EVCS_HARDY_BARTH: string,
-        readonly EVCS_OCPP_IESKEYWATTSINGLE: string,
+        readonly EVCS: string | null,
 
         readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
         readonly CONTROLLER_CHP_SOC: string
@@ -76,15 +99,22 @@ export interface Environment {
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,
-                    readonly COMMERCIAL_50: string,
+                    readonly COMMERCIAL_50_GEN_1: string,
+                    readonly COMMERCIAL_50_GEN_3: string,
                     readonly COMMERCIAL_92: string,
                     readonly COMMERCIAL_92_CLUSTER: string,
                 },
+                readonly INDUSTRIAL?: {
+                    S: string,
+                    L: string
+                }
             },
 
             readonly RUNDSTEUER: {
                 readonly HOME: string,
                 readonly HOME_GEN_2: string,
+                readonly HOME_20_30: string,
+                readonly COMMERCIAL_50_GEN_3: string,
             },
 
             readonly AVU: string,
@@ -111,15 +141,27 @@ export interface Environment {
             readonly HOME_10: {
                 readonly DE: string,
                 readonly EN: string,
+            },
+            readonly HOME_6_10_15: {
+                readonly DE: string,
+                readonly EN: string,
+            },
+            readonly HOME_20_30: {
+                readonly DE: string,
+                readonly EN: string,
             }
         },
+        SYSTEM: {
+            INDUSTRIAL_S: string,
+            INDUSTRIAL_L: string,
+        },
     },
-    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null
+    readonly PRODUCT_TYPES: (translate: TranslateService) => Filter | null,
 }
 
 /*
- * Return the proper websocket scheme (WS or WSS) depending on whether the page is accessed via HTTP or HTTPS.
+ * Return the proper websocket scheme ("ws" or "wss") depending on whether the page is accessed via HTTP or HTTPS.
  */
-export function getWebsocketScheme(): string {
-    return window.location.protocol === "https:" ? "wss://" : "ws://";
+export function getWebsocketScheme(protocol: string = window.location.protocol): string {
+    return protocol === "https:" ? "wss" : "ws";
 }

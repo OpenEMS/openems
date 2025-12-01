@@ -9,25 +9,26 @@ import static io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpe
 import static io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.WATCHDOG;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.util.stream.IntStream;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 
@@ -59,34 +60,39 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 		test = new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
-				.addReference("setModbus", new DummyModbusBridge("modbus0"));
-
-		// TODO implement proper Dummy-Modbus-Bridge with SunSpec support. Till then...
-		test.addReference("isSunSpecInitializationCompleted", true); //
-		var addChannel = AbstractOpenemsComponent.class.getDeclaredMethod("addChannel", ChannelId.class);
-		addChannel.setAccessible(true);
-		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_SOC_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_SOH_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_TEMP_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64202.DIS_MIN_V_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64202.CHA_MAX_V_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64202.DIS_MAX_A_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64202.CHA_MAX_A_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64202.EN_LIMIT_0.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64201.REQUESTED_STATE.getChannelId());
-		addChannel.invoke(sut, CURRENT_STATE.getChannelId());
-		addChannel.invoke(sut, WATCHDOG.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64201.W_SET_PCT.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64201.WPARAM_RMP_TMS.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64201.ST_VND.getChannelId());
-		addChannel.invoke(sut, KacoSunSpecModel.S64201.CONTROL_MODE.getChannelId());
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegisters(40000, 0x5375, 0x6e53) // isSunSpec
+						.withRegisters(40002, 1, 66) // Block 1
+						.withRegisters(40004, IntStream.range(0, 66).map(i -> 0).toArray()) //
+						.withRegisters(40070, 103, 50) // Block 103
+						.withRegisters(40072, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40122, 121, 50) // Block 121
+						.withRegisters(40124, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40174, 64201, 50) // Block 64201
+						.withRegisters(40176, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40226, 64202, 50) // Block 64202
+						.withRegisters(40228, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40278, 64203, 50) // Block 64203
+						.withRegisters(40280, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40330, 64204, 50) // Block 64204
+						.withRegisters(40332, IntStream.range(0, 50).map(i -> 0).toArray()) //
+						.withRegisters(40382, 0xFFFF, 0)); // END_OF_MAP
 
 		test.activate(MyConfig.create() //
 				.setId("batteryInverter0") //
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId("modbus0") //
 				.setActivateWatchdog(true) //
+				.setGridCode(GridCode.UNDEFINED) //
 				.build()); //
+
+		// let SunSpec initialize
+		sut.setStartStop(StartStop.UNDEFINED);
+		for (int i = 0; i < 9; i++) {
+			test.next(new TestCase());
+		}
+		sut.setStartStop(StartStop.START);
+		test.next(new TestCase());
 	}
 
 	@Test

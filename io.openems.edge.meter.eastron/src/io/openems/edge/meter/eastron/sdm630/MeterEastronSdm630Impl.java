@@ -39,6 +39,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -61,6 +62,8 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 
 	private MeterType meterType = MeterType.PRODUCTION;
 	private boolean invert;
+
+	private Config config;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -93,6 +96,7 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 		this.invert = config.invert();
+		this.config = config;
 
 		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
 				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
@@ -119,41 +123,42 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 30001;
+		var phaseRotation = this.getPhaseRotation();
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
+						m(phaseRotation.channelVoltageL1(),
 								new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
+						m(phaseRotation.channelVoltageL2(),
 								new FloatDoublewordElement(30003 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
+						m(phaseRotation.channelVoltageL3(),
 								new FloatDoublewordElement(30005 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L1,
+						m(phaseRotation.channelCurrentL1(),
 								new FloatDoublewordElement(30007 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L2,
+						m(phaseRotation.channelCurrentL2(),
 								new FloatDoublewordElement(30009 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L3,
+						m(phaseRotation.channelCurrentL3(),
 								new FloatDoublewordElement(30011 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+						m(phaseRotation.channelActivePowerL1(),
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+						m(phaseRotation.channelActivePowerL2(),
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								INVERT_IF_TRUE(this.invert)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+						m(phaseRotation.channelActivePowerL3(),
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								INVERT_IF_TRUE(this.invert)),
@@ -229,6 +234,11 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 			this.calculateEnergy();
 		}
 		}
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
 	}
 
 	/**

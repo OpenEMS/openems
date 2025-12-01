@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.cluster;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static io.openems.edge.evcs.api.Phases.TWO_PHASE;
 import static java.lang.Math.round;
@@ -38,14 +40,12 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MetaEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -355,8 +355,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 					var guaranteedPower = this.getGuaranteedPower(managedEvcs);
 					var status = managedEvcs.getStatus();
 					switch (status) {
-					case ERROR, STARTING, UNDEFINED, NOT_READY_FOR_CHARGING, ENERGY_LIMIT_REACHED ->
-						managedEvcs.setChargePowerLimit(0);
+					case ERROR, STARTING, UNDEFINED, ENERGY_LIMIT_REACHED //
+						-> managedEvcs.setChargePowerLimit(0);
+					case NOT_READY_FOR_CHARGING //
+						-> managedEvcs.setChargePowerLimit(MINIMUM_CHARGE_POWER_GUARANTEE);
 					case READY_FOR_CHARGING -> {
 						// Check if there is enough power for an initial charge
 						if (totalPowerLimit - initialChargePower - this.getActivePower().orElse(0) >= guaranteedPower) {
@@ -580,7 +582,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		// Read maximum ESS Discharge power at the current position in the Cycle
 		this.maxEssDischargePower = switch (this.ess) {
 		case ManagedSymmetricEss e //
-			-> e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+			-> e.getPower().getMaxPower(e, ALL, ACTIVE);
 		case SymmetricEss e //
 			-> e.getMaxApparentPower().orElse(0);
 		};
