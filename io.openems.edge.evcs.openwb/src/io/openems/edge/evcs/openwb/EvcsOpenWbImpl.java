@@ -1,20 +1,12 @@
 package io.openems.edge.evcs.openwb;
 
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import java.nio.charset.StandardCharsets;
-
-import org.eclipse.paho.mqttv5.client.IMqttClient;
-import org.eclipse.paho.mqttv5.client.MqttCallback;
-import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
-import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
-import org.eclipse.paho.mqttv5.common.MqttException;
-import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,10 +21,14 @@ import com.google.gson.JsonParser;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.MeterType;
+import io.openems.edge.bridge.mqtt.api.BridgeMqtt;
+import io.openems.edge.bridge.mqtt.api.BridgeMqtt.MqttSubscription;
+import io.openems.edge.bridge.mqtt.api.MqttComponent;
+import io.openems.edge.bridge.mqtt.api.MqttMessage;
+import io.openems.edge.bridge.mqtt.api.QoS;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
@@ -48,7 +44,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		immediate = true, //
 		configurationPolicy = REQUIRE)
 public class EvcsOpenWbImpl extends AbstractOpenemsComponent
-		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, ModbusSlave, MqttCallback {
+		implements EvcsOpenWb, ElectricityMeter, OpenemsComponent, Evcs, TimedataProvider, ModbusSlave, MqttComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsOpenWbImpl.class);
 
@@ -57,9 +53,11 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
+	private volatile BridgeMqtt mqttBridge;
+
 	private Config config;
-	private IMqttClient mqttClient;
 	private String topicPrefix;
+	private MqttSubscription subscription;
 	private Integer energyStartSession = null;
 
 	// State tracking for status calculation
@@ -71,12 +69,18 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				EvcsOpenWb.ChannelId.values() //
+				MqttComponent.ChannelId.values() //
 		);
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumCurrentFromPhases(this);
 		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+	}
+
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(enabled=true)")
+	protected void setMqttBridge(BridgeMqtt mqttBridge) {
+		this.mqttBridge = mqttBridge;
 	}
 
 	@Activate
@@ -90,74 +94,69 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		this._setChargingType(ChargingType.AC);
 
 		if (config.enabled()) {
-			this.connectMqtt();
+			this.subscribeToMqtt();
 		}
 	}
 
 	/**
-	 * Connects to the OpenWB MQTT broker and subscribes to relevant topics.
+	 * Subscribes to the OpenWB MQTT topics via the bridge.
 	 */
-	private void connectMqtt() {
+	private void subscribeToMqtt() {
 		try {
-			this.mqttClient = new MqttClient(this.config.mqttUri(),
-					this.config.id() + "_" + System.currentTimeMillis());
-			this.mqttClient.setCallback(this);
-
-			var options = new MqttConnectionOptions();
-			options.setAutomaticReconnect(true);
-			options.setCleanStart(true);
-			options.setConnectionTimeout(10);
-
-			if (this.config.mqttUsername() != null && !this.config.mqttUsername().isBlank()) {
-				options.setUserName(this.config.mqttUsername());
-				if (this.config.mqttPassword() != null && !this.config.mqttPassword().isBlank()) {
-					options.setPassword(this.config.mqttPassword().getBytes(StandardCharsets.UTF_8));
-				}
-			}
-
-			this.mqttClient.connect(options);
-			this.logInfo(this.log, "Connected to OpenWB MQTT broker: " + this.config.mqttUri());
-
-			// Subscribe to all relevant topics with wildcard
 			var subscribeTopicPattern = this.topicPrefix + "#";
-			this.mqttClient.subscribe(subscribeTopicPattern, 1);
+			this.subscription = this.mqttBridge.subscribe(subscribeTopicPattern, QoS.AT_LEAST_ONCE,
+					this::handleMqttMessage);
 			this.logInfo(this.log, "Subscribed to: " + subscribeTopicPattern);
+			this._setMqttCommunicationFailed(false);
+		} catch (Exception e) {
+			this.logError(this.log, "Failed to subscribe to MQTT topics: " + e.getMessage());
+			this._setMqttCommunicationFailed(true);
+		}
+	}
 
-			this._setSlaveCommunicationFailed(false);
+	/**
+	 * Handles incoming MQTT messages from the bridge.
+	 *
+	 * @param message the received {@link MqttMessage}
+	 */
+	private void handleMqttMessage(MqttMessage message) {
+		var payload = message.payloadAsString();
 
-		} catch (MqttException e) {
-			this.logError(this.log, "Failed to connect to MQTT broker: " + e.getMessage());
-			this._setSlaveCommunicationFailed(true);
+		try {
+			var json = JsonParser.parseString(payload);
+			this.handleMessage(message.topic(), json);
+			this._setMqttCommunicationFailed(false);
+		} catch (Exception e) {
+			this.logWarn(this.log, "Failed to parse MQTT message on topic " + message.topic() + ": " + e.getMessage());
 		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
-		if (this.mqttClient != null) {
+		if (this.subscription != null) {
 			try {
-				if (this.mqttClient.isConnected()) {
-					this.mqttClient.disconnect();
-				}
-				this.mqttClient.close();
-			} catch (MqttException e) {
-				this.logWarn(this.log, "Error closing MQTT connection: " + e.getMessage());
+				this.subscription.unsubscribe();
+			} catch (Exception e) {
+				this.logWarn(this.log, "Error unsubscribing from MQTT: " + e.getMessage());
 			}
-			this.mqttClient = null;
+			this.subscription = null;
 		}
 		super.deactivate();
 	}
 
 	@Override
-	public void messageArrived(String topic, MqttMessage message) throws Exception {
-		var payload = new String(message.getPayload(), StandardCharsets.UTF_8);
-
-		try {
-			var json = JsonParser.parseString(payload);
-			this.handleMessage(topic, json);
-			this._setSlaveCommunicationFailed(false);
-		} catch (Exception e) {
-			this.logWarn(this.log, "Failed to parse MQTT message on topic " + topic + ": " + e.getMessage());
+	public void retryMqttCommunication() {
+		// Unsubscribe if there's an existing subscription
+		if (this.subscription != null) {
+			try {
+				this.subscription.unsubscribe();
+			} catch (Exception e) {
+				// Ignore errors during cleanup
+			}
+			this.subscription = null;
 		}
+		// Re-subscribe
+		this.subscribeToMqtt();
 	}
 
 	/**
@@ -250,7 +249,7 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		var faultState = json.getAsInt();
 		// 0: No error, 1: Warning, 2: Error
 		if (faultState >= 2) {
-			this._setSlaveCommunicationFailed(true);
+			this._setMqttCommunicationFailed(true);
 		}
 	}
 
@@ -292,43 +291,14 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	// MqttCallback implementations
-
-	@Override
-	public void disconnected(MqttDisconnectResponse disconnectResponse) {
-		this.logWarn(this.log, "Disconnected from MQTT broker: " + disconnectResponse.getReasonString());
-		this._setSlaveCommunicationFailed(true);
-	}
-
-	@Override
-	public void mqttErrorOccurred(MqttException exception) {
-		this.logError(this.log, "MQTT error: " + exception.getMessage());
-		this._setSlaveCommunicationFailed(true);
-	}
-
-	@Override
-	public void deliveryComplete(org.eclipse.paho.mqttv5.client.IMqttToken token) {
-		// Not used for subscriptions
-	}
-
-	@Override
-	public void connectComplete(boolean reconnect, String serverURI) {
-		if (reconnect) {
-			this.logInfo(this.log, "Reconnected to MQTT broker: " + serverURI);
-			// Re-subscribe after reconnection
-			try {
-				var subscribeTopicPattern = this.topicPrefix + "#";
-				this.mqttClient.subscribe(subscribeTopicPattern, 1);
-			} catch (MqttException e) {
-				this.logError(this.log, "Failed to re-subscribe after reconnection: " + e.getMessage());
-			}
-		}
-		this._setSlaveCommunicationFailed(false);
-	}
-
-	@Override
-	public void authPacketArrived(int reasonCode, MqttProperties properties) {
-		// Not used
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link MqttComponent.ChannelId#MQTT_COMMUNICATION_FAILED} Channel.
+	 *
+	 * @param value the next value
+	 */
+	private void _setMqttCommunicationFailed(boolean value) {
+		this.channel(MqttComponent.ChannelId.MQTT_COMMUNICATION_FAILED).setNextValue(value);
 	}
 
 	@Override
@@ -351,8 +321,8 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(EvcsOpenWb.class, accessMode, 100) //
-						.build());
+				Evcs.getModbusSlaveNatureTable(accessMode) //
+		);
 	}
 
 	@Override

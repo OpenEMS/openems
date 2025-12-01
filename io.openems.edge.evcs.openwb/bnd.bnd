@@ -6,11 +6,11 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.bridge.mqtt,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.timedata.api,\
-	io.openems.wrapper.paho-mqttv5,\
 
 -testpath: \
 	${testpath}

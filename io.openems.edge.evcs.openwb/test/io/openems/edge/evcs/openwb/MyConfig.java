@@ -8,9 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String mqttUri = "tcp://127.0.0.1:1883";
-		private String mqttUsername = "";
-		private String mqttPassword = "";
+		private String mqttBridgeId = "mqtt0";
 		private ChargePoint chargePoint = ChargePoint.CP0;
 		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
@@ -22,18 +20,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMqttUri(String mqttUri) {
-			this.mqttUri = mqttUri;
-			return this;
-		}
-
-		public Builder setMqttUsername(String mqttUsername) {
-			this.mqttUsername = mqttUsername;
-			return this;
-		}
-
-		public Builder setMqttPassword(String mqttPassword) {
-			this.mqttPassword = mqttPassword;
+		public Builder setMqttBridgeId(String mqttBridgeId) {
+			this.mqttBridgeId = mqttBridgeId;
 			return this;
 		}
 
@@ -69,18 +57,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String mqttUri() {
-		return this.builder.mqttUri;
-	}
-
-	@Override
-	public String mqttUsername() {
-		return this.builder.mqttUsername;
-	}
-
-	@Override
-	public String mqttPassword() {
-		return this.builder.mqttPassword;
+	public String mqttBridgeId() {
+		return this.builder.mqttBridgeId;
 	}
 
 	@Override

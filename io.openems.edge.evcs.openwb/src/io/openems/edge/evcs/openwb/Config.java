@@ -19,14 +19,8 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "MQTT URI", description = "The URI of the OpenWB MQTT broker (e.g., tcp://192.168.1.25:1883)", required = true)
-	String mqttUri() default "tcp://192.168.1.25:1883";
-
-	@AttributeDefinition(name = "MQTT Username", description = "Username for MQTT authentication (leave empty if not required)")
-	String mqttUsername() default "";
-
-	@AttributeDefinition(name = "MQTT Password", description = "Password for MQTT authentication (leave empty if not required)")
-	String mqttPassword() default "";
+	@AttributeDefinition(name = "MQTT Bridge ID", description = "ID of the MQTT Bridge component (e.g., mqtt0)")
+	String mqttBridgeId() default "mqtt0";
 
 	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint (duo_num)")
 	ChargePoint chargePoint() default ChargePoint.CP0;

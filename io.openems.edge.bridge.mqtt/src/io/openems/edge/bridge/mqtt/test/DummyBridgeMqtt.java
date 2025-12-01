@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.mqtt;
+package io.openems.edge.bridge.mqtt.test;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -14,6 +14,10 @@ import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 
 /**
  * Dummy implementation of {@link BridgeMqtt} for unit tests.
+ *
+ * <p>
+ * This class is placed in the main source folder (not test folder) so it can be
+ * used by other bundles for their unit tests.
  */
 public class DummyBridgeMqtt extends AbstractDummyOpenemsComponent<DummyBridgeMqtt> implements BridgeMqtt {
 
