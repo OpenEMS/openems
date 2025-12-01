@@ -34,7 +34,7 @@ import io.openems.common.types.MeterType;
 /**
  * Implements the Janitza UMG 806 power analyzer.
  *
- *<p>
+ * <p>
  * https://www.janitza.de/umg-806-pro.html
  */
 @Designate(ocd = Config.class, factory = true)
