@@ -26,7 +26,7 @@ To use OpenEMS in production, choose one of the following options:
 
 == Install Java
 
-OpenEMS requires Java 21 to run. If it is not pre-installed on your system, we recommend using https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[Eclipse Temurin by Adoptium].
+OpenEMS requires Java 21 to run. If it is not pre-installed on your system, we recommend using https://adoptium.net/de/temurin/releases?version=21[Eclipse Temurin by Adoptium].
 
 You can check the installed version by running the following command from your terminal:
 

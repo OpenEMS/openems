@@ -14,7 +14,7 @@ This guide will show you how to setup a development environment for OpenEMS by g
 
 OpenEMS uses https://git-scm.com[git] as a version control system and https://github.com/openems[GitHub] for hosting the source code. You can use git either from the command line, from a dedicated GUI, or from inside your IDE. This guide assumes that you have git installed on your system and have some basic familiarity with it. If you are new to git, there are a number of great tutorials out there to get you started.
 
-OpenEMS is written in https://www.oracle.com/java/[Java]. This guide also assumes that you are familiar with Java and its related tools. You need to have the correct version of the Java Development Kit (JDK) installed on your system. As of writing, the current version used by OpenEMS is 21. We recommend using https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[Eclipse Temurin by Adoptium]
+OpenEMS is written in https://www.oracle.com/java/[Java]. This guide also assumes that you are familiar with Java and its related tools. You need to have the correct version of the Java Development Kit (JDK) installed on your system. As of writing, the current version used by OpenEMS is 21. We recommend using https://adoptium.net/de/temurin/releases?version=21[Eclipse Temurin by Adoptium]
 
 == Clone the OpenEMS git repository
 
