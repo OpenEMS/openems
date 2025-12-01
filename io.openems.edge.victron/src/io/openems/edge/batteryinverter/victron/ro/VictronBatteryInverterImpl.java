@@ -23,7 +23,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.victron.VictronBattery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.victron.ess.symmetric.VictronEss;
 import io.openems.edge.batteryinverter.victron.statemachine.Context;
@@ -56,14 +55,14 @@ import io.openems.edge.victron.enums.DeviceType;
 /**
  * Implementation of the Victron Battery Inverter component.
  *
- * <p>This component communicates with Victron systems via Venus OS / Cerbo GX
+ * <p>This component communicates with Victron systems via GX device
  * using Modbus-TCP (Unit-ID 100 for system data). It reads system-level power
  * flows, battery status, and ESS control parameters.
  *
  * <p>The inverter is controlled indirectly through the ESS component
  * ({@link VictronEss}), which handles power setpoints.
  *
- * @see <a href="https://github.com/victronenergy/dbus_modbustcp">Venus Modbus-TCP</a>
+ * @see <a href="https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX Modbus TCP list</a>
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -74,9 +73,8 @@ import io.openems.edge.victron.enums.DeviceType;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
-		implements VictronBatteryInverter, OffGridBatteryInverter, ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
+public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent implements VictronBatteryInverter,
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 

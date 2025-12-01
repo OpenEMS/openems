@@ -39,15 +39,14 @@ import io.openems.edge.victron.enums.VeBusError;
 import io.openems.edge.victron.enums.VeBusState;
 
 /**
- * Victron ESS interface for Multiplus-II systems.
  *
  * <p>This interface defines all channels for the Victron Energy Storage System
- * connected via Modbus to Venus OS / Cerbo GX. It supports both single-phase
+ * connected via Modbus to GX. It supports both single-phase
  * and three-phase configurations.
  *
- * <p>Modbus registers are based on the Venus OS Modbus-TCP documentation.
+ * <p>Modbus registers are based on Victron´s Modbus-TCP documentation.
  *
- * @see <a href="https://github.com/victronenergy/dbus_modbustcp">Venus Modbus-TCP</a>
+ * @see <a href="https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX Modbus-TCP list</a>
  */
 public interface VictronEss extends OpenemsComponent, EventHandler, ModbusComponent, ModbusSlave {
 
