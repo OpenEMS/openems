@@ -112,6 +112,11 @@
 			<artifactId>HikariCP</artifactId>
 			<version>7.0.2</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.hivemq</groupId>
+    		<artifactId>hivemq-mqtt-client-shaded</artifactId>
+		    <version>1.3.10</version>
+		</dependency>
 		<!-- de -->
 		<dependency>
 			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->

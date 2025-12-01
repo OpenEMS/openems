@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge Bridge MQTT
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	com.hivemq:hivemq-mqtt-client-shaded,\
+	io.reactivex.rxjava2.rxjava,\
+	org.reactivestreams.reactive-streams,\
+
+-testpath: \
+	${testpath}
