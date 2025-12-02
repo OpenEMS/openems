@@ -238,7 +238,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -505,7 +505,7 @@
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.18.1</version>
+		  <version>1.18.2</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
