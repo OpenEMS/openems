@@ -14,6 +14,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
 
+        @AttributeDefinition(name = "Compression Level", description = "Compression level for permessage-deflate (0-9)")
+        int compressionLevel() default 1;
+
 	@AttributeDefinition(name = "Request Limit", description = "Limit of Requests per second, before they get discarded by the Limiter")
 	int requestLimit() default 20;
 

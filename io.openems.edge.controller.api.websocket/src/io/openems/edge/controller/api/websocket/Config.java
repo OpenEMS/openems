@@ -26,5 +26,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
+	@AttributeDefinition(name = "Compression Level", description = "Compression level for permessage-deflate (0-9)")
+	int compressionLevel() default 1;
+
 	String webconsole_configurationFactory_nameHint() default "Controller Api Websocket [{id}]";
 }
