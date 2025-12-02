@@ -55,14 +55,18 @@ import io.openems.edge.victron.enums.DeviceType;
 /**
  * Implementation of the Victron Battery Inverter component.
  *
- * <p>This component communicates with Victron systems via GX device
- * using Modbus-TCP (Unit-ID 100 for system data). It reads system-level power
- * flows, battery status, and ESS control parameters.
+ * <p>
+ * This component communicates with Victron systems via GX device using
+ * Modbus-TCP (Unit-ID 100 for system data). It reads system-level power flows,
+ * battery status, and ESS control parameters.
  *
- * <p>The inverter is controlled indirectly through the ESS component
+ * <p>
+ * The inverter is controlled indirectly through the ESS component
  * ({@link VictronEss}), which handles power setpoints.
  *
- * @see <a href="https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX Modbus TCP list</a>
+ * @see <a href=
+ *      "https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX
+ *      Modbus TCP list</a>
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -171,8 +175,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		}
 
 		// Calculate maximum charge power limit
-		this.maxChargePowerLimit = Math.min(
-				Math.min(this.batteryInverterMaxChargePower, this.batteryMaxChargePower),
+		this.maxChargePowerLimit = Math.min(Math.min(this.batteryInverterMaxChargePower, this.batteryMaxChargePower),
 				this.config.maxChargePower());
 
 		// Calculate maximum discharge power limit
@@ -292,13 +295,13 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		}
 	}
 
-
 	@Override
 	public String debugLog() {
 		return this.stateMachine.getCurrentState().asCamelCase() //
-				+ " | Limits (Charge/Discharge) - Battery: " + this.batteryMaxChargePower + "/" + this.batteryMaxDischargePower
-				+ ", Inverter: " + this.batteryInverterMaxChargePower + "/" + this.batteryInverterMaxDischargePower
-				+ ", Config: " + this.config.maxChargePower() + "/" + this.config.maxDischargePower();
+				+ " | Limits (Charge/Discharge) - Battery: " + this.batteryMaxChargePower + "/"
+				+ this.batteryMaxDischargePower + ", Inverter: " + this.batteryInverterMaxChargePower + "/"
+				+ this.batteryInverterMaxDischargePower + ", Config: " + this.config.maxChargePower() + "/"
+				+ this.config.maxDischargePower();
 	}
 
 	/**
@@ -378,12 +381,11 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L2, new UnsignedWordElement(812)),
 						this.m(VictronBatteryInverter.ChannelId.AC_PV_ON_INPUT_POWER_L3, new UnsignedWordElement(813)),
 						new DummyRegisterElement(814, 816),
-						
+
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L1, new UnsignedWordElement(817)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L2, new UnsignedWordElement(818)),
 						this.m(VictronBatteryInverter.ChannelId.AC_CONSUMPTION_POWER_L3, new UnsignedWordElement(819)),
-						
-					
+
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L1, new SignedWordElement(820)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L2, new SignedWordElement(821)),
 						this.m(VictronBatteryInverter.ChannelId.GRID_POWER_L3, new SignedWordElement(822)),
@@ -396,7 +398,7 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						this.m(VictronBatteryInverter.ChannelId.DC_BATTERY_CURRENT, new SignedWordElement(841),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842),  // this is actually the value for DC power!!
+						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842), // DC POWER
 								ElementToChannelConverter.INVERT),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_SOC, new UnsignedWordElement(843)),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_STATE, new UnsignedWordElement(844)),

@@ -4,7 +4,6 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
-
 @ObjectClassDefinition(//
 		name = "Victron Multiplus 2 ESS", //
 		description = "Victron ESS system with Multiplus2 inverter - ESS")
@@ -27,7 +26,7 @@ public @interface Config {
 
 	@AttributeDefinition(name = "Connected Phase", description = "to which phase is the ESS connected?")
 	SingleOrAllPhase phase() default SingleOrAllPhase.ALL;
-	
+
 	@AttributeDefinition(name = "Debug", description = "Enable debug mode?")
 	boolean debugMode() default false;
 

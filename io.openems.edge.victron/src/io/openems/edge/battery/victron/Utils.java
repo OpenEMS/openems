@@ -28,20 +28,20 @@ public final class Utils {
 	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 
-		int minDischargeSoc = (ctrlLimitTotalDischarges != null)
-				? ctrlLimitTotalDischarges.stream()
-					.map(ctrl -> ctrl.getMinSoc().get())
-					.filter(Objects::nonNull)
-					.mapToInt(v -> max(0, v))
-					.max().orElse(0)
+		int minDischargeSoc = (ctrlLimitTotalDischarges != null)//
+				? ctrlLimitTotalDischarges.stream()//
+						.map(ctrl -> ctrl.getMinSoc().get())//
+						.filter(Objects::nonNull)//
+						.mapToInt(v -> max(0, v))//
+						.max().orElse(0)//
 				: 0;
 
-		int minReserveSoc = (ctrlEmergencyCapacityReserves != null)
-				? ctrlEmergencyCapacityReserves.stream()
-					.map(ctrl -> ctrl.getActualReserveSoc().get())
-					.filter(Objects::nonNull)
-					.mapToInt(v -> max(0, v))
-					.max().orElse(0)
+		int minReserveSoc = (ctrlEmergencyCapacityReserves != null)//
+				? ctrlEmergencyCapacityReserves.stream()//
+						.map(ctrl -> ctrl.getActualReserveSoc().get())//
+						.filter(Objects::nonNull)//
+						.mapToInt(v -> max(0, v))//
+						.max().orElse(0)//
 				: 0;
 
 		return max(minDischargeSoc, minReserveSoc);

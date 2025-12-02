@@ -10,7 +10,6 @@ public enum PvMode implements OptionsEnum {
 	PRODUCING(3, "PV is producing"), //
 	LIMIT_ACTIVE(4, "PV Limitation is active");
 
-
 	private final int value;
 	private final String name;
 

@@ -3,11 +3,10 @@ package io.openems.edge.battery.victron;
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.edge.battery.api.Battery;
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
-import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 
 public class VictronCanBusBatteryImplTest {
 

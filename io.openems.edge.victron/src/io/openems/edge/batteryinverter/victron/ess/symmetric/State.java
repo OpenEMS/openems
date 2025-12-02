@@ -5,10 +5,8 @@ import io.openems.common.types.OptionsEnum;
 public enum State implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	NORMAL(0, "Normal"), // SoC in range between min and max
-	ERROR(1, "Error State"),
-	IDLE(3, "Idle state e.g. power from grid too low"),
-	;
-
+	ERROR(1, "Error State"), //
+	IDLE(3, "Idle state e.g. power from grid too low"),;
 
 	private final int value;
 	private final String name;
