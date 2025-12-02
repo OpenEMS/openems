@@ -49,7 +49,7 @@
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
-	bnd.identity;id='io.openems.edge.victron'\
+	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.bridge.http',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
