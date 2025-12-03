@@ -212,7 +212,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
-	
+	bnd.identity;id='io.openems.edge.io.phoenixcontact'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
@@ -478,4 +478,3 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.9.0,3.9.1)',\
 	stax2-api;version='[4.2.2,4.2.3)',\
-

@@ -1,5 +1,6 @@
 package io.openems.edge.io.phoenixcontact;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -14,6 +15,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextAuthClient;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataClient;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
 
@@ -32,6 +34,8 @@ public class PlcNextDeviceImplTest {
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsProvider dataProvider;
 
+	private List<PlcNextApiCommand> apiCommands;
+	
 	private PlcNextDeviceImpl componentUnderTest;
 	
 	@Before

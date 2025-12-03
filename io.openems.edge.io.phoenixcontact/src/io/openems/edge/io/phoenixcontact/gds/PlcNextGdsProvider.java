@@ -65,6 +65,5 @@ public class PlcNextGdsProvider {
 	
 //	public void writeToApiFromChannels() {
 //		// TODO: implement me!
-//	}
-	
+//	}	
 }

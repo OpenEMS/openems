@@ -1,5 +1,7 @@
 package io.openems.edge.io.phoenixcontact;
 
+import org.osgi.service.event.EventHandler;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
