@@ -87,7 +87,10 @@ export class Websocket implements WebsocketInterface {
                     }
                 }
 
-                const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? authenticateResponse.user.language.toLocaleLowerCase());
+                const userLangKey = Language.getByKey(authenticateResponse.user.language?.toLowerCase());
+                const demoLangKey = Language.getByKey(localStorage.DEMO_LANGUAGE);
+
+                const language = demoLangKey ?? userLangKey ?? Language.SYSTEM ?? Language.DEFAULT;
                 localStorage.LANGUAGE = language.key;
                 this.service.setLang(language);
                 this.status = "online";

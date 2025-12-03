@@ -100,7 +100,7 @@ export class UserComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
+        this.currentLanguage = Language.getCurrentLanguage();
         this.systemTheme = environment.theme as SystemTheme;
     }
 

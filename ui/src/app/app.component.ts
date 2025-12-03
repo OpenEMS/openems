@@ -46,7 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
         protected navigationService: NavigationService,
         protected navCtrl: NavController,
     ) {
-        service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+        service.setLang(Language.getCurrentLanguage());
 
         this.subscription.add(
             this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
