@@ -27,20 +27,16 @@ public class MeterJanitzaUmg806ImplTest {
 					        
 					        0x0000,0x0000, // dummy 19006
 					        0x0000,0x0000, // dummy 19008
-					        0x0000,0x0000  // dummy 19010
-					    )
+					        0x0000,0x0000,  // dummy 19010
 
 					    // ---- 19012–19018 Currents ----
-					    .withRegisters(19012,
 					        0x3F80,0x0000, // I_L1
 					        0x3F80,0x0000, // I_L2
 					        0x3F80,0x0000, // I_L3
 					        
-					        0x0000,0x0000  // dummy 19018
-					    )
+					        0x0000,0x0000,  // dummy 19018
 
 					    // ---- 19020–19034 Active Power ----
-					    .withRegisters(19020,
 					        0x461C,0x4000, // P_L1
 					        0x461C,0x4000, // P_L2
 					        0x461C,0x4000, // P_L3
@@ -50,11 +46,9 @@ public class MeterJanitzaUmg806ImplTest {
 					        0x0000,0x0000,
 					        0x0000,0x0000,
 					        0x0000,0x0000,
-					        0x0000,0x0000
-					    )
+					        0x0000,0x0000,
 
 					    // ---- 19036–19042 Reactive Power ----
-					    .withRegisters(19036,
 					        0x45DA,0xC000, // Q_L1
 					        0x45DA,0xC000, // Q_L2
 					        0x45DA,0xC000, // Q_L3
