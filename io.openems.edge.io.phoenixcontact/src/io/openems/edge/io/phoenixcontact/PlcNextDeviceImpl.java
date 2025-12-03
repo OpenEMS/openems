@@ -128,8 +128,7 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		}
 
 		log.info("ECHO: Fetching data " + suitableApiCommandsForEvent.size() + " commands");
-		suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
-
+//		suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
 	}
 
 }

@@ -61,7 +61,7 @@ public class PlcNextAuthClient {
 
 	CompletableFuture<String> fetchAuthToken(PlcNextAuthClientConfig config) {
 		Endpoint authTokenEndpoint = buildAuthTokenEndpointRepresentation(config);
-		log.info("Fetching auth token from endpoint: '" + authTokenEndpoint.url() + "'");
+		log.debug("Fetching auth token from endpoint: '" + authTokenEndpoint.url() + "'");
 
 		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
 			log.info("Auth token endpoint responds with " + authTokenResponse.status());
@@ -83,7 +83,7 @@ public class PlcNextAuthClient {
 
 	CompletableFuture<String> fetchAccessToken(String code, PlcNextAuthClientConfig config) {
 		Endpoint accessTokenEndpoint = buildAccessTokenEndpointRepresentation(code, config);
-		log.info("Fetching access token from endpoint: '" + accessTokenEndpoint.url() + "', " + "with body: '"
+		log.debug("Fetching access token from endpoint: '" + accessTokenEndpoint.url() + "', " + "with body: '"
 				+ accessTokenEndpoint.body() + "'");
 
 		return http.requestJson(accessTokenEndpoint).thenApply(accessTokenResponse -> {
