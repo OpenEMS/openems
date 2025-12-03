@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.types.HttpStatus;
 import io.openems.edge.io.phoenixcontact.utils.PlcNextUrlStringHelper;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextAuthClient.class)
@@ -64,9 +65,15 @@ public class PlcNextAuthClient {
 		log.debug("Fetching auth token from endpoint: '" + authTokenEndpoint.url() + "'");
 
 		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
-			log.info("Auth token endpoint responds with " + authTokenResponse.status());
 
-			return authTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("code").getAsString();
+			if (HttpStatus.OK == authTokenResponse.status()) {
+				return authTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("code").getAsString();
+			} else {
+				log.error("Auth token endpoint responds with status: '" + authTokenResponse.status() + "' and body: '"
+						+ authTokenResponse.data() + "'");
+
+				return null;
+			}
 		});
 	}
 
@@ -87,9 +94,14 @@ public class PlcNextAuthClient {
 				+ accessTokenEndpoint.body() + "'");
 
 		return http.requestJson(accessTokenEndpoint).thenApply(accessTokenResponse -> {
-			log.info("Access token endpoint responds with " + accessTokenResponse.status());
+			if (HttpStatus.OK == accessTokenResponse.status()) {
+				return accessTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("access_token").getAsString();
+			} else {
+				log.error("Access token endpoint responds with status: '" + accessTokenResponse.status()
+						+ "' and body: '" + accessTokenResponse.data() + "'");
 
-			return accessTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("access_token").getAsString();
+				return null;
+			}
 		});
 	}
 }

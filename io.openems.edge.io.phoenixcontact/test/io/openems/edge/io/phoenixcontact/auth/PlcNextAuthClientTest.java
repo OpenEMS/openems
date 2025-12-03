@@ -42,7 +42,7 @@ public class PlcNextAuthClientTest {
 	}
 
 	@Test
-	public void testFetchAccessToken() {
+	public void testFetchAccessToken_Successfully() {
 		String accessToken = authClient.fetchSingleAuthentication(authClientConfig);
 
 		Assert.assertNotNull(accessToken);
@@ -71,5 +71,50 @@ public class PlcNextAuthClientTest {
 		Assert.assertEquals(expectedRequestUrl, result.url());
 		Assert.assertEquals(expectedRequestBody, result.body());
 
+	}
+
+	@Test
+	public void testFetchAccessToken_AuthTokenCallFailed() {
+		DummyBridgeHttp dummyAuthBridgeHttpFailing = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				if (endpoint.url().contains(PlcNextAuthClient.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.failedFuture(new IllegalStateException());
+				} else if (endpoint.url().contains(PlcNextAuthClient.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture
+							.supplyAsync(() -> new HttpResponse<String>(HttpStatus.UNAUTHORIZED, Map.of(), "{}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
+			}
+		};
+		PlcNextAuthClient authClientFailing = new PlcNextAuthClient(dummyAuthBridgeHttpFailing);
+
+		String accessToken = authClientFailing.fetchSingleAuthentication(authClientConfig);
+
+		Assert.assertNull(accessToken);
+	}
+
+	@Test
+	public void testFetchAccessToken_AccessTokenCallFailedWithInvalidResponse() {
+		DummyBridgeHttp dummyAuthBridgeHttpFailing = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				if (endpoint.url().contains(PlcNextAuthClient.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.supplyAsync(
+							() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'code': 'dummy_auth'}"));
+				} else if (endpoint.url().contains(PlcNextAuthClient.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture
+							.supplyAsync(() -> new HttpResponse<String>(HttpStatus.UNAUTHORIZED, Map.of(), "{}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
+			}
+		};
+		PlcNextAuthClient authClientFailing = new PlcNextAuthClient(dummyAuthBridgeHttpFailing);
+
+		String accessToken = authClientFailing.fetchSingleAuthentication(authClientConfig);
+
+		Assert.assertNull(accessToken);
 	}
 }
