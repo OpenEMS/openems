@@ -3,8 +3,8 @@
     [(showPhases)]="showPhases" [showTotal]="false" (setShowTotal)="setShowTotal($event)">
     <productionTotalChart [isOnlyChart]="true" [showTotal]="showTotal" [showPhases]="showPhases">
     </productionTotalChart>
+    <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
   </oe-chart>
 }
 @if (isInitialized) {
-  <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
 }

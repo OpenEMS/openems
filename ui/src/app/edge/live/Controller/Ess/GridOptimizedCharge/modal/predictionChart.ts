@@ -5,9 +5,10 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
+import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
-import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-controller-ess-gridoptimizedcharge-prediction-chart",
@@ -247,6 +248,9 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 return el;
             });
 
+        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", this.datasets, true);
+
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 
@@ -254,7 +258,6 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
         };
     }
-
 }
 
 export type ChannelChartDescription = {
