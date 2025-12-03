@@ -1,4 +1,4 @@
-package io.openems.edge.io.phoenixcontact;
+package io.openems.edge.io.phoenixcontact.auth;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -26,12 +26,10 @@ public class PlcNextAuthClient {
 	public static final String PATH_ACCESS_TOKEN = "/access-token";
 
 	private final BridgeHttp http;
-	private final Config config;
 
 	@Activate
-	public PlcNextAuthClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http, Config config) {
+	public PlcNextAuthClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http) {
 		this.http = http;
-		this.config = config;
 	}
 
 	/**
@@ -39,24 +37,19 @@ public class PlcNextAuthClient {
 	 * 
 	 * @return fetched auth token
 	 */
-	public String fetchSingleAuthentication() {
+	public String fetchSingleAuthentication(PlcNextAuthClientConfig config) {
 		try {
-			Endpoint authTokenEndPoint = buildAuthTokenEndpointRepresentation();
-			CompletableFuture<String> authTokenFuture = http.requestJson(authTokenEndPoint)
-					.thenApply(authTokenResponse -> authTokenResponse.data().getAsJsonObject()
-							.getAsJsonPrimitive("code").getAsString())
-					.thenCompose(code -> http.requestJson(buildAccessTokenEndpointRepresentation(code))
-							.thenApply(accessTokenResponse -> accessTokenResponse.data().getAsJsonObject()
-									.getAsJsonPrimitive("access_token").getAsString()));
+			CompletableFuture<String> authTokenFuture = fetchAuthToken(config)
+					.thenCompose(code -> fetchAccessToken(code, config));
 
 			return authTokenFuture.join();
 		} catch (CompletionException e) {
-			log.error("Error while fetching auth or access token!", e);
+			log.error("Error while fetching access token!", e);
 			return null;
 		}
 	}
 
-	Endpoint buildAuthTokenEndpointRepresentation() {
+	Endpoint buildAuthTokenEndpointRepresentation(PlcNextAuthClientConfig config) {
 		String requestBody = "{\"scope\":\"variables\" }";
 		Map<String, String> headers = Map.of(//
 				"Content-Type", "application/json");
@@ -66,7 +59,18 @@ public class PlcNextAuthClient {
 				BridgeHttp.DEFAULT_READ_TIMEOUT, requestBody, headers);
 	}
 
-	Endpoint buildAccessTokenEndpointRepresentation(String code) {
+	CompletableFuture<String> fetchAuthToken(PlcNextAuthClientConfig config) {
+		Endpoint authTokenEndpoint = buildAuthTokenEndpointRepresentation(config);
+		log.info("Fetching auth token from endpoint: '" + authTokenEndpoint.url() + "'");
+
+		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
+			log.info("Auth token endpoint responds with " + authTokenResponse.status());
+
+			return authTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("code").getAsString();
+		});
+	}
+
+	Endpoint buildAccessTokenEndpointRepresentation(String code, PlcNextAuthClientConfig config) {
 		String requestBody = "{ \"code\": \"" + code + "\", " + "\"grant_type\": \"authorization_code\", "
 				+ "\"username\": \"" + config.username() + "\", " + "\"password\": \"" + config.password() + "\" }";
 		Map<String, String> headers = Map.of(//
@@ -77,4 +81,15 @@ public class PlcNextAuthClient {
 				BridgeHttp.DEFAULT_READ_TIMEOUT, requestBody, headers);
 	}
 
+	CompletableFuture<String> fetchAccessToken(String code, PlcNextAuthClientConfig config) {
+		Endpoint accessTokenEndpoint = buildAccessTokenEndpointRepresentation(code, config);
+		log.info("Fetching access token from endpoint: '" + accessTokenEndpoint.url() + "', " + "with body: '"
+				+ accessTokenEndpoint.body() + "'");
+
+		return http.requestJson(accessTokenEndpoint).thenApply(accessTokenResponse -> {
+			log.info("Access token endpoint responds with " + accessTokenResponse.status());
+
+			return accessTokenResponse.data().getAsJsonObject().getAsJsonPrimitive("access_token").getAsString();
+		});
+	}
 }

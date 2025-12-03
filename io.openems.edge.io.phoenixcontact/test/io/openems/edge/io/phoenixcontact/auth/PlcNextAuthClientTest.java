@@ -1,4 +1,4 @@
-package io.openems.edge.io.phoenixcontact;
+package io.openems.edge.io.phoenixcontact.auth;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +14,7 @@ import io.openems.common.types.HttpStatus;
 
 public class PlcNextAuthClientTest {
 
-	private TestConfig testConfig;
+	private PlcNextAuthClientConfig authClientConfig;
 
 	private DummyBridgeHttp dummyAuthBridgeHttp;
 
@@ -22,7 +22,8 @@ public class PlcNextAuthClientTest {
 
 	@Before
 	public void setup() {
-		testConfig = TestConfig.create().build();
+		authClientConfig = new PlcNextAuthClientConfig("https://localhost/auth", "junit", "junit");
+
 		dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
@@ -37,12 +38,12 @@ public class PlcNextAuthClientTest {
 				}
 			}
 		};
-		authClient = new PlcNextAuthClient(dummyAuthBridgeHttp, testConfig);
+		authClient = new PlcNextAuthClient(dummyAuthBridgeHttp);
 	}
 
 	@Test
 	public void testFetchAccessToken() {
-		String accessToken = authClient.fetchSingleAuthentication();
+		String accessToken = authClient.fetchSingleAuthentication(authClientConfig);
 
 		Assert.assertNotNull(accessToken);
 		System.out.println("ECHO: accessToken = " + accessToken);
@@ -50,10 +51,10 @@ public class PlcNextAuthClientTest {
 
 	@Test
 	public void testBuildAuthTokenEndpoint_Successfully() {
-		String expectedRequestUrl = testConfig.authUrl() + PlcNextAuthClient.PATH_AUTH_TOKEN;
+		String expectedRequestUrl = authClientConfig.authUrl() + PlcNextAuthClient.PATH_AUTH_TOKEN;
 		String expectedRequestBody = "{\"scope\":\"variables\" }";
 
-		Endpoint result = authClient.buildAuthTokenEndpointRepresentation();
+		Endpoint result = authClient.buildAuthTokenEndpointRepresentation(authClientConfig);
 
 		Assert.assertEquals(expectedRequestUrl, result.url());
 		Assert.assertEquals(expectedRequestBody, result.body());
@@ -61,15 +62,14 @@ public class PlcNextAuthClientTest {
 
 	@Test
 	public void testBuildAccessTokenEndpoint_Successfully() {
-		String expectedRequestUrl = testConfig.authUrl() + PlcNextAuthClient.PATH_ACCESS_TOKEN;
+		String expectedRequestUrl = authClientConfig.authUrl() + PlcNextAuthClient.PATH_ACCESS_TOKEN;
 		String expectedRequestBody = "{ \"code\": \"4711\", \"grant_type\": \"authorization_code\", \"username\": \""
-				+ testConfig.username() + "\", " + "\"password\": \"" + testConfig.password() + "\" }";
+				+ authClientConfig.username() + "\", " + "\"password\": \"" + authClientConfig.password() + "\" }";
 
-		Endpoint result = authClient.buildAccessTokenEndpointRepresentation("4711");
+		Endpoint result = authClient.buildAccessTokenEndpointRepresentation("4711", authClientConfig);
 
 		Assert.assertEquals(expectedRequestUrl, result.url());
 		Assert.assertEquals(expectedRequestBody, result.body());
 
 	}
-
 }

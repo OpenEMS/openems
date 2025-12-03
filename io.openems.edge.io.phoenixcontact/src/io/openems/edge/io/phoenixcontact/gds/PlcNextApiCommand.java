@@ -6,6 +6,8 @@ public interface PlcNextApiCommand {
 	
 	List<String> eventTriggers();
 	
+	void setDataClientConfig(PlcNextGdsDataClientConfig config);
+
 	void execute();
 
 }

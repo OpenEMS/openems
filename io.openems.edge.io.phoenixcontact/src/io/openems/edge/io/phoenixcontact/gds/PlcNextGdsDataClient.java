@@ -1,4 +1,4 @@
-package io.openems.edge.io.phoenixcontact;
+package io.openems.edge.io.phoenixcontact.gds;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,33 +21,31 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
 import io.openems.edge.io.phoenixcontact.utils.PlcNextJsonElementHelper;
 
-@Component(scope = ServiceScope.SINGLETON, service = PlcNextDataClient.class)
-public class PlcNextDataClient {
+@Component(scope = ServiceScope.SINGLETON, service = PlcNextGdsDataClient.class)
+public class PlcNextGdsDataClient {
 
-	private static final Logger log = LoggerFactory.getLogger(PlcNextDataClient.class);
+	private static final Logger log = LoggerFactory.getLogger(PlcNextGdsDataClient.class);
 
 	private final BridgeHttp http;
 	private final PlcNextTokenManager tokenManager;
-	private final Config config;
 
 	@Activate
-	public PlcNextDataClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http,
-			@Reference(scope = ReferenceScope.BUNDLE) PlcNextTokenManager tokenManager, Config config) {
+	public PlcNextGdsDataClient(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http,
+			@Reference(scope = ReferenceScope.BUNDLE) PlcNextTokenManager tokenManager) {
 		this.http = http;
 		this.tokenManager = tokenManager;
-		this.config = config;
 	}
 
 	/**
 	 * Fetches a single data aspect and returns it
 	 * 
-	 * @param instanceName represents the GDS namespace instance to query
-	 * @param aspectName   represents the name of the field to fetch a value for
+	 * @param config     represents the GDS configuration
+	 * @param aspectName represents the name of the field to fetch a value for
 	 * @return an Object containing the value of the given aspect
 	 */
-	public Object fetchSingleGdsDataAspect(String instanceName, String aspectName, OpenemsType type) {
+	public Object fetchSingleGdsDataAspect(PlcNextGdsDataClientConfig config, String aspectName, OpenemsType type) {
 		try {
-			Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
+			Endpoint dataEndPoint = buildDataEndpointRepresentation(config);
 			CompletableFuture<Object> dataAspectValue = http.requestJson(dataEndPoint)
 					.thenApply(s -> PlcNextJsonElementHelper
 							.getJsonValue(s.data().getAsJsonObject().getAsJsonPrimitive(aspectName), type));
@@ -62,19 +60,19 @@ public class PlcNextDataClient {
 	/**
 	 * Fetch all data aspects of given instance name and returns it
 	 * 
-	 * @param instanceName represents the GDS namespace instance to query
+	 * @param config represents the GDS configuration
 	 * @return a JsonObject containing all fetched data
 	 */
-	public JsonObject fetchAllGdsDataAspects(String instanceName) {
-		Endpoint dataEndPoint = buildDataEndpointRepresentation(instanceName);
+	public JsonObject fetchAllGdsDataAspects(PlcNextGdsDataClientConfig config) {
+		Endpoint dataEndPoint = buildDataEndpointRepresentation(config);
 		CompletableFuture<JsonObject> dataAspectValue = http.requestJson(dataEndPoint)
 				.thenApply(s -> s.data().getAsJsonObject());
 
 		return dataAspectValue.join();
 	}
 
-	private Endpoint buildDataEndpointRepresentation(String instanceName) {
-		String dataEndpointUrl = buildDataEndpointUrl(instanceName);
+	private Endpoint buildDataEndpointRepresentation(PlcNextGdsDataClientConfig config) {
+		String dataEndpointUrl = buildDataEndpointUrl(config);
 
 		Map<String, String> headers = Map.of(//
 				"Authorization", "Bearer " + this.tokenManager.getToken(), "Accept", "application/json", "Content-Type",
@@ -86,13 +84,13 @@ public class PlcNextDataClient {
 		return endPoint;
 	}
 
-	private String buildDataEndpointUrl(String instanceName) {
-		String dataEndpointUrl = this.config.dataUrl();
+	private String buildDataEndpointUrl(PlcNextGdsDataClientConfig config) {
+		String dataEndpointUrl = config.dataUrl();
 
 		if (!dataEndpointUrl.endsWith("/")) {
 			dataEndpointUrl = dataEndpointUrl.concat("/");
 		}
-		dataEndpointUrl = dataEndpointUrl.concat(instanceName)
+		dataEndpointUrl = dataEndpointUrl.concat(config.dataInstanceName())
 				.concat("/").concat("data");
 
 		return dataEndpointUrl;

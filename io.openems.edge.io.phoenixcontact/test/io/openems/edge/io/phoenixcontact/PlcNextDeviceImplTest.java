@@ -12,7 +12,9 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.phoenixcontact.auth.PlcNextAuthClient;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataClient;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
 
 public class PlcNextDeviceImplTest {
@@ -25,7 +27,7 @@ public class PlcNextDeviceImplTest {
 	private BridgeHttp dummyDataBridgeHttp;
 	
 	private PlcNextAuthClient authClient;
-	private PlcNextDataClient dataClient;
+	private PlcNextGdsDataClient dataClient;
 	
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsProvider dataProvider;
@@ -60,10 +62,10 @@ public class PlcNextDeviceImplTest {
 			}			
 		};
 		
-		this.authClient = new PlcNextAuthClient(dummyAuthBridgeHttp, myConfig);
+		this.authClient = new PlcNextAuthClient(dummyAuthBridgeHttp);
 		this.tokenManager = new PlcNextTokenManager(this.authClient);
 		
-		this.dataClient = new PlcNextDataClient(dummyDataBridgeHttp, tokenManager, myConfig);
+		this.dataClient = new PlcNextGdsDataClient(dummyDataBridgeHttp, tokenManager);
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
 	}
 	

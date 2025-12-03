@@ -10,8 +10,6 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.io.phoenixcontact.PlcNextAuthClient;
-
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextTokenManager.class)
 public class PlcNextTokenManager {
 
@@ -29,9 +27,9 @@ public class PlcNextTokenManager {
 	/**
 	 * Initialize fetching valid JWT periodically
 	 */
-	public void fetchToken() {
+	public void fetchToken(PlcNextAuthClientConfig authClientConfig) {
 		log.info("Start fetching authentication");
-		this.token = this.authClient.fetchSingleAuthentication();
+		this.token = this.authClient.fetchSingleAuthentication(authClientConfig);
 		log.info("Fetching authentication finished. Got access token? " + Objects.nonNull(this.token));
 	}
 
