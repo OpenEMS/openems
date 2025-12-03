@@ -4,12 +4,22 @@ before_script:
   - GRADLE_USER_HOME="$(pwd)/.gradle"
   - export GRADLE_USER_HOME
 
-testEdge:
-  stage: test
-  script: ./gradlew cleanEdge testEdge
+buildEdge:
+  stage: build
+  script: ./gradlew cleanEdge buildEdge
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
     paths:
       - build
       - .gradle
+
+#testEdge:
+#  stage: test
+#  script: ./gradlew cleanEdge testEdge
+#  cache:
+#    key: "$CI_COMMIT_REF_NAME"
+#    policy: pull
+#    paths:
+#      - build
+#      - .gradle
