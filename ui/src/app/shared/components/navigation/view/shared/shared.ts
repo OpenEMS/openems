@@ -9,9 +9,10 @@ export namespace ViewUtils {
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
         const headers = Array.from(document.querySelectorAll("ion-header"));
         const footers = Array.from(document.querySelectorAll("ion-footer"));
+        const footerSubnavigation = Array.from(document.querySelectorAll("oe-footer-subnavigation"));
 
         const headerHeight = headers.reduce((sum, el) => sum + el.clientHeight, 0);
-        const footerHeight = footers.reduce((sum, el) => sum + el.clientHeight, 0);
+        const footerHeight = [...footerSubnavigation, ...footers].reduce((sum, el) => sum + el.clientHeight, 0);
 
         return { header: headerHeight, footer: footerHeight };
     }
