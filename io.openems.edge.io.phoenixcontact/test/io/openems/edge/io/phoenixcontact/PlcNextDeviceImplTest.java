@@ -1,6 +1,5 @@
 package io.openems.edge.io.phoenixcontact;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -14,10 +13,11 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.phoenixcontact.auth.PlcNextAuthClient;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataClient;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextReadFromApiResourceCommand;
 
 public class PlcNextDeviceImplTest {
 
@@ -29,7 +29,7 @@ public class PlcNextDeviceImplTest {
 	private BridgeHttp dummyDataBridgeHttp;
 	
 	private PlcNextAuthClient authClient;
-	private PlcNextDataClient dataClient;
+	private PlcNextGdsDataClient dataClient;
 	
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsProvider dataProvider;
@@ -48,7 +48,15 @@ public class PlcNextDeviceImplTest {
 		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-				return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'jwtToken': 'dummy'}"));
+				if (endpoint.url().contains(PlcNextAuthClient.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.supplyAsync(
+							() -> new HttpResponse<String>(HttpStatus.OK, Map.of(), "{'code': 'dummy_auth'}"));
+				} else if (endpoint.url().contains(PlcNextAuthClient.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+							"{'access_token': 'dummy_access'}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
 			}
 		};
 		this.dummyDataBridgeHttp = new DummyBridgeHttp() {
@@ -58,23 +66,18 @@ public class PlcNextDeviceImplTest {
 			}			
 		};
 		
-		this.authClient = new PlcNextAuthClient(dummyAuthBridgeHttp, myConfig);
+		this.authClient = new PlcNextAuthClient(dummyAuthBridgeHttp);
 		this.tokenManager = new PlcNextTokenManager(this.authClient);
 		
-		this.dataClient = new PlcNextDataClient(dummyDataBridgeHttp, tokenManager, myConfig);
+		this.dataClient = new PlcNextGdsDataClient(dummyDataBridgeHttp, tokenManager);
 		this.dataProvider = new PlcNextGdsProvider(this.dataClient);
-		this.dataProvider.setPlcNextDeviceComponent(componentUnderTest);
-		
-		this.apiCommands = new ArrayList<PlcNextApiCommand>();
-		this.apiCommands.add(new PlcNextReadFromApiResourceCommand(this.dataProvider));	
 	}
 	
-	
-	// WIP: make dummy request return sth.
 	@Test
-	public void test() throws Exception {
+	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
-				.addReference("apiCommands", this.apiCommands) //
+				.addReference("gdsProvider", this.dataProvider) //
+				.addReference("tokenManager", this.tokenManager)
 				.activate(this.myConfig); //
 		
 		test.next(new TestCase()); //

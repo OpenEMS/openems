@@ -71,8 +71,8 @@ public class TestConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String dataInstanceName() {
-		return "defaultOpenEmsInstance4JUnit";
+	public String[] dataInstanceNames() {
+		return new String[]{"defaultOpenEmsInstance4JUnit"};
 	}
 
 }
