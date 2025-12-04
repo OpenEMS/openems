@@ -7,13 +7,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
-		name = "IO PxC PLCnext", //
-		description = "Provides driver for PxC PLCnext based components. Take care of GDS shared object." //
+		name = "IO Phoenix Contact PLCnext", //
+		description = "Provides driver for Phoenix Contact PLCnext based components. Take care of GDS shared object." //
 )
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "pxc_plcnext_0";
+	String id() default "plcnext_0";
 
 	@AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
 	String alias() default "";

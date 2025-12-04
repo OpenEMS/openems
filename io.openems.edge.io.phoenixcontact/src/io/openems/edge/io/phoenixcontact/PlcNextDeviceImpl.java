@@ -109,9 +109,6 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	@Override
 	public void handleEvent(Event event) {
 		logInfo(log, "Handling event '" + event.getTopic() + "'");
-		PlcNextAuthClientConfig authClientConfig = new PlcNextAuthClientConfig(config.authUrl(), config.username(), config.password());
-
-		tokenManager.fetchToken(authClientConfig);
 		processData(event);
 	}
 
@@ -120,12 +117,15 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 			log.warn("Module deactivated, skipping event processing of event");
 			return;
 		}
+		PlcNextAuthClientConfig authClientConfig = new PlcNextAuthClientConfig(config.authUrl(), config.username(),
+				config.password());
 		List<PlcNextApiCommand> suitableApiCommandsForEvent = apiCommands.stream()
 				.filter(item -> item.eventTriggers().contains(event.getTopic())).toList();
 		if (suitableApiCommandsForEvent.isEmpty()) {
 			log.info("No commands found to be executed");
 			return;
 		}
+		tokenManager.fetchToken(authClientConfig);
 
 		log.info("ECHO: Fetching data " + suitableApiCommandsForEvent.size() + " commands");
 //		suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
