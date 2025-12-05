@@ -110,10 +110,15 @@ public class EnergyValuesHandler {
 			// lastValue was not initialized yet -> ignore value
 			value = null;
 
-		} else if (value == null) {
-			// if value is null, replace it by last value
+		} else {
 			var lastValue = this.lastEnergyValues.get(channelId);
-			value = lastValue;
+			if (value == null) {
+				// 	if value is null, replace it by last value
+				value = lastValue;
+			} else if (lastValue != null && value < lastValue) {
+				// if value is less than last value ignore it
+				value = lastValue;
+			}
 		}
 
 		this.parent.channel(channelId).setNextValue(value);
