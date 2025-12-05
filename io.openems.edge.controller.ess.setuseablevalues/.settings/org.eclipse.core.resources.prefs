@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/controller/ess/setuseablevalues/Config.java=UTF-8
+encoding//src/io/openems/edge/controller/ess/setuseablevalues/ControllerEssSetUseableValues.java=UTF-8
+encoding//src/io/openems/edge/controller/ess/setuseablevalues/ControllerEssSetUseableValuesImpl.java=UTF-8
+encoding//test/io/openems/edge/controller/ess/setuseablevalues/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/controller/ess/setuseablevalues/MyControllerTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8

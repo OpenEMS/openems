@@ -1,0 +1,100 @@
+package io.openems.edge.controller.ess.chargedischargelimiter;
+
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
+import static java.lang.Math.max;
+
+import java.util.function.Supplier;
+
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class EnergyScheduler {
+
+    public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(
+            OpenemsComponent parent,
+            Supplier<Config> configSupplier) {
+    	
+    	final Logger log = LoggerFactory.getLogger(EnergyScheduler.class);    	
+
+        return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent)
+                .setSerializer(Config.serializer(), configSupplier)
+
+                .setOptimizationContext(gsc -> {
+                    var config = configSupplier.get();
+                    if (config == null || config.minSoc == null || config.maxSoc == null) {
+                        return null;
+                    }
+
+                    var totalEnergy = gsc.ess().totalEnergy();
+                    var minEnergy = socToEnergy(totalEnergy, config.minSoc());
+                    var maxEnergy = socToEnergy(totalEnergy, config.maxSoc());
+                    
+
+                    log.info(
+                            "[ChargeDischargeLimiter-Scheduler] {}: Build OptimizationContext -> "
+                                    + "minSoc={}%, maxSoc={}%, totalE={}Wh, minE={}Wh, maxE={}Wh",
+                            parent.id(), config.minSoc(), config.maxSoc(), totalEnergy, minEnergy, maxEnergy);
+                    
+
+                    return new OptimizationContext(minEnergy, maxEnergy);
+                })
+
+                .setSimulator((id, period, gsc, coc, csc, ef, fitness) -> {
+                    if (coc == null) {
+                        return;
+                    }
+
+                    var currentEnergy = gsc.ess.getInitialEnergy();
+
+                    // limit discharge
+                    var allowedDischarge = max(0, currentEnergy - coc.minEnergy());
+                    ef.setEssMaxDischarge(allowedDischarge);
+
+                    // limit charge
+                    var allowedCharge = max(0, coc.maxEnergy() - currentEnergy);
+                    ef.setEssMaxCharge(allowedCharge);
+                    
+                    log.info(
+                            "[ChargeDischargeLimiter-Scheduler] {}: period duration={}, price={}, "
+                                    + "E_init={}Wh, minE={}Wh, maxE={}Wh, "
+                                    + "allowedCharge={}Wh, allowedDischarge={}Wh",
+                            id,
+                            period.duration(),
+                            period.price(),
+                            currentEnergy,
+                            coc.minEnergy(),
+                            coc.maxEnergy(),
+                            allowedCharge,
+                            allowedDischarge);
+                    
+                })
+
+                .build();
+    }
+
+    private static record OptimizationContext(int minEnergy, int maxEnergy) {
+    }
+
+    public static record Config(Integer minSoc, Integer maxSoc) {
+
+        public static JsonSerializer<Config> serializer() {
+            return jsonObjectSerializer(Config.class, json -> {
+                return new Config(
+                        json.getOptionalInt("minSoc").orElse(null),
+                        json.getOptionalInt("maxSoc").orElse(null)
+                );
+            }, obj -> {
+                return buildJsonObject()
+                        .addProperty("minSoc", obj.minSoc)
+                        .addProperty("maxSoc", obj.maxSoc)
+                        .build();
+            });
+        }
+    }
+}

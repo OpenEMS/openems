@@ -4,6 +4,7 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -37,7 +38,34 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.PERCENT).persistencePriority(HIGH)), //
 		MAX_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT).persistencePriority(HIGH)); //
+				.unit(Unit.PERCENT).persistencePriority(HIGH)),
+		/**
+		 * Current useable capacity of battery.
+		 *
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
+
+		/**
+		 * Current useable SoC of battery. Emergency SoC from controller is being
+		 * deducted.
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: Wh
+		 * </ul>
+		 */
+		USEABLE_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH));		
 
 		private final Doc doc;
 
@@ -277,6 +305,82 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 		this.getStateMachineChannel().setNextValue(value);
 	}
 
+
+
+	/**
+	 * Gets the Channel for {@link ChannelId#USEABLE_CAPACITY}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getUseableCapacityChannel() {
+		return this.channel(ChannelId.USEABLE_CAPACITY);
+	}
+
+	/**
+	 * Returns the useable capacity from the corresponding Channel
+	 * {@link ChannelId#USEABLE_CAPACITY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getUseableCapacity() {
+		return this.getUseableCapacityChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#USEABLE_CAPACITY}.
+	 *
+	 * @param value the next value
+	 */
+	public default void setUseableCapacity(Integer value) {
+		this.getUseableCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#USEABLE_CAPACITY}.
+	 *
+	 * @param value the next value
+	 */
+	public default void setUseableCapacity(int value) {
+		this.getUseableCapacityChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#USEABLE_SOC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getUseableSocChannel() {
+		return this.channel(ChannelId.USEABLE_SOC);
+	}
+
+	/**
+	 * Useable state of charge. Reserve already deducted. See
+	 * {@link ChannelId#AC_POWER}
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getUseableSoc() {
+		return this.getUseableSocChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#USEABLE_SOC}.
+	 *
+	 * @param value the next value
+	 */
+	public default void setUseableSoc(Integer value) {
+		this.getUseableSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#USEABLE_SOC}.
+	 *
+	 * @param value the next value
+	 */
+	public default void setUseableSoc(int value) {
+		this.getUseableSocChannel().setNextValue(value);
+	}	
+	
 	public String getEssId();
 
 }

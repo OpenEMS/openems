@@ -14,7 +14,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.ess.limittotaldischarge,\
 	io.openems.edge.controller.ess.emergencycapacityreserve,\
 	io.openems.edge.controller.symmetric.thresholdpeakshaver,\
-	io.openems.edge.timeofusetariff.api
+	io.openems.edge.timeofusetariff.api,\
+	io.openems.edge.energy.api
 -testpath: \
 	${testpath}
 

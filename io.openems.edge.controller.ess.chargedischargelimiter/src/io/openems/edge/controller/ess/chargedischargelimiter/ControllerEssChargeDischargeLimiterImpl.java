@@ -19,6 +19,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -31,12 +36,15 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Pwr;
-
 import io.openems.edge.common.type.TypeUtils;
 
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.controller.symmetric.thresholdpeakshaver.ControllerEssThresholdPeakshaver;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -45,14 +53,14 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComponent
-		implements ControllerEssChargeDischargeLimiter, Controller, OpenemsComponent {
+		implements ControllerEssChargeDischargeLimiter, Controller, OpenemsComponent, EnergySchedulable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssChargeDischargeLimiterImpl.class);
 
 	private Config config;
 
 	/**
-	 * Length of hysteresis in minutes. States are not changed quicker than this.
+	 * Length of hysteresis in seconds. States are not changed quicker than this.
 	 * 
 	 */
 	private static final int HYSTERESIS = 10; // seconds
@@ -84,6 +92,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	@Reference
 	private ComponentManager componentManager;
+	
+	private EnergyScheduleHandler energyScheduleHandler;	
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -116,19 +126,16 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		this.config = config;
 
-		// this.ess = this.componentManager.getComponent(config.ess_id());
-		this.minSoc = this.config.minSoc(); // min SoC
-		this.maxSoc = this.config.maxSoc();
-		this.autoDischarge = this.config.autoDischarge();
-		this.forceChargeSoc = this.config.forceChargeSoc(); // if battery need balancing we charge to this value
-		this.forceChargePower = this.config.forceChargePower(); // if battery need balancing we charge to this value
-		this.energyBetweenBalancingCycles = this.config.energyBetweenBalancingCycles() * 1000; // convert kWh to Wh
-		this.balancingHysteresisTime = this.config.balancingHysteresis();
-		this.debugMode = this.config.debugMode();
+		this.updateConfig(config);
 
-		this.taperStartSoc = this.config.maxSoc() - taperPercent;
-
-		this.log.info("Number of Peakshaving controllers found: ");
+	    this.energyScheduleHandler = io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler
+	            .buildEnergyScheduleHandler(
+	                    this,
+	                    () -> this.config.enabled()
+	                            ? new io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler.Config(
+	                                    this.config.minSoc(),
+	                                    this.config.maxSoc())
+	                            : null);	
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
@@ -141,7 +148,33 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
 
+    @Override
+    protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+        super.modified(context, id, alias, enabled);
+        this.updateConfig(this.config);
+        if (this.energyScheduleHandler != null) {
+            this.energyScheduleHandler.triggerReschedule("ControllerEssChargeDischargeLimiterImpl::modified()");
+        }
+    }	
+
+	private void updateConfig(Config config) {
+	    this.minSoc = this.config.minSoc();
+	    this.maxSoc = this.config.maxSoc();
+	    this.autoDischarge = this.config.autoDischarge();
+	    this.forceChargeSoc = this.config.forceChargeSoc();
+	    this.forceChargePower = this.config.forceChargePower();
+	    this.energyBetweenBalancingCycles = this.config.energyBetweenBalancingCycles() * 1000; // kWh -> Wh
+	    this.balancingHysteresisTime = this.config.balancingHysteresis();
+	    this.debugMode = this.config.debugMode();
+
+	    this.taperStartSoc = this.config.maxSoc() - taperPercent;
+
+	}	
+	
+
+	
 	/**
 	 * The channel for cumulated chargedEnergy is not available at startup or even
 	 * 0. So we have to get the latest value from timedata.
@@ -725,4 +758,17 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 	}
 
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+	    return this.energyScheduleHandler;
+	}	
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
+						.build());
+	}	
+	
 }

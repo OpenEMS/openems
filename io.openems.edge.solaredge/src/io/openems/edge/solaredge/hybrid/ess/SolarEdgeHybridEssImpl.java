@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -602,53 +602,6 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 		}
 	}
 
-	/**
-	 * SolarEdge provides max. usable Capacity. So we can calculate current useable
-	 * capacity
-	 * 
-	 * private void installListener() { this.getCapacityChannel().onUpdate(value ->
-	 * { this.checkSocControllers(); Integer soc = this.getSoc().get(); int
-	 * minSocPercentage = this.minSocPercentage;
-	 * 
-	 * if (soc == null) { return; }
-	 * 
-	 * if (soc < minSocPercentage) { this.setUseableCapacity(0); } else { soc = soc
-	 * - minSocPercentage; // Normalize the soc to a 0-100% range over the range
-	 * (100 - minSocPercentage) float normalizedSoc = (float) soc / (100 -
-	 * minSocPercentage) * 100; // Calculate useable capacity based on normalized
-	 * SoC int useableCapacity = (int) Math.round((float) value.get() *
-	 * (normalizedSoc / 100f)); this.setUseableCapacity(useableCapacity);
-	 * this.setUseableSoc((int) normalizedSoc); }
-	 * 
-	 * if (soc <= 0) { this.setUseableCapacity(0); this.setUseableSoc(0); } }); }
-	 * 
-	 * 
-	 * private void checkSocControllers() {
-	 * 
-	 * int minSocTotalDischarge = 0; int actualReserveSoc = 0;
-	 * 
-	 * if (this.ctrlEmergencyCapacityReserves == null ||
-	 * this.ctrlLimitTotalDischarges == null) { return; }
-	 * 
-	 * for (ControllerEssEmergencyCapacityReserve ctrlEmergencyCapacityReserve :
-	 * this.ctrlEmergencyCapacityReserves) {
-	 * 
-	 * if (ctrlEmergencyCapacityReserve != null &&
-	 * ctrlEmergencyCapacityReserve.channel("_PropertyEssId").value().asString().equals(this.id()))
-	 * { actualReserveSoc =
-	 * ctrlEmergencyCapacityReserve.getActualReserveSoc().orElse(0); } }
-	 * 
-	 * for (ControllerEssLimitTotalDischarge ctrlLimitTotalDischarge :
-	 * this.ctrlLimitTotalDischarges) {
-	 * 
-	 * if (ctrlLimitTotalDischarge != null &&
-	 * ctrlLimitTotalDischarge.channel("_PropertyEssId").value().asString() ==
-	 * this.id()) { minSocTotalDischarge =
-	 * ctrlLimitTotalDischarge.getMinSoc().orElse(0); } } // take highest value and
-	 * return this.minSocPercentage = (Math.max(minSocTotalDischarge,
-	 * actualReserveSoc)); }
-	 */
-
 	private void checkSocControllers() {
 		Utils.filterControllersByEssId(ctrlChargeDischargeLimiters, this.id()); // filter out controllers not referring to this ess
 
@@ -662,58 +615,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				+ this.maxSocPercentage);
 	}
 
-	/**
-	 * value is the total capacity of the battery in Watt Hours
-	 
-	private void installListener() {
-	    this.getCapacityChannel().onUpdate(value -> {
-	        this.logDebug(this.log, "Listener triggered with capacity value: " + value);
 
-	        // Get the current SoC value and check for null or invalid values
-	        Integer soc = this.getSoc().orElse(null);
-	        if (soc == null || soc <= 0 || value == null || value.get() <= 0) {
-	            this.logDebug(this.log, "SoC is null, zero, or negative, or capacity value is null/invalid; exiting listener.");
-	            this.setUseableCapacity(0);
-	            this.setUseableSoc(0);
-	            return;
-	        }
-
-	        // Update minSocPercentage and maxSocPercentage based on current controller settings
-	        this.checkSocControllers();
-	        this.logDebug(this.log, "Updated SoC ranges -> MinSoC: " + this.minSocPercentage + " / MaxSoC: " + this.maxSocPercentage);
-
-	        // Calculate the SoC range and check that it's valid (non-zero and positive)
-	        int range = this.maxSocPercentage - this.minSocPercentage;
-	        if (range <= 0) {
-	            this.logError(this.log, "Invalid SoC range: MinSoC is greater than or equal to MaxSoC. Exiting listener.");
-	            this.setUseableCapacity(0);
-	            this.setUseableSoc(0);
-	            return;
-	        }
-
-	        // Calculate total capacity based on current SoC and loaded capacity
-	        int totalCapacity = value.get();
-
-	        // Normalization of SoC: scale the SoC within the min/max range to a 0-100 scale
-	        int useableSoc = soc > this.maxSocPercentage ? 100  // If SoC exceeds maxSoc, set to 100%
-	                : soc < this.minSocPercentage ? 0            // If SoC is below minSoc, set to 0%
-	                : (int) (((double) (soc - this.minSocPercentage) / range) * 100);  // Normalize SoC to a 0-100 range
-
-	        useableSoc = Math.max(0, Math.min(useableSoc, 100));  // Ensure usable SoC is between 0 and 100%
-
-	        // Use the normalized SoC to calculate the usable capacity
-	        int useableCapacity = (int) Math.round(totalCapacity * (useableSoc / 100f));
-
-	        this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc + 
-	                    "[%] Capacity real|usable " + totalCapacity + "|" + useableCapacity + " [Wh]");
-
-	        // Set usable capacity and SoC
-	        this.setUseableCapacity(useableCapacity);
-	        this.setUseableSoc(useableSoc);
-	    });
-	}
-	*/
-	
 	
 	/**
 	 * value is the total capacity of the battery in Watt Hours
@@ -764,6 +666,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 	        this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc + 
 	                    "[%] Capacity real|usable " + totalCapacity + "|" + useableCapacity + " [Wh]");
 
+	        this._setCapacity(totalCapacity);
+	        
 	        // Set usable capacity and SoC
 	        this.setUseableCapacity(useableCapacity);
 	        this.setUseableSoc(useableSoc);
