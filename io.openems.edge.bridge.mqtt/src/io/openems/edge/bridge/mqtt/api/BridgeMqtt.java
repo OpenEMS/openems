@@ -44,7 +44,8 @@ public interface BridgeMqtt extends OpenemsComponent {
 		 * <li>Description: True if connected to the MQTT broker
 		 * </ul>
 		 */
-		CONNECTED(Doc.of(Level.OK).text("Connected to MQTT broker")),
+		CONNECTED(Doc.of(Level.OK)//
+				.text("Connected to MQTT broker")),
 
 		/**
 		 * Connection Failed.
@@ -56,7 +57,8 @@ public interface BridgeMqtt extends OpenemsComponent {
 		 * <li>Description: Unable to connect to MQTT broker
 		 * </ul>
 		 */
-		CONNECTION_FAILED(Doc.of(Level.FAULT).text("MQTT connection failed")),
+		CONNECTION_FAILED(Doc.of(Level.FAULT)//
+				.text("MQTT connection failed")),
 
 		/**
 		 * Broker Unreachable.
@@ -68,7 +70,8 @@ public interface BridgeMqtt extends OpenemsComponent {
 		 * <li>Description: MQTT broker is unreachable
 		 * </ul>
 		 */
-		BROKER_UNREACHABLE(Doc.of(Level.WARNING).text("MQTT broker unreachable")),;
+		BROKER_UNREACHABLE(Doc.of(Level.WARNING)//
+				.text("MQTT broker unreachable")),;
 
 		private final Doc doc;
 

@@ -24,7 +24,8 @@ public interface MqttComponent extends OpenemsComponent {
 		 * <li>Description: MQTT communication with this component failed
 		 * </ul>
 		 */
-		MQTT_COMMUNICATION_FAILED(Doc.of(Level.WARNING).text("MQTT communication failed")),;
+		MQTT_COMMUNICATION_FAILED(Doc.of(Level.WARNING)//
+				.text("MQTT communication failed"));
 
 		private final Doc doc;
 
