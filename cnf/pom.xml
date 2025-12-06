@@ -243,7 +243,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.4</version>
+			<version>1.1.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -296,14 +296,14 @@
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.82</version>
+			<version>1.83</version>
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.82</version>
+			<version>1.83</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -516,7 +516,7 @@
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.18.1</version>
+		  <version>1.18.2</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
