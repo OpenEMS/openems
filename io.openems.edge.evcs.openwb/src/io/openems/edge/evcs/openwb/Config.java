@@ -3,6 +3,8 @@ package io.openems.edge.evcs.openwb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.meter.api.PhaseRotation;
+
 @ObjectClassDefinition(//
 		name = "EVCS OpenWB", //
 		description = "Implements the evcs component for OpenWB Series2 with internal chargepoints via HTTP API")
@@ -25,6 +27,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Chargepoint", description = "Number of the internal chargepoint")
 	ChargePoint chargePoint() default ChargePoint.CP0;
+
+	@AttributeDefinition(name = "Phase rotation", description = "The way in which the phases are physically rotated.")
+	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	String webconsole_configurationFactory_nameHint() default "EVCS OpenWB [{id}]";
 
