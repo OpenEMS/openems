@@ -26,16 +26,16 @@ import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
-@Designate(ocd = ConfigPV2.class, factory = true)
+@Designate(ocd = ConfigPV4.class, factory = true)
 @Component(//
-		name = "GoodWe.Charger-PV2", //
+		name = "GoodWe.Charger-PV4", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
+public class GoodWeChargerPv4 extends AbstractGoodWeEtCharger
 		implements GoodWeCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
 	@Reference
@@ -54,7 +54,7 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 	}
 
 	@Activate
-	private void activate(ComponentContext context, ConfigPV2 config) throws OpenemsException {
+	private void activate(ComponentContext context, ConfigPV4 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -81,7 +81,7 @@ public class GoodWeChargerPv2 extends AbstractGoodWeEtCharger
 
 	@Override
 	protected int getStartAddress() {
-		return 35107;
+		return 35115;
 	}
 
 	@Override

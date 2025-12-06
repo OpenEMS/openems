@@ -8,11 +8,11 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-public class GoodWeChargerPv2Test {
+public class GoodWeChargerPv3Test {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new GoodWeChargerPv2()) //
+		new ComponentTest(new GoodWeChargerPv3()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
