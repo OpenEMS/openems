@@ -18,7 +18,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.DataContainer;
 
-public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
+public abstract class AbstractDatasource extends AbstractOpenemsComponent
 		implements SimulatorDatasource, EventHandler {
 
 	private int timeDelta;
@@ -29,7 +29,7 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 
 	protected abstract DataContainer getData() throws NumberFormatException, IOException;
 
-	protected AbstractCsvDatasource(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
+	protected AbstractDatasource(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
@@ -50,7 +50,7 @@ public abstract class AbstractCsvDatasource extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
 			var now = LocalDateTime.now(this.getComponentManager().getClock());
 			if (this.timeDelta > 0 && Duration.between(this.lastIteration, now).getSeconds() < this.timeDelta) {
-				// don't change record, if timeDetla is active and has not been passed yet
+				// don't change record, if timeDelta is active and has not been passed yet
 				return;
 			}
 
