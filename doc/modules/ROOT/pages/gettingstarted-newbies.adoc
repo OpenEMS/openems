@@ -108,7 +108,12 @@ Check that both containers are running:
 docker ps
 ----
 
-You should see both `openems_edge` and `openems_ui` in the list.
+You should see both `openems_edge` and `openems_ui` in the list, like here:
+```
+CONTAINER ID   IMAGE                    COMMAND   CREATED          STATUS          PORTS                                                                                      NAMES
+3c9ac62e2573   openems/ui-edge:latest   "/init"   52 seconds ago   Up 51 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp               openems_ui
+5b3d9f9ee134   openems/edge:latest      "/init"   52 seconds ago   Up 51 seconds   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:8085->8085/tcp, [::]:8085->8085/tcp   openems_edge
+```
 
 Check the logs to ensure OpenEMS Edge is running properly:
 
@@ -117,7 +122,7 @@ Check the logs to ensure OpenEMS Edge is running properly:
 docker logs openems_edge
 ----
 
-You should see log messages and eventually a warning: *"There are no schedulers configured!"* - this is expected and we'll fix it in the next step.
+You should see log messages and eventually there might be a warning: *"There are no schedulers configured!"* - In case you see this, no problem, we'll fix it in the next step.
 
 == Step 2: Configure Your First Simulated System
 
@@ -144,7 +149,7 @@ The Scheduler controls when and how often OpenEMS runs its algorithms (see xref:
 
 In the Configuration Interface:
 
-. Find _**Scheduler All Alphabetically**_ in the list and click on it
+. Find _**Scheduler All Alphabetically**_ in the list and see if there is already a configuration (e.g. scheduler0) for it with a checkmark. If not, click on it to create one, otherwise open the existing configuration by clicking on the name to have a look into it.
 . Keep the default settings (they're fine for testing)
 . Click btn:[Save]
 
@@ -190,15 +195,20 @@ This simulates realistic household power consumption throughout the day. The ava
 
 This simulates solar panel production on a typical summer day.
 
+Component-IDs must be unique, so we use `datasource1` here.
+
 ==== Non-Regulated Consumption Data (Household Appliances)
 
 . Click on _**Simulator DataSource: CSV Predefined**_ again
 . Set the following:
 ** Component-ID: `datasource2`
 ** Source: `H0_HOUSEHOLD_SUMMER_WEEKDAY_NON_REGULATED_CONSUMPTION`
+** Factor: `-10000` 
 . Click btn:[Save]
 
 This simulates the power consumption of household appliances that are not directly controlled by OpenEMS (like refrigerators, washing machines, lighting, etc.).
+
+The negative factor inverts the values to represent consumption correctly.
 
 === Configure Simulated Devices
 
@@ -222,6 +232,8 @@ NOTE: We're using a "Reacting" grid meter, which means it automatically calculat
 ** Component-ID: `pvMeter0`
 ** Datasource-ID: `datasource1`
 . Click btn:[Save]
+
+NOTE: We use `pvMeter0` as Component-ID to add more meaning to it than simply `meter1`.
 
 ==== Non-Regulated Consumption Meter (Household Appliances)
 
@@ -257,9 +269,9 @@ NOTE: If the Simulator Evcs component is not available in your Docker image, you
 
 RRD4j stores historical data so you can see charts and trends. RRD4j is a file-based time-series database suitable for embedded systems. InfluxDB would be an alternative. (see xref:edge/timedata.adoc[Edge - Timedata]).
 
-. Click on _**Timedata RRD4J**_ (or _**Timedata.Rrd4j**_)
+. Click on _**Timedata RRD4J**_ 
 . Set the following:
-** Component-ID: `timedata0`
+** Component-ID: `rrd4j0`
 . Keep other default settings
 . Click btn:[Save]
 
@@ -296,12 +308,9 @@ You should see the OpenEMS UI login screen.
 
 === Log In
 
-* Username: leave empty or type `guest`
-* Password: leave empty or type `admin`
+You can either use the given default to enter as guest (with no access to settings) or enter `admin` as password to gain full access.
 
-Click the login button.
-TODO: Check
-Enter either `guest` or `admin` as password.
+Please enter `admin` and press `Enter` or click the login button.
 
 === Explore the Energy Monitor
 
@@ -309,16 +318,16 @@ You should now see the LIVE view with the **Energy Monitor** showing:
 
 * Grid power (import/export)
 * Solar production
-* Battery state of charge and power (charging/discharging)
 * Non-regulated consumption (household appliances)
-* Total consumption
+* Battery state of charge and power (charging/discharging)
 
-TODO: Screenshot <ScreenCapture id="openems-ui-energy-monitor" width="800" height="400"/>
+image::newbie-guide-UI-live-view.png[Energy Monitor in OpenEMS UI Live view]
 
 Watch the values change as the simulation runs! The system updates once per second by default, as defined by the Cycle-Time setting of "1000 ms" in the _**Core Cycle (Core.Cycle)**_ component (see also xref:gettingstarted.adoc[Getting Started] and xref:edge/architecture.adoc#_cycle[Edge Architecture - Cycle]).
-TODO: Check
 
 === Understanding What You See
+
+In the beginning of the simulation there is no PV production as it is simulating nighttime. Just observe for a while.
 
 * **Negative** grid values = feeding power to the grid
 * **Positive** grid values = consuming power from the grid
@@ -338,7 +347,7 @@ You can manually manipulate values through the Apache Felix Web Console to simul
 
 . Go back to http://localhost:8080/system/console/configMgr
 . Find your data source configurations (`datasource0`, `datasource1`, and `datasource2`)
-. You can change the data sources to different scenarios (note: currently only summer weekday profiles are available in the predefined sources)
+. You could change the data sources to different scenarios (note: currently only summer weekday profiles are available in the predefined sources)
 
 ==== Change Battery Parameters
 
@@ -347,7 +356,6 @@ You can manually manipulate values through the Apache Felix Web Console to simul
 ** State of Charge to see how different battery levels affect the system
 ** Capacity to simulate larger/smaller batteries
 ** Max Charge/Discharge Power to see how faster/slower batteries behave
-TODO: Check
 
 ==== Observe Controller Behavior
 
@@ -371,6 +379,12 @@ After the system has been running for a while:
 
 Let's add a second controller to see how multiple algorithms work together.
 
+=== Change the Behavior of your System with Controllers
+
+You can change the "business logic" of your system by adding or modifying controllers. For example, you can add peak shaving, demand response, or other optimization strategies by configuring or developing new controllers.
+
+More on controllers can be found in xref:edge/controller.adoc[Edge - Controller] (which are available) and xref:edge/architecture.adoc#_controller[Edge Architecture - Controller] (how they work).
+
 === Understanding Controller Priority
 
 OpenEMS runs controllers in alphabetical order by default (because we configured the "Scheduler All Alphabetically"). Controllers with higher priority (earlier in the alphabet) run first. This prioritization ensures that critical controllers can set constraints before lower-priority controllers execute (see xref:edge/architecture.adoc#_scheduler[Edge Architecture - Scheduler] for detailed information about controller prioritization).
@@ -384,9 +398,12 @@ NOTE: This time we will use the UI's component install & configuration, instead 
 . Click on the menu icon in the top-left corner of the OpenEMS UI, which opens the sidebar
 . Click on Settings > Component Installation
 . Search for _**Controller Ess Time-Of-Use Tariff**_ and click on it
+. The configuration form appears, just leave the defaults
 . Click btn:[Install Component]
 
-Watch how this controller's behavior combines with the balancing controller!
+Now return to the Energy Monitor LIVE view and watch how this controller's behavior combines with the balancing controller!
+
+
 
 == Step 6: Explore Available Components
 
@@ -399,11 +416,13 @@ In the Apache Felix Web Console (http://localhost:8080/system/console/configMgr)
 * **Meters**: Grid meters, production meters, consumption meters
 * **Energy Storage Systems (ESS)**: Various battery brands and types
 * **EVCS (Wallbox)**: Different electric vehicle charger brands
-* **Controllers**: Various algorithms for different optimization goals
-* **IO**: Modbus, REST API, etc.
-* **Schedulers**: Different ways to organize when controllers run
+* **Controllers**: Various algorithms for different optimization goals (xref:edge/controller.adoc[in the docs])
+* **IO**: Modbus, REST API, etc. (xref:edge/bridge.adoc[in the docs])
+* **Schedulers**: Different ways to organize when controllers run (xref:edge/scheduler.adoc[in the docs])
 
-NOTE: Alternatively you can use the UI's component installation feature, available under Settings>Component Installation, as you have done above. To configure components there, or delete them, go to Settings>Component Configuration, select the component, adjust the settings or delete it.
+NOTE: Alternatively you can use the UI's component installation feature, available under Settings>Component Installation, as you have done above. To (re-)configure components there, or delete them, go to Settings>Component Configuration, select the component, adjust the settings or delete it.
+
+Documentation on Devices & Services can be found at xref:edge/device_service.adoc[Edge - Devices & Services].
 
 === Customize Your System
 
@@ -416,9 +435,9 @@ Try adding or changing components to match your desired setup:
 * Want to make sure the car is only charged with PV or when the price for grid power is low? Or never charged by battery power, because you will need that battery power for other consumption? Configure ...
 TODO: Check
 
-TODO: Explain how to find out more about these components and what to do with them.
+NOTE: Remember: Each component needs a unique Component-ID. Use descriptive names like `ess0`, `ess1`, `meter0`, `pvMeter0`, etc.
 
-NOTE: Each component needs a unique Component-ID. Use descriptive names like `ess0`, `ess1`, `meter0`, `pvMeter0`, etc.
+
 
 == Step 7: Connecting Real Devices
 
@@ -426,25 +445,26 @@ Once you're comfortable with the simulation, you can start integrating real hard
 
 === Replace a Simulator with Real Hardware
 
-When you have a real device, e.g. a SolarEdge meter, that you use as grid meter, to measure the power flow to/from the grid, you can replace the corresponding simulator component "Simulator GridMeter Reacting" (that we configured in <<Grid Meter>>) with the real device component `Meter SolarEdge`, if this is what you have.
-In our case of the `Meter SolarEdge`, it uses Modbus/RTU (over RS-485 serial line) as communication protocol.
+When you have a real device, e.g. a Fronius meter, that you use as grid meter, to measure the power flow to/from the grid, you can replace the corresponding simulator component "Simulator GridMeter Reacting" (that we configured in <<Grid Meter>>) with the real device component `Meter Fronius`, if this is what you have.
+In our case of the `Meter Fronius`, it uses Modbus/TCP (over IP network) as communication protocol.
 
-NOTE: OpenEMS uses so-called Bridge components to connect to real devices. In the example of the `Meter SolarEdge` with Modbus the `Modbus Bridge` component handles the communication protocol (e.g. Modbus TCP/RTU/ASCII) and translates data to/from OpenEMS channels. The device component then uses these channels to read/write data from/to the real device.
+NOTE: OpenEMS uses so-called Bridge components to connect to real devices. In the example of the `Meter Fronius` with Modbus the `Modbus Bridge` component handles the communication protocol (e.g. Modbus TCP/RTU/ASCII) and translates data to/from OpenEMS channels. The device component then uses these channels to read/write data from/to the real device.
 
 But now let's see how to replace the simulator with the real device:
 
-. Find the right communication bridge component for your device, e.g for our `Meter SolarEdge` the `Bridge Modbus/RTU Serial` for Modbus devices using RTU over a serial line (RS-485)
+. Find the right communication bridge component for your device, e.g for our `Meter Fronius` the `Bridge Modbus/TCP` for Modbus devices using TCP over a network
 ** As the first Modbus Bridge installed it will get the component ID "modbus0" by default (you can change it if you want, but they need to be unique)
-** Configure the bridge component according to your setup (e.g. serial port, baud rate, parity, etc.)
+** Configure the bridge component according to your setup (e.g. serial port, baud rate, parity, etc. for Modbus RTU/ASCII or IP address and port in our case of Modbus TCP)
+** Set the alias e.g. to where you find your device in your house.
+** You can also adjust the log level to more verbose for easier troubleshooting.
 ** Click btn:[Install Component] to install the bridge component
 . Find the non-simulator component in the configuration
-** Example: in our example, the `Meter SolarEdge`
+** Example: in our example, the `Meter Fronius`
+** Component-ID: `meter1` (automatic, as meter0 is still used)
 ** set the `bridge.id` (here explicitly named `Modbus-ID`) to the Modbus Bridge component ID (e.g., "modbus0")
 ** set other required configuration parameters specific to your device
 . Click btn:[Install component] to install the device component
-. Remove or disable the corresponding simulator component (_**Simulator GridMeter Reacting**_ with Component-ID: `meter0`) and the respective data source (in this case of the reacting gridmeter simulator there was none) to avoid conflicts
-
-TODO: Check
+. Remove or disable the corresponding simulator component (_**Simulator GridMeter Reacting**_ with Component-ID: `meter0`) and the respective data source (none in this case of the reacting gridmeter simulator) to avoid conflicts
 
 OpenEMS will now read real data from your device via the Modbus physical interface!
 
@@ -458,21 +478,25 @@ You don't have to replace everything at once. You can mix:
 
 This lets you test step by step as you acquire and install devices. Obviously, you can even test the impact of potential new devices that you consider buying in your existing real setup by simulating them first, e.g. comparing the behaviour with different sizes (capacity) or max. power ratings of batteries. You can also simulate additional consumption patterns to see how your system would behave under different load conditions. 
 
+NOTE: When mixing real and simulated devices don't be surprised if you see unexpected behavior. Real devices may have different response times, accuracies, or behaviors compared to the simulators. Your real system might also provide different values, as the simulated datasources assume. Always monitor the system closely when integrating real hardware. 
+
 === Device Compatibility
 
 Devices with similar interfaces can work with the same OpenEMS component:
 
 Check the component descriptions and try it out! As long as you use the device `Read-only` the worst that can happen is it doesn't work and you try a different component. 
 
-The differences between similar devices with the same interface can be very subtle. They are often in the configuration parameters (e.g., Modbus register addresses, scaling factors, parameters not available or with other values etc.). You can usually find these details in the device's technical documentation. If there isn't a suitable component available yet, you can request support or implement it yourself (see next step).
+The differences between similar devices with the same interface can be very subtle. They are often in the configuration parameters (e.g., Modbus register addresses, scaling factors, parameters not available or with other values etc.). You can usually find these details in the device's technical documentation. If there isn't a suitable component available yet, you can request support in the link:https://community.openems.io[forum] or implement it yourself (see next step).
 
-== Step 8: When Your Device Isn't Supported
+== Step 8: You Cannot Find What You Need?
 
-If your specific hardware isn't available as a component yet, you have two options:
+When your device isn't supported (your specific hardware isn't available as a component) or the controller you want isn't available, don't worry!
+
+You have two options:
 
 === Option 1: Request Support
 
-. Check the https://github.com/OpenEMS/openems/issues[OpenEMS GitHub Issues] to see if someone else has requested it
+. Check the link:https://github.com/OpenEMS/openems/issues[OpenEMS GitHub Issues] to see if someone else has requested it
 . If not, create a new issue describing your device and its interface
 . The community might help implement it
 
@@ -487,11 +511,7 @@ If you're ready to start programming, you can implement your own device driver. 
 
 This is where you transition from "user" to "developer" and can really extend OpenEMS to your needs.
 
-== Change the Behavior of your System with Controllers
-
-You can change the "business logic" of your system by adding or modifying controllers. For example, you can add peak shaving, demand response, or other optimization strategies by configuring or developing new controllers.
-
-More on controllers can be found in xref:edge/controller.adoc[Edge - Controller] (which are available) and xref:edge/architecture.adoc#_controller[Edge Architecture - Controller] (how they work).
+NOTE: You can also contribute to the documentation, report bugs, or help others in the community forum, even if you're not a developer!
 
 == Troubleshooting
 
@@ -517,21 +537,16 @@ NOTE: For more troubleshooting tips related to Docker, see xref:edge/deploy/dock
 * Verify the datasource IDs match in both the datasource and device configs
 * Check that the cycle is running (look for periodic log messages)
 
-=== Configuration Changes Not Taking Effect
-
-* Some changes require restarting the component
-* Try restarting the Docker container: `docker restart openems_edge`
-TODO: Check
 
 == Next Steps
 
-Now that you have a working test system and first understanding on how OpenEMS works, you can:
+Now that you have a working test system and a first understanding on how OpenEMS works, you can:
 
 . **Experiment More**: Try different combinations of components and controllers
 . **Connect Real Hardware**: Replace simulators with your actual devices one by one
 . **Learn About Scheduling**: Explore different scheduler types for more complex controller orchestration
 . **Optimize Your System**: Add controllers for peak shaving, demand response, or grid services
-. **Start Developing**: If your device isn't supported, follow the xref:gettingstarted.adoc[Developer Getting Started] guide and "just" implement it yourself!
+. **Start Developing**: If your device isn't supported, follow the xref:gettingstarted.adoc[Developer Getting Started] guide and the xref:edge/implement.adoc[Implementing a device] step-by-step guide. "Just" implement it yourself!
 
 == Get Help
 
