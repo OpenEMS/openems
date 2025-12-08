@@ -331,7 +331,7 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 *
 	 * @param value the next value
 	 */
-	public default void setUseableCapacity(Integer value) {
+	public default void _setUseableCapacity(Integer value) {
 		this.getUseableCapacityChannel().setNextValue(value);
 	}
 
@@ -340,7 +340,7 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 *
 	 * @param value the next value
 	 */
-	public default void setUseableCapacity(int value) {
+	public default void _setUseableCapacity(int value) {
 		this.getUseableCapacityChannel().setNextValue(value);
 	}
 
@@ -368,7 +368,7 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 *
 	 * @param value the next value
 	 */
-	public default void setUseableSoc(Integer value) {
+	public default void _setUseableSoc(Integer value) {
 		this.getUseableSocChannel().setNextValue(value);
 	}
 
@@ -377,10 +377,15 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 *
 	 * @param value the next value
 	 */
-	public default void setUseableSoc(int value) {
+	public default void _setUseableSoc(int value) {
 		this.getUseableSocChannel().setNextValue(value);
 	}	
 	
+	/**
+	 * Publish ID of ESS device.
+	 *
+	 * @return ID of ESS device
+	 */
 	public String getEssId();
 
 }

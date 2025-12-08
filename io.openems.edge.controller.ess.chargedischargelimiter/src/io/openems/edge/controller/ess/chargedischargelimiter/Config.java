@@ -30,20 +30,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int forceChargeSoc() default 95;
 
 	@AttributeDefinition(name = "Auto Discharge", description = "Discharges battery with 5% of max discharge power if SoC is beyond maximum. Especially after balancing process. Hint: Set to false if ESS is working in a cluster")
-	boolean autoDischarge() default false;	
-	
+	boolean autoDischarge() default false;
+
 	@AttributeDefinition(name = "Charge energy between balancing [kWh]", description = "Charged energy to the next balancing cycle. Set to 0 if balancing is not desired")
 	int energyBetweenBalancingCycles() default 100;
-	
+
 	@AttributeDefinition(name = "Maximum Price [ct/kWh]", description = "If grid purchase power above that value battery will NOT process balaning. Leave 0 if price should not be considered")
-	int maxPrice() default 0;		
+	int maxPrice() default 0;
 
 	@AttributeDefinition(name = "Force-Charge Power [W]", description = "The charge power during force-charging. Attention! Includes charging from grid")
 	int forceChargePower() default 500;
 
 	@AttributeDefinition(name = "Balancing hysteresis [s]", description = "Time for balancing out battery cells. 1 hour as default")
 	int balancingHysteresis() default 3600; // 1hour. Depends on battery´s capacity?? Maybe it should be calculated
-											// dynamically
+	// dynamically
 
 	@AttributeDefinition(name = "Debug Mode", description = "Extends debugging")
 	boolean debugMode() default true;
