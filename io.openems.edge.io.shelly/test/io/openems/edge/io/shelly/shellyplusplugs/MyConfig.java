@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.shellyplusplugs;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
@@ -9,10 +10,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private String mdnsName = "";
 		private String ip;
-		private MeterType type;
-		private SinglePhase phase;
-		private boolean invert;
+		private MeterType type = MeterType.CONSUMPTION_METERED;
+		private SinglePhase phase = SinglePhase.L1;
+		private boolean invert = false;
+		private DebugMode debugMode = DebugMode.OFF;
 
 		private Builder() {
 		}
@@ -24,6 +27,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPhase(SinglePhase phase) {
 			this.phase = phase;
+			return this;
+		}
+
+		public Builder setMdnsName(String mdnsName) {
+			this.mdnsName = mdnsName;
 			return this;
 		}
 
@@ -39,6 +47,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
+			return this;
+		}
+
+		public Builder setDebugMode(DebugMode debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -69,6 +82,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String mdnsName() {
+		return this.builder.mdnsName;
+	}
+
+	@Override
 	public String ip() {
 		return this.builder.ip;
 	}
@@ -81,5 +99,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean invert() {
 		return this.builder.invert;
+	}
+
+	@Override
+	public DebugMode debugMode() {
+		return this.builder.debugMode;
 	}
 }

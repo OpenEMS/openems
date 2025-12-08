@@ -69,7 +69,7 @@ public class KacoPvInverter extends AbstractOpenemsAppWithProps<KacoPvInverter, 
 		ALIAS(CommonProps.alias()), //
 		IP(PvInverterProps.ip()), //
 		PORT(PvInverterProps.port()), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(PvInverterProps.modbusUnitId(), def -> def//
 				.setDefaultValue(1))), //
 		;
 

@@ -5,6 +5,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -27,6 +28,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -59,6 +61,8 @@ public class FeneconCommercial92
 
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
+
+		GRID_CODE(AppDef.copyOfGeneric(gridCode())), //
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
@@ -152,9 +156,12 @@ public class FeneconCommercial92
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
+			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+
 			final var components = Lists.newArrayList(//
 					FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget), //
-					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId), //
+					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId,
+							gridCode), //
 					FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId), //
 					FeneconHomeComponents.io(bundle, modbusToBatteryId), //
 					FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId), //

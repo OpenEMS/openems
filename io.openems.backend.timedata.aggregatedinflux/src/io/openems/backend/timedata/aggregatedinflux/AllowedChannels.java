@@ -35,6 +35,7 @@ public final class AllowedChannels {
 				ctrlIoChannelSingleThreshold.from(), ctrlIoChannelSingleThreshold.to());
 		final var ctrlEssRippleControlReceiver = new Namespace("ctrlEssRippleControlReceiver", 0, 3);
 		final var heat = new Namespace("heat", 0, 5);
+		final var enerix = new Namespace("enerixControl", 0, 1);
 
 		ALLOWED_AVERAGE_CHANNELS = ImmutableMap.<String, DataType>builder() //
 				.put("_sum/EssSoc", DataType.LONG) //
@@ -125,6 +126,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlEssRippleControlReceiver, "RestrictionMode", DataType.LONG)) //
 				.putAll(multiChannels(heat, "Temperature", DataType.LONG)) //
 				.putAll(multiChannels(heat, "ActivePower", DataType.LONG)) //
+				.putAll(multiChannels(enerix, "RemoteControlMode", DataType.LONG)) //
 				.build();
 
 		ALLOWED_CUMULATED_CHANNELS = ImmutableMap.<String, DataType>builder() //
@@ -189,6 +191,13 @@ public final class AllowedChannels {
 				.putAll(multiChannels(ctrlEssRippleControlReceiver, "CumulatedRestrictionTime", DataType.LONG)) //
 				.putAll(multiChannels(heat, "ActiveConsumptionEnergy", DataType.LONG)) // @Deprecated(use=ActiveProductionEnergy)
 				.putAll(multiChannels(heat, "ActiveProductionEnergy", DataType.LONG)) //
+				.put("system0/CumulatedTimeCompressor1RunningState", DataType.LONG) //
+				.put("system0/CumulatedTimeCompressor2RunningState", DataType.LONG) //
+				.put("system0/CumulatedTimeCompressor1And2RunningState", DataType.LONG) //
+				.put("system0/CumulatedTimePumpRunningState", DataType.LONG) //
+				.putAll(multiChannels(enerix, "CumulatedChargeFromGridTime", DataType.LONG)) //
+				.putAll(multiChannels(enerix, "CumulatedInactiveTime", DataType.LONG)) //
+				.putAll(multiChannels(enerix, "CumulatedNoDischargeTime", DataType.LONG)) //
 				.build();
 	}
 

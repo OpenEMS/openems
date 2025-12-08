@@ -39,6 +39,12 @@ function enable_https {
     fi
 }
 
+if [ "$WEBSOCKET_HOST" == "<hostname>" ] && [ -n "$UI_WEBSOCKET" ]; then
+    tmp="${UI_WEBSOCKET#*://}"
+    WEBSOCKET_HOST="${tmp%%:*}"
+    WEBSOCKET_PORT="${tmp##*:}"
+fi
+
 # copy default config files if they don't exist
 rsync -av --chown=abc:abc --ignore-existing /defaults/nginx/ /etc/nginx/
 

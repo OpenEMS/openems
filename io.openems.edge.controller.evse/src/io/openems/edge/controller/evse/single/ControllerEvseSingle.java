@@ -52,9 +52,10 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	/**
 	 * Apply {@link ChargePointActions}.
 	 * 
-	 * @param actions the {@link ChargePointActions}
+	 * @param actualMode the {@link Mode.Actual}
+	 * @param actions    the {@link ChargePointActions}
 	 */
-	public void apply(ChargePointActions actions);
+	public void apply(Mode.Actual actualMode, ChargePointActions actions);
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SESSION_ENERGY}.

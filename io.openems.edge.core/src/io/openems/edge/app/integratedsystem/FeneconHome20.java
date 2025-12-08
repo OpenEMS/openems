@@ -148,7 +148,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 	public enum Property implements PropertyParent {
 		ALIAS(alias()), //
 
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //

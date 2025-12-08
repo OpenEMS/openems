@@ -5,6 +5,8 @@ import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/cons
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
 import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
 import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
+import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
+import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/pages/phase-switching/phase-switching";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
@@ -19,7 +21,6 @@ import { CommonSelfConsumptionHomeComponent } from "../../../edge/live/common/se
 import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Controller/Evse/pages/forecast/forecast";
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
-import { EvseSettingsComponent } from "../../../edge/live/Controller/Evse/pages/settings/settings";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
 import { ModalComponent as IoHeatingRoomComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
@@ -28,8 +29,9 @@ export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
     { path: "evse/:componentId", component: EvseSingleComponent },
     { path: "evse/:componentId/history", component: EvseHistoryComponent },
-    { path: "evse/:componentId/settings", component: EvseSettingsComponent },
+    { path: "evse/:componentId/energy-limit", component: EvseEnergyLimitComponent },
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
+    { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
     {
         path: "evse/:componentId/car/update/:appId",
         component: UpdateAppConfigComponent,

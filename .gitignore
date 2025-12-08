@@ -234,4 +234,6 @@ io.openems.edge.application/c:/
 
 ### Debian ###
 !tools/debian/**
-io.openems.edge.application/EdgeApp.bndrun
+
+### Docker - for Dev UI under WSL ###
+docker-compose.override.yml

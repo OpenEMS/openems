@@ -74,22 +74,22 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
-				.setRequired(true) //
+		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess.id", //
 						ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
-				.setRequired(true) //
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 						ComponentManagerSupplier::getComponentManager))), //
-		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPower(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		PEAK_SHAVING_POWER(AppDef.copyOfGeneric(PeakShavingProps.peakShavingPower(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "peakShavingPower",
 						ComponentManagerSupplier::getComponentManager))), //
-		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePower(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		RECHARGE_POWER(AppDef.copyOfGeneric(PeakShavingProps.rechargePower(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "rechargePower", //
 						ComponentManagerSupplier::getComponentManager))), //
 		PEAK_SHAVING_RECHARGE_POWER_GROUP(

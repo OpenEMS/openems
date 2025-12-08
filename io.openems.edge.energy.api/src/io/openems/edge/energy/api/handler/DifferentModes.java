@@ -29,7 +29,6 @@ public class DifferentModes {
 	public static final class Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
 			AbstractEnergyScheduleHandler.Builder<Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private MODE defaultMode;
 		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
 		private InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider = InitialPopulationsProvider
 				.empty();
@@ -62,18 +61,10 @@ public class DifferentModes {
 		}
 
 		/**
-		 * Sets the default Mode if no other is explicitly scheduled.
-		 * 
-		 * @param mode a Mode
-		 * @return myself
-		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setDefaultMode(MODE mode) {
-			this.defaultMode = mode;
-			return this;
-		}
-
-		/**
 		 * Sets a {@link Supplier} for available Modes.
+		 * 
+		 * <p>
+		 * First given Mode is used as default or fallback.
 		 * 
 		 * @param supplier a Modes supplier
 		 * @return myself
@@ -85,6 +76,9 @@ public class DifferentModes {
 
 		/**
 		 * Sets a {@link Function} for available Modes.
+		 * 
+		 * <p>
+		 * First given Mode is used as default or fallback.
 		 * 
 		 * @param function a Modes function
 		 * @return myself
@@ -140,7 +134,7 @@ public class DifferentModes {
 		public EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
 					this.parentFactoryPid, this.parentId, this.serializer, //
-					this.defaultMode, this.availableModesFunction, //
+					this.availableModesFunction, //
 					this.cocFunction, //
 					this.cscFunction, //
 					this.initialPopulationsProvider, //

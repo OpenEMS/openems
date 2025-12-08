@@ -371,6 +371,70 @@ public class JSCalendar<PAYLOAD> {
 						start.isEqual(end) ? null : Duration.between(start, end), end);
 			}
 
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link OneTask} without payload.
+			 * 
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<OneTask<Void>> serializer() {
+				return serializer(VOID_SERIALIZER);
+			}
+
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link OneTask}.
+			 * 
+			 * @param <PAYLOAD>         the type of the Payload
+			 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static <PAYLOAD> JsonSerializer<OneTask<PAYLOAD>> serializer(
+					JsonSerializer<PAYLOAD> payloadSerializer) {
+				return JsonSerializerUtil.<OneTask<PAYLOAD>>jsonObjectSerializer(json -> {
+					var start = json.getZonedDateTime("start");
+					var end = json.getZonedDateTime("end");
+					var duration = Duration.parse(json.getString("duration"));
+					var payload = json.getObjectOrNull("payload", payloadSerializer);
+					var task = payload == null //
+							? null //
+							: new Task<PAYLOAD>(null, null, start.toLocalDateTime(), duration, ImmutableList.of(),
+									payload);
+					return new OneTask<PAYLOAD>(task, start, duration, end);
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("start", obj.start) //
+							.addProperty("end", obj.end) //
+							.addProperty("duration", obj.duration.toString()) //
+							.onlyIf(obj.payload() != null, //
+									j -> j.add("payload", payloadSerializer.serialize(obj.payload()))) //
+							.build();
+				});
+			}
+
+			/**
+			 * Returns a {@link JsonSerializer} for {@link OneTask}s without payload.
+			 * 
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<ImmutableList<OneTask<Void>>> listSerializer() {
+				return listSerializer(VOID_SERIALIZER);
+			}
+
+			/**
+			 * Returns a {@link JsonSerializer} for {@link OneTask}s.
+			 * 
+			 * @param <PAYLOAD>         the type of the Payload
+			 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static <PAYLOAD> JsonSerializer<ImmutableList<OneTask<PAYLOAD>>> listSerializer(
+					JsonSerializer<PAYLOAD> payloadSerializer) {
+				return JsonSerializerUtil.<ImmutableList<OneTask<PAYLOAD>>>jsonArraySerializer(json -> {
+					return json.getAsImmutableList(OneTask.serializer(payloadSerializer));
+				}, list -> {
+					return OneTask.serializer(payloadSerializer).toImmutableListSerializer().serialize(list);
+				});
+			}
+
 			@Override
 			public final String toString() {
 				return toStringHelper(OneTask.class) //

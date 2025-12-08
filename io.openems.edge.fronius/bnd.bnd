@@ -11,7 +11,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.j2mod,\
-	io.openems.edge.timedata.api
+
 -testpath: \
 	${testpath},\
-	io.openems.j2mod

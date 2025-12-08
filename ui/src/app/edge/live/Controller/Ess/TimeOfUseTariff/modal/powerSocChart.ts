@@ -204,20 +204,18 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     private applyControllerSpecificOptions() {
-        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
-
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
-
             // align particular dataset element to right yAxis
             if (el.label === this.translate.instant("GENERAL.SOC")) {
                 el["yAxisID"] = ChartAxis.RIGHT;
             }
             return el;
         });
+
+        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
         this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");

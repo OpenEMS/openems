@@ -178,8 +178,8 @@ public class DependencyDeclaration {
 	 */
 	public static enum UpdatePolicy {
 		ALWAYS(v -> true), //
-		IF_MINE(v -> !v.allInstances.stream() //
-				.filter(i -> !i.equals(v.parent)) //
+		IF_MINE(v -> !v.allInstances.stream()//
+				.filter(i -> !i.equals(v.parent))//
 				.anyMatch(a -> a.dependencies != null
 						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
 		NEVER(v -> false), //

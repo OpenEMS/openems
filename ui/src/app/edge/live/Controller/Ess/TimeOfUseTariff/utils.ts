@@ -74,6 +74,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             type: "bar",
             label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
             data: barBalancing,
+            hidden: false,
             order: 1,
         });
         colors.push({
@@ -88,6 +89,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 type: "bar",
                 label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                 data: barChargeGrid,
+                hidden: false,
                 order: 1,
             });
             colors.push({
@@ -102,6 +104,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             type: "bar",
             label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
             data: barDelayDischarge,
+            hidden: false,
             order: 1,
         });
         colors.push({

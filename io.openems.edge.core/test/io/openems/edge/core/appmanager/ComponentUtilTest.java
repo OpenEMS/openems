@@ -13,6 +13,8 @@ import java.util.Queue;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
@@ -24,6 +26,12 @@ import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
 
 public class ComponentUtilTest {
+
+	@Test
+	public void testEqualsRecursion() {
+		assertFalse(ComponentUtilImpl.equals(new JsonPrimitive("abc"), new JsonObject()));
+		assertFalse(ComponentUtilImpl.equals(new JsonObject(), new JsonPrimitive("abc")));
+	}
 
 	@Test
 	public void testEqualsJsonElementJsonElement() {

@@ -49,8 +49,7 @@ public class GetScheduleResponseTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = model.finalizeConsumption();
-		applyBalancing(model, consumption);
+		applyBalancing(model);
 		final var energyFlow = model.solve();
 
 		// Simulate historic data

@@ -198,6 +198,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		this.temporaryApps = new TemporaryApps();
 		OpenemsNamedException exception = null;
 		RuntimeException runtimeException = null;
+		Error internalError = null;
 		UpdateValues result = null;
 		try {
 			result = supplier.get();
@@ -205,6 +206,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			exception = e;
 		} catch (RuntimeException e) {
 			runtimeException = e;
+		} catch (Error e) {
+			internalError = e;
 		}
 		final var tempTemporarayApps = this.temporaryApps;
 		this.temporaryApps = null;
@@ -215,6 +218,10 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		if (runtimeException != null) {
 			this.log.error("An RuntimeException occurred during handling the supplier.", runtimeException);
 			throw runtimeException;
+		}
+		if (internalError != null) {
+			this.log.error("An internal error occurred during handling the supplier.", internalError);
+			throw internalError;
 		}
 
 		var ignoreInstances = new ArrayList<OpenemsAppInstance>(tempTemporarayApps.currentlyModifiedApps().size() //
@@ -236,6 +243,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				final var errorMessage = task.getGeneralFailMessage(language);
 				this.log.error(errorMessage, e);
 				errors.add(errorMessage);
+			} catch (RuntimeException | Error e) {
+				this.log.error("Unexpected error during Task execution.", e);
 			}
 		}
 

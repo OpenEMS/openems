@@ -462,8 +462,8 @@ export namespace Converter {
                     return translate.instant("GENERAL.ON");
                 case State.NO_DISCHARGE:
                     return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE");
-                case State.FORCE_CHARGE:
-                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.FORCE_CHARGE");
+                case State.CHARGE_FROM_GRID:
+                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID");
                 case State.DISCONNECTED:
                     return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCONNECTED");
                 case State.CONNECTED:
@@ -503,7 +503,7 @@ export enum State {
     ON = 0,
     OFF = 1,
     NO_DISCHARGE = 2,
-    FORCE_CHARGE = 3,
+    CHARGE_FROM_GRID = 3,
     DISCONNECTED = 4,
     CONNECTED = 5,
 }

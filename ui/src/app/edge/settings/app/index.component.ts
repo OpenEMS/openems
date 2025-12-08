@@ -119,7 +119,6 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     public searchOnChange(event: InstanceType<typeof FilterComponent>["searchParams"]): void {
         this.searchParams = event;
-        console.log("🚀 ~ IndexComponent ~ searchOnChange ~ this.searchParams:", this.searchParams);
         this.updateSelection();
     }
     protected onValueChanged(event: any) {

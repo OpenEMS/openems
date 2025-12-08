@@ -4,8 +4,10 @@ import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEn
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -59,10 +61,35 @@ public class DummyBridgeHttpBundle {
 	 * @return the {@link EndpointExpect} to check
 	 */
 	public EndpointExpect expect(String url) {
+		return this.expect(t -> t.url().equals(url));
+	}
+
+	/**
+	 * Creates a {@link EndpointExpect} which can be used to asynchronously check if
+	 * a {@link BridgeHttp.Endpoint} was called.
+	 * 
+	 * <p>
+	 * e. g.
+	 * 
+	 * <pre>
+	 * // create listener for check
+	 * final var wasCalled = dummyBridgeTestBundle.expect("http://your.url").toBeCalled();
+	 * ...
+	 * // trigger url call
+	 * // depending on your component trigger event, set channel...
+	 * ...
+	 * // check if endpoint was called
+	 * assertTrue("Endpoint was not called", wasCalled.get());
+	 * </pre>
+	 * 
+	 * @param check only handles request where the predicate is true
+	 * @return the {@link EndpointExpect} to check
+	 */
+	public EndpointExpect expect(Predicate<Endpoint> check) {
 		final var request = new CompletableFuture<BridgeHttp.Endpoint>();
 		final var result = new EndpointExpect(request);
 		this.fetcher.addSingleUseEndpointHandler(t -> {
-			if (!t.url().equals(url)) {
+			if (!check.test(t)) {
 				return null;
 			}
 			request.complete(t);

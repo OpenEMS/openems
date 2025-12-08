@@ -9,14 +9,14 @@
     <!-- If FromGroup is used -->
     @if (formGroup && contentHeight !== null) {
       <form [formGroup]="formGroup" [style]="'padding-bottom:' + actionSheetModalHeight + 'vh !important'"
-        style="overflow-y: auto; overflow-x:hidden; width: 100%;" class="ion-padding">
+        style="overflow-x:hidden; width: 100%; overflow-y: hidden;" class="ion-padding">
         <!-- For gap between header and content  -->
         <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
         <ng-container *ngTemplateOutlet="contentTpl">
         </ng-container>
         <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
         @if (formGroup?.dirty) {
-          <ion-fab vertical="bottom" class="ion-padding-bottom"
+          <ion-fab vertical="bottom" [style]="'padding-bottom:' + actionSheetModalHeight + 'vh !important'"
             [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'" style="display: flex">
             <ion-fab-button (click)="applyChanges()">
               <ion-icon size="large" name="checkmark-circle-outline">

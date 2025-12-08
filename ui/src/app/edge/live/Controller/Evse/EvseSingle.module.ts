@@ -10,6 +10,7 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { FlatComponent } from "./flat/flat";
+import { EvseEnergyLimitComponent } from "./pages/energy-limit/energy-limit";
 import { SchedulePowerChartComponent } from "./pages/forecast/chart/power.chart";
 import { ScheduleChartComponent } from "./pages/forecast/chart/schedule.chart";
 import { ModalComponent as EvseForecastPageComponent } from "./pages/forecast/forecast";
@@ -17,7 +18,7 @@ import { ChartComponent } from "./pages/history/chart/power.chart";
 import { ChartComponent as StatusChartComponent } from "./pages/history/chart/status.chart";
 import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/history";
 import { ModalComponent } from "./pages/home";
-import { EvseSettingsComponent } from "./pages/settings/settings";
+import { EvsePhaseSwitchingComponent } from "./pages/phase-switching/phase-switching";
 import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-config";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
@@ -38,7 +39,8 @@ import en from "./shared/i18n/en.json";
         ModalComponent,
         EvseHistoryPageComponent,
         EvseForecastPageComponent,
-        EvseSettingsComponent,
+        EvseEnergyLimitComponent,
+        EvsePhaseSwitchingComponent,
         ScheduleChartComponent,
         SchedulePowerChartComponent,
         ChartComponent,

@@ -150,6 +150,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
 			.put("App.LoadControl.ManualRelayControl", "") //
 			.put("App.LoadControl.ThresholdControl", "") //
+			.put("App.Meter.Shelly", "") //
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.PqPlus", "") //

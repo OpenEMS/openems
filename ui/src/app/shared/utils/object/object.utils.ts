@@ -13,12 +13,17 @@ export class ObjectUtils {
     }
 
     public static pickProperties<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-        const result = { ...obj };
-        keys.forEach(key => delete result[key]);
-        return result;
+        return keys.reduce((res, key) => {
+            res[key] = obj[key];
+            return res;
+        }, {} as Pick<T, K>);
     }
 
     public static hasKeys<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
+        return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
+    }
+
+    public static hasValues<T extends Record<string, any>>(obj: T, keys: string[]): boolean {
         return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
     }
 
@@ -34,7 +39,7 @@ export class ObjectUtils {
         return obj == null || Object.keys(obj).length === 0;
     }
     /**
-    * Flattens a deep nested object into a single-level object with dot notation keys and string values.
+    * Flattens a deep nested object into a one dimensional object with dot notation keys and string values.
     *
     * @param obj the object to flatten
     * @param parentKey the parent key to use for nested objects

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.DoubleUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficients;
@@ -91,8 +92,20 @@ public class ApparentPowerConstraintUtil {
 		 *  y = ((y2-y1)/(x2-x1)) * x + ((x2*y1-x1*y2)/(x2-x1))
 		 * </pre>
 		 */
-		var constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / (p2.x - p1.x);
-		var coefficient1 = (p2.y - p1.y) / (p2.x - p1.x);
+		var deltaX = p2.x - p1.x;
+
+		// Check for division by zero - if points have same x-coordinate, create
+		// vertical constraint
+		if (DoubleUtils.isCloseToZero(deltaX)) {
+			// Vertical line: x = constant, so we constrain active power directly
+			var constraintValue = p1.x;
+			return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //
+					new LinearCoefficient(coefficients.of(essId, phase, Pwr.ACTIVE), 1.0) //
+			}, relationship, constraintValue);
+		}
+
+		var constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / deltaX;
+		var coefficient1 = (p2.y - p1.y) / deltaX;
 		double coefficient2 = -1;
 
 		return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //

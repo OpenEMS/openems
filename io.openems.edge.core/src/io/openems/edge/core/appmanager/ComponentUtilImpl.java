@@ -81,7 +81,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (expected.isJsonPrimitive() && expected.getAsJsonPrimitive().isString() && !actual.isJsonPrimitive()) {
 			try {
 				var parsedExpected = JsonUtils.parse(expected.getAsString());
-				return equals(parsedExpected, actual);
+				return parsedExpected.equals(actual);
 			} catch (OpenemsNamedException e) {
 				return false; // The string was not valid JSON
 			}
@@ -90,7 +90,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (actual.isJsonPrimitive() && actual.getAsJsonPrimitive().isString() && !expected.isJsonPrimitive()) {
 			try {
 				var parsedActual = JsonUtils.parse(actual.getAsString());
-				return equals(expected, parsedActual);
+				return expected.equals(parsedActual);
 			} catch (OpenemsNamedException e) {
 				return false; // The string was not valid JSON
 			}

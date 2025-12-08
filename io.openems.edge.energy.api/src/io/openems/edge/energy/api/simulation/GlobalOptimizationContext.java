@@ -15,6 +15,7 @@ import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.function.IntFunction;
@@ -140,9 +141,11 @@ public record GlobalOptimizationContext(//
 
 	public static enum PeriodDuration {
 		/** Period of duration 15 minutes. */
-		QUARTER,
+		QUARTER(Duration.ofMinutes(15)),
 		/** Period of duration 1 hour. */
-		HOUR;
+		HOUR(Duration.ofHours(1));
+
+		public final Duration duration;
 
 		/**
 		 * Converts power [W] to energy [Wh], considering the duration of the Period.
@@ -168,6 +171,10 @@ public record GlobalOptimizationContext(//
 			case QUARTER -> energy * 4;
 			case HOUR -> energy;
 			};
+		}
+
+		private PeriodDuration(Duration duration) {
+			this.duration = duration;
 		}
 	}
 

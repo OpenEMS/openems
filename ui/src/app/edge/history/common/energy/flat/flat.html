@@ -1,24 +1,24 @@
 @if (isSmartphoneResolution) {
-  <ion-item lines="full" color="light">
-    <ion-icon size="large" slot="start" name="laptop-outline" color="primary"></ion-icon>
-    <ion-label>
-      {{"EDGE.INDEX.ENERGYMONITOR.TITLE" | translate}}
-    </ion-label>
-    <ion-button (click)="exportToXlxs()" slot="end">
+  <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
+    [icon]="{name: 'laptop-outline', color: 'normal', size: 'large'}" *ngIf="isInitialized"
+    [style.height.px]="getChartHeight()" class="no-all-edges-shadow">
+    <oe-flat-button button (click)="exportToXlxs()" slot="end">
       <ion-icon name="download-outline"></ion-icon>
-    </ion-button>
-  </ion-item>
-  <energychart [isOnlyChart]="true">
-  </energychart>
+    </oe-flat-button>
+
+    <energychart [isOnlyChart]="true">
+    </energychart>
+  </oe-flat-widget>
 } @else {
   @if (isInitialized) {
     <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
       [icon]="{name: 'laptop-outline', color: 'normal'}" [style.height.px]="getChartHeight()"
       class="no-all-edges-shadow">
-      <ion-button slot="end" class="ion-float-right" (click)="exportToXlxs()" button>
-        <ion-icon [name]="'download-outline'">
+      <oe-flat-button button slot="end" class="ion-float-right" (click)="exportToXlxs()">
+        <ion-icon slot="start" [name]="'download-outline'">
         </ion-icon>
-      </ion-button>
+        {{("GENERAL.REPORT" | translate ) | uppercase }}
+      </oe-flat-button>
       <energychart [isOnlyChart]="true">
       </energychart>
     </oe-flat-widget>
