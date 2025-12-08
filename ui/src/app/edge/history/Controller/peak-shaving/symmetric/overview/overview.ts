@@ -23,7 +23,7 @@ import { ChartComponent } from "../chart/chart";
         ChartComponent,
     ],
     providers: [
-        { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
+        { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },
     ],
 })
 export class OverviewComponent extends AbstractHistoryChartOverview { }

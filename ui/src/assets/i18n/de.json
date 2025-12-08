@@ -212,7 +212,9 @@
       "WED": "Mi",
       "WEEK": "Woche",
       "YEAR": "Jahr",
-      "YESTERDAY": "Gestern"
+      "YESTERDAY": "Gestern",
+      "NO_LOCAL_DATA_INFO": "Historische Daten sind derzeit lokal nicht verfügbar",
+      "NO_LOCAL_DATA_NOTICE": "Bitte besuchen Sie https://github.com/OpenEMS/openems für Updates zu diesem Thema."
     },
     "INDEX": {
       "EMERGENCY_RESERVE": {

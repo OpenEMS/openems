@@ -7,7 +7,7 @@ export const theme: Omit<Environment, "url" | "backend" | "production" | "debugM
     uiTitle: "OpenEMS UI",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
-    defaultLanguage: "de",
+    defaultLanguage: "en",
 
     docsUrlPrefix: "https://github.com/OpenEMS/openems/blob/develop/",
     PRODUCT_TYPES: () => null,
