@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import io.openems.common.types.OptionsEnum;
 
 public enum StateMachine implements OptionsEnum {
-	OFF(-1, "Off"), 
 	DELAY_DISCHARGE(0, "Delay discharge"), //
 	BALANCING(1, "Self-consumption optimization"), //
 	CHARGE_GRID(3, "Charge from grid"), //

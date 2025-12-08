@@ -60,6 +60,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi, ModbusSlave {
 
@@ -85,10 +86,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
-
-	@Deprecated
-	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isChargeDischargeLimiterEnabled=true))")
-	private volatile List<ControllerEssChargeDischargeLimiter> ctrlEssChargeDischargeLimiters = new CopyOnWriteArrayList<>();
 
 	@Deprecated
 	@Reference(policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
@@ -121,7 +118,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
 				() -> this.config.controlMode().modes, //
-				() -> new ContextV1(this.ctrlEssChargeDischargeLimiters,this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
+				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
 	}

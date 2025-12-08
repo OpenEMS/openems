@@ -13,6 +13,8 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 
 public interface ControllerEssChargeDischargeLimiter extends Controller, OpenemsComponent {
@@ -388,4 +390,23 @@ public interface ControllerEssChargeDischargeLimiter extends Controller, Openems
 	 */
 	public String getEssId();
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
+	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
+				.channel(0, ChannelId.USEABLE_CAPACITY, ModbusType.UINT16)
+				.channel(1, ChannelId.USEABLE_SOC, ModbusType.UINT16)
+				.channel(2, ChannelId.CHARGED_ENERGY, ModbusType.UINT16)
+				.channel(3, ChannelId.AWAITING_HYSTERESIS, ModbusType.UINT16)
+				.channel(4, ChannelId.STATE_MACHINE, ModbusType.UINT16)
+				.channel(5, ChannelId.BALANCING_REMAINING_SECONDS, ModbusType.UINT16)
+
+				.build();
+	}	
+	
 }

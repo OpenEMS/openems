@@ -219,6 +219,10 @@
         "EMERGENCY_RESERVE": "Notstromreserve",
         "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden."
       },
+      "CHARGE_DISCHARGE_LIMITER": {
+        "INFO_FOR_CHARGE_DISCHARGE_LIMITER_SLIDER": "Durch Aktivieren wird der Batteriespeicher zwischen eine Minimum und Maximum gehalten",
+        "CHARGE_DISCHARGE_LIMITER": "Arbeitsbereich"
+      },
       "ENERGYMONITOR": {
         "ACTIVE_POWER": "Ausgabeleistung",
         "CONSUMPTION_WARNING": "Verbrauch & unbekannte Erzeuger",
@@ -260,8 +264,37 @@
           "TITLE": "Schwellenwertcontroller"
         },
         "CHP": {
-          "HIGH_THRESHOLD": "Oberer Schwellenwert",
-          "LOW_THRESHOLD": "Unterer Schwellenwert"
+          "CURRENT_CHP_STATE": "Status",
+          "ACTIVE_POWER": "BHKW-Leistung",
+          "ACTIVE_POWER_TARGET": "BHKW-Zielleistung",
+          "CURRENT_ENERGY_PRICE": "Aktueller Preis",
+          "CURRENT_ENERGY_COSTS": "Aktuelle Kosten",
+          "CURRENT_ENERGY_COSTS_WITHOUT_CHP": "Kosten ohne BHKW",
+          "AWAITING_START_HYSTERESIS": "Start-Hysterese",
+          "AWAITING_PREPARATION_HYSTERESIS": "Vorbereitungs-Hysterese",
+          "AWAITING_STOP_HYSTERESIS": "Stopp-Hysterese",
+          "AWAITING_RUN_HYSTERESIS": "Laufzeit-Hysterese",
+          "AWAITING_TRANSITION_HYSTERESIS": "Übergangs-Hysterese",
+          "AWAITING_DEVICE_HYSTERESIS": "Gerätespezifische Hysterese",
+          "AWAITING_REDUCED_POWER_HYSTERESIS": "Leistungsreduzierte Hysterese",
+          "HIGH_THERSHOLD": "Oberer Schwellenwert",
+          "LOW_THRESHOLD": "Unterer Schwellenwert",
+          "PRICE_THRESHOLD": "Schaltschwelle",
+          "HYSTERESIS_STATE": {
+            "ACTIVE": "Aktiv",
+            "INACTIVE": "Inaktiv"
+          },
+          "CHP_STATE": {
+            "UNDEFINED": "Undefiniert",
+            "NORMAL": "Bereit",
+            "IDLE": "Stand-by",
+            "ERROR": "Fehler",
+            "CHP_ACTIVE": "BHKW läuft",
+            "CHP_INACTIVE": "BHKW gestoppt",
+            "CHP_PREPARING": "BHKW-Vorbereitung",
+            "OVER_TEMPERATURE": "Übertemperatur",
+            "CHP_NOT_READY": "Hardware nicht bereit"
+          }
         },
         "DELAYED_SELL_TO_GRID": {
           "CONTINUOUS_SELL_TO_GRID_POWER": "Entladung unter",
@@ -478,7 +511,22 @@
           "RELATION_ERROR": "Entladungsgrenze muss größer oder gleich der Beladungsgrenze sein",
           "START_DATE": "Start Datum",
           "START_TIME": "Startzeit",
-          "START_TIME_CHARGE": "Start-Zeit Beladung"
+          "START_TIME_CHARGE": "Start-Zeit Beladung",
+          "PEAKSHAVING_THRESHOLD_POWER": "Aktivierung über",
+          "CURRENT_PEAKSHAVING_STATE": "Status",
+          "PEAK_SHAVING_STATE": {
+            "UNDEFINED": "Undefiniert",
+            "IDLE": "Bereit",
+            "ERROR": "Fehler",
+            "DISABLED": "Deaktiviert",
+            "ACTIVE": "Aktiv",
+            "CHARGING": "Beladung",
+            "HYSTERESIS_ACTIVE": "Hysterese aktiv",
+            "CHARGING_FINISHED": "Laden abgeschlossen",
+            "DISCHARGING_FAILS": "Entladung fehlgeschlagen. ESS leer?",
+            "PEAKSHAVING_POWER_TOO_LOW": "Zu wenig Leistung für Lastspitzenkappung",
+            "PEAKSHAVING_TARGET_NOT_REACHED": "Lastspitzenziel nicht erreicht"
+          }
         },
         "PHASES_INFO": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
         "SCHEDULE": {
@@ -778,6 +826,37 @@
       "NOTE": "Hier geht's weiter zum App Center, um weitere Komponenten zu konfigurieren und Apps zu installieren.",
       "SUB_TITLE": "Sie haben den {{ value }} erfolgreich in Betrieb genommen.",
       "TITLE": "Abschließen"
+    },
+    "CONFIGURATION_CHARGE_DISCHARGE_LIMITER": {
+      "CHARGE_DISCHARGE_LIMITER_NOTE": "Wenn diese Funktion aktiviert ist, bewegt sich der Ladezusatnd der Batterie zwischen der oberen und unteren Grenze. Nach der eingestellten Energiemenge versucht die Batterie sich zu kalibrieren",
+      "FORCE_SOC_VALUE": "kal. SoC",
+      "FORCE_SOC": "kal. SoC",
+      "MIN_SOC_VALUE": "min. SoC",
+      "MIN_SOC": "min. SoC",
+      "MAX_SOC_VALUE": "max. SoC",
+      "MAX_SOC": "max. SoC",
+      "IS_ACTIVATED": "Controller aktiviert?",
+      "IS_ENABLED": "Soll die Lade-/Entladebegrenzung aktiviert werden?",
+      "RECENT": "Aktuell",
+      "TITLE": "Angaben zum Laden / Entladen Limiter",
+      "VALUE": "Wert [%]",
+      "EMERGENCY_RESERVE_LABEL": "Lade / Entladen Limiter{{ symbol }}",
+      "COUPLER_TITLE": "ToDo"
+    },
+    "CHARGE_DISCHARGE_STATE": {
+      "UNDEFINED": "Unbestimmt / Initialzustand",
+      "NORMAL": "Normalbetrieb",
+      "ERROR": "Fehler",
+      "BELOW_MIN_SOC": "Unterhalb des konfigurierten Minimum-SoC",
+      "ABOVE_MAX_SOC": "Oberhalb des konfigurierten Maximum-SoC",
+      "MIN_SOC_REACHED": "Unteres SoC-Limit erreicht",
+      "MAX_SOC_REACHED": "Oberes SoC-Limit erreicht",
+      "FORCE_CHARGE_ACTIVE": "Batterie lädt bis zum konfigurierten Ausgleichspunkt",
+      "BALANCING_WANTED": "Kalibrierung erwünscht",
+      "BALANCING_ACTIVE": "Kalibrierung aktiv",
+      "BALANCING_REMAINING_SECONDS": "Restzeit: ",
+      "CHARGED_ENERGY_SINCE_LAST_BALANCING": "Geladene Energie seit der letzten Kalibrierung: ",
+      "PRICE_LIMIT": "Balancing verzögert weil Preis zu hoch"
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Auswahl der Kommunikationsart"

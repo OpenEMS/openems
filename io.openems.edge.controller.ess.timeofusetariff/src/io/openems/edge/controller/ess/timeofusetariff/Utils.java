@@ -91,7 +91,6 @@ public final class Utils {
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
 		setPoint = switch (actualMode) {
-		case OFF -> null; // Do nothing and delegate to next priority Controller		
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;

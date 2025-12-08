@@ -96,7 +96,6 @@ public class SimulatorV1 {
 
 		// Calculate Energy-Flow
 		final var ef = switch (state) {
-		case OFF -> EnergyFlowV1.withBalancing(p, op, essInitial);
 		case BALANCING -> EnergyFlowV1.withBalancing(p, op, essInitial);
 		case DELAY_DISCHARGE -> EnergyFlowV1.withDelayDischarge(p, op, essInitial);
 		case CHARGE_GRID -> EnergyFlowV1.withChargeGrid(p, op, essInitial);
