@@ -11,28 +11,25 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface VictronAcOutPowerMeter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT_HOURS)),//
-		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT_HOURS)), 		
-		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT_HOURS)), 
-		
-		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT_HOURS)), 		
-		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
+		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT_HOURS)), //
+		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.WATT_HOURS)),
-		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.WATT_HOURS)), 			
-		
-		;
-		
+		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT_HOURS)),
+
+		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT_HOURS)),
+		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT_HOURS)),
+		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT_HOURS)),;
 
 		private final Doc doc;
 
@@ -63,8 +60,8 @@ public interface VictronAcOutPowerMeter extends OpenemsComponent {
 	 */
 	public default Value<Long> getEnergyFromAcOutToAcIn1() {
 		return this.getEnergyFromAcOutToAcIn1Channel().value();
-	}	
-	
+	}
+
 	/**
 	 * Gets the Channel for AC-Out -> AC-In 2 energy.
 	 *
@@ -81,8 +78,8 @@ public interface VictronAcOutPowerMeter extends OpenemsComponent {
 	 */
 	public default Value<Long> getEnergyFromAcOutToAcIn2() {
 		return this.getEnergyFromAcOutToAcIn2Channel().value();
-	}	
-	
+	}
+
 	/**
 	 * Gets the Channel for AC-Out -> Battery energy.
 	 *
@@ -99,8 +96,8 @@ public interface VictronAcOutPowerMeter extends OpenemsComponent {
 	 */
 	public default Value<Long> getEnergyFromAcOutToBattery() {
 		return this.getEnergyFromAcOutToBatteryChannel().value();
-	}		
-	
+	}
+
 	/**
 	 * Gets the Channel for AC-In 1 -> AC-Out energy.
 	 *
@@ -118,7 +115,7 @@ public interface VictronAcOutPowerMeter extends OpenemsComponent {
 	public default Value<Long> getEnergyFromAcIn1ToAcOut() {
 		return this.getEnergyFromAcIn1ToAcOutChannel().value();
 	}
-	
+
 	/**
 	 * Gets the Channel for AC-In 2 -> AC-Out energy.
 	 *
@@ -135,8 +132,7 @@ public interface VictronAcOutPowerMeter extends OpenemsComponent {
 	 */
 	public default Value<Long> getEnergyFromAcIn2ToAcOut() {
 		return this.getEnergyFromAcIn1ToAcOutChannel().value();
-	}	
-	
+	}
 
 	/**
 	 * Gets the Channel for battery -> AC-Out energy.

@@ -123,22 +123,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	private Integer maxChargePower = null;
 	private Integer maxDischargePower = null;
 
-	// AC-side
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
-
-	// DC-side
-	/**
-	 * We take internal meter values private final CalculateEnergyFromPower
-	 * calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
-	 * VictronEss.ChannelId.DC_DISCHARGE_ENERGY);
-	 * 
-	 * private final CalculateEnergyFromPower calculateDcChargeEnergy = new
-	 * CalculateEnergyFromPower(this, VictronEss.ChannelId.DC_CHARGE_ENERGY);
-	 */
 
 	public VictronEssImpl() {
 		super(//
@@ -157,7 +146,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -166,8 +154,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// Set initial values from config
-		this._setMaxApparentPower(this.config.maxApparentPower());
-		this._setCapacity(this.config.capacity());
+		this._setMaxApparentPower(config.maxApparentPower());
+		this._setCapacity(config.capacity());
 
 		switch (config.phase()) {
 		case L1:
@@ -247,7 +235,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	 * allowed charge/discharge power limits accordingly.
 	 */
 	private void updateOperationalValues() {
-
 		if (this.batteryInverter == null) {
 			this.log.warn("ESS not ready. BatteryInverter not available");
 			this.operationalValuesOk = false;
@@ -540,7 +527,18 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		return this.power;
 	}
 
-	// helper for calculating values from mA / mV
+	/**
+	 * Calculates apparent power sum from millivolt and milliampere values.
+	 *
+	 * @param u1_mV      voltage L1 in millivolts
+	 * @param i1_mA      current L1 in milliamperes
+	 * @param u2_mV      voltage L2 in millivolts
+	 * @param i2_mA      current L2 in milliamperes
+	 * @param u3_mV      voltage L3 in millivolts
+	 * @param i3_mA      current L3 in milliamperes
+	 * @param threePhase true if three-phase system, false for single-phase
+	 * @return apparent power sum in VA
+	 */
 	private static int apparentSumVaFromMilli(int u1_mV, int i1_mA, int u2_mV, int i2_mA, int u3_mV, int i3_mA,
 			boolean threePhase) {
 		long microVA = 0L;
@@ -646,7 +644,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		);
 
 	}
-
 
 	@Override
 	public void handleEvent(Event event) {

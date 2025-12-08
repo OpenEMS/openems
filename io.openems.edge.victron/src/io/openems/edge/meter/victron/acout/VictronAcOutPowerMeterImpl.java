@@ -51,8 +51,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
-		implements VictronAcOutPowerMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler, TimedataProvider {
+public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent implements VictronAcOutPowerMeter,
+		ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler, TimedataProvider {
 
 	private Config config;
 
@@ -68,18 +68,16 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
 	}
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private volatile Timedata timedata = null;
-	
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);	
-	
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);	
-		
-	
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -109,7 +107,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 
 	private void setEnergyValues() {
 		var activePower = this.getActivePower().get();
-		
+
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);
@@ -184,12 +182,12 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_1,
 								new UnsignedDoublewordElement(82), ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_2,
-								new UnsignedDoublewordElement(84), ElementToChannelConverter.SCALE_FACTOR_1),	
+								new UnsignedDoublewordElement(84), ElementToChannelConverter.SCALE_FACTOR_1),
 						new DummyRegisterElement(86, 89),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT,
 								new UnsignedDoublewordElement(90), ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_BATTERY,
-								new UnsignedDoublewordElement(92), ElementToChannelConverter.SCALE_FACTOR_1)						
+								new UnsignedDoublewordElement(92), ElementToChannelConverter.SCALE_FACTOR_1)
 
 				));
 	}

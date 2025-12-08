@@ -44,7 +44,7 @@ import io.openems.edge.victron.enums.VeBusState;
  * configurations.
  *
  * <p>
- * Modbus registers are based on Victron´s Modbus-TCP documentation.
+ * Modbus registers are based on VictronÂ´s Modbus-TCP documentation.
  *
  * @see <a href=
  *      "https://github.com/victronenergy/dbus_modbustcp/blob/master/CCGX-Modbus-TCP-register-list.xlsx">GX
@@ -167,6 +167,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
+
 		/**
 		 * Cumulated DC Discharge Energy.
 		 */

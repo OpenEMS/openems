@@ -84,7 +84,7 @@ public class VictronAcInPowerMeterImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol()  {
+	protected ModbusProtocol defineModbusProtocol() {
 
 		/*
 		 * Invert power values

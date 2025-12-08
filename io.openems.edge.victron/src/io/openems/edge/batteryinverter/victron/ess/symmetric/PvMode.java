@@ -1,4 +1,5 @@
 package io.openems.edge.batteryinverter.victron.ess.symmetric;
+
 import io.openems.common.types.OptionsEnum;
 
 public enum PvMode implements OptionsEnum {
@@ -8,7 +9,6 @@ public enum PvMode implements OptionsEnum {
 	NO_PV(2, "No PV array detacted"), //
 	PRODUCING(3, "PV is producing"), //
 	LIMIT_ACTIVE(4, "PV Limitation is active");
-
 
 	private final int value;
 	private final String name;
