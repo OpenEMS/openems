@@ -34,10 +34,10 @@ import io.openems.common.types.MeterType;
 	String password() default "admin";
 
 	@AttributeDefinition(name = "Data-URL", description = "Defines base URL to pickup data from GDS")
-	String dataUrl() default "https://192.168.1.10/_pxc_api/api";
+	String dataUrl() default "https://192.168.1.10/_pxc_api/api/variables";
 
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-	String[] dataInstanceNames() default "gds_openems_0";
+	String dataInstanceName() default "MeasurementDevice";
 
 	String webconsole_configurationFactory_nameHint() default "PxC PLCnext device [{id}]";
 

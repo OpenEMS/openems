@@ -1,9 +1,5 @@
 package io.openems.edge.io.phoenixcontact;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,12 +18,10 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.io.phoenixcontact.auth.PlcNextAuthClientConfig;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextApiCommand;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataClientConfig;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsProvider;
-import io.openems.edge.io.phoenixcontact.gds.PlcNextReadFromApiResourceCommand;
+import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManagerConfig;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataProvider;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataProviderConfig;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -45,14 +39,12 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	private static final Logger log = LoggerFactory.getLogger(PlcNextDeviceImpl.class);
 
 	@Reference
-	private PlcNextGdsProvider gdsProvider;
+	private PlcNextGdsDataProvider gdsProvider;
 
 	@Reference
 	private PlcNextTokenManager tokenManager;
 
 	private Config config;
-
-	private List<PlcNextApiCommand> apiCommands;
 
 	public PlcNextDeviceImpl() {
 		super(//
@@ -60,34 +52,12 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				PlcNextDevice.ChannelId.values() //
 		);
-		apiCommands = List.of();
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		logInfo(log, "Initializing data processing");
-		if (!apiCommands.isEmpty()) {
-			apiCommands.clear();
-		}
-		apiCommands = buildCommands(config);
-	}
-
-	private List<PlcNextApiCommand> buildCommands(Config config) {
-		logInfo(log, "Building list of API commands");
-		List<PlcNextApiCommand> cmds = new ArrayList<PlcNextApiCommand>();
-
-		if (config.dataInstanceNames() != null) {
-			for (String instName : config.dataInstanceNames()) {
-				PlcNextGdsDataClientConfig dataClientConfig = new PlcNextGdsDataClientConfig(config.dataUrl(), instName,
-						this.channels());
-
-				cmds.add(new PlcNextReadFromApiResourceCommand(gdsProvider, dataClientConfig));
-			}
-		}
-		return Collections.unmodifiableList(cmds);
 	}
 
 	@Override
@@ -117,18 +87,16 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 			log.warn("Module deactivated, skipping event processing of event");
 			return;
 		}
-		PlcNextAuthClientConfig authClientConfig = new PlcNextAuthClientConfig(config.authUrl(), config.username(),
-				config.password());
-		List<PlcNextApiCommand> suitableApiCommandsForEvent = apiCommands.stream()
-				.filter(item -> item.eventTriggers().contains(event.getTopic())).toList();
-		if (suitableApiCommandsForEvent.isEmpty()) {
-			log.info("No commands found to be executed");
-			return;
-		}
-		tokenManager.fetchToken(authClientConfig);
+		if (EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE == event.getTopic()) {
+			PlcNextTokenManagerConfig tokenManagerConfig = new PlcNextTokenManagerConfig(config.authUrl(),
+					config.username(), config.password());
+			PlcNextGdsDataProviderConfig gdsDataProviderConfig = new PlcNextGdsDataProviderConfig(config.dataUrl(),
+					config.dataInstanceName(), this.channels());
 
-		log.info("ECHO: Fetching data " + suitableApiCommandsForEvent.size() + " commands");
-//		suitableApiCommandsForEvent.parallelStream().forEach(item -> item.execute());
+			log.info("Reading GDS data from instance '" + gdsDataProviderConfig.dataUrl() + "'");
+			tokenManager.fetchToken(tokenManagerConfig);
+			gdsProvider.readFromApiToChannels(gdsDataProviderConfig);
+		}
 	}
 
 }
