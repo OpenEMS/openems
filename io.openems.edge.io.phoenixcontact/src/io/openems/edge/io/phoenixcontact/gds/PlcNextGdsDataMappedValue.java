@@ -1,5 +1,10 @@
 package io.openems.edge.io.phoenixcontact.gds;
 
+<<<<<<< HEAD
+import java.util.Objects;
+
+=======
+>>>>>>> feature/PxC_PLCnext_OpenEMS_Driver
 import io.openems.edge.common.channel.ChannelId;
 
 public class PlcNextGdsDataMappedValue {
@@ -20,4 +25,28 @@ public class PlcNextGdsDataMappedValue {
 		return this.value;
 	}
 
+<<<<<<< HEAD
+	@Override
+	public int hashCode() {
+		return Objects.hash(channelId, value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PlcNextGdsDataMappedValue other = (PlcNextGdsDataMappedValue) obj;
+		return Objects.equals(channelId, other.channelId) && Objects.equals(value, other.value);
+	}
+
+	@Override
+	public String toString() {
+		return "PlcNextGdsDataMappedValue [channelId=" + channelId + ", value=" + value + "]";
+	}
+=======
+>>>>>>> feature/PxC_PLCnext_OpenEMS_Driver
 }

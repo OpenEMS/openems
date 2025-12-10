@@ -46,7 +46,7 @@ public class PlcNextGdsDataToChannelMapper {
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
-	public List<PlcNextGdsDataMappedValue> mapSingleAspectToChannel(JsonElement variable, String dataInstanceName) {
+	public List<PlcNextGdsDataMappedValue> mapSingleValueToChannel(JsonElement variable, String dataInstanceName) {
 
 		List<PlcNextGdsDataMappedValue> mappedValues = List.of();
 
@@ -65,9 +65,9 @@ public class PlcNextGdsDataToChannelMapper {
 
 		// Map value
 		if (varDefinition.getDataType().isArray()) {
-			mappedValues = mapSingleArrayVariable(varObject, varName, varDefinition);
+			mappedValues = mapSingleJsonArrayVariable(varObject, varName, varDefinition);
 		} else {
-			mappedValues = mapSinglePrimitiveVariable(mappedValues, varObject, varName, varDefinition);
+			mappedValues = mapSingleJsonPrimitiveVariable(mappedValues, varObject, varName, varDefinition);
 		}
 		return Collections.unmodifiableList(mappedValues);
 	}
@@ -82,7 +82,7 @@ public class PlcNextGdsDataToChannelMapper {
 	 * @return
 	 * @throws PlcNextGdsDataMappingException
 	 */
-	List<PlcNextGdsDataMappedValue> mapSinglePrimitiveVariable(List<PlcNextGdsDataMappedValue> mappedValue,
+	List<PlcNextGdsDataMappedValue> mapSingleJsonPrimitiveVariable(List<PlcNextGdsDataMappedValue> mappedValue,
 			JsonObject varObject, String varName, PlcNextGdsDataVariableDefinition varDefinition) {
 
 		JsonPrimitive primitiveValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonPrimitive();
@@ -96,7 +96,10 @@ public class PlcNextGdsDataToChannelMapper {
 		ChannelId destinationChannelId = varDefinition.getOpenEmsChannelIds().get(0);
 		PlcNextGdsDataType sourceDataType = varDefinition.getDataType();
 
-		mappedValue.add(mapValue(primitiveValue, sourceDataType, destinationChannelId, mappedValue));
+		log.debug("Mapping PLCnext variable '" + varDefinition.getIdentifier() + "' to OpenEMS channel ID '"
+				+ destinationChannelId + "'");
+		mappedValue.add(mapValue(primitiveValue, sourceDataType, destinationChannelId));
+
 		return mappedValue;
 	}
 
@@ -109,29 +112,31 @@ public class PlcNextGdsDataToChannelMapper {
 	 * @return
 	 * @throws PlcNextGdsDataMappingException
 	 */
-	List<PlcNextGdsDataMappedValue> mapSingleArrayVariable(JsonObject varObject, String varName,
+	List<PlcNextGdsDataMappedValue> mapSingleJsonArrayVariable(JsonObject varObject, String varName,
 			PlcNextGdsDataVariableDefinition varDefinition) {
-		List<PlcNextGdsDataMappedValue> mappedValue;
+
 		JsonArray arrayValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonArray();
+
 		if (Objects.isNull(arrayValue)) {
 			throw new PlcNextGdsDataMappingException("Got NULL value for variable '" + varName
 					+ "' from PLCnext API! Publishing to channel skipped.");
 		}
-
 		if (varDefinition.getDataType().getMemberCount() !=  arrayValue.size()) {
 			throw new PlcNextGdsDataMappingException("Number of array members of " + arrayValue.size()
 					+ " does not match the expected count of " + varDefinition.getDataType().getMemberCount());
 		}
-		mappedValue = new ArrayList<PlcNextGdsDataMappedValue>();
 
+		List<PlcNextGdsDataMappedValue> mappedValue = new ArrayList<PlcNextGdsDataMappedValue>();
 		for (int k = 0; k < arrayValue.size(); k++) {
 			ChannelId destinationChannelId = varDefinition.getOpenEmsChannelIds().get(k);
 			PlcNextGdsDataType sourceDataType = varDefinition.getDataType().getMemberType();
 
-			mapValue(arrayValue.get(k), sourceDataType,
-					destinationChannelId, mappedValue);
+			log.debug("Mapping PLCnext variable '" + varDefinition.getIdentifier() + "[" + k
+					+ "]' to OpenEMS channel ID '"
+					+ destinationChannelId + "'");
+			mappedValue.add(mapValue(arrayValue.get(k), sourceDataType, destinationChannelId));
 		}
-		return mappedValue;
+		return Collections.unmodifiableList(mappedValue);
 	}
 
 	/**
@@ -140,12 +145,11 @@ public class PlcNextGdsDataToChannelMapper {
 	 * @param jsonElement
 	 * @param sourceDataType
 	 * @param destinationChannelId
-	 * @param mappedValue
 	 * @return
 	 * @throws PlcNextGdsDataMappingException
 	 */
 	PlcNextGdsDataMappedValue mapValue(JsonElement jsonElement, PlcNextGdsDataType sourceDataType,
-			ChannelId destinationChannelId, List<PlcNextGdsDataMappedValue> mappedValue) {
+			ChannelId destinationChannelId) {
 
 		Object jsonValue = getJsonValue(jsonElement, sourceDataType);
 		Object channelValue = getChannelValue(jsonValue, sourceDataType, destinationChannelId.doc().getType());
@@ -251,11 +255,11 @@ public class PlcNextGdsDataToChannelMapper {
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
-	public List<PlcNextGdsDataMappedValue> mapAllAspectsToChannel(JsonArray variables, String dataInstanceName) {
+	public List<PlcNextGdsDataMappedValue> mapAllValuesToChannels(JsonArray variables, String dataInstanceName) {
 		List<PlcNextGdsDataMappedValue> mappedValues = new ArrayList<>();
 
-		variables.forEach(variable -> mappedValues
-				.addAll(mapSingleAspectToChannel(variable, dataInstanceName)));
+		variables.forEach(variable -> mappedValues.addAll(mapSingleValueToChannel(variable, dataInstanceName)));
+		log.debug("Mapped values: " + mappedValues);
 
 		return Collections.unmodifiableList(mappedValues);
 	}

@@ -74,7 +74,7 @@ public class PlcNextGdsDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", 1.2345);
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapSingleAspectToChannel(primitiveVariable, instanceName);
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapSingleValueToChannel(primitiveVariable, instanceName);
 
 		// check
 		Assert.assertNotNull(mappedValues);
@@ -101,7 +101,7 @@ public class PlcNextGdsDataToChannelMapperTest {
 		apiResponse.add("variables", variables);
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllAspectsToChannel(variables, instanceName);
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName);
 
 		// check
 		Assert.assertNotNull(mappedValues);
@@ -112,4 +112,39 @@ public class PlcNextGdsDataToChannelMapperTest {
 		Assert.assertEquals(1, mappedValue.getValue());
 	}
 
+	@Test
+	public void testAllPlcNextVariablesAreMapped() {
+		// prep
+		JsonArray variables = new JsonArray();
+
+		JsonObject varPhaseVoltages = new JsonObject();
+		varPhaseVoltages.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.phaseVoltages");
+
+		JsonArray varPhaseVoltagesValues = new JsonArray(3);
+		varPhaseVoltagesValues.add(1.1);
+		varPhaseVoltagesValues.add(2.2);
+		varPhaseVoltagesValues.add(3.3);
+
+		varPhaseVoltages.add("value", varPhaseVoltagesValues);
+		variables.add(varPhaseVoltages);
+
+		JsonObject varNeutralCurrent = new JsonObject();
+		varNeutralCurrent.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.neutralCurrent");
+		varNeutralCurrent.addProperty("value", 5.5);
+		variables.add(varNeutralCurrent);
+
+		JsonObject varEnergyImport = new JsonObject();
+		varEnergyImport.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.energyImport");
+		varEnergyImport.addProperty("value", 4.4);
+		variables.add(varEnergyImport);
+
+		int mappedVariableCount = 5;
+
+		// test
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName);
+
+		// check
+		Assert.assertNotNull(mappedValues);
+		Assert.assertEquals(mappedVariableCount, mappedValues.size());
+	}
 }

@@ -55,7 +55,11 @@ public class PlcNextTokenManager {
 	 * @param authClientConfig configuration to be used
 	 */
 	public synchronized void fetchToken(PlcNextTokenManagerConfig authClientConfig) {
+<<<<<<< HEAD
+		if (!hasValidToken()) {
+=======
 		if (isTokenRequestAllowed()) {
+>>>>>>> feature/PxC_PLCnext_OpenEMS_Driver
 			log.info("Start fetching authentication");
 			try {
 				PlcNextAuthAndAccessTokenDTO combinedToken = null;
@@ -77,8 +81,13 @@ public class PlcNextTokenManager {
 		}
 	}
 
-	private boolean isTokenRequestAllowed() {
-		return Objects.isNull(tokenExpirery) || tokenExpirery.isBefore(ZonedDateTime.now());
+	/**
+	 * Checks if a valid token has been fetched.
+	 * 
+	 * @return TRUE if token is valid, FALSE otherwise
+	 */
+	public synchronized boolean hasValidToken() {
+		return Objects.nonNull(tokenExpirery) && !tokenExpirery.isBefore(ZonedDateTime.now());
 	}
 
 	Endpoint buildAuthTokenEndpointRepresentation(PlcNextTokenManagerConfig config) {
