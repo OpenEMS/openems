@@ -1,7 +1,10 @@
 package io.openems.edge.io.phoenixcontact;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -11,18 +14,24 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
+import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.phoenixcontact.auth.PlcNextTokenManager;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataProvider;
+import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataProviderConfig;
 import io.openems.edge.io.phoenixcontact.gds.PlcNextGdsDataToChannelMapper;
+import io.openems.edge.io.phoenixcontact.gds.enums.PlcNextGdsDataVariableDefinition;
 
 public class PlcNextDeviceImplTest {
 
@@ -31,7 +40,7 @@ public class PlcNextDeviceImplTest {
 	private TestConfig myConfig;
 	
 	private BridgeHttp dummyAuthBridgeHttp;
-	private BridgeHttp dummyDataBridgeHttp;
+	private BridgeHttp mockDummyDataBridgeHttp;
 	
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsDataProvider dataProvider;
@@ -39,6 +48,8 @@ public class PlcNextDeviceImplTest {
 	
 	private PlcNextDeviceImpl componentUnderTest;
 	
+	private String accessToken;
+
 	@Before
 	public void setupBefore() {
 		this.myConfig = TestConfig.create() //
@@ -46,6 +57,8 @@ public class PlcNextDeviceImplTest {
 				.build();
 		this.componentUnderTest = new PlcNextDeviceImpl();
 		
+		this.accessToken = "dummy_access";
+
 		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
@@ -55,12 +68,22 @@ public class PlcNextDeviceImplTest {
 									"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
 					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
-							"{'access_token': 'dummy_access'}"));
+							"{'access_token': '" + accessToken + "'}"));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
 				}
 			}
 		};
+
+		this.mockDummyDataBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
+		when(mockDummyDataBridgeHttp.createService(any()))
+				.thenReturn(new HttpBridgeTimeServiceImpl(mockDummyDataBridgeHttp, //
+						new DummyBridgeHttpExecutor(), new DummyEndpointFetcher()));
+
+		this.tokenManager = new PlcNextTokenManager(dummyAuthBridgeHttp);
+
+		this.dataMapper = new PlcNextGdsDataToChannelMapper();
+		this.dataProvider = new PlcNextGdsDataProvider(mockDummyDataBridgeHttp, this.tokenManager, this.dataMapper);
 
 		JsonObject responseBody = new JsonObject();
 		JsonArray variables = new JsonArray();
@@ -89,14 +112,29 @@ public class PlcNextDeviceImplTest {
 		responseBody.add("variables", variables);
 		System.out.println("ECHO: responseBody = " + responseBody);
 
-		this.dummyDataBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
-		when(this.dummyDataBridgeHttp.requestJson(any(Endpoint.class)))//
+		String sessionId = "1234567890";
+		PlcNextGdsDataProviderConfig dataProviderConfig = new PlcNextGdsDataProviderConfig(myConfig.dataUrl(),
+				myConfig.dataInstanceName(), List.of());
+		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId,
+				PlcNextGdsDataVariableDefinition.values(), dataProviderConfig);
+		when(mockDummyDataBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
 		
-		this.tokenManager = new PlcNextTokenManager(dummyAuthBridgeHttp);
-		
-		this.dataMapper = new PlcNextGdsDataToChannelMapper();
-		this.dataProvider = new PlcNextGdsDataProvider(dummyDataBridgeHttp, this.tokenManager, this.dataMapper);
+		Endpoint createSessionEndpoint = dataProvider.buildCreateSessionEndpoint(accessToken,
+				dataProviderConfig);
+		JsonObject createSessionResponseBody = new JsonObject();
+		createSessionResponseBody.addProperty("sessionID", sessionId);
+		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
+		when(mockDummyDataBridgeHttp.requestJson(eq(createSessionEndpoint)))//
+				.thenReturn(CompletableFuture.supplyAsync(
+						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+
+		Endpoint maintainSessionEndpoint = dataProvider.buildMaintainSessionEndpoint(accessToken, sessionId,
+				dataProviderConfig);
+		JsonObject maintainSessionResponseBody = new JsonObject();
+		maintainSessionResponseBody.addProperty("sessionID", sessionId);
+		when(mockDummyDataBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
+				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 	}
 	
 	@Test

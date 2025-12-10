@@ -13,7 +13,7 @@ import io.openems.common.types.MeterType;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "plcnext_0";
+	String id() default "plcnext0";
 
 	@AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
 	String alias() default "";

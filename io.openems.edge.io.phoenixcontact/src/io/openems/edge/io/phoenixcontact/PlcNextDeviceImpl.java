@@ -63,6 +63,8 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	@Override
 	@Deactivate
 	protected void deactivate() {
+//		gdsProvider.deactivateSessionMaintenance();
+
 		super.deactivate();
 	}
 

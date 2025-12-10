@@ -67,7 +67,7 @@ public class TestConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String dataUrl() {
-		return "https://jUnit/data";
+		return "https://jUnit/api";
 	}
 
 	@Override
