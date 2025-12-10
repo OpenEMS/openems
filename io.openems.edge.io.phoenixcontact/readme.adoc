@@ -1,3 +1,0 @@
-= io.openems.edge.io.phoenixcontact
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.phoenixcontact[Source Code icon:github[]]
