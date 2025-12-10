@@ -14,13 +14,13 @@
             <svg:polygon [attr.points]="energyFlow.points" attr.fill="{{ fillRef }}" />
             @if (buyAnimationTrigger) {
               <ng-container>
-                <svg:polygon [@GridBuy]="stateNameBuy" [attr.points]="energyFlow.animationPoints"
+                <svg:polygon [class]="buyAnimationClass" [attr.points]="energyFlow.animationPoints"
                   style="fill: var(--ion-item-background)" />
               </ng-container>
             }
             @if (sellAnimationTrigger) {
               <ng-container>
-                <svg:polygon [@GridSell]="stateNameSell" [attr.points]="energyFlow.animationPoints"
+                <svg:polygon [class]="sellAnimationClass" [attr.points]="energyFlow.animationPoints"
                   style="fill: var(--ion-item-background)" />
               </ng-container>
             }

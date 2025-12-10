@@ -1,65 +1,44 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[consumptionsection]",
     templateUrl: "./consumption.component.html",
-    animations: [
-        trigger("Consumption", [
-            state("show", style({
-                opacity: 0.1,
-                transform: "translateX(0%)",
-            })),
-            state("hide", style({
-                opacity: 0.6,
-                transform: "translateX(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    private showAnimation: boolean = false;
-    private animationTrigger: boolean = false;
-    // animation variable to stop animation on destroy
-    private startAnimation = null;
+    private consumptionAnimationClass: string = "consumption-hide";
+    private subShow?: Subscription;
 
     constructor(
         unitpipe: UnitvaluePipe,
         translate: TranslateService,
         service: Service,
+        private animationService: AnimationService,
     ) {
-        super("GENERAL.CONSUMPTION", "right", "#FDC507", translate, service, "Consumption");
+        super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, "Consumption");
         this.unitpipe = unitpipe;
-    }
-
-    get stateName() {
-        return this.showAnimation ? "show" : "hide";
     }
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
-    }
-
-    toggleAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showAnimation = !this.showAnimation;
-        }, this.animationSpeed);
-        this.animationTrigger = true;
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.consumptionAnimationClass = show ? "consumption-hide" : "consumption-show";
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     protected getStartAngle(): number {
@@ -78,9 +57,6 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         let arrowIndicate: number;
         // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.consumption.activePower > 49) {
-            if (!this.animationTrigger) {
-                this.toggleAnimation();
-            }
             arrowIndicate = Utils.divideSafely(sum.consumption.activePower, sum.system.totalPower);
         } else {
             arrowIndicate = 0;

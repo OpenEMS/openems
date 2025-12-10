@@ -1,42 +1,18 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[storagesection]",
     templateUrl: "./storage.component.html",
-    animations: [
-        trigger("Discharge", [
-            state("show", style({
-                opacity: 0.4,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.1,
-                transform: "translateY(-17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-        trigger("Charge", [
-            state("show", style({
-                opacity: 0.1,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.4,
-                transform: "translateY(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-out")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
@@ -48,48 +24,38 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     protected socPercentageYPosition: number | null = null;
     private socValue: number;
     private unitpipe: UnitvaluePipe;
-    // animation variable to stop animation on destroy
-    private startAnimation = null;
-    private showChargeAnimation: boolean = false;
-    private showDischargeAnimation: boolean = false;
+    private subShow?: Subscription;
+    private chargeAnimationClass: string = "storage-charge-hide";
+    private dischargeAnimationClass: string = "storage-discharge-hide";
 
     constructor(
         translate: TranslateService,
         protected override service: Service,
         unitpipe: UnitvaluePipe,
+        private animationService: AnimationService,
     ) {
-        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "#009846", translate, service, "Storage");
+        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "var(--ion-color-success)", translate, service, "Storage");
         this.unitpipe = unitpipe;
-    }
-
-    get stateNameCharge() {
-        return this.showChargeAnimation ? "show" : "hide";
-    }
-
-    get stateNameDischarge() {
-        return this.showDischargeAnimation ? "show" : "hide";
     }
 
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.chargeAnimationClass = show ? "storage-charge-hide" : "storage-charge-show";
+            this.dischargeAnimationClass = show ? "storage-discharge-show" : "storage-discharge-hide";
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     toggleCharge() {
-        this.startAnimation = setInterval(() => {
-            this.showChargeAnimation = !this.showChargeAnimation;
-        }, this.animationSpeed);
         this.chargeAnimationTrigger = true;
         this.dischargeAnimationTrigger = false;
     }
 
     toggleDischarge() {
-        setInterval(() => {
-            this.showDischargeAnimation = !this.showDischargeAnimation;
-        }, this.animationSpeed);
         this.chargeAnimationTrigger = false;
         this.dischargeAnimationTrigger = true;
     }
