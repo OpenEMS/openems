@@ -2,7 +2,6 @@ package io.openems.edge.phoenixcontact.plcnext;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.edge.phoenixcontact.plcnext.Config;
 
 @SuppressWarnings("all")
 public class TestConfig extends AbstractComponentConfig implements Config {

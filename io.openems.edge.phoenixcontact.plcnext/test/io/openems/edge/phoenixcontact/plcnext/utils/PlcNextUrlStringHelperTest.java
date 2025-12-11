@@ -3,8 +3,6 @@ package io.openems.edge.phoenixcontact.plcnext.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.openems.edge.phoenixcontact.plcnext.utils.PlcNextUrlStringHelper;
-
 public class PlcNextUrlStringHelperTest {
 
 	private static final String EXPECTED_RESULT = "https://test.local/baseUrl/hello/world";

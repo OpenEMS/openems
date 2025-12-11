@@ -45,6 +45,8 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	private PlcNextTokenManager tokenManager;
 
 	private Config config;
+	private PlcNextTokenManagerConfig tokenManagerConfig;
+	private PlcNextGdsDataProviderConfig gdsDataProviderConfig;
 
 	public PlcNextDeviceImpl() {
 		super(//
@@ -58,6 +60,9 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		this.tokenManagerConfig = new PlcNextTokenManagerConfig(config.authUrl(), config.username(), config.password());
+		this.gdsDataProviderConfig = new PlcNextGdsDataProviderConfig(config.dataUrl(), config.dataInstanceName(),
+				this);
 	}
 
 	@Override
@@ -90,11 +95,6 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 			return;
 		}
 		if (EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE == event.getTopic()) {
-			PlcNextTokenManagerConfig tokenManagerConfig = new PlcNextTokenManagerConfig(config.authUrl(),
-					config.username(), config.password());
-			PlcNextGdsDataProviderConfig gdsDataProviderConfig = new PlcNextGdsDataProviderConfig(config.dataUrl(),
-					config.dataInstanceName(), this.channels());
-
 			log.info("Reading GDS data from instance '" + gdsDataProviderConfig.dataUrl() + "'");
 			tokenManager.fetchToken(tokenManagerConfig);
 			gdsProvider.readFromApiToChannels(gdsDataProviderConfig);

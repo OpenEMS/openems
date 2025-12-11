@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -20,17 +20,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService.TimeEndpoint;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
+import io.openems.edge.phoenixcontact.plcnext.PlcNextDevice;
 import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextTokenManager;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataProvider;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataProviderConfig;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataToChannelMapper;
+import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataProvider.PlcNextCreateSessionResponse;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataVariableDefinition;
 
 public class PlcNextGdsDataProviderTest {
@@ -41,14 +43,16 @@ public class PlcNextGdsDataProviderTest {
 	private DummyBridgeHttp mockDummyBridgeHttp;
 	private PlcNextTokenManager mockTokenManager;
 	private PlcNextGdsDataToChannelMapper mockDataMapper;
+	private PlcNextDevice mockDevice;
 
 	private PlcNextGdsDataProvider dataProvider;
 	private String accessToken;
 
 	@Before
 	public void setupBefore() {
+		mockDevice = Mockito.mock(PlcNextDevice.class);
 		dataProviderConfig = new PlcNextGdsDataProviderConfig("https://junit/_pxc_api/api/variables",
-				"MeasurementDevice", List.of());
+				"MeasurementDevice", mockDevice);
 		accessToken = "dummy_access_token";
 
 		mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
@@ -71,8 +75,7 @@ public class PlcNextGdsDataProviderTest {
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.phaseVoltages,")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.neutralCurrent,")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.energyImport")//
-				.append("&sessionID=").append(sessionId)
-				.toString();
+				.append("&sessionID=").append(sessionId).toString();
 		Map<String, String> expectedReqHeaders = Map.of(//
 				"Authorization", "Bearer " + accessToken, //
 				"Content-Type", "application/json", //
@@ -182,8 +185,8 @@ public class PlcNextGdsDataProviderTest {
 		when(mockTokenManager.getToken()).thenReturn(accessToken);
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
 
-		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(
-				accessToken, sessionId, PlcNextGdsDataVariableDefinition.values(), dataProviderConfig);
+		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId,
+				PlcNextGdsDataVariableDefinition.values(), dataProviderConfig);
 
 		JsonObject dataResponseBody = new JsonObject();
 		JsonArray variables = new JsonArray();
@@ -230,8 +233,7 @@ public class PlcNextGdsDataProviderTest {
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
 		when(mockDummyBridgeHttp.requestJson(eq(createSessionEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(
-						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(),
-								createSessionResponseBody)));
+						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		Endpoint maintainSessionEndpoint = dataProvider.buildMaintainSessionEndpoint(accessToken, sessionId,
 				dataProviderConfig);
@@ -297,5 +299,126 @@ public class PlcNextGdsDataProviderTest {
 
 		// check
 		Mockito.verify(mockDataMapper, times(0)).mapAllValuesToChannels(any(), any());
+	}
+	
+	@Test
+	public void testCreateSession_Successfully() {
+		// prep
+		when(mockTokenManager.getToken()).thenReturn(accessToken);
+		when(mockTokenManager.hasValidToken()).thenReturn(true);
+
+		JsonObject createSessionResponseBody = new JsonObject();
+		createSessionResponseBody.addProperty("sessionID", sessionId);
+		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
+
+		when(mockDummyBridgeHttp.requestJson(any()))//
+				.thenReturn(CompletableFuture.supplyAsync(
+						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+		
+		// test
+		Optional<PlcNextCreateSessionResponse> createSessionResponse = dataProvider.createSessionIfNecessary(dataProviderConfig);
+		
+		// check
+		Assert.assertNotNull(createSessionResponse);
+		Assert.assertTrue(createSessionResponse.isPresent());
+		Assert.assertEquals(sessionId, createSessionResponse.get().sessionId());
+		Assert.assertNotNull(createSessionResponse.get().sessionTimeout());
+	}
+
+	@Test
+	public void testCreateSession_FailDueToUnexpectedResponse() {
+		// prep
+		when(mockTokenManager.getToken()).thenReturn(accessToken);
+		when(mockTokenManager.hasValidToken()).thenReturn(true);
+
+		JsonObject createSessionResponseBody = new JsonObject();
+
+		when(mockDummyBridgeHttp.requestJson(any()))//
+				.thenReturn(CompletableFuture.supplyAsync(
+						() -> new HttpResponse<JsonElement>(HttpStatus.UNAUTHORIZED, Map.of(), createSessionResponseBody)));
+		
+		// test
+		Optional<PlcNextCreateSessionResponse> createSessionResponse = dataProvider.createSessionIfNecessary(dataProviderConfig);
+		
+		// check
+		Assert.assertNotNull(createSessionResponse);
+		Assert.assertTrue(createSessionResponse.isEmpty());
+	}
+
+	@Test
+	public void testMaintainSession_Successfully() {
+		// prep
+		when(mockTokenManager.getToken()).thenReturn(accessToken);
+		when(mockTokenManager.hasValidToken()).thenReturn(true);
+		
+		// test register
+		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(), dataProviderConfig);
+		
+		// check register
+		Assert.assertNotNull(ote);
+		Assert.assertTrue(ote.isPresent());
+		
+		// test trigger
+		ote.get().onResult().accept(HttpResponse.ok("{ 'sessionID': '" + sessionId + "'}"));
+		
+		// check trigger
+		Assert.assertEquals(sessionId, dataProvider.sessionId);
+	}
+
+	@Test
+	public void testMaintainSession_FailDueToExpiredToken() {
+		// prep
+		when(mockTokenManager.hasValidToken()).thenReturn(false);
+		
+		// test register
+		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(), dataProviderConfig);
+		
+		// check register
+		Assert.assertNotNull(ote);
+		Assert.assertTrue(ote.isPresent());
+		
+		// test trigger
+		ote.get().onResult().accept(HttpResponse.ok("{}"));
+		
+		// check trigger
+		Assert.assertNull(dataProvider.sessionId);
+	}
+
+	@Test
+	public void testMaintainSession_FailDueToCommunicationError() {
+		// prep
+		when(mockTokenManager.hasValidToken()).thenReturn(true);
+		
+		// test register
+		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(), dataProviderConfig);
+		
+		// check register
+		Assert.assertNotNull(ote);
+		Assert.assertTrue(ote.isPresent());
+		
+		// test trigger
+		ote.get().onError().accept(new HttpError.ResponseError(HttpStatus.UNAUTHORIZED, "{}"));
+		
+		// check trigger
+		Assert.assertNull(dataProvider.sessionId);
+	}
+
+	@Test
+	public void testMaintainSession_FailDueToHttpStatusNeqOK() {
+		// prep
+		when(mockTokenManager.hasValidToken()).thenReturn(true);
+		
+		// test register
+		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(), dataProviderConfig);
+		
+		// check register
+		Assert.assertNotNull(ote);
+		Assert.assertTrue(ote.isPresent());
+		
+		// test trigger
+		ote.get().onResult().accept(new HttpResponse<String>(HttpStatus.CONFLICT, Map.of(), "{}"));
+		
+		// check trigger
+		Assert.assertNull(dataProvider.sessionId);
 	}
 }
