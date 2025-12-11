@@ -51,8 +51,8 @@ public class ControllerApiRestReadWriteImpl extends AbstractRestApi
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.restHandler = this.restHandlerFactory.get();
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(), config.apiTimeout(),
-				config.port(), config.connectionlimit());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.debugMode(),
+				config.apiTimeout(), config.ip(), config.port(), config.connectionlimit());
 	}
 
 	@Override
