@@ -1,4 +1,4 @@
-package io.openems.edge.simulator.datasource.single.direct;
+package io.openems.edge.simulator.datasource.single.channel;
 
 import io.openems.common.test.AbstractComponentConfig;
 
@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private int[] values;
+		private int timeDelta;
 
 		private Builder() {
 		}
@@ -17,8 +17,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setValues(int... values) {
-			this.values = values;
+		public Builder setTimeDelta(int timeDelta) {
+			this.timeDelta = timeDelta;
 			return this;
 		}
 
@@ -44,8 +44,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int[] values() {
-		return this.builder.values;
+	public int timeDelta() {
+		return this.builder.timeDelta;
 	}
 
 }
