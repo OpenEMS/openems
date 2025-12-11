@@ -39,13 +39,13 @@ public class PredictionDataService {
 	/**
 	 * Fetches a time series for the given query window.
 	 *
-	 * @param queryWindow the query window
+	 * @param queryWindowInDays the query window in days
 	 * @return the fetched time series
 	 * @throws PredictionException if fetching fails
 	 */
-	public Series<ZonedDateTime> fetchSeriesForWindow(QueryWindow queryWindow) throws PredictionException {
+	public Series<ZonedDateTime> fetchSeriesForWindow(int queryWindowInDays) throws PredictionException {
 		var to = ZonedDateTime.now(this.clockSupplier.get()).truncatedTo(ChronoUnit.DAYS);
-		var from = to.minus(queryWindow.maxWindowDays(), ChronoUnit.DAYS);
+		var from = to.minus(queryWindowInDays, ChronoUnit.DAYS);
 
 		return this.fetchSeries(from, to);
 	}

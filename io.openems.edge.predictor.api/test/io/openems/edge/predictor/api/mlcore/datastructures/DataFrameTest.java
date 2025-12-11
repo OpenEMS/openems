@@ -433,6 +433,30 @@ public class DataFrameTest {
 		assertNotEquals(this.dataframe.getValue(0, "column1"), copy.getValue(0, "column1"));
 	}
 
+	@Test
+	public void testTail_ShouldReturnCorrectTail() {
+		// Case 1
+		var result1 = this.dataframe.tail(2);
+		var expected1 = new DataFrame<>(//
+				List.of(1, 2), //
+				List.of("column1", "column2"), //
+				List.of(//
+						List.of(3.0, 4.0), //
+						List.of(5.0, 6.0)));
+		assertEquals(expected1, result1);
+		// Case 2
+		var result2 = this.dataframe.tail(4);
+		assertEquals(this.dataframe, result2);
+	}
+
+	@Test
+	public void testTail_ShouldThrowException_WhenNIsNegative() {
+		var exception = assertThrows(IllegalArgumentException.class, () -> {
+			this.dataframe.tail(-1);
+		});
+		assertEquals("n must be non-negative", exception.getMessage());
+	}
+
 	// --- equals and hashCode ---
 
 	@Test

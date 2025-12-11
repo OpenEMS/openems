@@ -523,6 +523,28 @@ public class DataFrame<I> implements DataStructure<I> {
 		return new DataFrame<>(this.index, this.columnNames, this.values);
 	}
 
+	/**
+	 * Returns a new {@link DataFrame} containing the last {@code n} rows of this
+	 * {@link DataFrame}.
+	 *
+	 * @param n the number of rows to include from the end of the {@link DataFrame};
+	 *          must be non-negative
+	 * @return a new {@link DataFrame} containing the last {@code n} rows
+	 * @throws IllegalArgumentException if {@code n} is negative
+	 */
+	public DataFrame<I> tail(int n) {
+		if (n < 0) {
+			throw new IllegalArgumentException("n must be non-negative");
+		}
+		int size = this.index.size();
+		if (n >= size) {
+			return this.copy();
+		}
+		var newIndex = this.index.subList(size - n, size);
+		var newValues = this.values.subList(size - n, size);
+		return new DataFrame<I>(newIndex, this.columnNames, newValues);
+	}
+
 	// --- private helpers --- //
 
 	private void checkForDuplicates(List<?> list, String name) {
