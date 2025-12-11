@@ -11,13 +11,16 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.enums.KebaHardwareType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppDef.FieldValuesBiPredicate;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
@@ -224,7 +227,27 @@ public final class EvcsProps {
 				.wrapField((app, property, l, parameter, field) -> {
 					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
 				})//
-				.setRequired(true)//
+				.setRequired(true) //
 				.setDefaultValue(KebaHardwareType.P30);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a {@link EMobilityArchitectureType}.
+	 * 
+	 * @param evcsId {@link Nameable} of evcs id
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> architectureType(Nameable evcsId) {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evcs.Keba.architectureType.label")//
+				.setIsAllowedToSee(FieldValuesBiPredicate.FALSE) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class), l);
+				})//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
+				})//
+				.setRequired(true)//
+				.setDefaultValue(EMobilityArchitectureType.EVCS);
 	}
 }

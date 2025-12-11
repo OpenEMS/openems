@@ -197,6 +197,13 @@ public class AppManagerImplTest {
 								.addProperty("endCondition", "CAPACITY_CHANGED") //
 								.build()) //
 						.build()) //
+				.add("predictor2", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Predictor.ProfileClusteringModel") //
+						.addProperty("alias", "Verbrauchsprognose") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.build()) //
+						.build()) //
 				.add("scheduler0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Scheduler.AllAlphabetically") //
 						.add("properties", JsonUtils.buildJsonObject() //
@@ -293,6 +300,13 @@ public class AppManagerImplTest {
 										.addProperty("TARGET_SOC", 30) //
 										.build()) //
 								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Prediction.UnmanagedConsumption") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.build()) //
+								.build())
 						.build().toString()) //
 				.build();
 
@@ -302,10 +316,10 @@ public class AppManagerImplTest {
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //
-
 					this.kebaEvcsApp = Apps.kebaEvcs(t), //
 					this.awattarApp = Apps.awattarHourly(t), //
-					this.stromdao = Apps.stromdaoCorrently(t) //
+					this.stromdao = Apps.stromdaoCorrently(t), //
+					Apps.predictionUnmanagedConsumption(t)//
 			);
 		});
 	}
@@ -316,7 +330,7 @@ public class AppManagerImplTest {
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
-		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
+		assertEquals(5, this.appManagerTestBundle.sut.instantiatedApps.size());
 
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}

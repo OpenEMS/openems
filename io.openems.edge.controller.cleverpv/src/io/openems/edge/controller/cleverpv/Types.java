@@ -45,8 +45,8 @@ public final class Types {
 						json.getOptionalInt("powerStorageState").orElse(null), //
 						json.getOptionalInt("chargingPower").orElse(null), //
 						json.getObject("currentData", CurrentData.serializer()), //
-						json.getObject("availableControlModes", AvailableControlModes.serializer()), //
-						json.getObject("activeControlModes", ActiveControlModes.serializer()), //
+						json.getObjectOrNull("availableControlModes", AvailableControlModes.serializer()), //
+						json.getObjectOrNull("activeControlModes", ActiveControlModes.serializer()), //
 						json.getOptionalString("edgeId").orElse(null), //
 						json.getOptionalInt("state").orElse(null) //
 				); //
@@ -60,9 +60,8 @@ public final class Types {
 						.addProperty("powerStorageState", obj.powerStorageState) //
 						.addProperty("chargingPower", obj.chargingPower) //
 						.add("currentData", CurrentData.serializer().serialize(obj.currentData)) //
-						.add("availableControlModes",
-								AvailableControlModes.serializer().serialize(obj.availableControlModes)) //
-						.add("activeControlModes", ActiveControlModes.serializer().serialize(obj.activeControlModes)) //
+						.onlyIf(obj.availableControlModes != null, b -> b.add("availableControlModes", AvailableControlModes.serializer().serialize(obj.availableControlModes))) //
+						.onlyIf(obj.activeControlModes != null, b -> b.add("activeControlModes", ActiveControlModes.serializer().serialize(obj.activeControlModes))) //
 						.build();
 			});
 		}

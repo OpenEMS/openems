@@ -154,6 +154,10 @@ public class AppShellyMeter
 			}
 			}
 
+			if (t == ConfigurationTarget.ADD) {
+				props.addProperty("validateDevice", true);
+			}
+
 			final var components = List.of(//
 					new EdgeConfig.Component(meterId, alias, factoryId, props.build()) //
 			);

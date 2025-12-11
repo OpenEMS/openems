@@ -93,6 +93,11 @@ public enum OpenemsAppCategory {
 	 * Apis.
 	 */
 	API("api"),
+	
+	/**
+	 * Prediction.
+	 */
+	PREDICTION("prediction"),
 
 	/**
 	 * Timedata..

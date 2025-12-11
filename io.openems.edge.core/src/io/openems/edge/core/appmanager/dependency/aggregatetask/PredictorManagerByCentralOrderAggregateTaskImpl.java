@@ -91,6 +91,7 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 	}
 
 	private final PredefinedOrder<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent> order = new PredefinedOrder<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent>()
+			.thenBy(t -> t.factoryId().equals("Predictor.ProfileClusteringModel")) //
 			.thenBy(t -> t.factoryId().equals("Predictor.Production.LinearModel")) //
 			.thenBy(t -> t.factoryId().equals("Predictor.PersistenceModel"));
 

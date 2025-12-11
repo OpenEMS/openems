@@ -37,15 +37,15 @@ public class TrainingDataService {
 	}
 
 	/**
-	 * Fetches a time series for the specified query window.
+	 * Fetches a time series for the specified training window.
 	 *
-	 * @param queryWindow the query window defining the maximum and minimum range
+	 * @param trainingWindowInDays the query window in days
 	 * @return the fetched time series
 	 * @throws TrainingException if fetching fails or data validation fails
 	 */
-	public Series<ZonedDateTime> fetchSeriesForWindow(QueryWindow queryWindow) throws TrainingException {
+	public Series<ZonedDateTime> fetchSeriesForWindow(int trainingWindowInDays) throws TrainingException {
 		var to = ZonedDateTime.now(this.clockSupplier.get()).truncatedTo(ChronoUnit.DAYS);
-		var from = to.minus(queryWindow.maxWindowDays(), ChronoUnit.DAYS);
+		var from = to.minus(trainingWindowInDays, ChronoUnit.DAYS);
 
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rawChannelData;
 		try {
@@ -65,32 +65,6 @@ public class TrainingDataService {
 				from, //
 				to);
 
-		this.ensureMinCoverage(series, to, queryWindow);
-
 		return series;
-	}
-
-	private void ensureMinCoverage(//
-			Series<ZonedDateTime> series, //
-			ZonedDateTime to, //
-			QueryWindow queryWindow) throws TrainingException {
-		for (var timestamp : series.getIndex()) {
-			if (!series.get(timestamp).isNaN()) {
-				var minRequiredStart = to.minusDays(queryWindow.minWindowDays());
-				if (timestamp.isAfter(minRequiredStart)) {
-					throw new TrainingException(TrainingError.INSUFFICIENT_TRAINING_DATA, String.format(//
-							"Channel data too sparse: Need valid data since %s (min %d days), but earliest valid data is %s", //
-							minRequiredStart, //
-							queryWindow.minWindowDays(), //
-							timestamp));
-				}
-				return;
-			}
-		}
-
-		throw new TrainingException(TrainingError.INSUFFICIENT_TRAINING_DATA, String.format(
-				"Channel data too sparse: Need valid data since %s (min %d days), but no valid data found at all", //
-				to.minusDays(queryWindow.minWindowDays()), //
-				queryWindow.minWindowDays()));
 	}
 }

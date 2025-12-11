@@ -82,6 +82,7 @@ import io.openems.edge.core.appmanager.validator.Validator;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
+		service = { AppManager.class, AppManagerImpl.class, OpenemsComponent.class, ComponentJsonApi.class },
 		name = AppManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
@@ -1149,7 +1150,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @param apps the new apps that should be written in the configuration
 	 * @throws OpenemsNamedException when the configuration can not be updated
 	 */
-	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
+	// TODO: find a way to make private again
+	public void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
 		this.waitingForModified = true;
 		AppManagerImpl.sortApps(apps);
 		var p = new Property("apps", this.getJsonAppsString(apps));

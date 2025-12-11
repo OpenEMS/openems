@@ -180,6 +180,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.put("App.Ess.Limiter14a", "") //
+			.put("App.Prediction.UnmanagedConsumption", "") //
 			.build();
 
 	// NOTE: this will certainly get refactored in future, but it's a good start to

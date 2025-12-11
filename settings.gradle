@@ -4,6 +4,7 @@ pluginManagement {
 		id 'biz.aQute.bnd' version "${bnd_version}"
 		id 'com.github.node-gradle.node' version "7.1.0"
 		id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+		id 'org.sonarqube' version '7.2.0.6526'
 	}
 	repositories {
 		maven {

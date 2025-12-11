@@ -253,6 +253,7 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}

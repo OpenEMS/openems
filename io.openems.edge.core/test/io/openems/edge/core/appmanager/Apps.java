@@ -100,6 +100,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
+import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -1212,6 +1213,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppPredictionUnmanagedConsumption}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
+		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
 	 * Gets the minimum configuration of an app for easily creating instances in
 	 * tests.
 	 * 
@@ -1265,6 +1276,11 @@ public final class Apps {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.meta);
 	}
+	
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHostAndMetaAndAppUtil<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil,t.appManagerUtil, t.host, t.meta);
+	}
 
 	private static interface DefaultAppConstructor<A> {
 
@@ -1303,6 +1319,13 @@ public final class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, Host host, Meta meta);
+
+	}
+	
+	private static interface DefaultAppConstructorWithHostAndMetaAndAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host, Meta meta);
 
 	}
 
