@@ -181,7 +181,7 @@ public record SimulationResult(//
 			ef.getManagedConsumptions().values().stream() //
 					.forEach(v -> log(b, "%10d", v));
 			this.schedules.forEach((esh, schedule) -> {
-				log(b, " %-10s ", esh.toModeString(schedule.get(time).modeIndex()));
+				log(b, " %-10s ", esh.modes().getAsString(schedule.get(time).modeIndex()));
 			});
 			b.append("\n");
 		});

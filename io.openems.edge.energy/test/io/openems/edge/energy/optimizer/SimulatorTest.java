@@ -10,7 +10,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
@@ -19,6 +19,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.OneMode;
@@ -56,9 +57,9 @@ public class SimulatorTest {
 
 	public static final EshWithDifferentModes<Esh2State, Void, Void> ESH2 = //
 			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
-					.setAvailableModes(() -> Esh2State.values()) //
-					.setInitialPopulationsProvider((goc, coc, availableModes) -> {
-						return ImmutableList.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
+					.setModes(() -> Modes.of(Esh2State.values())) //
+					.setInitialPopulationsProvider((goc, coc, modes) -> {
+						return ImmutableSortedSet.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
 								.map(p -> p.index() % 3 == 0 //
 										? Esh2State.BAR // set BAR mode
 										: Esh2State.FOO) // default

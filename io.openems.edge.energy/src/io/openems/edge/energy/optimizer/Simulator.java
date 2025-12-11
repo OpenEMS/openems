@@ -9,6 +9,7 @@ import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION
 import static java.lang.Math.max;
 import static java.lang.Thread.currentThread;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
@@ -37,6 +38,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 
 public class Simulator {
@@ -108,14 +110,23 @@ public class Simulator {
 			return;
 		}
 
+		final var eshModes = ImmutableMap.<EnergyScheduleHandler.WithDifferentModes, Integer>builder();
+
 		var eshsWithDifferentModesIndex = 0;
 		for (var esh : eshs) {
 			try {
 				var csc = cscs.get(esh);
 				switch (esh) {
-				case EnergyScheduleHandler.WithDifferentModes e //
-					-> e.simulate(period, gsc, csc, ef, //
-							modeCombination.mode(eshsWithDifferentModesIndex++).index(), fitness);
+				case EnergyScheduleHandler.WithDifferentModes e -> {
+					final var modeIndex = e.modes().isEmpty() //
+							? -1 // none available
+							: Optional.ofNullable(modeCombination.mode(eshsWithDifferentModesIndex++)) //
+									.map(Mode::index) //
+									.orElse(-1); // none available
+					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+					eshModes.put(e, preProcessedMode);
+					e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
+				}
 				case EnergyScheduleHandler.WithOnlyOneMode e //
 					-> e.simulate(period, gsc, csc, ef, fitness);
 				}
@@ -161,13 +172,12 @@ public class Simulator {
 			final var srp = SimulationResult.Period.from(period, modeCombination, energyFlow,
 					gsc.ess.getInitialEnergy());
 			bestScheduleCollector.allPeriods.accept(srp);
-			eshsWithDifferentModesIndex = 0;
+			final var eshModesMap = eshModes.build();
 			for (var esh : eshs) {
 				switch (esh) {
 				case EnergyScheduleHandler.WithDifferentModes e //
 					-> bestScheduleCollector.eshModes.accept(new EshToMode(e, srp, //
-							e.postProcessPeriod(period, gsc, energyFlow,
-									modeCombination.mode(eshsWithDifferentModesIndex++).index())));
+							e.postProcessPeriod(period, gsc, energyFlow, eshModesMap.get(e))));
 				case EnergyScheduleHandler.WithOnlyOneMode e //
 					-> doNothing();
 				}

@@ -1,9 +1,9 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.edge.controller.evse.TestUtils.generateSingleSut;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class ControllerEvseSingleImplTest {
 				.deactivate();
 
 		final var ctrl = sut.ctrlSingle();
-		assertEquals("Mode:Minimum|Undefined", ctrl.debugLog());
+		assertEquals("Mode:Zero|Undefined", ctrl.debugLog());
 
 		var params = sut.ctrlSingle().getParams();
 		assertEquals("ctrlEvseSingle0", params.componentId());

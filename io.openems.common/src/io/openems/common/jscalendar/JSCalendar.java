@@ -247,7 +247,13 @@ public class JSCalendar<PAYLOAD> {
 			} else {
 				final var wasEmpty = this.oneTasks.isEmpty();
 				final var now = ZonedDateTime.now(this.clock);
-				if (wasEmpty) { // Refill empty list
+
+				if (this.oneTasks.size() <= 1) {
+					// Last entry can have the wrong end-timestamp, so we clear it and refill the
+					// list with at least two OneTasks.
+					// There are corner-cases (e.g. recurrence with until) where this code gets
+					// executed on every Cycle.
+					this.oneTasks.clear();
 					this.oneTasks.addAll(this._getOneTasksBetween(now, now.plusDays(1)));
 				}
 
@@ -307,6 +313,64 @@ public class JSCalendar<PAYLOAD> {
 			return this.tasks.size();
 		}
 
+		/**
+		 * Returns a new {@link Tasks} object with the specified {@link Task} added.
+		 *
+		 * @param newTask the {@link Task} to add
+		 * @return a new {@link Tasks} instance including the added task
+		 */
+		public Tasks<PAYLOAD> withAddedTask(Task<PAYLOAD> newTask) {
+			var updatedTasks = new ImmutableList.Builder<Task<PAYLOAD>>()//
+					.addAll(this.tasks)//
+					.add(newTask.withUpdatedNow(this.clock))//
+					.build();
+			return new Tasks<>(this.clock, updatedTasks);
+		}
+
+		/**
+		 * Returns a new {@link Tasks} object with the specified {@link Task} updated.
+		 *
+		 * @param updatedTask the {@link Task} to update
+		 * @return a new {@link Tasks} instance with the task replaced
+		 * @throws IllegalArgumentException if no task with the given UUID exists
+		 */
+		public Tasks<PAYLOAD> withUpdatedTask(Task<PAYLOAD> updatedTask) {
+			if (this.tasks.stream().noneMatch(t -> t.uid().equals(updatedTask.uid()))) {
+				throw new IllegalArgumentException("No task found with UUID " + updatedTask.uid());
+			}
+
+			var updatedTasks = this.tasks.stream()//
+					.map(task -> task.uid().equals(updatedTask.uid()) //
+							? updatedTask.withUpdatedNow(this.clock) //
+							: task)//
+					.collect(ImmutableList.toImmutableList());
+
+			return new Tasks<>(this.clock, updatedTasks);
+		}
+
+		/**
+		 * Returns a new {@link Tasks} object with the {@link Task} having the specified
+		 * UUID removed.
+		 *
+		 * @param uid the {@link UUID} of the {@link Task} to remove
+		 * @return a new {@link Tasks} instance without the specified task
+		 */
+		public Tasks<PAYLOAD> withRemovedTask(UUID uid) {
+			if (this.tasks.stream().noneMatch(t -> t.uid().equals(uid))) {
+				throw new IllegalArgumentException("No task found with UUID " + uid);
+			}
+
+			var updatedTasks = this.tasks.stream()//
+					.filter(task -> !task.uid().equals(uid))//
+					.collect(ImmutableList.toImmutableList());
+
+			if (updatedTasks.size() == this.tasks.size()) {
+				return this;
+			}
+
+			return new Tasks<>(this.clock, updatedTasks);
+		}
+
 		protected boolean tasksIsEmpty() {
 			return this.tasks.isEmpty();
 		}
@@ -321,7 +385,7 @@ public class JSCalendar<PAYLOAD> {
 					var occurenceEnd = task.duration == null //
 							? occurenceStart //
 							: occurence.plus(task.duration);
-					if (occurenceEnd.isAfter(to)) {
+					if (occurenceEnd.isAfter(to) && occurenceStart.isBefore(to)) {
 						occurenceEnd = to;
 					}
 					addToOccurencesBetween(result, task, occurenceStart, occurenceEnd);
@@ -729,6 +793,23 @@ public class JSCalendar<PAYLOAD> {
 				}
 			}
 			return ImmutableList.copyOf(result);
+		}
+
+		/**
+		 * Returns a new {@link Task} with the {@code updated} field set to the current
+		 * time according to the provided {@link Clock}.
+		 *
+		 * @param clock the {@link Clock} to use for the current time
+		 * @return a new {@link Task} instance with the updated timestamp
+		 */
+		public Task<PAYLOAD> withUpdatedNow(Clock clock) {
+			return new Task<>(//
+					this.uid, //
+					ZonedDateTime.now(clock), //
+					this.start, //
+					this.duration, //
+					this.recurrenceRules, //
+					this.payload);
 		}
 	}
 

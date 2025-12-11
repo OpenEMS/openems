@@ -20,7 +20,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import io.openems.edge.weather.api.DailyWeatherSnapshot;
 import io.openems.edge.weather.api.HourlyWeatherSnapshot;
 import io.openems.edge.weather.openmeteo.WeatherOpenMeteo;
-import io.openems.edge.weather.openmeteo.forecast.WeatherForecastPersistenceService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WeatherForecastPersistenceServiceTest {

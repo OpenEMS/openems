@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -25,6 +26,7 @@ import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -62,15 +64,16 @@ public class RunUtils {
 
 			protected int setPointInWatt;
 
-			public Entry(ControllerEvseSingle ctrl, Params params) {
+			public Entry(SingleModes eshMode, ControllerEvseSingle ctrl, Params params) {
 				this.ctrl = ctrl;
 				this.params = params;
 
 				this.activePower = params.activePower();
 				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
 
-				// TODO evaluate params tasks
-				this.mode = params.mode();
+				this.mode = Optional.ofNullable(eshMode) //
+						.map(sm -> sm.getMode(params.componentId())) // Mode from EnergyScheduler
+						.orElse(params.mode()); // Fallback to fixed Mode
 			}
 
 			@Override
@@ -84,19 +87,6 @@ public class RunUtils {
 								: this.actions.build()) //
 						.toString();
 			}
-		}
-
-		/**
-		 * Creates {@link PowerDistribution} from a list of
-		 * {@link ControllerEvseSingle}.
-		 * 
-		 * @param ctrls the list of {@link ControllerEvseSingle}
-		 * @return a {@link PowerDistribution}
-		 */
-		protected static PowerDistribution of(List<ControllerEvseSingle> ctrls) {
-			return new PowerDistribution(ctrls.stream() //
-					.map(ctrl -> new PowerDistribution.Entry(ctrl, ctrl.getParams())) //
-					.collect(toImmutableList()));
 		}
 
 		public final ImmutableList<Entry> entries;
@@ -200,14 +190,14 @@ public class RunUtils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
-	 * @param singleModes          the {@link SingleModes}
+	 * @param eshMode              the {@link SingleModes} from
+	 *                             {@link EnergyScheduleHandler}
 	 * @param logVerbosity         the configured {@link LogVerbosity}
 	 * @param logger               a log message consumer
 	 * @return the {@link PowerDistribution}
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, SingleModes singleModes, LogVerbosity logVerbosity,
-			Consumer<String> logger) {
+			List<ControllerEvseSingle> ctrls, SingleModes eshMode, LogVerbosity logVerbosity, Consumer<String> logger) {
 		// Build PowerDistribution
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
@@ -215,7 +205,7 @@ public class RunUtils {
 					if (params == null) {
 						return null;
 					}
-					return new PowerDistribution.Entry(ctrl, params);
+					return new PowerDistribution.Entry(eshMode, ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
 				.collect(toImmutableList()));

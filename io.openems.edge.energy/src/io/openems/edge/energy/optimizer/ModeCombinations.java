@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -39,7 +38,7 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 			if (!factoryPid.isBlank()) {
 				b.append(factoryPid).append(":");
 			}
-			final var name = b.append(esh.toModeString(index)).toString();
+			final var name = b.append(esh.modes().getAsString(index)).toString();
 			return new Mode(esh, index, name);
 		}
 
@@ -120,14 +119,19 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 
 		// Set first ModeCombination as default (index = 0) Mode for all ESHs.
 		result.addCombination(goc.eshsWithDifferentModes().stream() //
+				.filter(esh -> !esh.modes().isEmpty()) //
 				.map(esh -> Mode.from(esh, 0)) //
 				.toList());
 
 		var cp = Lists.cartesianProduct(//
 				goc.eshsWithDifferentModes().stream() //
-						.map(esh -> IntStream.range(0, esh.getNumberOfAvailableModes()) //
-								.mapToObj(i -> Mode.from(esh, i)) //
-								.collect(toImmutableList())) //
+						.map(esh -> {
+							var modes = esh.modes();
+							return modes.streamAllIndices() //
+									.filter(i -> modes.addToOptimizer(i)) //
+									.mapToObj(i -> Mode.from(esh, i)) //
+									.collect(toImmutableList());
+						}) //
 						.collect(toImmutableList())); //
 		cp.forEach(mss -> result.addCombination(mss));
 		return result.build();

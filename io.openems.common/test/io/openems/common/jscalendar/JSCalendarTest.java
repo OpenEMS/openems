@@ -339,15 +339,12 @@ public class JSCalendarTest {
 			assertNull(tasks.getActiveOneTask());
 			// 12:59
 			clock.leap(21 * 60 + 59, MINUTES);
-			System.out.println(ZonedDateTime.now(clock));
 			assertNull(tasks.getActiveOneTask());
 			// 13:00
 			clock.leap(1, MINUTES);
-			System.out.println(ZonedDateTime.now(clock));
 			assertOneTask(tasks.getActiveOneTask(), "2020-01-02T11:00Z", "2020-01-02T13:00Z", "ONE");
 			// 13:00
 			clock.leap(2 * 60, MINUTES);
-			System.out.println(ZonedDateTime.now(clock));
 			assertNull(tasks.getActiveOneTask());
 			assertNull(tasks.getActiveOneTask()); // Task 2 sollte kommen
 		}

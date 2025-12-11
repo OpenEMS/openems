@@ -4,9 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 public enum Mode implements OptionsEnum {
 	ZERO(0, "Zero"), //
-	MINIMUM(1, "Minimum charge"), //
-	SURPLUS(2, "Surplus charge"), //
-	FORCE(3, "Force charge") //
+	MINIMUM(1, "Minimum"), //
+	SURPLUS(2, "Surplus"), //
+	FORCE(3, "Force") //
 	;
 
 	private final int value;

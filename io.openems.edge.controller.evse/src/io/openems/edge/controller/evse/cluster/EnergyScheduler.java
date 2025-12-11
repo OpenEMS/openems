@@ -3,28 +3,34 @@ package io.openems.edge.controller.evse.cluster;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.controller.evse.cluster.EshUtils.generateModes;
+import static io.openems.edge.controller.evse.cluster.EshUtils.parseTasks;
 import static java.util.stream.Collectors.joining;
 
-import java.util.Objects;
+import java.time.ZonedDateTime;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableTable;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes.SingleMode;
 import io.openems.edge.controller.evse.single.Params;
+import io.openems.edge.controller.evse.single.Types.Payload;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class EnergyScheduler {
 
-	public static record OptimizationContext(ClusterEshConfig clusterConfig) {
+	public static record OptimizationContext(//
+			ClusterEshConfig clusterConfig, //
+			Modes<SingleModes> modes, //
+			ImmutableTable<String, ZonedDateTime, Mode> manualModes, //
+			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads) {
 	}
 
 	/**
@@ -106,40 +112,36 @@ public class EnergyScheduler {
 
 				.setOptimizationContext(goc -> {
 					final var clusterConfig = clusterConfigSupplier.get();
-					return new OptimizationContext(clusterConfig);
+
+					// Parse OneTasks with Payload.Manual, i.e. Periods with predefined Mode
+					final var t = parseTasks(goc, clusterConfig);
+					final var manualModes = t.a();
+					final var smartPayloads = t.b();
+
+					// Generate Modes
+					final var modes = generateModes(clusterConfig, smartPayloads);
+
+					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads);
 				})
 
-				.setAvailableModes((goc, coc) -> {
-					return Lists.cartesianProduct(coc.clusterConfig.singleParams.values().stream() //
-							.map(p -> {
-								if (p.tasks().tasks.isEmpty()) {
-									// TODO consider only optimizable Single-Controllers; i.e. has "SMART"-Tasks
-									// No room for optimization
-									return null;
-								}
-								if (!p.combinedAbilities().isReadyForCharging()
-										&& p.history().getAppearsToBeFullyCharged()) {
-									// No room for optimization
-									return null;
-								}
-								final var availableModes = new Mode[] { Mode.SURPLUS, Mode.ZERO, Mode.FORCE };
-								return IntStream.range(0, availableModes.length) //
-										.mapToObj(i -> new SingleMode(p.componentId(), availableModes[i])) //
-										.toList();
-							}) //
-							.filter(Objects::nonNull) //
-							.toList()) //
-							.stream() //
-							.map(l -> new SingleModes(l.stream() //
-									.collect(toImmutableMap(SingleMode::componentId, SingleMode::mode)))) //
-							.toArray(SingleModes[]::new);
-				}) //
+				.setModes((goc, coc) -> coc.modes()) //
 
 				.setScheduleContext(coc -> {
 					return new ClusterScheduleContext(coc.clusterConfig.singleParams.entrySet().stream() //
 							.collect(toImmutableMap(//
 									e -> e.getKey(), // Component-ID
 									e -> new SingleScheduleContext(e.getValue().sessionEnergy()))));
+				}) //
+
+				.setPreProcessor((period, csc, mode) -> {
+					// Find actual Mode per Single-Controller
+					final var singleModes = csc.clusterConfig.singleParams.values().stream() //
+							.collect(ImmutableMap.toImmutableMap(//
+									p -> p.componentId(), //
+									p -> EshUtils.getSingleMode(period, csc, mode, p)));
+					return csc.modes.streamAll() //
+							.filter(m -> m.mode().modes.equals(singleModes)) //
+							.findFirst().map(m -> m.mode()).orElse(null);
 				}) //
 
 				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {

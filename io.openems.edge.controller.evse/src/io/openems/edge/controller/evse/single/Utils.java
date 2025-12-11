@@ -93,4 +93,14 @@ public final class Utils {
 			return JSCalendar.Tasks.empty();
 		}
 	}
+
+	protected static String serializeTasksConfig(JSCalendar.Tasks<Payload> tasks) {
+		if (tasks == null || tasks.numberOfTasks() == 0) {
+			return "[]";
+		}
+
+		return JSCalendar.Tasks.serializer(Payload.serializer())//
+				.serialize(tasks)//
+				.toString();
+	}
 }
