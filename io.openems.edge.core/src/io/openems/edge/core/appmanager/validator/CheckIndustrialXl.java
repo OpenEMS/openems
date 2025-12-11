@@ -10,17 +10,17 @@ import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 
 @Component(//
-		name = CheckIndustrial.COMPONENT_NAME, //
+		name = CheckIndustrialXl.COMPONENT_NAME, //
 		scope = ServiceScope.PROTOTYPE //
 )
-public class CheckIndustrial extends AbstractCheckable implements Checkable {
+public class CheckIndustrialXl extends AbstractCheckable implements Checkable {
 
-	public static final String COMPONENT_NAME = "Validator.Checkable.CheckIndustrial";
+	public static final String COMPONENT_NAME = "Validator.Checkable.CheckIndustrialXl";
 
 	private final Checkable checkAppsNotInstalled;
 
 	@Activate
-	public CheckIndustrial(//
+	public CheckIndustrialXl(//
 			ComponentContext componentContext, //
 			@Reference(target = "(" + OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME + "="
 					+ CheckAppsNotInstalled.COMPONENT_NAME + ")") Checkable checkAppsNotInstalled //
@@ -32,11 +32,7 @@ public class CheckIndustrial extends AbstractCheckable implements Checkable {
 	@Override
 	public boolean check() {
 		this.checkAppsNotInstalled.setProperties(Checkables.checkAppsNotInstalled(//
-				"App.FENECON.Industrial.L.ILK710", //
-				"App.FENECON.Industrial.S.ISK010", //
-				"App.FENECON.Industrial.S.ISK011", //
-				"App.FENECON.Industrial.S.ISK110", //
-                "App.FENECON.Industrial.Xl.IXL010" //
+				"App.FENECON.Industrial.Xl.IXL010" //
 		).properties());
 
 		return !this.checkAppsNotInstalled.check();
@@ -44,12 +40,11 @@ public class CheckIndustrial extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckIndustrial.Message");
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckIndustrialL.Message");
 	}
 
 	@Override
 	public String getInvertedErrorMessage(Language language) {
-		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckIndustrial.Message.Inverted");
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckIndustrialL.Message.Inverted");
 	}
-
 }
