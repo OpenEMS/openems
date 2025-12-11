@@ -159,6 +159,7 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 
 		if (clusterControllers.isEmpty() && !config.evseIds().isEmpty()) {
 			errors.add("cluster controller not exists");
+			return;
 		}
 
 		var clusterController = clusterControllers.getFirst();

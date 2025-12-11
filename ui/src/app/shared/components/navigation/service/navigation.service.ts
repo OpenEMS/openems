@@ -52,10 +52,6 @@ export class NavigationService {
             return false;
         }
 
-        if (environment.theme === "FENECONBeta") {
-            return true;
-        }
-
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
         return config.hasFactories(["Evse.Controller.Single"]);
     }

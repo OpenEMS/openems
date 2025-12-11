@@ -1276,6 +1276,11 @@ public final class Apps {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.meta);
 	}
+	
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHostAndMetaAndAppUtil<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil,t.appManagerUtil, t.host, t.meta);
+	}
 
 	private static interface DefaultAppConstructor<A> {
 
@@ -1314,6 +1319,13 @@ public final class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, Host host, Meta meta);
+
+	}
+	
+	private static interface DefaultAppConstructorWithHostAndMetaAndAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host, Meta meta);
 
 	}
 
