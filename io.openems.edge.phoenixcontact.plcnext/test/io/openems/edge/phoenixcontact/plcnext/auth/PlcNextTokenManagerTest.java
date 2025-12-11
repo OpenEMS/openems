@@ -11,9 +11,6 @@ import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextAuthAndAccessTokenDTO;
-import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextTokenManager;
-import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextTokenManagerConfig;
 
 public class PlcNextTokenManagerTest {
 	private PlcNextTokenManagerConfig authClientConfig;

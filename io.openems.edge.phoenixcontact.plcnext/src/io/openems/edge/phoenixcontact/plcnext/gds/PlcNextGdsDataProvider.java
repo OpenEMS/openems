@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
@@ -31,15 +30,14 @@ import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService.TimeEndpoint;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.phoenixcontact.plcnext.PlcNextDevice;
 import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataVariableDefinition;
 import io.openems.edge.phoenixcontact.plcnext.utils.PlcNextUrlStringHelper;
 
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextGdsDataProvider.class)
 public class PlcNextGdsDataProvider {
-	
+
 	public static final String PATH_VARIABLES = "/variables";
 	public static final String PATH_SESSIONS = "/sessions";
 
@@ -48,6 +46,13 @@ public class PlcNextGdsDataProvider {
 
 	public static final String PLC_NEXT_VARIABLES = "variables";
 
+	static record PlcNextCreateSessionResponse(String sessionId, Duration sessionTimeout) {
+		public PlcNextCreateSessionResponse {
+			Objects.requireNonNull(sessionId, "SessionId of PlcNextCreateSessionResponse must not be null!");
+			Objects.requireNonNull(sessionTimeout, "SessionTimeout of PlcNextCreateSessionResponse  must not be null!");
+		}
+	}
+
 	private static final Logger log = LoggerFactory.getLogger(PlcNextGdsDataProvider.class);
 
 	private final BridgeHttp http;
@@ -55,8 +60,8 @@ public class PlcNextGdsDataProvider {
 	private final PlcNextGdsDataToChannelMapper gdsDataToChannelMapper;
 	private final HttpBridgeTimeService timeService;
 
-	private String sessionId;
-	private TimeEndpoint maintainSessionTimeEndpoint;
+	String sessionId;
+	TimeEndpoint maintainSessionTimeEndpoint;
 
 	@Activate
 	public PlcNextGdsDataProvider(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http,
@@ -67,7 +72,7 @@ public class PlcNextGdsDataProvider {
 		this.gdsDataToChannelMapper = gdsDataToChannelMapper;
 		this.timeService = http.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
-	
+
 	/**
 	 * Fetch data and fill corresponding channels
 	 * 
@@ -78,8 +83,15 @@ public class PlcNextGdsDataProvider {
 			log.warn("No valid access token! Skipping data fetch.");
 			return;
 		}
-		maintainSessionTimeEndpoint = createSessionIfNecessary(maintainSessionTimeEndpoint, config);
-		
+		log.debug("Session ID: " + sessionId);
+
+		Optional<PlcNextCreateSessionResponse> createSessionResponse = createSessionIfNecessary(config);
+		if (createSessionResponse.isPresent()) {
+			this.sessionId = createSessionResponse.get().sessionId();
+			this.maintainSessionTimeEndpoint = triggerSessionMaintenanceIfNecessary(
+					Delay.of(createSessionResponse.get().sessionTimeout()), config).orElse(null);
+		}
+
 		try {
 			Endpoint dataEndPoint = buildDataEndpointRepresentation(tokenManager.getToken(), sessionId,
 					PlcNextGdsDataVariableDefinition.values(), config);
@@ -99,11 +111,8 @@ public class PlcNextGdsDataProvider {
 					apiResponseBody.getAsJsonArray(PLC_NEXT_VARIABLES), config.dataInstanceName());
 
 			if (!mappedValues.isEmpty()) {
-				Map<ChannelId, Channel<?>> channelId2ChannelMap = config.channels().stream()
-						.collect(Collectors.toMap(Channel::channelId, Function.identity()));
-
 				for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-					setNextValueToChannel(mappedValue, channelId2ChannelMap);
+					setNextValueToChannel(mappedValue, config.device());
 				}
 			}
 		} catch (CompletionException e) {
@@ -117,29 +126,33 @@ public class PlcNextGdsDataProvider {
 	 * Deactivates session maintenance mechanism
 	 */
 	public synchronized void deactivateSessionMaintenance() {
-		deativateTimeEndpointIfNecessary(maintainSessionTimeEndpoint);
+		deactivateSessionMaintenanceIfNecessary();
 	}
 
-	private void deativateTimeEndpointIfNecessary(TimeEndpoint timeEndpoint) {
-		if (Objects.nonNull(timeEndpoint)) {
-			timeService.removeTimeEndpoint(timeEndpoint);
+	private void deactivateSessionMaintenanceIfNecessary() {
+		// remove session ID if necessary
+		if (Objects.nonNull(sessionId)) {
+			this.sessionId = null;
+		}
+		// remove time endpoint that maintains the session if necessary
+		if (Objects.nonNull(this.maintainSessionTimeEndpoint)) {
+			timeService.removeTimeEndpoint(this.maintainSessionTimeEndpoint);
+			this.maintainSessionTimeEndpoint = null;
 		}
 	}
 
 	/**
+	 * Creates new session and triggers session maintenance while access token is
+	 * valid and no error occurs when there is no active session. It sets the member
+	 * variables "sessionId" and "maintainSessionEndpoint".
 	 * 
+	 * @param config
+	 * @return
 	 */
-	synchronized TimeEndpoint createSessionIfNecessary(TimeEndpoint oldTimeEndpoint,
-			PlcNextGdsDataProviderConfig config) {
-		log.debug("Time endpoint: " + oldTimeEndpoint);
-		log.debug("Session ID: " + sessionId);
+	Optional<PlcNextCreateSessionResponse> createSessionIfNecessary(PlcNextGdsDataProviderConfig config) {
+		Optional<PlcNextCreateSessionResponse> createSessionResponse = Optional.empty();
 
-		TimeEndpoint maintainSessionTimeEndpoint = oldTimeEndpoint;
-
-		if (Objects.isNull(sessionId)) {
-			// remove old time endpoint if necessary
-			deativateTimeEndpointIfNecessary(maintainSessionTimeEndpoint);
-
+		if (Objects.isNull(this.sessionId)) {
 			// create session
 			Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
 			log.info("Create session using endpoint: " + createSessionEndpoint);
@@ -154,9 +167,28 @@ public class PlcNextGdsDataProvider {
 			}).join();
 			log.info("Create session body: " + createSessionBody);
 
-			sessionId = createSessionBody.get("sessionID").getAsString();
-			Delay sessionTimeout = Delay.of(Duration.ofMillis(createSessionBody.get("timeout").getAsLong()));
+			if (Objects.nonNull(createSessionBody)) {
+				String newSessionId = createSessionBody.get("sessionID").getAsString();
+				Duration timeoutDuration = Duration.ofMillis(createSessionBody.get("timeout").getAsLong())
+						.minusSeconds(1L);
 
+				createSessionResponse = Optional.of(new PlcNextCreateSessionResponse(newSessionId, timeoutDuration));
+			}
+		}
+		return createSessionResponse;
+	}
+
+	/**
+	 * 
+	 * @param timeoutDuration
+	 * @param config
+	 * @return
+	 */
+	Optional<TimeEndpoint> triggerSessionMaintenanceIfNecessary(Delay sessionTimeout,
+			PlcNextGdsDataProviderConfig config) {
+		Optional<TimeEndpoint> newMaintainSessionTimeEndpoint = Optional.empty();
+
+		if (Objects.isNull(this.maintainSessionTimeEndpoint)) {
 			// trigger session maintenance
 			DelayTimeProvider delayTimeProvider = new DefaultDelayTimeProvider(() -> sessionTimeout, //
 					(error) -> Delay.infinite(), //
@@ -164,26 +196,38 @@ public class PlcNextGdsDataProvider {
 			Endpoint maintainSessionEndpoint = buildMaintainSessionEndpoint(tokenManager.getToken(), sessionId, config);
 			log.info("Maintaining session using endpoint: " + maintainSessionEndpoint);
 
-			maintainSessionTimeEndpoint = this.timeService.subscribeJsonTime(delayTimeProvider, maintainSessionEndpoint,
-					(httpResponse, httpError) -> {
+			TimeEndpoint recurringSessionMaintenanceEndpoint = this.timeService.subscribeJsonTime(delayTimeProvider,
+					maintainSessionEndpoint, (httpResponse, httpError) -> {
 						if (Objects.isNull(httpResponse) && Objects.isNull(httpError)) {
-							log.info("No result while maintaining session. Skipping processing.");
-							return;
+							// Stop on no result
+							deactivateSessionMaintenanceIfNecessary();
+							log.info(
+									"No result while maintaining session. Processing skipped and session ID has been reset.");
 						} else if (Objects.nonNull(httpError)) {
-							log.error("Got HTTP error '" + httpError + "'! Resetting session ID.");
-							this.sessionId = null;
+							// Stop on error
+							deactivateSessionMaintenanceIfNecessary();
+							log.error("Got HTTP error '" + httpError + "'! Session ID has been reset.");
 						} else if (Objects.nonNull(httpResponse) && !tokenManager.hasValidToken()) {
-							log.info("Got result, but access token has been expired. Resetting session ID.");
-							this.sessionId = null;
-						} else if (Objects.nonNull(httpResponse) && Objects.nonNull(httpResponse.data())) {
-							log.info("Maintaining session has been successful.");
+							// Stop on expired token
+							deactivateSessionMaintenance();
+							log.info("Got result, but access token has been expired. Session ID has been reset.");
+						} else if (Objects.nonNull(httpResponse) && httpResponse.status() == HttpStatus.OK
+								&& Objects.nonNull(httpResponse.data())
+								&& Objects.nonNull(httpResponse.data().getAsJsonObject())
+								&& Objects.nonNull(httpResponse.data().getAsJsonObject().get("sessionID"))) {
+							// Success
 							this.sessionId = httpResponse.data().getAsJsonObject().get("sessionID").getAsString();
+							log.info("Maintaining session has been successful.");
 						} else {
-							log.warn("Undefined state while maintaining the session!");
+							// Fallback
+							log.info("Got unprocessable result with status '" + httpResponse.status() + "' and body '" + httpResponse.data() + "'");
+							deactivateSessionMaintenanceIfNecessary();
+							log.error("Session maintenance entered state UNDEFINED! Session ID has been reset.");
 						}
-			});
+					});
+			newMaintainSessionTimeEndpoint = Optional.of(recurringSessionMaintenanceEndpoint);
 		}
-		return maintainSessionTimeEndpoint;
+		return newMaintainSessionTimeEndpoint;
 	}
 
 	/**
@@ -234,8 +278,7 @@ public class PlcNextGdsDataProvider {
 	 * @return @link{Endpoint} object
 	 */
 	public Endpoint buildDataEndpointRepresentation(String authToken, String sessionId,
-			PlcNextGdsDataVariableDefinition[] variableDefinitions,
-			PlcNextGdsDataProviderConfig config) {
+			PlcNextGdsDataVariableDefinition[] variableDefinitions, PlcNextGdsDataProviderConfig config) {
 		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_VARIABLES);
 		Map<String, String> headers = Map.of("Accept", "application/json", //
 				"Content-Type", "application/json");
@@ -269,19 +312,15 @@ public class PlcNextGdsDataProvider {
 	}
 
 	/**
+	 * Writes value fetched from PLCnext GDS to device channel
 	 * 
-	 * @param mappedValue
-	 * @param channelId2ChannelMap
+	 * @param mappedValue represents a value object containing channel ID and value
+	 *                    to set to channel
+	 * @param device      represents the device holding the channels
 	 */
-	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue, Map<ChannelId, Channel<?>> channelId2ChannelMap) {
-		Channel<?> destinationChannel = channelId2ChannelMap.get(mappedValue.getChannelId());
-
-		if (Objects.isNull(destinationChannel)) {
-			log.warn("Channel for ID '" + mappedValue.getChannelId() + "' not found! Cannot write value.");
-		} else {
-			log.debug("Providing value '" + mappedValue.getValue() + "' to channel named '" + mappedValue.getChannelId()
-					+ "'");
-			destinationChannel.setNextValue(mappedValue.getValue());
-		}
+	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue, PlcNextDevice device) {
+		log.debug("Providing value '" + mappedValue.getValue() + "' to channel named '" + mappedValue.getChannelId()
+				+ "'");
+		device.channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 	}
 }

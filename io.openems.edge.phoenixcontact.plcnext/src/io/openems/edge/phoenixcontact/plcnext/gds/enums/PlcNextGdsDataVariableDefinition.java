@@ -21,7 +21,7 @@ public enum PlcNextGdsDataVariableDefinition {
 	NEUTRAL_CURRENT("neutralCurrent", PlcNextGdsDataType.FLOAT64, List.of(PlcNextDevice.ChannelId.NEUTRAL_CURRENT)), //
 	ACTIVE_POWER("activePower", PlcNextGdsDataType.FLOAT64, List.of(ElectricityMeter.ChannelId.ACTIVE_POWER)), //
 	REACTIVE_POWER("reactivePower", PlcNextGdsDataType.FLOAT64, List.of(ElectricityMeter.ChannelId.REACTIVE_POWER)), //
-	APPARENT_POWER("apparentPower",PlcNextGdsDataType.FLOAT64,List.of(PlcNextDevice.ChannelId.APPARENT_POWER)), //
+	APPARENT_POWER("apparentPower", PlcNextGdsDataType.FLOAT64, List.of(PlcNextDevice.ChannelId.APPARENT_POWER)), //
 	POWER_FACTOR("powerFactor", PlcNextGdsDataType.FLOAT64, List.of(PlcNextDevice.ChannelId.POWER_FACTOR)), //
 	ENERGY_IMPORT("energyImport", PlcNextGdsDataType.FLOAT64,
 			List.of(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY)), //

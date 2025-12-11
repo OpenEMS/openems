@@ -4,8 +4,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,29 +24,28 @@ import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.phoenixcontact.plcnext.PlcNextDeviceImpl;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.phoenixcontact.plcnext.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataProviderConfig;
 import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataVariableDefinition;
-import io.openems.edge.common.test.ComponentTest;
 
 public class PlcNextDeviceImplTest {
 
 	private static final String COMPONENT_ID = "component0";
-	
+
 	private TestConfig myConfig;
-	
+
 	private BridgeHttp dummyAuthBridgeHttp;
 	private BridgeHttp mockDummyDataBridgeHttp;
-	
+
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsDataProvider dataProvider;
 	private PlcNextGdsDataToChannelMapper dataMapper;
-	
+
 	private PlcNextDeviceImpl componentUnderTest;
-	
+
 	private String accessToken;
 
 	@Before
@@ -57,16 +54,15 @@ public class PlcNextDeviceImplTest {
 				.setId(COMPONENT_ID) //
 				.build();
 		this.componentUnderTest = new PlcNextDeviceImpl();
-		
+
 		this.accessToken = "dummy_access";
 
 		this.dummyAuthBridgeHttp = new DummyBridgeHttp() {
 			@Override
 			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
 				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-					return CompletableFuture.supplyAsync(
-							() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
-									"{'code': 'dummy_auth', 'expires_in': 600 }"));
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
+							"{'code': 'dummy_auth', 'expires_in': 600 }"));
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
 					return CompletableFuture.supplyAsync(() -> new HttpResponse<String>(HttpStatus.OK, Map.of(),
 							"{'access_token': '" + accessToken + "'}"));
@@ -115,14 +111,13 @@ public class PlcNextDeviceImplTest {
 
 		String sessionId = "1234567890";
 		PlcNextGdsDataProviderConfig dataProviderConfig = new PlcNextGdsDataProviderConfig(myConfig.dataUrl(),
-				myConfig.dataInstanceName(), List.of());
+				myConfig.dataInstanceName(), null);
 		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId,
 				PlcNextGdsDataVariableDefinition.values(), dataProviderConfig);
 		when(mockDummyDataBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
-		
-		Endpoint createSessionEndpoint = dataProvider.buildCreateSessionEndpoint(accessToken,
-				dataProviderConfig);
+
+		Endpoint createSessionEndpoint = dataProvider.buildCreateSessionEndpoint(accessToken, dataProviderConfig);
 		JsonObject createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", sessionId);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
@@ -137,16 +132,15 @@ public class PlcNextDeviceImplTest {
 		when(mockDummyDataBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 	}
-	
+
 	@Test
 	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsProvider", this.dataProvider) //
-				.addReference("tokenManager", this.tokenManager)
-				.activate(this.myConfig); //
-		
+				.addReference("tokenManager", this.tokenManager).activate(this.myConfig); //
+
 		test.next(new TestCase()); //
-		
+
 		test.deactivate();
 	}
 }

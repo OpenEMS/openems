@@ -12,9 +12,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataMappedValue;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataMappingException;
-import io.openems.edge.phoenixcontact.plcnext.gds.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataType;
 
 public class PlcNextGdsDataToChannelMapperTest {
@@ -77,7 +74,8 @@ public class PlcNextGdsDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", 1.2345);
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapSingleValueToChannel(primitiveVariable, instanceName);
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapSingleValueToChannel(primitiveVariable,
+				instanceName);
 
 		// check
 		Assert.assertNotNull(mappedValues);

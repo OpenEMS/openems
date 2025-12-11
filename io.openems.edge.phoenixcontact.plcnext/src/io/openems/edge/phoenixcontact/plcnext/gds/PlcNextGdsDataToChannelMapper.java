@@ -22,7 +22,6 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataType;
 import io.openems.edge.phoenixcontact.plcnext.gds.enums.PlcNextGdsDataVariableDefinition;
 
-
 @Component(scope = ServiceScope.SINGLETON, service = PlcNextGdsDataToChannelMapper.class)
 public class PlcNextGdsDataToChannelMapper {
 
@@ -30,7 +29,6 @@ public class PlcNextGdsDataToChannelMapper {
 	public static final String PLC_NEXT_VARIABLE_VALUE = "value";
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextGdsDataToChannelMapper.class);
-
 
 	@Activate
 	public PlcNextGdsDataToChannelMapper() {
@@ -57,7 +55,7 @@ public class PlcNextGdsDataToChannelMapper {
 		JsonObject varObject = variable.getAsJsonObject();
 		String varName = getVariableName(varObject, dataInstanceName)
 				.orElseThrow(() -> new PlcNextGdsDataMappingException("Cannot determine variable name! Aborting."));
-		
+
 		// Determine variable definition
 		PlcNextGdsDataVariableDefinition varDefinition = PlcNextGdsDataVariableDefinition.valueByIdentifier(varName)
 				.orElseThrow(() -> new PlcNextGdsDataMappingException(
@@ -87,8 +85,7 @@ public class PlcNextGdsDataToChannelMapper {
 
 		JsonPrimitive primitiveValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonPrimitive();
 		if (Objects.isNull(primitiveValue)) {
-			log.warn("Got NULL value for variable '" + varName
-					+ "' from PLCnext API! Publishing to channel skipped.");
+			log.warn("Got NULL value for variable '" + varName + "' from PLCnext API! Publishing to channel skipped.");
 			return mappedValue;
 		}
 		mappedValue = new ArrayList<>();
@@ -118,10 +115,10 @@ public class PlcNextGdsDataToChannelMapper {
 		JsonArray arrayValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonArray();
 
 		if (Objects.isNull(arrayValue)) {
-			throw new PlcNextGdsDataMappingException("Got NULL value for variable '" + varName
-					+ "' from PLCnext API! Publishing to channel skipped.");
+			throw new PlcNextGdsDataMappingException(
+					"Got NULL value for variable '" + varName + "' from PLCnext API! Publishing to channel skipped.");
 		}
-		if (varDefinition.getDataType().getMemberCount() !=  arrayValue.size()) {
+		if (varDefinition.getDataType().getMemberCount() != arrayValue.size()) {
 			throw new PlcNextGdsDataMappingException("Number of array members of " + arrayValue.size()
 					+ " does not match the expected count of " + varDefinition.getDataType().getMemberCount());
 		}
@@ -132,8 +129,7 @@ public class PlcNextGdsDataToChannelMapper {
 			PlcNextGdsDataType sourceDataType = varDefinition.getDataType().getMemberType();
 
 			log.debug("Mapping PLCnext variable '" + varDefinition.getIdentifier() + "[" + k
-					+ "]' to OpenEMS channel ID '"
-					+ destinationChannelId + "'");
+					+ "]' to OpenEMS channel ID '" + destinationChannelId + "'");
 			mappedValue.add(mapValue(arrayValue.get(k), sourceDataType, destinationChannelId));
 		}
 		return Collections.unmodifiableList(mappedValue);
@@ -191,31 +187,30 @@ public class PlcNextGdsDataToChannelMapper {
 	 */
 	Object getChannelValue(Object jsonValue, PlcNextGdsDataType plcNextType, OpenemsType openEmsType) {
 		Object mappedValue = null;
-		
+
 		if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.FLOAT == openEmsType) {
 			mappedValue = jsonValue;
 		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.DOUBLE == openEmsType) {
-			mappedValue = ((Float)jsonValue).doubleValue();
+			mappedValue = ((Float) jsonValue).doubleValue();
 		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.SHORT == openEmsType) {
-			mappedValue = Integer.valueOf(((Float)jsonValue).intValue()).shortValue();
+			mappedValue = Integer.valueOf(((Float) jsonValue).intValue()).shortValue();
 		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.INTEGER == openEmsType) {
-			mappedValue = ((Float)jsonValue).intValue();
+			mappedValue = ((Float) jsonValue).intValue();
 		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.LONG == openEmsType) {
-			mappedValue = ((Float)jsonValue).longValue();
+			mappedValue = ((Float) jsonValue).longValue();
 		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.FLOAT == openEmsType) {
-			mappedValue = ((Double)jsonValue).floatValue();
+			mappedValue = ((Double) jsonValue).floatValue();
 		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.DOUBLE == openEmsType) {
 			mappedValue = jsonValue;
 		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.SHORT == openEmsType) {
-			mappedValue = Integer.valueOf(((Double)jsonValue).intValue()).shortValue();
+			mappedValue = Integer.valueOf(((Double) jsonValue).intValue()).shortValue();
 		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.INTEGER == openEmsType) {
-			mappedValue = ((Double)jsonValue).intValue();
+			mappedValue = ((Double) jsonValue).intValue();
 		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.LONG == openEmsType) {
-			mappedValue = ((Double)jsonValue).longValue();
+			mappedValue = ((Double) jsonValue).longValue();
 		} else {
 			throw new PlcNextGdsDataMappingException("Mapping from source type '" + plcNextType
-					+ "' to destination type '"
-					+ openEmsType + "' is not supported.");
+					+ "' to destination type '" + openEmsType + "' is not supported.");
 		}
 		return mappedValue;
 	}
