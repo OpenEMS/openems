@@ -4,6 +4,7 @@ import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.battery;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.cycle;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essCluster;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essGenericManagedSymmetric;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.io;
@@ -165,12 +166,14 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 				final var batteryNumber = oneBased + 20;
 				final var batteryInverterNumber = oneBased + 10;
 
-				if (batteryFirmwareVersion == BatteryFirmwareVersion.WUERTH_VERSION_1_0_9) {
+				if (batteryFirmwareVersion == BatteryFirmwareVersion.WUERTH_VERSION_CURRENT) {
 					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
 							batteryFirmwareVersion.getValue(), "Battery.WuerthBms"));
+					components.add(cycle(500));
 				} else {
 					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
 							batteryFirmwareVersion.getValue(), "Battery.EnfasBms"));
+					components.add(cycle(1000));
 				}
 
 				components.add(batteryInverter(bundle, oneBased, batteryInverterModbusId));
