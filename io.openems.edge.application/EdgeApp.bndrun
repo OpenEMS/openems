@@ -434,6 +434,7 @@
 	io.openems.wrapper.javax.activation;version=snapshot,\
 	io.openems.wrapper.jenetics;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
+	io.openems.wrapper.olcut;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
 	io.openems.wrapper.paho-mqttv5;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
@@ -441,6 +442,7 @@
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
+	io.openems.wrapper.tribuo;version=snapshot,\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
 	javax.jmdns;version='[3.6.2,3.6.3)',\
 	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\

@@ -524,6 +524,35 @@ public class DataFrame<I> implements DataStructure<I> {
 	}
 
 	/**
+	 * Returns a new {@link DataFrame} by performing an inner join with another
+	 * {@link DataFrame}. Only rows with indices present in both dataframes are
+	 * included.
+	 *
+	 * @param other the other {@link DataFrame} to join with
+	 * @return a new {@link DataFrame} with combined columns from both dataframes
+	 */
+	public DataFrame<I> innerJoin(DataFrame<I> other) {
+		var commonIndices = new HashSet<I>(this.index);
+		commonIndices.retainAll(other.getIndex());
+
+		var newIndex = this.index.stream().filter(commonIndices::contains).toList();
+
+		var newValues = new ArrayList<List<Double>>();
+		for (I rowIndex : newIndex) {
+			var newRow = new ArrayList<Double>();
+			newRow.addAll(this.getRow(rowIndex));
+			newRow.addAll(other.getRow(rowIndex));
+			newValues.add(newRow);
+		}
+
+		var newColumns = new ArrayList<String>();
+		newColumns.addAll(this.columnNames);
+		newColumns.addAll(other.getColumnNames());
+
+		return new DataFrame<>(newIndex, newColumns, newValues);
+	}
+
+	/**
 	 * Returns a new {@link DataFrame} containing the last {@code n} rows of this
 	 * {@link DataFrame}.
 	 *
@@ -536,12 +565,15 @@ public class DataFrame<I> implements DataStructure<I> {
 		if (n < 0) {
 			throw new IllegalArgumentException("n must be non-negative");
 		}
+
 		int size = this.index.size();
 		if (n >= size) {
 			return this.copy();
 		}
+
 		var newIndex = this.index.subList(size - n, size);
 		var newValues = this.values.subList(size - n, size);
+
 		return new DataFrame<I>(newIndex, this.columnNames, newValues);
 	}
 

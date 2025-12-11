@@ -33,6 +33,18 @@
 			<version>2.11.4</version>
 		</dependency>
 		<dependency>
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-core</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-config-protobuf</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
 			<!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
@@ -519,6 +531,31 @@
 		  <artifactId>objenesis</artifactId>
 		  <version>3.4</version>
 		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.tribuo</groupId>
+		  <artifactId>tribuo-core</artifactId>
+		  <version>4.3.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.tribuo</groupId>
+		  <artifactId>tribuo-common-tree</artifactId>
+		  <version>4.3.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.tribuo</groupId>
+		  <artifactId>tribuo-regression-core</artifactId>
+		  <version>4.3.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.tribuo</groupId>
+		  <artifactId>tribuo-regression-tree</artifactId>
+		  <version>4.3.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.tribuo</groupId>
+		  <artifactId>tribuo-math</artifactId>
+		  <version>4.3.1</version>
 		</dependency>
 	</dependencies>
 </project>
