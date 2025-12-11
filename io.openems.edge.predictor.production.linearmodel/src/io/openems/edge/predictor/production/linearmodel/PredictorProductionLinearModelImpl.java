@@ -221,6 +221,11 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 	}
 
 	@Override
+	public void onTrainingStart() {
+		this.logInfo(this.log, "Training started");
+	}
+
+	@Override
 	public void onTrainingSuccess(ModelBundle bundle) {
 		this.currentModel = bundle;
 		this._setTrainingState(TrainingState.SUCCESSFUL);

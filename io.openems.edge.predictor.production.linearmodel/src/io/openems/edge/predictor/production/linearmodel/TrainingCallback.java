@@ -8,6 +8,11 @@ import io.openems.edge.predictor.api.mlcore.regression.Regressor;
 public interface TrainingCallback {
 
 	/**
+	 * Called when the training starts.
+	 */
+	public void onTrainingStart();
+
+	/**
 	 * Called when training completes successfully.
 	 *
 	 * @param bundle the trained model

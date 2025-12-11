@@ -23,6 +23,11 @@ public class RandomForestRegressor implements Regressor {
 
 	private static final String TARGET = "target";
 
+	static {
+		java.util.logging.Logger.getLogger("org.tribuo").setLevel(java.util.logging.Level.SEVERE);
+		java.util.logging.Logger.getLogger("com.oracle.labs.mlrg.olcut").setLevel(java.util.logging.Level.SEVERE);
+	}
+
 	private final EnsembleModel<org.tribuo.regression.Regressor> model;
 
 	private RandomForestRegressor(EnsembleModel<org.tribuo.regression.Regressor> model) {

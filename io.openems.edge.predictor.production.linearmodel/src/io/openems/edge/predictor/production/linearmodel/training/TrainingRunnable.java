@@ -7,6 +7,8 @@ public record TrainingRunnable(TrainingContext trainingContext) implements Runna
 	@Override
 	public void run() {
 		try {
+			this.trainingContext.callback()//
+					.onTrainingStart();
 			var modelBundle = new TrainingOrchestrator(this.trainingContext)//
 					.runTraining();
 			this.trainingContext.callback()//
