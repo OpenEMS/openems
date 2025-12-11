@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
 import static io.openems.edge.energy.EnergySchedulerImplTest.getOptimizer;
@@ -28,11 +27,11 @@ public class OptimizerTest {
 	public void testRunQuickOptimization() throws Exception {
 		var sut = EnergySchedulerImplTest.create(createDummyClock());
 		var optimizer = getOptimizer(sut);
-		assertEquals("No Schedule available|PerQuarter:UNDEFINED", optimizer.debugLog());
+		assertEquals("No Schedule available|SimulationsPerQuarter:UNDEFINED", optimizer.debugLog());
 
 		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
-		assertEquals("ScheduledPeriods:96|PerQuarter:UNDEFINED", optimizer.debugLog());
+		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationsPerQuarter:UNDEFINED|Current:"));
 
 		var sr = optimizer.getSimulationResult();
 		assertTrue(sr.fitness().getGridBuyCost() < 1100000);
@@ -47,10 +46,7 @@ public class OptimizerTest {
 				() -> LogVerbosity.NONE, //
 				() -> simulator.goc, //
 				channel);
-		var simulationResult = optimizer.runSimulation(simulator, //
-				false, // current period can get adjusted
-				byFixedGeneration(1) // simulate only two generations
-		).get();
+		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
 
 		assertEquals(0., simulationResult.fitness().getGridBuyCost(), 0.001);

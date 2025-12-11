@@ -22,9 +22,17 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
  */
 public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 
+	// TODO Refactor to be more generic
 	public static final ImmutableList<List<String>> INFEASIBLE_COMBINATIONS = ImmutableList.<List<String>>builder() //
 			.add(List.of("Evse.Controller.Single:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:DELAY_DISCHARGE")) //
 			.add(List.of("Evse.Controller.Single:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS+ctrlEvseSingle1:SURPLUS",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS+ctrlEvseSingle1:ZERO",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:ZERO+ctrlEvseSingle1:SURPLUS",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
 			.build();
 
 	/**
@@ -117,20 +125,17 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 		final var result = new ModeCombinations.Builder() //
 				.addInfeasibles(INFEASIBLE_COMBINATIONS);
 
-		// Set first ModeCombination as default (index = 0) Mode for all ESHs.
-		result.addCombination(goc.eshsWithDifferentModes().stream() //
-				.filter(esh -> !esh.modes().isEmpty()) //
-				.map(esh -> Mode.from(esh, 0)) //
-				.toList());
-
 		var cp = Lists.cartesianProduct(//
 				goc.eshsWithDifferentModes().stream() //
 						.map(esh -> {
 							var modes = esh.modes();
-							return modes.streamAllIndices() //
+							var optimizerModes = modes.streamAllIndices() //
 									.filter(i -> modes.addToOptimizer(i)) //
 									.mapToObj(i -> Mode.from(esh, i)) //
 									.collect(toImmutableList());
+							return optimizerModes.isEmpty() //
+									? ImmutableList.of(Mode.from(esh, -1)) // no optimizable mode
+									: optimizerModes;
 						}) //
 						.collect(toImmutableList())); //
 		cp.forEach(mss -> result.addCombination(mss));

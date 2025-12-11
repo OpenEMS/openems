@@ -9,6 +9,7 @@ Include-Resource: \
 
 Export-Package: \
 	com.oracle.labs.mlrg.olcut,\
+	com.oracle.labs.mlrg.olcut.command,\
 	com.oracle.labs.mlrg.olcut.config,\
 	com.oracle.labs.mlrg.olcut.config.io,\
 	com.oracle.labs.mlrg.olcut.config.property,\
@@ -22,6 +23,8 @@ Export-Package: \
 
 Import-Package: \
 	org.jline;resolution:=optional,\
+	org.jline.*;resolution:=optional,\
+	*
 
 -dsannotations: *
 

@@ -504,6 +504,11 @@
 			<version>4.3.2</version>
 		</dependency>
 		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-data</artifactId>
+		    <version>4.3.2</version>
+		</dependency>
+		<dependency>
 			<groupId>org.tribuo</groupId>
 			<artifactId>tribuo-math</artifactId>
 			<version>4.3.1</version>
@@ -522,6 +527,11 @@
 			<groupId>org.tribuo</groupId>
 			<artifactId>tribuo-util-onnx</artifactId>
 			<version>4.3.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-util-tokenization</artifactId>
+		    <version>4.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>

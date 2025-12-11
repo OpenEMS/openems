@@ -35,7 +35,9 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.9.0',\
 	org.tribuo:tribuo-common-tree;version='4.3.2',\
 	org.tribuo:tribuo-core;version='4.3.2',\
+	org.tribuo:tribuo-data;version='4.3.2',\
 	org.tribuo:tribuo-math;version='4.3.2',\
 	org.tribuo:tribuo-regression-core;version='4.3.2',\
 	org.tribuo:tribuo-regression-tree;version='4.3.2',\
 	org.tribuo:tribuo-util-onnx;version='4.3.2',\
+	org.tribuo:tribuo-util-tokenization;version='4.3.2',\

@@ -16,6 +16,7 @@ import static java.time.Duration.ofSeconds;
 
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -141,27 +142,27 @@ public class Optimizer implements Runnable {
 	 * Creates a new {@link Simulator} using the `gscSupplier` and updates
 	 * `this.simulator`.
 	 * 
-	 * @return a {@link Simulator} or null
 	 * @throws InterruptedException on interrupted sleep
 	 */
-	private Simulator updateSimulator() throws InterruptedException {
+	private synchronized void updateSimulator() throws InterruptedException {
 		try {
 			// Create the Simulator with GlobalOptimizationContext
 			this.traceLog(() -> "updateSimulator()...");
-			createSimulator(this.gocSupplier, //
-					simulator -> this.simulator = simulator, //
+			final var simulator = createSimulator(this.gocSupplier, //
 					error -> {
 						this.traceLog(error);
 						this.applySimulationResult(EMPTY_SIMULATION_RESULT);
 					});
-			final var simulator = this.simulator;
 			if (simulator == null) {
 				this.traceLog(() -> "Simulator is null");
 			} else {
 				this.traceLog(() -> "Simulator is " + simulator.toJson().toString());
 			}
-			return simulator;
+			this.simulator = simulator;
+
 		} catch (Exception e) {
+			this.simulator = null;
+			this.traceLog(() -> "Unable to update Simulator: " + e.getMessage());
 			e.printStackTrace(); // TODO remove
 			throw e;
 		}
@@ -174,20 +175,17 @@ public class Optimizer implements Runnable {
 	 * @throws InterruptedException on interrupted sleep
 	 * @throws ExecutionException   on simulation error
 	 */
-	protected SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
-		var simulator = this.updateSimulator();
-		if (simulator == null) {
-			return EMPTY_SIMULATION_RESULT;
-		}
-
+	protected synchronized SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
 		if (this.simulationResult == EMPTY_SIMULATION_RESULT) {
 			this.traceLog(() -> "reschedule because previous simulationresult is EMPTY");
 		} else {
 			this.traceLog(() -> "triggerReschedule() had been called -> reschedule");
 		}
-		return this.runSimulation(simulator, //
+
+		this.updateSimulator();
+		return this.runSimulation(//
 				false, // current period can get adjusted
-				byFixedGeneration(1)) // simulate only one generation
+				byFixedGeneration(1)) // simulate only two generations
 				.get();
 	}
 
@@ -198,31 +196,32 @@ public class Optimizer implements Runnable {
 	 * @throws InterruptedException on interrupted sleep
 	 * @throws ExecutionException   on simulation error
 	 */
-	protected SimulationResult runRegularOptimization() throws InterruptedException, ExecutionException {
+	protected synchronized SimulationResult runRegularOptimization() throws InterruptedException, ExecutionException {
 		// Run regular optimization for upcoming periods
 		var millisTillNextQuarter = calculateSleepMillis();
 		if (millisTillNextQuarter < 60_000 /* 60s */) {
 			this.traceLog(() -> "Run Simulation in " + millisTillNextQuarter + "ms...");
 			sleep(millisTillNextQuarter);
 		}
-		var simulator = this.updateSimulator();
-		if (simulator == null) {
-			return EMPTY_SIMULATION_RESULT;
-		}
 
-		return this.runSimulation(simulator, //
+		this.updateSimulator();
+		return this.runSimulation(//
 				true, // current period should not get adjusted
 				byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()))) // Limit by execution time
 				.get();
 	}
 
-	protected CompletableFuture<SimulationResult> runSimulation(Simulator simulator, boolean isCurrentPeriodFixed,
+	protected CompletableFuture<SimulationResult> runSimulation(boolean isCurrentPeriodFixed,
 			Predicate<? super EvolutionResult<IntegerGene, Fitness>> executionLimit) {
+		if (this.simulator == null) {
+			return CompletableFuture.completedFuture(EMPTY_SIMULATION_RESULT);
+		}
+
 		this.traceLog(() -> "Run next Simulation");
 		return CompletableFuture.supplyAsync(() -> {
 			this.traceLog(() -> "Executing async Simulation");
 
-			var bestSchedule = simulator.getBestSchedule(this.simulationResult, isCurrentPeriodFixed, null, //
+			var bestSchedule = this.simulator.getBestSchedule(this.simulationResult, isCurrentPeriodFixed, null, //
 					stream -> stream //
 							// Stop till next quarter
 							.limit(executionLimit));
@@ -242,11 +241,11 @@ public class Optimizer implements Runnable {
 			this.traceLog(() -> "Simulation gave no result!");
 		}
 
-		final var simulator = this.simulator;
-		if (simulator != null) {
+		Optional.ofNullable(this.simulator).ifPresent(simulator -> {
 			// Debug Log best Schedule
 			logSimulationResult(simulator, simulationResult);
-		}
+			this.simulationsPerQuarterChannel.setNextValue(simulator.getTotalNumberOfSimulations());
+		});
 
 		// Store result
 		this.simulationResult = simulationResult;
@@ -294,9 +293,13 @@ public class Optimizer implements Runnable {
 		if (this.simulationResult.periods().isEmpty()) {
 			b.append("No Schedule available");
 		} else {
-			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
+			b.append("ScheduledPeriods:").append(this.simulationResult.periods().size());
 		}
-		b.append("|PerQuarter:" + this.simulationsPerQuarterChannel.value());
+		b.append("|SimulationsPerQuarter:").append(this.simulationsPerQuarterChannel.value());
+		Optional.ofNullable(this.simulator).ifPresent(simulator -> {
+			b.append("|Current:").append(simulator.getTotalNumberOfSimulations());
+		});
+
 		return b.toString();
 	}
 }

@@ -6,15 +6,21 @@ Bundle-Version: 4.3.2
 Include-Resource: \
 	@tribuo-common-tree-4.3.2.jar,\
 	@tribuo-core-4.3.2.jar,\
+	@tribuo-data-4.3.2.jar,\
 	@tribuo-math-4.3.2.jar,\
 	@tribuo-regression-core-4.3.2.jar,\
 	@tribuo-regression-tree-4.3.2.jar,\
+	@tribuo-util-onnx-4.3.2.jar,\
+	@tribuo-util-tokenization-4.3.2.jar,\
 
 Export-Package: \
+	ai.onnx.proto,\
 	org.tribuo,\
 	org.tribuo.common.tree,\
 	org.tribuo.common.tree.protos,\
 	org.tribuo.common.tree.impl,\
+	org.tribuo.data,\
+	org.tribuo.data.columnar,\
 	org.tribuo.dataset,\
 	org.tribuo.datasource,\
 	org.tribuo.ensemble,\
@@ -37,10 +43,14 @@ Export-Package: \
 	org.tribuo.transform,\
 	org.tribuo.util,\
 	org.tribuo.util.onnx,\
+	org.tribuo.util.tokens,\
+	org.tribuo.util.tokens.impl,\
 
 Import-Package: \
 	org.jline;resolution:=optional,\
-	com.oracle.labs.mlrg.olcut.config
+	org.jline.*;resolution:=optional,\
+	com.oracle.labs.mlrg.olcut.config,\
+	*
 
 -dsannotations: *
 

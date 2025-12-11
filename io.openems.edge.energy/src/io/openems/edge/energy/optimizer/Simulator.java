@@ -12,6 +12,7 @@ import static java.lang.Thread.currentThread;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -48,6 +49,8 @@ public class Simulator {
 	public final GlobalOptimizationContext goc;
 	public final ModeCombinations modeCombinations;
 
+	private final AtomicInteger simulationsCounter = new AtomicInteger(0);
+
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 
@@ -56,6 +59,10 @@ public class Simulator {
 			((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
 		}
 		this.modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
+	}
+
+	protected int getTotalNumberOfSimulations() {
+		return this.simulationsCounter.get();
 	}
 
 	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
@@ -229,7 +236,10 @@ public class Simulator {
 		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
-				.builder(gt -> simulate(this.goc, this.modeCombinations, gt, null), codec) //
+				.builder(gt -> {
+					this.simulationsCounter.incrementAndGet();
+					return simulate(this.goc, this.modeCombinations, gt, null);
+				}, codec) //
 				.selector(//
 						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
 								new TournamentSelector<>(3)))
@@ -258,7 +268,7 @@ public class Simulator {
 		if (bestGt == null) {
 			return EMPTY_SIMULATION_RESULT;
 		}
-		return SimulationResult.fromQuarters(this.goc, bestGt);
+		return SimulationResult.fromQuarters(this.goc, bestGt, this.simulationsCounter.get());
 	}
 
 	protected static record BestScheduleCollector(//

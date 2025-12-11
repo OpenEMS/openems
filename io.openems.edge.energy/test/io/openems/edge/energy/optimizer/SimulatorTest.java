@@ -73,7 +73,7 @@ public class SimulatorTest {
 	public static final Simulator DUMMY_SIMULATOR = new Simulator(GOC);
 
 	public static final SimulationResult DUMMY_PREVIOUS_RESULT = SimulationResult.fromQuarters(GOC,
-			new int[] { 3, 2, 1 });
+			new int[] { 3, 2, 1 }, 0);
 
 	@Before
 	public void before() {

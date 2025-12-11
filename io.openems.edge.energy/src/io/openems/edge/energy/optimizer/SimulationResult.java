@@ -32,7 +32,8 @@ public record SimulationResult(//
 		ImmutableMap<//
 				? extends EnergyScheduleHandler.WithDifferentModes, //
 				ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition>> schedules, //
-		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode) {
+		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode, //
+		int simulationsCounter) {
 
 	/**
 	 * A Period in a {@link SimulationResult}. Duration of one period is always one
@@ -64,17 +65,18 @@ public record SimulationResult(//
 	 * An empty {@link SimulationResult}.
 	 */
 	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(new Fitness(), //
-			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of());
+			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), 0);
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
 	 * 
-	 * @param cache    the {@link GenotypeCache}
-	 * @param goc      the {@link GlobalOptimizationContext}
-	 * @param schedule the schedule as defined by {@link EshCodec}
+	 * @param cache              the {@link GenotypeCache}
+	 * @param goc                the {@link GlobalOptimizationContext}
+	 * @param schedule           the schedule as defined by {@link EshCodec}
+	 * @param simulationsCounter the total number of simulations
 	 * @return the {@link SimulationResult}
 	 */
-	private static SimulationResult from(GlobalOptimizationContext goc, int[] schedule) {
+	private static SimulationResult from(GlobalOptimizationContext goc, int[] schedule, int simulationsCounter) {
 		var allPeriods = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
 		var allEshToModes = new ArrayList<EshToMode>();
 		var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule,
@@ -99,7 +101,7 @@ public record SimulationResult(//
 				.map(EnergyScheduleHandler.WithOnlyOneMode.class::cast) //
 				.collect(toImmutableSet());
 
-		return new SimulationResult(fitness, allPeriods.build(), schedules, eshsWithOnlyOneMode);
+		return new SimulationResult(fitness, allPeriods.build(), schedules, eshsWithOnlyOneMode, simulationsCounter);
 	}
 
 	/**
@@ -109,11 +111,12 @@ public record SimulationResult(//
 	 * This method re-simulates using the {@link Quarter} periods and not (only) the
 	 * {@link Hour} periods.
 	 * 
-	 * @param goc      the {@link GlobalOptimizationContext}
-	 * @param schedule the schedule as defined by {@link EshCodec}
+	 * @param goc                the {@link GlobalOptimizationContext}
+	 * @param schedule           the schedule as defined by {@link EshCodec}
+	 * @param simulationsCounter the total number of simulations
 	 * @return the {@link SimulationResult}
 	 */
-	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[] schedule) {
+	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[] schedule, int simulationsCounter) {
 		if (goc == null || schedule.length == 0) {
 			return EMPTY_SIMULATION_RESULT;
 		}
@@ -142,7 +145,7 @@ public record SimulationResult(//
 				// TODO use default index
 				.toArray();
 
-		return from(quarterGoc, quarterSchedule);
+		return from(quarterGoc, quarterSchedule, simulationsCounter);
 	}
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -185,7 +188,8 @@ public record SimulationResult(//
 			});
 			b.append("\n");
 		});
-		b.append(prefix).append("fitness=").append(this.fitness);
+		b.append(prefix).append("totalNumberOfSimulations=").append(this.simulationsCounter).append(";fitness=")
+				.append(this.fitness);
 		return b.toString();
 	}
 }

@@ -465,15 +465,19 @@ public record GlobalOptimizationContext(//
 			}
 			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
+			final var eshsWithDifferentModes = filterEshsWithDifferentModes(this.eshs) //
+					.collect(toImmutableList());
 			this.log.info("OPTIMIZER GlobalOptimizationContext: " //
 					+ "startTime=" + startTime + "; " //
 					+ "consumptions=" + consumptions.asArray().length + "; " //
 					+ "productions=" + productions.asArray().length + "; " //
 					+ "prices=" + prices.asArray().length + "; " //
-					+ "periods=" + periods.size());
+					+ "periods=" + periods.size() + "; " //
+					+ "eshs=#" + this.eshs.size() + "; " //
+					+ "eshsWithDifferentModes=#" + eshsWithDifferentModes.size());
 
 			return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
-					this.eshs, filterEshsWithDifferentModes(this.eshs).collect(toImmutableList()), //
+					this.eshs, eshsWithDifferentModes, //
 					grid, ess, periods);
 		}
 	}
