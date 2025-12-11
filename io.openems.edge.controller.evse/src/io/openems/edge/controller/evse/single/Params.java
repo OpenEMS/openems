@@ -57,15 +57,15 @@ public record Params(//
 		 */
 		CombinedAbilities combinedAbilities, //
 		/**
-		 * Smart-Mode configuration.
+		 * JSCalendar configuration.
 		 */
-		JSCalendar.Tasks<Payload> smartConfig) {
+		JSCalendar.Tasks<Payload> tasks) {
 
 	public Params(String componentId, Mode mode, Integer activePower, int sessionEnergy, int sessionEnergyLimit,
 			History history, PhaseSwitching phaseSwitching, CombinedAbilities combinedAbilities,
-			JSCalendar.Tasks<Payload> smartConfig) {
+			JSCalendar.Tasks<Payload> tasks) {
 		this(componentId, mode, activePower, sessionEnergy, sessionEnergyLimit, history, Hysteresis.from(history),
-				phaseSwitching, history.getAppearsToBeFullyCharged(), combinedAbilities, smartConfig);
+				phaseSwitching, history.getAppearsToBeFullyCharged(), combinedAbilities, tasks);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public record Params(//
 					.addProperty("history", "") // TODO
 					.addProperty("phaseSwitching", obj.phaseSwitching) //
 					.add("combinedAbilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
-					.add("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer()).serialize(obj.smartConfig)) //
+					.add("tasks", JSCalendar.Tasks.serializer(Payload.serializer()).serialize(obj.tasks)) //
 					.build();
 		});
 	}

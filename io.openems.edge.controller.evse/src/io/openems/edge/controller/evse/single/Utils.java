@@ -73,16 +73,13 @@ public final class Utils {
 	}
 
 	protected static boolean isSessionLimitReached(Mode mode, Integer energy, int limit) {
-		if (mode == Mode.SMART) {
-			return false;
-		}
 		if (energy != null && limit > 0 && energy >= limit) {
 			return true;
 		}
 		return false;
 	}
 
-	protected static JSCalendar.Tasks<Payload> parseSmartConfig(String smartConfig) {
+	protected static JSCalendar.Tasks<Payload> parseTasksConfig(String smartConfig) {
 		if (smartConfig.isBlank() || smartConfig.equals("[]")) {
 			return JSCalendar.Tasks.empty();
 		}

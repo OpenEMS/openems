@@ -5,7 +5,7 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.controller.evse.single.Utils.isSessionLimitReached;
-import static io.openems.edge.controller.evse.single.Utils.parseSmartConfig;
+import static io.openems.edge.controller.evse.single.Utils.parseTasksConfig;
 
 import java.time.Instant;
 import java.util.function.BiConsumer;
@@ -74,7 +74,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	private EvseElectricVehicle electricVehicle;
 
 	private Config config;
-	private JSCalendar.Tasks<Payload> smartConfig;
+	private JSCalendar.Tasks<Payload> tasks;
 	private BiConsumer<Value<Boolean>, Value<Boolean>> onChargePointIsReadyForChargingChange = null;
 
 	public ControllerEvseSingleImpl() {
@@ -99,7 +99,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 	private synchronized void applyConfig(Config config) {
 		this.config = config;
-		this.smartConfig = parseSmartConfig(config.smartConfig());
+		this.tasks = parseTasksConfig(config.jsCalendar());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chargePoint",
 				config.chargePoint_id())) {
@@ -151,7 +151,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 		return new Params(this.id(), this.config.mode(), activePower, sessionEnergy,
 				this.config.manualEnergySessionLimit(), this.history, this.config.phaseSwitching(), combinedAbilities,
-				this.smartConfig);
+				this.tasks);
 	}
 
 	@Override
@@ -160,13 +160,13 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public void apply(Mode.Actual actualMode, ChargePointActions input) {
+	public void apply(Mode mode, ChargePointActions input) {
 		// Set ACTUAL_MODE Channel. Always ZERO if there is no ActivePower
 		final var activePower = this.chargePoint.getActivePower().get();
 		setValue(this, ControllerEvseSingle.ChannelId.ACTUAL_MODE, //
 				activePower != null && activePower == 0 //
-						? Mode.Actual.ZERO //
-						: actualMode);
+						? Mode.ZERO //
+						: mode);
 
 		final var state = this.stateMachine.getCurrentState();
 		setValue(this, ControllerEvseSingle.ChannelId.STATE_MACHINE, state);

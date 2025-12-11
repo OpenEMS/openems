@@ -390,17 +390,17 @@ public class JSCalendar<PAYLOAD> {
 			public static <PAYLOAD> JsonSerializer<OneTask<PAYLOAD>> serializer(
 					JsonSerializer<PAYLOAD> payloadSerializer) {
 				return JsonSerializerUtil.<OneTask<PAYLOAD>>jsonObjectSerializer(json -> {
+					var uid = json.getUuidOrNull("uid");
 					var start = json.getZonedDateTime("start");
 					var end = json.getZonedDateTime("end");
 					var duration = Duration.parse(json.getString("duration"));
 					var payload = json.getObjectOrNull("payload", payloadSerializer);
-					var task = payload == null //
-							? null //
-							: new Task<PAYLOAD>(null, null, start.toLocalDateTime(), duration, ImmutableList.of(),
-									payload);
+					var task = new Task<PAYLOAD>(uid, null, start.toLocalDateTime(), duration, ImmutableList.of(),
+							payload);
 					return new OneTask<PAYLOAD>(task, start, duration, end);
 				}, obj -> {
 					return buildJsonObject() //
+							.addProperty("uid", obj.parentTask.uid) //
 							.addProperty("start", obj.start) //
 							.addProperty("end", obj.end) //
 							.addProperty("duration", obj.duration.toString()) //
@@ -677,8 +677,11 @@ public class JSCalendar<PAYLOAD> {
 			}
 
 			public Task<PAYLOAD> build() {
-				return new Task<PAYLOAD>(this.uid, this.updated, this.start, this.duration,
-						this.recurrenceRules.build(), this.payload);
+				var uid = this.uid == null //
+						? UUID.randomUUID() //
+						: this.uid;
+				return new Task<PAYLOAD>(uid, this.updated, this.start, this.duration, this.recurrenceRules.build(),
+						this.payload);
 			}
 		}
 

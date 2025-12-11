@@ -55,7 +55,7 @@ public class RunUtils {
 		 */
 		public static class Entry {
 			public final ControllerEvseSingle ctrl;
-			public final Mode.Actual actualMode;
+			public final Mode mode;
 			public final Params params;
 			public final Integer activePower;
 			public final ChargePointActions.Builder actions;
@@ -69,11 +69,8 @@ public class RunUtils {
 				this.activePower = params.activePower();
 				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
 
-				this.actualMode = switch (params.mode()) {
-				case FORCE, MINIMUM, SURPLUS, ZERO -> params.mode().actual;
-				// TODO evaluate params smartConfig
-				case SMART -> Mode.Actual.SURPLUS;
-				};
+				// TODO evaluate params tasks
+				this.mode = params.mode();
 			}
 
 			@Override
@@ -165,7 +162,7 @@ public class RunUtils {
 		 */
 		public final Stream<Entry> streamSurplus() {
 			return this.streamActives() //
-					.filter(e -> switch (e.actualMode) {
+					.filter(e -> switch (e.mode) {
 					case FORCE, MINIMUM, ZERO -> false;
 					case SURPLUS -> true;
 					});
@@ -246,7 +243,7 @@ public class RunUtils {
 	private static void initializeSetPoints(PowerDistribution powerDistribution) {
 		powerDistribution.streamActives().forEach(e -> {
 			var asp = e.params.combinedAbilities().applySetPoint();
-			e.setPointInWatt = switch (e.actualMode) {
+			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM -> asp.min();
 			case FORCE -> asp.max();
 			case SURPLUS, ZERO -> 0;
@@ -295,7 +292,7 @@ public class RunUtils {
 	 */
 	private static void permitNonActives(PowerDistribution powerDistribution) {
 		powerDistribution.streamNonActives().forEach(e -> {
-			e.setPointInWatt = switch (e.actualMode) {
+			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM, FORCE, SURPLUS -> e.params.combinedAbilities().applySetPoint().min();
 			case ZERO -> 0;
 			};
@@ -511,7 +508,7 @@ public class RunUtils {
 		if (chargePointAbilities == null) {
 			if (logVerbosity == TRACE) {
 				logger.accept(ctrl.id() + ": " //
-						+ "Mode [" + e.actualMode + "] " //
+						+ "Mode [" + e.mode + "] " //
 						+ "ChargePointCapability is null " //
 						+ params);
 			}
@@ -522,7 +519,7 @@ public class RunUtils {
 
 		if (logVerbosity == TRACE) {
 			logger.accept(ctrl.id() + ": " //
-					+ "Mode [" + e.actualMode + "] " //
+					+ "Mode [" + e.mode + "] " //
 					+ "Set [" + e.setPointInWatt + " W -> " + value + "] " //
 					+ params);
 		}

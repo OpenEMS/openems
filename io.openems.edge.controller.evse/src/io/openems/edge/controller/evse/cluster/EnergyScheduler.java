@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.stream.Collectors.joining;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -27,21 +28,20 @@ public class EnergyScheduler {
 	}
 
 	/**
-	 * Holds the combination of {@link Mode.Actual} of multiple
-	 * Evse.Controller.Single.
+	 * Holds the combination of {@link Mode}s of multiple Evse.Controller.Single.
 	 */
-	public static record SingleModes(ImmutableMap<String, Mode.Actual> modes) {
+	public static record SingleModes(ImmutableMap<String, Mode> modes) {
 
-		protected static record SingleMode(String componentId, Mode.Actual mode) {
+		protected static record SingleMode(String componentId, Mode mode) {
 		}
 
 		/**
-		 * Gets the {@link Mode.Actual} of the given Component.
+		 * Gets the {@link Mode} of the given Component.
 		 * 
 		 * @param componentId the Component-ID
-		 * @return the mode
+		 * @return the mode or null
 		 */
-		public Mode.Actual getMode(String componentId) {
+		public Mode getMode(String componentId) {
 			return this.modes.get(componentId);
 		}
 
@@ -111,21 +111,23 @@ public class EnergyScheduler {
 
 				.setAvailableModes((goc, coc) -> {
 					return Lists.cartesianProduct(coc.clusterConfig.singleParams.values().stream() //
-							.filter(p -> switch (p.mode()) {
-							case FORCE, MINIMUM, SURPLUS, ZERO -> false;
-							case SMART -> true; // consider only SMART for available modes
-							}) //
 							.map(p -> {
-								var availableModes = p.combinedAbilities().isReadyForCharging()
-										&& !p.history().getAppearsToBeFullyCharged() //
-												// TODO MINIMUM instead of ZERO if interrupt is not allowed
-												? new Mode.Actual[] { Mode.Actual.SURPLUS, Mode.Actual.ZERO,
-														Mode.Actual.FORCE } //
-												: new Mode.Actual[] { Mode.Actual.ZERO }; // No choice
+								if (p.tasks().tasks.isEmpty()) {
+									// TODO consider only optimizable Single-Controllers; i.e. has "SMART"-Tasks
+									// No room for optimization
+									return null;
+								}
+								if (!p.combinedAbilities().isReadyForCharging()
+										&& p.history().getAppearsToBeFullyCharged()) {
+									// No room for optimization
+									return null;
+								}
+								final var availableModes = new Mode[] { Mode.SURPLUS, Mode.ZERO, Mode.FORCE };
 								return IntStream.range(0, availableModes.length) //
 										.mapToObj(i -> new SingleMode(p.componentId(), availableModes[i])) //
 										.toList();
 							}) //
+							.filter(Objects::nonNull) //
 							.toList()) //
 							.stream() //
 							.map(l -> new SingleModes(l.stream() //

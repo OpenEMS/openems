@@ -30,7 +30,7 @@ public class PhaseSwitchHandlerTest {
 		final var clock = createDummyClock();
 		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
 		final var ctrl = singleSut.ctrlSingle();
-		final var mode = ctrl.getParams().mode().actual;
+		final var mode = ctrl.getParams().mode();
 		final var chargePoint = singleSut.chargePoint();
 		final BiConsumer<Integer, PhaseSwitch> test = (setPoint, phaseSwitch) -> {
 			var cpa = chargePoint.getLastChargePointActions();
@@ -131,7 +131,7 @@ public class PhaseSwitchHandlerTest {
 		final var clock = createDummyClock();
 		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
 		final var ctrl = singleSut.ctrlSingle();
-		final var mode = ctrl.getParams().mode().actual;
+		final var mode = ctrl.getParams().mode();
 		final BooleanSupplier phaseSwitchFailed = () -> (boolean) ctrl
 				.channel(ControllerEvseSingle.ChannelId.PHASE_SWITCH_FAILED).getNextValue().get();
 

@@ -18,7 +18,7 @@ public class ControllerEvseSingleImplTest {
 	public void test() throws OpenemsException, Exception {
 		var sut = generateSingleSut(c -> c //
 				.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
-				.setSmartConfig("""
+				.setJsCalendar("""
 						[{
 						  "@type": "Task",
 						  "updated": "2020-01-01T00:00:00Z",

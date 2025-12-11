@@ -149,7 +149,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								// Mode from Schedule
 								p.mode().getMode(componentId))
 								// Mode configured in Evse.Controller.Single
-								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode().actual);
+								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode());
 						return new Response.Period(e.getKey(), p.price(), //
 								mode.getValue(), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //

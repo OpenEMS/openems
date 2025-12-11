@@ -111,7 +111,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				.filter(e -> e.params.combinedAbilities().chargePointAbilities() != null) //
 				.forEach(e -> {
 					// Apply actions
-					e.ctrl.apply(e.actualMode, e.actions.build());
+					e.ctrl.apply(e.mode, e.actions.build());
 				});
 	}
 

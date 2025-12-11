@@ -2,6 +2,8 @@ package io.openems.edge.controller.evse.cluster;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 
 import io.openems.edge.common.type.TypeUtils;
@@ -13,7 +15,6 @@ import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.energy.api.simulation.EnergyFlow.Model;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.evse.api.chargepoint.Mode;
-import io.openems.edge.evse.api.chargepoint.Mode.Actual;
 
 public class EshUtils {
 
@@ -33,18 +34,12 @@ public class EshUtils {
 			final var entries = clusterCoc.clusterConfig().singleParams().values().stream() //
 					.map(p -> {
 						final var csc = clusterCsc.getCsc(p.componentId());
+						final var singleMode = Optional.ofNullable(mode.getMode(p.componentId())) //
+								.orElse(p.mode()); // fallback to constant mode
 
-						final var singleMode = switch (p.mode()) {
-						case FORCE, MINIMUM, ZERO, SURPLUS -> p.mode().actual;
-						case SMART -> mode.getMode(p.componentId());
-						};
-
-						final var remainingSessionEnergy = switch (p.mode()) {
-						case FORCE, MINIMUM, ZERO, SURPLUS -> p.sessionEnergyLimit() > 0 //
+						final var remainingSessionEnergy = p.sessionEnergyLimit() > 0 //
 								? Math.max(0, p.sessionEnergyLimit() - csc.getSessionEnergy()) //
 								: null;
-						case SMART -> null;
-						};
 
 						final var abilities = p.combinedAbilities();
 						final int maxEnergy;
@@ -72,7 +67,7 @@ public class EshUtils {
 		 */
 		public static class Entry {
 			public final String componentId;
-			public final Mode.Actual mode;
+			public final Mode mode;
 			public final int energyInModeMinimum;
 			public final int maxEnergy;
 
@@ -80,7 +75,7 @@ public class EshUtils {
 
 			protected int actualEnergy;
 
-			public Entry(String componentId, SingleScheduleContext csc, Mode.Actual mode, int energyInModeMinimum,
+			public Entry(String componentId, SingleScheduleContext csc, Mode mode, int energyInModeMinimum,
 					int maxEnergy) {
 				this.componentId = componentId;
 				this.csc = csc;
@@ -123,7 +118,7 @@ public class EshUtils {
 
 		private void distributeEnergyEqual(int initialDistributableEnergy) {
 			var entries = this.entries.stream() //
-					.filter(e -> e.mode == Actual.SURPLUS) //
+					.filter(e -> e.mode == Mode.SURPLUS) //
 					// Only entries that do not already apply max set-point
 					.filter(e -> e.actualEnergy < e.maxEnergy) //
 					.toList();

@@ -8,6 +8,7 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.prettyToString;
+import static io.openems.common.utils.UuidUtils.getNilUuid;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -386,6 +387,7 @@ public class JSCalendarTest {
 	@Test
 	public void testSingle() throws OpenemsNamedException {
 		var sut = JSCalendar.Task.<StringPayload>create() //
+				.setUid(getNilUuid()) //
 				.setStart("2024-06-17T00:00:00") //
 				.setPayload(new StringPayload("Hello World")) //
 				.build();
@@ -393,6 +395,7 @@ public class JSCalendarTest {
 		assertEquals("""
 				{
 				  "@type": "Task",
+				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "2024-06-17T00:00:00",
 				  "openems.io:payload": {
 				    "value": "Hello World"
@@ -404,6 +407,7 @@ public class JSCalendarTest {
 	public void testWeekday() throws OpenemsNamedException {
 		var clock = createDummyClock();
 		var sut = JSCalendar.Task.<StringPayload>create() //
+				.setUid(getNilUuid()) //
 				.setStart("07:00:00") //
 				.addRecurrenceRule(b -> b //
 						.setFrequency(WEEKLY) //
@@ -415,6 +419,7 @@ public class JSCalendarTest {
 		assertEquals("""
 				{
 				  "@type": "Task",
+				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "07:00:00",
 				  "recurrenceRules": [
 				    {
@@ -451,6 +456,7 @@ public class JSCalendarTest {
 		var clock = createDummyClock();
 		var sut = JSCalendar.Task.<StringPayload>create() //
 				.setStart("2020-01-02T00:00:00") //
+				.setUid(getNilUuid()) //
 				.addRecurrenceRule(b -> b //
 						.setFrequency(WEEKLY) //
 						.setUntil(LocalDate.of(2020, 2, 1)) //
@@ -462,6 +468,7 @@ public class JSCalendarTest {
 		assertEquals("""
 				{
 				  "@type": "Task",
+				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "2020-01-02T00:00:00",
 				  "recurrenceRules": [
 				    {
