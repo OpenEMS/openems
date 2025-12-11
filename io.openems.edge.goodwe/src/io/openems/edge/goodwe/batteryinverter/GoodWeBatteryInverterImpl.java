@@ -599,7 +599,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
-				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setChargeMaxCurrent));
+				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setDischargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
 
