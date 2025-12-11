@@ -9,6 +9,8 @@ import static io.openems.edge.controller.evse.single.Utils.serializeTasksConfig;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -26,6 +28,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.AddTask;
 import io.openems.common.jscalendar.DeleteTask;
@@ -39,7 +42,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.controller.evse.single.Types.Payload;
@@ -267,21 +272,21 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		builder.handleRequest(new AddTask<Payload>(Payload.serializer()), call -> {
 			var newTask = call.getRequest().task();
 			var updatedTasks = this.tasks.withAddedTask(newTask);
-			this.updateJsCalendar(updatedTasks);
+			this.updateJsCalendar(updatedTasks, call.get(EdgeKeys.USER_KEY));
 			return new AddTask.Response(newTask.uid());
 		});
 
 		builder.handleRequest(new UpdateTask<Payload>(Payload.serializer()), call -> {
 			var updatedTask = call.getRequest().task();
 			var updatedTasks = this.tasks.withUpdatedTask(updatedTask);
-			this.updateJsCalendar(updatedTasks);
+			this.updateJsCalendar(updatedTasks, call.get(EdgeKeys.USER_KEY));
 			return EmptyObject.INSTANCE;
 		});
 
 		builder.handleRequest(new DeleteTask(), call -> {
 			var uidToRemove = call.getRequest().uid();
 			var updatedTasks = this.tasks.withRemovedTask(uidToRemove);
-			this.updateJsCalendar(updatedTasks);
+			this.updateJsCalendar(updatedTasks, call.get(EdgeKeys.USER_KEY));
 			return EmptyObject.INSTANCE;
 		});
 
@@ -290,12 +295,20 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		});
 	}
 
-	private void updateJsCalendar(Tasks<Payload> tasks) {
+	private void updateJsCalendar(Tasks<Payload> tasks, User user) {
 		try {
 			var config = this.cm.getConfiguration(this.servicePid(), "?");
 			var properties = config.getProperties();
 
 			properties.put("jsCalendar", serializeTasksConfig(tasks));
+
+			var lastChangeBy = (user != null) //
+					? user.getId() + ": " + user.getName() //
+					: "UNDEFINED";
+			properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_BY, lastChangeBy);
+			properties.put(OpenemsConstants.PROPERTY_LAST_CHANGE_AT,
+					LocalDateTime.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.SECONDS).toString());
+
 			config.update(properties);
 		} catch (IOException e) {
 			this.logError(this.log, e.getMessage());
