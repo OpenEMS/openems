@@ -20,6 +20,7 @@ import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppDef.FieldValuesBiPredicate;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
@@ -239,7 +240,7 @@ public final class EvcsProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> architectureType(Nameable evcsId) {
 		return AppDef.copyOfGeneric(defaultDef())//
 				.setTranslatedLabel("App.Evcs.Keba.architectureType.label")//
-				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+				.setIsAllowedToSee(FieldValuesBiPredicate.FALSE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class), l);
 				})//
