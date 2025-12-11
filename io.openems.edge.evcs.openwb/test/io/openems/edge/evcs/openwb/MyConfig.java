@@ -1,6 +1,7 @@
 package io.openems.edge.evcs.openwb;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,6 +10,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String ip;
 		private int port;
+		private ChargePoint chargePoint = ChargePoint.CP0;
+		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 		private Builder() {
 		}
@@ -25,6 +28,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPort(int port) {
 			this.port = port;
+			return this;
+		}
+
+		public Builder setChargePoint(ChargePoint chargePoint) {
+			this.chargePoint = chargePoint;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -61,6 +74,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public ChargePoint chargePoint() {
-		return ChargePoint.CP0;
+		return this.builder.chargePoint;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }
