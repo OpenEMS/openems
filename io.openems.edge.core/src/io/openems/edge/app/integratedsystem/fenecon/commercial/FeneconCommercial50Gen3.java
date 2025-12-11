@@ -22,6 +22,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusI
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
@@ -281,7 +282,8 @@ public class FeneconCommercial50Gen3 extends
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					predictionUnmanagedConsumption()//
 			);
 
 			final var gpioId = FunctionUtils

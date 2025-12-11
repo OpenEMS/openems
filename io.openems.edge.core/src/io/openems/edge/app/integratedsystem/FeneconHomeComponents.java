@@ -761,6 +761,24 @@ public final class FeneconHomeComponents {
 		};
 	}
 
+	/**
+	 * Creates a default predictionUnmanagedConsumption dependency for a FENECON
+	 * Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration predictionUnmanagedConsumption() {
+		return new DependencyDeclaration("PREDICTION_UNMANAGED_CONSUMPTION", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.Prediction.UnmanagedConsumption") //
+						.build());
+	}
+
 	private FeneconHomeComponents() {
 	}
 

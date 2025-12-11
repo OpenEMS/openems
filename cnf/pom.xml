@@ -494,6 +494,36 @@
 			<version>3.9</version>
 		</dependency>
 		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-common-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-math</artifactId>
+			<version>4.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-util-onnx</artifactId>
+			<version>4.3.1</version>
+		</dependency>
+		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-core</artifactId>
 			<version>1.3.8</version>
@@ -531,31 +561,6 @@
 		  <artifactId>objenesis</artifactId>
 		  <version>3.4</version>
 		  <scope>test</scope>
-		</dependency>
-		<dependency>
-		  <groupId>org.tribuo</groupId>
-		  <artifactId>tribuo-core</artifactId>
-		  <version>4.3.2</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.tribuo</groupId>
-		  <artifactId>tribuo-common-tree</artifactId>
-		  <version>4.3.2</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.tribuo</groupId>
-		  <artifactId>tribuo-regression-core</artifactId>
-		  <version>4.3.2</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.tribuo</groupId>
-		  <artifactId>tribuo-regression-tree</artifactId>
-		  <version>4.3.2</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.tribuo</groupId>
-		  <artifactId>tribuo-math</artifactId>
-		  <version>4.3.1</version>
 		</dependency>
 	</dependencies>
 </project>

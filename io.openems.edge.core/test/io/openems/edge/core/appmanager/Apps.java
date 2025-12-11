@@ -100,6 +100,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
+import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -1209,6 +1210,16 @@ public final class Apps {
 	 */
 	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
 		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppPredictionUnmanagedConsumption}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
+		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
 	}
 
 	/**
