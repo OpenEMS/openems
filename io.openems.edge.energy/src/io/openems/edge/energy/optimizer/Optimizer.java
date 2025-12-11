@@ -246,10 +246,6 @@ public class Optimizer implements Runnable {
 		if (simulator != null) {
 			// Debug Log best Schedule
 			logSimulationResult(simulator, simulationResult);
-
-			// Calculate metrics
-			var stats = simulator.cache.stats();
-			this.simulationsPerQuarterChannel.setNextValue(stats.loadCount());
 		}
 
 		// Store result
@@ -299,11 +295,6 @@ public class Optimizer implements Runnable {
 			b.append("No Schedule available");
 		} else {
 			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
-		}
-		var simulator = this.simulator;
-		if (simulator != null) {
-			var stats = simulator.cache.stats();
-			b.append("|SimulationCounter:" + stats.loadCount());
 		}
 		b.append("|PerQuarter:" + this.simulationsPerQuarterChannel.value());
 		return b.toString();

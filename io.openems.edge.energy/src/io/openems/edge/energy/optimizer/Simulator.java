@@ -17,9 +17,6 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
@@ -49,48 +46,14 @@ public class Simulator {
 	public final GlobalOptimizationContext goc;
 	public final ModeCombinations modeCombinations;
 
-	protected final LoadingCache<int[], Fitness> cache;
-
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
-		this.cache = CacheBuilder.newBuilder() //
-				.recordStats() //
-				.build(new CacheLoader<int[], Fitness>() {
-
-					@Override
-					/**
-					 * Simulates a Schedule and calculates the cost.
-					 * 
-					 * <p>
-					 * NOTE: do not throw an Exception here, because we use
-					 * {@link LoadingCache#getUnchecked(Object)} below.
-					 * 
-					 * @param schedule the schedule as defined by {@link EshCodec}
-					 * @return the {@link Fitness}
-					 */
-					public Fitness load(final int[] schedule) {
-						return simulate(Simulator.this.goc, Simulator.this.modeCombinations, schedule, null);
-					}
-				});
 
 		// Initialize the EnergyScheduleHandlers.
 		for (var esh : goc.eshs()) {
 			((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
 		}
 		this.modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
-	}
-
-	/**
-	 * Simulates a Schedule and calculates the {@link Fitness}.
-	 * 
-	 * <p>
-	 * This method internally uses a Cache for schedule {@link Fitness}.
-	 * 
-	 * @param schedule the schedule as defined by {@link EshCodec}
-	 * @return the {@link Fitness}
-	 */
-	public Fitness calculateFitness(int[] schedule) {
-		return this.cache.getUnchecked(schedule);
 	}
 
 	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
@@ -256,7 +219,7 @@ public class Simulator {
 		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
-				.builder(this.cache::getUnchecked, codec) //
+				.builder(gt -> simulate(this.goc, this.modeCombinations, gt, null), codec) //
 				.selector(//
 						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
 								new TournamentSelector<>(3)))
@@ -307,7 +270,6 @@ public class Simulator {
 	public JsonObject toJson() {
 		return buildJsonObject() //
 				.add("GlobalOptimizationContext", GlobalOptimizationContext.toJson(this.goc)) //
-				.addProperty("cache", this.cache.stats().toString()) //
 				.build();
 	}
 }

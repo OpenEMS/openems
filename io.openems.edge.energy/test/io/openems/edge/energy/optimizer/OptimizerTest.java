@@ -32,8 +32,7 @@ public class OptimizerTest {
 
 		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
-
-		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationCounter:"));
+		assertEquals("ScheduledPeriods:96|PerQuarter:UNDEFINED", optimizer.debugLog());
 
 		var sr = optimizer.getSimulationResult();
 		assertTrue(sr.fitness().getGridBuyCost() < 1100000);
