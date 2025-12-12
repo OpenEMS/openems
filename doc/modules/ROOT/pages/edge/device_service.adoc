@@ -1,4 +1,4 @@
-= Controller
+= Devices & Services
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
