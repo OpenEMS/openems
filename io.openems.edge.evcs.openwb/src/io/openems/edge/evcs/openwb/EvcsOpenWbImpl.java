@@ -224,6 +224,12 @@ public class EvcsOpenWbImpl extends AbstractOpenemsComponent
 		this._setActiveProductionEnergy(0L);
 		this._setActiveConsumptionEnergy(energyTotal);
 
+		// Initialize energyStartSession if charging but not yet initialized.
+		// This handles the case when component is activated while already charging.
+		if (this.energyStartSession == null && this.lastChargeState != null && this.lastChargeState) {
+			this.energyStartSession = (int) energyTotal;
+		}
+		
 		// Calculate session energy
 		if (this.energyStartSession != null) {
 			var energySession = (int) Math.max(0, energyTotal - this.energyStartSession);
