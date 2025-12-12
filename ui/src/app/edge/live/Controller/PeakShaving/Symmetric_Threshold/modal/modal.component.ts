@@ -37,7 +37,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     public formGroup: FormGroup;
     public loading: boolean = false;
     // Variable to hold the current state of the PeakShavingState
-    public currentState: PeakShavingState = PeakShavingState.UNDEFINED; // Default value is UNDEFINED
+    public currentState: keyof typeof PeakShavingState = "UNDEFINED";
 
 
     constructor(
@@ -75,36 +75,43 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
     }
 
     setCurrentStateFromData(currentData): void {
-        // Get the latest value from the BehaviorSubject
-        //const currentData = this.edge.currentData.value;
-
-        // Check if currentData and channel exist
         if (!currentData || !currentData.channel) {
-            console.warn("currentData or currentData.channel is undefined");
+            //console.warn("currentData or currentData.channel is undefined");
+            this.currentState = "UNDEFINED";
             return;
         }
 
         const controllerId = this.component?.id;
         if (!controllerId) {
-            console.warn("controllerId is undefined");
+            //console.warn("controllerId is undefined");
+            this.currentState = "UNDEFINED";
             return;
         }
 
-        // Safely access the PeakShavingStateMachine channel
         const currentStateValue = currentData.channel[`${controllerId}/PeakShavingStateMachine`];
 
-        // Debugging the fetched state value
-        //console.log(`Fetched state from ${controllerId}/PeakShavingStateMachine:`, currentStateValue);
-
-        // Check if currentStateValue is not undefined or null and is a valid number
+        // Fehlerfall: kein Wert oder kein Zahl
         if (currentStateValue === undefined || currentStateValue === null || isNaN(currentStateValue)) {
-            console.warn(`State for ${controllerId}/PeakShavingStateMachine is undefined or null`);
-            this.currentState = PeakShavingState.UNDEFINED;
-        } else {
-            // Ensure currentStateValue is a valid enum value (number) before casting
-            this.currentState = PeakShavingState[currentStateValue as keyof typeof PeakShavingState] ?? PeakShavingState.UNDEFINED;
+            //console.warn(`State for ${controllerId}/PeakShavingStateMachine is undefined or null`);
+            this.currentState = "UNDEFINED";
             //console.log("Mapped currentState:", this.currentState);
+            return;
         }
+
+        const numericValue = Number(currentStateValue);
+
+        // Zahl → Enum-Name
+        const enumKey = PeakShavingState[numericValue] as keyof typeof PeakShavingState | undefined;
+
+        if (!enumKey) {
+            //console.warn(`State ${numericValue} is not a valid PeakShavingState`);
+            this.currentState = "UNDEFINED";
+            //console.log("Mapped currentState:", this.currentState);
+            return;
+        }
+
+        this.currentState = enumKey;
+        //console.log("Mapped currentState:", this.currentState);
     }
 
     getBackgroundClass(state: string): string {
@@ -168,7 +175,7 @@ export class Controller_Symmetric_Threshold_PeakShavingModalComponent implements
                             peakShavingThresholdPower.setValue(this.component.properties.peakShavingThresholdPower);
                             this.loading = false;
                             this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
-                            console.warn(reason);
+                            //console.warn(reason);
                         });
                         this.formGroup.markAsPristine();
                     } else {

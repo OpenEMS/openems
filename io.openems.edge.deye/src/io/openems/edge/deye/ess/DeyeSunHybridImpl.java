@@ -198,7 +198,8 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		if (this.applyPowerHandler != null) {
 			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower());
 		}
-
+		
+		this._setSoc(this.battery.getSoc().get());
 	}
 
 
@@ -272,7 +273,21 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 						m(DeyeSunHybrid.ChannelId.CHARGE_MODE_TIME_POINT_4, new UnsignedWordElement(175)),
 						m(DeyeSunHybrid.ChannelId.CHARGE_MODE_TIME_POINT_5, new UnsignedWordElement(176)),
 						m(DeyeSunHybrid.ChannelId.CHARGE_MODE_TIME_POINT_6, new UnsignedWordElement(177))),
-
+				
+				new FC16WriteRegistersTask(1100,
+						m(DeyeSunHybrid.ChannelId.SET_REMOTE_MODE, new UnsignedWordElement(1100)),
+						m(DeyeSunHybrid.ChannelId.SET_REMOTE_WATCHDOG_TIME, new UnsignedWordElement(1101)),
+						m(DeyeSunHybrid.ChannelId.FUCKOFF_1, new UnsignedWordElement(1102)),
+						m(DeyeSunHybrid.ChannelId.FUCKOFF_2, new UnsignedWordElement(1103)),						
+						m(DeyeSunHybrid.ChannelId.SET_CONTROL_MODE, new UnsignedWordElement(1104)),  // set 1 for battery control (DC); set 0 for AC-control
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONTROL_MODE, new UnsignedWordElement(1105)),  // set 2 for for percentage control (reg 1109); set 3 for SOC control (reg 1110)
+						m(DeyeSunHybrid.ChannelId.SET_3P_CONTROL_MODE, new UnsignedWordElement(1106)),  // set 0 for 3p control via reg. 1111						
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_VOLTAGE, new UnsignedWordElement(1107)),  // set 0 for 3p control via reg. 1111
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_CURRENT, new UnsignedWordElement(1108)),  // set 0 for 3p control via reg. 1111
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_SOC, new SignedWordElement(1110),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),  // set battery power as SoC percentage
+						m(DeyeSunHybrid.ChannelId.SET_AC_SETPOINT_3P_PERCENT, new SignedWordElement(1111))),  // set total AC power for all phases
+						// ToDo: add register for individual phase control
 				// Read registers
 
 				new FC3ReadRegistersTask(1, Priority.LOW,
@@ -400,8 +415,8 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 				),
 
-				new FC3ReadRegistersTask(586, Priority.LOW,
-						
+				new FC3ReadRegistersTask(633, Priority.HIGH,
+/*						
 						
 						m(DeyeSunHybrid.ChannelId.BATTERY_TEMPERATURE, new UnsignedWordElement(586),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
@@ -414,6 +429,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 						m(DeyeSunHybrid.ChannelId.BATTERY_CORRECTED_AH, new UnsignedWordElement(592))),
 
 				new FC3ReadRegistersTask(607, Priority.HIGH, // Outputs
+						/*
 						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER, new SignedWordElement(607)),						
 						new DummyRegisterElement(608, 621),
 						// not totally clear. Maybe external generator is included?
@@ -435,7 +451,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_CURRENT_L3, new SignedWordElement(632),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-
+*/
 						m(DeyeSunHybrid.ChannelId.POWER_L1, new SignedWordElement(633)),
 						m(DeyeSunHybrid.ChannelId.POWER_L2, new SignedWordElement(634)),
 						m(DeyeSunHybrid.ChannelId.POWER_L3, new SignedWordElement(635)),
@@ -443,12 +459,26 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(636)), // negative values for
 																							// Charge; positive for
 																							// Discharge
-						m(DeyeSunHybrid.ChannelId.APPARENT_POWER, new SignedWordElement(637)))
+						m(DeyeSunHybrid.ChannelId.APPARENT_POWER, new SignedWordElement(637))),
+				
+				
+				new FC3ReadRegistersTask(1100, Priority.LOW,
+						m(DeyeSunHybrid.ChannelId.SET_REMOTE_MODE, new UnsignedWordElement(1100)),
+						m(DeyeSunHybrid.ChannelId.SET_REMOTE_WATCHDOG_TIME, new UnsignedWordElement(1101)),
+						m(DeyeSunHybrid.ChannelId.FUCKOFF_1, new UnsignedWordElement(1102)),
+						m(DeyeSunHybrid.ChannelId.FUCKOFF_2, new UnsignedWordElement(1103)),						
+						m(DeyeSunHybrid.ChannelId.SET_CONTROL_MODE, new UnsignedWordElement(1104)),  // set 1 for battery control (DC); set 0 for AC-control
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONTROL_MODE, new UnsignedWordElement(1105)),  // set 2 for for percentage control (reg 1109); set 3 for SOC control (reg 1110)
+						m(DeyeSunHybrid.ChannelId.SET_3P_CONTROL_MODE, new UnsignedWordElement(1106)),  // set 0 for 3p control via reg. 1111						
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_VOLTAGE, new UnsignedWordElement(1107)),  // set 0 for 3p control via reg. 1111
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_CURRENT, new UnsignedWordElement(1108)),  // set 0 for 3p control via reg. 1111
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_SOC, new SignedWordElement(1110),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),  // set battery power as SoC percentage
+						m(DeyeSunHybrid.ChannelId.SET_AC_SETPOINT_3P_PERCENT, new SignedWordElement(1111)))
+								);  // set total AC power for all phases						
 
-		// m(DeyeSunHybrid.ChannelId.MAX_SOLAR_SELL_POWER, new
-		// UnsignedWordElement(340))),
+						
 
-		);
 	}
 
 	@Override
@@ -759,9 +789,9 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 		try {
 			// should be 255 on register 146
-			ok = this.getTimeOfUseSellingEnabled() && this.getTimeOfUseMonday() && this.getTimeOfUseTuesday()
-					&& this.getTimeOfUseWednesday() && this.getTimeOfUseThursday() && this.getTimeOfUseFriday()
-					&& this.getTimeOfUseSaturday() && this.getTimeOfUseSunday()
+			ok = !this.getTimeOfUseSellingEnabled() && !this.getTimeOfUseMonday() && !this.getTimeOfUseTuesday()
+					&& !this.getTimeOfUseWednesday() && !this.getTimeOfUseThursday() && !this.getTimeOfUseFriday()
+					&& !this.getTimeOfUseSaturday() && !this.getTimeOfUseSunday()
 					// Time Points
 					&& this.getSellModeTimePoint1().get() == 0 && this.getSellModeTimePoint2().get() == 2355
 					&& this.getChargeModeTimePoint1().get() == 3 && this.getChargeModeTimePoint2().get() == 3
@@ -776,14 +806,14 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 	public void setEssInitialValues() {
 
 		try {
-			this.setTimeOfUseSellingEnabled(true);
-			this.setTimeOfUseMonday(true);
-			this.setTimeOfUseTuesday(true);
-			this.setTimeOfUseWednesday(true);
-			this.setTimeOfUseThursday(true);
-			this.setTimeOfUseFriday(true);
-			this.setTimeOfUseSaturday(true);
-			this.setTimeOfUseSunday(true);
+			this.setTimeOfUseSellingEnabled(false);
+			this.setTimeOfUseMonday(false);
+			this.setTimeOfUseTuesday(false);
+			this.setTimeOfUseWednesday(false);
+			this.setTimeOfUseThursday(false);
+			this.setTimeOfUseFriday(false);
+			this.setTimeOfUseSaturday(false);
+			this.setTimeOfUseSunday(false);
 
 			this.setSellModeTimePoint1(0);
 			this.setSellModeTimePoint2(2355);

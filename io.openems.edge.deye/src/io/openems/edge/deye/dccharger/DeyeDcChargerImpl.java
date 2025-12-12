@@ -120,7 +120,7 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(667, Priority.HIGH, //
+				new FC3ReadRegistersTask(667, Priority.LOW, //
 						m(DeyeDcCharger.ChannelId.ACTIVE_POWER_GENERATOR, new UnsignedWordElement(667)),
 						new DummyRegisterElement(668, 671),
 

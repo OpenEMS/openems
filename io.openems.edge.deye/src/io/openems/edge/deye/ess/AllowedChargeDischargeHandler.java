@@ -49,9 +49,12 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		}
 		
 		// values from BMS regarding hardware limits
-		Integer bmsMaxChargeCurrent = this.battery.getChargeMaxCurrent().get(); // A
-		Integer bmsMaxDischargeCurrent = this.battery.getDischargeMaxCurrent().get(); // A
-		Integer bmsVoltage = this.battery.getBmsBatteryVoltage().orElse(0); // mV
+		//Integer bmsMaxChargeCurrent = this.battery.getChargeMaxCurrent().get(); // A
+		//Integer bmsMaxDischargeCurrent = this.battery.getDischargeMaxCurrent().get(); // A
+		
+		Integer bmsMaxChargeCurrent = this.battery.getBmsChargeCurrentLimit().get();
+		Integer bmsMaxDischargeCurrent = this.battery.getBmsDischargeCurrentLimit().get();
+		Integer bmsVoltage = this.battery.getBatteryVoltage().orElse(0); // mV
 		
 		// configured values - cannot be used as we use these channels for battery controlling
 		Integer configuredBatteryMaxChargeCurrent = this.battery.getConfiguredMaxChargeCurrent(); // A

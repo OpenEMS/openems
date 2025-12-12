@@ -224,7 +224,7 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 						m(DeyeSunBattery.ChannelId.BMS_BATTERY_LITHIUM_TYPE, new UnsignedWordElement(223)),
 						// m(DeyeSunBattery.ChannelId.BMS_BATTERY_SOH, new UnsignedWordElement(224))),
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(224))),
-				new FC3ReadRegistersTask(514, Priority.HIGH,
+				new FC3ReadRegistersTask(514, Priority.LOW,
 						// Battery Energy
 						// Charge today (kWh)
 						m(DeyeSunBattery.ChannelId.TODAY_BATTERY_CHARGE, new UnsignedWordElement(514),

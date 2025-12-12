@@ -49,7 +49,7 @@ import io.openems.edge.deye.enums.EmsPowerMode;
 	@AttributeDefinition(name = "Max. Power to grid", description = "Max power to grid. Includes PV limitation")
 	int maxSellToGridPower() default 10000;		
 
-	@AttributeDefinition(name = "Max. Apparent Power", description = "User defined max. apparent power limit")
+	@AttributeDefinition(name = "Max. Apparent Power", description = "Inverter´s apparent power limit")
 	int maxApparentPower() default 10000;	
 	
 	@AttributeDefinition(name = "Min battery capacity [Ah]", description = "Value is stored to hardware")

@@ -126,7 +126,7 @@ public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements Dey
 						m(DeyeMeterInternal.ChannelId.GRID_LOW_FREQUENCY, new SignedWordElement(188),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 				*/
-				new FC3ReadRegistersTask(598, Priority.HIGH,
+				new FC3ReadRegistersTask(598, Priority.LOW,
 
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(598),
 								ElementToChannelConverter.SCALE_FACTOR_2),

@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 
 import io.openems.common.channel.AccessMode;
@@ -808,8 +807,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
-						.build());
+				this.getModbusSlaveNatureTable(accessMode));
 	}
 
 }

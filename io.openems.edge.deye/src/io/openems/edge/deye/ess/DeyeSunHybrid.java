@@ -12,6 +12,10 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
@@ -840,6 +844,45 @@ public interface DeyeSunHybrid
 		POWER_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)),		
 		
+		
+		SET_REMOTE_MODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		
+		SET_CONTROL_MODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //			
+		
+		SET_BATTERY_CONTROL_MODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //		
+		
+		SET_3P_CONTROL_MODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //	
+		
+		SET_BATTERY_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)
+				.accessMode(AccessMode.READ_WRITE)), //	
+		
+		SET_BATTERY_POWER_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT)
+				.accessMode(AccessMode.READ_WRITE)), //	
+		
+		SET_AC_SETPOINT_3P_PERCENT(Doc.of(OpenemsType.INTEGER) // dezi-percent
+				.accessMode(AccessMode.READ_WRITE)), //	
+		SET_REMOTE_WATCHDOG_TIME(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //			
+
+		// ToDo: Set right units and scaling
+		SET_BATTERY_CONSTANT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //		
+				
+		SET_BATTERY_CONSTANT_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //		
+						
+		FUCKOFF_1(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //		
+		
+		FUCKOFF_2(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //				
+		
 
 		
 /*		
@@ -888,7 +931,7 @@ public interface DeyeSunHybrid
 
 */	
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)),
+				.unit(Unit.VOLT_AMPERE)),  
 		;//
 
 
@@ -1827,6 +1870,189 @@ public interface DeyeSunHybrid
 	public default void setWorkState(WorkState value)  {
 		this.getWorkStateChannel().setNextValue(value);
 	}	
+	
+    // SET_REMOTE_MODE
+    public default IntegerReadChannel getSetRemoteModeChannel() {
+        return this.channel(ChannelId.SET_REMOTE_MODE);
+    }
+    public default IntegerWriteChannel getSetSetRemoteModeChannel() {
+        return this.channel(ChannelId.SET_REMOTE_MODE);
+    }
+    public default Value<Integer> getSetRemoteMode() {
+        return this.getSetRemoteModeChannel().value();
+    }
+    public default void setSetRemoteMode(int value) throws OpenemsNamedException {
+        this.getSetSetRemoteModeChannel().setNextWriteValue(value);
+    }
+
+    // SET_CONTROL_MODE
+    public default IntegerReadChannel getSetControlModeChannel() {
+        return this.channel(ChannelId.SET_CONTROL_MODE);
+    }
+    public default IntegerWriteChannel getSetSetControlModeChannel() {
+        return this.channel(ChannelId.SET_CONTROL_MODE);
+    }
+    public default Value<Integer> getSetControlMode() {
+        return this.getSetControlModeChannel().value();
+    }
+    public default void setSetControlMode(int value) throws OpenemsNamedException {
+        this.getSetSetControlModeChannel().setNextWriteValue(value);
+    }
+
+    // SET_BATTERY_CONTROL_MODE
+    public default IntegerReadChannel getSetBatteryControlModeChannel() {
+        return this.channel(ChannelId.SET_BATTERY_CONTROL_MODE);
+    }
+    public default IntegerWriteChannel getSetSetBatteryControlModeChannel() {
+        return this.channel(ChannelId.SET_BATTERY_CONTROL_MODE);
+    }
+    public default Value<Integer> getSetBatteryControlMode() {
+        return this.getSetBatteryControlModeChannel().value();
+    }
+    public default void setSetBatteryControlMode(int value) throws OpenemsNamedException {
+        this.getSetSetBatteryControlModeChannel().setNextWriteValue(value);
+    }
+
+    // SET_3P_CONTROL_MODE
+    public default IntegerReadChannel getSet3PControlModeChannel() {
+        return this.channel(ChannelId.SET_3P_CONTROL_MODE);
+    }
+    public default IntegerWriteChannel getSetSet3PControlModeChannel() {
+        return this.channel(ChannelId.SET_3P_CONTROL_MODE);
+    }
+    public default Value<Integer> getSet3PControlMode() {
+        return this.getSet3PControlModeChannel().value();
+    }
+    public default void setSet3PControlMode(int value) throws OpenemsNamedException {
+        this.getSetSet3PControlModeChannel().setNextWriteValue(value);
+    }
+
+    // SET_DC_POWER_PERCENT
+    public default IntegerReadChannel getSetBatteryPowerPercentChannel() {
+        return this.channel(ChannelId.SET_BATTERY_POWER_PERCENT);
+    }
+    public default IntegerWriteChannel getSetSetBatteryPowerPercentChannel() {
+        return this.channel(ChannelId.SET_BATTERY_POWER_PERCENT);
+    }
+    public default Value<Integer> getSetBatteryPowerPercent() {
+        return this.getSetBatteryPowerPercentChannel().value();
+    }
+    public default void setSetBatteryPowerPercent(int value) throws OpenemsNamedException {
+        this.getSetSetBatteryPowerPercentChannel().setNextWriteValue(value);
+    }
+
+    // SET_BATTERY_POWER_SOC
+    public default IntegerReadChannel getSetBatteryPowerSocChannel() {
+        return this.channel(ChannelId.SET_BATTERY_POWER_SOC);
+    }
+    public default IntegerWriteChannel getSetSetBatteryPowerSocChannel() {
+        return this.channel(ChannelId.SET_BATTERY_POWER_SOC);
+    }
+    public default Value<Integer> getSetBatteryPowerSoc() {
+        return this.getSetBatteryPowerSocChannel().value();
+    }
+    public default void setSetBatteryPowerSoc(int value) throws OpenemsNamedException {
+        this.getSetSetBatteryPowerSocChannel().setNextWriteValue(value);
+    }
+
+    // SET_AC_SETPOINT_3P
+    public default IntegerReadChannel getSetAcSetpoint3pPercentChannel() {
+        return this.channel(ChannelId.SET_AC_SETPOINT_3P_PERCENT);
+    }
+    public default IntegerWriteChannel getSetSetAcSetpoint3pPercentChannel() {
+        return this.channel(ChannelId.SET_AC_SETPOINT_3P_PERCENT);
+    }
+    public default Value<Integer> getSetAcSetpoint3pPercent() {
+        return this.getSetAcSetpoint3pPercentChannel().value();
+    }
+    public default void setSetAcSetpoint3pPercent(int value) throws OpenemsNamedException {
+        this.getSetSetAcSetpoint3pPercentChannel().setNextWriteValue(value);
+    }
+
+    // SET_REMOTE_WATCHDOG_TIME
+    public default IntegerReadChannel getSetRemoteWatchdogTimeChannel() {
+        return this.channel(ChannelId.SET_REMOTE_WATCHDOG_TIME);
+    }
+    public default IntegerWriteChannel getSetSetRemoteWatchdogTimeChannel() {
+        return this.channel(ChannelId.SET_REMOTE_WATCHDOG_TIME);
+    }
+    public default Value<Integer> getSetRemoteWatchdogTime() {
+        return this.getSetRemoteWatchdogTimeChannel().value();
+    }
+    public default void setSetRemoteWatchdogTime(int value) throws OpenemsNamedException {
+        this.getSetSetRemoteWatchdogTimeChannel().setNextWriteValue(value);
+    }
+	
+    
+    // SET_FUCKOFF_1
+    public default IntegerReadChannel getFuckOff1Channel() {
+        return this.channel(ChannelId.FUCKOFF_1);
+    }
+    public default IntegerWriteChannel getSetFuckOff1Channel() {
+        return this.channel(ChannelId.FUCKOFF_1);
+    }
+    public default Value<Integer> getFuckOff1() {
+        return this.getFuckOff1Channel().value();
+    }
+    public default void setFuckOff1(int value) throws OpenemsNamedException {
+        this.getSetFuckOff1Channel().setNextWriteValue(value);
+    }    
+    
+    // SET_FUCKOFF_2
+    public default IntegerReadChannel getFuckOff2Channel() {
+        return this.channel(ChannelId.FUCKOFF_2);
+    }
+    public default IntegerWriteChannel getSetFuckOff2Channel() {
+        return this.channel(ChannelId.FUCKOFF_2);
+    }
+    public default Value<Integer> getFuckOff2() {
+        return this.getFuckOff2Channel().value();
+    }
+    public default void setFuckOff2(int value) throws OpenemsNamedException {
+        this.getSetFuckOff2Channel().setNextWriteValue(value);
+    }    
+    
+    
+	 // -----------------------------------------------------------------------------
+	 // Battery Constant Voltage
+	 // -----------------------------------------------------------------------------
+	
+	 public default IntegerReadChannel getBatteryConstantVoltageChannel() {
+	     return this.channel(ChannelId.SET_BATTERY_CONSTANT_VOLTAGE);
+	 }
+	
+	 public default IntegerWriteChannel getSetBatteryConstantVoltageChannel() {
+	     return this.channel(ChannelId.SET_BATTERY_CONSTANT_VOLTAGE);
+	 }
+	
+	 public default Value<Integer> getBatteryConstantVoltage() {
+	     return this.getBatteryConstantVoltageChannel().value();
+	 }
+	
+	 public default void setBatteryConstantVoltage(int value) throws OpenemsNamedException {
+	     this.getSetBatteryConstantVoltageChannel().setNextWriteValue(value);
+	 }
+	
+	 // -----------------------------------------------------------------------------
+	 // Battery Constant Current
+	 // -----------------------------------------------------------------------------
+	
+	 public default IntegerReadChannel getBatteryConstantCurrentChannel() {
+	     return this.channel(ChannelId.SET_BATTERY_CONSTANT_CURRENT);
+	 }
+	
+	 public default IntegerWriteChannel getSetBatteryConstantCurrentChannel() {
+	     return this.channel(ChannelId.SET_BATTERY_CONSTANT_CURRENT);
+	 }
+	
+	 public default Value<Integer> getBatteryConstantCurrent() {
+	     return this.getBatteryConstantCurrentChannel().value();
+	 }
+	
+	 public default void setBatteryConstantCurrent(int value) throws OpenemsNamedException {
+	     this.getSetBatteryConstantCurrentChannel().setNextWriteValue(value);
+	 }
+	    
 
 	// As Error messages 1-4 have to be treated as a 64 (Quadruple) element with LSW first
 	// and OpenEMS does not offer this word order we have to do it manually.
