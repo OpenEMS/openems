@@ -54,18 +54,17 @@ public class Simulator {
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 		this.cache = CacheBuilder.newBuilder() //
-				.maximumSize(10000) // Limit cache to prevent memory leak
 				.recordStats() //
 				.build(new CacheLoader<int[], Fitness>() {
 
 					@Override
 					/**
 					 * Simulates a Schedule and calculates the cost.
-					 *
+					 * 
 					 * <p>
 					 * NOTE: do not throw an Exception here, because we use
 					 * {@link LoadingCache#getUnchecked(Object)} below.
-					 *
+					 * 
 					 * @param schedule the schedule as defined by {@link EshCodec}
 					 * @return the {@link Fitness}
 					 */
@@ -281,19 +280,12 @@ public class Simulator {
 		}
 
 		// Start the evaluation
-		try {
-			var bestGt = stream //
-					.collect(toBestResult(codec));
-			if (bestGt == null) {
-				return EMPTY_SIMULATION_RESULT;
-			}
-			return SimulationResult.fromQuarters(this.goc, bestGt);
-		} finally {
-			// Shutdown ForkJoinPool to prevent resource leak
-			if (executor instanceof ForkJoinPool pool) {
-				pool.shutdown();
-			}
+		var bestGt = stream //
+				.collect(toBestResult(codec));
+		if (bestGt == null) {
+			return EMPTY_SIMULATION_RESULT;
 		}
+		return SimulationResult.fromQuarters(this.goc, bestGt);
 	}
 
 	protected static record BestScheduleCollector(//
