@@ -35,6 +35,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.evcc.loadpoint.LoadpointConsumptionMeterEvcc;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -50,7 +52,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edge.evcc.loadpoint.AbstractLoadpointMeterEvcc
-		implements LoadpointConsumptionSinglePhaseMeterEvcc, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
+		implements LoadpointConsumptionSinglePhaseMeterEvcc, Evcs, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
 		TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -66,22 +68,13 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 	private volatile Timedata timedata;
 
 	/**
-	 * Energy calculators for both positive and negative power values.
+	 * Energy calculator for V2G/export (negative power).
 	 *
 	 * <p>
-	 * EVCC loadpoint is a consumption meter that typically reports positive
-	 * ActivePower values (consumption). According to ElectricityMeter API:
-	 * <ul>
-	 * <li>ACTIVE_PRODUCTION_ENERGY = integral over positive ACTIVE_POWER values
-	 * <li>ACTIVE_CONSUMPTION_ENERGY = integral over negative ACTIVE_POWER values
-	 * </ul>
-	 * Both are provided for completeness, though for a wallbox/charging station,
-	 * ACTIVE_PRODUCTION_ENERGY is the primary channel as it accumulates positive
-	 * power (consumption). This ensures compatibility with UI history charts which
-	 * expect consumption meters to use ActiveProductionEnergy.
+	 * ACTIVE_PRODUCTION_ENERGY is set directly from EVCC's chargeTotalImport meter.
+	 * This calculator handles the rare case of negative power (V2G/export) which
+	 * would accumulate in ACTIVE_CONSUMPTION_ENERGY.
 	 */
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
@@ -115,6 +108,7 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 	public LoadpointConsumptionSinglePhaseMeterEvccImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				Evcs.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.values() //
 		);
@@ -130,6 +124,11 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 		this.meterType = config.type();
 		this.phase = config.phase();
 		this.initializeLoadpointReference(config.loadpointTitle(), config.loadpointIndex());
+
+		this._setChargingType(io.openems.edge.evcs.api.ChargingType.AC);
+		this._setFixedMinimumHardwarePower(config.minChargingPowerW());
+		this._setFixedMaximumHardwarePower(config.maxChargingPowerW());
+		Evcs.addCalculatePowerLimitListeners(this);
 
 		if (this.isEnabled() && this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
@@ -172,8 +171,10 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 	private void processHttpResult(HttpResponse<JsonElement> result, HttpError error) {
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
+			this._setChargingstationCommunicationFailed(true);
 			return;
 		}
+		this._setChargingstationCommunicationFailed(false);
 
 		try {
 			this.logDebug(this.log, "processHttpResult");
@@ -192,6 +193,17 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_PHASES).setNextValue(phases);
+			this._setPhases(phases > 0 ? phases : 1);
+
+			boolean connected = lp.has("connected") && lp.get("connected").getAsBoolean();
+			boolean charging = lp.has("charging") && lp.get("charging").getAsBoolean();
+			if (!connected) {
+				this._setStatus(Status.NOT_READY_FOR_CHARGING);
+			} else if (charging) {
+				this._setStatus(Status.CHARGING);
+			} else {
+				this._setStatus(Status.READY_FOR_CHARGING);
+			}
 
 			// Use double to maintain precision when dividing power across phases
 			double calculatedPower = chargePower;
@@ -199,13 +211,44 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 				calculatedPower = (double) chargePower / phases;
 			}
 
-			int totalImport = lp.has("chargeTotalImport") ? lp.get("chargeTotalImport").getAsInt() : 0;
-			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.CONSUMPTION_ENERGY)
-					.setNextValue(totalImport);
+			// Cumulative energy from EVCC meter (kWh -> Wh)
+			if (lp.has("chargeTotalImport") && !lp.get("chargeTotalImport").isJsonNull()) {
+				double totalImportKwh = lp.get("chargeTotalImport").getAsDouble();
+				long totalImportWh = Math.round(totalImportKwh * 1000.0);
+				this._setActiveProductionEnergy(totalImportWh);
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.CONSUMPTION_ENERGY)
+						.setNextValue(totalImportKwh);
+			}
 
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
 			this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY)
 					.setNextValue(sessionEnergy);
+			this._setEnergySession(sessionEnergy);
+
+			// Vehicle and mode information
+			if (lp.has("vehicleSoc") && !lp.get("vehicleSoc").isJsonNull()) {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.VEHICLE_SOC)
+						.setNextValue((int) Math.round(lp.get("vehicleSoc").getAsDouble()));
+			} else {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.VEHICLE_SOC).setNextValue(null);
+			}
+
+			if (lp.has("vehicleName") && !lp.get("vehicleName").isJsonNull()) {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.VEHICLE_NAME)
+						.setNextValue(lp.get("vehicleName").getAsString());
+			} else {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.VEHICLE_NAME).setNextValue(null);
+			}
+
+			if (lp.has("mode") && !lp.get("mode").isJsonNull()) {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.MODE)
+						.setNextValue(lp.get("mode").getAsString());
+			}
+
+			if (lp.has("enabled")) {
+				this.channel(LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.ENABLED)
+						.setNextValue(lp.get("enabled").getAsBoolean());
+			}
 
 			if (lp.has("chargeVoltages") && !lp.get("chargeVoltages").isJsonNull()
 				&& lp.get("chargeVoltages").isJsonArray()) {
@@ -261,26 +304,19 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 	}
 
 	/**
-	 * Calculate energy from power values, splitting positive and negative values.
+	 * Calculate consumption energy from negative power values.
 	 *
 	 * <p>
-	 * Positive power values (consumption) are accumulated in ACTIVE_PRODUCTION_ENERGY,
-	 * negative power values (production) are accumulated in ACTIVE_CONSUMPTION_ENERGY.
-	 * For a wallbox/charging station, positive values are expected (consumption only),
-	 * so ACTIVE_PRODUCTION_ENERGY is the primary channel used by UI history charts.
+	 * ACTIVE_PRODUCTION_ENERGY is set directly from EVCC's chargeTotalImport meter.
+	 * This method only handles the rare case of negative power (V2G/export) which
+	 * would accumulate in ACTIVE_CONSUMPTION_ENERGY.
 	 */
 	private void calculateEnergy() {
 		final var activePower = this.getActivePower().get();
-		if (activePower == null) {
-			this.calculateProductionEnergy.update(null);
-			this.calculateConsumptionEnergy.update(null);
-		} else if (activePower > 0) {
-			// Positive power = consumption -> accumulate in ACTIVE_PRODUCTION_ENERGY
-			this.calculateProductionEnergy.update(Math.abs(activePower));
+		if (activePower == null || activePower >= 0) {
 			this.calculateConsumptionEnergy.update(0);
 		} else {
-			// Negative power = production -> accumulate in ACTIVE_CONSUMPTION_ENERGY
-			this.calculateProductionEnergy.update(0);
+			// Negative power = production/export -> accumulate in ACTIVE_CONSUMPTION_ENERGY
 			this.calculateConsumptionEnergy.update(Math.abs(activePower));
 		}
 	}
@@ -350,6 +386,11 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
 	}
 
 	@Override

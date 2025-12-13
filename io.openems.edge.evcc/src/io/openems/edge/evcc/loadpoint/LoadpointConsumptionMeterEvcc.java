@@ -5,6 +5,7 @@ import static io.openems.common.types.OpenemsType.INTEGER;
 
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -32,7 +33,32 @@ public interface LoadpointConsumptionMeterEvcc extends ElectricityMeter, Openems
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		ACTIVE_PHASES(Doc.of(INTEGER) //
-				.persistencePriority(PersistencePriority.MEDIUM)) //
+				.persistencePriority(PersistencePriority.MEDIUM)),
+
+		/**
+		 * Vehicle battery state of charge.
+		 */
+		VEHICLE_SOC(Doc.of(INTEGER) //
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+
+		/**
+		 * Name of the connected vehicle.
+		 */
+		VEHICLE_NAME(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH)),
+
+		/**
+		 * EVCC charging mode (pv, now, minpv, off).
+		 */
+		MODE(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH)),
+
+		/**
+		 * Whether charging is enabled by EVCC.
+		 */
+		ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+				.persistencePriority(PersistencePriority.HIGH)) //
 		;
 
 		private final Doc doc;

@@ -29,5 +29,11 @@ public @interface Config {
 	@AttributeDefinition(name = "Loadpoint Index", description = "Index of the loadpoint in EVCC's response, e.g. 0 for the first. Used as fallback if title is not found or empty.")
 	int loadpointIndex() default 0;
 
+	@AttributeDefinition(name = "Minimum charging power", description = "Minimum charging power in W (e.g. 6A × 230V = 1380W)")
+	int minChargingPowerW() default 1380;
+
+	@AttributeDefinition(name = "Maximum charging power", description = "Maximum charging power in W (e.g. 32A × 230V × 3 = 22080W)")
+	int maxChargingPowerW() default 22080;
+
 	String webconsole_configurationFactory_nameHint() default "Loadpoint consumption evcc [{id}]";
 }

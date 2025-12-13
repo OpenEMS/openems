@@ -33,5 +33,11 @@ public @interface Config {
 	@AttributeDefinition(name = "Phase", description = "Which phase is the meter connected?")
 	SinglePhase phase() default SinglePhase.L1;
 
+	@AttributeDefinition(name = "Minimum charging power", description = "Minimum charging power in W (e.g. 6A × 230V = 1380W)")
+	int minChargingPowerW() default 1380;
+
+	@AttributeDefinition(name = "Maximum charging power", description = "Maximum charging power in W (e.g. 32A × 230V = 7360W)")
+	int maxChargingPowerW() default 7360;
+
 	String webconsole_configurationFactory_nameHint() default "Loadpoint consumption evcc (single-phase) [{id}]";
 }
