@@ -247,8 +247,9 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends io.openems.edg
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
 
-				if (phases > 0) {
-					this._setCurrent((int) (calculatedPower * 1000000 / this.getVoltage().get()));
+				var voltage = this.getVoltage().get();
+				if (phases > 0 && voltage != null) {
+					this._setCurrent((int) (calculatedPower * 1000000 / voltage));
 				} else {
 					this._setCurrent(null);
 				}

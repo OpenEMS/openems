@@ -360,16 +360,14 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 		this._setAllowedDischargePower(maxDischargePower);
 		this._setAllowedChargePower(maxChargePower);
 
-		try {
-			int soc = getSoc().get();
+		var soc = getSoc().get();
+		if (soc != null) {
 			if (soc == 100) {
 				this._setAllowedChargePower(0);
 			}
 			if (soc <= this.minsoc) {
 				this._setAllowedDischargePower(0);
 			}
-		} catch (NullPointerException e) {
-			// Handle potential null values gracefully
 		}
 		log.debug("--> set limits: " + maxDischargePower + " / " + maxChargePower);
 	}

@@ -202,7 +202,6 @@ public interface KostalManagedEss extends ManagedSymmetricEss, SymmetricEss, Mod
 	 * @param value the next value to set for charge power
 	 */
 	public default void _setChargePower(Integer value) {
-		System.out.println("setChargePower called... setting value: " + value);
 		this.getSetChargePowerChannel().setNextValue(value);
 	}
 

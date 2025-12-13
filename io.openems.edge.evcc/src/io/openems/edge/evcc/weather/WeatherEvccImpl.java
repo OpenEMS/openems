@@ -39,7 +39,7 @@ import io.openems.edge.weather.api.Weather;
 @Component(name = "Weather.Evcc", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class WeatherEvccImpl extends AbstractOpenemsComponent implements WeatherEvcc, OpenemsComponent, Weather {
 
-	private static final Logger log = LoggerFactory.getLogger(EvccForecastService.class);
+	private static final Logger log = LoggerFactory.getLogger(WeatherEvccImpl.class);
 
 	@Reference
 	private ComponentManager componentManager;

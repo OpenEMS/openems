@@ -239,6 +239,10 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractLoadpointMeterEvc
 				this._setVoltageL3(TypeUtils.multiply(voltage, 1000));
 			}
 
+			var voltageL1 = this.getVoltageL1().get();
+			var voltageL2 = this.getVoltageL2().get();
+			var voltageL3 = this.getVoltageL3().get();
+
 			if (lp.has("chargeCurrents") && !lp.get("chargeCurrents").isJsonNull()
 				&& lp.get("chargeCurrents").isJsonArray()) {
 				var currents = lp.getAsJsonArray("chargeCurrents");
@@ -264,42 +268,46 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractLoadpointMeterEvc
 			} else {
 				this.logDebug(this.log, "chargeCurrents not provided or null – estimating phase current mapping.");
 
-				if (phases > 0) {
-					int currentL1 = (int) (calculatedPower * 1000000 / this.getVoltageL1().get());
+				if (phases > 0 && voltageL1 != null) {
+					int currentL1 = (int) (calculatedPower * 1000000 / voltageL1);
 					this._setCurrentL1(currentL1);
 				} else {
 					this._setCurrentL1(null);
 				}
 
-				if (phases > 1) {
-					int currentL2 = (int) (calculatedPower * 1000000 / this.getVoltageL2().get());
+				if (phases > 1 && voltageL2 != null) {
+					int currentL2 = (int) (calculatedPower * 1000000 / voltageL2);
 					this._setCurrentL2(currentL2);
 				} else {
 					this._setCurrentL2(null);
 				}
 
-				if (phases > 2) {
-					int currentL3 = (int) (calculatedPower * 1000000 / this.getVoltageL3().get());
+				if (phases > 2 && voltageL3 != null) {
+					int currentL3 = (int) (calculatedPower * 1000000 / voltageL3);
 					this._setCurrentL3(currentL3);
 				} else {
 					this._setCurrentL3(null);
 				}
 			}
 
-			if (phases > 0 && this.getVoltageL1() != null && this.getCurrentL1() != null) {
-				this._setActivePowerL1((int) ((long) this.getVoltageL1().get() * this.getCurrentL1().get() / 1000000));
+			var currentL1 = this.getCurrentL1().get();
+			var currentL2 = this.getCurrentL2().get();
+			var currentL3 = this.getCurrentL3().get();
+
+			if (phases > 0 && voltageL1 != null && currentL1 != null) {
+				this._setActivePowerL1((int) ((long) voltageL1 * currentL1 / 1000000));
 			} else {
 				this._setActivePowerL1(null);
 			}
 
-			if (phases > 1 && this.getVoltageL2() != null && this.getCurrentL2() != null) {
-				this._setActivePowerL2((int) ((long) this.getVoltageL2().get() * this.getCurrentL2().get() / 1000000));
+			if (phases > 1 && voltageL2 != null && currentL2 != null) {
+				this._setActivePowerL2((int) ((long) voltageL2 * currentL2 / 1000000));
 			} else {
 				this._setActivePowerL2(null);
 			}
 
-			if (phases > 2 && this.getVoltageL3() != null && this.getCurrentL3() != null) {
-				this._setActivePowerL3((int) ((long) this.getVoltageL3().get() * this.getCurrentL3().get() / 1000000));
+			if (phases > 2 && voltageL3 != null && currentL3 != null) {
+				this._setActivePowerL3((int) ((long) voltageL3 * currentL3 / 1000000));
 			} else {
 				this._setActivePowerL3(null);
 			}
