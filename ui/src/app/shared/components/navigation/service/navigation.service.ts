@@ -34,6 +34,10 @@ export class NavigationService {
 
         effect(async () => {
             const _currentUrl = this.routeService.currentUrl();
+
+            // Update position on every URL change (handles global pages like /overview)
+            this.setPosition();
+
             const currentEdge = await this.service.getCurrentEdge();
             currentEdge?.getFirstValidConfig(service.websocket).then(async (config: EdgeConfig) => {
                 this.updateNavigationNodes(_currentUrl, currentEdge, translate);
@@ -204,16 +208,50 @@ export class NavigationService {
     }
 
     /**
-     * Sets the navigation position
+     * Sets the navigation position based on user settings and current route.
+     * Navigation is disabled on global pages (overview, login, etc.) that don't have edge context.
      */
     private setPosition() {
         const user = this.userService.currentUser();
+        const currentUrl = this.routeService.currentUrl();
+
+        // Disable navigation on global pages without edge context
+        if (this.isGlobalPage(currentUrl)) {
+            this.position.set("disabled");
+            return;
+        }
 
         if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
             this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
             this.position.set("disabled");
         }
+    }
+
+    /**
+     * Checks if the current URL is a page without edge-specific navigation.
+     *
+     * @param url the current URL
+     * @returns true if the page should not show the new navigation sidebar
+     */
+    private isGlobalPage(url: string | null): boolean {
+        if (!url) {
+            return true;
+        }
+
+        // Global pages without any edge context
+        const globalPages = ["/overview", "/login", "/index", "/user", "/registration"];
+        if (globalPages.some(page => url === page || url.startsWith(page + "?"))) {
+            return true;
+        }
+
+        // Edge pages that don't have navigation in new UI (e.g. settings)
+        const edgePagesWithoutNavigation = ["/settings"];
+        if (edgePagesWithoutNavigation.some(page => url.includes(page))) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
