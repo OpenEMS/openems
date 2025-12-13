@@ -27,6 +27,7 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -46,7 +47,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		property = { "type=CONSUMPTION_METERED" } //
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
-public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
+public class LoadpointConsumptionMeterEvccImpl extends AbstractLoadpointMeterEvcc
 		implements LoadpointConsumptionMeterEvcc, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -121,10 +122,18 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.meterType = config.type();
+		this.initializeLoadpointReference(config.loadpointTitle(), config.loadpointIndex());
+
 		if (this.isEnabled() && this.httpBridgeFactory != null) {
 			this.httpBridge = this.httpBridgeFactory.get();
 			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-			var url = config.apiUrl() + "?jq=.loadpoints[" + config.loadpointIndex() + "]";
+
+			// Build JQ filter: try to match by title first, fallback to index
+			var jqFilter = this.buildLoadpointFilter(config.loadpointTitle(), config.loadpointIndex());
+			var url = UrlBuilder.parse(config.apiUrl()) //
+					.withQueryParam("jq", jqFilter) //
+					.toEncodedString();
+			this.logInfo(this.log, "Subscribing to loadpoint with filter: " + jqFilter);
 			this.cycleService.subscribeJsonEveryCycle(url, this::processHttpResult);
 		}
 
@@ -163,9 +172,15 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			this.logDebug(this.log, "processHttpResult");
 			var lp = getAsJsonObject(result.data());
 
+			// Check if we got the expected loadpoint and warn if fallback was used
+			this.checkLoadpointMatch(lp, this.log);
+
 			int chargePower = 0;
 			if (lp.has("chargePower")) {
 				chargePower = (int) Math.round(getAsDouble(lp, "chargePower"));
+				this._setActivePower(chargePower);
+			} else {
+				this._setActivePower(null);
 			}
 
 			int phases = lp.has("phasesActive") ? lp.get("phasesActive").getAsInt() : 0;
@@ -191,7 +206,8 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 			int sessionEnergy = lp.has("sessionEnergy") ? lp.get("sessionEnergy").getAsInt() : 0;
 			this.channel(LoadpointConsumptionMeterEvcc.ChannelId.ACTIVE_SESSION_ENERGY).setNextValue(sessionEnergy);
 
-			if (lp.has("chargeVoltages") && lp.get("chargeVoltages").isJsonArray()) {
+			if (lp.has("chargeVoltages") && !lp.get("chargeVoltages").isJsonNull()
+				&& lp.get("chargeVoltages").isJsonArray()) {
 				var voltages = lp.getAsJsonArray("chargeVoltages");
 
 				if (voltages.size() > 0 && voltages.get(0) != null && !voltages.get(0).isJsonNull()) {
@@ -223,7 +239,8 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractOpenemsComponent
 				this._setVoltageL3(TypeUtils.multiply(voltage, 1000));
 			}
 
-			if (lp.has("chargeCurrents") && lp.get("chargeCurrents").isJsonArray()) {
+			if (lp.has("chargeCurrents") && !lp.get("chargeCurrents").isJsonNull()
+				&& lp.get("chargeCurrents").isJsonArray()) {
 				var currents = lp.getAsJsonArray("chargeCurrents");
 
 				if (currents.size() > 0 && currents.get(0) != null && !currents.get(0).isJsonNull()) {

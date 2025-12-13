@@ -24,9 +24,12 @@ public @interface Config {
 	@AttributeDefinition(name = "evcc API URL", description = "URL to fetch loadpoint data from EVCC. Example: http://localhost:7070/api/state")
 	String apiUrl() default "http://localhost:7070/api/state";
 
-	@AttributeDefinition(name = "Loadpoint Index", description = "Index of the loadpoint in EVCC's response, e.g. 0 for the first")
+	@AttributeDefinition(name = "Loadpoint Title", description = "Title of the loadpoint in EVCC (e.g. 'Carport', 'Garage', 'Heatpump'). Used as primary reference. Leave empty to use index only.")
+	String loadpointTitle() default "";
+
+	@AttributeDefinition(name = "Loadpoint Index", description = "Index of the loadpoint in EVCC's response, e.g. 0 for the first. Used as fallback if title is not found or empty.")
 	int loadpointIndex() default 0;
-	
+
 	@AttributeDefinition(name = "Phase", description = "Which phase is the meter connected?")
 	SinglePhase phase() default SinglePhase.L1;
 
