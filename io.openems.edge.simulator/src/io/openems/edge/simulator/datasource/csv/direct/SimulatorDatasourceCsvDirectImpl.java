@@ -17,7 +17,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.simulator.CsvUtils;
 import io.openems.edge.simulator.DataContainer;
-import io.openems.edge.simulator.datasource.api.AbstractCsvDatasource;
+import io.openems.edge.simulator.datasource.api.AbstractDatasource;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
@@ -29,7 +29,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class SimulatorDatasourceCsvDirectImpl extends AbstractCsvDatasource
+public class SimulatorDatasourceCsvDirectImpl extends AbstractDatasource
 		implements SimulatorDatasourceCsvDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
