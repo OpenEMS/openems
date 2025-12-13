@@ -1,5 +1,6 @@
 package io.openems.edge.ess.core.power;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -179,6 +180,23 @@ public class SolverBySocOptimizationTest {
 		printing(socDistribution, upperBound, solution, lowerBound, powerSetValue);
 
 		assertEquals(-30000.0, Arrays.stream(solution).sum(), 1e-6);
+	}
+
+	@Test
+	public void testLowerBoundsForLowSoc() {
+
+		double[] upperBound = { 12_000, 12_000, 12_000, 12_000 };
+		double[] lowerBound = { -12_000, -12_000, -12_000, -1_900 };
+		double[] socDistribution = { 60, 60, 30, 60 };
+		double powerSetValue = -10000;
+
+		double[] solution = SolverBySocOptimization.solveDistribution(upperBound, lowerBound, socDistribution,
+				powerSetValue, getDirection(powerSetValue));
+		// Print this if test fails
+		printing(socDistribution, upperBound, solution, lowerBound, powerSetValue);
+
+		assertEquals(-10000, Arrays.stream(solution).sum(), 1e-6);
+		assertArrayEquals(new double[] {-2160, -2160, -3779.9, -1900}, solution, 0.1);
 	}
 
 	private static String formatArray(String label, double[] array) {
