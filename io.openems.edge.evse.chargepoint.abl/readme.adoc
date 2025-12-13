@@ -1,0 +1,479 @@
+= EVSE Charge-Point ABL
+:toc:
+:toclevels: 3
+:icons: font
+:source-highlighter: highlightjs
+
+Implementation of the ABL EVCC2/3 electric vehicle charging station for OpenEMS using the new EVSE API.
+
+== Overview
+
+This component provides integration with ABL EVCC2/3 charging stations via Modbus TCP, enabling real-time monitoring and dynamic control of EV charging within the OpenEMS platform.
+
+=== Key Features
+
+* *Modbus TCP Communication*: Full protocol implementation based on ABL EVCC2/3 API specification
+* *Real-time Monitoring*: Charging state, phase currents, EV connection status
+* *Dynamic Current Control*: 6-32A adjustable charging current (configurable maximum)
+* *Three-Phase Support*: Full three-phase power monitoring and control
+* *EVSE API Compliant*: Implements OpenEMS EVSE API for standardized integration
+* *Comprehensive State Mapping*: All 23 ABL states supported (A1, B1, B2, C2-C4, E0-E3, F1-F11)
+
+=== Documentation
+* Setting up a development and testing environment: link:DEVELOPMENT_SETUP_GUIDE.adoc[Development Setup]
+* ABL EVCC2/3 Modbus Protocol Specification: link:Schnittstellenbeschreibung_Modbus-ASCII.pdf[Interface Specification]
+* Testing Documentation: 
+    * link:test/TEST_README.adoc[Testing Documentation]
+    * link:test/TESTING_PATTERNS.adoc[OpenEMS Testing Patterns]
+    * link:test/INTEGRATION_GUIDE.adoc[Integration Testing Guide]
+
+== Configuration
+
+=== Configuration Parameters
+
+[cols="3,2,2,5"]
+|===
+|Parameter |Type |Default |Description
+
+|`id`
+|String
+|`evseChargePoint0`
+|Unique component ID
+
+|`alias`
+|String
+|_empty_
+|Human-readable name
+
+|`enabled`
+|Boolean
+|`true`
+|Enable/disable component
+
+|`readOnly`
+|Boolean
+|`false`
+|Read-only (monitoring) or read-write (control)
+
+|`debugMode`
+|Boolean
+|`false`
+|Enable debug logging
+
+|`wiring`
+|Enum
+|`THREE_PHASE`
+|Hardware wiring (SINGLE_PHASE or THREE_PHASE)
+
+|`phaseRotation`
+|Enum
+|`L1_L2_L3`
+|Phase rotation configuration
+
+|`modbus_id`
+|String
+|`modbus0`
+|Modbus bridge component ID
+
+|`modbusUnitId`
+|Integer
+|`1`
+|Modbus unit/device ID (1-16)
+
+|`maxCurrent`
+|Integer
+|`32`
+|Maximum supported current in Ampere
+|===
+
+=== Example Configuration
+
+[source,json]
+----
+{
+  "id": "evseChargePoint0",
+  "alias": "ABL Wallbox Garage",
+  "enabled": true,
+  "readOnly": false,
+  "debugMode": false,
+  "wiring": "THREE_PHASE",
+  "phaseRotation": "L1_L2_L3",
+  "modbus_id": "modbus0",
+  "modbusUnitId": 1,
+  "maxCurrent": 32
+}
+----
+
+== Modbus Protocol
+
+=== Communication Settings
+
+* *Protocol*: Modbus TCP (specification defines Modbus ASCII over RS485, adapted for TCP)
+* *Functions*: 0x03 (Read Registers), 0x10 (Write Multiple Registers)
+* *Default Unit ID*: 1
+* *RS485 Settings* (if applicable): 38400 baud, 8E1
+
+=== Register Mapping
+
+[cols="2,1,3,5"]
+|===
+|Register(s) |Access |Function |Description
+
+|0x0001-0x0002
+|Read
+|Device info
+|Device ID and firmware version
+
+|0x0014
+|Write
+|Set Icmax
+|Charging current as duty cycle [%]×10 +
+Range: 0x0050...0x03E8 (8%...100%)
+
+|0x0033-0x0035
+|Read
+|Status & currents
+|State, EV connected, phase currents (1A resolution)
+|===
+
+=== Register Details
+
+==== 0x0001-0x0002: Device ID and Firmware
+
+* *0x0001[21:16]*: Device-ID (0x01...0x10)
+* *0x0002[15:12]*: Firmware major version
+* *0x0002[11:8]*: Firmware minor version
+
+==== 0x0014: Set Icmax (Write)
+
+* *Value*: Duty cycle percentage × 10
+* *Range*: 0x0050 (8%) to 0x03E8 (100%)
+* *Special*: 0x0000 = Stop charging
+* *Conversion*: Component handles mA to duty cycle conversion internally
+
+==== 0x0033-0x0035: Current State and Currents (Read)
+
+* *0x0033[39]*: EV connected (1 = UCP ≤ 10V)
+* *0x0034[31:24]*: Charging state (0xA1, 0xB1, 0xC2, etc.)
+* *0x0034[23:16]*: ICT1 - Phase L1 current [A]
+* *0x0035[15:8]*: ICT2 - Phase L2 current [A]
+* *0x0035[7:0]*: ICT3 - Phase L3 current [A]
+* *Special*: 0x64 = Phase current meter not available
+
+== Channels
+
+=== Read Channels
+
+[cols="3,2,1,4"]
+|===
+|Channel ID |Type |Unit |Description
+
+|`CHARGING_STATE`
+|Enum
+|-
+|Current charging state (A1, B1, B2, C2, etc.)
+
+|`EV_CONNECTED`
+|Boolean
+|-
+|EV plugged in (UCP ≤ 10V)
+
+|`PHASE_CURRENT_L1`
+|Integer
+|A
+|Phase 1 current
+
+|`PHASE_CURRENT_L2`
+|Integer
+|A
+|Phase 2 current
+
+|`PHASE_CURRENT_L3`
+|Integer
+|A
+|Phase 3 current
+
+|`DEVICE_ID`
+|Integer
+|-
+|ABL device ID (0x01...0x10)
+
+|`FIRMWARE_VERSION`
+|String
+|-
+|Firmware version (e.g., "1.2")
+
+|`IS_READY_FOR_CHARGING`
+|Boolean
+|-
+|Ready for charging (inherited from EvseChargePoint)
+|===
+
+=== Write Channels
+
+[cols="3,2,1,2,4"]
+|===
+|Channel ID |Type |Unit |Range |Description
+
+|`SET_CHARGING_CURRENT`
+|Integer
+|mA
+|6000-32000
+|Charging current setpoint
+|===
+
+=== Inherited ElectricityMeter Channels
+
+* `VOLTAGE_L1`, `VOLTAGE_L2`, `VOLTAGE_L3` (assumed 230V)
+* `CURRENT_L1`, `CURRENT_L2`, `CURRENT_L3` (in mA)
+* `ACTIVE_POWER`, `ACTIVE_POWER_L1/L2/L3`
+* `ACTIVE_CONSUMPTION_ENERGY` (calculated)
+* `SUM_CURRENT`, `AVERAGE_VOLTAGE` (calculated)
+
+== ABL EVCC2/3 States
+
+=== Normal Operation States
+
+[cols="1,1,4"]
+|===
+|State |Code |Description
+
+|A1
+|0xA1
+|Waiting for EV
+
+|B1
+|0xB1
+|EV asking for charging
+
+|B2
+|0xB2
+|EV has permission to charge
+
+|C2
+|0xC2
+|EV is charging
+
+|C3
+|0xC3
+|Charging reduced (error F16/F17)
+
+|C4
+|0xC4
+|Charging reduced (imbalance F15)
+|===
+
+=== Setup/Disabled States
+
+[cols="1,1,4"]
+|===
+|State |Code |Description
+
+|E0
+|0xE0
+|Outlet disabled
+
+|E1
+|0xE1
+|Production test
+
+|E2
+|0xE2
+|EVCC setup mode
+
+|E3
+|0xE3
+|Bus idle
+|===
+
+=== Error States
+
+[cols="1,1,4"]
+|===
+|State |Code |Description
+
+|F1
+|0xF1
+|Unintended closed contact (Welding)
+
+|F2
+|0xF2
+|Internal error
+
+|F3
+|0xF3
+|DC residual current detected
+
+|F4
+|0xF4
+|Upstream communication timeout
+
+|F5
+|0xF5
+|Lock of socket failed
+
+|F6
+|0xF6
+|CS out of range
+
+|F7
+|0xF7
+|State D requested by EV
+
+|F8
+|0xF8
+|CP out of range
+
+|F9
+|0xF9
+|Overcurrent detected
+
+|F10
+|0xFA
+|Temperature outside limits
+
+|F11
+|0xFB
+|Unintended opened contact
+|===
+
+== Implementation Details
+
+=== Current Control
+
+* *Range*: 6A - 32A (6000 - 32000 mA)
+* *Minimum Current*: 6A (6000 mA) - IEC 61851-1 standard
+* *Rate Limiting*: 5-second minimum between setpoint changes
+* *Conversion*: milliampere → PWM duty cycle percentage × 10
+
+=== Energy Calculation
+
+* Uses `CalculateEnergyFromPower` utility
+* Calculates per-phase energy consumption
+* Accumulates total energy consumption
+
+=== Voltage Handling
+
+WARNING: The ABL EVCC2/3 does not provide voltage measurements. +
+The component assumes nominal voltage: 230V per phase (230000 mV in channels).
+
+=== Power Calculation
+
+Since voltage is not measured but assumed:
+
+* *Per-phase power*: P~Lx~ = 230V × I~Lx~
+* *Total power*: P~total~ = P~L1~ + P~L2~ + P~L3~
+* Calculated automatically by `ElectricityMeter` helper methods
+
+== Testing
+
+This component includes comprehensive testing infrastructure:
+
+* *Unit Tests*: Fast in-memory tests using `DummyAblChargePoint`
+* *Integration Tests*: Full Modbus TCP simulator
+* *Manual Testing*: REST API + HTML UI
+
+See link:TEST_README.adoc[Testing Documentation] for details.
+
+=== Quick Test Example
+
+[source,java]
+----
+// Create test instance
+DummyAblChargePoint chargePoint = new DummyAblChargePoint("test0");
+
+// Simulate EV connection
+chargePoint.connectEv();
+assertEquals(ChargingState.B1, chargePoint.getCurrentState());
+
+// Apply charging current
+ChargePointAbilities abilities = chargePoint.getChargePointAbilities();
+ChargePointActions actions = ChargePointActions.create(abilities)
+    .setApplySetPoint(new ApplySetPoint.Action.MilliAmpere(16000))
+    .build();
+chargePoint.apply(actions);
+
+// Verify charging
+assertEquals(ChargingState.C2, chargePoint.getCurrentState());
+----
+
+== Limitations
+
+[WARNING]
+====
+*Current Limitations:*
+
+* No voltage measurement (ABL hardware limitation) - 230V per phase is assumed
+* No phase switching support in current implementation
+* Current resolution from ABL is 1A (register 0x0033-0x0035)
+* No built-in energy meter (calculated from power)
+====
+
+=== Best Practices
+
+* Always respect the 5-second minimum between current changes
+* Monitor `CHARGING_STATE` for error states (F1-F11)
+* Check `EV_CONNECTED` before attempting to charge
+* Stay within 6-32A range (hardware limit)
+
+== Troubleshooting
+
+=== Common Issues
+
+[cols="3,3,4"]
+|===
+|Issue |Possible Cause |Solution
+
+|No communication
+|Wrong IP/port
+|Verify Modbus bridge configuration
+
+|State shows F4
+|Communication timeout
+|Check network connection, reduce poll interval
+
+|Current not changing
+|Read-only mode
+|Set `readOnly` to `false`
+
+|State stuck in E0
+|Outlet disabled
+|Send state change command
+
+|Phase currents show null
+|Meter not available (0x64)
+|Check ABL hardware configuration
+|===
+
+=== Debug Mode
+
+Enable debug mode in configuration to see detailed logging:
+
+* Current setpoint commands
+* State changes
+* Rate limiting events
+
+== Technical Reference
+
+=== Based on Specification
+
+* *Document*: Schnittstellenbeschreibung_Modbus-ASCII.pdf
+* *Title*: EVCC2/3 API subset for external applications
+* *Revision*: 05 0015 20 Rev. B
+* *Date*: 2020-03-12
+
+=== Compatibility
+
+* *OpenEMS Version*: Requires OpenEMS with EVSE API support
+* *ABL Models*: EVCC2/3 series
+* *Modbus*: Modbus TCP required (adapter needed if using RS485 variant)
+* *Firmware*: Tested with API specification Rev. B (2020-03-12)
+
+== License
+
+This component is part of OpenEMS and is licensed under the Eclipse Public License 2.0.
+
+---
+
+*Vendor*: https://fenecon.de[FENECON GmbH] +
+*OpenEMS*: https://openems.io
