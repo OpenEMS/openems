@@ -1,0 +1,27 @@
+{
+  "loadpoints": [
+    {
+      "title": "Garage",
+      "mode": "pv",
+      "charging": true,
+      "enabled": true,
+      "connected": true,
+      "chargePower": 3450,
+      "chargeCurrents": [
+        15.2,
+        0,
+        0
+      ],
+      "chargeVoltages": [
+        227.0,
+        0,
+        0
+      ],
+      "phasesActive": 1,
+      "phasesEnabled": 1,
+      "sessionEnergy": 1250,
+      "chargeTotalImport": 5703.631,
+      "vehicleTitle": "e-Golf"
+    }
+  ]
+}
