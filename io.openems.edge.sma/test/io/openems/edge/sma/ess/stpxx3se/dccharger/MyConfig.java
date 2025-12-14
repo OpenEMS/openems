@@ -1,13 +1,15 @@
-package io.openems.edge.simulator.datasource.single.direct;
+package io.openems.edge.sma.ess.stpxx3se.dccharger;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.sma.ess.enums.PvString;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private int[] values;
+		private String coreId;
+		private PvString pvString;
 
 		private Builder() {
 		}
@@ -17,14 +19,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setValues(int... values) {
-			this.values = values;
+		public Builder setCoreId(String coreId) {
+			this.coreId = coreId;
+			return this;
+		}
+
+		public Builder setPvString(PvString pvString) {
+			this.pvString = pvString;
 			return this;
 		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+
 	}
 
 	/**
@@ -44,8 +52,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int[] values() {
-		return this.builder.values;
+	public PvString pvString() {
+		return this.builder.pvString;
 	}
 
 }

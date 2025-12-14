@@ -1,4 +1,4 @@
-package io.openems.edge.sma.ess.sunnyisland.enums;
+package io.openems.edge.sma.ess.enums;
 
 import io.openems.common.types.OptionsEnum;
 

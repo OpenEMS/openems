@@ -1,15 +1,17 @@
-package io.openems.edge.simulator.datasource.single.direct;
+package io.openems.edge.sma.ess.stpxx3se.dccharger;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.sma.ess.enums.PvString;
+
 @ObjectClassDefinition(//
-		name = "Simulator DataSource: Single Direct", //
-		description = "This service provides direct input for one data channel as an integer array.")
+		name = "ESS SMA Sunny Tripower SE DC Charger PV", //
+		description = "Implements the SMA Sunny Tripower XX SE as a PV inverter.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "datasource0";
+	String id() default "charger0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -17,8 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Values", description = "An array containing a series of values.")
-	int[] values();
+	@AttributeDefinition(name = "String Number", description = "SMA STP String to use.")
+	PvString pvString() default PvString.ONE;
 
-	String webconsole_configurationFactory_nameHint() default "Simulator DataSource: Single Direct [{id}]";
+	String webconsole_configurationFactory_nameHint() default "ESS SMA Sunny Tripower SE DC Charger PV [{id}]";
+
 }
