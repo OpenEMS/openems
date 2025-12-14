@@ -87,11 +87,40 @@ public enum GermanDSO {
 
 	NETZE_BW(GridFee.create()//
 			.addDateRange(dr -> dr//
+			// 2025 (full)
 					.setStart(2025, 4, 1)//
 					.setEnd(2025, 12, 31)//
-					.setStandardTariff(11.58)//
 					.setLowTariff(4.63)//
+					.setStandardTariff(11.58)//
 					.setHighTariff(17.09)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(14, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(14, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(22, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))
+
+			.addDateRange(dr -> dr//
+			// 2026 (full)
+					.setStart(2026, 1, 1)//
+					.setEnd(2026, 12, 31)//
+					.setLowTariff(3.61)//
+					.setStandardTariff(9.01)//
+					.setHighTariff(13.16)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
 							.setEnd(10, 0)//
