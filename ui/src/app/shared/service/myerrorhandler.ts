@@ -9,9 +9,15 @@ export class MyErrorHandler implements ErrorHandler {
     ) { }
 
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     handleError(error: any) {
+        const chunkFailedMessage = /Loading chunk [\d]+ failed/;
         const logger = this.injector.get(Logger);
+        if (chunkFailedMessage.test(error.message)) {
+            logger.error(error.message);
+            window.location.reload();
+        }
+
         console.error(error);
         if (error.message) {
             const json = {

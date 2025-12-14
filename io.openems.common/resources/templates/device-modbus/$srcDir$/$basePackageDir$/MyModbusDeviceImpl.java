@@ -62,7 +62,7 @@ public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implement
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+	protected ModbusProtocol defineModbusProtocol() {
 		// TODO implement ModbusProtocol
 		return new ModbusProtocol(this);
 	}

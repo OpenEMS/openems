@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.CURRENT;
 import static io.openems.edge.battery.api.Battery.ChannelId.MAX_CELL_VOLTAGE;
@@ -9,20 +10,13 @@ import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.LOW_MIN_VOLTAGE_WARNING;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.STATE_MACHINE;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION;
-import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.DEFAULT_CRITICAL_MIN_VOLTAGE;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.TIMEOUT;
 import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_BMS;
 import static io.openems.edge.battery.protection.BatteryProtection.ChannelId.BP_CHARGE_MAX_SOC;
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT4;
 import static java.lang.Math.round;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -32,13 +26,14 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class BatteryFeneconHomeImplTest {
@@ -60,6 +55,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -141,6 +137,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -198,6 +195,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -243,6 +241,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -312,6 +311,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -393,6 +393,103 @@ public class BatteryFeneconHomeImplTest {
 				.next(new TestCase("MinCellVoltage below critical value - go stopped") //
 						.input(LOW_MIN_VOLTAGE_FAULT, true) //
 						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, State.GO_STOPPED) //
+						.onAfterControllersCallbacks(() -> clock.leap(2_100, SECONDS))) // 35 minutes
+				.next(new TestCase("MinCellVoltage below critical value - test modbus") //
+						.input(CURRENT, 0) //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
+						.output(STATE_MACHINE, State.GO_STOPPED)) // stateMachine changed in next cycle
+
+				.next(new TestCase("MinCellVoltage below critical value - stopped fault") //
+						.input(CURRENT, 0) //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
+						.output(STATE_MACHINE, State.STOPPED) //
+				);
+	}
+
+	@Test
+	public void testMinVoltageGoStoppedPassedValues() throws Exception {
+		final var clock = createDummyClock();
+
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build())//
+
+				.next(new TestCase() //
+						.input("io0", INPUT_OUTPUT4, false) //
+						.input(BMS_CONTROL, true) // Switched On
+						.output(STATE_MACHINE, State.UNDEFINED))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-Undefined")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-StartUpRelayOff")) //
+						.output(STATE_MACHINE, State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-RetryModbusCommunication")) //
+						.output(STATE_MACHINE, State.GO_RUNNING))//
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForBmsControl")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(assertLog(sut, "GoRunning-WaitForModbusCommunication")) //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.RUNNING))
+
+				/*
+				 * Critical min voltage
+				 */
+				.next(new TestCase("MinCellVoltage below critical value") //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(CURRENT, 0) //
+						.output(LOW_MIN_VOLTAGE_WARNING, true) //
+						.output(LOW_MIN_VOLTAGE_FAULT, false) //
+						.output(STATE_MACHINE, State.RUNNING) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.onAfterControllersCallbacks(() -> clock.leap(TIMEOUT + 10, SECONDS))) //
+
+				.next(new TestCase("MinCellVoltage below critical value - time passed") //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false) //
+						.output(STATE_MACHINE, State.RUNNING)) //
+				.next(new TestCase("MinCellVoltage below critical value - error") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
+						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.output(LOW_MIN_VOLTAGE_FAULT, true) //
+						.output(LOW_MIN_VOLTAGE_WARNING, false) //
+						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, false)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.ERROR)) //
+				.next(new TestCase("MinCellVoltage below critical value - go stopped") //
+						.input(LOW_MIN_VOLTAGE_FAULT, true) //
+						.input(CURRENT, 0) //
 
 						// MinCellVoltage would be null, but there is not DummyTimedata for not to test
 						// "getPastValues"
@@ -404,11 +501,16 @@ public class BatteryFeneconHomeImplTest {
 						.onAfterControllersCallbacks(() -> clock.leap(2_100, SECONDS))) // 35 minutes
 				.next(new TestCase() //
 						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, null) //
+				) //
+				.next(new TestCase() //
+						.input(MODBUS_COMMUNICATION_FAILED, true) //
+						.input(MIN_CELL_VOLTAGE, null) //
 				) //
 				.next(new TestCase("MinCellVoltage below critical value - stopped") //
 						.input(CURRENT, 0) //
 						.input(MODBUS_COMMUNICATION_FAILED, true) //
-						.input(MIN_CELL_VOLTAGE, (DEFAULT_CRITICAL_MIN_VOLTAGE - 100)) //
+						.input(MIN_CELL_VOLTAGE, null) //
 						.output(LOW_MIN_VOLTAGE_WARNING, false) //
 						.output(LOW_MIN_VOLTAGE_FAULT, false) //
 						.output(LOW_MIN_VOLTAGE_FAULT_BATTERY_STOPPED, true) //
@@ -424,6 +526,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -491,6 +594,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -524,47 +628,14 @@ public class BatteryFeneconHomeImplTest {
 				.next(new TestCase() //
 						.output(NUMBER_OF_TOWERS, null))
 				.next(new TestCase() //
-						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
+						.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 1) //
+						.input(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, 7) //
 						.output(NUMBER_OF_TOWERS, 1)) //
 				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, null) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, 1)) //
-				.next(new TestCase() //
-						.output(NUMBER_OF_TOWERS, 1)) //
-				.next(new TestCase() //
-						.input(NUMBER_OF_TOWERS, null) //
-						.input(NUMBER_OF_MODULES_PER_TOWER, 7) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() //
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, null) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, null)) //
-				.next(new TestCase() // Number of towers changes after TOWER_0_BMS_SOFTWARE_VERSION is set
-						.input(TOWER_0_BMS_SOFTWARE_VERSION, 262) //
-						.input(TOWER_1_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_2_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_3_BMS_SOFTWARE_VERSION, 0) //
-						.input(TOWER_4_BMS_SOFTWARE_VERSION, 256) //
-						.output(NUMBER_OF_TOWERS, 1)) //
+						.input(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, 7) //
+						.input(BatteryFeneconHome.ChannelId.RACK_NUMBER_OF_BATTERY_BCU, 2) //
+						.output(NUMBER_OF_TOWERS, 2) //
+				) //
 		;
 	}
 
@@ -580,6 +651,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addComponent(new DummyInputOutput("io0"))//
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -645,6 +717,7 @@ public class BatteryFeneconHomeImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegister(18000, (byte) 0x00, (byte) 0x00)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
 						.setModbusId("modbus0") //
@@ -654,8 +727,78 @@ public class BatteryFeneconHomeImplTest {
 						.build()) //
 
 				.next(new TestCase() //
-						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, 0)) //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "0.0")) //
 
+				.deactivate();
+	}
+
+	@Test
+	public void testReadSoftwareVersionModbus() throws Exception {
+		var sut = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegister(18000, (byte) 0x01, (byte) 0x11)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "1.17"))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, 1))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, 17)) 
+				.deactivate();
+		
+		new ComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegister(18000, (byte) 0x01, (byte) 0x02)) // TOWER_4_BMS_SOFTWARE_VERSION
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, "1.2"))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, 1))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, 2)) 
+				.deactivate();
+		
+		var sut2 = new BatteryFeneconHomeImpl();
+		new ComponentTest(sut2) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) // with no registers
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.activate(MyConfig.create() //
+						.setId("battery0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(0) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartUpRelay("io0/InputOutput4")//
+						.build()) //
+
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, null))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, null))
+				.next(new TestCase() //
+						.output(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, null)) 
 				.deactivate();
 	}
 }

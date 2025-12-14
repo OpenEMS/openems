@@ -1,114 +1,109 @@
+<ngx-spinner name="user"></ngx-spinner>
 <ion-content>
   <ion-grid>
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" size-md="8" size-xl="4">
-        <ion-card *ngIf="(service.metadata | async)?.user as user">
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap" translate>
-              Menu.user
-            </ion-label>
-          </ion-item>
-
-          <ion-card-content class="ion-text-wrap">
-            <ion-item lines="inset">
-              <ion-label translate>
-                Menu.name
-              </ion-label>
-              <ion-label>
-                {{
-                this.form?.model
-                ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim()
-                : user.name
-                }}
+        @if ((service.metadata | async)?.user; as user) {
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                {{"MENU.USER" | translate}}
               </ion-label>
             </ion-item>
-            <ion-item lines="inset">
-              <ion-label translate>
-                Login.title
-              </ion-label>
-              <ion-label>
-                {{ user.id }}
-                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
+            <ion-card-content class="ion-text-wrap">
+              <ion-item lines="inset">
+                <ion-label>
+                  {{"MENU.NAME" | translate}}
+                </ion-label>
+                <ion-label>
+                  {{ this.form?.model
+                    ? ((this.form?.model?.firstname ?? '') + ' ' + (this.form?.model?.lastname ?? '')).trim()
+                    : user.name }}
+                </ion-label>
+              </ion-item>
+              <ion-item lines="inset">
+                <ion-label>
+                  {{"LOGIN.TITLE" | translate}}
+                </ion-label>
+                <ion-label>
+                  {{ user.id }}
+                  <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
-              </ion-label>
-            </ion-item>
-            <ion-item lines="inset">
-              <ion-label translate>
-                Menu.accessLevel
-              </ion-label>
-              <ion-label>
-                {{ 'Role.' + user.globalRole | translate }}
-                <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
-                </ion-icon> -->
-              </ion-label>
-            </ion-item>
-            <ion-item lines="none">
-              <ion-button (click)="doLogout()" slot="end" size="default" fill="clear">
-                <ion-label translate>Menu.logout</ion-label>
-                <ion-icon name="log-out-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-            <!-- <ion-item lines="inset">
-              <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
-                <ion-icon name="refresh-outline"></ion-icon>
-                <ion-label>Passwort ändern</ion-label>
-              </ion-button>
-            </ion-item> -->
-
-          </ion-card-content>
-        </ion-card>
+                </ion-label>
+              </ion-item>
+              <ion-item lines="inset">
+                <ion-label>
+                  {{"MENU.ACCESS_LEVEL" | translate}}
+                </ion-label>
+                <ion-label>
+                  {{ 'ROLE.' + (user.globalRole | uppercase) | translate }}
+                </ion-label>
+              </ion-item>
+              <ion-item lines="none">
+                <ion-button (click)="doLogout()" slot="end" style="padding-top: 0.8em">
+                  <ion-label>{{"MENU.LOGOUT" | translate}}</ion-label>
+                  <ion-icon name="log-out-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <!-- <ion-item lines="inset">
+          <ion-button slot="end" class="ion-no-padding" size="default" fill="clear">
+            <ion-icon name="refresh-outline"></ion-icon>
+            <ion-label>Passwort ändern</ion-label>
+          </ion-button>
+        </ion-item> -->
+            </ion-card-content>
+          </ion-card>
+        }
 
         <!-- Show and Edit UserInformation -->
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">
-              <span translate>
-                Register.Form.contactDetails
-              </span>
-              <ng-container *ngIf="companyInformationFields.length > 0">
-                (<span translate>Register.Form.PRIVATE</span>)
-              </ng-container>
-            </ion-label>
-          </ion-item>
-          <ion-card-content>
-
-            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
-              [fields]="userInformationFields" [model]="form?.model">
-            </oe-formly-skeleton-wrapper>
-
-            <ion-item lines="none">
-              <ion-button slot="start" (click)="enableAndDisableEditMode()"
-                [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
-                <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
-                <ion-icon name="pencil-outline" slot="end"></ion-icon>
-              </ion-button>
-              <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label translate>General.save</ion-label>
-                <ion-icon name="save-outline" slot="end"></ion-icon>
-              </ion-button>
+        @if (isAllowedToSeeUserDetails) {
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <span translate>
+                  REGISTER.FORM.CONTACT_DETAILS
+                </span>
+                @if (companyInformationFields.length > 0) {
+                  (<span translate>REGISTER.FORM.PRIVATE</span>)
+                }
+              </ion-label>
             </ion-item>
+            <ion-card-content>
+              <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+                [fields]="userInformationFields" [model]="form?.model">
+              </oe-formly-skeleton-wrapper>
+              <ion-item lines="none">
+                <ion-button style="padding-top: 0.3em" slot="start" (click)="enableAndDisableEditMode()"
+                  [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
+                  <ion-label>{{isEditModeDisabled ? ('GENERAL.EDIT' | translate) :('GENERAL.RESET' | translate)}}</ion-label>
+                  <ion-icon name="pencil-outline" slot="end"></ion-icon>
+                </ion-button>
+                <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
+                  <ion-label>{{"GENERAL.SAVE" | translate}}</ion-label>
+                  <ion-icon name="save-outline" slot="end"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </ion-card-content>
+          </ion-card>
+        }
 
-          </ion-card-content>
-        </ion-card>
-
-        <ion-card *ngIf="companyInformationFields.length > 0">
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">
-              <span translate>
-                Register.Form.contactDetails
-              </span>
-              (<span translate>Register.Form.company</span>)
-            </ion-label>
-          </ion-item>
-          <ion-card-content>
-            <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
-              [fields]="companyInformationFields" [model]="form?.model">
-            </oe-formly-skeleton-wrapper>
-          </ion-card-content>
-        </ion-card>
+        @if (companyInformationFields.length > 0) {
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                {{'REGISTER.FORM.CONTACT_DETAILS' | translate}} ({{'REGISTER.FORM.COMPANY' | translate}})
+              </ion-label>
+            </ion-item>
+            <ion-card-content>
+              <oe-formly-skeleton-wrapper [show]="showInformation" [form]="form?.formGroup"
+                [fields]="companyInformationFields" [model]="form?.model">
+              </oe-formly-skeleton-wrapper>
+            </ion-card-content>
+          </ion-card>
+        }
       </ion-col>
 
       <ion-col size="12" size-md="8" size-xl="4">
@@ -117,56 +112,68 @@
             <ion-icon slot="start" size="large" color="primary" name="code-slash-outline"></ion-icon>
             <ion-label class="ion-text-wrap">
               {{ environment.edgeShortName }} - {{ environment.edgeLongName }}
+              {{"ABOUT.ENERGY_MANAGEMENT" | translate}}
             </ion-label>
           </ion-item>
 
           <ion-card-content class="ion-text-wrap">
-            <p class="ion-padding" translate>About.developed</p>
+            <p class="ion-padding" [innerHTML]="'ABOUT.DESCRIPTION' | translate"></p>
             <ul>
               <li>
-                <a target="_blank" href="https://openems.io" translate>About.openEMS</a>
+                <a class="ion-link" target="_blank" href="https://openems.io" translate>ABOUT.OPEN_EMS</a>
               </li>
             </ul>
-            <p class="ion-padding" translate>About.build</p>
-            <div *ngIf="(service.metadata | async)?.user?.globalRole as role">
-              <p class="ion-padding" translate>About.build</p>
-              <ul>
-                <li>
-                  <a routerLinkActive="active" routerLink="/changelog">{{ uiVersion | version:role }}</a>
-                </li>
-              </ul>
-            </div>
-            <p class="ion-padding">
-              <span [innerHTML]="'About.contact' | translate:{value: 'info@openems.io'}"></span>
-            </p>
+            @if ((service.metadata | async)?.user?.globalRole; as role) {
+              <div>
+                <p class="ion-padding" translate>ABOUT.BUILD</p>
+                <ul>
+                  <li>
+                    <a class="ion-link" routerLinkActive="active"
+                      routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                  </li>
+                </ul>
+              </div>
+            }
+            <p class="ion-padding" [innerHTML]="'ABOUT.CONTACT' | translate"></p>
           </ion-card-content>
         </ion-card>
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="options-outline"></ion-icon>
-            <ion-label translate>Menu.generalSettings</ion-label>
+            <ion-label>{{"MENU.GENERAL_SETTINGS" | translate}}</ion-label>
           </ion-item>
           <ion-card-content>
             <ion-item lines="none">
-              <ion-label translate>About.language</ion-label>
-              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
-                <ion-select-option *ngFor="let language of languages" [value]="language">
-                  {{ language.title }}
-                </ion-select-option>
+              <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage"
+                interface="popover" [interfaceOptions]="{ cssClass: 'custom-ion-popover' }"
+                [label]="'ABOUT.LANGUAGE' | translate">
+                @for (language of languages; track language) {
+                  <ion-select-option [value]="language">
+                    {{ language.title }}
+                  </ion-select-option>
+                }
               </ion-select>
             </ion-item>
-
-            <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
-              <small>
-                The language can not be changed permanently in the local online-monitoring for technical
-                reasons.</small>
-            </ion-note>
-
-            <ion-item lines="none" *ngIf="isAtLeastAdmin">
-              <ion-checkbox slot="end" (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">
-              </ion-checkbox>
-              <ion-label translate>Debug-Mode</ion-label>
-            </ion-item>
+            @if (isAtLeastAdmin) {
+              <ion-item lines="none">
+                <ion-checkbox (ionChange)="toggleDebugMode($event)" [(ngModel)]="environment.debugMode">Debug-Mode
+                </ion-checkbox>
+              </ion-item>
+              @if (useNewUi !== null) {
+                <ion-item [disabled]="newNavigationForced" lines="none">
+                  <ion-checkbox (ionChange)="toggleNewUI($event)" [(ngModel)]="useNewUi">Neues UI
+                  </ion-checkbox>
+                </ion-item>
+              }
+              @if (environment.backend === 'OpenEMS Edge') {
+                <ion-note class="ion-padding">
+                  <small>
+                    The language can not be changed permanently in
+                    the local online-monitoring for technical
+                    reasons.</small>
+                </ion-note>
+              }
+            }
           </ion-card-content>
         </ion-card>
       </ion-col>

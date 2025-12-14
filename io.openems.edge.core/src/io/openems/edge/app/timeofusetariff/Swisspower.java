@@ -1,8 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -91,14 +89,16 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 											return null;
 										}
 										return new JsonPrimitive("xxx");
-									}) //
+									})//
 									.orElse(null);
 						}))),
 		METERING_CODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".meteringCode.label") //
-				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description") //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput)));
+				.setTranslatedLabelWithAppPrefix(".meteringCode.label")//
+				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description")//
+				.setRequired(true)//
+				.setField(JsonFormlyUtil::buildInput))), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super Swisspower, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -137,11 +137,13 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 			final var meteringCode = this.getString(p, l, Property.METERING_CODE);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Swisspower",
 							JsonUtils.buildJsonObject() //
@@ -186,7 +188,7 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

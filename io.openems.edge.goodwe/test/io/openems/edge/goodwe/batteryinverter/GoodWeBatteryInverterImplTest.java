@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.battery.api.Battery.ChannelId.CHARGE_MAX_CURRENT;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.batteryinverter.api.SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER;
@@ -36,32 +37,48 @@ import static io.openems.edge.goodwe.common.GoodWe.ChannelId.WBMS_CHARGE_MAX_CUR
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.WBMS_VOLTAGE;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.test.DummyBattery;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.common.test.DummySerialNumberStorage;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.goodwe.charger.mppt.twostring.GoodWeChargerMpptTwoStringImpl;
+import io.openems.edge.goodwe.charger.mppt.twostring.MpptPort;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
+import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
+import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
+import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
+import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @SuppressWarnings("deprecation")
 public class GoodWeBatteryInverterImplTest {
+
+	private static final DummyMeta META = new DummyMeta("meta0");
 
 	@Test
 	public void testEt() throws Exception {
@@ -79,10 +96,12 @@ public class GoodWeBatteryInverterImplTest {
 		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
 				.activate(MyConfig.create() //
@@ -93,7 +112,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -115,10 +133,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testNegativSetActivePoint() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -128,7 +148,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -149,10 +168,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testDischargeBattery() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -162,7 +183,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -183,10 +203,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithBalancing() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -196,7 +218,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -228,9 +249,11 @@ public class GoodWeBatteryInverterImplTest {
 		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger) //
@@ -243,7 +266,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -262,10 +284,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithMaxAcImport() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -275,7 +299,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -294,10 +317,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithMaxAcExport() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -307,7 +332,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -326,10 +350,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testBatteryIsFull() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -339,7 +365,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -358,10 +383,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testBatteryIsEmpty() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -371,7 +398,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -390,10 +416,12 @@ public class GoodWeBatteryInverterImplTest {
 	public void testAcCalculation() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(new DummyBattery("battery0")).activate(MyConfig.create() //
 						.setId("batteryInverter0") //
@@ -403,7 +431,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -418,6 +445,73 @@ public class GoodWeBatteryInverterImplTest {
 						}) //
 						.output(MAX_AC_IMPORT, 0) //
 						.output(MAX_AC_EXPORT, 325));
+	}
+
+	@Test
+	public void testMaxAcImportExportCalculation() throws Exception {
+
+		var inverter = new GoodWeBatteryInverterImpl();
+		var charger1 = new GoodWeChargerMpptTwoStringImpl();
+
+		new ComponentTest(charger1) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("essOrBatteryInverter", inverter) //
+				.activate(io.openems.edge.goodwe.charger.mppt.twostring.MyConfig.create() //
+						.setId("charger0") //
+						.setBatteryInverterId("batteryInverter0") //
+						.setMpptPort(MpptPort.MPPT_1) //
+						.build());
+
+		charger1._setActualPower(5000);
+		charger1.getActualPowerChannel().nextProcessImage();
+		inverter.addCharger(charger1);
+
+		new ComponentTest(inverter) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.addComponent(charger1) //
+				.addComponent(new DummyBattery("battery0")) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				// Limited by max apparent power and PV
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, 10000) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, -10000) //
+						.output(MAX_AC_EXPORT, 5000)) // Was -2147453649
+
+				// Limited to zero, because of missing values
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, null) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, 0) //
+						.output(MAX_AC_EXPORT, 0)); //
 	}
 
 	@Test
@@ -487,10 +581,12 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger1);
 		ess.addCharger(charger2);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(charger1) //
 				.addComponent(charger2) //
@@ -503,7 +599,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -561,6 +656,7 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger3);
 		ess.addCharger(charger4);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -577,7 +673,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -635,6 +730,7 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger5);
 		ess.addCharger(charger6);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -651,7 +747,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -735,5 +830,276 @@ public class GoodWeBatteryInverterImplTest {
 		// Values should be updated
 		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 1, bmsDischargeMinVoltage, 456));
 		assertTrue(doSetBmsVoltage(battery, bmsChargeMaxVoltage, 123, bmsDischargeMinVoltage, 1));
+	}
+
+	@Test
+	public void testReadFromModbus() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus2") //
+						.withRegisters(35011, // Deprecated GoodWe type register
+								new int[] { 0x4757, 0x3135, 0x4b2d, 0x4554, 0x3230 })
+						.withRegisters(35001, // Block including GoodWe Serial Number
+								new int[] { 0x3a98, 0x0001, 0x3730, 0x3135, 0x4b45, 0x5542, 0x3234, 0x3730, 0x3031,
+										0x3734 })
+						.withRegisters(35180, // Battery values of GoodWe
+								new int[] { 0x056e, 0x0000, 0xffff, 0xfffb, 0x0002 })
+						.withRegisters(35016, // GoodWe Software Versions
+								new int[] { 0, 0, 0x07df, 0x0006, 0x0185 })
+						.withRegisters(35111, // PV data including GridMode
+								new int[] { 0x8FC, 0, 0, 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0, 0x0200, 0x8EF, 0x0054,
+										0x1389, 0xFFFF, 0xF869, 0x08E3, 0x0055, 0x138B, 0xFFFF, 0xF870, 0x08EC, 0x0056,
+										0x138B, 0xFFFF, 0xF86b, 0x0001 /* GridMode */ }))
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus2") //
+						.setMpptForShadowEnable(EnableDisable.DISABLE) //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.SERIAL_NUMBER, "7015KEUB24700174") //
+						.output(SymmetricEss.ChannelId.MAX_APPARENT_POWER, 15_000) //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.UNDEFINED)) //
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K)) // read element once
+
+				.next(new TestCase() // register 35111 - 35136
+						.output(GoodWe.ChannelId.V_PV3, 230) // register not 0xFFFF
+						.output(GoodWe.ChannelId.I_PV3, 0) //
+						.output(GoodWe.ChannelId.P_PV3, 0L) //
+						.output(GoodWe.ChannelId.V_PV4, null) //
+						.output(GoodWe.ChannelId.I_PV4, null) //
+						.output(GoodWe.ChannelId.P_PV4, null) //
+						.output(GoodWe.ChannelId.PV_MODE, PvMode.UNDEFINED) //
+						.output(SymmetricBatteryInverter.ChannelId.GRID_MODE, GridMode.ON_GRID)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testPowerModeFromModbus() throws Exception {
+		var sut = new GoodWeBatteryInverterImpl();
+		new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus2") //
+						// Not part of the test
+						.withRegisters(35011, // Deprecated GoodWe type register
+								new int[] { 0x4757, 0x3135, 0x4b2d, 0x4554, 0x3230 })
+						.withRegisters(35001, // Block including GoodWe Serial Number
+								new int[] { 0x3a98, 0x0001, 0x3730, 0x3135, 0x4b45, 0x5542, 0x3234, 0x3730, 0x3031,
+										0x3734 })
+						.withRegisters(35180, // Battery values of GoodWe
+								new int[] { 0x056e, 0x0000, 0xffff, 0xfffb, 0x0002 })
+						.withRegisters(35016, // GoodWe Software Versions
+								new int[] { 0, 0, 0x07df, 0x0006, 0x0185 })
+						.withRegisters(35111, // PV data including GridMode
+								new int[] { 0x8FC, 0, 0, 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0, 0x0200, 0x8EF, 0x0054,
+										0x1389, 0xFFFF, 0xF869, 0x08E3, 0x0055, 0x138B, 0xFFFF, 0xF870, 0x08EC, 0x0056,
+										0x138B, 0xFFFF, 0xF86b, 0x0001 /* GridMode */ })
+
+						// Power Mode
+						.withRegisters(45472, //
+								new int[] { 0x000, 0x0c8, 0x816, 0, 0x898, 0x3e8, 0x9c4, 0x3e8, 0xa5a, 0x0c8, 0x061, 0,
+										0x3e8 }))
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus2") //
+						.setMpptForShadowEnable(EnableDisable.DISABLE) //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.ENABLE_PU_CURVE, EnableCurve.ENABLE) // WriteValue
+						.output(GoodWe.ChannelId.FIXED_POWER_FACTOR, FixedPowerFactor.LEADING_1_OR_NONE) //
+				);
+	}
+
+	@Test
+	public void testNoStatesReadFromModbus() throws Exception {
+		var inv = "batteryInverter0";
+		var sut = new GoodWeBatteryInverterImpl();
+		new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus2") //
+						.withRegisters(32000, // GoodWe State Register
+								new int[] {
+										0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+										0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff,
+										0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff })
+						.withRegisters(35001, // Block including GoodWe Serial Number
+								new int[] { 0x3a98, 0x0001, 0x3730, 0x3135, 0x4b45, 0x5542, 0x3234, 0x3730, 0x3031,
+										0x3734 })
+						.withRegisters(35180, // Battery values of GoodWe
+								new int[] { 0x056e, 0x0000, 0xffff, 0xfffb, 0x0002 })
+						.withRegisters(35016, // GoodWe Software Versions
+								new int[] { 0, 0, 0x07df, 0x0006, 0x0185 })
+						.withRegisters(35111, // PV data including GridMode
+								new int[] { 0x8FC, 0, 0, 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0, 0x0200, 0x8EF, 0x0054,
+										0x1389, 0xFFFF, 0xF869, 0x08E3, 0x0055, 0x138B, 0xFFFF, 0xF870, 0x08EC, 0x0056,
+										0x138B, 0xFFFF, 0xF86b, 0x0001 /* GridMode */ }))
+				.activate(MyConfig.create() //
+						.setId(inv) //
+						.setModbusId("modbus2") //
+						.setMpptForShadowEnable(EnableDisable.DISABLE) //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.SERIAL_NUMBER, "7015KEUB24700174") //
+						.output(SymmetricEss.ChannelId.MAX_APPARENT_POWER, 15_000) //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.UNDEFINED)) //
+
+				.next(new TestCase() // Initially null because of low modbus priority
+						.output(inv, "GwState32000B0", null) //
+						.output(inv, "GwState32000B1", null) //
+						.output(inv, "GwState32000B2", null) //
+						.output(inv, "GwState32000B3", null) //
+						.output(inv, "GwState32000B4", null) //
+						.output(inv, "GwState32000B5", null) //
+						.output(inv, "GwState32000B6", null) //
+						.output(inv, "GwState32000B7", null) //
+						.output(inv, "GwState32000B8", null) //
+						.output(inv, "GwState32000B9", null) //
+						.output(inv, "GwState32000B10", null) //
+						.output(inv, "GwState32000B11", null) //
+						.output(inv, "GwState32000B12", null) //
+						.output(inv, "GwState32000B13", null) //
+						.output(inv, "GwState32000B14", null) //
+						.output(inv, "GwState32000B15", null)) //
+
+				.next(new TestCase(), 50).next(new TestCase() //
+						.output(inv, "GwState32000B0", false) //
+						.output(inv, "GwState32000B1", false) //
+						.output(inv, "GwState32000B2", false) //
+						.output(inv, "GwState32000B3", false) //
+						.output(inv, "GwState32000B4", false) //
+						.output(inv, "GwState32000B5", false) //
+						.output(inv, "GwState32000B6", false) //
+						.output(inv, "GwState32000B7", false) //
+						.output(inv, "GwState32000B8", false) //
+						.output(inv, "GwState32000B9", false) //
+						.output(inv, "GwState32000B10", false) //
+						.output(inv, "GwState32000B11", false) //
+						.output(inv, "GwState32000B12", false) //
+						.output(inv, "GwState32000B13", false) //
+						.output(inv, "GwState32000B14", false) //
+						.output(inv, "GwState32000B15", false)) //
+				.deactivate();
+
+	}
+
+	@Test
+	public void testStatesReadFromModbus() throws Exception {
+		var inv = "batteryInverter0";
+		var sut = new GoodWeBatteryInverterImpl();
+		new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus2") //
+						.withRegisters(32000, // GoodWe State Register
+								new int[] { 0x2044, 0x0000, 0x0000, 0xffff, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+										0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff,
+										0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+										0xffff })
+						.withRegisters(35011, // Deprecated GoodWe type register
+								new int[] { 0x4757, 0x3135, 0x4b2d, 0x4554, 0x3230 })
+						.withRegisters(35001, // Block including GoodWe Serial Number
+								new int[] { 0x3a98, 0x0001, 0x3730, 0x3135, 0x4b45, 0x5542, 0x3234, 0x3730, 0x3031,
+										0x3734 })
+						.withRegisters(35180, // Battery values of GoodWe
+								new int[] { 0x056e, 0x0000, 0xffff, 0xfffb, 0x0002 })
+						.withRegisters(35016, // GoodWe Software Versions
+								new int[] { 0, 0, 0x07df, 0x0006, 0x0185 })
+						.withRegisters(35111, // PV data including GridMode
+								new int[] { 0x8FC, 0, 0, 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0, 0x0200, 0x8EF, 0x0054,
+										0x1389, 0xFFFF, 0xF869, 0x08E3, 0x0055, 0x138B, 0xFFFF, 0xF870, 0x08EC, 0x0056,
+										0x138B, 0xFFFF, 0xF86b, 0x0001 /* GridMode */ }))
+				.activate(MyConfig.create() //
+						.setId(inv) //
+						.setModbusId("modbus2") //
+						.setMpptForShadowEnable(EnableDisable.DISABLE) //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.SERIAL_NUMBER, "7015KEUB24700174") //
+						.output(SymmetricEss.ChannelId.MAX_APPARENT_POWER, 15_000) //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.UNDEFINED)) //
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_GEN2_15K)) // read element once
+
+				.next(new TestCase(), 50).next(new TestCase() //
+						.output(inv, "GwState32000B0", false) //
+						.output(inv, "GwState32000B1", false) //
+						.output(inv, "GwState32000B2", true) //
+						.output(inv, "GwState32000B3", false) //
+						.output(inv, "GwState32000B4", false) //
+						.output(inv, "GwState32000B5", false) //
+						.output(inv, "GwState32000B6", true) //
+						.output(inv, "GwState32000B7", false) //
+						.output(inv, "GwState32000B8", false) //
+						.output(inv, "GwState32000B9", false) //
+						.output(inv, "GwState32000B10", false) //
+						.output(inv, "GwState32000B11", false) //
+						.output(inv, "GwState32000B12", false) //
+						.output(inv, "GwState32000B13", true) //
+						.output(inv, "GwState32000B14", false) //
+						.output(inv, "GwState32000B15", false)) //
+		;
+
+		assertNotNull(sut.channel("GwState32004B0"));
+
+		// 32008 has only 4 bits
+		assertNotNull(sut.channel("GwState32008B4"));
+		assertThrows(IllegalArgumentException.class, //
+				() -> sut.channel("GwState32008B5"));
+
+		// complete register was undefined
+		assertThrows(IllegalArgumentException.class, //
+				() -> sut.channel("GwState32003B0"));
+		assertThrows(IllegalArgumentException.class, //
+				() -> sut.channel("GwState32021B0"));
+
+		sut.deactivate();
 	}
 }

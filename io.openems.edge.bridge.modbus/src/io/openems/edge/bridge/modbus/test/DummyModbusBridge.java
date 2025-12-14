@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
 import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplier;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 
 public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
@@ -96,7 +97,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the value of a Register.
+	 * Sets the value of a FC3HoldingRegister.
 	 * 
 	 * @param address the Register address
 	 * @param b1      first byte
@@ -108,7 +109,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the value of a Register.
+	 * Sets the value of a FC3HoldingRegister.
 	 * 
 	 * @param address the Register address
 	 * @param value   the value
@@ -119,7 +120,30 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the values of Registers.
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param value   the value
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, int value) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(value)));
+	}
+
+	/**
+	 * Sets the value of a FC4InputRegister.
+	 * 
+	 * @param address the Register address
+	 * @param b1      first byte
+	 * @param b2      second byte
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegister(int address, byte b1, byte b2) {
+		return this.withProcessImage(pi -> pi.addInputRegister(address, new SimpleRegister(b1, b2)));
+	}
+
+	/**
+	 * Sets the values of FC3HoldingRegisters.
 	 * 
 	 * @param startAddress the start Register address
 	 * @param values       the values
@@ -133,7 +157,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
-	 * Sets the values of Registers.
+	 * Sets the values of FC3HoldingRegisters.
 	 * 
 	 * @param startAddress the start Register address
 	 * @param values       the values
@@ -143,6 +167,52 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		for (var a : values) {
 			for (var b : a) {
 				this.withRegister(startAddress++, b);
+			}
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the value of a FC3HoldingRegister in Float32 format.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       float values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegistersFloat32(int startAddress, float... values) {
+		for (var value : values) {
+			var b = ModbusRecordFloat32.toByteArray(value);
+			this.withRegister(startAddress++, b[0], b[1]);
+			this.withRegister(startAddress++, b[2], b[3]);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int... values) {
+		for (var value : values) {
+			this.withInputRegister(startAddress++, value);
+		}
+		return this;
+	}
+
+	/**
+	 * Sets the values of FC4InputRegisters.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       the values
+	 * @return myself
+	 */
+	public DummyModbusBridge withInputRegisters(int startAddress, int[]... values) {
+		for (var a : values) {
+			for (var b : a) {
+				this.withInputRegister(startAddress++, b);
 			}
 		}
 		return this;

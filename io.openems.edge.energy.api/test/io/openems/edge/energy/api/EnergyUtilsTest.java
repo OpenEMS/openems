@@ -2,11 +2,9 @@ package io.openems.edge.energy.api;
 
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
-import static io.openems.edge.energy.api.EnergyUtils.interpolateArray;
-import static io.openems.edge.energy.api.EnergyUtils.toPower;
+import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -33,23 +31,7 @@ public class EnergyUtilsTest {
 	}
 
 	@Test
-	public void testInterpolateArrayInteger() {
-		assertArrayEquals(new int[] { 123, 123, 234, 234, 345 }, //
-				interpolateArray(new Integer[] { null, 123, 234, null, 345, null }));
-
-		assertArrayEquals(new int[] {}, //
-				interpolateArray(new Integer[] { null }));
-
-		assertArrayEquals(new int[] { 123, 123 }, //
-				interpolateArray(new Integer[] { null, 123 }));
-
-		assertArrayEquals(new int[] { 123 }, //
-				interpolateArray(new Integer[] { 123, null }));
-	}
-
-	@Test
-	public void testToPower() {
-		assertEquals(2000, (int) toPower(500));
-		assertNull(toPower(null));
+	public void testFindValleyIndexes() {
+		assertArrayEquals(new int[] { 1, 6 }, findValleyIndexes(new double[] { 0, 0, 1, 2, 1, 0, 0, 2, 0 }));
 	}
 }

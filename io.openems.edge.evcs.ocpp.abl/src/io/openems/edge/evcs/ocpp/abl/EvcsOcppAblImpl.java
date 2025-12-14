@@ -40,6 +40,7 @@ import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -133,6 +134,12 @@ public class EvcsOcppAblImpl extends AbstractManagedOcppEvcsComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

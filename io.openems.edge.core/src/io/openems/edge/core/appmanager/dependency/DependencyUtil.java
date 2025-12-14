@@ -110,7 +110,7 @@ public class DependencyUtil {
 			instances.addAll(appHelper.getTemporaryApps().currentlyCreatingApps());
 		}
 		for (var entry : appManagerImpl.appConfigs(instances, null)) {
-			if (entry.getValue().getComponents().stream().anyMatch(c -> c.getId().equals(componentId))) {
+			if (entry.getValue().getComponents().stream().anyMatch(c -> c.id().equals(componentId))) {
 				this.setCurrentlyRunning(false);
 				return entry.getKey();
 			}
@@ -150,10 +150,10 @@ public class DependencyUtil {
 
 	private static final AppManagerImpl getAppManagerImpl(ComponentManager componentManager) {
 		var appManager = componentManager.getEnabledComponentsOfType(AppManager.class);
-		if (appManager.size() == 0 || !(appManager.get(0) instanceof AppManagerImpl)) {
+		if (appManager.size() == 0 || !(appManager.get(0) instanceof AppManagerImpl ami)) {
 			return null;
 		}
-		return (AppManagerImpl) appManager.get(0);
+		return ami;
 	}
 
 	private static final AppManagerAppHelper getAppManagerAppHelper() {

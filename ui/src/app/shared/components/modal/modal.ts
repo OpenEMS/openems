@@ -6,6 +6,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
+import { HelpButtonComponent } from "./help-button/help-button";
 
 export enum Status {
     SUCCESS,
@@ -22,21 +23,22 @@ export enum Status {
             font-size: 0.9em;
         }
     `],
+    standalone: false,
 })
 export class ModalComponent {
 
     /** Title in Header */
-    @Input({ required: true }) public title!: string;
+    @Input({ required: true }) public title!: string | null;
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
-
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
-            {}, icon: Icon
+        {}, icon: Icon
     } | null = null;
+    @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 
-    @Input() protected helpKey: string | null = null;
+    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = true;
     public readonly Role = Role;
 
     private edge: Edge | null = null;
@@ -51,7 +53,7 @@ export class ModalComponent {
     }
 
     // Changes applied together
-    public applyChanges() {
+    public async applyChanges() {
         const updateComponentArray: { name: string, value: any }[] = [];
         this.service.startSpinner("spinner");
         for (const key in this.formGroup.controls) {
@@ -72,9 +74,9 @@ export class ModalComponent {
         if (this.edge) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();

@@ -1,9 +1,17 @@
+<<<<<<<< HEAD:io.openems.edge.ess.sma/test/io/openems/edge/ess/sma/sunnyisland/MyConfig.java
 package io.openems.edge.ess.sma.sunnyisland;
+========
+package io.openems.edge.sma.meter.shm20;
+>>>>>>>> develop:io.openems.edge.sma/test/io/openems/edge/sma/meter/shm20/MyConfig.java
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
+<<<<<<<< HEAD:io.openems.edge.ess.sma/test/io/openems/edge/ess/sma/sunnyisland/MyConfig.java
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.sma.sunnyisland.Config;
+========
+>>>>>>>> develop:io.openems.edge.sma/test/io/openems/edge/sma/meter/shm20/MyConfig.java
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,8 +20,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId;
 		private int modbusUnitId;
-		private Phase phase;
-		private boolean readOnlyMode;
+		private MeterType type;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -28,13 +36,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
-			this.phase = phase;
+		public Builder setType(MeterType type) {
+			this.type = type;
 			return this;
 		}
 
-		public Builder setReadOnlyMode(boolean readOnlyMode) {
-			this.readOnlyMode = readOnlyMode;
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 
@@ -75,13 +83,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
-		return this.builder.phase;
+	public MeterType type() {
+		return this.builder.type;
 	}
 
 	@Override
-	public boolean readOnlyMode() {
-		return this.builder.readOnlyMode;
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 }

@@ -14,21 +14,21 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.predictor.api.manager.PredictorManager;
 
 public class AppManagerImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
+	private FeneconHome10 homeApp;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -46,10 +46,11 @@ public class AppManagerImplTest {
 		final var emergencyReserveEnabled = false;
 
 		final var shadowManagmentDisabled = false;
+		final var naProtectionEnabled = false;
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
-		final var maxFeedInPower = 10000;
+		final var maxFeedInPower = -1;
 		final var feedInSetting = "LAGGING_0_95";
 
 		var componentConfig = JsonUtils.buildJsonObject() //
@@ -127,9 +128,10 @@ public class AppManagerImplTest {
 								.addProperty("modbusUnitId", 247) //
 								.addProperty("safetyCountry", safetyCountry) //
 								.addProperty("backupEnable", "DISABLE") //
-								.addProperty("feedPowerEnable", "ENABLE") //
-								.addProperty("feedPowerPara", 10000) //
+								.addProperty("feedPowerEnable", "DISABLE") //
+								.addProperty("feedPowerPara", -1) //
 								.addProperty("controlMode", "SMART") //
+								.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
 								.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
 								.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
 								.addProperty("rcrEnable", "DISABLE") //
@@ -213,6 +215,14 @@ public class AppManagerImplTest {
 								.addProperty("enablePid", false) //
 								.build()) //
 						.build()) //
+				.add(PredictorManager.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", PredictorManager.SINGLETON_SERVICE_PID) //
+						.addProperty("alias", "") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.add("predictor.ids", JsonUtils.buildJsonArray() //
+										.build()) //
+								.build()) //
+						.build()) //
 				.add(Host.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", Host.SINGLETON_SERVICE_PID) //
 						.addProperty("alias", "") //
@@ -248,13 +258,13 @@ public class AppManagerImplTest {
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
 								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("SAFETY_COUNTRY", safetyCountry) //
-										.addProperty("MAX_FEED_IN_POWER", maxFeedInPower) //
 										.addProperty("FEED_IN_SETTING", feedInSetting) //
 										.addProperty("HAS_AC_METER", false) //
 										.addProperty("HAS_DC_PV1", false) //
 										.addProperty("HAS_DC_PV2", false) //
 										.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
 										.addProperty("SHADOW_MANAGEMENT_DISABLED", shadowManagmentDisabled) //
+										.addProperty("NA_PROTECTION_ENABLED", naProtectionEnabled) //
 										.build()) //
 								.build()) //
 						.add(JsonUtils.buildJsonObject() //
@@ -263,7 +273,6 @@ public class AppManagerImplTest {
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
 								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("SELL_TO_GRID_LIMIT_ENABLED", true) //
-										.addProperty("MAXIMUM_SELL_TO_GRID_POWER", maxFeedInPower) //
 										.addProperty("MODE", "AUTOMATIC") //
 										.build()) //
 								.build())
@@ -289,7 +298,7 @@ public class AppManagerImplTest {
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
 			return ImmutableList.of(//
-					this.homeApp = Apps.feneconHome(t), //
+					this.homeApp = Apps.feneconHome10(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //
@@ -302,9 +311,10 @@ public class AppManagerImplTest {
 	}
 
 	@Test
-	public void testAppValidateWorker() throws OpenemsException, Exception {
+	public void testAppValidateWorker() throws Exception {
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
 		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 

@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
+import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent.preprocessModbusElements;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertEquals;
@@ -19,6 +20,7 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.BridgeModbusTcpImpl;
 import io.openems.edge.bridge.modbus.MyConfigTcp;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -36,8 +38,6 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.TestUtils;
 
 public class AbstractOpenemsSunSpecComponentTest {
 
@@ -163,7 +163,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	@Ignore
 	@Test
 	public void test() throws Exception {
-		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		var port = findRandomOpenPortOnAllLocalInterfaces();
 		ModbusSlave slave = null;
 		try {
 			/*

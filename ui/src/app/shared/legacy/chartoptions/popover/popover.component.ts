@@ -6,6 +6,7 @@ import { Service } from "src/app/shared/shared";
 @Component({
     selector: "chartoptionspopover",
     templateUrl: "./popover.component.html",
+    standalone: false,
 })
 export class ChartOptionsPopoverComponent {
 

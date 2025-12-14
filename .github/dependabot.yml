@@ -17,38 +17,32 @@ updates:
       bouncycastle:
         patterns:
           - "org.bouncycastle:*"
+      pax-logging:
+        patterns:
+          - "org.ops4j.pax.logging:*"
+      guava:
+        patterns:
+          - "com.google.guava:*"
+      retrofit2:
+        patterns:
+          - "com.squareup.retrofit2:*"
+      prometheus:
+        patterns:
+          - "io.prometheus:*"
+      squareup:
+        patterns:
+          - "com.squareup.*:*"
 
   - package-ecosystem: npm
     directory: "/ui"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     target-branch: develop
     groups:
-      angular:
+      openems-ui:
         patterns:
-          - "@angular/*"
-          - "@angular-devkit/*"
-          - "@angular-eslint/*"
-      capacitor:
-        patterns:
-          - "@capacitor/*"
-      ionic-native:
-        patterns:
-          - "@ionic-native/*"
-      ngx-formly:
-        patterns:
-          - "@ngx-formly/*"
-      karma:
-        patterns:
-          - "karma-*"
-          - "karma"
-      eslint:
-        patterns:
-          - "@stylistic/eslint-plugin"
-          - "@typescript-eslint/*"
-          - "eslint-*"
-          - "eslint"
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"

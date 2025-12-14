@@ -2,22 +2,24 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
+import { hasMaximumGridFeedInLimitInMeta } from "src/app/shared/permissions/edgePermissions";
+import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
     templateUrl: "./modal.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class ModalComponent extends AbstractModal {
 
     public channelCapacity: number;
     public isAtLeastAdmin: boolean = false;
+    public hasMaximumGridFeedInLimitInMeta: boolean = false;
     public refreshChart: boolean;
 
-    public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
-    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = Utils.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate);
-    public readonly CONVERT_TO_WATTHOURS = Utils.CONVERT_TO_WATTHOURS;
+    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = this.Converter.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate, Language.geti18nLocale());
     public readonly DelayChargeState = DelayChargeState;
     public state: string = "";
     public chargeLimit: { name: string, value: number };
@@ -27,6 +29,8 @@ export class ModalComponent extends AbstractModal {
     public delayChargeMaximumChargeLimit: number | null = null;
     public targetEpochSeconds: number | null = null;
     public chargeStartEpochSeconds: number | null = null;
+
+    protected chargingEndTime: string | null = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
@@ -39,21 +43,30 @@ export class ModalComponent extends AbstractModal {
                 );
             }
         }
+        this.hasMaximumGridFeedInLimitInMeta = hasMaximumGridFeedInLimitInMeta(this.edge);
         channels.push(
             new ChannelAddress(this.component.id, "SellToGridLimitState"),
             new ChannelAddress(this.component.id, "DelayChargeState"),
             new ChannelAddress(this.component.id, "SellToGridLimitMinimumChargeLimit"),
-            new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"),
             new ChannelAddress(this.component.id, "_PropertySellToGridLimitEnabled"),
             new ChannelAddress(this.component.id, "TargetEpochSeconds"),
             new ChannelAddress(this.component.id, "TargetMinute"),
             new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds"),
         );
+
+        if (hasMaximumGridFeedInLimitInMeta(this.edge)) {
+            channels.push(new ChannelAddress("_meta", "_PropertyMaximumGridFeedInLimit"));
+        } else {
+            channels.push(new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"));
+        }
+
         return channels;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+
+        this.chargingEndTime = this.targetMinute !== null ? this.CONVERT_MINUTE_TO_TIME_OF_DAY(this.targetMinute) : null;
 
         // If the gridfeed in Limit is avoided
         if (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == SellToGridLimitState.ACTIVE_LIMIT_FIXED ||
@@ -61,39 +74,39 @@ export class ModalComponent extends AbstractModal {
                 currentData.allComponents[this.component.id + "/DelayChargeState"] != DelayChargeState.ACTIVE_LIMIT &&
                 currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"] > 0)) {
             this.chargeLimit = {
-                name: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.minimumCharge"),
+                name: this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MINIMUM_CHARGE"),
                 value: currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"],
             };
-            this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided");
+            this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.GRID_FEED_IN_LIMITATION_IS_AVOIDED");
 
         } else {
 
             // DelayCharge State
             switch (currentData.allComponents[this.component.id + "/DelayChargeState"]) {
-                case -1: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.notDefined");
+                case -1: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED");
                     break;
-                case 0: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive");
+                case 0: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE");
                     break;
-                case 1: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime");
+                case 1: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME");
                     break;
-                case 2: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull");
+                case 2: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL");
                     break;
-                case 3: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated");
+                case 3: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED");
                     break;
-                case 4: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible");
+                case 4: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE");
                     break;
                 case 5: // Case 6: 'DISABLED' hides 'state-line', so no Message needed
-                case 7: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive");
+                case 7: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
                     break;
 
-                case 8: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed");
+                case 8: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");
                     break;
             }
 
             // DelayCharge Maximum Charge Limit
             if (currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"] != null) {
                 this.chargeLimit = {
-                    name: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.maximumCharge"),
+                    name: this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE"),
                     value: currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"],
                 };
             }
@@ -105,7 +118,11 @@ export class ModalComponent extends AbstractModal {
             this.channelCapacity = currentData.allComponents[this.component.properties["ess.id"] + "/Capacity"];
         }
 
-        this.maximumSellToGridPower = currentData.allComponents[this.component.id + "/_PropertyMaximumSellToGridPower"];
+        if (this.hasMaximumGridFeedInLimitInMeta) {
+            this.maximumSellToGridPower = currentData.allComponents["_meta/_PropertyMaximumGridFeedInLimit"];
+        } else {
+            this.maximumSellToGridPower = currentData.allComponents[this.component.id + "/_PropertyMaximumSellToGridPower"];
+        }
         this.targetMinute = currentData.allComponents[this.component.id + "/TargetMinute"];
         this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
         this.targetEpochSeconds = currentData.allComponents[this.component.id + "/TargetEpochSeconds"];
@@ -132,7 +149,7 @@ export enum DelayChargeState {
     NO_REMAINING_TIME = 1, // No remaining time
     NO_REMAINING_CAPACITY = 2, // No remaining capacity //
     TARGET_MINUTE_NOT_CALCULATED = 3, // Target minute not calculated //
-    NO_FEASABLE_SOLUTION = 4, // Limit cannot be adapted because of other constraints with higher priority
+    NO_FEASIBLE_SOLUTION = 4, // Limit cannot be adapted because of other constraints with higher priority
     NO_CHARGE_LIMIT = 5, // No active limitation
     DISABLED = 6, // Delay charge part is disabled
     NOT_STARTED = 7, // Delay charge was not started because there is no production or to less production
@@ -143,7 +160,7 @@ export enum SellToGridLimitState {
     UNDEFINED = -1,// Undefined
     ACTIVE_LIMIT_FIXED = 0,// Active limitation - Fix limit
     NO_LIMIT = 1,//No active limitation
-    NO_FEASABLE_SOLUTION = 2,//Limit cannot be adapted because of other constraints with higher priority
+    NO_FEASIBLE_SOLUTION = 2,//Limit cannot be adapted because of other constraints with higher priority
     ACTIVE_LIMIT_CONSTRAINT = 3,// Active limitation - Minimum charge power
     DISABLED = 4, // SellToGridLimit part is disabled
     NOT_STARTED = 5,//SellToGridLimit part was not started because there is no production or to less production

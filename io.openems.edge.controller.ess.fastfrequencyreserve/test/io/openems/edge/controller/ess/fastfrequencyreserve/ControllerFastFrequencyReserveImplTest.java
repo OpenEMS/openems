@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.ControllerFastFrequencyReserve.ChannelId.STATE_MACHINE;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.enums.ActivationTime.LONG_ACTIVATION_RUN;
 import static io.openems.edge.controller.ess.fastfrequencyreserve.enums.SupportDuration.LONG_SUPPORT_DURATION;
@@ -21,12 +21,12 @@ import java.util.List;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.fastfrequencyreserve.enums.ControlMode;
 import io.openems.edge.controller.ess.fastfrequencyreserve.jsonrpc.SetActivateFastFreqReserveRequest.ActivateFastFreqReserveSchedule;
 import io.openems.edge.controller.ess.fastfrequencyreserve.statemachine.StateMachine.State;

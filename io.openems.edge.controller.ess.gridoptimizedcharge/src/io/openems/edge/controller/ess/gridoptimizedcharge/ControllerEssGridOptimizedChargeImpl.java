@@ -1,19 +1,13 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.time.Duration;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -30,8 +24,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSortedMap;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -41,10 +33,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -69,9 +64,9 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	protected static final int DEFAULT_POWER_BUFFER = 100;
 
 	protected final RampFilter rampFilter = new RampFilter();
+	protected int maximumSellToGridPower = 0;
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssGridOptimizedChargeImpl.class);
-	private final EnergyScheduleHandler energyScheduleHandler;
 
 	/*
 	 * Time counter for the important states
@@ -86,6 +81,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			ControllerEssGridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
 
 	protected Config config = null;
+	private EnergyScheduleHandler energyScheduleHandler;
 
 	/** Delay Charge logic. */
 	private DelayCharge delayCharge;
@@ -109,11 +105,17 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Reference
 	protected ElectricityMeter meter;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile ControllerEssRippleControlReceiver rcr;
+
 	@Reference
 	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
+
+	@Reference
+	protected Meta meta;
 
 	public ControllerEssGridOptimizedChargeImpl() {
 		super(//
@@ -121,14 +123,20 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				Controller.ChannelId.values(), //
 				ControllerEssGridOptimizedCharge.ChannelId.values() //
 		);
-		this.energyScheduleHandler = buildEnergyScheduleHandler(//
-				() -> this.config.mode(), //
-				() -> DelayCharge.parseTime(this.config.manualTargetTime()));
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(this, //
+				() -> this.config.enabled() //
+						? switch (this.config.mode()) {
+						case AUTOMATIC -> new EnergyScheduler.Config.Automatic();
+						case MANUAL ->
+							new EnergyScheduler.Config.Manual(DelayCharge.parseTime(this.config.manualTargetTime()));
+						case OFF -> null;
+						} //
+						: null);
 		this.updateConfig(config);
 	}
 
@@ -146,7 +154,11 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 
 	private void updateConfig(Config config) {
 		this.config = config;
+		if (config.maximumSellToGridPower() != -1) {
+			this.migrateFeedPowerParaConfigValue(config.maximumSellToGridPower(), config.sellToGridLimitEnabled());
+		}
 		this.delayCharge = new DelayCharge(this);
+		this.updateMaximumSellToGridPower();
 		this.sellToGridLimit = new SellToGridLimit(this);
 
 		// update filter for 'ess'
@@ -162,7 +174,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 
 	@Override
 	public void run() throws OpenemsNamedException {
-
+		this.updateMaximumSellToGridPower();
 		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
 			this._setConfiguredEssIsNotManaged(true);
 			return;
@@ -204,7 +216,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			IntegerReadChannel productionChannel = this.sum.getProductionActivePowerChannel();
 
 			// Check start if production not already reached the maximum sell to grid power
-			if (productionChannel.value().orElse(0) < this.config.maximumSellToGridPower()) {
+			if (productionChannel.value().orElse(0) < this.maximumSellToGridPower) {
 
 				/*
 				 * Calculate the average with the last 100 values of production and consumption
@@ -275,7 +287,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		}
 
 		/*
-		 * Set sellToGridLimit if its lower than delayChargeLimit as fix value.
+		 * Set sellToGridLimit if it's lower than delayChargeLimit as fix value.
 		 *
 		 * <p> e.g. sellToGridLimit [-10kW | -3kW] & delayCharge [-2kW | 10kW] - it will
 		 * take -3 kW to reduce the grid power with the minimum power and avoid to
@@ -315,7 +327,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	 * power in DC systems as inverter setpoint.
 	 *
 	 * @param delayChargeMaxChargePower maximum charge power of the battery
-	 * @return Maximum power to is allowed to charged(AC) or discharged(DC)
+	 * @return Maximum allowed power for charging (AC) or discharging (DC)
 	 */
 	private int calculateDelayChargeAcLimit(int delayChargeMaxChargePower) {
 
@@ -459,91 +471,79 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		return this.timedata;
 	}
 
-	/**
-	 * Builds the {@link EnergyScheduleHandler}.
-	 * 
-	 * <p>
-	 * This is public so that it can be used by the EnergyScheduler integration
-	 * test.
-	 * 
-	 * @param mode             a supplier for the configured {@link Mode}
-	 * @param manualTargetTime a supplier for the configured manualTargetTime
-	 * @return a {@link EnergyScheduleHandler}
-	 */
-	public static EnergyScheduleHandler buildEnergyScheduleHandler(Supplier<Mode> mode,
-			Supplier<LocalTime> manualTargetTime) {
-		return EnergyScheduleHandler.of(//
-				simContext -> {
-					// TODO try to reuse existing logic for parsing, calculating limits, etc.; for
-					// now this only works for current day and MANUAL mode
-					final var limits = ImmutableSortedMap.<ZonedDateTime, OptionalInt>naturalOrder();
-					final var periodsPerDay = simContext.periods().stream() //
-							.collect(groupingBy(p -> p.time().truncatedTo(ChronoUnit.DAYS)));
-					if (!periodsPerDay.isEmpty()) {
-						final var firstDayMignight = Collections.min(periodsPerDay.keySet());
-
-						for (var entry : periodsPerDay.entrySet()) {
-							// Find target time for this day
-							var midnight = entry.getKey(); // beginning of this day
-							var periods = entry.getValue(); // periods of this day
-							ZonedDateTime targetTime = switch (mode.get()) {
-							case OFF -> midnight; // Can not happen
-							case MANUAL -> midnight //
-									.withHour(manualTargetTime.get().getHour()) //
-									.withMinute(manualTargetTime.get().getMinute());
-							case AUTOMATIC -> midnight; // TODO
-							};
-							// Find first period with Production > Consumption
-							var firstExcessEnergyOpt = periods.stream() //
-									.filter(p -> p.production() > p.consumption()) //
-									.findFirst();
-							if (firstExcessEnergyOpt.isEmpty()
-									|| targetTime.isBefore(firstExcessEnergyOpt.get().time())) {
-								// Production exceeds Consumption never or too late on this day
-								// -> set no limit for this day
-								limits.put(midnight, OptionalInt.empty());
-								continue;
-							}
-							var firstExcessEnergy = firstExcessEnergyOpt.get().time();
-
-							// Set no limit for early hours of the day
-							if (firstExcessEnergy.isAfter(midnight)) {
-								limits.put(midnight, OptionalInt.empty());
-							}
-
-							// Calculate actual charge limit
-							var noOfQuarters = (int) Duration.between(firstExcessEnergy, targetTime).toMinutes() / 15;
-							final var totalEnergy = midnight == firstDayMignight //
-									? // use actual data for first day
-									simContext.ess().totalEnergy() - simContext.ess().currentEnergy()
-									: // assume full charge from second day
-									simContext.ess().totalEnergy();
-							limits.put(firstExcessEnergy, OptionalInt.of(totalEnergy / noOfQuarters));
-
-							// No limit after targetTime
-							limits.put(targetTime, OptionalInt.empty());
-						}
-					}
-
-					return new EshContext(limits.build());
-				}, //
-				(simContext, period, energyFlow, ctrlContext) -> {
-					var limitEntry = ctrlContext.limits.floorEntry(period.time());
-					if (limitEntry == null) {
-						return;
-					}
-					var limit = limitEntry.getValue();
-					if (limit.isPresent()) {
-						energyFlow.setEssMaxCharge(limit.getAsInt());
-					}
-				});
-	}
-
-	private static record EshContext(ImmutableSortedMap<ZonedDateTime, OptionalInt> limits) {
-	}
-
 	@Override
 	public EnergyScheduleHandler getEnergyScheduleHandler() {
 		return this.energyScheduleHandler;
+	}
+
+	private void updateMaximumSellToGridPower() {
+		if (!this.ess.getMaxApparentPower().isDefined()) {
+			this.maximumSellToGridPower = 0;
+			return;
+		}
+		var maxApparentPower = this.ess.getMaxApparentPower().get();
+		if (this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
+			this.maximumSellToGridPower = (this.rcr != null && this.rcr.isEnabled())
+					? this.rcr.getDynamicGridFeedInLimit(maxApparentPower)
+					: this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
+		}
+	}
+
+	/**
+	 * Shifts the feed-in power limitation setting from the controller to the Meta
+	 * App. In the future, no feed-in limitation should be configured directly in
+	 * the controller. To avoid inconsistencies caused by having this value defined
+	 * in different Controllers (e.g. GridOptimizeCharge and
+	 * GoodWeBatteryInverterImpl, also potentially with different values), the
+	 * setting will be managed globally within the Meta App. Simply removing the
+	 * config parameter would lead to issues for existing systems, as the value
+	 * would be lost. Therefore, a gradual migration is necessary. For this, the
+	 * current value is extracted from the "maxSellToGridPower" variable and
+	 * transferred to the Meta App. As a placeholder, the value -1 will be written
+	 * into the inverter's config. In a future version, this migration logic can
+	 * then be removed entirely.
+	 *
+	 * @param maximumGridFeedInLimit          the maximum grid feed in limit.
+	 * @param isMaximumGridFeedInLimitEnabled is maximum grid feed in limit enabled?
+	 */
+	private void migrateFeedPowerParaConfigValue(int maximumGridFeedInLimit, boolean isMaximumGridFeedInLimitEnabled) {
+		try {
+			var config = this.cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?");
+			var properties = config.getProperties();
+			var gridFeedInLimitationType = isMaximumGridFeedInLimitEnabled ? GridFeedInLimitationType.DYNAMIC_LIMITATION
+					: GridFeedInLimitationType.NO_LIMITATION;
+
+			if (properties.get("maximumGridFeedInLimit") != null
+					|| properties.get("gridFeedInLimitationType") != null) {
+				// Already migrated, do nothing
+				this.log.warn(
+						"Value is already migrated to Meta App, skipping migration. Set the value in the Meta Component instead.");
+				this.resetMaximumSellToGridPower();
+				return;
+			}
+
+			properties.put("maximumGridFeedInLimit", maximumGridFeedInLimit);
+			properties.put("gridFeedInLimitationType", gridFeedInLimitationType.name());
+			config.updateIfDifferent(properties);
+
+			this.resetMaximumSellToGridPower();
+		} catch (IOException e) {
+			this.log.warn("Unable to update {} config", this.id(), e);
+		}
+	}
+
+	private void resetMaximumSellToGridPower() throws IOException {
+		// Async update to avoid modifying the current Component during activation or
+		// modified
+		CompletableFuture.runAsync(() -> {
+			try {
+				var config = this.cm.getConfiguration(this.servicePid(), "?");
+				var properties = config.getProperties();
+				properties.put("maximumSellToGridPower", -1);
+				config.updateIfDifferent(properties);
+			} catch (IOException e) {
+				this.log.warn("Unable to reset maximumSellToGridPower in GridOptimizedCharge", e);
+			}
+		});
 	}
 }

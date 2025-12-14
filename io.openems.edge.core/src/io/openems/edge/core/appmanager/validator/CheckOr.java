@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -44,16 +45,22 @@ public class CheckOr extends AbstractCheckable implements Checkable {
 
 	@Deactivate
 	private void deactivate() {
-		try {
-			this.check1.close();
-		} catch (Exception e) {
-			this.log.error("Unable to close checkable " + this.check1Config.checkableComponentName(), e);
-		}
-		try {
-			this.check2.close();
-		} catch (Exception e) {
-			this.log.error("Unable to close checkable " + this.check2Config.checkableComponentName(), e);
-		}
+		// run async to avoid blocking for multiple components that are deactivated at
+		// the same time
+		// java.lang.IllegalStateException: ServiceFactory.ungetService() resulted in a
+		// cycle.
+		CompletableFuture.runAsync(() -> {
+			try {
+				this.check1.close();
+			} catch (Exception e) {
+				this.log.error("Unable to close checkable " + this.check1Config.checkableComponentName(), e);
+			}
+			try {
+				this.check2.close();
+			} catch (Exception e) {
+				this.log.error("Unable to close checkable " + this.check2Config.checkableComponentName(), e);
+			}
+		});
 	}
 
 	@Override

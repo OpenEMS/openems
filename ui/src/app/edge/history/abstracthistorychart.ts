@@ -2,16 +2,18 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { XAxisType } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -42,6 +44,10 @@ export abstract class AbstractHistoryChart {
     protected formatNumber: string = "1.0-2";
     /** @deprecated*/
     protected xAxisType: XAxisType = XAxisType.TIMESERIES;
+    /** @deprecated*/
+    protected chartAxis: ChartAxis = ChartAxis.LEFT;
+    /** @deprecated*/
+    protected position: "left" | "right" = "left";
 
     // Colors for Phase 1-3
     protected phase1Color = {
@@ -115,8 +121,7 @@ export abstract class AbstractHistoryChart {
     public setOptions(options: Chart.ChartOptions): Promise<void> {
 
         return new Promise<void>((resolve) => {
-            const locale = this.service.translate.currentLang;
-            const yAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT };
+            const yAxis: HistoryUtils.yAxes = { position: this.position, unit: this.unit, yAxisId: this.chartAxis };
             const chartObject: HistoryUtils.ChartData = {
                 input: [],
                 output: () => [],
@@ -131,7 +136,7 @@ export abstract class AbstractHistoryChart {
             const translate = this.translate;
             this.service.getConfig().then((conf) => {
 
-                options = NewAbstractHistoryChart.getDefaultOptions(this.xAxisType, this.service, this.labels);
+                options = NewAbstractHistoryChart.getDefaultXAxisOptions(this.xAxisType, this.service, this.labels);
 
                 /** Hide default displayed yAxis */
                 options.scales["y"] = {
@@ -152,19 +157,23 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
-                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", locale, translate, conf);
+                    return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", translate, conf);
                 };
 
                 options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
-                    const color = colors[item.datasetIndex];
+                    let backgroundColor = item.dataset.backgroundColor;
 
-                    if (!color) {
-                        return;
+                    if (Array.isArray(backgroundColor)) {
+                        backgroundColor = backgroundColor[0];
+                    }
+
+                    if (!backgroundColor) {
+                        backgroundColor = item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
                     }
 
                     return {
-                        borderColor: color.borderColor,
-                        backgroundColor: color.backgroundColor,
+                        borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
+                        backgroundColor: ColorUtils.changeOpacityFromRGBA(backgroundColor, 1),
                     };
                 };
 
@@ -191,6 +200,7 @@ export abstract class AbstractHistoryChart {
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
                             strokeStyle: color.borderColor,
+                            ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
                     return chartLegendLabelItems;
@@ -208,14 +218,19 @@ export abstract class AbstractHistoryChart {
                     }, []);
 
                     legendItems.forEach(item => {
-                        // original.call(this, event, legendItem1);
                         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
                         const meta = chart.getDatasetMeta(item.index);
-                        // See controller.isDatasetVisible comment
-                        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
+                        meta.hidden = chart.isDatasetVisible(legendItem.datasetIndex);
                     });
 
-                    // We hid a dataset ... rerender the chart
+                    // Show only Y axes that have at least one visible dataset
+                    for (const key of Object.keys(ObjectUtils.excludeProperties(options.scales, ["x"]))) {
+                        const axisDatasets = chart.data.datasets
+                            .map((d, i) => ({ dataset: d, index: i }))
+                            .filter(d => d.dataset["yAxisID"] === key);
+                        chart.scales[key].options.display = axisDatasets.some(d => chart.isDatasetVisible(d.index));
+                    }
+
                     chart.update();
                 };
 
@@ -242,10 +257,12 @@ export abstract class AbstractHistoryChart {
                     });
 
                 // Only one yAxis defined
-                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", locale, this.datasets, true);
+                options = NewAbstractHistoryChart.getYAxisOptions(options, yAxis, this.translate, "line", this.datasets, true, chartObject.tooltip.formatNumber,);
                 options = NewAbstractHistoryChart.applyChartTypeSpecificOptionsChanges("line", options, this.service, chartObject);
-                options.scales[ChartAxis.LEFT]["stacked"] = false;
+                options.scales[this.chartAxis]["stacked"] = false;
                 options.scales.x["stacked"] = true;
+                options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+
             }).then(() => {
                 this.options = options;
                 resolve();
@@ -401,7 +418,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant("Edge.History.noData");
+        EMPTY_DATASET[0].label = this.translate.instant("EDGE.HISTORY.NO_DATA");
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

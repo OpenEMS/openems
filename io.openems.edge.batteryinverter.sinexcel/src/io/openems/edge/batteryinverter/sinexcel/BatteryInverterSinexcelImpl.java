@@ -6,6 +6,16 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -17,10 +27,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,15 +66,11 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -79,10 +81,6 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-})
 public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		implements BatteryInverterSinexcel, OffGridBatteryInverter, ManagedSymmetricBatteryInverter,
 		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, TimedataProvider, StartStoppable {
@@ -105,7 +103,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
@@ -115,7 +113,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 	private ConfigurationAdmin cm;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -132,7 +130,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 				OffGridBatteryInverter.ChannelId.values(), //
 				BatteryInverterSinexcel.ChannelId.values() //
 		);
-		this._setMaxApparentPower(BatteryInverterSinexcelImpl.MAX_APPARENT_POWER);
+		this._setMaxApparentPower(MAX_APPARENT_POWER);
 	}
 
 	@Activate
@@ -301,12 +299,12 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		// Discharge Max Current
 		// negative value is corrected as zero
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.DISCHARGE_MAX_CURRENT,
-				TypeUtils.fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getDischargeMaxCurrent().orElse(0)));
+				fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getDischargeMaxCurrent().orElse(0)));
 
 		// Charge Max Current
 		// negative value is corrected as zero
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.CHARGE_MAX_CURRENT,
-				TypeUtils.fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getChargeMaxCurrent().orElse(0)));
+				fitWithin(0 /* enforce positive */, MAX_CURRENT, battery.getChargeMaxCurrent().orElse(0)));
 	}
 
 	@Override
@@ -333,22 +331,11 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		case START -> StartStop.START; // force START
+		case STOP -> StartStop.STOP; // force STOP
+		};
 	}
 
 	protected final AtomicReference<TargetGridMode> targetGridMode = new AtomicReference<>(TargetGridMode.GO_ON_GRID);
@@ -369,10 +356,8 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.REACTIVE, //
-						Relationship.EQUALS, 0d), //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.EQUALS, 0d) //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
 		};
 	}
 
@@ -541,7 +526,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 								chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
 								SCALE_FACTOR_1), //
-						m(BatteryInverterSinexcel.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.COS_PHI, new SignedWordElement(125), SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(126, 131), //
 						m(BatteryInverterSinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //

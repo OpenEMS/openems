@@ -5,22 +5,29 @@ import static io.openems.edge.common.sum.Sum.ChannelId.CONSUMPTION_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.CONSUMPTION_MAX_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.ESS_TO_CONSUMPTION_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MAX_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_MIN_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.GRID_TO_CONSUMPTION_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.GRID_TO_ESS_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_MAX_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_ESS_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_GRID_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER;
+import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.filter.DisabledRampFilter;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 import io.openems.edge.meter.test.DummyElectricityMeter;
@@ -54,6 +61,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, -1000) //
 				.output(PRODUCTION_ACTIVE_POWER, 5555) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 5555) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 4555) //
@@ -70,6 +78,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, -2000) //
 				.output(PRODUCTION_ACTIVE_POWER, 6666) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 6666) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 4666) //
@@ -85,6 +94,7 @@ public class SumImplTest {
 				.onBeforeProcessImage(() -> sut.updateChannelsBeforeProcessImage()) //
 				.output(GRID_ACTIVE_POWER, 3000) //
 				.output(PRODUCTION_ACTIVE_POWER, 6666) //
+				.output(UNMANAGED_PRODUCTION_ACTIVE_POWER, 6666) //
 				.output(ESS_ACTIVE_POWER, null) //
 				.output(ESS_DISCHARGE_POWER, null) //
 				.output(CONSUMPTION_ACTIVE_POWER, 9666) //
@@ -93,6 +103,14 @@ public class SumImplTest {
 				.output(GRID_MIN_ACTIVE_POWER, -2000) //
 				.output(GRID_MAX_ACTIVE_POWER, 3000) //
 				.output(PRODUCTION_MAX_ACTIVE_POWER, 6666) //
-				.output(CONSUMPTION_MAX_ACTIVE_POWER, 9666));
+				.output(CONSUMPTION_MAX_ACTIVE_POWER, 9666) //
+
+				.output(PRODUCTION_TO_CONSUMPTION_POWER, 6666) //
+				.output(PRODUCTION_TO_GRID_POWER, 0) //
+				.output(PRODUCTION_TO_ESS_POWER, 0) //
+				.output(GRID_TO_CONSUMPTION_POWER, 3000) //
+				.output(ESS_TO_CONSUMPTION_POWER, 0) //
+				.output(GRID_TO_ESS_POWER, 0) //
+		);
 	}
 }

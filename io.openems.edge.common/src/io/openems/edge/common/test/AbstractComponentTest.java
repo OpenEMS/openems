@@ -1,8 +1,18 @@
 package io.openems.edge.common.test;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodViaReflection;
 import static io.openems.common.utils.ReflectionUtils.invokeMethodWithoutArgumentsViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+import static io.openems.edge.common.channel.ChannelUtils.getChannelNature;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +33,6 @@ import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
@@ -34,6 +43,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -75,32 +85,39 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public boolean force();
 
+		/**
+		 * Gets an identification name.
+		 * 
+		 * @return name
+		 */
+		public String name();
+
 		public record ChannelAddressValue(ChannelAddress address, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.address.toString() + ":" + this.value;
+			public String name() {
+				return this.address.toString();
 			}
 		}
 
 		public record ChannelIdValue(ChannelId channelId, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.channelId.id() + ":" + this.value;
+			public String name() {
+				return this.channelId.id();
 			}
 		}
 
 		public record ChannelNameValue(String channelName, Object value, boolean force) implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.channelName + ":" + this.value;
+			public String name() {
+				return this.channelName;
 			}
 		}
 
 		public record ComponentChannelIdValue(String componentId, ChannelId channelId, Object value, boolean force)
 				implements ChannelValue {
 			@Override
-			public String toString() {
-				return this.componentId + "/" + this.channelId.id() + ":" + this.value;
+			public String name() {
+				return this.componentId + "/" + this.channelId.id();
 			}
 		}
 	}
@@ -142,6 +159,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		private final List<ThrowingRunnable<Exception>> onExecuteWriteCallbacks = new ArrayList<>();
 		private final List<ThrowingRunnable<Exception>> onAfterWriteCallbacks = new ArrayList<>();
 
+		private boolean strictMode = false;
 		private TimeLeap timeleap = null;
 
 		public TestCase() {
@@ -155,6 +173,20 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 */
 		public TestCase(String description) {
 			this.description = "#" + (++instanceCounter) + (description.isEmpty() ? "" : ": " + description);
+		}
+
+		/**
+		 * Activate Strict-Mode.
+		 * 
+		 * <p>
+		 * Strict-Mode requires, that all Channels of the tested Component are defined
+		 * either as Input or as Output.
+		 * 
+		 * @return myself
+		 */
+		public TestCase activateStrictMode() {
+			this.strictMode = true;
+			return this;
 		}
 
 		/**
@@ -532,26 +564,60 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				final Channel<?> channel = this.getChannel(act, output);
 
 				Object got;
+				final String readWriteInfo;
 				if (channel instanceof WriteChannel wc) {
 					got = wc.getNextWriteValueAndReset().orElse(null);
+					readWriteInfo = "WriteValue";
 				} else {
 					var value = channel.getNextValue();
 					got = value.orElse(null);
+					readWriteInfo = "ReadValue";
 				}
 				// Try to parse an Enum
-				if (channel.channelDoc() instanceof EnumDoc) {
-					var enumDoc = (EnumDoc) channel.channelDoc();
+				if (channel.channelDoc() instanceof EnumDoc enumDoc) {
 					var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
 					got = enumDoc.getOption(intGot);
 				}
 				if (!Objects.equals(output.value(), got)) {
+					final var nature = getChannelNature(channel);
 					throw new Exception("On TestCase [" + this.description + "]: " //
-							+ "expected [" + output.value() + "] " //
+							+ "expected " + readWriteInfo + " [" + output.value() + "] " //
 							+ "got [" + got + "] " //
-							+ "for Channel [" + output.toString() + "] " //
+							+ "for Channel [" + output.name() + "] " //
+							+ "in Nature [" + nature + "] " //
 							+ "on Inputs [" + this.inputs + "]");
 				}
 			}
+		}
+
+		/**
+		 * Validates the Strict-Mode; see {@link TestCase#activateStrictMode()}.
+		 *
+		 * @param act the {@link AbstractComponentTest}
+		 * @throws Exception on validation failure
+		 */
+		protected void validateStrictMode(AbstractComponentTest<?, ?> act) {
+			if (!this.strictMode) {
+				// Strict Mode is disabled -> ok
+				return;
+			}
+			final var sutChannels = new ArrayList<>(act.sut.channels());
+			Stream.concat(//
+					this.inputs.stream(), //
+					this.outputs.stream()) //
+					.map(cv -> this.getChannel(act, cv)) //
+					.forEach(c -> {
+						sutChannels.remove(c);
+					});
+			if (sutChannels.isEmpty()) {
+				// No Channels left -> ok
+				return;
+			}
+			throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+					+ "Strict Mode failed. Following Channels are not covered as Input or Output channels: \n" //
+					+ sutChannels.stream() //
+							.map(c -> "  " + getChannelNature(c) + ".ChannelId." + c.channelId().name()) //
+							.collect(joining("\n")));
 		}
 
 		private OpenemsComponent getComponent(Map<String, OpenemsComponent> components, String componentId) {
@@ -566,25 +632,22 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		private Channel<?> getChannel(AbstractComponentTest<?, ?> act, ChannelValue cv)
 				throws IllegalArgumentException {
-			if (cv instanceof ChannelAddressValue cav) {
+			return switch (cv) {
+			case ChannelAddressValue cav -> {
 				var component = this.getComponent(act.components, cav.address.getComponentId());
-				return component.channel(cav.address.getChannelId());
+				yield component.channel(cav.address.getChannelId());
 			}
-
-			if (cv instanceof ChannelIdValue civ) {
-				return act.sut.channel(civ.channelId);
-			}
-
-			if (cv instanceof ChannelNameValue civ2) {
-				return act.sut.channel(civ2.channelName);
-			}
-
-			if (cv instanceof ComponentChannelIdValue cciv) {
+			case ChannelIdValue civ //
+				-> act.sut.channel(civ.channelId);
+			case ChannelNameValue civ2 //
+				-> act.sut.channel(civ2.channelName);
+			case ComponentChannelIdValue cciv -> {
 				var component = this.getComponent(act.components, cciv.componentId());
-				return component.channel(cciv.channelId());
+				yield component.channel(cciv.channelId());
 			}
-
-			throw new IllegalArgumentException("Unhandled subtype of ChannelValue");
+			default //
+				-> throw new IllegalArgumentException("Unhandled subtype of ChannelValue");
+			};
 		}
 	}
 
@@ -685,23 +748,25 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		// Store reference
 		this.references.add(object);
 
-		// If this is a DummyComponentManager -> fill it with existing Components
-		if (object instanceof DummyComponentManager) {
-			for (OpenemsComponent component : this.components.values()) {
-				((DummyComponentManager) object).addComponent(component);
-			}
+		switch (object) {
+		case DummyComponentManager dcm ->
+			// If this is a DummyComponentManager -> fill it with existing Components
+			this.components.values() //
+					.forEach(dcm::addComponent);
+
+		case OpenemsComponent oc ->
+			// If this is an OpenemsComponent -> store it for later
+			this.addComponent(oc);
+
+		case Collection<?> os -> //
+			os.stream() //
+					.filter(OpenemsComponent.class::isInstance) //
+					.map(OpenemsComponent.class::cast) //
+					.forEach(this::addComponent);
+
+		case null, default -> doNothing();
 		}
-		// If this is an OpenemsComponent -> store it for later
-		if (object instanceof OpenemsComponent) {
-			this.addComponent((OpenemsComponent) object);
-		}
-		if (object instanceof Collection<?>) {
-			for (Object o : (Collection<?>) object) {
-				if (o instanceof OpenemsComponent) {
-					this.addComponent((OpenemsComponent) o);
-				}
-			}
-		}
+
 		return this.self();
 	}
 
@@ -738,11 +803,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.components.put(component.id(), component);
 
 		// Is a DummyComponentManager present -> add this Component
-		for (Object object : this.references) {
-			if (object instanceof DummyComponentManager) {
-				((DummyComponentManager) object).addComponent(component);
-			}
-		}
+		this.references.stream() //
+				.filter(DummyComponentManager.class::isInstance) //
+				.map(DummyComponentManager.class::cast) //
+				.forEach(dcm -> dcm.addComponent(component));
+
 		return this.self();
 	}
 
@@ -760,8 +825,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	public SELF activate(AbstractComponentConfig config) throws Exception {
 		// Add the configuration to ConfigurationAdmin
 		for (Object object : this.references) {
-			if (object instanceof DummyConfigurationAdmin) {
-				var cm = (DummyConfigurationAdmin) object;
+			if (object instanceof DummyConfigurationAdmin cm) {
 				cm.addConfig(config);
 			}
 		}
@@ -780,6 +844,27 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	/**
+	 * Calls the 'modified()' method of the system-under-test with the given
+	 * configuration.
+	 *
+	 * @param config the configuration
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF modified(AbstractComponentConfig config) throws Exception {
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin cm) {
+				cm.addConfig(config);
+			}
+		}
+
+		this.callModified(config);
+
+		return this.self();
+	}
+
+	/**
 	 * Calls the 'deactivate()' method of the 'system-under-test'.
 	 *
 	 * @return itself, to use as a builder
@@ -792,11 +877,9 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
 		var result = 0;
-		for (Object object : this.references) {
-			if (object instanceof ConfigurationAdmin) {
-				var cm = (ConfigurationAdmin) object;
-				var configs = cm.listConfigurations(null);
-				for (Configuration config : configs) {
+		for (var object : this.references) {
+			if (object instanceof ConfigurationAdmin cm) {
+				for (var config : cm.listConfigurations(null)) {
 					result += config.getChangeCount();
 				}
 			}
@@ -897,32 +980,32 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		testCase.applyTimeLeap();
 		this.onBeforeProcessImage();
 		executeCallbacks(testCase.onBeforeProcessImageCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
-		for (Channel<?> channel : this.getSut().channels()) {
-			channel.nextProcessImage();
-		}
+		this.handleEvent(TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
+		this.sut.channels() //
+				.forEach(Channel::nextProcessImage);
 		testCase.applyInputs(this);
 		this.onAfterProcessImage();
 		executeCallbacks(testCase.onAfterProcessImageCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
+		this.handleEvent(TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 		this.onBeforeControllers();
 		executeCallbacks(testCase.onBeforeControllersCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
+		this.handleEvent(TOPIC_CYCLE_BEFORE_CONTROLLERS);
 		this.onExecuteControllers();
 		executeCallbacks(testCase.onExecuteControllersCallbacks);
 		this.onAfterControllers();
 		executeCallbacks(testCase.onAfterControllersCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
+		this.handleEvent(TOPIC_CYCLE_AFTER_CONTROLLERS);
 		this.onBeforeWrite();
 		executeCallbacks(testCase.onBeforeWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
+		this.handleEvent(TOPIC_CYCLE_BEFORE_WRITE);
 		this.onExecuteWrite();
 		executeCallbacks(testCase.onExecuteWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
+		this.handleEvent(TOPIC_CYCLE_EXECUTE_WRITE);
 		this.onAfterWrite();
 		executeCallbacks(testCase.onAfterWriteCallbacks);
-		this.handleEvent(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
+		this.handleEvent(TOPIC_CYCLE_AFTER_WRITE);
 		testCase.validateOutputs(this);
+		testCase.validateStrictMode(this);
 		return this.self();
 	}
 

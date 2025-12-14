@@ -1,21 +1,25 @@
+<<<<<<<< HEAD:io.openems.edge.ess.sma/src/io/openems/edge/ess/sma/sunnyisland/EssSmaSunnyIslandImpl.java
 package io.openems.edge.ess.sma.sunnyisland;
+========
+package io.openems.edge.sma.ess.sunnyisland;
+>>>>>>>> develop:io.openems.edge.sma/src/io/openems/edge/sma/ess/sunnyisland/EssSmaSunnyIslandImpl.java
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -36,25 +40,29 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
+<<<<<<<< HEAD:io.openems.edge.ess.sma/src/io/openems/edge/ess/sma/sunnyisland/EssSmaSunnyIslandImpl.java
 import io.openems.edge.ess.sma.enums.PowerSupplyStatus;
 import io.openems.edge.ess.sma.enums.SetControlMode;
+========
+import io.openems.edge.sma.ess.sunnyisland.enums.PowerSupplyStatus;
+import io.openems.edge.sma.ess.sunnyisland.enums.SetControlMode;
+>>>>>>>> develop:io.openems.edge.sma/src/io/openems/edge/sma/ess/sunnyisland/EssSmaSunnyIslandImpl.java
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Ess.SMA.SunnyIsland", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, ModbusComponent, OpenemsComponent {
@@ -66,7 +74,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	private ConfigurationAdmin cm;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -98,25 +106,18 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// Evaluate 'SinglePhase'
-		switch (config.phase()) {
-		case ALL:
-			this.singlePhase = null;
-			break;
-		case L1:
-			this.singlePhase = SinglePhase.L1;
-			break;
-		case L2:
-			this.singlePhase = SinglePhase.L2;
-			break;
-		case L3:
-			this.singlePhase = SinglePhase.L3;
-			break;
-		}
+		this.singlePhase = switch (config.phase()) {
+		case ALL -> null;
+		case L1 -> SinglePhase.L1;
+		case L2 -> SinglePhase.L2;
+		case L3 -> SinglePhase.L3;
+		};
 
 		if (this.singlePhase != null) {
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
+		this._setCapacity(Math.max(0, config.capacity()));
 		this._setGridMode(GridMode.ON_GRID);
 	}
 
@@ -144,7 +145,11 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException {
-		if (this.config.phase() == Phase.ALL) {
+		if (this.config.readOnlyMode()) {
+			return;
+		}
+
+		if (this.config.phase() == SingleOrAllPhase.ALL) {
 			return;
 		}
 
@@ -178,7 +183,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 									}
 									int value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
 									// Evaluate symmetric/single-phase mode
-									if (this.config.phase() == Phase.ALL) {
+									if (this.config.phase() == SingleOrAllPhase.ALL) {
 										// assuming 3 phases are done by Master/Slave
 										return 3 * value;
 

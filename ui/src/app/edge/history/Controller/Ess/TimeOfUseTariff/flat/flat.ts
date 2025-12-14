@@ -1,12 +1,13 @@
 import { Component, Input } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: "timeOfUseTariffWidget",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -26,5 +27,4 @@ export class FlatComponent extends AbstractFlatWidget {
         this.delayedActiveTimeOverPeriod = currentData.allComponents[this.componentId + "/DelayedTime"];
         this.chargedConsumptionActiveTimeOverPeriod = currentData.allComponents[this.componentId + "/ChargedTime"];
     }
-
 }

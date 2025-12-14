@@ -2,17 +2,49 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { addMonths, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, isAfter, isBefore, startOfDay, startOfMonth, startOfWeek, startOfYear, subMonths, subYears } from "date-fns";
-import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from "date-fns/esm";
+import { addDays, addMonths, addWeeks, addYears, differenceInDays, differenceInMilliseconds, endOfDay, endOfMonth, endOfWeek, endOfYear, isAfter, isBefore, isFuture, startOfDay, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subWeeks, subYears } from "date-fns";
 
-import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { DateUtils } from "../../utils/date/dateutils";
 import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @Component({
     selector: "pickdate",
     templateUrl: "./pickdate.component.html",
+    standalone: false,
+    styles: [`
+        ion-button.pickdate-styles {
+            background: transparent !important;
+            box-shadow: none !important;
+            white-space: nowrap;
+        }
+
+        ion-button.pickdate-styles::part(native) {
+            background: var(--ion-color-toolbar-primary);
+            color: var(--ion-menu-color);
+            box-shadow: 0em 0.3em 0.3em var(--ion-color-primary-rgba);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-transform: uppercase;
+            border-radius: 0.5em;
+        }
+
+        ion-button.pickdate-styles:hover::part(native) {
+            transition: background-color 0.1s ease-in-out;
+            box-shadow: none;
+        }
+
+        ion-button.pickdate-styles {
+            :is(active::part(native)) {
+                transform: scale(0.98);
+                box-shadow: inset 0em 0.125em 0.25em rgba(0, 0, 0, 0.4);
+                opacity: 0.8;
+            }}
+        `],
 })
 export class PickDateComponent implements OnInit, OnDestroy {
 

@@ -6,6 +6,7 @@ import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
+import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @SuppressWarnings("all")
@@ -24,6 +25,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private FeedInPowerSettings feedInPowerSettings;
 		private EnableDisable rcrEnable = EnableDisable.DISABLE;
 		private StartStopConfig startStop;
+		private EnableDisable naProtectionEnable = EnableDisable.DISABLE;
+		private GridCode gridCode = GridCode.VDE_4105;
 
 		private Builder() {
 		}
@@ -83,8 +86,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setNaProtectionEnable(EnableDisable naProtectionEnable) {
+			this.naProtectionEnable = naProtectionEnable;
+			return this;
+		}
+
 		public Builder setStartStop(StartStopConfig startStop) {
 			this.startStop = startStop;
+			return this;
+		}
+
+		public Builder setGridCode(GridCode gridCode) {
+			this.gridCode = gridCode;
 			return this;
 		}
 
@@ -139,11 +152,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.backupEnable;
 	}
 
+	@Deprecated
 	@Override
 	public EnableDisable feedPowerEnable() {
 		return this.builder.feedPowerEnable;
 	}
 
+	@Deprecated
 	@Override
 	public int feedPowerPara() {
 		return this.builder.feedPowerPara;
@@ -167,5 +182,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
+	}
+
+	@Override
+	public EnableDisable naProtectionEnable() {
+		return this.builder.naProtectionEnable;
+	}
+
+	@Override
+	public GridCode gridCode() {
+		return this.builder.gridCode;
 	}
 }

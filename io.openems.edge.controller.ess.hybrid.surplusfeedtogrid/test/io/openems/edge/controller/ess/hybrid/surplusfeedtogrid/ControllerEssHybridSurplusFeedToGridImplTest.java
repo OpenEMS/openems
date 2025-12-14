@@ -5,8 +5,8 @@ import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_P
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyHybridEss;
 
@@ -38,7 +38,7 @@ public class ControllerEssHybridSurplusFeedToGridImplTest {
 		test.next(new TestCase() //
 				.output(SURPLUS_FEED_TO_GRID_IS_LIMITED, true) //
 				.output("ess0", SET_ACTIVE_POWER_GREATER_OR_EQUALS, 2000)) //
-		
+
 				.deactivate();
 	}
 }

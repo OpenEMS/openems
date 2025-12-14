@@ -1,40 +1,41 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center" color="primary">
-        <ion-title translate>General.digitalInputs</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="ion-justify-content-center"
+    style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
+    <ion-title translate>GENERAL.DIGITAL_INPUTS</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ng-container *ngIf="service.currentEdge | async as edge">
-        <ng-container *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ng-container *ngFor="let channelsPerComponent of digitalInputChannelsPerComponent">
-                <ion-card-content>
-                    <table class="full_width">
-                        <tr class="underline">
-                            <td style="width: 100%;">{{ channelsPerComponent.componentAlias}}</td>
-                        </tr>
-                        <ng-container *ngFor="let channel of channelsPerComponent.channels">
-                            <tr>
-                                <td style="width:65%">{{ channel.id }}</td>
-                                <td style="width:36%" class="align_right">
-                                    <ion-icon name="radio-button-off"
-                                        *ngIf="currentData[channelsPerComponent.componentId + '/' + channel.id] === 0; else inputOn">
-                                    </ion-icon>
-                                    <ng-template #inputOn>
-                                        <ion-icon name="radio-button-on"></ion-icon>
-                                    </ng-template>
-                                </td>
-                            </tr>
-                        </ng-container>
-
-                    </table>
-                </ion-card-content>
-            </ng-container>
-        </ng-container>
-    </ng-container>
+  @if (service.currentEdge(); as edge) {
+    @if ((edge.currentData | async)['channel']; as currentData) {
+      @for (channelsPerComponent of digitalInputChannelsPerComponent; track channelsPerComponent) {
+        <ion-card-content>
+          <table class="full_width">
+            <tr class="underline">
+              <td style="width: 100%;">{{ channelsPerComponent.componentAlias}}</td>
+            </tr>
+            @for (channel of channelsPerComponent.channels; track channel) {
+              <tr>
+                <td style="width:65%">{{ channel.id }}</td>
+                <td style="width:36%" class="align_right">
+                  @if (currentData[channelsPerComponent.componentId + '/' + channel.id] === 0) {
+                    <ion-icon name="radio-button-off"
+                      >
+                    </ion-icon>
+                  } @else {
+                    <ion-icon name="radio-button-on"></ion-icon>
+                  }
+                </td>
+              </tr>
+            }
+          </table>
+        </ion-card-content>
+      }
+    }
+  }
 </ion-content>

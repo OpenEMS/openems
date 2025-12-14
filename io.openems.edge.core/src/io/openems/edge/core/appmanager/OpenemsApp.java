@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.stream.Stream;
+
 import org.osgi.service.component.ComponentConstants;
 
 import com.google.gson.JsonObject;
@@ -13,6 +15,25 @@ import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
+
+	/**
+	 * Tests if a user is allowed to edit a property.
+	 * 
+	 * @param prop The property to be tested
+	 * @param user The user permissions are to be tested for
+	 * @return true if user is allowed to edit, false otherwise
+	 */
+	public boolean assertCanEdit(String prop, User user);
+
+	/**
+	 * Maps the property name of a component to the coressponding app Property.
+	 * 
+	 * @param prop        The property to be mapped
+	 * @param componentId the componentId
+	 * @param instance    instance of the app
+	 * @return the mapped property name
+	 */
+	public String mapPropName(String prop, String componentId, OpenemsAppInstance instance);
 
 	/**
 	 * Gets the {@link AppAssistant} for this {@link OpenemsApp}.
@@ -121,6 +142,16 @@ public interface OpenemsApp {
 	 */
 	public default Flag[] flags() {
 		return new Flag[] {};
+	}
+
+	/**
+	 * Checks whether the app has a passed flag set.
+	 * 
+	 * @param flag the flag to be checked
+	 * @return is the flag set
+	 */
+	public default boolean hasFlag(Flag flag) {
+		return Stream.of(this.flags()).anyMatch(f -> f.equals(flag));
 	}
 
 	public static final String FALLBACK_IMAGE = """

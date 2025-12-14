@@ -86,8 +86,9 @@ public class ThresholdControl
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNELS(AppDef.copyOfGeneric(relayContactDef(true, 1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannels.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description"))), //
+				.setTranslatedLabelWithAppPrefix(".outputChannels.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description")//
+				.setRequired(true))), //
 		;
 
 		private final AppDef<? super ThresholdControl, ? super Property, ? super ThresholdControlControlParameter> def;
@@ -116,7 +117,7 @@ public class ThresholdControl
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -145,17 +146,17 @@ public class ThresholdControl
 
 			final var ctrlIoChannelSingleThresholdId = this.getId(t, p, Property.CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID);
 
-			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var alias = this.getString(p, l, Property.ALIAS);
 
 			final var outputChannelAddress = this.getJsonArray(p, Property.OUTPUT_CHANNELS);
 
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
 							"Controller.IO.ChannelSingleThreshold", JsonUtils.buildJsonObject() //
 									.onlyIf(t == ConfigurationTarget.ADD,
-											j -> j.addProperty("inputChannelAddress", "_sum/EssSoc"))
+											j -> j.addProperty("inputChannelAddress", "_sum/EssSoc") //
+													.addProperty("threshold", 50))
 									.add("outputChannelAddress", outputChannelAddress) //
-									.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("threshold", 50)) //
 									.build()) //
 			);
 
@@ -180,7 +181,8 @@ public class ThresholdControl
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true),
+						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

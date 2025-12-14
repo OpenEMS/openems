@@ -3,9 +3,9 @@ package io.openems.edge.battery.fenecon.home;
 import static io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent.BitConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -35,6 +35,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
@@ -58,7 +59,6 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -66,6 +66,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -87,6 +88,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
 	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
 	private Instant timeCriticalMinVoltage;
+	private Integer lastKnownMinVoltage;
 
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
@@ -107,6 +109,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	private Config config;
 	private BatteryProtection batteryProtection;
+
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
 
 	public BatteryFeneconHomeImpl() {
 		super(//
@@ -148,8 +153,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.batteryProtection.apply();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.checkCriticalMinVoltage();
 			this.handleStateMachine();
+			this.checkCriticalMinVoltage();
 			break;
 		}
 	}
@@ -315,21 +320,52 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(7, BatteryFeneconHome.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, BatteryFeneconHome.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(BatteryFeneconHome.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
-				new FC3ReadRegistersTask(18000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, new UnsignedWordElement(18000))), //
-				new FC3ReadRegistersTask(16000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, new UnsignedWordElement(16000))), //
-				new FC3ReadRegistersTask(14000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
-				new FC3ReadRegistersTask(12000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, new UnsignedWordElement(12000))), //
+
+				new FC3ReadRegistersTask(18000, Priority.HIGH, //
+						m(new UnsignedWordElement(18000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+				
+				new FC3ReadRegistersTask(16000, Priority.HIGH, //
+						m(new UnsignedWordElement(16000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+
+				new FC3ReadRegistersTask(14000, Priority.HIGH, //
+						m(new UnsignedWordElement(14000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+				
+				new FC3ReadRegistersTask(12000, Priority.HIGH, //
+						m(new UnsignedWordElement(12000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+
 				new FC3ReadRegistersTask(10000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, new UnsignedWordElement(10000)), //
+						m(new UnsignedWordElement(10000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build(), //
+
 						new DummyRegisterElement(10001, 10018), //
 						m(BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE, new UnsignedWordElement(10019),
 								SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(10020, 10023), //
 						m(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(10024))), //
+
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(new BitsWordElement(44000, this) //
 								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL, INVERT)) //
@@ -343,7 +379,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void detectHardwareType() throws OpenemsException {
 		// Set Battery-Protection
-		readElementOnce(this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
+		readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(10019))
 				.thenAccept(value -> {
 					if (value == null) {
 						return;
@@ -389,17 +425,28 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * @param channelIdSuffix     e.g. "STATUS_ALARM"
 	 * @param openemsType         specified type e.g. "INTEGER"
 	 * @param additionalDocConfig the additional doc configuration
+	 * @param channelConsumer     the additional configuration on the created
+	 *                            channel
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
-			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig, Consumer<Channel<?>> channelConsumer) {
 		final var doc = Doc.of(openemsType);
 		if (additionalDocConfig != null) {
 			additionalDocConfig.accept(doc);
 		}
 		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, doc);
-		this.addChannel(channelId);
+		final var channel = this.addChannel(channelId);
+
+		channelConsumer.accept(channel);
+
 		return channelId;
+	}
+
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+		return this.generateTowerChannel(tower, channelIdSuffix, openemsType, additionalDocConfig,
+				FunctionUtils::doNothing);
 	}
 
 	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
@@ -458,50 +505,28 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 * Recalculate the number of towers and modules. Unfortunately the battery may
 	 * report too small wrong values in the beginning, so we need to recalculate on
 	 * every change.
+	 * </p>
 	 * 
 	 * <p>
 	 * As an alternative, these channels may also be introduced in a record, and the
 	 * associated channel value could be read with the aid of
 	 * {@link ChannelUtils#getValues}. However, startup time is once again involved
 	 * in this process. This indicates that the last callback will have been made
-	 * before the record is set. Furthermore, there is no certainty that the
-	 * "software version channel value change" will occur, making it unlikely for
-	 * this to trigger a callback.
+	 * before the record is set.
 	 */
 	protected synchronized void updateNumberOfTowersAndModules() {
 		Channel<Integer> numberOfModulesPerTowerChannel = this
 				.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 		var numberOfModulesPerTowerOpt = numberOfModulesPerTowerChannel.value();
 
-		// Were all required registers read?
 		if (!numberOfModulesPerTowerOpt.isDefined()) {
 			return;
 		}
 
-		// Evaluate the total number of towers by reading the software versions of
-		// towers 2 and 3: they are '0' when the respective tower is not available.
-		final var softwareVersionlist = List.of(//
-				BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, //
-				BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION//
-		) //
-				.stream() //
-				.map(c -> {
-					IntegerReadChannel channel = this.channel(c);
-					return channel.value().get();
-				}) //
-				.toList();
-
-		final var numberOfTowers = calculateTowerNumberFromSoftwareVersion(softwareVersionlist);
-
-		// Write 'TOWER_NUMBER' Debug Channel
-		Channel<?> numberOfTowersChannel = this.channel(BatteryFeneconHome.ChannelId.NUMBER_OF_TOWERS);
-		numberOfTowersChannel.setNextValue(numberOfTowers);
-		if (numberOfTowers == null) {
-			return;
-		}
+		// Register for NumberOfBatteryBcu was not existing in the very first firmware -
+		// at least one tower is used.
+		final var numberOfTowers = this.getRackNumberOfBatteryBcuChannel().getNextValue().orElse(1);
+		this._setNumberOfTowers(numberOfTowers);
 
 		final var moduleMaxVoltage = this.getBatteryHardwareType().moduleMaxVoltage;
 		final var moduleMinVoltage = this.getBatteryHardwareType().moduleMinVoltage;
@@ -520,21 +545,6 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			this.logError(this.log, "Unable to initialize tower modules channels: " + e.getMessage());
 			e.printStackTrace();
 		}
-	}
-
-	protected static Integer calculateTowerNumberFromSoftwareVersion(List<Integer> versionList) {
-		var numberOfTowers = 0;
-		for (var version : versionList) {
-			if (version == null) {
-				return null;
-			}
-			if (version == 0 || version == 256) {
-				// Ensure number of towers is never '0' if registers are not null.
-				return Math.max(1, numberOfTowers);
-			}
-			numberOfTowers++;
-		}
-		return numberOfTowers;
 	}
 
 	private int lastNumberOfTowers = 0;
@@ -669,7 +679,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_BAT_UNDER_VOLTAGE",
 												Level.WARNING))), //
 								m(new BitsWordElement(towerOffset + 6, this)
-										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICAITON_FAULT",
+										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICATION_FAULT",
 												Level.WARNING)) //
 										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT",
 												Level.WARNING)) //
@@ -775,7 +785,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
 								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING,
-										doc -> doc.persistencePriority(PersistencePriority.HIGH)),
+										doc -> doc.persistencePriority(PersistencePriority.HIGH),
+										channel -> this.serialNumberStorage.createAndAddOnChangeListener(channel)),
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
@@ -811,7 +822,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 						// Create Voltage Channel
 						var channelId = new ChannelIdImpl(//
 								generateSingleCellPrefix(tower, module, cell) + "_VOLTAGE",
-								Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT));
+								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 						this.addChannel(channelId);
 
 						// Create Modbus-Mapping for Voltages
@@ -861,7 +872,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 							"TOWER_" + tower + "_MODULE_" + module + "_SERIAL_NUMBER", //
 							Doc.of(OpenemsType.STRING)//
 									.persistencePriority(PersistencePriority.HIGH));
-					this.addChannel(channelId);
+					final var channel = this.addChannel(channelId);
+					this.serialNumberStorage.createAndAddOnChangeListener(channel);
 
 					this.getModbusProtocol().addTasks(//
 							new FC3ReadRegistersTask(moduleOffset + module * 100 + 2, Priority.LOW, ameVolt),
@@ -1003,6 +1015,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 *
 	 * <p>
 	 * "%03d" creates string number with leading zeros
+	 * </p>
 	 * 
 	 * @param tower  number to use
 	 * @param module number to use
@@ -1042,6 +1055,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	 *
 	 * <p>
 	 * "%03d" creates string number with leading zeros
+	 * </p>
 	 *
 	 * @param num    number of the Cell
 	 * @param module number of the Module
@@ -1063,55 +1077,54 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	}
 
 	private void checkCriticalMinVoltage() {
-
-		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE,
-				this.getMinCellVoltage().orElse(Integer.MAX_VALUE), this.getCurrent().orElse(0));
+		final Integer currentMinVoltage;
+		if (this.getMinCellVoltage().isDefined()) {
+			currentMinVoltage = this.getMinCellVoltage().get();
+			this.lastKnownMinVoltage = currentMinVoltage;
+		} else {
+			currentMinVoltage = this.lastKnownMinVoltage;
+		}
+		final var subState = getMinVoltageSubState(DEFAULT_CRITICAL_MIN_VOLTAGE, currentMinVoltage,
+				this.getCurrent().get());
 		var now = Instant.now(this.componentManager.getClock());
 
+		boolean batWillStoppWarning = false;
+		boolean batIsStoppingFault = false;
+		boolean batStoppedFault = false;
+
 		switch (subState) {
-		case ABOVE_LIMIT -> {
-			this._setLowMinVoltageFault(false);
-			this._setLowMinVoltageWarning(false);
-			this._setLowMinVoltageFaultBatteryStopped(false);
-			this.timeCriticalMinVoltage = null;
-		}
+		case ABOVE_LIMIT -> this.timeCriticalMinVoltage = null;
 		case BELOW_LIMIT -> {
-
 			if (this.stateMachine.getCurrentState() == StateMachine.State.STOPPED) {
-				this._setLowMinVoltageFaultBatteryStopped(true);
-				this._setLowMinVoltageFault(false);
-				this._setLowMinVoltageWarning(false);
-				return;
+				batStoppedFault = true;
+			} else {
+				if (this.timeCriticalMinVoltage == null) {
+					this.timeCriticalMinVoltage = now;
+				}
+				batIsStoppingFault = this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT));
+				batWillStoppWarning = !batIsStoppingFault;
 			}
-
-			this._setLowMinVoltageFaultBatteryStopped(false);
-
-			if (this.timeCriticalMinVoltage == null) {
-				this.timeCriticalMinVoltage = now;
-			}
-
-			if (this.timeCriticalMinVoltage.isBefore(now.minusSeconds(TIMEOUT))) {
-				this._setLowMinVoltageFault(true);
-				this._setLowMinVoltageWarning(false);
-				return;
-			}
-			this._setLowMinVoltageWarning(true);
-			this._setLowMinVoltageFault(false);
 		}
 		case BELOW_LIMIT_CHARGING -> {
-			this._setLowMinVoltageFaultBatteryStopped(false);
-			this._setLowMinVoltageWarning(true);
-			this._setLowMinVoltageFault(false);
+			batWillStoppWarning = true;
 			this.timeCriticalMinVoltage = null;
 		}
 		}
+
+		this._setLowMinVoltageWarning(batWillStoppWarning);
+		this._setLowMinVoltageFault(batIsStoppingFault);
+		this._setLowMinVoltageFaultBatteryStopped(batStoppedFault);
 	}
 
-	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, int currentMinVoltage, int current) {
+	protected static MinVoltageSubState getMinVoltageSubState(int minVoltageLimit, Integer currentMinVoltage,
+			Integer current) {
+		if (currentMinVoltage == null) {
+			return MinVoltageSubState.ABOVE_LIMIT;
+		}
 		if (currentMinVoltage > minVoltageLimit) {
 			return MinVoltageSubState.ABOVE_LIMIT;
 		}
-		if (current < 0) {
+		if (current != null && current < 0) {
 			return MinVoltageSubState.BELOW_LIMIT_CHARGING;
 		}
 		return MinVoltageSubState.BELOW_LIMIT;
@@ -1122,4 +1135,19 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		BELOW_LIMIT, //
 		BELOW_LIMIT_CHARGING; //
 	}
+
+	protected static final ElementToChannelConverter MAJ_VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).major();
+	});
+
+	protected static final ElementToChannelConverter MIN_VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).minor();
+	});
+
+	protected static final ElementToChannelConverter VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).toString();
+	});
 }

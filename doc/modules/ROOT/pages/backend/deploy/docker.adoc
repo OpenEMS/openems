@@ -1,0 +1,213 @@
+= Deploy OpenEMS Backend to Docker
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../../assets/images
+
+This chapter explains how OpenEMS Backend can be deployed using our official https://hub.docker.com/r/openems/backend[Docker image].
+
+== Prepare system
+
+=== Connect to the server
+
+[source,bash]
+----
+ssh admin@ubuntu
+----
+
+=== Check docker installation
+
+[source,bash]
+----
+admin@ubuntu:~$ docker --version
+Docker version 27.3.1, build ce12230
+----
+
+__if not already installed, follow <<Setup docker>>__
+
+=== Setup docker
+
+To setup docker follow the instructions from https://docs.docker.com/engine/install/[docs.docker.com].
+
+== Start Container 
+
+=== Create a Docker compose
+
+Paste content into a `docker-compose.yml` in a directory of your choice:
+
+[source,yaml]
+----
+services:
+  openems_backend:
+    image: openems/backend:latest
+    container_name: openems_backend
+    hostname: openems_backend
+    restart: unless-stopped
+    volumes:
+      - openems-backend-conf:/var/opt/openems/config:rw
+      - openems-backend-data:/var/opt/openems/data:rw
+    ports:
+      - 8079:8079 # Apache-Felix
+      - 8081:8081 # Edge-Websocket
+
+volumes:
+  openems-backend-conf:
+  openems-backend-data:
+----
+
+=== Run compose file
+
+To start the previously created `docker-compose.yml` `cd` into the directory of it and run the command:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+=== Check logs
+
+To check if the container is up and running, check `docker ps`:
+
+[source,bash]
+----
+admin@ubuntu:~$ docker ps
+CONTAINER ID  IMAGE                       COMMAND   CREATED               STATUS            
+15d5ba3c5f13  openems/backend:latest      "/init"   About a minute ago    Up About a minute
+----
+
+or read its logs with:
+
+[source,bash]
+----
+docker logs openems_backend
+----
+
+== OpenEMS Backend UI
+
+If you want to add the OpenEMS Backend UI to your setup, you can do so by adjusting your `docker-compose.yml` file to look like this:
+
+[source,yaml]
+----
+services:
+  openems_backend:
+    image: openems/backend:latest
+    container_name: openems_backend
+    hostname: openems_backend
+    restart: unless-stopped
+    volumes:
+      - openems-backend-conf:/var/opt/openems/config:rw
+      - openems-backend-data:/var/opt/openems/data:rw
+    ports:
+      - 8079:8079 # Apache-Felix
+      - 8081:8081 # Edge-Websocket
+      - 8082:8082 # UI-Websocket
+
+  openems-ui:
+    image: openems/ui-backend:latest
+    container_name: openems_ui
+    hostname: openems_ui
+    restart: unless-stopped
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=openems_backend
+      - WEBSOCKET_PORT=8082
+    ports:
+      - 80:80
+      - 443:443
+
+volumes:
+  openems-backend-conf:
+  openems-backend-data:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+summary of the changes:
+
+1. Open a Port for UI Websocket (8082) on the `openems-backend` service
+2. Added a new service `openems-ui` to the docker-compose file
+3. Added the volumes `openems-ui-conf` and `openems-ui-log`
+
+=== Update docker-compose
+
+Update the compose running with: `docker compose up -d`
+
+==== Check container status
+
+[source,bash]
+----
+admin@ubuntu:~$ docker ps
+CONTAINER ID  IMAGE                       COMMAND   CREATED               STATUS            
+018187f444b1  openems/ui-backend:latest   "/init"   About a minute ago    Up About a minute
+15d5ba3c5f13  openems/backend:latest      "/init"   About a minute ago    Up About a minute
+----
+
+== Add InfluxDB Container
+
+=== Update docker-compose
+
+to add InfluxDB to your setup, you can do so by adjusting your `docker-compose.yml`, by adding the following lines:
+
+[source,yaml]
+----
+  …
+  openems_influxdb:
+    image: influxdb:alpine
+    container_name: openems_influxdb
+    hostname: openems_influxdb
+    restart: unless-stopped
+    volumes:
+      - openems-influxdb:/var/lib/influxdb2:rw
+    ports:
+      - 8086:8086
+
+volumes:
+  …
+  openems-influxdb:
+----
+
+=== Setup InfluxDB
+
+==== Setup InfluxDB
+
+[source,bash]
+----
+docker exec openems_influxdb influx setup \
+  --username openems \
+  --password WKeuIhl0deIJjrjoY62M \
+  --org openems.io \
+  --bucket openems \
+  --force
+----
+
+[source,bash]
+----
+docker exec openems_influxdb influx auth list
+----
+
+NOTE: Note down Token
+
+==== Open Backend Apache-Felix.
+
+1. Remove Timedata.Dummy
+2. Add Timedata.InfluxDB
+
+[%noheader,cols="1,1",width="50%"]
+|===
+| Query Language | INFLUX_QL
+| URL | http://openems_influxdb:8086
+| Org | openems.io
+| ApiKey | InfluxDB-Token
+| Bucket | openems
+|===
+
+NOTE: Values not specified can be left at their default values
+Timedata.InfluxDB 	
+
+for further information see OpenEMS docs

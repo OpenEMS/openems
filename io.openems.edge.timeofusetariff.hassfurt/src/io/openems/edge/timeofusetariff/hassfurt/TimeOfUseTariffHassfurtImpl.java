@@ -14,9 +14,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,15 +27,17 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -91,7 +93,8 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeTime(new HassfurtDelayTimeProvider(this.componentManager.getClock()), //
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		timeService.subscribeTime(new HassfurtDelayTimeProvider(this.componentManager.getClock()), //
 				this::createHassfurtEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -183,10 +186,10 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
-		}
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
 		this.channel(TimeOfUseTariffHassfurt.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.log.error(error.getMessage(), error);
@@ -211,7 +214,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, TariffType tariffType) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 		final var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 
 		final var priceString = switch (tariffType) {
@@ -237,7 +240,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 			result.put(startTimeStamp.plusMinutes(30), marketPrice);
 			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

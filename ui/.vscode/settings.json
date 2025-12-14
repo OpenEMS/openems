@@ -2,8 +2,9 @@
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnSave": true,
     "cSpell.enabled": false,
-    "i18n-ally.localesPaths": "src/assets/i18n",
-    "i18n-ally.dirStructure": "file",
+    "i18n-ally.localesPaths": [
+        "src/**/i18n"
+    ],
     "i18n-ally.keystyle": "nested",
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -19,19 +20,21 @@
             "source.organizeImports": "explicit",
             "source.removeUnusedImports": "explicit"
         },
-        "typescript.preferences.quoteStyle": "double"
+        "typescript.preferences.quoteStyle": "double",
     },
     "[jsonc]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
+        "editor.defaultFormatter": "vscode.json-language-features",
+        "editor.tabSize": 2
     },
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[html]": {
-        "editor.defaultFormatter": "vscode.html-language-features"
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.tabSize": 2,
     },
     "[scss]": {
         "editor.defaultFormatter": "vscode.css-language-features"
@@ -48,4 +51,9 @@
         "*.svg",
         "*.scss"
     ],
+    "html.format.templating": [
+        "angular"
+    ],
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
 }

@@ -57,9 +57,9 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
-		EMAIL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".email.label") //
-				.setTranslatedDescriptionWithAppPrefix(".email.description") //
+		EMAIL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".email.label")//
+				.setTranslatedDescriptionWithAppPrefix(".email.description")//
 				.setField(JsonFormlyUtil::buildInputFromNameable).setRequired(true))), //
 		PASSWORD(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".password.label") //
@@ -75,7 +75,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 									return null;
 								}
 								return new JsonPrimitive("xxx");
-							}) //
+							})//
 							.orElse(null);
 				}))), //
 		SERIAL_NUMBER_TYPE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
@@ -86,7 +86,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 					options.add("FULL_SERIAL_NUMBER");
 					options.add("METER_ID");
 					field.setOptions(options);
-				}) //
+				})//
 		)), //
 		SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".serialNumber.label") //
@@ -94,23 +94,26 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 				.setTranslatedDescriptionWithAppPrefix(".serialNumber.description") //
 				.setField(JsonFormlyUtil::buildInputFromNameable) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("SERIAL_NUMBER"))); //
+					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("SERIAL_NUMBER")));//
 				}))), //
 		FULL_SERIAL_NUMBER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".fullSerialNumber.label") //
 				.setDefaultValue("")//
 				.setTranslatedDescriptionWithAppPrefix(".fullSerialNumber.description") //
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> { //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					//
 					field.onlyShowIf(
-							Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("FULL_SERIAL_NUMBER"))); //
+							Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("FULL_SERIAL_NUMBER")));//
 				}))), //
 		DISCOVERGY_METER_ID(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".meterId.description") //
 				.setTranslatedLabelWithAppPrefix(".meterId.label")//
 				.setDefaultValue("")//
-				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> { //
-					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID"))); //
-				}))),//
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					//
+					field.onlyShowIf(Exp.currentModelValue(SERIAL_NUMBER_TYPE).equal(Exp.staticValue("METER_ID")));//
+				}))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		;
 
 		private final AppDef<? super DiscovergyMeter, ? super Property, ? super BundleParameter> def;
@@ -161,6 +164,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 			final var meterId = this.getString(p, Property.DISCOVERGY_METER_ID);
 			final var serialNumber = this.getString(p, Property.SERIAL_NUMBER);
 			final var fullSerialNumber = this.getString(p, Property.FULL_SERIAL_NUMBER);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Meter.Discovergy", //
@@ -170,6 +174,7 @@ public class DiscovergyMeter extends AbstractOpenemsAppWithProps<DiscovergyMeter
 									.addProperty("email", email) //
 									.addProperty("serialNumber", serialNumber) //
 									.addProperty("fullSerialNumber", fullSerialNumber)//
+									.addProperty("invert", invert)//
 									.onlyIf(password != null && !password.equals("xxx"), b -> {
 										b.addProperty("password", password);
 									}) //

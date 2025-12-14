@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.rest.readwrite;
 
+import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static io.openems.edge.common.test.DummyUser.DUMMY_GUEST;
@@ -13,7 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.Base64;
 
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class ControllerApiRestReadWriteImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		final var port = findRandomOpenPortOnAllLocalInterfaces();
 
 		final var componentManager = new DummyComponentManager();
 
@@ -156,7 +157,8 @@ public class ControllerApiRestReadWriteImplTest {
 	private static JsonElement sendRequest(int port, String requestMethod, String password, String endpoint,
 			JsonObject request) throws OpenemsNamedException {
 		try {
-			var url = new URL("http://127.0.0.1:" + port + endpoint);
+			var uri = URI.create("http://127.0.0.1:" + port + endpoint);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(("x:" + password).getBytes())));

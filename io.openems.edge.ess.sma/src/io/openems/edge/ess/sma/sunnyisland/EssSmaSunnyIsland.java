@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:io.openems.edge.ess.sma/src/io/openems/edge/ess/sma/sunnyisland/EssSmaSunnyIsland.java
 package io.openems.edge.ess.sma.sunnyisland;
+========
+package io.openems.edge.sma.ess.sunnyisland;
+>>>>>>>> develop:io.openems.edge.sma/src/io/openems/edge/sma/ess/sunnyisland/EssSmaSunnyIsland.java
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
@@ -14,10 +18,17 @@ import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
+<<<<<<<< HEAD:io.openems.edge.ess.sma/src/io/openems/edge/ess/sma/sunnyisland/EssSmaSunnyIsland.java
 import io.openems.edge.ess.sma.enums.OperatingModeForActivePowerLimitation;
 import io.openems.edge.ess.sma.enums.PowerSupplyStatus;
 import io.openems.edge.ess.sma.enums.SetControlMode;
 import io.openems.edge.ess.sma.enums.SystemState;
+========
+import io.openems.edge.sma.ess.sunnyisland.enums.OperatingModeForActivePowerLimitation;
+import io.openems.edge.sma.ess.sunnyisland.enums.PowerSupplyStatus;
+import io.openems.edge.sma.ess.sunnyisland.enums.SetControlMode;
+import io.openems.edge.sma.ess.sunnyisland.enums.SystemState;
+>>>>>>>> develop:io.openems.edge.sma/src/io/openems/edge/sma/ess/sunnyisland/EssSmaSunnyIsland.java
 
 public interface EssSmaSunnyIsland extends ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {

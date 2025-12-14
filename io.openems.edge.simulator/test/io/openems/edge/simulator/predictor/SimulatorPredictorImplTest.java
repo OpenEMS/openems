@@ -9,11 +9,11 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImplTest;
 
@@ -49,7 +49,7 @@ public class SimulatorPredictorImplTest {
 		assertEquals(Integer.valueOf(20), p.asArray()[0]);
 		assertEquals(Integer.valueOf(23), p.asArray()[1]);
 		assertEquals(Integer.valueOf(27), p.asArray()[2]);
-		assertEquals(ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")), p.valuePerQuarter.firstKey());
+		assertEquals(ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")), p.getFirstTime());
 	}
 
 }

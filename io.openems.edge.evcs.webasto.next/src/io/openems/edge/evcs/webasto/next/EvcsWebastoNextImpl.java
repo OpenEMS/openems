@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.webasto.next;
 
-import java.util.function.Consumer;
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -33,7 +33,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -47,6 +46,7 @@ import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -90,6 +90,8 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				EvcsWebastoNext.ChannelId.values());
+
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate
@@ -208,7 +210,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 						m(EvcsWebastoNext.ChannelId.LIFE_BIT, new UnsignedWordElement(6000))) //
 		);
 		this.addStatusListener();
-		this.addPhasesListener();
 		return modbusProtocol;
 	}
 
@@ -218,45 +219,26 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent implemen
 			/**
 			 * Maps the raw state into a {@link Status}.
 			 */
-			switch (state) {
-			case CHARGING:
-				this._setStatus(Status.CHARGING);
-				break;
-			case NO_PERMISSION:
-			case CHARGING_STATION_RESERVED:
-				this._setStatus(Status.CHARGING_REJECTED);
-				break;
-			case ERROR:
-				this._setStatus(Status.ERROR);
-				break;
-			case NO_VEHICLE_ATTACHED:
-				this._setStatus(Status.NOT_READY_FOR_CHARGING);
-				break;
-			case CHARGING_PAUSED:
-				this._setStatus(Status.CHARGING_FINISHED);
-				break;
-			case UNDEFINED:
-			default:
-				this._setStatus(Status.UNDEFINED);
-			}
+			this._setStatus(switch (state) {
+			case CHARGING -> Status.CHARGING;
+			case NO_PERMISSION, CHARGING_STATION_RESERVED -> Status.CHARGING_REJECTED;
+			case ERROR -> Status.ERROR;
+			case NO_VEHICLE_ATTACHED -> Status.NOT_READY_FOR_CHARGING;
+			case CHARGING_PAUSED -> Status.CHARGING_REJECTED;
+			case UNDEFINED -> Status.UNDEFINED;
+			});
 		});
-	}
-
-	private void addPhasesListener() {
-		final Consumer<Value<Integer>> setPhasesCallback = ignore -> {
-			this._setPhases(Evcs.evaluatePhaseCount(//
-					this.getActivePowerL1().get(), //
-					this.getActivePowerL2().get(), //
-					this.getActivePowerL3().get()));
-		};
-		this.getActivePowerL1Channel().onUpdate(setPhasesCallback);
-		this.getActivePowerL2Channel().onUpdate(setPhasesCallback);
-		this.getActivePowerL3Channel().onUpdate(setPhasesCallback);
 	}
 
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

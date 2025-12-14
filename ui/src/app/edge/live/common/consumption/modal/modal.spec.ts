@@ -1,160 +1,165 @@
-// @ts-strict-ignore
-import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
-import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
+import { CHANNEL_LINE, DummyConfig, LINE_HORIZONTAL, LINE_INFO_PHASES_DE, PHASE_ADMIN, PHASE_GUEST, VALUE_FROM_CHANNELS_LINE } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tester";
-import { sharedSetup } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
+import { GridMode } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 
-import { expectView } from "./modal.constants.spec";
+import { expectView } from "./constants.spec";
 
-describe("Consumption - Modal", () => {
-  let TEST_CONTEXT;
-  beforeEach(async () => TEST_CONTEXT = await sharedSetup());
+const VIEW_CONTEXT = (properties?: {}): OeFormlyViewTester.Context => ({
+    "_sum/GridMode": GridMode.ON_GRID,
+    "_sum/GridActivePower": -1000,
+    "ctrlEssRippleControlReceiver0/RestrictionMode": 2,
+    "ctrlEssLimiter14a0/RestrictionMode": 1,
+    "meter0/ActivePower": -1000,
+    "meter0/VoltageL1": 230000,
+    "meter0/CurrentL1": 2170,
+    "meter0/ActivePowerL1": -500,
+    "meter0/ActivePowerL2": 1500,
+    ...properties,
+});
 
-  it("generateView()", () => {
+describe("Grid - Modal", () => {
+    let TEST_CONTEXT: TestContext;
+    beforeEach(async () => TEST_CONTEXT = await TestingUtils.sharedSetup());
 
-    // No evcs and consumptionMeters and negative ConsumptionActivePower
-    {
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        "_sum/ConsumptionActivePower": -1000,
-        "_sum/ConsumptionActivePowerL1": -1000,
-        "_sum/ConsumptionActivePowerL2": 1000,
-        "_sum/ConsumptionActivePowerL3": -1000,
-      };
-      const EMS = DummyConfig.from();
+    it("generateView()", () => {
+        {
+            // No Meters
+            const EMS = DummyConfig.from();
 
-      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
-        title: "Verbrauch",
-        lines: [
-          CHANNEL_LINE("Gesamt", "0 W"),
-          CHANNEL_LINE("Phase L1", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "0 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
-      });
-    }
+            expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                ],
+            });
+        }
+        {
+            // Single Meter
+            const EMS = DummyConfig.from(
+                DummyConfig.Component.SOCOMEC_GRID_METER("meter0", "Netzzähler"),
+                DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
+                DummyConfig.Component.ESS_RCR("ctrlEssRippleControlReceiver0"),
+            );
 
-    // two evcs and two consumptionMeter, negative consumptionMeter phase
-    {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", "Heizung"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs1", "Evcs 2"),
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs2", "Evcs 3"),
-      );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        "_sum/ConsumptionActivePower": 1000,
-        "_sum/ConsumptionActivePowerL1": 300,
-        "_sum/ConsumptionActivePowerL2": 350,
-        "_sum/ConsumptionActivePowerL3": 350,
-        "meter0/ActivePower": 1000,
-        "meter0/ActivePowerL1": 1000,
-        "meter0/ActivePowerL2": -1000,
-        "meter0/ActivePowerL3": 1000,
-        "meter1/ActivePower": null,
-        "meter1/ActivePowerL1": null,
-        "meter1/ActivePowerL2": null,
-        "meter1/ActivePowerL3": null,
-        "evcs0/ChargePower": 1000,
-        "evcs1/ChargePower": -1000,
-        "evcs2/ChargePower": null,
-      };
+            // Admin and Installer
+            expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzlimitierung"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("Einspeisung", "1.000 W"),
+                    CHANNEL_LINE("Bezug", "0 W"),
+                    PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
+                    PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
+                    PHASE_ADMIN("Phase L3", "-", "-", "-"),
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
 
-      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
-        title: "Verbrauch",
-        lines: [
-          CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Evcs", "1.000 W"),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Evcs 2", "0 W"),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Evcs 3", "-"),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Waermepumpe", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "1.000 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Heizung", "-"),
-          CHANNEL_LINE("Phase L1", "-", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "-", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "-", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
-      });
-    }
+            // Owner and Guest
+            expectView(EMS, Role.OWNER, VIEW_CONTEXT(), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzlimitierung"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("Einspeisung", "1.000 W"),
+                    CHANNEL_LINE("Bezug", "0 W"),
+                    PHASE_GUEST("Phase L1 Einspeisung", "500 W"),
+                    PHASE_GUEST("Phase L2 Bezug", "1.500 W"),
+                    PHASE_GUEST("Phase L3", "-"),
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
 
-    // No consumptionMeter, one evcs
-    {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.EVCS_KEBA_KECONTACT("evcs0", "Evcs"),
-      );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        "_sum/ConsumptionActivePower": 1000,
-        "_sum/ConsumptionActivePowerL1": 300,
-        "_sum/ConsumptionActivePowerL2": 350,
-        "_sum/ConsumptionActivePowerL3": 350,
-        "evcs0/ChargePower": 1000,
-      };
+            // Offgrid
+            expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ "_sum/GridMode": GridMode.OFF_GRID }), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    {
+                        type: "channel-line",
+                        name: "Keine Netzverbindung!",
+                        value: "",
+                    },
+                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzausfall"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("Einspeisung", "1.000 W"),
+                    CHANNEL_LINE("Bezug", "0 W"),
+                    PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
+                    PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
+                    PHASE_ADMIN("Phase L3", "-", "-", "-"),
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
+        }
 
-      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
-        title: "Verbrauch",
-        lines: [
-          CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Evcs", "1.000 W"),
-          LINE_HORIZONTAL,
-          VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
-      });
-    }
+        {
+            // Two Meters
+            const EMS = DummyConfig.from(
+                DummyConfig.Component.SOCOMEC_GRID_METER("meter10"),
+                DummyConfig.Component.SOCOMEC_GRID_METER("meter11"),
+                DummyConfig.Component.ESS_LIMITER_14A("ctrlEssLimiter14a0"),
+                DummyConfig.Component.ESS_RCR("ctrlEssRippleControlReceiver0"),
+            );
 
-    // One consumptionMeter, no evcs
-    {
-      const EMS = DummyConfig.from(
-        DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Waermepumpe"),
-      );
-      const VIEW_CONTEXT: OeFormlyViewTester.Context = {
-        "_sum/ConsumptionActivePower": 1000,
-        "_sum/ConsumptionActivePowerL1": 300,
-        "_sum/ConsumptionActivePowerL2": 350,
-        "_sum/ConsumptionActivePowerL3": 350,
-        "meter0/ActivePower": 1000,
-        "meter0/ActivePowerL1": 1000,
-        "meter0/ActivePowerL2": -1000,
-        "meter0/ActivePowerL3": 1000,
-      };
+            // Admin and Installer -> two meters
+            expectView(EMS, Role.ADMIN, VIEW_CONTEXT(), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzlimitierung"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("Einspeisung", "1.000 W"),
+                    CHANNEL_LINE("Bezug", "0 W"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("meter10", "-"),
+                    PHASE_ADMIN("Phase L1", "-", "-", "-"),
+                    PHASE_ADMIN("Phase L2", "-", "-", "-"),
+                    PHASE_ADMIN("Phase L3", "-", "-", "-"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("meter11", "-"),
+                    PHASE_ADMIN("Phase L1", "-", "-", "-"),
+                    PHASE_ADMIN("Phase L2", "-", "-", "-"),
+                    PHASE_ADMIN("Phase L3", "-", "-", "-"),
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
 
-      expectView(EMS, VIEW_CONTEXT, TEST_CONTEXT, {
-        title: "Verbrauch",
-        lines: [
-          CHANNEL_LINE("Gesamt", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "300 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "350 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "350 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          CHANNEL_LINE("Waermepumpe", "1.000 W"),
-          CHANNEL_LINE("Phase L1", "1.000 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L2", "0 W", TextIndentation.SINGLE),
-          CHANNEL_LINE("Phase L3", "1.000 W", TextIndentation.SINGLE),
-          LINE_HORIZONTAL,
-          VALUE_FROM_CHANNELS_LINE("Sonstiger", "0 W"),
-          LINE_INFO_PHASES_DE,
-        ],
-      });
-    }
-  });
+            // Owner and Guest -> two meters
+            expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzlimitierung"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("Einspeisung", "1.000 W"),
+                    CHANNEL_LINE("Bezug", "0 W"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("meter10", "-"),
+                    PHASE_GUEST("Phase L1", "-"),
+                    PHASE_GUEST("Phase L2", "-"),
+                    PHASE_GUEST("Phase L3", "-"),
+                    LINE_HORIZONTAL,
+                    CHANNEL_LINE("meter11", "-"),
+                    PHASE_GUEST("Phase L1", "-"),
+                    PHASE_GUEST("Phase L2", "-"),
+                    PHASE_GUEST("Phase L3", "-"),
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
+        }
+    });
 });

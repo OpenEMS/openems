@@ -1,32 +1,32 @@
 apply plugin: 'com.android.application'
 
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
-def convertVersionStringToCode(versionString) {
-    def version = versionString.split('\\-')[0]
-    def parts = version.split('\\.')
-    def year = parts[0]
-    def month = parts[1].padLeft(2, '0')
-    def day = parts[2].padLeft(2, '0')
-    return "${year}${month}${day}00".toInteger()
+def getVersionCode() {
+    def dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"))
+    return dateStr.toInteger()
 }
 
 def getVersion() {
-    def v = System.getenv("VERSION")
-    if(v == null) {
-      logger.warn('WARNING: environment VERSION not specified! using `SNAPHOT` instead.')
+    def versionEnv = System.getenv("VERSION")
+    if(versionEnv == null) {
+      logger.warn('WARNING: environment VERSION not specified! using `SNAPSHOT` instead.')
       return [name: 'SNAPSHOT', code: 1]
     }
-    def c = convertVersionStringToCode(v)
-    logger.info("OpenEMS-Version: ${v}(${c})")
+    def v = versionEnv.split('\\-')[0]
+    def c = getVersionCode()
+    logger.lifecycle("OpenEMS-Version: ${v}(${c})")
     return [name: v, code: c]
 }
 

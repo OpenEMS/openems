@@ -53,15 +53,16 @@ public class PhoenixContactMeter extends
 		MODBUS_ID(AppDef.componentId("modbus2")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		IP(MeterProps.ip() //
+		IP(MeterProps.ip()//
 				.setRequired(true)), //
-		PORT(MeterProps.port() //
+		PORT(MeterProps.port()//
 				.setRequired(true)), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
 				.setDefaultValue(1))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		;
 
 		private final AppDef<? super PhoenixContactMeter, ? super Property, ? super BundleParameter> def;
@@ -108,6 +109,7 @@ public class PhoenixContactMeter extends
 			final var ip = this.getString(p, Property.IP);
 			final var port = this.getInt(p, Property.PORT);
 			final var modbusId = this.getId(t, p, Property.MODBUS_ID);
+			final var invert = this.getBoolean(p, Property.INVERT);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(modbusId,
@@ -122,6 +124,7 @@ public class PhoenixContactMeter extends
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

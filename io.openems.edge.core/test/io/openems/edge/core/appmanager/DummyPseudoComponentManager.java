@@ -29,17 +29,20 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 public class DummyPseudoComponentManager implements ComponentManager {
 
@@ -154,13 +157,13 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleCreateComponentConfigRequest(//
 			final User user, //
-			final CreateComponentConfigRequest request //
+			final CreateComponentConfig.Request request //
 	) throws OpenemsNamedException {
 
 		final var component = componentOf(//
 				request.getComponentId(), //
-				request.getFactoryPid(), //
-				request.getProperties() //
+				request.factoryPid(), //
+				request.properties() //
 		);
 
 		this.components.add(component);
@@ -169,17 +172,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleUpdateComponentConfigRequest(//
 			final User user, //
-			final UpdateComponentConfigRequest request //
+			final UpdateComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		final var foundComponent = this.getPossiblyDisabledComponent(request.getComponentId());
+		final var foundComponent = this.getPossiblyDisabledComponent(request.componentId());
 
 		if (foundComponent instanceof DummyOpenemsComponent) {
 			final var component = componentOf(//
-					request.getComponentId(), //
+					request.componentId(), //
 					foundComponent.serviceFactoryPid(), //
-					request.getProperties() //
+					request.properties() //
 			);
-			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+			this.components.removeIf(t -> t.id().equals(request.componentId()));
 			this.components.add(component);
 		}
 		if (this.configurationAdmin == null) {
@@ -191,11 +194,11 @@ public class DummyPseudoComponentManager implements ComponentManager {
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				var properties = new Hashtable<String, JsonElement>();
-				for (var property : request.getProperties()) {
+				for (var property : request.properties()) {
 					properties.put(property.getName(), property.getValue());
 				}
 				configuration.update(properties);
@@ -208,9 +211,9 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleDeleteComponentConfigRequest(//
 			final User user, //
-			final DeleteComponentConfigRequest request //
+			final DeleteComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+		this.components.removeIf(t -> t.id().equals(request.componentId()));
 	}
 
 	/**
@@ -229,6 +232,15 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	 */
 	public void addComponent(OpenemsComponent component) {
 		this.components.add(component);
+	}
+
+	/**
+	 * Adds a {@link EdgeConfig.Component} from a {@link ComponentDef}.
+	 * 
+	 * @param component the component to add
+	 */
+	public void addComponentFromComponentConfig(ComponentDef component) {
+		this.addComponent(component.toEdgeConfigComponent());
 	}
 
 	private static OpenemsComponent componentOf(//
@@ -387,6 +399,17 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			return null;
 		}
 
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		try {
+			var dic = this.getComponent(componentId).getComponentContext().getProperties();
+			return StreamUtils.dictionaryToStream(dic) //
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		} catch (OpenemsNamedException e) {
+			return Collections.emptyMap();
+		}
 	}
 
 }

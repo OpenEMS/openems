@@ -6,7 +6,7 @@ import static io.openems.edge.core.appmanager.AssertOpenemsAppPropertyDefinition
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatPump;
@@ -28,7 +28,7 @@ public class TestFeneconHomeDefaultRelays {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return Apps.of(t, //
-					Apps::feneconHome, //
+					Apps::feneconHome10, //
 					Apps::gridOptimizedCharge, //
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
@@ -89,9 +89,9 @@ public class TestFeneconHomeDefaultRelays {
 	}
 
 	private final OpenemsAppInstance createFullHomeWithDummyIo() throws Exception {
-		final var instance = TestFeneconHome.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
+		final var instance = TestFeneconHome10.createFullHome(this.appManagerTestBundle, DUMMY_ADMIN);
 		this.appManagerTestBundle.componentManger.handleDeleteComponentConfigRequest(DUMMY_ADMIN,
-				new DeleteComponentConfigRequest("io0"));
+				new DeleteComponentConfig.Request("io0"));
 		final var dummyRelay = new DummyCustomInputOutput("io0", "RELAY", 1, 4);
 		this.appManagerTestBundle.cm.getOrCreateEmptyConfiguration(dummyRelay.id());
 		((DummyPseudoComponentManager) this.appManagerTestBundle.componentManger).addComponent(dummyRelay);

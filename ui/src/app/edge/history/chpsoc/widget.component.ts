@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 import { ChannelAddress, Edge, EdgeConfig, Service } from "../../../shared/shared";
 import { AbstractHistoryWidget } from "../abstracthistorywidget";
@@ -10,6 +10,7 @@ import { calculateActiveTimeOverPeriod } from "../shared";
 @Component({
     selector: ChpSocWidgetComponent.SELECTOR,
     templateUrl: "./widget.component.html",
+    standalone: false,
 })
 export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 

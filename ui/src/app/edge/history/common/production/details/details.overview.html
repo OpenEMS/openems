@@ -1,11 +1,16 @@
-<oe-chart [title]="componentSome.displayName + '&nbsp;-&nbsp;' + ('Edge.History.PHASE_ACCURATE' | translate)" *ngIf="isInitialized && component && componentSome"
-  [period]="service.historyPeriod.value">
-
-  <ng-container [ngSwitch]="componentSome.type">
-    <sumChart *ngSwitchCase="'sum'" [isOnlyChart]="true"></sumChart>
-    <productionMeterChart *ngSwitchCase="'productionMeter'" [isOnlyChart]="true"></productionMeterChart>
-    <chargerChart *ngSwitchCase="'charger'" [isOnlyChart]="true"></chargerChart>
-  </ng-container>
-</oe-chart>
-<oe-footer-subnavigation *ngIf="isInitialized" [backButton]="true"
-  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+@if (isInitialized && component && componentSome) {
+  <oe-chart [title]="componentSome.displayName" [period]="service.historyPeriod.value">
+    @switch (componentSome.type) {
+      @case ('sum') {
+        <sumChart [isOnlyChart]="true"></sumChart>
+      }
+      @case ('productionMeter') {
+        <productionMeterChart [isOnlyChart]="true"></productionMeterChart>
+      }
+      @case ('charger') {
+        <chargerChart [isOnlyChart]="true"></chargerChart>
+      }
+    }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+  </oe-chart>
+}

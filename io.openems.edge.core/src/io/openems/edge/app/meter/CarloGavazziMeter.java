@@ -22,7 +22,6 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.common.props.ComponentProps;
-import io.openems.edge.app.common.props.PropsUtil;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.meter.CarloGavazziMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -73,20 +72,16 @@ public class CarloGavazziMeter
 		METER_ID(AppDef.componentId("meter0")), //
 		// Properties
 		ALIAS(alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
-				.setRequired(true) //
-				.wrapField((app, property, l, parameter, field) -> {
-					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
-						field.readonly(true);
-					}
-				})) //
-				.setAutoGenerateField(false)), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setDefaultValue(6) //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def//
+				.setRequired(true)//
 				.setAutoGenerateField(false))), //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setDefaultValue(6)//
+				.setAutoGenerateField(false))), //
+		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
 				MODBUS_ID, MODBUS_ID.def(), MODBUS_UNIT_ID, MODBUS_UNIT_ID.def()))), //
 		;
@@ -139,12 +134,15 @@ public class CarloGavazziMeter
 			final var modbusId = this.getString(p, Property.MODBUS_ID);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 
+			final var invert = this.getBoolean(p, Property.INVERT);
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(meterId, alias, "Meter.CarloGavazzi.EM300", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
 									.addProperty("type", type) //
+									.addProperty("invert", invert)//
 									.build()) //
 			);
 

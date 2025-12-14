@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
@@ -8,6 +9,7 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "Controller_Ess_GridOptimizedCharge",
     templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
@@ -20,15 +22,19 @@ export class FlatComponent extends AbstractFlatWidget {
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
-    async presentModal() {
-        const modal = await this.modalController.create({
+    protected modalComponent: Modal | null = null;
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
             component: ModalComponent,
             componentProps: {
                 component: this.component,
             },
-        });
-        return await modal.present();
-    }
+        };
+    };
 
     protected override getChannelAddresses() {
         return [
@@ -54,28 +60,28 @@ export class FlatComponent extends AbstractFlatWidget {
 
         switch (currentData.allComponents[this.component.id + "/DelayChargeState"]) {
             case -1:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.notDefined");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NOT_DEFINED");
                 break;
             case 0:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE");
                 break;
             case 1:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.PASSED_END_TIME");
                 break;
             case 2:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.STORAGE_ALREADY_FULL");
                 break;
             case 3:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.END_TIME_NOT_CALCULATED");
                 break;
             case 4:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE");
                 break;
             case 5:
             case 7:
-                this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive");
+                this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
                 break;
-            case 8: this.state = this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed");
+            case 8: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");
                 break;
         }
 

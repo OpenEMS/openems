@@ -12,6 +12,7 @@ type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 @Component({
     selector: Controller_ChpSocModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
+    standalone: false,
 })
 export class Controller_ChpSocModalComponent implements OnInit {
 
@@ -66,10 +67,10 @@ export class Controller_ChpSocModalComponent implements OnInit {
                 { name: "mode", value: newMode },
             ]).then(() => {
                 this.component.properties.mode = newMode;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
                 this.component.properties.mode = oldMode;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });
         }
@@ -95,15 +96,14 @@ export class Controller_ChpSocModalComponent implements OnInit {
             ]).then(() => {
                 this.component.properties["lowThreshold"] = newLowerThreshold;
                 this.component.properties["highThreshold"] = newUpperThreshold;
-                this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             }).catch(reason => {
                 this.component.properties["lowThreshold"] = oldLowerThreshold;
                 this.component.properties["highThreshold"] = oldUpperThreshold;
-                this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 console.warn(reason);
             });
         }
     }
 }
-
 

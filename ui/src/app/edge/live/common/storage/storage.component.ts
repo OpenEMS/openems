@@ -2,14 +2,19 @@
 import { formatNumber } from "@angular/common";
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
-import { CurrentData , ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { Modal } from "src/app/shared/components/flat/flat";
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { Language } from "src/app/shared/type/language";
+import { Role } from "src/app/shared/type/role";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
-import { StorageModalComponent } from "./modal/modal.component";
+import { AdminStorageModalComponent } from "./admin-modal/admin-modal.component";
+import { InstallerOwnerGuestStorageModalComponent } from "./installer-owner-guest-modal/installer-owner-guest-modal.component";
 
 @Component({
     selector: "storage",
     templateUrl: "./storage.component.html",
+    standalone: false,
 })
 export class StorageComponent extends AbstractFlatWidget {
 
@@ -20,13 +25,16 @@ export class StorageComponent extends AbstractFlatWidget {
     public emergencyReserveComponents: { [essId: string]: EdgeConfig.Component } = {};
     public currentSoc: number[] = [];
     public isEmergencyReserveEnabled: boolean[] = [];
+
     protected possibleBatteryExtensionMessage: Map<string, { color: string, text: string }> = new Map();
+    protected modalComponent: Modal | null = null;
     private prepareBatteryExtensionCtrl: { [key: string]: EdgeConfig.Component };
 
+
     /**
-    * Use 'convertChargePower' to convert/map a value
+     * Use 'convertChargePower' to convert/map a value
      *
-    * @param value takes @Input value or channelAddress for chargePower
+     * @param value takes @Input value or channelAddress for chargePower
      * @returns value
     */
     public convertChargePower = (value: any): string => {
@@ -50,6 +58,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         }
@@ -58,7 +67,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue > 0) {
-            return formatNumber(thisValue, "de", "1.0-1") + " kW"; // TODO get locale dynamically
+            return formatNumber(thisValue, locale, "1.0-1") + " kW";
 
         } else if (thisValue == 0 && isCharge) {
             // if thisValue is 0, then show only when charge and not discharge
@@ -69,20 +78,20 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
 
-    async presentModal() {
-        const modal = await this.modalController.create({
-            component: StorageModalComponent,
+
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
+            component: this.edge.roleIsAtLeast(Role.ADMIN) ? AdminStorageModalComponent : InstallerOwnerGuestStorageModalComponent,
             componentProps: {
                 edge: this.edge,
-                config: this.config,
                 component: this.component,
-                essComponents: this.essComponents,
-                chargerComponents: this.chargerComponents,
-                singleComponent: this.component,
             },
-        });
-        return await modal.present();
-    }
+        };
+    };
 
     protected override getChannelAddresses() {
 
@@ -216,7 +225,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
             const date = DateUtils.stringToDate(targetDate.toString());
             return {
-                color: "green", text: this.translate.instant("Edge.Index.RETROFITTING.TARGET_TIME_SPECIFIED", {
+                color: "green", text: this.translate.instant("EDGE.INDEX.RETROFITTING.TARGET_TIME_SPECIFIED", {
                     targetDate: DateUtils.toLocaleDateString(date),
                     targetTime: date.toLocaleTimeString(),
                 }),
@@ -225,12 +234,12 @@ export class StorageComponent extends AbstractFlatWidget {
 
         if (essIsBlocking != null && essIsBlocking == 1) {
             // If ess reached targetSoc
-            return { color: "green", text: this.translate.instant("Edge.Index.RETROFITTING.REACHED_TARGET_SOC") };
+            return { color: "green", text: this.translate.instant("EDGE.INDEX.RETROFITTING.REACHED_TARGET_SOC") };
 
         } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
 
             // If Ess is charging to or discharging to the targetSoc
-            return { color: "orange", text: this.translate.instant("Edge.Index.RETROFITTING.PREPARING") };
+            return { color: "orange", text: this.translate.instant("EDGE.INDEX.RETROFITTING.PREPARING") };
         } else {
             return null;
         }

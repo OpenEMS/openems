@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.backend.metadata.odoo.odoo.Protocol;
+import io.openems.common.types.DebugMode;
 
 @ObjectClassDefinition(//
 		name = "Metadata.Odoo", //
@@ -40,8 +41,11 @@ public @interface Config {
 	@AttributeDefinition(name = "Database", description = "The database name")
 	String database();
 
-	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
-	int poolSize() default 30;
+	@AttributeDefinition(name = "Number of Threads for Events", description = "Pool-Size: the number of threads dedicated to handle the event tasks")
+	int eventPoolSize() default 5;
+
+	@AttributeDefinition(name = "Number of Threads for Requests", description = "Pool-Size: the number of threads dedicated to handle the request tasks")
+	int requestPoolSize() default 30;
 
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the maximum number of concurrent connections")
 	int pgConnectionPoolSize() default 40;

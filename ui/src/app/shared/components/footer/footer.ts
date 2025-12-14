@@ -1,4 +1,4 @@
-import { Component, HostBinding, OnInit } from "@angular/core";
+import { Component, effect, HostBinding } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
@@ -8,8 +8,8 @@ import { Edge, Service } from "../../shared";
 import { Role } from "../../type/role";
 
 @Component({
-  selector: "oe-footer",
-  styles: [`
+    selector: "oe-footer",
+    styles: [`
 
     :host[data-isSmartPhone=true] {
       position: relative;
@@ -26,70 +26,80 @@ import { Role } from "../../type/role";
       }
 
       :is(ion-item) {
-        --min-height: initial !important;
+
         font-size: inherit;
       }
     }
   `],
-  templateUrl: "footer.html",
+    templateUrl: "footer.html",
+    standalone: false,
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent {
 
-  @HostBinding("attr.data-isSmartPhone")
-  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+    @HostBinding("attr.data-isSmartPhone")
+    public isSmartPhone: boolean = this.service.isSmartphoneResolution;
 
-  protected user: User | null = null;
-  protected edge: Edge | null = null;
-  protected displayValues: { comment: string, id: string, version: string } | null = null;
-  protected isAtLeastOwner: boolean | null = null;
+    protected user: User | null = null;
+    protected edge: Edge | null = null;
+    protected displayValues: { comment: string, id: string, version: string } | null = null;
+    protected isAtLeastOwner: boolean | null = null;
 
-  constructor(
-    protected service: Service,
-    private title: Title,
-  ) { }
+    constructor(
+        protected service: Service,
+        private title: Title,
+    ) {
 
-  private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
-    const result = {
-      comment: "",
-      id: "",
-      version: edge.version,
-    };
+        effect(() => {
+            const edge = this.service.currentEdge();
 
-    switch (environment.backend) {
-      case "OpenEMS Backend":
-        if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
-          result.comment = edge?.comment;
-        }
-        result.id = edge.id;
-        break;
+            if (!edge) {
+                this.edge = null;
+                return;
+            }
+            this.edge = edge;
 
-      case "OpenEMS Edge":
-        result.id = environment.edgeShortName;
-        break;
+            this.setDisplayValues(edge);
+        });
     }
 
-    return result;
-  }
+    private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
+        const result = {
+            comment: "",
+            id: "",
+            version: edge.version,
+        };
 
-  ngOnInit() {
-    this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge;
+        switch (environment.backend) {
+            case "OpenEMS Backend":
+                if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
+                    result.comment = edge?.comment;
+                }
+                result.id = edge.id;
+                break;
 
-      this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
-        this.user = metadata.user;
-
-        let title = environment.edgeShortName;
-        if (edge) {
-          this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
-
-          if (this.user.hasMultipleEdges) {
-            title += " | " + edge.id;
-          }
+            case "OpenEMS Edge":
+                result.id = environment.edgeShortName;
+                break;
         }
 
-        this.title.setTitle(title);
-      });
-    });
-  }
+        return result;
+    }
 
+    private setDisplayValues(edge: Edge) {
+
+        this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+            this.user = metadata.user;
+
+            let title = environment.edgeShortName;
+            if (edge) {
+                this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
+
+                if (this.user.hasMultipleEdges) {
+                    title += " | " + edge.id;
+                }
+            }
+
+            this.title.setTitle(title);
+        });
+    }
 }

@@ -1,7 +1,7 @@
 package io.openems.edge.controller.io.heatingelement;
-
+ 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE1_TIME;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE2_TIME;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.PHASE3_TIME;
@@ -14,6 +14,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -21,15 +22,16 @@ import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
-
+ 
 public class ControllerIoHeatingElementImplTest {
-
+ 
 	@Test
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		new ControllerTest(new ControllerIoHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -43,6 +45,10 @@ public class ControllerIoHeatingElementImplTest {
 						.setWorkMode(WorkMode.TIME) //
 						.setMinTime(1) //
 						.setMinimumSwitchingTime(60) //
+						.setMinEnergylimit(5000) //
+						.setEndTimeWithMeter("00:00") //
+						.setMeterid("dummyMeter") //
+						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //
 						// Grid active power : 0, Excess power : 0,
@@ -125,8 +131,8 @@ public class ControllerIoHeatingElementImplTest {
 						// from -> LEVEL_3 --to--> LEVEL_0, no of relais = 0
 						.timeleap(clock, 15, MINUTES)//
 						.input(GRID_ACTIVE_POWER, 1) //
-						.output("io0", INPUT_OUTPUT0, false) //
-						.output("io0", INPUT_OUTPUT1, false) //
+						.output("io0", INPUT_OUTPUT0, true) //
+						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, false) //
 						.output(PHASE1_TIME, 75 * 60) //
 						.output(PHASE2_TIME, 60 * 60) //
@@ -139,8 +145,8 @@ public class ControllerIoHeatingElementImplTest {
 						.output("io0", INPUT_OUTPUT0, false) //
 						.output("io0", INPUT_OUTPUT1, false) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 75 * 60) //
-						.output(PHASE2_TIME, 60 * 60) //
+						.output(PHASE1_TIME, 90 * 60) //
+						.output(PHASE2_TIME, 75 * 60) //
 						.output(PHASE3_TIME, 60 * 60)) //
 				.next(new TestCase() //
 						// Grid active power : -4000, Excess power : 10000,
@@ -150,8 +156,8 @@ public class ControllerIoHeatingElementImplTest {
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 75 * 60) //
-						.output(PHASE2_TIME, 60 * 60) //
+						.output(PHASE1_TIME, 90 * 60) //
+						.output(PHASE2_TIME, 75 * 60) //
 						.output(PHASE3_TIME, 60 * 60)) //
 				.next(new TestCase() //
 						// Grid active power : 0, Excess power : 4000,
@@ -161,8 +167,8 @@ public class ControllerIoHeatingElementImplTest {
 						.output("io0", INPUT_OUTPUT0, true) //
 						.output("io0", INPUT_OUTPUT1, true) //
 						.output("io0", INPUT_OUTPUT2, false) //
-						.output(PHASE1_TIME, 90 * 60) //
-						.output(PHASE2_TIME, 75 * 60) //
+						.output(PHASE1_TIME, 105 * 60) //
+						.output(PHASE2_TIME, 90 * 60) //
 						.output(PHASE3_TIME, 60 * 60)) //
 				.next(new TestCase() //
 						// Switch to next day
@@ -176,5 +182,6 @@ public class ControllerIoHeatingElementImplTest {
 						.output(PHASE3_TIME, 0)) //
 				.deactivate();
 	}
-
+ 
 }
+

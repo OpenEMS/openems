@@ -662,26 +662,15 @@ public class OneWireContainer26 extends OneWireContainer
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	public void setThreshold(byte thresholdValue) throws OneWireIOException, OneWireException {
-		byte thresholdReg;
 		byte[] data;
 
-		switch (thresholdValue) {
-
-		case 0:
-			thresholdReg = 0;
-			break;
-		case 2:
-			thresholdReg = 64;
-			break;
-		case 4:
-			thresholdReg = (byte) 128;
-			break;
-		case 8:
-			thresholdReg = (byte) 192;
-			break;
-		default:
-			throw new IllegalArgumentException("OneWireContainer26-Threshold value must be 0,2,4, or 8.");
-		}
+		var thresholdReg = switch (thresholdValue) {
+		case 0 -> (byte) 0;
+		case 2 -> (byte) 64;
+		case 4 -> (byte) 128;
+		case 8 -> (byte) 192;
+		default -> throw new IllegalArgumentException("OneWireContainer26-Threshold value must be 0,2,4, or 8.");
+		};
 
 		// first save their original IAD settings so we dont change anything
 		var IADvalue = this.getFlag(IAD_FLAG);

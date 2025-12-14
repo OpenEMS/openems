@@ -140,8 +140,7 @@ public class ApiWorker {
 			value = null;
 		} else {
 			value = JsonUtils.getAsBestType(request.getValue());
-			if (value instanceof String && ((String) value).isEmpty()
-					&& channel.channelId().doc().getType() != OpenemsType.STRING) {
+			if (value instanceof String s && s.isEmpty() && channel.channelId().doc().getType() != OpenemsType.STRING) {
 				// Allow non-string Channels to be set to 'UNDEFINED' using an empty string
 				value = null;
 			}

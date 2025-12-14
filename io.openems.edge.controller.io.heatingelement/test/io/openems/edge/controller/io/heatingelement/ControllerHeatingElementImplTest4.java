@@ -1,5 +1,6 @@
 package io.openems.edge.controller.io.heatingelement;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.sum.Sum.ChannelId.ESS_DISCHARGE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.controller.io.heatingelement.ControllerIoHeatingElement.ChannelId.LEVEL;
@@ -8,11 +9,11 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
@@ -21,13 +22,13 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class ControllerHeatingElementImplTest4 {
 
-	private static TimeLeapClock clock;
+	private static final TimeLeapClock CLOCK = createDummyClock();
 
 	private static ControllerTest prepareTest(Mode mode, Level level) throws OpenemsNamedException, Exception {
-		clock = TestUtils.createDummyClock();
 		return new ControllerTest(new ControllerIoHeatingElementImpl()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
 				.addReference("sum", new DummySum()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -41,6 +42,10 @@ public class ControllerHeatingElementImplTest4 {
 						.setWorkMode(WorkMode.NONE) //
 						.setMinTime(1) //
 						.setMinimumSwitchingTime(180) //
+						.setMinEnergylimit(5000) //
+						.setEndTimeWithMeter("00:00") //
+						.setMeterid("dummyMeter") //
+						.setScheduler("") //
 						.build()); //
 	}
 
@@ -51,16 +56,16 @@ public class ControllerHeatingElementImplTest4 {
 						.input(GRID_ACTIVE_POWER, -2500)//
 						.output(LEVEL, Level.LEVEL_1)) //
 				.next(new TestCase() //
-						.timeleap(clock, 181, SECONDS)//
+						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, -2500)//
 						.output(LEVEL, Level.LEVEL_2))//
 				// Grid power reducing because of 2kW heating power
 				.next(new TestCase()//
-						.timeleap(clock, 181, SECONDS)//
+						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, -500) //
 						.output(LEVEL, Level.LEVEL_2)) //
 				.next(new TestCase() //
-						.timeleap(clock, 181, SECONDS)//
+						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, -500) //
 						.input(ESS_DISCHARGE_POWER, 2300) //
 						.output(LEVEL, Level.LEVEL_1)) //
@@ -75,7 +80,7 @@ public class ControllerHeatingElementImplTest4 {
 						.input(GRID_ACTIVE_POWER, -6000)//
 						.output(LEVEL, Level.LEVEL_3)) //
 				.next(new TestCase()//
-						.timeleap(clock, 181, SECONDS)//
+						.timeleap(CLOCK, 181, SECONDS)//
 						.input(GRID_ACTIVE_POWER, 0)//
 						.input(ESS_DISCHARGE_POWER, 2280)//
 						.output(LEVEL, Level.LEVEL_1)) //

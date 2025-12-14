@@ -1,16 +1,16 @@
 package io.openems.edge.controller.io.analog;
 
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
+import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.api.AnalogOutput.Range;
 import io.openems.edge.io.test.DummyAnalogVoltageOutput;

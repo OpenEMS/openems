@@ -9,6 +9,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String securityToken;
 		private BiddingZone biddingZone;
+		private Resolution resolution;
+		private String ancillaryCosts;
 
 		private Builder() {
 		}
@@ -25,6 +27,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setBiddingZone(BiddingZone biddingZone) {
 			this.biddingZone = biddingZone;
+			return this;
+		}
+
+		public Builder setResolution(Resolution resolution) {
+			this.resolution = resolution;
+			return this;
+		}
+
+		public Builder setAncillaryCosts(String ancillaryCosts) {
+			this.ancillaryCosts = ancillaryCosts;
 			return this;
 		}
 
@@ -57,6 +69,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public BiddingZone biddingZone() {
 		return this.builder.biddingZone;
+	}
+
+	@Override
+	public Resolution resolution() {
+		return this.builder.resolution;
+	}
+
+	@Override
+	public String ancillaryCosts() {
+		return this.builder.ancillaryCosts;
 	}
 
 }

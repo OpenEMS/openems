@@ -19,6 +19,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DynamicDocText;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -347,6 +348,40 @@ public abstract class AbstractDoc<T> implements Doc {
 	public AbstractDoc<T> onChannelSetNextWriteMirrorToDebugChannel(ChannelId targetChannelId) {
 		this.onChannelSetNextWrite((component, value) -> {
 			component.channel(targetChannelId).setNextValue(value);
+		});
+		return this.self();
+	}
+
+	/**
+	 * Sets up a callback that adds a listener to a specific channel, that maps an
+	 * enum value to a text and updates the channel.
+	 *
+	 * @param clazz     the class of the channel parent
+	 * @param channelId the channelId if the channel parent
+	 * @param builder   mapping the enum values to text
+	 * @param <E>       the converted type of channel value to subscribe
+	 * @param <V>       the type of channel value to subscribe
+	 * @return myself
+	 */
+	public <E, V> AbstractDoc<T> textByChannel(Class<?> clazz, ChannelId channelId,
+			DynamicDocText.Builder<E, V> builder) {
+
+		this.onInitCallback.add(channel -> {
+			var component = channel.getComponent();
+			Channel<V> channelForListener = component.channel(channelId);
+
+			BiConsumer<Value<V>, Value<V>> listener = (oldValue, newValue) -> {
+				this.translationKey(clazz, builder.build().apply(newValue.get()));
+			};
+
+			channelForListener.onChange(listener);
+
+			channel.addOnDeactivateCallback(() -> channelForListener.removeOnChangeCallback(listener));
+
+			Value<V> currentValue = channelForListener.getNextValue();
+			if (currentValue.isDefined()) {
+				listener.accept(null, currentValue);
+			}
 		});
 		return this.self();
 	}

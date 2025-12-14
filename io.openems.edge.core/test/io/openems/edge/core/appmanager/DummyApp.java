@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.function.TriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
@@ -26,6 +27,7 @@ public class DummyApp implements OpenemsApp {
 	private final AppAssistant appAssistant;
 	private final AppDescriptor appDescriptor;
 	private final ThrowingTriFunction<ConfigurationTarget, JsonObject, Language, AppConfiguration, OpenemsNamedException> configuration;
+	private final TriFunction<String, String, OpenemsAppInstance, String> propName;
 
 	public static class DummyAppBuilder {
 
@@ -42,6 +44,7 @@ public class DummyApp implements OpenemsApp {
 		private AppAssistant appAssistant;
 		private AppDescriptor appDescriptor;
 		private ThrowingTriFunction<ConfigurationTarget, JsonObject, Language, AppConfiguration, OpenemsNamedException> configuration;
+		private TriFunction<String, String, OpenemsAppInstance, String> propName;
 
 		private DummyAppBuilder() {
 		}
@@ -115,6 +118,11 @@ public class DummyApp implements OpenemsApp {
 			return this;
 		}
 
+		public DummyAppBuilder setPropName(TriFunction<String, String, OpenemsAppInstance, String> propName) {
+			this.propName = propName;
+			return this;
+		}
+
 		public DummyApp build() {
 			final var name = this.name == null ? this.appId : this.name;
 			return new DummyApp(//
@@ -128,8 +136,8 @@ public class DummyApp implements OpenemsApp {
 					this.properties.toArray(OpenemsAppPropertyDefinition[]::new), //
 					this.appAssistant == null ? AppAssistant.create(name).build() : this.appAssistant, //
 					this.appDescriptor == null ? AppDescriptor.create().build() : this.appDescriptor, //
-					this.configuration == null ? (t, u, s) -> AppConfiguration.empty() : this.configuration //
-			);
+					this.configuration == null ? (t, u, s) -> AppConfiguration.empty() : this.configuration, //
+					this.propName == null ? (t, u, s) -> t : this.propName);
 		}
 
 	}
@@ -155,8 +163,8 @@ public class DummyApp implements OpenemsApp {
 			AppAssistant appAssistant, //
 			AppDescriptor appDescriptor, //
 			ThrowingTriFunction<ConfigurationTarget, JsonObject, //
-					Language, AppConfiguration, OpenemsNamedException> configuration //
-	) {
+					Language, AppConfiguration, OpenemsNamedException> configuration, //
+			TriFunction<String, String, OpenemsAppInstance, String> mapPropName) {
 		super();
 		this.appId = appId;
 		this.categories = categories;
@@ -169,6 +177,7 @@ public class DummyApp implements OpenemsApp {
 		this.appAssistant = appAssistant;
 		this.appDescriptor = appDescriptor;
 		this.configuration = configuration;
+		this.propName = mapPropName;
 	}
 
 	@Override
@@ -232,4 +241,13 @@ public class DummyApp implements OpenemsApp {
 		return this.appPermissions;
 	}
 
+	@Override
+	public String mapPropName(String prop, String componentId, OpenemsAppInstance instance) {
+		return this.propName.apply(prop, componentId, instance);
+	}
+
+	@Override
+	public boolean assertCanEdit(String prop, User user) {
+		return true;
+	}
 }

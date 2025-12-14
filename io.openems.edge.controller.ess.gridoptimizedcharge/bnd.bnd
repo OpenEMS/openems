@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
+	io.openems.edge.controller.ess.ripplecontrolreceiver,\
 	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.meter.api,\
@@ -16,4 +17,5 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath},\
+	io.openems.edge.evcs.api,\
 	org.apache.commons.math3,\

@@ -13,25 +13,26 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.core.host.NetworkInterface.IpMasqueradeSetting;
 
 public class OperatingSystemDebianSystemdTest {
 
 	@Test
 	public void test() throws OpenemsNamedException {
-		var lines = Lists.newArrayList(//
-				"[Match]", //
-				"Name=eth0", //
-				"", //
-				"[Network]", //
-				"DHCP=yes", //
-				"LinkLocalAddressing=yes", //
-				"", //
-				"[Address]", //
-				"Address=192.168.100.100/24", //
-				"Label=normal" //
-		);
+		final var lines = """
+				[Match]
+				Name=eth0
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+				[Network]
+				DHCP=yes
+				LinkLocalAddressing=yes
+
+				[Address]
+				Address=192.168.100.100/24
+				Label=normal
+				""".lines().toList();
+
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("eth0", n.getName());
 		assertEquals(true, n.getDhcp().getValue());
@@ -57,24 +58,24 @@ public class OperatingSystemDebianSystemdTest {
 
 	@Test
 	public void testMultipleAddresses() throws OpenemsNamedException {
-		var lines = Lists.newArrayList(//
-				"[Match]", //
-				"Name=eth0", //
-				"", //
-				"[Network]", //
-				"DHCP=yes", //
-				"LinkLocalAddressing=yes", //
-				"", //
-				"[Address]", //
-				"Address=192.168.100.100/24", //
-				"Label=normal", //
-				"", //
-				"[Address]", //
-				"Address=192.168.123.123/24", //
-				"Label=" //
-		);
+		final var lines = """
+				[Match]
+				Name=eth0
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+				[Network]
+				DHCP=yes
+				LinkLocalAddressing=yes
+
+				[Address]
+				Address=192.168.100.100/24
+				Label=normal
+
+				[Address]
+				Address=192.168.123.123/24
+				Label=
+				""".lines().toList();
+
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("eth0", n.getName());
 		assertEquals(true, n.getDhcp().getValue());
@@ -96,24 +97,24 @@ public class OperatingSystemDebianSystemdTest {
 
 	@Test
 	public void testLabelBefore() throws OpenemsNamedException {
-		var lines = Lists.newArrayList(//
-				"[Match]", //
-				"Name=eth0", //
-				"", //
-				"[Network]", //
-				"DHCP=yes", //
-				"LinkLocalAddressing=yes", //
-				"", //
-				"[Address]", //
-				"Address=192.168.100.100/24", //
-				"Label=fallback", //
-				"", //
-				"[Address]", //
-				"Label=foo", //
-				"Address=192.168.123.123/24" //
-		);
+		final var lines = """
+				[Match]
+				Name=eth0
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+				[Network]
+				DHCP=yes
+				LinkLocalAddressing=yes
+
+				[Address]
+				Address=192.168.100.100/24
+				Label=fallback
+
+				[Address]
+				Label=foo
+				Address=192.168.123.123/24
+				""".lines().toList();
+
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 		{
 			var address = (Inet4AddressWithSubnetmask) n.getAddresses().getValue().toArray()[0];
 			assertEquals("192.168.100.100/24", address.toString());
@@ -131,15 +132,15 @@ public class OperatingSystemDebianSystemdTest {
 
 	@Test
 	public void test2() throws OpenemsNamedException {
-		List<String> lines = Lists.newArrayList(//
-				"[Match]", //
-				"Name=enx*", //
-				"", //
-				"[Network]", //
-				"DHCP=yes" //
-		);
+		final var lines = """
+				[Match]
+				Name=enx*
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+				[Network]
+				DHCP=yes
+				""".lines().toList();
+
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("enx*", n.getName());
 		assertEquals(true, n.getDhcp().getValue());
@@ -164,7 +165,7 @@ public class OperatingSystemDebianSystemdTest {
 				Gateway=10.4.0.2
 				""".lines().toList();
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("eth0", n.getName());
 		assertEquals(false, n.getDhcp().getValue());
@@ -172,7 +173,7 @@ public class OperatingSystemDebianSystemdTest {
 		assertEquals("192.168.100.100/24", n.getAddresses().getValue().toArray()[0].toString());
 		assertEquals("10.4.0.1/24", n.getAddresses().getValue().toArray()[1].toString());
 
-		assertEquals("10.4.0.2", n.getGateway().getValue().getHostName());
+		assertEquals("10.4.0.2", n.getGateway().getValue().getHostAddress());
 		assertEquals(null, n.getMetric().getValue());
 
 		var json = n.toJson();
@@ -193,14 +194,14 @@ public class OperatingSystemDebianSystemdTest {
 				Gateway=10.4.0.2
 				""".lines().toList();
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("eth0", n.getName());
 		assertEquals(false, n.getDhcp().getValue());
 		assertEquals(true, n.getLinkLocalAddressing().getValue());
 		assertEquals("192.168.100.100/24", n.getAddresses().getValue().toArray()[0].toString());
 		assertEquals("10.4.0.1/24", n.getAddresses().getValue().toArray()[1].toString());
-		assertEquals("10.4.0.2", n.getGateway().getValue().getHostName());
+		assertEquals("10.4.0.2", n.getGateway().getValue().getHostAddress());
 
 		var json = n.toJson();
 		assertEquals(json, NetworkInterface.from("eth0", json).toJson());
@@ -219,13 +220,16 @@ public class OperatingSystemDebianSystemdTest {
 				RouteMetric=216
 				""".lines().toList();
 
-		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals("eth0", n.getName());
 		assertEquals(true, n.getDhcp().getValue());
 		assertEquals(216, n.getMetric().getValue().intValue());
+	}
 
-		lines = """
+	@Test
+	public void test6() throws OpenemsNamedException {
+		final var lines = """
 				[Network]
 				DHCP=no
 				DNS=10.0.0.1
@@ -239,13 +243,45 @@ public class OperatingSystemDebianSystemdTest {
 				Address=10.4.0.1/16
 				""".lines().toList();
 
-		n = parseSystemdNetworkdConfigurationFile(lines, null);
+		final var n = parseSystemdNetworkdConfigurationFile(lines, null);
 
 		assertEquals(false, n.getDhcp().getValue());
 		assertEquals(520, n.getMetric().getValue().intValue());
 
 		var json = n.toJson();
 		assertEquals(json, NetworkInterface.from("eth0", json).toJson());
+	}
+
+	@Test
+	public void testParseIpV4Forwarding() throws OpenemsNamedException {
+		final var lines = List.of(//
+				"[Match]", //
+				"Name=eth0", //
+				"", //
+				"[Network]", //
+				"IPv4Forwarding=yes" //
+		);
+
+		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+
+		assertEquals("eth0", n.getName());
+		assertTrue(n.getIpv4Forwarding().getValue());
+	}
+
+	@Test
+	public void testParseIpMasquerade() throws OpenemsNamedException {
+		final var lines = List.of(//
+				"[Match]", //
+				"Name=eth0", //
+				"", //
+				"[Network]", //
+				"IPMasquerade=ipv4" //
+		);
+
+		var n = parseSystemdNetworkdConfigurationFile(lines, null);
+
+		assertEquals("eth0", n.getName());
+		assertEquals(IpMasqueradeSetting.IP_V4, n.getIpMasquerade().getValue());
 	}
 
 	@Test
@@ -272,13 +308,18 @@ public class OperatingSystemDebianSystemdTest {
 				"[Network]", //
 				"DHCP=no", //
 				"LinkLocalAddressing=yes", //
+				"IPv4Forwarding=yes", //
+				"IPMasquerade=ipv4", //
 				"", //
 				"[Address]", //
 				"Address=192.168.100.100/24", //
 				"Label=normal" //
 		), null);
-		n1.updateFrom(n2);
+
+		assertTrue(n1.updateFrom(n2));
 
 		assertFalse(n1.getDhcp().getValue());
+		assertTrue(n1.getIpv4Forwarding().getValue());
+		assertEquals(IpMasqueradeSetting.IP_V4, n1.getIpMasquerade().getValue());
 	}
 }

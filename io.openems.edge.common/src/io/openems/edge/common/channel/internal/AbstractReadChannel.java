@@ -3,8 +3,10 @@ package io.openems.edge.common.channel.internal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -31,9 +33,10 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final OpenemsType type;
 	private final ChannelId channelId;
 	private final D channelDoc;
-	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
-	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
-	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
+	private final Set<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArraySet<>();
+	private final Set<Runnable> cleanupCallbacks = new CopyOnWriteArraySet<>();
 	private final TreeMap<LocalDateTime, Value<T>> pastValues = new TreeMap<>();
 
 	/**
@@ -87,6 +90,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.onChangeCallbacks.clear();
 		this.onSetNextValueCallbacks.clear();
 		this.onUpdateCallbacks.clear();
+		this.cleanupCallbacks.forEach(Runnable::run);
+		this.cleanupCallbacks.clear();
 		if (this.onSetNextWriteCallbacks != null) {
 			this.onSetNextWriteCallbacks.clear();
 		}
@@ -156,6 +161,11 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public OpenemsType getType() {
 		return this.type;
+	}
+
+	@Override
+	public void addOnDeactivateCallback(Runnable callback) {
+		this.cleanupCallbacks.add(callback);
 	}
 
 	/**
@@ -270,32 +280,20 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * @return true if validation ok
 	 */
 	private boolean validateType(OpenemsType expected, OpenemsType actual) {
-		switch (expected) {
-		case BOOLEAN:
-		case FLOAT:
-		case SHORT:
-		case STRING:
-			return actual == expected;
-		case DOUBLE:
-			switch (actual) {
-			case DOUBLE:
-			case FLOAT:
-				return true;
-			default:
-				return false;
-			}
-		case INTEGER:
-		case LONG:
-			switch (actual) {
-			case SHORT:
-			case INTEGER:
-			case LONG:
-				return true;
-			default:
-				return false;
-			}
-		}
-		return false;
+		return switch (expected) {
+		case BOOLEAN, FLOAT, SHORT, STRING //
+			-> actual == expected;
+		case DOUBLE //
+			-> switch (actual) {
+			case DOUBLE, FLOAT -> true;
+			default -> false;
+			};
+		case INTEGER, LONG //
+			-> switch (actual) {
+			case SHORT, INTEGER, LONG -> true;
+			default -> false;
+			};
+		};
 	}
 
 	/**

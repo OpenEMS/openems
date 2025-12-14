@@ -1,0 +1,17 @@
+@if (header && description) {
+  <ion-row class="ion-justify-content-center">
+    <ion-item class="ion-text-center" lines="none">
+      <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+      <ion-label class="ion-text-wrap" style="white-space: pre; width: 100%">
+        <ion-row class="ion-text-center" translate>
+          <b>
+            {{header}}
+          </b>
+        </ion-row>
+        <ion-row size="6" class="ion-text-center" style="white-space: initial; width: 100%">
+          {{description}}
+        </ion-row>
+      </ion-label>
+    </ion-item>
+  </ion-row>
+}

@@ -1,7 +1,7 @@
 package io.openems.edge.timeofusetariff.swisspower;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.currency.Currency.EUR;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.swisspower.TimeOfUseTariffSwisspowerImpl.parsePrices;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,7 +9,7 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -200,7 +200,9 @@ public class TimeOfUseTariffSwisspowerImplTest {
 		var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(EUR);
 		new ComponentTest(swissPower) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.addReference("httpBridgeFactory",
+						DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //

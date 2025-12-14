@@ -1,5 +1,9 @@
 package io.openems.edge.evcs.spelsberg.smart;
 
+import static io.openems.edge.evcs.api.Evcs.addCalculatePowerLimitListeners;
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
+import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
+
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -46,6 +50,7 @@ import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -85,6 +90,13 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 				ManagedEvcs.ChannelId.values(), //
 				EvcsSpelsbergSmart.ChannelId.values()//
 		);
+		calculateUsedPhasesFromCurrent(this);
+		calculateSumCurrentFromPhases(this);
+		/*
+		 * Calculates the maximum and minimum hardware power dynamically by listening on
+		 * the fixed hardware limits used for charging
+		 */
+		addCalculatePowerLimitListeners(this);
 	}
 
 	@Activate
@@ -93,13 +105,6 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-
-		/*
-		 * Calculates the maximum and minimum hardware power dynamically by listening on
-		 * the fixed hardware limits used for charging
-		 */
-		Evcs.addCalculatePowerLimitListeners(this);
-
 		this.applyConfig(config);
 	}
 
@@ -180,7 +185,6 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 						m(EvcsSpelsbergSmart.ChannelId.LIFE_BIT, new UnsignedWordElement(6000))));
 
 		this.addStatusCallback();
-		this.addPhaseDetectionCallback();
 		this.addPowerConsumptionCallback();
 		return modbusProtocol;
 	}
@@ -188,6 +192,12 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override
@@ -292,21 +302,6 @@ public class EvcsSpelsbergSmartImpl extends AbstractOpenemsModbusComponent imple
 
 			this._setModbusCommunicationFailed(!this.getLifeBit().isDefined());
 		});
-	}
-
-	/*
-	 * Handle automatic phase shift and reset the fixed hardware power limits
-	 */
-	private void addPhaseDetectionCallback() {
-		final Consumer<Value<Integer>> setPhasesCallback = ignore -> {
-			this._setPhases(Evcs.evaluatePhaseCount(//
-					this.getActivePowerL1().get(), //
-					this.getActivePowerL2().get(), //
-					this.getActivePowerL3().get()));
-		};
-
-		// TODO remove this channel
-		this.getChargePowerTotalChannel().onUpdate(setPhasesCallback);
 	}
 
 	private void addPowerConsumptionCallback() {

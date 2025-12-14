@@ -1,9 +1,9 @@
 package io.openems.edge.energy.optimizer.app;
 
-import static io.openems.edge.energy.optimizer.SimulationResultTest.integerChromosomeOf;
+import com.google.common.collect.ImmutableMap;
 
-import io.jenetics.Genotype;
-import io.openems.edge.energy.api.simulation.OneSimulationContext;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.SimulatorTest;
 
@@ -30,15 +30,11 @@ public class EnergyPerformanceTestApp {
 
 	private static void simulatePeriod() {
 		final var simulator = SimulatorTest.DUMMY_SIMULATOR;
+		final var modeCombination = simulator.modeCombinations.getDefault();
 
-		var osc = OneSimulationContext.from(simulator.gsc);
-		var gt = Genotype.of(//
-				// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
-				integerChromosomeOf(1), //
-				// ESH2 (FOO, BAR)
-				integerChromosomeOf(1));
+		var gsc = GlobalScheduleContext.from(simulator.goc);
 
-		Simulator.simulatePeriod(osc, gt, 0, null);
+		Simulator.simulatePeriod(gsc, ImmutableMap.of(), 0 /* period */, modeCombination, new Fitness(), null);
 	}
 
 }

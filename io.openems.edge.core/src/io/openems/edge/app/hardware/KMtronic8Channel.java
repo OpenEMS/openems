@@ -1,5 +1,7 @@
 package io.openems.edge.app.hardware;
 
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -33,11 +35,11 @@ import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.formly.Exp;
 
 /**
  * Describes a App for KMtronic 8-Channel Relay.
@@ -70,12 +72,20 @@ public class KMtronic8Channel extends AbstractOpenemsAppWithProps<KMtronic8Chann
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), //
-				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description") //
-						.setDefaultValue("192.168.1.199") //
+				def -> def.setTranslatedDescriptionWithAppPrefix(".ip.description")//
+						.setDefaultValue("192.168.1.199")//
 						.setRequired(true))), //
-		CHECK(AppDef.copyOfGeneric(CommonProps.installationHint(//
-				(app, property, l, parameter) -> TranslationUtil.getTranslation(parameter.bundle, //
-						"App.Hardware.KMtronic8Channel.installationHint")))), //
+		CHECK(AppDef.copyOfGeneric(//
+				CommonProps.installationHint((app, property, l, parameter) -> {
+					return translate(parameter.bundle(), "App.Hardware.KMtronic8Channel.installationHint");
+				})) //
+				.setRequired(true) //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.requireTrue(l);//
+
+					// TODO find better way to distinguish if the current form is for installing or updating
+					field.onlyShowIf(Exp.currentModelValue(IO_ID).isNull());
+				})), //
 		;
 
 		private final AppDef<? super KMtronic8Channel, ? super Property, ? super BundleParameter> def;

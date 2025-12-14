@@ -1,7 +1,7 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.activateNextProcessImage;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
@@ -15,10 +15,10 @@ import java.io.IOException;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class ExtremeEverValuesTest {
 

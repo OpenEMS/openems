@@ -1,5 +1,7 @@
 package io.openems.common.oem;
 
+import io.openems.common.types.Tuple;
+
 public interface OpenemsEdgeOem {
 
 	// NOTE: Following values are adopted from SunSpec "Common Model"
@@ -133,4 +135,38 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	}
+
+	public default OAuthClientRegistration getRabotChargeCredentials() {
+		return null;
+	}
+
+	/**
+	 * Gets the OEM authorization for Battery.BMW.
+	 * 
+	 * @return the value
+	 */
+	public default Tuple<String, String> getBmwBatteryAuth() {
+		return null;
+	}
+
+	/**
+	 * Gets the OpenCage API key for geocoding.
+	 *
+	 * @return the API key
+	 */
+	public String getOpenCageApiKey();
+
+	/**
+	 * Returns the Open-Meteo API key.
+	 * 
+	 * <p>
+	 * The API can also be used without a key for non-commercial use.
+	 *
+	 * @return the API key, or null if not set
+	 */
+	public default String getOpenMeteoApiKey() {
+		return null;
+	}
 }

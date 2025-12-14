@@ -1,0 +1,20 @@
+@if (isInitialized) {
+  <oe-flat-widget [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
+    [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatpumpchart'">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION' | translate"
+      [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RegularStateTime'"
+      [converter]="FORMAT_SECONDS_TO_DURATION">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC' | translate"
+      [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RecommendationStateTime'"
+      [converter]="FORMAT_SECONDS_TO_DURATION">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM' | translate"
+      [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/ForceOnStateTime'"
+      [converter]="FORMAT_SECONDS_TO_DURATION">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK' | translate" [filter]="FILTER_NULL_WITH_THRESHOLD"
+      [channelAddress]="component.id + '/LockStateTime'" [converter]="FORMAT_SECONDS_TO_DURATION">
+    </oe-flat-widget-line>
+  </oe-flat-widget>
+}

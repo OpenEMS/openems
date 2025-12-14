@@ -26,6 +26,8 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.WebastoNextEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -33,6 +35,8 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.HostSupplier;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -69,7 +73,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Webasto.Next")
 public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+		implements OpenemsApp, HostSupplier, MetaSupplier {
 
 	public enum Property implements Type<Property, WebastoNextEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -78,11 +82,11 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp(), def -> def//
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def//
 				.setDefaultValue(1))), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //
 		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //
@@ -111,14 +115,21 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 
 	}
 
+	private final Host host;
+	private final Meta meta;
+
 	@Activate
 	public WebastoNextEvcs(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
-			@Reference ComponentUtil componentUtil //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host, //
+			@Reference Meta meta//
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
+		this.meta = meta;
 	}
 
 	@Override
@@ -199,6 +210,16 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 	@Override
 	protected Property[] propertyValues() {
 		return Property.values();
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
 	}
 
 }

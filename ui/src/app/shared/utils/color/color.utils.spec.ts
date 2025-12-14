@@ -2,17 +2,17 @@
 import { ColorUtils } from "./color.utils";
 
 describe("Color-Utils", () => {
-  it("#rgbStringToRgba", () => {
-    expect(ColorUtils.rgbStringToRGBA("rgb(0,0,0)", 1)).toBe("rgba(0,0,0,1)");
-    expect(ColorUtils.rgbStringToRGBA("rgb(0,0,0)", null)).toEqual("rgba(0,0,0,0)");
-    expect(ColorUtils.rgbStringToRGBA(null, 1)).toEqual(null);
-    expect(ColorUtils.rgbStringToRGBA(null, null)).toEqual(null);
-  });
+    it("#rgbStringToRgba", () => {
+        expect(ColorUtils.rgbStringToRgba("rgb(0,0,0)", 1)).toBe("rgba(0,0,0,1)");
+        expect(() => ColorUtils.rgbStringToRgba("rgb(0,0,0)", null)).toThrow(new Error("All values need to be valid"));
+        expect(() => ColorUtils.rgbStringToRgba(null, 1)).toThrow(new Error("Passed value is not of type string"));
+        expect(() => ColorUtils.rgbStringToRgba(null, null)).toThrow(new Error("Passed value is not of type string"));
+    });
 
-  it("#changeOpacityFromRGBA", () => {
-    expect(ColorUtils.changeOpacityFromRGBA("rgba(0,0,0,0.05)", 1)).toBe("rgba(0,0,0,1)");
-    expect(ColorUtils.changeOpacityFromRGBA("rgba(0,0,0,0.05)", null)).toBe("rgba(0,0,0,0)");
-    expect(ColorUtils.changeOpacityFromRGBA(null, 1)).toBe(null);
-    expect(ColorUtils.changeOpacityFromRGBA(null, null)).toBe(null);
-  });
+    it("#changeOpacityFromRGBA", () => {
+        expect(ColorUtils.changeOpacityFromRGBA("rgba(0,0,0,0.05)", 1)).toBe("rgba(0,0,0,1)");
+        expect(() => ColorUtils.changeOpacityFromRGBA("rgba(0,0,0,0.05)", null)).toThrow(new Error("All values need to be valid"));
+        expect(() => ColorUtils.changeOpacityFromRGBA(null, 1)).toThrow(new Error("Passed value is not of type string"));
+        expect(() => ColorUtils.changeOpacityFromRGBA(null, null)).toThrow(new Error("Passed value is not of type string"));
+    });
 });

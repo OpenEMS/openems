@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE;
@@ -10,9 +10,9 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.test.DummyElectricityMeter;

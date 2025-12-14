@@ -15,7 +15,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
@@ -29,17 +28,21 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.timedata.DurationUnit;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -79,6 +82,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	private HttpBridgeTimeService timeService;
+
 	public TimeOfUseTariffSwisspowerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -87,8 +92,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	}
 
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
-		this.httpBridge.removeAllTimeEndpoints();
-		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+		this.timeService.removeAllTimeEndpoints();
+		this.timeService.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
 				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -118,7 +123,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		this.timeService.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
 				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -196,11 +202,13 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = (error instanceof HttpError.ResponseError re) ? re.status.code() : INTERNAL_ERROR;
-		var serverError = (httpStatusCode == SERVER_ERROR_CODE);
-		var badRequest = (httpStatusCode == BAD_REQUEST_ERROR_CODE);
-		var timeoutError = (error instanceof HttpError.UnknownError e
-				&& e.getCause() instanceof SocketTimeoutException);
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
+		var serverError = httpStatusCode == SERVER_ERROR_CODE;
+		var badRequest = httpStatusCode == BAD_REQUEST_ERROR_CODE;
+		var timeoutError = error instanceof HttpError.UnknownError e && e.getCause() instanceof SocketTimeoutException;
 
 		this.setChannelValues(httpStatusCode, serverError, badRequest, timeoutError);
 		this.log.error("HTTP Error [{}]: {}", httpStatusCode, error.getMessage());
@@ -224,7 +232,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	protected static TimeOfUsePrices parsePrices(String jsonData, double exchangeRate) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
 		var data = parseToJsonObject(jsonData);
 		var prices = getAsJsonArray(data, "prices");
 
@@ -243,7 +251,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	/**

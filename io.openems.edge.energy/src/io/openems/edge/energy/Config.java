@@ -3,6 +3,8 @@ package io.openems.edge.energy;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.energy.api.LogVerbosity;
+import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.Version;
 
 @ObjectClassDefinition(//
@@ -18,6 +20,9 @@ import io.openems.edge.energy.api.Version;
 
 	@AttributeDefinition(name = "Version", description = "Select version of implementation")
 	Version version() default Version.V1_ESS_ONLY;
+
+	@AttributeDefinition(name = "Risk level", description = "")
+	RiskLevel riskLevel() default RiskLevel.MEDIUM;
 
 	String webconsole_configurationFactory_nameHint() default "Core Energy Scheduler";
 }

@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.webasto.unite;
 
+import static io.openems.edge.evcs.api.Evcs.calculateUsedPhasesFromCurrent;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -43,6 +45,7 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -82,6 +85,7 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 				ModbusComponent.ChannelId.values(), //
 				EvcsWebastoUnite.ChannelId.values() //
 		);
+		calculateUsedPhasesFromCurrent(this);
 	}
 
 	@Activate
@@ -213,6 +217,12 @@ public class EvcsWebastoUniteImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

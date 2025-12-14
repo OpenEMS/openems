@@ -2,14 +2,13 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
-
-import java.util.Objects;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -21,24 +20,24 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.Utils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "IO.Shelly.Pro3", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_EXECUTE_WRITE //
 })
 
 public class IoShellyPro3Impl extends AbstractOpenemsComponent
@@ -51,6 +50,8 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
 
 	public IoShellyPro3Impl() {
@@ -71,11 +72,12 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
 		for (int i = 0; i < 3; i++) {
 			final int relayIndex = i;
 			String url = this.baseUrl + "/rpc/Switch.GetStatus?id=" + relayIndex;
-			this.httpBridge.subscribeJsonEveryCycle(url, (result, error) -> {
+			cycleService.subscribeJsonEveryCycle(url, (result, error) -> {
 				this.processHttpResult(result, error, relayIndex);
 			});
 		}
@@ -105,8 +107,8 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-			-> this.eventExecuteWrite();
+		case TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.executeWrite();
 		}
 	}
 
@@ -137,31 +139,10 @@ public class IoShellyPro3Impl extends AbstractOpenemsComponent
 		}
 	}
 
-	/**
-	 * Execute on Cycle Event "Execute Write".
-	 */
-	private void eventExecuteWrite() {
+	private void executeWrite() {
 		for (int i = 0; i < this.digitalOutputChannels.length; i++) {
-			this.executeWrite(this.digitalOutputChannels[i], i);
+			Utils.executeWrite(this.digitalOutputChannels[i], this.baseUrl, this.httpBridge, i);
 		}
-	}
-
-	private void executeWrite(BooleanWriteChannel channel, int index) {
-		var readValue = channel.value().get();
-		var writeValue = channel.getNextWriteValueAndReset();
-		if (writeValue.isEmpty()) {
-			return;
-		}
-		if (Objects.equals(readValue, writeValue.get())) {
-			return;
-		}
-		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
-		this.httpBridge.get(url).whenComplete((t, e) -> {
-			if (e != null) {
-				this.logError(this.log, "HTTP request failed: " + e.getMessage());
-				this._setSlaveCommunicationFailed(true);
-			}
-		});
 	}
 
 }

@@ -3,6 +3,7 @@ package io.openems.backend.metadata.dummy;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
@@ -41,6 +43,7 @@ import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -55,6 +58,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @Component(//
 		name = "Metadata.Dummy", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		service = { Metadata.class, EventHandler.class, MetadataDummy.class }, //
 		immediate = true //
 )
 @EventTopics({ //
@@ -257,8 +261,24 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return null;
+	}
+
+	@Override
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
 		throw new UnsupportedOperationException("DummyMetadata.submitSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items) {
+		this.log.info("SerialNumberProtocol[{}]: {}, {}", edgeId, serialNumbers, items);
 	}
 
 	@Override
@@ -281,9 +301,15 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_CONFIG:
-			this.edgeHandler.setEdgeConfigFromEvent(reader);
-			break;
+		case Edge.Events.ON_SET_CONFIG -> {
+			this.edgeHandler.setEdgeConfigFromEvent(reader, (edge, oldConfig, newConfig) -> {
+				EventBuilder.from(this.eventAdmin, Edge.Events.ON_UPDATE_CONFIG) //
+						.addArg(Edge.Events.OnUpdateConfig.EDGE_ID, edge.getId()) //
+						.addArg(Edge.Events.OnUpdateConfig.OLD_CONFIG, oldConfig) //
+						.addArg(Edge.Events.OnUpdateConfig.NEW_CONFIG, newConfig) //
+						.send();
+			});
+		}
 		}
 	}
 
@@ -309,17 +335,17 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public List<UserAlertingSettings> getUserAlertingSettings(String edgeId) {
-		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+		return List.of(new UserAlertingSettings("demo", 5, 10, 15));
 	}
 
 	@Override
 	public List<OfflineEdgeAlertingSetting> getEdgeOfflineAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getEdgeOfflineAlertingSettings() is not implemented");
+		return List.of(new OfflineEdgeAlertingSetting(edgeId, "demo", 5, null));
 	}
 
 	@Override
 	public List<SumStateAlertingSetting> getSumStateAlertingSettings(String edgeId) throws OpenemsException {
-		throw new UnsupportedOperationException("DummyMetadata.getSumStateAlertingSettings() is not implemented");
+		return List.of(new SumStateAlertingSetting(edgeId, "demo", 10, 15, null));
 	}
 
 	@Override
@@ -372,4 +398,14 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public void updateUserSettings(User user, JsonObject settings) {
 		this.settings = settings == null ? new JsonObject() : settings;
 	}
+
+	@Override
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		var apikeysToEdgeIds = this.edges.values().stream() //
+				.collect(Collectors.toMap(//
+						e -> e.getId(), //
+						e -> e.getApikey()));
+		return new UpdateMetadataCache.Notification(apikeysToEdgeIds);
+	}
+
 }
