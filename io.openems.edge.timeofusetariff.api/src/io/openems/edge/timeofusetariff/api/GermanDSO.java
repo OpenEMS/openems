@@ -17,14 +17,8 @@ public enum GermanDSO {
 	// CHECKSTYLE:ON
 
 	BAYERNWERK(GridFee.create()//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(8.75)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
+			.addDateRange(dr -> dr// 
+			// 2025 Q1/Q4
 					.setStart(2025, 10, 1)//
 					.setEnd(2025, 12, 31)//
 					.setLowTariff(0.88)//
@@ -45,6 +39,50 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(21, 0)//
 							.setEnd(0, 0)//
+							.setTariff(STANDARD)))
+
+			.addDateRange(dr -> dr// 
+			// 2026 Q1
+					.setStart(2026, 1, 1)//
+					.setEnd(2026, 3, 31)//
+					.setStandardTariff(5.62)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+			.addDateRange(dr -> dr// 
+			// 2026 Q2/Q3
+					.setStart(2026, 4, 1)//
+					.setEnd(2026, 9, 30)//
+					.setLowTariff(0.56)//
+					.setStandardTariff(5.62)//
+					.setHighTariff(10.75)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(15, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(22, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+			.addDateRange(dr -> dr// 
+			// 2026 Q4
+					.setStart(2026, 10, 1)//
+					.setEnd(2026, 12, 31)//
+					.setStandardTariff(5.62)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
 							.setTariff(STANDARD)))),
 
 	NETZE_BW(GridFee.create()//

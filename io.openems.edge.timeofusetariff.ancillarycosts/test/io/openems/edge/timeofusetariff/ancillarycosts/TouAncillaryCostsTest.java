@@ -24,7 +24,7 @@ public class TouAncillaryCostsTest {
 	@Test
 	public void testBasicActivation() throws Exception {
 		var ac = new TouAncillaryCostsImpl();
-		var clock = Clock.fixed(Instant.parse("2025-07-29T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var clock = Clock.fixed(Instant.parse("2026-01-01T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo").withCurrency(EUR)) //
@@ -48,7 +48,7 @@ public class TouAncillaryCostsTest {
 		final double fixedPrice = 1.0;
 		final var ac = new TouAncillaryCostsImpl();
 
-		var summerClock = Clock.fixed(Instant.parse("2025-07-29T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var summerClock = Clock.fixed(Instant.parse("2026-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo") //
