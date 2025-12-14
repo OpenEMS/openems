@@ -674,10 +674,11 @@ public enum GermanDSO {
 
 	LEW(GridFee.create()//
 			.addDateRange(dr -> dr//
+			// 2025 (full)
 					.setStart(2025, 4, 1)//
 					.setEnd(2025, 12, 31)//
-					.setStandardTariff(6.99)//
 					.setLowTariff(0.70)//
+					.setStandardTariff(6.99)//
 					.setHighTariff(13.88)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -698,7 +699,36 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(21, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))//
+
+			.addDateRange(dr -> dr//
+			// 2026 (full)
+					.setStart(2026, 1, 1)//
+					.setEnd(2026, 12, 31)//
+					.setLowTariff(0.49)//
+					.setStandardTariff(4.87)//
+					.setHighTariff(9.63)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(15, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(21, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(21, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	TE_NETZE(GridFee.create()//
 			.addDateRange(dr -> dr//
