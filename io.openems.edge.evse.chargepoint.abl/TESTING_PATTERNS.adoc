@@ -1,0 +1,722 @@
+= OpenEMS Testing Patterns Explained
+
+== Overview
+
+This document explains the *consequences and intended usage* of two critical OpenEMS testing patterns:
+
+. *MyConfig Pattern* - Test configuration helper
+. *ComponentTest Pattern* - OSGi lifecycle testing framework
+
+These patterns are fundamental to OpenEMS's testing philosophy and are used consistently across the entire project.
+
+'''
+
+== 1. MyConfig Pattern
+
+=== What is MyConfig?
+
+`MyConfig` is a *test configuration builder* that implements your component's `Config` interface. It provides a fluent API for creating configuration objects in tests.
+
+=== Example
+
+[source,java]
+----
+Config config = MyConfig.create()
+    .setId("evcs0")
+    .setEnabled(true)
+    .setReadOnly(false)
+    .setMaxCurrent(32)
+    .build();
+----
+
+=== Why Does OpenEMS Use This Pattern?
+
+OpenEMS components use *OSGi Declarative Services* with `@Designate` annotations. In production, configuration comes from OSGi's Configuration Admin service. In tests, we need a way to create configuration objects *without* a full OSGi container.
+
+*The Problem MyConfig Solves:*
+
+[source,java]
+----
+// ❌ WITHOUT MyConfig - This doesn't work in tests
+Config config = ???; // Can't instantiate interface directly
+
+// ❌ Mocking is verbose and brittle
+Config config = Mockito.mock(Config.class);
+when(config.id()).thenReturn("evcs0");
+when(config.enabled()).thenReturn(true);
+when(config.readOnly()).thenReturn(false);
+// ... 10+ more lines for all parameters
+
+// ✅ WITH MyConfig - Clean and readable
+Config config = MyConfig.create()
+    .setId("evcs0")
+    .setEnabled(true)
+    .setReadOnly(false)
+    .build();
+----
+
+=== Consequences of Using MyConfig
+
+==== ✅ Benefits
+
+. *Type Safety*: Compile-time checking of configuration parameters
+. *Readability*: Tests clearly show what configuration is being used
+. *Maintainability*: When Config interface changes, you update MyConfig once
+. *Defaults*: Sensible defaults reduce boilerplate (only set what differs)
+. *Consistency*: Same pattern across all OpenEMS components
+
+==== ⚠️ Responsibilities
+
+. *Keep in Sync*: When you modify `Config.java`, you *must* update `MyConfig.java`
+. *Test-Only*: MyConfig lives in `test/` directory, never use in production code
+. *Defaults Matter*: Choose sensible defaults (usually same as `@AttributeDefinition` defaults)
+
+=== Intended Usage by OpenEMS Project
+
+==== When to Create MyConfig
+
+*ALWAYS* create a MyConfig helper when:
+
+* You have a component with `@Designate(ocd = Config.class)`
+* You write tests using `ComponentTest`
+* Your component has 2+ configuration parameters
+
+==== Pattern Recognition
+
+Look at existing OpenEMS components:
+
+----
+io.openems.edge.battery.fenecon.home/
+├── src/
+│   └── Config.java                    ← Production config interface
+└── test/
+    └── MyConfig.java                  ← Test config builder
+    └── BatteryFeneconHomeImplTest.java ← Uses MyConfig
+----
+
+==== MyConfig Structure (Template)
+
+[source,java]
+----
+public class MyConfig implements Config {
+
+    // Builder pattern entry point
+    public static Builder create() {
+        return new Builder();
+    }
+
+    // Builder with fluent API
+    public static class Builder {
+        private String id = "evcs0";           // Sensible default
+        private boolean enabled = true;         // Sensible default
+        private boolean readOnly = false;       // Sensible default
+        // ... all config parameters with defaults
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        // ... setters for all parameters
+
+        public Config build() {
+            return new MyConfig(this);
+        }
+    }
+
+    // Private constructor - forces use of builder
+    private MyConfig(Builder builder) {
+        this.id = builder.id;
+        this.enabled = builder.enabled;
+        // ... copy all fields
+    }
+
+    // Interface implementation
+    @Override
+    public String id() {
+        return this.id;
+    }
+
+    // ... implement all Config methods
+}
+----
+
+=== Real-World Usage Examples
+
+==== Example 1: Basic Test
+
+[source,java]
+----
+@Test
+public void testBasicActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build()) // Uses all defaults
+        .deactivate();
+}
+----
+
+==== Example 2: Test with Specific Configuration
+
+[source,java]
+----
+@Test
+public void testReadOnlyMode() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create()
+            .setReadOnly(true)  // Only override what's needed
+            .build())
+        .deactivate();
+}
+----
+
+==== Example 3: Multiple Configurations
+
+[source,java]
+----
+@Test
+public void testConfigurationChange() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().setMaxCurrent(16).build())
+        .next(new TestCase())
+        .activate(MyConfig.create().setMaxCurrent(32).build()) // Test @Modified
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+'''
+
+== 2. ComponentTest Pattern
+
+=== What is ComponentTest?
+
+`ComponentTest` is OpenEMS's *OSGi lifecycle testing framework*. It simulates the OSGi container environment and tests the *real component implementation* (not a dummy).
+
+=== Example
+
+[source,java]
+----
+@Test
+public void testActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())  // Real component
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+=== Why Does OpenEMS Use This Pattern?
+
+OpenEMS components have an *OSGi lifecycle* with these methods:
+
+* `@Activate` - Called when component starts
+* `@Modified` - Called when configuration changes
+* `@Deactivate` - Called when component stops
+
+*ComponentTest verifies this lifecycle works correctly* before deploying to production.
+
+=== What ComponentTest Verifies
+
+==== 1. OSGi Lifecycle Methods Execute Without Errors
+
+[source,java]
+----
+@Component(...)
+public class EvseChargePointAblImpl {
+
+    @Activate
+    void activate(ComponentContext context, Config config) {
+        // ComponentTest ensures this doesn't throw exceptions
+        this.config = config;
+        this.protocol = new AblModbusProtocol(this, config);
+    }
+
+    @Modified
+    void modified(ComponentContext context, Config config) {
+        // ComponentTest can test configuration changes
+        this.config = config;
+    }
+
+    @Deactivate
+    void deactivate() {
+        // ComponentTest ensures clean shutdown
+    }
+}
+----
+
+==== 2. All Channels Are Initialized
+
+[source,java]
+----
+// ComponentTest verifies all channels exist and are not null
+component.channel(EvseChargePointAbl.ChannelId.CHARGING_STATE);  // Must work
+component.channel(EvseChargePointAbl.ChannelId.EV_CONNECTED);    // Must work
+----
+
+==== 3. Dependencies Are Properly Injected
+
+[source,java]
+----
+@Reference
+private ConfigurationAdmin cm;
+
+@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY)
+protected void setModbus(BridgeModbus modbus) {
+    this.modbus = modbus;
+}
+
+// ComponentTest ensures references are satisfied
+.addReference("cm", new DummyConfigurationAdmin())
+.addReference("setModbus", new DummyModbusBridge("modbus0"))
+----
+
+==== 4. Configuration Handling Works
+
+[source,java]
+----
+// ComponentTest verifies config is read correctly
+assertEquals(32, component.config.maxCurrent());
+assertEquals("evcs0", component.config.id());
+----
+
+=== Consequences of Using ComponentTest
+
+==== ✅ Benefits
+
+. *Catches OSGi Errors Early*: Activation failures discovered before deployment
+. *Verifies Full Integration*: Tests how component works with dependencies
+. *Configuration Validation*: Ensures all config parameters work
+. *Channel Integrity*: Verifies all channels initialize properly
+. *Lifecycle Testing*: Tests @Activate, @Modified, @Deactivate
+. *CI/CD Integration*: Fast enough for continuous integration
+
+==== ⚠️ Limitations
+
+. *Not a Functional Test*: Only tests that component _activates_, not that it _works correctly_
+. *Requires Dummy Dependencies*: Need DummyModbusBridge, DummyConfigurationAdmin, etc.
+. *No Real Hardware*: Can't test actual Modbus communication
+. *Limited State Testing*: Use DummyComponent for complex state machine tests
+
+=== Intended Usage by OpenEMS Project
+
+==== ComponentTest vs DummyComponent - When to Use What?
+
+[cols="1,1,1"]
+|===
+| Use Case | ComponentTest | DummyComponent
+
+| Test component activation
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test OSGi lifecycle
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test channel initialization
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test configuration handling
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test state machine logic
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test calculations
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test error conditions
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test controllers using this component
+| ❌ Wrong tool
+| ✅ Use DummyComponent
+
+| CI/CD pipeline
+| ✅ Both
+| ✅ Both
+|===
+
+==== Pattern: Every Component Should Have Both
+
+----
+io.openems.edge.evse.chargepoint.abl/
+├── test/
+│   ├── EvseChargePointAblImplTest.java      ← ComponentTest (5 tests)
+│   ├── DummyAblChargePoint.java             ← Dummy implementation
+│   ├── DummyAblChargePointTest.java         ← Dummy tests (12 tests)
+│   └── MyConfig.java                         ← Config builder
+----
+
+*Why Both?*
+
+* *ComponentTest*: Verifies component works in OSGi (prerequisite)
+* *DummyComponent Tests*: Verifies business logic works (functionality)
+
+=== ComponentTest Structure and Lifecycle
+
+[source,java]
+----
+new ComponentTest(new RealComponent())           // 1. Create component instance
+    .addReference("dep1", new DummyDep1())       // 2. Inject dependencies
+    .addReference("dep2", new DummyDep2())       // 3. More dependencies
+    .activate(MyConfig.create().build())         // 4. Call @Activate
+    .next(new TestCase())                        // 5. Run test cycle
+    .next(new TestCase()                         // 6. Another cycle
+        .input(CHANNEL_ID, value)                // 6a. Set input
+        .output(CHANNEL_ID, expected))           // 6b. Assert output
+    .activate(MyConfig.create()                  // 7. Call @Modified
+        .setParam(newValue).build())
+    .next(new TestCase())                        // 8. Verify change
+    .deactivate();                               // 9. Call @Deactivate
+----
+
+=== Real-World Usage Examples
+
+==== Example 1: Minimum Test (Required for Every Component)
+
+[source,java]
+----
+@Test
+public void testActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase())  // Ensures one cycle runs without errors
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component activates without exceptions
+* All channels initialize
+* All references satisfied
+* Component deactivates cleanly
+
+==== Example 2: Configuration Testing
+
+[source,java]
+----
+@Test
+public void testReadOnlyMode() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create()
+            .setReadOnly(true)
+            .build())
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component handles read-only configuration
+* No errors when write operations are disabled
+
+==== Example 3: @Modified Lifecycle Testing
+
+[source,java]
+----
+@Test
+public void testConfigurationModification() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().setMaxCurrent(16).build())
+        .next(new TestCase())
+        // Simulate configuration change via Apache Felix Web Console
+        .activate(MyConfig.create().setMaxCurrent(32).build())  // Calls @Modified
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component handles runtime configuration changes
+* @Modified method works without requiring restart
+
+==== Example 4: Advanced Channel Testing
+
+[source,java]
+----
+@Test
+public void testChannelValues() throws Exception {
+    var component = new EvseChargePointAblImpl();
+
+    new ComponentTest(component)
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase()
+            .output(STATE_MACHINE, State.IDLE))      // Assert initial state
+        .next(new TestCase()
+            .input(GRID_MODE, GridMode.ON_GRID)      // Provide input
+            .output(STATE_MACHINE, State.RUNNING))   // Assert state change
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Channel inputs work
+* Channel outputs produce expected values
+* State machine responds to inputs
+
+'''
+
+== 3. How These Patterns Work Together
+
+=== The Complete Testing Stack
+
+----
+┌─────────────────────────────────────────────────────────────┐
+│                    OpenEMS Testing Stack                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ComponentTest (OSGi Lifecycle)                            │
+│  ├─ Uses: MyConfig                                         │
+│  ├─ Tests: Real component implementation                   │
+│  └─ Verifies: Activation, channels, config, lifecycle      │
+│                                                             │
+│  DummyComponent Tests (Business Logic)                     │
+│  ├─ Uses: DummyAblChargePoint                             │
+│  ├─ Tests: State machine, calculations, error handling     │
+│  └─ Verifies: Correctness of implementation                │
+│                                                             │
+│  Integration Tests (Modbus Protocol)                       │
+│  ├─ Uses: AblModbusSimulator                              │
+│  ├─ Tests: Real component + simulator                      │
+│  └─ Verifies: Protocol correctness, register mapping       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+----
+
+=== Example: Complete Test Suite
+
+[source,java]
+----
+// 1. ComponentTest - Does it activate?
+public class EvseChargePointAblImplTest {
+    @Test
+    public void testActivation() throws Exception {
+        new ComponentTest(new EvseChargePointAblImpl())
+            .addReference("cm", new DummyConfigurationAdmin())
+            .addReference("setModbus", new DummyModbusBridge("modbus0"))
+            .activate(MyConfig.create().build())  // Uses MyConfig
+            .next(new TestCase())
+            .deactivate();
+    }
+}
+
+// 2. DummyComponent Tests - Does logic work?
+public class DummyAblChargePointTest {
+    @Test
+    public void testChargingCycle() {
+        DummyAblChargePoint cp = new DummyAblChargePoint("test0");
+        cp.connectEv();
+        assertEquals(ChargingState.B1, cp.getCurrentState());
+
+        ChargePointActions actions = ChargePointActions.create(cp.getChargePointAbilities())
+            .setApplySetPoint(new ApplySetPoint.Action.MilliAmpere(16000))
+            .build();
+        cp.apply(actions);
+
+        assertEquals(ChargingState.C2, cp.getCurrentState());
+    }
+}
+
+// 3. Integration Tests - Does Modbus work?
+public class AblModbusIntegrationTest {
+    @Test
+    public void testWithSimulator() throws Exception {
+        AblModbusSimulator simulator = new AblModbusSimulator("127.0.0.1", 502, 1);
+        simulator.start();
+
+        // Connect real component to simulator
+        // Verify Modbus communication works
+
+        simulator.stop();
+    }
+}
+----
+
+'''
+
+== 4. Common Mistakes and How to Avoid Them
+
+=== Mistake 1: Not Updating MyConfig When Config Changes
+
+[source,java]
+----
+// ❌ WRONG - Config changed but MyConfig not updated
+@interface Config {
+    String id();
+    int maxCurrent() default 32;
+    int minCurrent() default 6;  // NEW PARAMETER - forgot to add to MyConfig
+}
+
+// Build fails because MyConfig doesn't implement minCurrent()
+----
+
+*Solution*: Always update both files together. Use IDE refactoring.
+
+=== Mistake 2: Using ComponentTest for Functional Testing
+
+[source,java]
+----
+// ❌ WRONG - ComponentTest is too slow for this
+@Test
+public void testComplexStateMachine() throws Exception {
+    var component = new EvseChargePointAblImpl();
+    new ComponentTest(component)
+        .activate(MyConfig.create().build())
+        .next(new TestCase().input(...).output(...))  // 100+ test cases
+        .deactivate();
+}
+
+// ✅ CORRECT - Use DummyComponent for functional tests
+@Test
+public void testComplexStateMachine() {
+    DummyAblChargePoint cp = new DummyAblChargePoint("test0");
+    // Fast in-memory testing with 100+ cases
+}
+----
+
+=== Mistake 3: Not Adding Minimum ComponentTest
+
+[source,java]
+----
+// ❌ WRONG - Only have DummyComponent tests
+// No ComponentTest at all
+
+// Component might fail in production due to OSGi issues
+// that DummyComponent tests don't catch
+----
+
+*Solution*: Always have at least one ComponentTest for activation.
+
+=== Mistake 4: Using Wrong Dummy in ComponentTest
+
+[source,java]
+----
+// ❌ WRONG - Using custom mock instead of OpenEMS dummies
+new ComponentTest(new EvseChargePointAblImpl())
+    .addReference("setModbus", Mockito.mock(BridgeModbus.class))  // Wrong
+    .activate(...)
+
+// ✅ CORRECT - Use OpenEMS test infrastructure
+new ComponentTest(new EvseChargePointAblImpl())
+    .addReference("setModbus", new DummyModbusBridge("modbus0"))  // Correct
+    .activate(...)
+----
+
+'''
+
+== 5. When to Create Each Pattern
+
+=== Create MyConfig When:
+
+* ✅ Component has `@Designate` annotation
+* ✅ Component has 2+ configuration parameters
+* ✅ You start writing ComponentTest
+
+=== Create ComponentTest When:
+
+* ✅ Component is a production component (not a test-only dummy)
+* ✅ Component has OSGi lifecycle methods (@Activate, @Modified, @Deactivate)
+* ✅ You want to verify OSGi integration works
+
+=== Create DummyComponent When:
+
+* ✅ You need to test complex business logic
+* ✅ Other components/controllers will use this component
+* ✅ You need fast test execution (thousands of test cycles)
+
+=== Create Integration Tests When:
+
+* ✅ Component communicates via protocol (Modbus, REST, etc.)
+* ✅ You need to verify protocol correctness
+* ✅ You want realistic end-to-end testing
+
+'''
+
+== 6. Quick Reference
+
+=== MyConfig Checklist
+
+* [ ] Implements Config interface
+* [ ] Has static `create()` method returning Builder
+* [ ] Builder has all config parameters as fields
+* [ ] Builder has sensible defaults
+* [ ] Builder has fluent setters (`return this`)
+* [ ] Builder has `build()` method
+* [ ] Private constructor takes Builder
+* [ ] Implements all Config interface methods
+* [ ] Located in `test/` directory
+
+=== ComponentTest Checklist
+
+* [ ] Tests real component implementation (not dummy)
+* [ ] Adds all required OSGi references
+* [ ] Uses MyConfig for configuration
+* [ ] Has at least one `.next(new TestCase())`
+* [ ] Calls `.deactivate()` at end
+* [ ] Tests activation without errors (minimum)
+* [ ] Optionally tests @Modified lifecycle
+* [ ] Optionally tests channel values
+
+'''
+
+== Summary
+
+=== MyConfig Pattern
+
+*Purpose*: Create test configuration objects +
+*Usage*: `MyConfig.create().setParam(value).build()` +
+*Consequence*: Must keep in sync with Config interface +
+*Benefit*: Type-safe, readable, maintainable tests
+
+=== ComponentTest Pattern
+
+*Purpose*: Test OSGi lifecycle and integration +
+*Usage*: Tests real component with dummy dependencies +
+*Consequence*: Only tests activation, not full functionality +
+*Benefit*: Catches OSGi errors before production deployment
+
+=== Together
+
+These patterns form the *foundation* of OpenEMS component testing:
+
+. *MyConfig* provides configuration
+. *ComponentTest* verifies OSGi integration
+. *DummyComponent* verifies business logic
+. *Integration Tests* verify protocols
+
+All four layers work together to ensure components work correctly in production.
+
+'''
+
+*For ABL Component:*
+
+* ✅ `MyConfig.java` - Configuration builder
+* ✅ `EvseChargePointAblImplTest.java` - ComponentTest (5 tests)
+* ✅ `DummyAblChargePoint.java` - Dummy implementation
+* ✅ `DummyAblChargePointTest.java` - Dummy tests (12 tests)
+* ✅ `AblModbusIntegrationTest.java` - Integration tests
+* ✅ `AblModbusSimulator.java` - Full Modbus simulator
+
+This follows OpenEMS best practices completely.

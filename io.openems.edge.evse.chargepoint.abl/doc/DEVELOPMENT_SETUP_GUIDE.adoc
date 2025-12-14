@@ -1,0 +1,2065 @@
+= OpenEMS Edge Development & Testing Setup Guide
+:toc:
+:toclevels: 4
+:sectnums:
+
+A comprehensive guide to setting up a local OpenEMS Edge development and testing environment with ABL EVSE and Kostal PV Inverter components.
+
+== Prerequisites
+
+=== Required Software
+
+[cols="1,2,2"]
+|===
+| Software | Version | Installation
+
+| Java JDK
+| 21 or higher
+| https://adoptium.net/[Eclipse Temurin] or Oracle JDK
+
+| Git
+| Latest
+| https://git-scm.com/downloads[git-scm.com]
+
+| Gradle
+| 8.x (wrapper included)
+| Automatically downloaded by `./gradlew`
+
+| IDE (Optional)
+| Latest
+| https://www.eclipse.org/downloads/[Eclipse IDE], https://code.visualstudio.com/[VS Code], or https://www.jetbrains.com/idea/[IntelliJ IDEA]
+|===
+
+=== Optional Tools
+
+[cols="1,2"]
+|===
+| Tool | Purpose
+
+| https://github.com/epsilonrt/mbpoll/[mbpoll]
+| Modbus TCP client for testing
+| Wireshark with Modbus dissector
+| Network protocol analysis
+| curl or Postman
+| REST API testing
+|===
+
+=== System Requirements
+
+* *RAM*: Minimum 4 GB, recommended 8 GB or more
+* *Disk Space*: At least 2 GB for source code and build artifacts
+* *Network*: Internet connection for downloading dependencies
+* *OS*: Linux, macOS, or Windows (WSL2 recommended for Windows)
+
+'''
+
+== Cloning the Repository
+
+=== Initial Clone
+
+[source,bash]
+----
+cd ~/projects  # or your preferred directory
+git clone https://github.com/OpenEMS/openems.git
+cd openems
+----
+
+=== Branch Selection
+
+[source,bash]
+----
+# For latest stable release
+git checkout main
+
+# For development version
+git checkout develop
+
+# For your custom branch (if working on ABL integration)
+git checkout your-feature-branch
+----
+
+'''
+
+== Building OpenEMS Edge
+
+=== Full Build
+
+[source,bash]
+----
+# Build all modules (Edge + Backend + UI)
+./gradlew build
+
+# Build only Edge components
+./gradlew :io.openems.edge.application:build
+
+# Build without running tests (faster)
+./gradlew build -x test
+----
+
+=== Build Output
+
+The build creates:
+
+* JAR files in `build/libs/` for each component
+* OSGi bundles ready for deployment
+* Test reports in `build/reports/`
+
+Expected build time:
+
+* Full build: 5-15 minutes (first time)
+* Incremental build: 1-3 minutes
+* Edge-only build: 2-5 minutes
+
+'''
+
+== Adding the ABL Component
+
+The ABL EVSE component is not included in the standard `EdgeApp.bndrun` by default. You need to add it manually.
+
+=== Step 1: Edit EdgeApp.bndrun
+
+Open `io.openems.edge.application/EdgeApp.bndrun` and add the ABL component to the `-runrequires` section:
+
+[source,text]
+----
+-runrequires: \
+    # ... existing entries ...
+    bnd.identity;id='io.openems.edge.evse.chargepoint.abl',\
+    # ... rest of entries ...
+----
+
+=== Step 2: Rebuild
+
+[source,bash]
+----
+./gradlew :io.openems.edge.application:clean
+./gradlew :io.openems.edge.application:resolve
+./gradlew :io.openems.edge.application:build
+----
+
+The `resolve` command updates the `-runbundles` section automatically.
+
+'''
+
+== Running OpenEMS Edge Locally
+
+=== Configuration Directory Setup
+
+==== Linux/macOS
+
+[source,bash]
+----
+# Create configuration directories
+sudo mkdir -p /etc/openems/config
+sudo mkdir -p /etc/openems/data
+sudo chown -R $USER:$USER /etc/openems
+----
+
+==== Windows (WSL2)
+
+[source,bash]
+----
+mkdir -p /mnt/c/openems/config
+mkdir -p /mnt/c/openems/data
+----
+
+Then edit `EdgeApp.bndrun` and change:
+
+[source,text]
+----
+-runproperties:\
+    org.osgi.service.http.port=8080,\
+    felix.cm.dir=/mnt/c/openems/config,\
+    openems.data.dir=/mnt/c/openems/data,\
+    # ... rest of properties ...
+----
+
+==== Alternative: Use Local Directory
+
+For development, you can use a local directory:
+
+[source,bash]
+----
+mkdir -p ./runtime/config
+mkdir -p ./runtime/data
+----
+
+Update `EdgeApp.bndrun`:
+
+[source,text]
+----
+-runproperties:\
+    org.osgi.service.http.port=8080,\
+    felix.cm.dir=./runtime/config,\
+    openems.data.dir=./runtime/data,\
+    org.apache.felix.eventadmin.Timeout=0,\
+    org.ops4j.pax.logging.DefaultServiceLog.level=INFO
+----
+
+=== Running from Gradle
+
+[source,bash]
+----
+# First, ensure the project is built and resolved
+./gradlew :io.openems.edge.application:resolve
+./gradlew :io.openems.edge.application:build
+
+# Then run the application
+./gradlew :io.openems.edge.application:run
+----
+
+NOTE: The `run` task uses the `EdgeApp.bndrun` file to launch the OSGi framework with all required bundles.
+
+=== Running from Command Line (Alternative Methods)
+
+If the Gradle run task doesn't work, try these alternatives:
+
+==== Method 1: Check Available Gradle Tasks
+
+[source,bash]
+----
+# List all available tasks for the application module
+./gradlew :io.openems.edge.application:tasks --all
+
+# Look for tasks like:
+# - run.EdgeApp
+# - runbundles.EdgeApp
+# - testrun.EdgeApp
+----
+then use the appropriate task to run the application, e.g.,
+[source,bash]
+----
+./gradlew :io.openems.edge.application:testrun.EdgeApp
+----
+
+If its running, open http://localhost:8080/system/console/configMgr to see the configuration manager.
+
+==== Method 2: Use BND Command Line Tool (if installed)
+
+If you have the BND command-line tool installed separately:
+
+[source,bash]
+----
+cd io.openems.edge.application
+
+# Using bnd CLI (requires separate installation)
+bnd run EdgeApp.bndrun
+----
+
+NOTE: The BND CLI tool is not included with Gradle. You would need to install it separately from https://bndtools.org/
+
+==== Method 3: Manual OSGi Framework Launch
+
+The JAR files are located in `io.openems.edge.application/generated/distributions/runbundles/EdgeApp/`, but this is an OSGi application that requires the full bundle set, not a single executable JAR. Manually launching requires setting up the OSGi framework with all bundles, which is complex.
+
+RECOMMENDATION: Use Eclipse with Bndtools or IntelliJ IDEA with BND plugin for the easiest development experience.
+
+=== Running from IDE (Recommended for Development)
+
+==== Eclipse
+
+. Import the project as Gradle project
+. Navigate to `io.openems.edge.application/EdgeApp.bndrun`
+. Right-click → Run As → Bnd OSGi Run Launcher
+
+==== IntelliJ IDEA
+
+. Import the project as Gradle project
+. Install the "BND" plugin if not already installed
+. Right-click on `io.openems.edge.application/EdgeApp.bndrun`
+. Select "Run EdgeApp.bndrun" or "Debug EdgeApp.bndrun"
+
+==== VS Code
+
+NOTE: There is no official BND Tools extension for VS Code. BND tools are primarily designed for Eclipse.
+
+*Alternatives for VS Code users:*
+
+. Use Eclipse (recommended for BND/OSGi development)
+. Use IntelliJ IDEA with BND plugin
+. Use the Gradle run task (see below)
+. Use command-line bnd tool if installed separately
+
+=== Manual Execution (If Gradle Run Doesn't Work)
+
+If the Gradle `run` task is not available or not working, you can manually execute the OSGi framework:
+
+[source,bash]
+----
+# Navigate to the application directory
+cd io.openems.edge.application
+
+# Ensure bundles are resolved and built
+cd ../..
+./gradlew :io.openems.edge.application:resolve
+./gradlew :io.openems.edge.application:build
+
+# The bundles are in generated/distributions/runbundles/EdgeApp/
+# You would need to manually start the OSGi framework with all bundles
+# This is complex, so using IDE or fixing the Gradle task is recommended
+# or just try: 
+./gradlew :io.openems.edge.application:testrun.EdgeApp
+----
+
+If it is running, open http://localhost:8080/system/console/configMgr to see the configuration manager.
+
+TIP: If Gradle run task doesn't work, the IDE method (Eclipse/IntelliJ) is usually the most reliable way to run BND/OSGi applications during development.
+
+=== Verify Startup
+
+You should see output like:
+
+[source,text]
+----
+   ____                   ________  _________
+  / __ \____  ___  ____  / ____/  |/  / ___/
+ / / / / __ \/ _ \/ __ \/ __/ / /|_/ /\__ \
+/ /_/ / /_/ /  __/ / / / /___/ /  / /___/ /
+\____/ .___/\___/_/ /_/_____/_/  /_//____/
+    /_/                    OpenEMS Edge
+
+INFO  [Component] Core.ComponentManager [activate] Activated
+INFO  [Component] Controller.Api.Rest [activate] Started REST Api on port [8080]
+INFO  [Component] Controller.Api.Websocket [activate] Started Websocket Api on port [8080]
+----
+
+'''
+
+== Accessing Web Interfaces
+
+=== Apache Felix Web Console
+
+The Felix Web Console provides low-level OSGi management.
+
+*URL*: http://localhost:8080/system/console
+
+*Credentials*:
+
+* Username: `admin`
+* Password: `admin`
+
+==== Key Sections
+
+* *Bundles*: View and manage OSGi bundles (start/stop/update)
+* *Components*: View OSGi Declarative Services components
+* *Configuration*: Create and configure component instances
+* *Services*: View registered OSGi services
+* *Shell*: Execute OSGi console commands
+
+=== OpenEMS UI
+
+The OpenEMS UI provides a user-friendly interface for monitoring and control.
+
+==== Option 1: Serve Pre-built UI
+
+If you have the UI built:
+
+[source,bash]
+----
+cd ui
+npm install
+ng serve -c openems-edge-dev
+----
+
+Then open: http://localhost:4200
+
+TIP: If `ng` is not available: Install npm using `sudo apt install npm. then upgrade using `npm install -g npm@latest`
+Upgrade node to latest using `nvm install --lts`, then run `npm install -g @angular/cli`.
+This should fix the problem, as can be verified by `ng --version`. If you are still unable to use ng, then `npm link @angular/cli` might help. Otherwise check your environmental variables to make sure they have been correctly set.
+
+==== Option 2: Use Docker
+
+[source,bash]
+----
+docker run -d \
+  --name openems-ui \
+  -p 80:80 \
+  -e OPENEMS_EDGE_URL=http://localhost:8080 \
+  ghcr.io/openems/openems-ui:latest
+----
+
+Then open: http://localhost
+
+==== Option 3: Use Gitpod Live Demo
+
+For quick testing without local UI setup:
+
+https://gitpod.io/#https://github.com/OpenEMS/openems
+
+'''
+
+== Configuring Components
+
+=== Creating a Modbus TCP Bridge
+
+All Modbus devices require a bridge component.
+
+==== Via Apache Felix Console
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *Bridge Modbus.TCP*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `modbus0`
+
+| Alias
+| `Modbus Bridge`
+
+| Enabled
+| `true`
+
+| Port
+| `502` (default Modbus TCP port)
+
+| Invalidate Elements Older Than
+| `5000` (ms)
+
+| Log Verbosity
+| `NONE` or `DEBUG_LOG` for troubleshooting
+|===
++
+. Click *Save*
+
+==== Via Configuration File
+
+Create `/etc/openems/config/Bridge.Modbus.Tcp~modbus0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "Modbus Bridge",
+  "port": 502,
+  "invalidateElementsOlderThanSeconds": 5,
+  "logVerbosity": "NONE"
+}
+----
+
+=== Configuring Kostal PV Inverter
+
+The Kostal component supports both Modbus TCP (Sunspec) and HTTP (Piko).
+
+==== Option 1: Kostal Plenticore/Pico (Modbus Sunspec)
+
+*Via Felix Console:*
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *PV-Inverter Kostal*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `pvinverter0`
+
+| Alias
+| `Kostal Plenticore`
+
+| Enabled
+| `true`
+
+| Modbus-ID
+| `modbus0`
+
+| Modbus Unit-ID
+| `71` (default for Kostal)
+
+| Modbus target IP address
+| `192.168.1.100` (your inverter's IP)
+
+| Modbus target port
+| `1502` (Kostal Modbus port)
+
+| Phase
+| `L1` or `ALL` depending on wiring
+|===
++
+. Click *Save*
+
+*Via Configuration File:*
+
+Create `/etc/openems/config/PvInverter.Kostal~pvinverter0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "Kostal Plenticore",
+  "modbus.id": "modbus0",
+  "modbusUnitId": 71,
+  "ip": "192.168.1.100",
+  "port": 1502,
+  "phase": "ALL"
+}
+----
+
+==== Option 2: Kostal Piko (HTTP)
+
+*Via Felix Console:*
+
+. Click *PV-Inverter.Kostal.Piko*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `pvinverter0`
+
+| Alias
+| `Kostal Piko`
+
+| Enabled
+| `true`
+
+| IP Address
+| `192.168.1.100`
+
+| Username
+| `pvserver`
+
+| Password
+| `pvwr`
+|===
+
+==== Important: Kostal Inverter Configuration
+
+For Modbus to work on Kostal inverters:
+
+. Access inverter web interface
+. Navigate to Settings → Communication → Modbus
+. Enable Modbus TCP
+. Set byte order to *Big Endian* (required for Sunspec)
+. Save and reboot inverter
+
+=== Configuring ABL EVSE Charge Point
+
+==== Via Apache Felix Console
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *EVSE Charge-Point ABL*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `evse0`
+
+| Alias
+| `ABL Wallbox`
+
+| Enabled
+| `true`
+
+| Read-Only mode
+| `false`
+
+| Debug Mode
+| `true` (for development)
+
+| Wiring
+| `THREE_PHASE` or `SINGLE_PHASE`
+
+| Phase Rotation
+| `L1_L2_L3`
+
+| Modbus-ID
+| `modbus0`
+
+| Modbus Unit-ID
+| `1` (default for ABL)
+
+| Modbus target IP address
+| `192.168.1.50` (your wallbox IP, or simulator)
+
+| Modbus target port
+| `502`
+
+| Maximum Current (A)
+| `32` (wallbox max current rating)
+|===
++
+. Click *Save*
+
+==== Via Configuration File
+
+Create `/etc/openems/config/Evse.ChargePoint.Abl~evse0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "ABL Wallbox",
+  "readOnly": false,
+  "debugMode": true,
+  "wiring": "THREE_PHASE",
+  "phaseRotation": "L1_L2_L3",
+  "modbus.id": "modbus0",
+  "modbusUnitId": 1,
+  "ip": "192.168.1.50",
+  "port": 502,
+  "maxCurrent": 32
+}
+----
+
+=== Configuring Timedata Storage
+
+For history data to be visible in the OpenEMS UI, you need to configure a timedata storage component. OpenEMS supports multiple storage backends.
+
+==== Option 1: RRD4j (Recommended for Development)
+
+RRD4j is an embedded time-series database that requires no external dependencies. It's perfect for development and testing.
+
+*Advantages:*
+
+* No external database required
+* Zero configuration
+* Low resource usage
+* Persistent storage
+* Sufficient for development and small deployments
+
+*Limitations:*
+
+* Fixed data resolution (downsampling over time)
+* Not suitable for large-scale production
+
+*Via Felix Console:*
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *Timedata RRD4j*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `timedata0`
+
+| Alias
+| `RRD4j Timedata`
+
+| Enabled
+| `true`
+
+| Read-Only mode
+| `false`
+
+| Number of Cycles
+| `500` (cycles per record - default)
+|===
++
+. Click *Save*
+
+*Via Configuration File:*
+
+Create `/etc/openems/config/Timedata.Rrd4j~timedata0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "RRD4j Timedata",
+  "isReadOnly": false,
+  "numberOfCycles": 500
+}
+----
+
+*Storage Location:*
+
+Data is stored in:
+
+* Windows: `C:\openems\data\rrd4j`
+* Linux/macOS: `/var/lib/openems/rrd4j/`
+* Development: `./runtime/data/rrd4j/`
+
+==== Option 2: InfluxDB (Recommended for Production)
+
+InfluxDB is a powerful time-series database suitable for production deployments.
+
+*Prerequisites:*
+
+Install InfluxDB 1.8.x (OpenEMS uses InfluxDB 1.x API):
+
+[source,bash]
+----
+# Ubuntu/Debian
+wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+source /etc/lsb-release
+echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+sudo apt update
+sudo apt install influxdb
+
+# Start InfluxDB
+sudo systemctl start influxdb
+sudo systemctl enable influxdb
+
+# Verify it's running
+curl -I http://localhost:8086/ping
+----
+
+*Create Database:*
+
+[source,bash]
+----
+# Open InfluxDB CLI
+influx
+
+# Create database
+CREATE DATABASE openems
+
+# Create user (optional but recommended)
+CREATE USER openems WITH PASSWORD 'openems'
+GRANT ALL ON openems TO openems
+
+# Exit
+exit
+----
+
+*Configure OpenEMS Edge to Use InfluxDB:*
+
+*Via Felix Console:*
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *Timedata InfluxDB*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `timedata0`
+
+| Alias
+| `InfluxDB Timedata`
+
+| Enabled
+| `true`
+
+| Read-Only mode
+| `false`
+
+| Query Language
+| `INFLUX_QL` (InfluxDB 1.x)
+
+| URL
+| `http://localhost:8086`
+
+| Org
+| (leave empty for InfluxDB 1.x)
+
+| ApiKey
+| (leave empty for InfluxDB 1.x)
+
+| Bucket
+| `openems` (database name)
+
+| Measurement
+| `data`
+
+| Is Read-Only
+| `false`
+|===
++
+. Click *Save*
+
+*Via Configuration File:*
+
+Create `/etc/openems/config/Timedata.InfluxDb~timedata0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "InfluxDB Timedata",
+  "queryLanguage": "INFLUX_QL",
+  "url": "http://localhost:8086",
+  "org": "",
+  "apiKey": "",
+  "bucket": "openems",
+  "measurement": "data",
+  "isReadOnly": false
+}
+----
+
+*With Authentication:*
+
+If you created a user with password:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "InfluxDB Timedata",
+  "queryLanguage": "INFLUX_QL",
+  "url": "http://localhost:8086",
+  "org": "",
+  "apiKey": "",
+  "bucket": "openems",
+  "measurement": "data",
+  "isReadOnly": false,
+  "username": "openems",
+  "password": "openems"
+}
+----
+
+==== Option 3: InfluxDB 2.x (Modern API)
+
+For InfluxDB 2.x with Flux query language:
+
+*Install InfluxDB 2.x:*
+
+[source,bash]
+----
+# Ubuntu/Debian
+wget https://dl.influxdata.com/influxdb/releases/influxdb2-2.7.5-amd64.deb
+sudo dpkg -i influxdb2-2.7.5-amd64.deb
+sudo systemctl start influxdb
+sudo systemctl enable influxdb
+
+# Setup via web interface
+# Navigate to http://localhost:8086
+# Create initial user, org, and bucket
+----
+
+*Configure OpenEMS:*
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "InfluxDB 2.x Timedata",
+  "queryLanguage": "FLUX",
+  "url": "http://localhost:8086",
+  "org": "your-org",
+  "apiKey": "your-api-token-from-influxdb",
+  "bucket": "openems",
+  "measurement": "data",
+  "isReadOnly": false
+}
+----
+
+NOTE: Get your API token from InfluxDB 2.x web interface: http://localhost:8086 → Load Data → API Tokens
+
+==== Verifying Timedata Configuration
+
+===== Check Component Status
+
+*Via Felix Console:*
+
+. Navigate to: http://localhost:8080/system/console/components
+. Search for "Timedata"
+. Status should show "Active"
+
+*Via REST API:*
+
+[source,bash]
+----
+# Check if timedata component is registered
+curl http://localhost:8080/rest/component/timedata0
+
+# Should return component details
+----
+
+===== Verify Data is Being Stored
+
+*For RRD4j:*
+
+[source,bash]
+----
+# Check if RRD files are being created
+ls -lh /var/lib/openems/rrd4j/
+# or for development:
+ls -lh ./runtime/data/rrd4j/
+
+# You should see .rrd4j files for each component
+----
+
+*For InfluxDB:*
+
+[source,bash]
+----
+# Query InfluxDB to check if data is being written
+influx -database openems -execute 'SELECT COUNT(*) FROM data'
+
+# or via HTTP API
+curl -G 'http://localhost:8086/query?db=openems' --data-urlencode "q=SELECT COUNT(*) FROM data"
+
+# Should return a count > 0 after a few minutes
+----
+
+===== Check History Data in UI
+
+. Open OpenEMS UI: http://localhost:4200 (or configured port)
+. Login with: `admin` / `admin`
+. Navigate to any device (e.g., PV Inverter, EVSE)
+. Click on "History" tab
+. Select a time range
+. You should see historical charts
+
+*If no data appears:*
+
+* Wait a few minutes for data to accumulate
+* Check that timedata component is Active
+* Verify channels are being updated (check Live view)
+* Check logs for errors: http://localhost:8080/system/console/status-Log%20Service
+
+==== Configuring Data Resolution
+
+By default, OpenEMS writes data every cycle (typically 1 second). For production, you may want to reduce storage requirements.
+
+*Configure Cycle Time:*
+
+Edit `EdgeApp.bndrun`:
+
+[source,text]
+----
+-runproperties:\
+    # ... other properties ...
+    openems.cycle.time=1000  # Cycle time in milliseconds (1000ms = 1s)
+----
+
+Common cycle times:
+
+* Development: `1000` ms (1 second) - high resolution
+* Production: `5000` ms (5 seconds) - balanced
+* Low-resource systems: `10000` ms (10 seconds) - reduced storage
+
+==== Data Retention
+
+*RRD4j:*
+
+RRD4j automatically handles data retention through downsampling:
+
+* High resolution: Recent data (hours)
+* Medium resolution: Days to weeks
+* Low resolution: Months to years
+
+*InfluxDB:*
+
+Configure retention policies:
+
+[source,bash]
+----
+# Open InfluxDB CLI
+influx
+
+# Show current retention policies
+SHOW RETENTION POLICIES ON openems
+
+# Create retention policy (example: keep 30 days at full resolution)
+CREATE RETENTION POLICY "thirty_days" ON "openems" DURATION 30d REPLICATION 1 DEFAULT
+
+# Create continuous query for downsampling (example: 1-minute averages kept for 1 year)
+CREATE CONTINUOUS QUERY "cq_1m" ON "openems"
+BEGIN
+  SELECT mean(*) INTO "openems"."one_year"."data_1m"
+  FROM "openems"."thirty_days"."data"
+  GROUP BY time(1m), *
+END
+----
+
+==== Troubleshooting Timedata
+
+*Problem: No history data in UI*
+
+[source,bash]
+----
+# Check timedata component is active
+curl http://localhost:8080/rest/component/timedata0
+
+# Check if channels are being updated
+curl http://localhost:8080/rest/channel/_sum/State
+
+# Check logs for errors
+# Navigate to: http://localhost:8080/system/console/status-Log%20Service
+# Filter for: "Timedata"
+
+# For RRD4j: Check if files exist
+ls -lh ./runtime/data/rrd4j/
+
+# For InfluxDB: Check connectivity
+curl -I http://localhost:8086/ping
+----
+
+*Problem: InfluxDB connection errors*
+
+* Verify InfluxDB is running: `sudo systemctl status influxdb`
+* Check URL in configuration matches InfluxDB port
+* Verify database exists: `influx -execute 'SHOW DATABASES'`
+* Check authentication credentials if configured
+
+*Problem: High disk usage (InfluxDB)*
+
+* Implement retention policies (see above)
+* Enable continuous queries for downsampling
+* Consider using RRD4j for smaller deployments
+
+*Problem: RRD4j files not created*
+
+* Check directory permissions: `ls -la /var/lib/openems/`
+* Ensure `openems.data.dir` is set correctly in `EdgeApp.bndrun`
+* Check logs for write permission errors
+
+'''
+
+== Running Simulators
+
+=== OpenEMS Built-in Simulators (OSGi Components)
+
+OpenEMS includes OSGi-based simulators that integrate directly into the system.
+
+==== Simulated PV Inverter
+
+*Via Felix Console:*
+
+. Navigate to: http://localhost:8080/system/console/configMgr
+. Click *Simulator PV-Inverter*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `pvinverter0`
+
+| Enabled
+| `true`
+
+| Datasource ID
+| `datasource0` (or leave empty for random data)
+
+| Max Apparent Power (VA)
+| `10000` (10 kW)
+|===
+
+==== Simulated EVCS (Generic, not ABL-specific)
+
+*Via Felix Console:*
+
+. Click *Simulator EV Charging Station*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `evcs0`
+
+| Enabled
+| `true`
+
+| Datasource ID
+| `datasource0`
+
+| Max Hardware Power (W)
+| `22000` (22 kW)
+
+| Min Hardware Power (W)
+| `0`
+|===
+
+NOTE: This is a generic EVCS simulator, not specific to ABL. For ABL-specific testing, use the Modbus simulator.
+
+=== ABL Modbus Simulator (Standalone)
+
+The ABL component includes a full Modbus TCP simulator for realistic testing.
+
+==== Starting the Simulator
+
+[source,bash]
+----
+# Navigate to ABL component test directory
+cd io.openems.edge.evse.chargepoint.abl/test
+
+# Compile the simulator (if not already built)
+javac -cp "../../build/libs/*:../../../io.openems.common/build/libs/*:..." \
+    io/openems/edge/evse/chargepoint/abl/simulator/*.java
+
+# Run the simulator
+java -cp "..." \
+    io.openems.edge.evse.chargepoint.abl.simulator.AblModbusSimulator \
+    127.0.0.1 502 1
+----
+
+Expected output:
+
+[source,text]
+----
+[ABL Modbus Simulator] Starting server on 127.0.0.1:502 (Unit ID: 1)
+==============================================
+ABL EVCC2/3 Modbus Simulator
+==============================================
+Listening on: 127.0.0.1:502
+Device ID: 1
+Firmware: 1.2
+
+State: A1 (Standby)
+Registers initialized
+Press Ctrl+C to stop...
+----
+
+==== Alternative: Use Gradle Task
+
+Add this task to `io.openems.edge.evse.chargepoint.abl/build.gradle`:
+
+[source,groovy]
+----
+task runAblSimulator(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'io.openems.edge.evse.chargepoint.abl.simulator.AblModbusSimulator'
+    args = ['127.0.0.1', '502', '1']
+}
+----
+
+Then run:
+
+[source,bash]
+----
+./gradlew :io.openems.edge.evse.chargepoint.abl:runAblSimulator
+----
+
+==== Configuring OpenEMS to Use Simulator
+
+Update your ABL component configuration:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "ABL Wallbox (Simulated)",
+  "modbus.id": "modbus0",
+  "modbusUnitId": 1,
+  "ip": "127.0.0.1",  // <-- Localhost
+  "port": 502,
+  "maxCurrent": 32,
+  "debugMode": true
+}
+----
+
+=== Controlling the ABL Simulator
+
+==== Via REST API
+
+The simulator includes a REST API (when running within OpenEMS):
+
+[source,bash]
+----
+# Start simulator (if using REST controller in test mode)
+curl -X POST http://localhost:8080/rest/abl/simulator/start
+
+# Connect EV
+curl -X POST http://localhost:8080/rest/abl/simulator/ev/connect
+
+# Disconnect EV
+curl -X POST http://localhost:8080/rest/abl/simulator/ev/disconnect
+
+# Inject error (overcurrent)
+curl -X POST 'http://localhost:8080/rest/abl/simulator/error/inject?code=F9&recovery=10'
+
+# Get status
+curl http://localhost:8080/rest/abl/simulator/status
+----
+
+==== Via HTML UI
+
+Open: http://localhost:8080/test-ui/abl-test.html
+
+The UI provides:
+
+* Current state display
+* EV connection buttons
+* Charging current control
+* Error injection dropdown
+* Real-time status updates
+
+==== Via Modbus Client
+
+Test the simulator directly with a Modbus client:
+
+[source,bash]
+----
+# Read device info (register 1-2)
+mbpoll -a 1 -r 1 -c 2 -t 3 127.0.0.1
+
+# Read charging state (register 51)
+mbpoll -a 1 -r 51 -c 1 -t 3 127.0.0.1
+
+# Write charging current setpoint (register 20, value in 0.1A)
+# Example: 16A = 160 (0x00A0)
+mbpoll -a 1 -r 20 -t 3 127.0.0.1 160
+
+# Read phase currents (registers 52-54)
+mbpoll -a 1 -r 52 -c 3 -t 3 127.0.0.1
+----
+
+'''
+
+== Testing the Complete Setup
+
+=== Verification Checklist
+
+==== 1. OpenEMS Edge Running
+
+[source,bash]
+----
+# Check if Edge is running
+curl http://localhost:8080/rest/channel/_sum/State
+
+# Expected response:
+# {"value": "Ok"}
+----
+
+==== 2. Components Active
+
+In Apache Felix Console (http://localhost:8080/system/console/components):
+
+* Search for "Kostal" → Should show "Active"
+* Search for "ABL" → Should show "Active" (if ABL is configured)
+* Search for "Modbus.Tcp" → Should show "Active"
+
+==== 3. Modbus Communication
+
+Check logs in Felix Console (http://localhost:8080/system/console/status-Log%20Service):
+
+[source,text]
+----
+# For ABL
+[Bridge.Modbus.Tcp] Successfully connected to [127.0.0.1:502]
+
+# For Kostal
+[Bridge.Modbus.Tcp] Successfully connected to [192.168.1.100:1502]
+----
+
+==== 4. Channel Values
+
+Via REST API:
+
+[source,bash]
+----
+# Get all channels
+curl http://localhost:8080/rest/channel/evse0/
+
+# Get specific channel (charging state)
+curl http://localhost:8080/rest/channel/evse0/ChargingState
+
+# Get PV inverter power
+curl http://localhost:8080/rest/channel/pvinverter0/ActivePower
+----
+
+==== 5. OpenEMS UI
+
+If UI is running, navigate to:
+
+* http://localhost:4200 (or http://localhost if using Docker)
+* Login with: `admin` / `admin`
+* You should see:
+** Live view with PV production
+** EVSE status and control
+** System overview
+
+=== Test Scenario: Complete Charging Cycle
+
+==== Setup
+
+. Start OpenEMS Edge
+. Start ABL Modbus Simulator
+. Configure ABL component to point to simulator
+
+==== Execute Test
+
+[source,bash]
+----
+# 1. Verify initial state (A1 - Standby)
+curl http://localhost:8080/rest/channel/evse0/ChargingState
+# Response: {"value": "A1"}
+
+# 2. Connect EV
+curl -X POST http://localhost:8080/rest/abl/simulator/ev/connect
+
+# 3. Verify state changed to B1 (Vehicle detected)
+curl http://localhost:8080/rest/channel/evse0/ChargingState
+# Response: {"value": "B1"}
+
+# 4. Start charging via controller or manual command
+# (This depends on your controller setup)
+
+# 5. Monitor charging current
+curl http://localhost:8080/rest/channel/evse0/ActualPower
+
+# 6. Stop charging
+# (Via controller or manual command)
+
+# 7. Disconnect EV
+curl -X POST http://localhost:8080/rest/abl/simulator/ev/disconnect
+
+# 8. Verify back to A1
+curl http://localhost:8080/rest/channel/evse0/ChargingState
+# Response: {"value": "A1"}
+----
+
+=== Test Scenario: PV-Optimized Charging
+
+Requires both PV inverter and EVSE configured.
+
+==== Setup Controller
+
+Create a simple charging controller via Felix Console:
+
+. Click *Controller.Evse*
+. Configure:
++
+[cols="1,2"]
+|===
+| Property | Value
+
+| Component ID
+| `ctrlEvse0`
+
+| Enabled
+| `true`
+
+| EVSE-ID
+| `evse0`
+
+| Charge Mode
+| `EXCESS_POWER` (PV surplus)
+
+| Energy Session Limit (Wh)
+| `10000` (10 kWh)
+
+| Priority
+| `0`
+
+| Default Charge Min Power (W)
+| `1380` (6A * 230V)
+|===
+
+==== Execute Test
+
+. Connect simulated EV
+. Monitor that charging starts when PV production is sufficient
+. Check logs for controller decisions
+. Verify charging stops when PV drops
+
+'''
+
+== Hardware Testing (Pre-Production)
+
+This section explains how to test real hardware devices before connecting them to your production OpenEMS system.
+
+=== Safety First
+
+WARNING: *Safety Considerations:*
+
+* Test on a separate, isolated network
+* Use a test OpenEMS instance, not production
+* Verify electrical safety before connecting devices
+* Never connect high-power devices during initial testing
+* Always have an emergency stop mechanism
+
+=== Test Network Setup
+
+==== Isolated Test Network
+
+[source,text]
+----
+┌─────────────────────────────────────────────────────┐
+│              Isolated Test Network                   │
+│              (192.168.100.0/24)                     │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────┐      ┌────────────────────┐      │
+│  │ Test Laptop  │      │  Network Switch    │      │
+│  │ OpenEMS Edge │──────│  (unmanaged)       │      │
+│  │192.168.100.10│      └────────┬───────────┘      │
+│  └──────────────┘               │                   │
+│                                  │                   │
+│                     ┌────────────┴───────────┐      │
+│                     │                        │      │
+│             ┌───────┴──────┐      ┌─────────┴────┐ │
+│             │ ABL Wallbox  │      │ Kostal       │ │
+│             │192.168.100.50│      │ Inverter     │ │
+│             │(Modbus TCP)  │      │192.168.100.60│ │
+│             └──────────────┘      └──────────────┘ │
+└─────────────────────────────────────────────────────┘
+----
+
+TIP: Use a separate laptop or Raspberry Pi for testing to keep your production system unaffected.
+
+=== Testing ABL Wallbox
+
+==== Prerequisites
+
+* ABL EVCC2 or EVCC3 wallbox
+* Network cable
+* Access to wallbox configuration interface
+* ABL documentation (Modbus register map)
+
+==== Step 1: Configure Wallbox Network
+
+. Connect wallbox to test network
+. Access wallbox web interface (usually via display or dedicated tool)
+. Set static IP: `192.168.100.50`
+. Enable Modbus TCP
+. Set Modbus port: `502` (default)
+. Set Modbus Unit ID: `1`
+
+==== Step 2: Verify Network Connectivity
+
+[source,bash]
+----
+# Ping the wallbox
+ping 192.168.100.50
+
+# Check if Modbus port is open
+nc -zv 192.168.100.50 502
+# or
+telnet 192.168.100.50 502
+----
+
+==== Step 3: Test Modbus Communication
+
+[source,bash]
+----
+# Read device identification (register 1-2)
+mbpoll -a 1 -r 1 -c 2 -t 3 -1 192.168.100.50
+
+# Read firmware version (register 3)
+mbpoll -a 1 -r 3 -c 1 -t 3 -1 192.168.100.50
+
+# Read current state (register 51)
+mbpoll -a 1 -r 51 -c 1 -t 3 -1 192.168.100.50
+----
+
+Expected output:
+
+[source,text]
+----
+mbpoll 1.5-0 - FieldTalk(tm) Modbus(R) Master Simulator
+Copyright © 2015-2024 epsilonRT, All rights reserved.
+This software is governed by the CeCILL license <http://www.cecill.info>
+
+Protocol configuration: Modbus TCP
+Slave configuration...: address = [1]
+                        start reference = 1, count = 2
+Communication.........: 192.168.100.50, port 502, t/o 1.00 s, poll rate 1000 ms
+Data type.............: 16-bit register, input register table
+
+-- Polling slave 1...
+[1]:    4321    (0x10E1)  // Device ID
+[2]:    12      (0x000C)  // Firmware version
+----
+
+==== Step 4: Configure OpenEMS to Connect
+
+Create configuration file `/etc/openems/config/Evse.ChargePoint.Abl~evse0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "ABL Wallbox (Hardware Test)",
+  "readOnly": true,        // <-- Start in read-only mode!
+  "debugMode": true,
+  "wiring": "THREE_PHASE",
+  "phaseRotation": "L1_L2_L3",
+  "modbus.id": "modbus0",
+  "modbusUnitId": 1,
+  "ip": "192.168.100.50",  // <-- Real wallbox IP
+  "port": 502,
+  "maxCurrent": 32
+}
+----
+
+IMPORTANT: Start with `readOnly: true` to prevent accidental writes during initial testing.
+
+==== Step 5: Start OpenEMS and Monitor
+
+[source,bash]
+----
+# Start OpenEMS Edge with debug logging
+./gradlew :io.openems.edge.application:run
+----
+
+Monitor logs for:
+
+[source,text]
+----
+[Bridge.Modbus.Tcp] Successfully connected to [192.168.100.50:502]
+[Evse.ChargePoint.Abl] Read ChargingState: A1
+[Evse.ChargePoint.Abl] Read MaxCurrent: 32000 mA
+----
+
+==== Step 6: Verify Channel Data
+
+[source,bash]
+----
+# Check all channels
+curl http://localhost:8080/rest/channel/evse0/ | jq
+
+# Monitor specific channels
+watch -n 1 'curl -s http://localhost:8080/rest/channel/evse0/ChargingState'
+----
+
+==== Step 7: Test Write Operations
+
+WARNING: Only proceed if read operations are working correctly.
+
+Update configuration to enable writes:
+
+[source,json]
+----
+{
+  "readOnly": false  // <-- Enable writes
+}
+----
+
+Restart OpenEMS and test:
+
+[source,bash]
+----
+# Monitor Modbus traffic with Wireshark
+# Filter: tcp.port == 502
+
+# Test setting current limit (via controller or manual API)
+# Watch both OpenEMS logs and Wireshark
+----
+
+==== Step 8: Safety Tests
+
+Before deploying to production:
+
+. *Emergency Stop Test*: Verify wallbox stops charging when commanded
+. *Current Limit Test*: Set various current limits and verify wallbox respects them
+. *Error Recovery Test*: Inject errors and verify proper recovery
+. *Network Timeout Test*: Disconnect network and verify safe behavior
+. *Power Cycle Test*: Power cycle wallbox and verify reconnection
+
+=== Testing Kostal Inverter
+
+==== Prerequisites
+
+* Kostal Plenticore or Pico inverter
+* Network access
+* Inverter web interface credentials
+
+==== Step 1: Configure Inverter
+
+. Access inverter web interface (typically `http://192.168.100.60`)
+. Login with credentials
+. Navigate to: Settings → Communication → Modbus TCP
+. Enable Modbus TCP
+. Set byte order: *Big Endian* (required for Sunspec)
+. Note the Modbus port (typically `1502` for Kostal)
+. Save and reboot inverter
+
+==== Step 2: Test Modbus Connection
+
+[source,bash]
+----
+# Check connectivity
+ping 192.168.100.60
+nc -zv 192.168.100.60 1502
+
+# Read Sunspec common model (registers 40000+)
+mbpoll -a 71 -r 40000 -c 2 -t 3 -1 192.168.100.60 -p 1502
+
+# Expected: "SunS" identifier (0x5375 0x6E53)
+----
+
+==== Step 3: Configure OpenEMS
+
+Create `/etc/openems/config/PvInverter.Kostal~pvinverter0.json`:
+
+[source,json]
+----
+{
+  "enabled": true,
+  "alias": "Kostal Inverter (Hardware Test)",
+  "modbus.id": "modbus0",
+  "modbusUnitId": 71,
+  "ip": "192.168.100.60",
+  "port": 1502,
+  "phase": "ALL"
+}
+----
+
+==== Step 4: Verify Data
+
+[source,bash]
+----
+# Check AC power production
+curl http://localhost:8080/rest/channel/pvinverter0/ActivePower
+
+# Check DC string voltages
+curl http://localhost:8080/rest/channel/pvinverter0/DcVoltage1
+
+# Monitor all channels
+curl http://localhost:8080/rest/channel/pvinverter0/ | jq
+----
+
+==== Step 5: Validate Data Accuracy
+
+Compare OpenEMS readings with inverter web interface:
+
+[cols="1,1,1,1"]
+|===
+| Channel | OpenEMS | Inverter UI | Status
+
+| ActivePower
+| 4500 W
+| 4.5 kW
+| ✓ Match
+
+| DcVoltage1
+| 380 V
+| 380 V
+| ✓ Match
+
+| AcVoltage
+| 230 V
+| 230 V
+| ✓ Match
+|===
+
+=== Pre-Production Checklist
+
+Before connecting to production system:
+
+.Hardware Verification
+* [ ] All devices respond to network pings
+* [ ] Modbus communication works reliably
+* [ ] No communication errors in logs (>1 hour test)
+* [ ] Data values are accurate and stable
+* [ ] Write operations work correctly (if applicable)
+
+.Safety Verification
+* [ ] Emergency stop works
+* [ ] Timeout handling verified
+* [ ] Error states handled correctly
+* [ ] Network interruption tested
+* [ ] Power cycle recovery tested
+
+.Performance Verification
+* [ ] Communication latency < 100ms
+* [ ] No packet loss
+* [ ] Sustained operation > 24 hours
+* [ ] Memory usage stable
+
+.Documentation
+* [ ] IP addresses documented
+* [ ] Modbus settings documented
+* [ ] Configuration files backed up
+* [ ] Known issues documented
+
+'''
+
+== Troubleshooting
+
+=== OpenEMS Won't Start
+
+*Symptoms:*
+
+* Application crashes immediately
+* OSGi errors in console
+* Gradle run task appears to do nothing
+* Cannot find JAR files in build/libs
+
+*Solutions:*
+
+[source,bash]
+----
+# Check Java version
+java -version  # Should be 21+
+
+# Check for port conflicts
+lsof -i :8080
+netstat -an | grep 8080
+
+# Clean and rebuild (important for BND-based builds)
+./gradlew clean
+./gradlew :io.openems.edge.application:clean
+./gradlew :io.openems.edge.application:resolve
+./gradlew :io.openems.edge.application:build
+
+# Verify the run task exists
+./gradlew :io.openems.edge.application:tasks | grep -i run
+
+# If run task doesn't exist, check available tasks
+./gradlew :io.openems.edge.application:tasks
+
+# Check configuration directory permissions
+ls -la /etc/openems/
+# or for local development:
+ls -la ./runtime/config/
+----
+
+*Troubleshooting Gradle Run Task:*
+
+If `./gradlew :io.openems.edge.application:run` appears to do nothing:
+
+. Check if the task exists:
++
+[source,bash]
+----
+./gradlew :io.openems.edge.application:tasks --all | grep run
+----
++
+. Ensure dependencies are resolved:
++
+[source,bash]
+----
+./gradlew :io.openems.edge.application:resolve
+----
++
+. Try running with more verbose output:
++
+[source,bash]
+----
+./gradlew :io.openems.edge.application:run --info
+----
++
+. Check if BND plugin is properly configured in the build
+. As an alternative, use the IDE method (Eclipse/IntelliJ) to run the `.bndrun` file directly
+
+=== Component Not Visible in Felix Console
+
+*Symptoms:*
+
+* Component doesn't appear in Bundles or Components list
+
+*Solutions:*
+
+. Verify bundle is in EdgeApp.bndrun:
++
+[source,bash]
+----
+grep "evse.chargepoint.abl" io.openems.edge.application/EdgeApp.bndrun
+----
++
+. Rebuild application:
++
+[source,bash]
+----
+./gradlew :io.openems.edge.application:resolve
+./gradlew :io.openems.edge.application:build
+----
++
+. Check bundle status in Felix Console:
++
+http://localhost:8080/system/console/bundles
++
+Search for "abl" → Should be "Active"
+
+=== Modbus Connection Errors
+
+*Symptoms:*
+
+* Logs show "Connection refused" or "Timeout"
+* Channels show null values
+
+*Solutions:*
+
+[source,bash]
+----
+# Verify network connectivity
+ping <device-ip>
+
+# Check Modbus port
+nc -zv <device-ip> <port>
+
+# Test with mbpoll
+mbpoll -a <unit-id> -r 1 -c 1 -t 3 <ip> -p <port>
+
+# Check firewall
+sudo ufw status
+sudo iptables -L
+
+# Verify Modbus bridge configuration
+curl http://localhost:8080/rest/channel/modbus0/
+----
+
+*Common causes:*
+
+* Wrong IP address in configuration
+* Firewall blocking Modbus port
+* Device Modbus not enabled
+* Wrong Modbus Unit ID
+* Wrong byte order (Kostal must use Big Endian)
+
+=== Simulator Not Responding
+
+*Symptoms:*
+
+* Simulator starts but no Modbus responses
+* Port already in use error
+
+*Solutions:*
+
+[source,bash]
+----
+# Check if port is already used
+sudo lsof -i :502
+sudo netstat -tlnp | grep 502
+
+# Kill existing process
+sudo kill <pid>
+
+# Use different port
+java ... AblModbusSimulator 127.0.0.1 5020 1
+
+# Then update configuration to use port 5020
+
+# For port 502 on Linux, may need sudo
+sudo java ... AblModbusSimulator 0.0.0.0 502 1
+----
+
+=== UI Not Showing Data
+
+*Symptoms:*
+
+* UI loads but no live data
+* Connection errors in browser console
+
+*Solutions:*
+
+. Check websocket connection in browser DevTools:
++
+[source,javascript]
+----
+// Should see WebSocket connection to ws://localhost:8080/websocket
+----
++
+. Verify REST API works:
++
+[source,bash]
+----
+curl http://localhost:8080/rest/channel/_sum/State
+----
++
+. Check CORS settings if UI is on different port
+. Verify Controller.Api.Websocket is active in Felix Console
+
+=== ABL Component Shows Wrong State
+
+*Symptoms:*
+
+* State stuck in A1
+* No EV detection
+
+*Solutions:*
+
+. Check debug logs with `debugMode: true`
+. Verify Modbus register values:
++
+[source,bash]
+----
+mbpoll -a 1 -r 51 -c 1 -t 3 <ip>  # Read state register
+----
++
+. Check state mapping in `ChargingState.java`
+. For simulator: Ensure EV connection command was sent:
++
+[source,bash]
+----
+curl -X POST http://localhost:8080/rest/abl/simulator/ev/connect
+----
+
+'''
+
+== Advanced Topics
+
+=== Running Multiple Instances
+
+To run multiple Edge instances (e.g., for testing):
+
+[source,bash]
+----
+# Instance 1
+./gradlew :io.openems.edge.application:run
+
+# Instance 2 (different terminal)
+./gradlew :io.openems.edge.application:run \
+  -Dorg.osgi.service.http.port=8081 \
+  -Dfelix.cm.dir=./runtime2/config
+----
+
+=== Debugging with IDE
+
+==== Eclipse
+
+. Set breakpoint in code
+. Right-click `EdgeApp.bndrun` → Debug As → Bnd OSGi Run Launcher
+. Debugger stops at breakpoints
+
+==== IntelliJ IDEA
+
+. Install BND plugin
+. Create Run Configuration for `.bndrun` file
+. Debug as normal Java application
+
+=== Custom Logging
+
+Edit `/etc/openems/config/org.ops4j.pax.logging.cfg`:
+
+[source,properties]
+----
+# Root logger level
+log4j2.rootLogger.level = INFO
+
+# Enable debug for specific components
+log4j2.logger.abl.name = io.openems.edge.evse.chargepoint.abl
+log4j2.logger.abl.level = DEBUG
+
+log4j2.logger.modbus.name = io.openems.edge.bridge.modbus
+log4j2.logger.modbus.level = TRACE
+----
+
+=== Performance Monitoring
+
+Monitor system performance:
+
+[source,bash]
+----
+# Memory usage
+curl http://localhost:8080/system/console/memoryusage
+
+# Thread dump
+curl http://localhost:8080/system/console/threads
+
+# Component status
+curl http://localhost:8080/system/console/components
+----
+
+'''
+
+== Appendix
+
+=== Useful URLs
+
+[cols="1,2"]
+|===
+| Service | URL
+
+| Felix Web Console
+| http://localhost:8080/system/console
+
+| Configuration Manager
+| http://localhost:8080/system/console/configMgr
+
+| Components
+| http://localhost:8080/system/console/components
+
+| Bundles
+| http://localhost:8080/system/console/bundles
+
+| Logs
+| http://localhost:8080/system/console/status-Log%20Service
+
+| REST API
+| http://localhost:8080/rest/
+
+| OpenEMS UI
+| http://localhost:4200 (or configured port)
+
+| ABL Test UI
+| http://localhost:8080/test-ui/abl-test.html
+|===
+
+=== Default Credentials
+
+[cols="1,1,1"]
+|===
+| Service | Username | Password
+
+| Felix Console
+| admin
+| admin
+
+| OpenEMS UI
+| admin
+| admin
+
+| Kostal Piko Web
+| pvserver
+| pvwr
+|===
+
+=== Common Modbus Ports
+
+[cols="1,1"]
+|===
+| Device | Default Port
+
+| Standard Modbus TCP
+| 502
+
+| Kostal Plenticore/Pico
+| 1502
+
+| SMA Inverters
+| 502
+
+| Fronius Inverters
+| 502
+|===
+
+=== Configuration File Naming Convention
+
+OpenEMS uses this pattern for configuration files:
+
+[source,text]
+----
+<Factory>~<instance-id>.json
+
+Examples:
+- Bridge.Modbus.Tcp~modbus0.json
+- Evse.ChargePoint.Abl~evse0.json
+- PvInverter.Kostal~pvinverter0.json
+- Controller.Evse~ctrlEvse0.json
+----
+
+=== Further Reading
+
+* https://openems.github.io/openems.io/[OpenEMS Documentation]
+* https://community.openems.io/[OpenEMS Community Forum]
+* https://github.com/OpenEMS/openems[OpenEMS GitHub Repository]
+* https://openems.io/association[OpenEMS Association]
+* link:io.openems.edge.evse.chargepoint.abl/TEST_README.adoc[ABL Testing Guide]
+* link:io.openems.edge.evse.chargepoint.abl/INTEGRATION_GUIDE.adoc[ABL Integration Guide]
+
+'''
+
+== Summary
+
+You now have a complete development and testing environment for OpenEMS Edge with:
+
+* ✅ Built and running OpenEMS Edge
+* ✅ Access to Felix Web Console and OpenEMS UI
+* ✅ Configured ABL EVSE and Kostal PV Inverter components
+* ✅ Running simulators for testing
+* ✅ Knowledge of how to test real hardware safely
+* ✅ Troubleshooting skills for common issues
+
+*Next Steps:*
+
+. Configure controllers to automate behavior
+. Test different charging scenarios
+. Monitor system over extended periods
+. Deploy to production after thorough testing
+
+*Happy developing!* 🚀
