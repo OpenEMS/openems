@@ -464,38 +464,120 @@ public enum GermanDSO {
 
 	E_DIS(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(7.16)//
+			// 2025 Q4
+					.setStart(2025, 10, 1)//
+					.setEnd(2025, 12, 31)//
+					.setLowTariff(1.04)//
+					.setStandardTariff(10.29)//
+					.setHighTariff(16.35)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(4, 45)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 45)//
+							.setEnd(11, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(11, 0)//
+							.setEnd(12, 45)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 45)//
+							.setEnd(16, 45)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(16, 45)//
+							.setEnd(20, 0)//
+							.setTariff(HIGH))//
+					.addTimeRange(tr -> tr//
+							.setStart(20, 0)//
+							.setEnd(23, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 30)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+
+			.addDateRange(dr -> dr//
+			// 2026 Q1
+					.setStart(2026, 1, 1)//
+					.setEnd(2026, 3, 31)//
+					.setLowTariff(0.65)//
+					.setStandardTariff(6.50)//
+					.setHighTariff(10.47)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(5, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 0)//
+							.setEnd(10, 15)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 15)//
+							.setEnd(12, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 0)//
+							.setEnd(16, 45)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(16, 45)//
+							.setEnd(20, 15)//
+							.setTariff(HIGH))//
+					.addTimeRange(tr -> tr//
+							.setStart(20, 15)//
+							.setEnd(23, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 30)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+			// 2026 Q2/Q3
+					.setStart(2026, 4, 1)//
+					.setEnd(2026, 9, 30)//
+					.setStandardTariff(6.50)//
 					.addTimeRange(tr -> tr//
 							.setFullDay()//
 							.setTariff(STANDARD)))//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(7.16)//
-					.setLowTariff(0.79)//
-					.setHighTariff(13.04)//
+			// 2026 Q4
+					.setStart(2026, 9, 1)//
+					.setEnd(2026, 12, 31)//
+					.setLowTariff(0.65)//
+					.setStandardTariff(6.50)//
+					.setHighTariff(10.47)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
-							.setEnd(5, 45)//
+							.setEnd(5, 0)//
 							.setTariff(LOW))//
 					.addTimeRange(tr -> tr//
-							.setStart(5, 45)//
-							.setEnd(16, 30)//
+							.setStart(5, 0)//
+							.setEnd(10, 15)//
 							.setTariff(STANDARD))//
 					.addTimeRange(tr -> tr//
-							.setStart(16, 30)//
-							.setEnd(20, 45)//
+							.setStart(10, 15)//
+							.setEnd(12, 0)//
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr//
-							.setStart(20, 45)//
-							.setEnd(23, 15)//
+							.setStart(12, 0)//
+							.setEnd(16, 45)//
 							.setTariff(STANDARD))//
 					.addTimeRange(tr -> tr//
-							.setStart(23, 15)//
+							.setStart(16, 45)//
+							.setEnd(20, 15)//
+							.setTariff(HIGH))//
+					.addTimeRange(tr -> tr//
+							.setStart(20, 15)//
+							.setEnd(23, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 30)//
 							.setEnd(0, 0)//
-							.setTariff(LOW)))),
+							.setTariff(LOW)))//
+	),
 
 	AVACON(GridFee.create()//
 			.addDateRange(dr -> dr//
@@ -599,8 +681,8 @@ public enum GermanDSO {
 							.setEnd(22, 0)//
 							.setTariff(STANDARD))//
 					.addTimeRange(tr -> tr//
-							.setStart(22, 00)//
-							.setEnd(23, 00)//
+							.setStart(22, 0)//
+							.setEnd(23, 0)//
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr//
 							.setStart(23, 0)//
