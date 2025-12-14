@@ -414,10 +414,11 @@ public enum GermanDSO {
 
 	WEST_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
+			// 2025 (full)
 					.setStart(2025, 4, 1)//
 					.setEnd(2025, 12, 31)//
-					.setStandardTariff(11.88)//
 					.setLowTariff(1.19)//
+					.setStandardTariff(11.88)//
 					.setHighTariff(17.75)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -434,7 +435,32 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(20, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))//
+
+			.addDateRange(dr -> dr//
+			// 2026 (full)
+					.setStart(2026, 1, 1)//
+					.setEnd(2026, 12, 31)//
+					.setLowTariff(1.13)//
+					.setStandardTariff(11.34)//
+					.setHighTariff(18.62)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(7, 0)//
+							.setTariff(LOW))
+					.addTimeRange(tr -> tr//
+							.setStart(7, 0)//
+							.setEnd(15, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(20, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(20, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	E_DIS(GridFee.create()//
 			.addDateRange(dr -> dr//
