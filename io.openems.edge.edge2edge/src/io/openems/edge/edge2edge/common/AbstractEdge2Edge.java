@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -246,7 +247,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					}
 
 					if (record instanceof ModbusRecordChannel r) {
-						m(r.getChannelId(), element);
+						m(r.getChannelId(), element, this.getConverterForType(record.getType()));
 
 					} else {
 						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
@@ -442,5 +443,19 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 								}
 							});
 				});
+	}
+
+	/**
+	 * Selects the appropriate converter for a given ModbusType.
+	 * @param type the type of the Modbus element
+	 * @return the converter
+	 */
+	private ElementToChannelConverter getConverterForType(ModbusType type) {
+		return switch (type) {
+			case UINT16 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFF);				// 65535
+			case UINT32 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFFFFFFL);			// 4294967295
+			case UINT64 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFFFFFFFFFFFFFFL);	// 18446744073709551615
+			default -> ElementToChannelConverter.DIRECT_1_TO_1;
+		};
 	}
 }
