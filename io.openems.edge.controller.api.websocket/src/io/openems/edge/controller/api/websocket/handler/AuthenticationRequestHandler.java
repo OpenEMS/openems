@@ -20,7 +20,6 @@ import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.serialization.EmptyObject;
-import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.common.jsonapi.CreateAccountFromSetupKey;
 import io.openems.edge.common.jsonapi.EdgeGuards;
@@ -108,7 +107,7 @@ public class AuthenticationRequestHandler implements JsonApi {
 		this.sessionTokens.put(token, user);
 		this.log.info("User [" + user.getId() + ":" + user.getName() + "] connected.");
 
-		return new AuthenticateResponse(requestId, token, user, Language.DEFAULT);
+		return new AuthenticateResponse(requestId, token, user, null);
 	}
 
 }
