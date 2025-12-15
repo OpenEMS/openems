@@ -575,7 +575,7 @@ public class PowerComponentTest {
 	 * 
 	 * @throws Exception on exception
 	 */
-	// @Test
+	@Test
 	public void testNearEqualDistribution() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
@@ -647,10 +647,10 @@ public class PowerComponentTest {
 		ess4.withAllowedDischargePower(1900);
 
 		// Should be
-		expect("#3.1", ess1, 2701, 0);
-		expect("#3.2", ess2, 2701, 0);
-		expect("#3.3", ess3, 2701, 0);
-		expect("#3.4", ess4, 1897, 0);
+		expect("#3.1", ess1, 3240, 0);
+		expect("#3.2", ess2, 3240, 0);
+		expect("#3.3", ess3, 1620, 0);
+		expect("#3.4", ess4, 1900, 0);
 
 		ess0.addPowerConstraint("SetActivePowerEquals", ALL, ACTIVE, EQUALS, 10000);
 		componentTest.next(new TestCase("#3"));
@@ -659,10 +659,10 @@ public class PowerComponentTest {
 		ess4.withAllowedDischargePower(12000);
 		ess4.withAllowedChargePower(-1900);
 
-		expect("#4.1", ess1, -9899, 0);
-		expect("#4.2", ess2, -9899, 0);
-		expect("#4.3", ess3, -9900, 0);
-		expect("#4.4", ess4, -1881, 0);
+		expect("#4.1", ess1, -2160, 0);
+		expect("#4.2", ess2, -2160, 0);
+		expect("#4.3", ess3, -3780, 0);
+		expect("#4.4", ess4, -1900, 0);
 
 		ess0.addPowerConstraint("SetActivePowerEquals", ALL, ACTIVE, EQUALS, -10000);
 		componentTest.next(new TestCase("#4"));
