@@ -2,13 +2,14 @@
 
 ### Config ###
 
+JVM_OPTIONS=""
 OPENEMS_TRUSTSTORE_PASSWD="changeit"
 
-PATH_JRE_TRUSTSTORE="/etc/ssl/certs/java/cacerts"
-PATH_OPENEMS_EDGE_CONFIG="/mnt/c/openems/config"
-PATH_OPENEMS_EDGE_JAR="/mnt/c/Users/mbreier/Development/PhoenixContact/openems-edge.jar"
-PATH_OPENEMS_TRUSTSTORE="$PATH_OPENEMS_EDGE_CONFIG/pxc-plcnext-truststore.jks"
-PATH_PXC_PLCNEXT_CERT="/mnt/c/Users/mbreier/Development/PhoenixContact/PLCnext_REST-API_TLS-Cert.pem"
+PATH_JRE_TRUSTSTORE="/usr/lib/jvm/temurin-21-jre-armhf/lib/security/cacerts"
+PATH_OPENEMS_EDGE_CONFIG="/opt/plcnext/apps/openems-edge/conf"
+PATH_OPENEMS_EDGE_JAR="/opt/plcnext/apps/openems-edge/bin/openems-edge.jar"
+PATH_OPENEMS_TRUSTSTORE="$PATH_OPENEMS_EDGE_CONFIG/plcnext-truststore.jks"
+PATH_PXC_PLCNEXT_CERT="/opt/plcnext/Security/IdentityStores/HTTPS-self-signed/certificate.pem"
 
 ### Prepare custom truststore ###
 if [ -e $PATH_JRE_TRUSTSTORE ]; then
@@ -35,4 +36,5 @@ echo "Starting OpenEMS Edge with custom truststore"
 java -Djavax.net.ssl.trustStore="$PATH_OPENEMS_TRUSTSTORE" \
 	-Djavax.net.ssl.trustStorePassword="OPENEMS_TRUSTSTORE_PASSWD" \
 	-Dfelix.cm.dir="$PATH_OPENEMS_EDGE_CONFIG" \
+	$JVM_OPTIONS \
 	-jar "$PATH_OPENEMS_EDGE_JAR"
