@@ -6,6 +6,7 @@ import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
+import { ChartAxis } from "src/app/shared/utils/utils";
 import { History } from "./channels.spec";
 import { ChartComponent } from "./chart";
 
@@ -42,7 +43,9 @@ describe("History Grid Details - _sum", () => {
                     datasets: {
                         data: [],
                         labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
-                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("hour", "bar", {}),
+                        options: OeTester.ChartOptions.BAR_CHART_OPTIONS("hour", "bar", {
+                            [ChartAxis.LEFT]: { scale: { display: false } },
+                        }),
                     },
                 });
         }

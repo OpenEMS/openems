@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 
 export namespace History {
 
-    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number; } | null, ticks?: { stepSize: number }; }; }): OeChartTester.Dataset.Option => ({
+    export const LINE_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min: number, max: number, display?: boolean; } | null, ticks?: { stepSize: number }; }; }): OeChartTester.Dataset.Option => ({
         type: "option",
         options: {
             "interaction": {
@@ -54,6 +54,7 @@ export namespace History {
                     "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } },
                 },
                 "left": {
+                    "display": true,
                     ...options["left"]?.scale,
                     ...(chartType === "line"
                         ? { stacked: false }
@@ -64,6 +65,7 @@ export namespace History {
                     "ticks": { ...options["left"]?.ticks, "color": "", "padding": 5, "maxTicksLimit": ChartConstants.NUMBER_OF_Y_AXIS_TICKS },
                 },
                 "right": {
+                    "display": true,
                     ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
                     "beginAtZero": true,
                     "type": "linear",
@@ -79,7 +81,7 @@ export namespace History {
             },
         },
     });
-    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks: { stepSize?: number; }; }; }): OeChartTester.Dataset.Option => ({
+    export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, display?: boolean; }, ticks?: { stepSize?: number; }; }; }): OeChartTester.Dataset.Option => ({
         type: "option",
         options: {
             "interaction": {
@@ -124,6 +126,7 @@ export namespace History {
 
                 "left": {
                     "beginAtZero": true,
+                    "display": true,
                     ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
                     "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
                     "position": "left",
@@ -212,17 +215,17 @@ export namespace History {
             },
         }),
         energyPerPeriodChannelWithValues:
-      new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
-          data: {
-              "_sum/ConsumptionActiveEnergy": [320342, 346615, 341433, 333054, 358458, 347872, 289283, null, 556510, 311366, 314722, 355556, 381671, 384558, 366190, 349336, 303696, 288727, 357434, 388659, 402625, null, 713771, 320238, 332099, null, 756429, 384136, 371322, null],
-              "_sum/EssDcChargeEnergy": [113476, 162917, 150189, 157158, 149782, 159833, 155084, null, 228757, 128138, 157539, 59414, 156504, 107339, 156392, 158925, 158578, 121505, 120971, 154566, 173235, null, 204273, 156676, 143745, null, 247673, 157410, 104249, null],
-              "_sum/EssDcDischargeEnergy": [112818, 126532, 139622, 133212, 169240, 98705, 109367, null, 204267, 118504, 121261, 74970, 144175, 89897, 141582, 111261, 122274, 106232, 139405, 132225, 143860, null, 235044, 63914, 123844, null, 242102, 130546, 59571, null],
-              "_sum/GridBuyActiveEnergy": [16000, 6000, 3000, 3000, 5000, 48000, 4000, null, 5000, 26000, 17000, 62000, 8000, 66000, 13000, 21000, 4000, 3000, 18000, 27000, 29000, null, 118000, 85000, 2000, null, 72000, 28000, 84000, null],
-              "_sum/GridSellActiveEnergy": [603000, 590000, 551000, 572000, 69000, 236000, 626000, null, 1003000, 261000, 518000, 698000, 640000, 388000, 471000, 373000, 373000, 677000, 286000, 406000, 249000, null, 446000, 369000, 558000, null, 776000, 425000, 574000, null],
-              "_sum/ProductionActiveEnergy": [908000, 967000, 900000, 926000, 403000, 597000, 957000, null, 1579000, 556000, 852000, 976000, 1026000, 724000, 839000, 749000, 709000, 978000, 607000, 790000, 652000, null, 1011000, 697000, 908000, null, 1466000, 808000, 906000, null],
-          },
-          timestamps: ["2023-05-31T22:00:00Z", "2023-06-01T22:00:00Z", "2023-06-02T22:00:00Z", "2023-06-03T22:00:00Z", "2023-06-04T22:00:00Z", "2023-06-05T22:00:00Z", "2023-06-06T22:00:00Z", "2023-06-07T22:00:00Z", "2023-06-08T22:00:00Z", "2023-06-09T22:00:00Z", "2023-06-10T22:00:00Z", "2023-06-11T22:00:00Z", "2023-06-12T22:00:00Z", "2023-06-13T22:00:00Z", "2023-06-14T22:00:00Z", "2023-06-15T22:00:00Z", "2023-06-16T22:00:00Z", "2023-06-17T22:00:00Z", "2023-06-18T22:00:00Z", "2023-06-19T22:00:00Z", "2023-06-20T22:00:00Z", "2023-06-21T22:00:00Z", "2023-06-22T22:00:00Z", "2023-06-23T22:00:00Z", "2023-06-24T22:00:00Z", "2023-06-25T22:00:00Z", "2023-06-26T22:00:00Z", "2023-06-27T22:00:00Z", "2023-06-28T22:00:00Z", "2023-06-29T22:00:00Z"],
-      }),
+            new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
+                data: {
+                    "_sum/ConsumptionActiveEnergy": [320342, 346615, 341433, 333054, 358458, 347872, 289283, null, 556510, 311366, 314722, 355556, 381671, 384558, 366190, 349336, 303696, 288727, 357434, 388659, 402625, null, 713771, 320238, 332099, null, 756429, 384136, 371322, null],
+                    "_sum/EssDcChargeEnergy": [113476, 162917, 150189, 157158, 149782, 159833, 155084, null, 228757, 128138, 157539, 59414, 156504, 107339, 156392, 158925, 158578, 121505, 120971, 154566, 173235, null, 204273, 156676, 143745, null, 247673, 157410, 104249, null],
+                    "_sum/EssDcDischargeEnergy": [112818, 126532, 139622, 133212, 169240, 98705, 109367, null, 204267, 118504, 121261, 74970, 144175, 89897, 141582, 111261, 122274, 106232, 139405, 132225, 143860, null, 235044, 63914, 123844, null, 242102, 130546, 59571, null],
+                    "_sum/GridBuyActiveEnergy": [16000, 6000, 3000, 3000, 5000, 48000, 4000, null, 5000, 26000, 17000, 62000, 8000, 66000, 13000, 21000, 4000, 3000, 18000, 27000, 29000, null, 118000, 85000, 2000, null, 72000, 28000, 84000, null],
+                    "_sum/GridSellActiveEnergy": [603000, 590000, 551000, 572000, 69000, 236000, 626000, null, 1003000, 261000, 518000, 698000, 640000, 388000, 471000, 373000, 373000, 677000, 286000, 406000, 249000, null, 446000, 369000, 558000, null, 776000, 425000, 574000, null],
+                    "_sum/ProductionActiveEnergy": [908000, 967000, 900000, 926000, 403000, 597000, 957000, null, 1579000, 556000, 852000, 976000, 1026000, 724000, 839000, 749000, 709000, 978000, 607000, 790000, 652000, null, 1011000, 697000, 908000, null, 1466000, 808000, 906000, null],
+                },
+                timestamps: ["2023-05-31T22:00:00Z", "2023-06-01T22:00:00Z", "2023-06-02T22:00:00Z", "2023-06-03T22:00:00Z", "2023-06-04T22:00:00Z", "2023-06-05T22:00:00Z", "2023-06-06T22:00:00Z", "2023-06-07T22:00:00Z", "2023-06-08T22:00:00Z", "2023-06-09T22:00:00Z", "2023-06-10T22:00:00Z", "2023-06-11T22:00:00Z", "2023-06-12T22:00:00Z", "2023-06-13T22:00:00Z", "2023-06-14T22:00:00Z", "2023-06-15T22:00:00Z", "2023-06-16T22:00:00Z", "2023-06-17T22:00:00Z", "2023-06-18T22:00:00Z", "2023-06-19T22:00:00Z", "2023-06-20T22:00:00Z", "2023-06-21T22:00:00Z", "2023-06-22T22:00:00Z", "2023-06-23T22:00:00Z", "2023-06-24T22:00:00Z", "2023-06-25T22:00:00Z", "2023-06-26T22:00:00Z", "2023-06-27T22:00:00Z", "2023-06-28T22:00:00Z", "2023-06-29T22:00:00Z"],
+            }),
     };
 
     /**
@@ -239,29 +242,29 @@ export namespace History {
             },
         }),
         energyPerPeriodChannelWithValues:
-      new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
-          data: {
-              "_sum/ConsumptionActiveEnergy": [11634885, 8207927, 8976354, 8311835, 10341804, 9976102, 975807, null, null, null, null, null],
-              "_sum/EssDcChargeEnergy": [294606, 1673109, 3337772, 3074303, 2495947, 3944328, 372595, null, null, null, null, null],
-              "_sum/EssDcDischargeEnergy": [208491, 1339036, 2911126, 2555138, 2123751, 3394430, 335402, null, null, null, null, null],
-              "_sum/GridBuyActiveEnergy": [9829000, 4812000, 2915000, 2036000, 2712000, 773000, 94000, null, null, null, null, null],
-              "_sum/GridSellActiveEnergy": [20000, 86000, 677000, 3657000, 12839000, 12738000, 627000, null, null, null, null, null],
-              "_sum/ProductionActiveEnergy": [1912000, 3816000, 7165000, 10452000, 20841000, 22491000, 1546000, null, null, null, null, null],
-          },
-          timestamps: [
-              "2022-12-31T23:00:00Z",
-              "2023-01-31T23:00:00Z",
-              "2023-02-28T23:00:00Z",
-              "2023-03-31T22:00:00Z",
-              "2023-04-30T22:00:00Z",
-              "2023-05-31T22:00:00Z",
-              "2023-06-30T22:00:00Z",
-              "2023-07-31T22:00:00Z",
-              "2023-08-31T22:00:00Z",
-              "2023-09-30T22:00:00Z",
-              "2023-10-31T23:00:00Z",
-              "2023-11-30T23:00:00Z",
-          ],
-      }),
+            new QueryHistoricTimeseriesEnergyPerPeriodResponse("0", {
+                data: {
+                    "_sum/ConsumptionActiveEnergy": [11634885, 8207927, 8976354, 8311835, 10341804, 9976102, 975807, null, null, null, null, null],
+                    "_sum/EssDcChargeEnergy": [294606, 1673109, 3337772, 3074303, 2495947, 3944328, 372595, null, null, null, null, null],
+                    "_sum/EssDcDischargeEnergy": [208491, 1339036, 2911126, 2555138, 2123751, 3394430, 335402, null, null, null, null, null],
+                    "_sum/GridBuyActiveEnergy": [9829000, 4812000, 2915000, 2036000, 2712000, 773000, 94000, null, null, null, null, null],
+                    "_sum/GridSellActiveEnergy": [20000, 86000, 677000, 3657000, 12839000, 12738000, 627000, null, null, null, null, null],
+                    "_sum/ProductionActiveEnergy": [1912000, 3816000, 7165000, 10452000, 20841000, 22491000, 1546000, null, null, null, null, null],
+                },
+                timestamps: [
+                    "2022-12-31T23:00:00Z",
+                    "2023-01-31T23:00:00Z",
+                    "2023-02-28T23:00:00Z",
+                    "2023-03-31T22:00:00Z",
+                    "2023-04-30T22:00:00Z",
+                    "2023-05-31T22:00:00Z",
+                    "2023-06-30T22:00:00Z",
+                    "2023-07-31T22:00:00Z",
+                    "2023-08-31T22:00:00Z",
+                    "2023-09-30T22:00:00Z",
+                    "2023-10-31T23:00:00Z",
+                    "2023-11-30T23:00:00Z",
+                ],
+            }),
     };
 }

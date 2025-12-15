@@ -15,7 +15,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
-import org.osgi.service.component.runtime.dto.ComponentDescriptionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,9 +141,15 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static void updateInactiveComponentsUsingScr(Map<String, String> defectiveComponents,
 			ServiceComponentRuntime scr) {
 		var descriptions = scr.getComponentDescriptionDTOs();
-		for (ComponentDescriptionDTO description : descriptions) {
+		for (var description : descriptions) {
+			// Consider only components that implement OpenemsComponent
+			if (!Stream.of(description.serviceInterfaces) //
+					.anyMatch(OpenemsComponent.class.getName()::equals)) {
+				continue;
+			}
+
 			var configurations = scr.getComponentConfigurationDTOs(description);
-			for (ComponentConfigurationDTO configuration : configurations) {
+			for (var configuration : configurations) {
 				if (!MapUtils.getAsOptionalBoolean(configuration.properties, "enabled").orElse(true)) {
 					// Component is not enabled -> ignore
 					continue;
@@ -155,10 +160,12 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 				case ComponentConfigurationDTO.ACTIVE:
 				case ComponentConfigurationDTO.SATISFIED:
 					continue;
+
 				case ComponentConfigurationDTO.UNSATISFIED_CONFIGURATION: {
 					defectDetails = "Missing required configuration";
 					break;
 				}
+
 				case ComponentConfigurationDTO.UNSATISFIED_REFERENCE: {
 					defectDetails = "Unsatisfied reference for " //
 							+ Stream.of(configuration.unsatisfiedReferences) //
@@ -172,14 +179,17 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 									.collect(Collectors.joining(",")); //
 					break;
 				}
+
 				case ComponentConfigurationDTO.FAILED_ACTIVATION: {
 					defectDetails = "Failed activation " + configuration.failure.split(System.lineSeparator(), 2)[0];
 					break;
 				}
+
 				default:
 					defectDetails = "Undefined failure [" + configuration.state + "];";
 				}
-				var componentId = (String) configuration.properties.get("id");
+
+				var componentId = MapUtils.getAsString(configuration.properties, "id");
 				defectiveComponents.put(componentId, defectDetails);
 			}
 		}
