@@ -142,10 +142,13 @@ export namespace ChartConstants {
            * @returns the horizontally centered position for the y axis title
           */
                     function calculateXPositionForTitle(chart, totalScaleWidth, scale: string): number {
-                        if (scale === ChartAxis.RIGHT) {
+                        const rightAxes = [ChartAxis.RIGHT, ChartAxis.RIGHT_2].filter(
+                            a => chart.scales[a]?.options.display !== false
+                        );
 
+                        if (scale === ChartAxis.RIGHT) {
                             // two right axis
-                            if ("scales" in chart && ChartAxis.RIGHT_2 in chart.scales) {
+                            if (rightAxes.length === 2) {
                                 const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
                                 const right2Scale = chart.scales[ChartAxis.RIGHT_2];
                                 const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
@@ -158,7 +161,13 @@ export namespace ChartConstants {
 
                         // second right axis
                         if (scale === ChartAxis.RIGHT_2) {
-                            return chart.width - totalScaleWidth / 4;
+                            if (rightAxes.length === 2) {
+                                const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
+                                const right2Scale = chart.scales[ChartAxis.RIGHT_2];
+                                const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
+                                return chart.width - right2ScaleWidth / 4;
+                            }
+                            return chart.width - totalScaleWidth / 2;
                         }
 
                         // Left scale
@@ -172,7 +181,7 @@ export namespace ChartConstants {
 
                     const currentScale = chart.scales[id];
 
-                    if (!currentScale) {
+                    if (!currentScale || currentScale.options.display === false) {
                         return;
                     }
 
@@ -296,6 +305,7 @@ export namespace ChartConstants {
         if (showYAxisTitle) {
             Chart.register(ChartConstants.Plugins.YAXIS_TITLE_POSITION(yAxis.yAxisId));
         }
+        const axisDatasets = datasets.filter(d => d["yAxisID"] === yAxis.yAxisId);
 
         return {
             title: {
@@ -331,6 +341,7 @@ export namespace ChartConstants {
                     return Formatter.formatSafely(value, formatNumber);
                 },
             },
+            display: axisDatasets?.some(d => !d.hidden) ?? true,
         };
     };
 

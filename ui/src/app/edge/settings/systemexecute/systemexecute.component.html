@@ -11,7 +11,7 @@
 
           <ion-card-content>
             <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"
-            (modelChange)="updatePredefined()" class="hide-empty-list-header"></formly-form>
+              (modelChange)="updatePredefined()" class="hide-empty-list-header"></formly-form>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -37,12 +37,11 @@
               </ion-item>
               <ion-item>
                 <ion-toggle tabindex="0" mode="md" formControlName="runInBackground" label="Run in Background"
-                  justify="space-between">Run in
-                background</ion-toggle>
+                  justify="space-between">Run in background</ion-toggle>
               </ion-item>
               <ion-item>
                 <ion-textarea class="command-textbox" auto-grow="true" formControlName="command" type="text"
-                label="Command" label-placement="floating"></ion-textarea>
+                  label="Command" label-placement="floating"></ion-textarea>
               </ion-item>
               <ion-button expand="block" type=" submit" color="primary">Send</ion-button>
             </form>
@@ -68,10 +67,10 @@
                     <ion-item-divider>
                       <ion-label>Output</ion-label>
                     </ion-item-divider>
-                    <ion-item style="font-family: monospace">
-                      <pre>@for (line of stdout; track line) {
-                        {{ line }}<br/>
-                      }</pre>
+                    <ion-item style="font-family: monospace; white-space: pre;">
+                      @for (line of stdout; track line) {
+                        {{ line }}<br />
+                      }
                     </ion-item>
                   </ion-item-group>
                 }
@@ -80,10 +79,10 @@
                     <ion-item-divider>
                       <ion-label>Error</ion-label>
                     </ion-item-divider>
-                    <ion-item style="font-family: monospace">
-                      <pre>@for (line of stderr; track line) {
-                        {{ line }}<br/>
-                      }</pre>
+                    <ion-item style="font-family: monospace; white-space: pre;">
+                      @for (line of stderr; track line) {
+                        {{ line }}<br />
+                      }
                     </ion-item>
                   </ion-item-group>
                 }
@@ -123,7 +122,7 @@
                     <ion-col size="1">{{ l.params.runInBackground }}</ion-col>
                     <ion-col size="9">{{ l.params.command }}</ion-col>
                     <ion-col size="1">
-                  <ion-button (click)="formGroup.controls.username.value = l.params.username;
+                      <ion-button (click)="formGroup.controls.username.value = l.params.username;
                 formGroup.controls.password.value = l.params.password;
                 formGroup.controls.timeoutSeconds.value = l.params.timeoutSeconds;
                 formGroup.controls.runInBackground.value = l.params.runInBackground;
