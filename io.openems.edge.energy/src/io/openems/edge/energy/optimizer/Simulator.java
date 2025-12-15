@@ -54,6 +54,7 @@ public class Simulator {
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 		this.cache = CacheBuilder.newBuilder() //
+				.maximumSize(10000) // Limit cache to prevent memory leak
 				.recordStats() //
 				.build(new CacheLoader<int[], Fitness>() {
 
@@ -280,12 +281,19 @@ public class Simulator {
 		}
 
 		// Start the evaluation
-		var bestGt = stream //
-				.collect(toBestResult(codec));
-		if (bestGt == null) {
-			return EMPTY_SIMULATION_RESULT;
+		try {
+			var bestGt = stream //
+					.collect(toBestResult(codec));
+			if (bestGt == null) {
+				return EMPTY_SIMULATION_RESULT;
+			}
+			return SimulationResult.fromQuarters(this.goc, bestGt);
+		} finally {
+			// Shutdown ForkJoinPool to prevent resource leak
+			if (executor instanceof ForkJoinPool pool) {
+				pool.shutdown();
+			}
 		}
-		return SimulationResult.fromQuarters(this.goc, bestGt);
 	}
 
 	protected static record BestScheduleCollector(//
