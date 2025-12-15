@@ -27,5 +27,4 @@ public class EssSmaSunnyIslandImplTest {
 						.output(SymmetricEss.ChannelId.CAPACITY, 10_000)) //
 				.deactivate();
 	}
-
 }

@@ -1,18 +1,18 @@
-package io.openems.edge.sma.ess.sunnyisland.enums;
+package io.openems.edge.sma.ess.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum SystemState implements OptionsEnum {
+public enum PowerSupplyStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	ERROR(35, "Error"), //
 	OFF(303, "Off"), //
-	OK(307, "OK"), //
-	WARNING(455, "Warning");
+	UTILITY_GRID_CONNECTED(1461, "Utility Grid Connected"), //
+	BACKUP_NOT_AVAILABLE(1462, "Backup Not Available"), //
+	BACKUP(1463, "Backup"); //
 
 	private final int value;
 	private final String name;
 
-	private SystemState(int value, String name) {
+	private PowerSupplyStatus(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
