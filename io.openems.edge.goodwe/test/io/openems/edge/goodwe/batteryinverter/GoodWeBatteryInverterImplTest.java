@@ -43,6 +43,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -53,10 +54,12 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
+import io.openems.edge.goodwe.charger.mppt.twostring.GoodWeChargerMpptTwoStringImpl;
+import io.openems.edge.goodwe.charger.mppt.twostring.MpptPort;
 import io.openems.edge.goodwe.charger.singlestring.GoodWeChargerPv1;
 import io.openems.edge.goodwe.charger.twostring.GoodWeChargerTwoStringImpl;
 import io.openems.edge.goodwe.charger.twostring.PvPort;
@@ -75,6 +78,8 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 @SuppressWarnings("deprecation")
 public class GoodWeBatteryInverterImplTest {
 
+	private static final DummyMeta META = new DummyMeta("meta0");
+
 	@Test
 	public void testEt() throws Exception {
 		var charger = new GoodWeChargerPv1();
@@ -91,6 +96,7 @@ public class GoodWeBatteryInverterImplTest {
 		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -106,7 +112,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -128,6 +133,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testNegativSetActivePoint() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -142,7 +148,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -163,6 +168,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testDischargeBattery() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -177,7 +183,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
 						.setStartStop(StartStopConfig.START) //
@@ -198,6 +203,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithBalancing() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -212,7 +218,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -244,6 +249,7 @@ public class GoodWeBatteryInverterImplTest {
 		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
@@ -260,7 +266,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -279,6 +284,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithMaxAcImport() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -293,7 +299,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -312,6 +317,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testEmsPowerModeAutoWithMaxAcExport() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -326,7 +332,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -345,6 +350,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testBatteryIsFull() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -359,7 +365,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -378,6 +383,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testBatteryIsEmpty() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -392,7 +398,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -411,6 +416,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testAcCalculation() throws Exception {
 		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -425,7 +431,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -440,6 +445,73 @@ public class GoodWeBatteryInverterImplTest {
 						}) //
 						.output(MAX_AC_IMPORT, 0) //
 						.output(MAX_AC_EXPORT, 325));
+	}
+
+	@Test
+	public void testMaxAcImportExportCalculation() throws Exception {
+
+		var inverter = new GoodWeBatteryInverterImpl();
+		var charger1 = new GoodWeChargerMpptTwoStringImpl();
+
+		new ComponentTest(charger1) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("essOrBatteryInverter", inverter) //
+				.activate(io.openems.edge.goodwe.charger.mppt.twostring.MyConfig.create() //
+						.setId("charger0") //
+						.setBatteryInverterId("batteryInverter0") //
+						.setMpptPort(MpptPort.MPPT_1) //
+						.build());
+
+		charger1._setActualPower(5000);
+		charger1.getActualPowerChannel().nextProcessImage();
+		inverter.addCharger(charger1);
+
+		new ComponentTest(inverter) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.addComponent(charger1) //
+				.addComponent(new DummyBattery("battery0")) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				// Limited by max apparent power and PV
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, 10000) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, -10000) //
+						.output(MAX_AC_EXPORT, 5000)) // Was -2147453649
+
+				// Limited to zero, because of missing values
+				.next(new TestCase() //
+						.input(WBMS_CHARGE_MAX_CURRENT, null) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, null) //
+						.input(WBMS_VOLTAGE, null) //
+						.input(MAX_APPARENT_POWER, null) //
+						.onExecuteWriteCallbacks(() -> {
+							inverter.run(new DummyBattery("battery0"), 0, 0);
+						}) //
+						.output(MAX_AC_IMPORT, 0) //
+						.output(MAX_AC_EXPORT, 0)); //
 	}
 
 	@Test
@@ -509,6 +581,7 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger1);
 		ess.addCharger(charger2);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -526,7 +599,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -584,6 +656,7 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger3);
 		ess.addCharger(charger4);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -600,7 +673,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -658,6 +730,7 @@ public class GoodWeBatteryInverterImplTest {
 		ess.addCharger(charger5);
 		ess.addCharger(charger6);
 		new ComponentTest(ess) //
+				.addReference("meta", META) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -674,7 +747,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -764,6 +836,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testReadFromModbus() throws Exception {
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
+				.addReference("meta", META) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
@@ -790,7 +863,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -819,6 +891,7 @@ public class GoodWeBatteryInverterImplTest {
 	public void testPowerModeFromModbus() throws Exception {
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
+				.addReference("meta", META) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
@@ -851,7 +924,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -868,6 +940,7 @@ public class GoodWeBatteryInverterImplTest {
 		var inv = "batteryInverter0";
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
+				.addReference("meta", META) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
@@ -897,7 +970,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //
@@ -952,6 +1024,7 @@ public class GoodWeBatteryInverterImplTest {
 		var inv = "batteryInverter0";
 		var sut = new GoodWeBatteryInverterImpl();
 		new ComponentTest(sut) //
+				.addReference("meta", META) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
 				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
@@ -983,7 +1056,6 @@ public class GoodWeBatteryInverterImplTest {
 						.setMpptForShadowEnable(EnableDisable.ENABLE) //
 						.setBackupEnable(EnableDisable.ENABLE) //
 						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
 						.setStartStop(StartStopConfig.START) //

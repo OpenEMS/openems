@@ -98,7 +98,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: VA
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */

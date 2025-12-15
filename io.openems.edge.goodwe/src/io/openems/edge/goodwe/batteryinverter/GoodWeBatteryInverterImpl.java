@@ -7,7 +7,9 @@ import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
 
+import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -45,11 +47,15 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.update.Updateable;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
@@ -63,7 +69,10 @@ import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
+import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
+import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
+import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -73,7 +82,6 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
@@ -88,6 +96,18 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterImpl.class);
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+
+	private final ServiceBinder<GoodWeBatteryInverterUpdateParams, GoodWeBatteryInverterUpdateable> updateServiceBinder = new ServiceBinder<>(
+			Updateable.class, updateParams -> {
+				final var bridge = this.getBridgeModbus();
+				if (bridge == null) {
+					return null;
+				}
+				return new GoodWeBatteryInverterUpdateable(bridge, updateParams, this.getGoodweTypeChannel(),
+						this.channel(GoodWe.ChannelId.DSP_FM_VERSION_MASTER),
+						this.channel(GoodWe.ChannelId.DSP_BETA_VERSION), this.channel(GoodWe.ChannelId.ARM_FM_VERSION),
+						this.channel(GoodWe.ChannelId.ARM_BETA_VERSION));
+			}, GoodWeBatteryInverterUpdateable::deactivate);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -107,10 +127,31 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference
 	private SerialNumberStorage serialNumberStorage;
 
+	@Reference
+	private Meta meta;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile ControllerEssRippleControlReceiver rcr;
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
+		this.updateServiceBinder.updateConfiguration();
+	}
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE //
+	)
+	private void bindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
+		this.updateServiceBinder.bindService(updateParams);
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
+		this.updateServiceBinder.unbindService(updateParams);
 	}
 
 	/**
@@ -119,7 +160,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	 */
 	private BatteryData latestBatteryData = new BatteryData(null, null);
 
-	protected static record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
+	protected record BatteryData(Integer chargeMaxCurrent, Integer voltage) {
 	}
 
 	private Config config = null;
@@ -144,11 +185,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		);
 		// GoodWe is always started
 		this._setStartStop(StartStop.START);
+
+		SymmetricBatteryInverter.calculateApparentPowerFromActiveAndReactivePower(this);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWe.ChannelId.SERIAL_NUMBER));
+
+		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
@@ -160,6 +205,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
 		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -172,6 +218,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.updateServiceBinder.deactivate();
 	}
 
 	@Override
@@ -227,18 +274,79 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	/**
+	 * Shifts the feed-in power limitation setting from the inverter to the Meta
+	 * App.
+	 *
+	 * <p>
+	 * In the future, no feed-in limitation should be configured directly in the
+	 * inverter. To avoid inconsistencies caused by having this value defined in
+	 * different Controllers (e.g. GridOptimizeCharge and GoodWeBatteryInverterImpl,
+	 * also potentially with different values), the setting will be managed globally
+	 * within the Meta App. Simply removing the config parameter would lead to
+	 * issues for existing systems, as the value would be lost. Therefore, a gradual
+	 * migration is necessary. For this, the current value is extracted from the
+	 * "feedPowerPara" variable and transferred to the Meta App. As a placeholder,
+	 * the value -1 will be written into the inverter's config. In a future version,
+	 * this migration logic can then be removed entirely.
+	 * </p>
+	 *
+	 * @param feedPowerPara                   the maximum grid feed in limit.
+	 * @param isMaximumGridFeedInLimitEnabled is maximum grid feed in limit enabled?
+	 */
+	private void migrateFeedPowerParaConfigValue(int feedPowerPara, boolean isMaximumGridFeedInLimitEnabled) {
+		try {
+			var config = this.cm.getConfiguration(Meta.SINGLETON_SERVICE_PID, "?");
+			var properties = config.getProperties();
+			var gridFeedInLimitationType = isMaximumGridFeedInLimitEnabled ? GridFeedInLimitationType.DYNAMIC_LIMITATION
+					: GridFeedInLimitationType.NO_LIMITATION;
+
+			if (properties.get("maximumGridFeedInLimit") != null
+					|| properties.get("gridFeedInLimitationType") != null) {
+				// Already migrated, do nothing
+				this.log.info(
+						"Value is already migrated to Meta App, skipping migration. Set the value in the Meta Component instead.");
+				this.resetMaximumSellToGridPower();
+				return;
+			}
+
+			properties.put("maximumGridFeedInLimit", feedPowerPara);
+			properties.put("gridFeedInLimitationType", gridFeedInLimitationType.name());
+			config.updateIfDifferent(properties);
+
+			this.resetMaximumSellToGridPower();
+		} catch (IOException e) {
+			this.log.warn("Unable to update {} config", this.id(), e);
+		}
+	}
+
+	private void resetMaximumSellToGridPower() throws IOException {
+		// Async update to avoid modifying the current Component during activation or
+		// modified
+		CompletableFuture.runAsync(() -> {
+			try {
+				var config = this.cm.getConfiguration(this.servicePid(), "?");
+				var properties = config.getProperties();
+				properties.put("feedPowerPara", -1);
+				config.updateIfDifferent(properties);
+			} catch (IOException e) {
+				this.log.warn("Unable to reset maximumSellToGridPower in GoodWeBatteryInverter", e);
+			}
+		});
+	}
+
+	/**
 	 * Apply the configuration on if the values are not already set.
 	 *
 	 * <p>
 	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
 	 * whether according to the power factor or power and frequency. In addition, it
-	 * consist backup power availability.
+	 * consists backup power availability.
 	 * </p>
 	 *
 	 * @param config         Configuration parameters.
 	 * @param onConfigUpdate true when called on activate()/modified(), i.e. not in
 	 *                       run()
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyConfigIfNotSet(Config config, boolean onConfigUpdate) throws OpenemsNamedException {
@@ -255,14 +363,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Backup Power on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.BACK_UP_ENABLE), config.backupEnable().booleanValue);
 
-		// Should be updated according to backup power
+		// Should be updated according to back up power
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.AUTO_START_BACKUP), config.backupEnable().booleanValue);
 
-		// Feed-in limitation on / off
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), config.feedPowerEnable().booleanValue);
-
 		// Feed-in limitation
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), config.feedPowerPara());
+		if (config.feedPowerPara() != -1) {
+			// Moves set value to Meta app.
+			// This config is deprecated and needs to be removed in the future.
+			this.migrateFeedPowerParaConfigValue(config.feedPowerPara(), config.feedPowerEnable().booleanValue);
+		}
 
 		// Set feed in power settings
 		var setFeedInPowerSettings = config.setfeedInPowerSettings();
@@ -271,6 +380,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var cosPhiPEnableDisable = EnableCurve.DISABLE;
 		var pfEnableDisable = EnableCurve.DISABLE;
 		var fixedPowerFactor = FixedPowerFactor.LEADING_1_OR_NONE;
+		var fixedPowerFactorEnable = EnableCurve.DISABLE;
 
 		switch (setFeedInPowerSettings) {
 
@@ -295,6 +405,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				LEADING_0_95, LEADING_0_96, LEADING_0_97, LEADING_0_98, LEADING_0_99, LEADING_1 -> {
 
 			fixedPowerFactor = setFeedInPowerSettings.fixedPowerFactor;
+			fixedPowerFactorEnable = EnableCurve.ENABLE;
 		}
 		case PF_ENABLE_CURVE -> {
 			pfEnableDisable = EnableCurve.ENABLE;
@@ -314,7 +425,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_CURVE_COS_PHI_P), cosPhiPEnableDisable);
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PU_CURVE), puEnableDisable);
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_PF_CURVE), pfEnableDisable);
-		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR), fixedPowerFactor);
+		this.handleFixedPowerFactor(this.getGoodweType(), fixedPowerFactorEnable, fixedPowerFactor);
 
 		// Multi-functional Block for Ripple Control Receiver and NA protection on / off
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE),
@@ -324,6 +435,49 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		if (onConfigUpdate) { //
 			// Mppt Shadow enable / disable
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE), false);
+		}
+	}
+
+	private void handleFixedPowerFactor(GoodWeType goodweType, EnableCurve fixedPowerFactorEnable,
+			FixedPowerFactor fixedPowerFactor) throws IllegalArgumentException, OpenemsNamedException {
+
+		// TODO: Add individual handling related to each GoodWeType
+		switch (goodweType) {
+		case FENECON_50K -> {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2), fixedPowerFactorEnable);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2), fixedPowerFactor);
+		}
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
+				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
+				GOODWE_8K_ET -> {
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR), fixedPowerFactor);
+		}
+		case UNDEFINED -> doNothing();
+		}
+	}
+
+	private void handleFeedInSetting(boolean feedPowerEnable, int feedPowerPara, GoodWeType goodweType)
+			throws IllegalArgumentException, OpenemsNamedException {
+
+		// TODO: Add individual handling related to each GoodWeType
+		switch (goodweType) {
+		case FENECON_50K -> {
+			// Feed-in limitation on / off
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
+			// Feed-in limitation
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_PARA_SET), feedPowerPara);
+		}
+		case FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_10K, FENECON_GEN2_15K,
+				FENECON_GEN2_6K, GOODWE_10K_BT, GOODWE_10K_ET, GOODWE_5K_BT, GOODWE_5K_ET, GOODWE_8K_BT,
+				GOODWE_8K_ET -> {
+			// Feed-in limitation on / off
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);
+
+			// Feed-in limitation
+			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_PARA_SET), feedPowerPara);
+		}
+		case UNDEFINED -> doNothing();
 		}
 	}
 
@@ -487,7 +641,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 	/**
 	 * Set general values.
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
@@ -549,13 +703,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	protected static Integer calculateSurplusPower(BatteryData battery, Integer productionPower, int maxDcCurrent) {
-		// Is DC Charge Current available?
-		if (battery.chargeMaxCurrent == null || battery.chargeMaxCurrent >= maxDcCurrent) {
-			return null;
-		}
+		if (battery.chargeMaxCurrent == null /* Charge Max Current is not available */
+				|| battery.chargeMaxCurrent >= maxDcCurrent /* Charge Max Current is higher than inverter limit */
+				|| battery.chargeMaxCurrent < 0 /* Battery is in Force-Discharge mode */
 
-		// Is DC PV Production available?
-		if (productionPower == null || productionPower <= 0) {
+				|| battery.voltage == null /* Battery Voltage is not available */
+				|| battery.voltage < 0 /* Battery Voltage is negative */
+
+				|| productionPower == null /* Production Power is not available */
+				|| productionPower <= 0 /* Production Power is zero or negative */
+		) {
 			return null;
 		}
 
@@ -580,7 +737,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
-		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
+
+		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType());
 
 		this.latestBatteryData = new BatteryData(battery.getChargeMaxCurrent().get(), battery.getVoltage().get());
 
@@ -618,5 +777,30 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Override
 	public boolean isOffGridPossible() {
 		return this.config.backupEnable().equals(EnableDisable.ENABLE);
+	}
+
+	private void handleGridFeed(Config config, GridFeedInLimitationType limitType) throws OpenemsNamedException {
+
+		if (!this.getMaxApparentPower().isDefined()) {
+			return;
+		}
+
+		var maxApparentPower = this.getMaxApparentPower().get();
+		var enableFeedInLimit = false;
+		var gridFeedInLimit = maxApparentPower;
+
+		// Limit from general Feed-In Limitation
+		if (limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
+			enableFeedInLimit = true;
+			gridFeedInLimit = this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
+		}
+
+		// Limit from Ripple Control Receiver (Minimum of both limits)
+		if (this.rcr != null && this.rcr.isEnabled()) {
+			enableFeedInLimit = true;
+			gridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower);
+		}
+
+		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
 	}
 }

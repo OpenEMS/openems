@@ -1,0 +1,18 @@
+@if (isInitialized){
+  <ng-container>
+    <oe-flat-widget [modalComponent]="modalComponent" [icon]="{name:'swap-vertical-outline', color:'normal'}"
+      [title]="component.alias">
+      @if (readOnly){
+        <ng-container>
+          <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="state | translate"
+            [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-flat-widget-line>
+        </ng-container>
+      } @else{
+        <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_MODE' | translate"
+          [value]="state | translate" [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-flat-widget-line>
+        <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="overwriteLabel">
+        </oe-flat-widget-line>
+      }
+    </oe-flat-widget>
+  </ng-container>
+}

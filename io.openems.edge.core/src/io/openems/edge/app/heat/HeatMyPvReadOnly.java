@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
  * <pre>
   {
     "appId":"App.Heat.MyPv.ReadOnly",
-    "alias":"MyPV AC-Thor9s Lesend",
+    "alias":"my-PV lesend",
     "instanceId": UUID,
     "image": base64,
     "properties":{

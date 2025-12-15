@@ -11,13 +11,13 @@ import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT1;
 import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT2;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
- 
+
 import org.junit.Test;
- 
+
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
@@ -47,7 +47,7 @@ public class ControllerIoHeatingElementImplTest {
 						.setMinimumSwitchingTime(60) //
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
-						.setMeterid("dummy-meter") //
+						.setMeterid("dummyMeter") //
 						.setScheduler("") //
 						.build()) //
 				.next(new TestCase() //

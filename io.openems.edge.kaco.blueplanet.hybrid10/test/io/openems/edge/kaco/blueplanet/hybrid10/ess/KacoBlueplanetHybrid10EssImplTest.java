@@ -2,8 +2,8 @@ package io.openems.edge.kaco.blueplanet.hybrid10.ess;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class KacoBlueplanetHybrid10EssImplTest {

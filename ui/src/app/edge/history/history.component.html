@@ -1,6 +1,9 @@
 <oe-navigation-view *ngIf="edge">
-  <ion-buttons header #header class="ion-justify-content-center" *ngIf="navigationService.position() !== null">
-    <pickdate></pickdate>
+  <ion-buttons #header header class="ion-justify-content-center">
+    <ion-button size="small" fill="clear" class="ion-justify-content-center"
+      *ngIf="navigationService.position() !== null && navigationService.position() !== 'disabled'">
+      <pickdate></pickdate>
+    </ion-button>
   </ion-buttons>
   <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
@@ -82,6 +85,11 @@
           </timeOfUseTariffWidget>
         </ion-col>
 
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Clever-PV'">
+          <enerixControlWidget [componentId]="widget.componentId">
+          </enerixControlWidget>
+        </ion-col>
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
           <controller-io-heatingelement-widget [componentId]="widget.componentId">
           </controller-io-heatingelement-widget>
@@ -114,7 +122,9 @@
             <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
           </ion-item>
           <ion-card-content>
-            <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
+            <p>Bitte verwenden Sie das FENECON Online-Monitoring auf <a class="ion-link" href="http://www.fenecon.de"
+                target="_blank">www.fenecon.de</a>.
+            </p>
           </ion-card-content>
         </ion-card>
       </ion-col>

@@ -1,17 +1,17 @@
 package io.openems.edge.core.meta;
 
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.common.types.CurrencyConfig.EUR;
 
 import org.junit.Test;
 
 import io.openems.common.oem.DummyOpenemsEdgeOem;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class MetaImplTest {
 
@@ -26,7 +26,6 @@ public class MetaImplTest {
 		final var fetcher = dummyEndpointFetcher();
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 		final var factory = ofBridgeImpl(//
-				() -> cycleSubscriber(), //
 				() -> fetcher, //
 				() -> executor//
 		);
@@ -36,6 +35,8 @@ public class MetaImplTest {
 				.addReference("oem", oem) //
 				.addReference("httpBridgeFactory", factory)//
 				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
 						.build());
 	}
 }

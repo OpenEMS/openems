@@ -8,12 +8,13 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.fazecast.jSerialComm,\
 	com.squareup.okhttp3,\
 	io.openems.common,\
-	io.openems.edge.bridge.http,\
+	io.openems.common.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.backend,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.evcs.api,\
+	io.openems.edge.evse.api,\
 	io.openems.edge.io.api,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.predictor.api,\
@@ -22,7 +23,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.timeofusetariff.api,\
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.sdnotify,\
-	
+	javax.jmdns,\
+
 -testpath: \
 	${testpath},\
 	io.openems.wrapper.fastexcel,\

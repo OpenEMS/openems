@@ -59,7 +59,7 @@ export class LiveDataService extends DataService implements OnDestroy {
             return;
         }
 
-        this.edge?.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
+        this.edge?.unsubscribeFromChannels(this.subscribeId, this.websocket, this.subscribedChannelAddresses);
         this.stopOnDestroy?.next();
         this.stopOnDestroy?.complete();
         this.subscription?.destroy();
@@ -67,7 +67,7 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
         this.lastUpdated.set(null);
-        this.edge?.unsubscribeFromChannels(this.websocket, channels);
+        this.edge?.unsubscribeFromChannels(this.subscribeId, this.websocket, channels);
     }
 
     public override refresh(ev: CustomEvent) {

@@ -43,6 +43,7 @@ import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -57,6 +58,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @Component(//
 		name = "Metadata.Dummy", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		service = { Metadata.class, EventHandler.class, MetadataDummy.class }, //
 		immediate = true //
 )
 @EventTopics({ //
@@ -274,6 +276,12 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items) {
+		this.log.info("SerialNumberProtocol[{}]: {}, {}", edgeId, serialNumbers, items);
+	}
+
+	@Override
 	public void registerUser(JsonObject jsonObject, String oem) throws OpenemsNamedException {
 		throw new UnsupportedOperationException("DummyMetadata.registerUser() is not implemented");
 	}
@@ -293,9 +301,15 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_CONFIG:
-			this.edgeHandler.setEdgeConfigFromEvent(reader);
-			break;
+		case Edge.Events.ON_SET_CONFIG -> {
+			this.edgeHandler.setEdgeConfigFromEvent(reader, (edge, oldConfig, newConfig) -> {
+				EventBuilder.from(this.eventAdmin, Edge.Events.ON_UPDATE_CONFIG) //
+						.addArg(Edge.Events.OnUpdateConfig.EDGE_ID, edge.getId()) //
+						.addArg(Edge.Events.OnUpdateConfig.OLD_CONFIG, oldConfig) //
+						.addArg(Edge.Events.OnUpdateConfig.NEW_CONFIG, newConfig) //
+						.send();
+			});
+		}
 		}
 	}
 

@@ -10,11 +10,11 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
@@ -46,7 +46,7 @@ public class ControllerIoHeatingElementImplTest3 {
 						.setMinimumSwitchingTime(60) //
 						.setMinEnergylimit(5000) //
 						.setEndTimeWithMeter("00:00") //
-						.setMeterid("dummy-meter") //
+						.setMeterid("dummyMeter") //
 						.setScheduler("") // 
 						.build()); //
 	}

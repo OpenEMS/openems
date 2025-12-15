@@ -112,6 +112,7 @@ public class AppCleverPv extends AbstractOpenemsAppWithProps<AppCleverPv, Proper
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
+									.addProperty("readOnly", true)//
 									.build()));
 
 			return AppConfiguration.create() //

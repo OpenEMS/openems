@@ -61,7 +61,6 @@ public class AppHardyBarthReadOnly
 		// Properties
 		NUMBER_OF_CHARGING_STATIONS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(2))), //
 		PHASE_ROTATION(EvcsProps.phaseRotation()), //
-
 		// First ChargePoint
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias()) //
 				.setRequired(true) //
@@ -74,8 +73,8 @@ public class AppHardyBarthReadOnly
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
 										"App.Evcs.HardyBarth.alias.value", //
 										TranslationUtil.getTranslation(parameter.bundle(), "right"))))))), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.30") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.30")//
 				.setRequired(true)), //
 
 		// Second ChargePoint
@@ -84,14 +83,14 @@ public class AppHardyBarthReadOnly
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
 						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
 							.equal(Exp.staticValue(2)));
 				})//
 				.setRequired(true)), //
 		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
 				.setDefaultValue("192.168.25.31") //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+					field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
 							.equal(Exp.staticValue(2)));
 				})//
 				.setRequired(true)), //

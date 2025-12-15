@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, effect, Input } from "@angular/core";
+import { Component, effect, ElementRef, Input, Renderer2, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
 import { NavigationComponent } from "../navigation.component";
 import { NavigationService } from "../service/navigation.service";
+import { ViewUtils } from "./shared/shared";
 
 export enum Status {
     SUCCESS,
@@ -13,6 +14,9 @@ export enum Status {
     PENDING,
 }
 
+/**
+ * Always use conditionally rendering, this component doesnt wait for async events to be resolved first
+ */
 @Component({
     selector: "oe-navigation-view",
     templateUrl: "./view.html",
@@ -34,6 +38,7 @@ export class NavigationPageComponent {
     @Input() protected formGroup: FormGroup = new FormGroup({});
 
     protected contentHeight: number | null = null;
+    protected actionSheetModalHeight: number = 0;
 
     private edge: Edge | null = null;
 
@@ -43,28 +48,20 @@ export class NavigationPageComponent {
         protected navigationService: NavigationService,
         private websocket: Websocket,
         private translate: TranslateService,
-        private cdr: ChangeDetectorRef
+        private el: ElementRef, private renderer: Renderer2,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
+        const hostElement = el.nativeElement;
+        this.renderer.addClass(hostElement, "ion-page");
 
         effect(() => {
-            const position = this.navigationService.position();
-            this.contentHeight = NavigationPageComponent.calculateHeight(position);
+            const breakpoint = NavigationComponent.breakPoint();
+            if (breakpoint > NavigationComponent.INITIAL_BREAKPOINT) {
+                return;
+            }
+            this.contentHeight = ViewUtils.getViewHeightInPx(untracked(() => this.navigationService.position()));
+            this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(untracked(() => this.navigationService.position()));
         });
-    }
-
-    public static calculateHeight(position: string | null): number {
-        if (position == null) {
-            return 100;
-        }
-
-        const HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS = 10;
-        if (position === "bottom") {
-            return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100) + HEADER_HEIGHT_WITH_PICKDATE_BREADCRUMBS);
-        }
-
-        // !IMPORTANT TODO: Calculate container height dynamically
-        return 100 - ((NavigationComponent.INITIAL_BREAKPOINT * 100));
     }
 
     // Changes applied together
@@ -89,12 +86,15 @@ export class NavigationPageComponent {
         if (this.edge) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();
     }
-}
 
+    protected onDomChange() {
+        this.contentHeight = ViewUtils.getViewHeightInPx(this.navigationService.position());
+    }
+}

@@ -1,0 +1,19 @@
+= ABL eM4 charging station
+
+Implementation of the ABL eM4 electric vehicle charging station.
+
+== Compatibility
+
+** eM4 Controller (Single/Twin)
+** eM4 Extender (Single/Twin)
+
+(Note: The Extender uses a slightly different protocol and Firmware version)
+
+
+=== Technical Data
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.abl[Source Code icon:github[]]

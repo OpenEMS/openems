@@ -5,9 +5,10 @@ import java.util.Map;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.bmw.BatteryBmwImpl;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.common.statemachine.AbstractContext;
 
@@ -17,11 +18,13 @@ public class Context extends AbstractContext<BatteryBmwImpl> {
 
 	protected final Clock clock;
 	protected final BridgeHttp httpBridge;
+	protected final HttpBridgeCycleService cycleService;
 
-	public Context(BatteryBmwImpl parent, Clock clock, BridgeHttp httpBridge) {
+	public Context(BatteryBmwImpl parent, Clock clock, BridgeHttp httpBridge, HttpBridgeCycleService cycleService) {
 		super(parent);
 		this.clock = clock;
 		this.httpBridge = httpBridge;
+		this.cycleService = cycleService;
 	}
 
 	protected void setComponent(Context context, String uri) throws OpenemsNamedException {

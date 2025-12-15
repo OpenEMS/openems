@@ -79,17 +79,16 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 		// Properties
 		ALIAS(alias()), //
 		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.11") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
-
 		// Properties for P40
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P40)));
 				}))), //
 		;

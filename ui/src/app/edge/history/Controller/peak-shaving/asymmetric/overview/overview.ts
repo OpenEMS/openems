@@ -1,4 +1,3 @@
-import { CommonModule } from "@angular/common";
 import { Component, LOCALE_ID } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -16,7 +15,6 @@ import { ChartComponent } from "../chart/chart";
     standalone: true,
     imports: [
         ReactiveFormsModule,
-        CommonModule,
         IonicModule,
         TranslateModule,
         ChartComponentsModule,

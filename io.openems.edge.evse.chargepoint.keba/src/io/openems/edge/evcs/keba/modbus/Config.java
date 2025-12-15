@@ -3,7 +3,7 @@ package io.openems.edge.evcs.keba.modbus;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "EVCS KEBA P40", //
 		description = "Implements the KEBA KeContact P40 electric vehicle charging station.")
@@ -28,7 +28,7 @@ import io.openems.edge.evcs.api.PhaseRotation;
 	String modbus_id() default "modbus0";
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
-	int modbusUnitId() default 1;
+	int modbusUnitId() default 255;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
 	int minHwCurrent() default 6000;

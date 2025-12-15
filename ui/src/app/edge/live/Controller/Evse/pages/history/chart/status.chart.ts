@@ -14,32 +14,32 @@ import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from 
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-
-    public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
+    public static getChartData(component: EdgeConfig.Component, translate: TranslateService, timeOfUseCtrl: EdgeConfig.Component): HistoryUtils.ChartData {
         AssertionUtils.assertIsDefined(component);
+
         return {
             input: [{
                 name: "ActualMode",
                 powerChannel: new ChannelAddress(component.id, "ActualMode"),
-            }, {
-                name: "QuarterlyPrice",
-                powerChannel: new ChannelAddress("ctrlEssTimeOfUseTariff0", "QuarterlyPrices"), // TODO
-            }],
+            },
+            ...(timeOfUseCtrl == null
+                ? []
+                : [{ name: "QuarterlyPrice", powerChannel: new ChannelAddress(timeOfUseCtrl.id, "QuarterlyPrice") }])],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
-                    name: "No Charge",
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.ZERO"),
                     converter: () => this.getDataset(data, 0),
                     color: ChartConstants.Colors.BLUE_GREY,
                 }, {
-                    name: "Minimum",
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM"),
                     converter: () => this.getDataset(data, 1),
                     color: ChartConstants.Colors.GREEN,
                 }, {
-                    name: "Surplus PV",
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS"),
                     converter: () => this.getDataset(data, 2),
                     color: ChartConstants.Colors.BLUE,
                 }, {
-                    name: "Force Charge",
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.FORCE"),
                     converter: () => this.getDataset(data, 3),
                     color: ChartConstants.Colors.RED,
                 }];
@@ -65,7 +65,6 @@ export class ChartComponent extends AbstractHistoryChart {
     private static getDataset(data: HistoryUtils.ChannelData, desiredState: number): any[] {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        console.log(data, desiredState);
         const states = data["ActualMode"]
             .map(val => Utils.multiplySafely(val, 1000))
             .map(val => {
@@ -102,6 +101,7 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.component, this.translate);
+        const timeOfUseCtrl = this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
+        return ChartComponent.getChartData(this.component, this.translate, timeOfUseCtrl);
     }
 }

@@ -5,6 +5,7 @@ import static io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiM
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
@@ -13,14 +14,16 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.controller.api.modbus.LogVerbosity;
 import io.openems.edge.controller.api.modbus.ModbusApi;
+import io.openems.edge.controller.api.modbus.MyTcpConfig;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusTcpReadWriteImplTest {
@@ -41,13 +44,14 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 				.addComponent(new DummyCycle(1000)) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
 				.addReference("metaComponent", new DummyMeta("_meta")) //
-				.activate(MyConfig.create() //
+				.activate(MyTcpConfig.create(io.openems.edge.controller.api.modbus.readonly.tcp.Config.class) //
 						.setId(CONTROLLER_ID) //
 						.setEnabled(true) // has to be enabled for resetting channel
 						.setComponentIds() //
 						.setMaxConcurrentConnections(5) //
 						.setPort(123456) // random port not blocking 502
 						.setApiTimeout(60) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(() -> sut.setProcessImageFault(this.clock)) //
@@ -64,7 +68,8 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 						.output(PROCESS_IMAGE_FAULT, false) //
 				) //
 				.deactivate();
-		;
+
+		assertNull(sut.debugLog());
 	}
 
 	@Test
