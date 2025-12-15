@@ -5,12 +5,13 @@ import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/shared";
+import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
-import { ChartAxis, YAxisType } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "predictionChart",
+    selector: "oe-controller-ess-gridoptimizedcharge-prediction-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: false,
 })
@@ -29,7 +30,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         protected override translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super("prediction-chart", service, translate);
+        super("oe-controller-ess-gridoptimizedcharge-prediction-chart", service, translate);
     }
 
     ngOnChanges() {
@@ -176,12 +177,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
                 // Push the prepared data into the datasets
                 datasets.push({
-                    label: this.translate.instant("General.soc"),
+                    label: this.translate.instant("GENERAL.SOC"),
                     data: socData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
                 }, {
-                    label: this.translate.instant("Edge.Index.Widgets.GridOptimizedCharge.expectedSoc"),
+                    label: this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC"),
                     data: predictedSocData,
                     hidden: false,
                     yAxisID: ChartAxis.RIGHT,
@@ -247,6 +248,9 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 return el;
             });
 
+        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", this.datasets, true);
+
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 
@@ -254,7 +258,6 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
         };
     }
-
 }
 
 export type ChannelChartDescription = {

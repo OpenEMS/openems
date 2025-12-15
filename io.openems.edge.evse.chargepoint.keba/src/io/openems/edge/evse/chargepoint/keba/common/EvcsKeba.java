@@ -1,9 +1,7 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
-import static io.openems.common.types.OpenemsType.INTEGER;
 
-import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.keba.modbus.EvcsKebaModbusImpl;
@@ -23,9 +21,6 @@ public interface EvcsKeba extends OpenemsComponent, ElectricityMeter {
 		 */
 		PLUG(Doc.of(CableState.values())//
 				.persistencePriority(HIGH)), //
-
-		MAX_HARDWARE_CURRENT(Doc.of(INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
 		;
 
 		private final Doc doc;

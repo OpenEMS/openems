@@ -25,7 +25,7 @@ public interface EvcsHardyBarth extends OpenemsComponent {
 		// TODO: Correct Type & Unit (Waiting for Manufacturer instructions)
 
 		// EVSE
-		RAW_EVSE_GRID_CURRENT_LIMIT(Doc.of(INTEGER) //
+		RAW_EVSE_GRID_CURRENT_LIMIT(Doc.of(INTEGER)//
 				.unit(AMPERE), //
 				"secc", "port0", "ci", "evse", "basic", "grid_current_limit", "actual"), //
 		RAW_PHASE_COUNT(Doc.of(INTEGER), //
@@ -56,6 +56,8 @@ public interface EvcsHardyBarth extends OpenemsComponent {
 		// SALIA
 		RAW_SALIA_CHARGE_MODE(Doc.of(STRING), //
 				"secc", "port0", "salia", "chargemode"), //
+		RAW_SALIA_CHARGE_PAUSE(Doc.of(INTEGER), //
+				"secc", "port0", "salia", "pausecharging"), //
 		RAW_SALIA_CHANGE_METER(Doc.of(STRING), //
 				"secc", "port0", "salia", "changemeter"), //
 		RAW_SALIA_AUTHMODE(Doc.of(STRING), //
@@ -91,7 +93,7 @@ public interface EvcsHardyBarth extends OpenemsComponent {
 				"secc", "port0", "metering", "meter", "serialnumber"), //
 		RAW_METER_TYPE(Doc.of(STRING), //
 				"secc", "port0", "metering", "meter", "type"), //
-		METER_NOT_AVAILABLE(Doc.of(WARNING) //
+		METER_NOT_AVAILABLE(Doc.of(WARNING)//
 				.translationKey(EvcsHardyBarth.class, "noMeterAvailable")), //
 		RAW_METER_AVAILABLE(new BooleanDoc()//
 				.onChannelSetNextValue((hardyBarth, value) -> {
@@ -101,10 +103,10 @@ public interface EvcsHardyBarth extends OpenemsComponent {
 				"secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - ENERGY
-		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(DOUBLE) //
+		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(DOUBLE)//
 				.unit(CUMULATED_WATT_HOURS), //
 				"secc", "port0", "metering", "energy", "active_total", "actual"), //
-		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(DOUBLE) //
+		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(DOUBLE)//
 				.unit(CUMULATED_WATT_HOURS), //
 				"secc", "port0", "metering", "energy", "active_export", "actual"), //
 

@@ -1,6 +1,6 @@
 @if (isInitialized) {
   <ng-container class="all-edges-shadow">
-    <oe-flat-widget [icon]="{name: 'oe-consumption', color: 'warning'}" [title]="'General.consumption' | translate"
+    <oe-flat-widget [icon]="{name: 'oe-consumption', color: 'warning'}" [title]="'GENERAL.CONSUMPTION' | translate"
       button [modalComponent]="modalComponent">
       <!-- Evcss -->
       @if (evcss.length > 0) {
@@ -21,7 +21,7 @@
       <!-- If at least Evcss or ConsumptionMeters -->
       @if (evcss.length !== 0 || consumptionMeters.length !== 0) {
         <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-        <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="otherPower"
+        <oe-flat-widget-line [name]="'GENERAL.OTHER_CONSUMPTION' | translate" [value]="otherPower"
           [converter]="CONVERT_WATT_TO_KILOWATT">
         </oe-flat-widget-line>
       } @else {

@@ -44,7 +44,7 @@ export class User {
      * @returns the user if passed User is valid, else null
      */
     public static from(user: AuthenticateResponse["result"]["user"]): User | null {
-        if (!user || !(ArrayUtils.containsAllStrings(Object.keys(user), User.getPropertyKeys()))) {
+        if (!user || !(ArrayUtils.containsAll({ strings: Object.keys(user), arr: User.getPropertyKeys() }))) {
             return null;
         }
         return new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, user.settings ?? {});
@@ -78,9 +78,9 @@ export class User {
     }
 
     /**
-     * Gets the current theme from user settings
+     * Checks if new ui is activated from user settings
      *
-     * @returns the theme if existing, else null
+     * @returns true if new ui is activated, else false
      */
     public getUseNewUIFromSettings(): boolean {
 
@@ -101,7 +101,7 @@ export class User {
         if (!showNewUI) {
             return;
         }
-        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("General.HISTORY"), "label", [], null));
+        navigationTree.setChild(NavigationId.LIVE, new NavigationTree(NavigationId.HISTORY, { baseString: "history" }, { name: "stats-chart-outline" }, translate.instant("GENERAL.HISTORY"), "label", [], null));
     }
 
 };

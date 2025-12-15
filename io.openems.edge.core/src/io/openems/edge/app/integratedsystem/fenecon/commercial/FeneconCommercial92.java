@@ -2,8 +2,10 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -26,6 +28,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -56,13 +59,15 @@ public class FeneconCommercial92
 	public enum Property implements Type<Property, FeneconCommercial92, Parameter.BundleParameter> {
 		ALIAS(alias()), //
 
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
+
+		GRID_CODE(AppDef.copyOfGeneric(gridCode())), //
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
 		FEED_IN_TYPE(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION,
-				ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) //
+				ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION)//
 				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
 
@@ -144,7 +149,6 @@ public class FeneconCommercial92
 			final var gridMeterId = "meter0";
 			final var essId = "ess0";
 
-			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
 			final var batteryTarget = this.getString(p, Property.BATTERY_TARGET);
@@ -152,9 +156,12 @@ public class FeneconCommercial92
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
+			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+
 			final var components = Lists.newArrayList(//
 					FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget), //
-					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId), //
+					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId,
+							gridCode), //
 					FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId), //
 					FeneconHomeComponents.io(bundle, modbusToBatteryId), //
 					FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId), //
@@ -179,6 +186,7 @@ public class FeneconCommercial92
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.staticIp(new InterfaceConfiguration("eth1") //
 							.addIp("BatteryInverter", "172.16.0.99/24")))
+					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

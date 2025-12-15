@@ -56,12 +56,12 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".hardwareType.label") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(GpioHardwareType.values()) //
-							.map(Enum::name) //
+					field.setOptions(Arrays.stream(GpioHardwareType.values())//
+							.map(Enum::name)//
 							.toList());
-				}) //
-				.setRequired(true) //
-				.setDefaultValue(GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				})//
+				.setRequired(true)//
+				.setDefaultValue(GpioHardwareType.MODBERRY_X500_M40804_WB)//
 				.bidirectional(IO_ID, "hardwareType", ComponentManagerSupplier::getComponentManager))), //
 		;
 

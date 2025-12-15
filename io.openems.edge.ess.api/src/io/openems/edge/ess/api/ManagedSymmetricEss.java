@@ -423,9 +423,20 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		// configure PID filter
 		var minPower = power.getMinPower(ess, ALL, ACTIVE);
 		var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
+		
 		if (maxPower < minPower) {
 			maxPower = minPower; // avoid rounding error
 		}
+
+		// Cast to long to prevent integer overflow when limits are at
+		// Integer.MAX_VALUE/MIN_VALUE. which commonly occurs during unit tests with
+		// default "unlimited" power settings.
+		if (Math.abs((long) maxPower - (long) minPower) < 10) {
+			// Min- and Max-Power are close to equal; stop early to avoid calling the
+			// PidFilter multiple times in a Cycle.
+			return;
+		}
+
 		pidFilter.setLimits(minPower, maxPower);
 
 		int currentActivePower = ess.getActivePower().orElse(0);

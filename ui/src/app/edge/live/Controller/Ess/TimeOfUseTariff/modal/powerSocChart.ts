@@ -100,7 +100,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.gridBuy"),
+                label: this.translate.instant("GENERAL.GRID_BUY"),
                 data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -112,7 +112,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.gridSell"),
+                label: this.translate.instant("GENERAL.GRID_SELL"),
                 data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -124,7 +124,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.production"),
+                label: this.translate.instant("GENERAL.PRODUCTION"),
                 data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
@@ -136,7 +136,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.consumption"),
+                label: this.translate.instant("GENERAL.CONSUMPTION"),
                 data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
@@ -148,7 +148,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.CHARGE"),
+                label: this.translate.instant("GENERAL.CHARGE"),
                 data: essChargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -161,7 +161,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
 
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.DISCHARGE"),
+                label: this.translate.instant("GENERAL.DISCHARGE"),
                 data: essDischargeArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
@@ -175,7 +175,7 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
             // State of charge data
             datasets.push({
                 type: "line",
-                label: this.translate.instant("General.soc"),
+                label: this.translate.instant("GENERAL.SOC"),
                 data: socArray,
                 hidden: false,
                 yAxisID: ChartAxis.RIGHT,
@@ -204,20 +204,18 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
     }
 
     private applyControllerSpecificOptions() {
-        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
-
         this.datasets = this.datasets.map((el: Chart.ChartDataset) => {
-
             // align particular dataset element to right yAxis
-            if (el.label === this.translate.instant("General.soc")) {
+            if (el.label === this.translate.instant("GENERAL.SOC")) {
                 el["yAxisID"] = ChartAxis.RIGHT;
             }
             return el;
         });
+
+        const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };
+        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, rightYAxis, this.translate, "line", this.datasets, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
         this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");

@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
@@ -13,6 +13,7 @@ import { CommonUiModule } from "../../../shared/common-ui.module";
     imports: [
         CommonUiModule,
         RouterModule,
+        ReactiveFormsModule,
     ],
 })
 export class AliasUpdateComponent implements OnInit {
@@ -52,16 +53,16 @@ export class AliasUpdateComponent implements OnInit {
         const newAlias = alias;
         if (this.edge != null) {
             if (this.component.id == newAlias) {
-                this.service.toast(this.translate.instant("General.inputNotValid"), "danger");
+                this.service.toast(this.translate.instant("GENERAL.INPUT_NOT_VALID"), "danger");
             } else {
                 this.edge.updateComponentConfig(this.websocket, this.component.id, [
                     { name: "alias", value: newAlias },
                 ]).then(() => {
                     this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
                     this.formGroup.markAsPristine();
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                     console.warn(reason);
                 });
             }

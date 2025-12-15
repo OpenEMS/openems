@@ -1,0 +1,20 @@
+services:
+  openems-ui-dev:
+    image: openems/ui-edge:latest
+    container_name: openems_ui_dev
+    hostname: openems_ui
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=host.docker.internal
+      - WEBSOCKET_PORT=8085
+    ports:
+      - 4200:80
+
+volumes:
+  openems-ui-conf:
+  openems-ui-log:
