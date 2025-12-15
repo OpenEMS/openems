@@ -136,13 +136,13 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testStandardTariffOnJuly15At2PM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2026-07-15T00:00:00Z");
-		final var testTime = toZonedDateTime(2026, 7, 15, 14, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-07-15T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 7, 15, 14, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2026-07-15T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-07-15T00:00:00Z");
 
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
@@ -151,33 +151,33 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testLowTariffOnOctober20At3AM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2026-10-20T00:00:00Z");
-		final var testTime = toZonedDateTime(2026, 10, 20, 3, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-10-20T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 10, 20, 3, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_BW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("MIT_NETZ", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("MIT_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.MIT_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("E_DIS", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("E_DIS", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.E_DIS.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("LEW", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("LEW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.LEW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
@@ -185,33 +185,33 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testHighTariffOnOctober20At5PM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2026-10-20T00:00:00Z");
-		final var testTime = toZonedDateTime(2026, 10, 20, 17, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-10-20T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 10, 20, 17, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_BW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("MIT_NETZ", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("MIT_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.MIT_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("WEST_NETZ", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("WEST_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.WEST_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("AVACON", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("AVACON", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.AVACON.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2026-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);

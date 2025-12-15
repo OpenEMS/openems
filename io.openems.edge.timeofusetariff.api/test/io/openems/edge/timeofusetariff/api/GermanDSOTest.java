@@ -1,8 +1,8 @@
 package io.openems.edge.timeofusetariff.api;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.Test;
 
@@ -50,10 +50,8 @@ public class GermanDSOTest {
 
 	private static void assertTariff(ImmutableList<TimeRange> timeRanges, Tariff tariff, double value) {
 		var anyMatch = timeRanges.stream().map(TimeRange::tariff).anyMatch(t -> t.equals(tariff));
-		if (Double.isNaN(value) && anyMatch) {
-			throw new IllegalArgumentException("Tariff [" + tariff.name() + "] value is missing");
-		} else if (!Double.isNaN(value) && !anyMatch) {
-			throw new IllegalArgumentException("Tariff [" + tariff.name() + "] value [" + value + "] is not used");
-		}
+		assertFalse("Tariff [" + tariff.name() + "] value is missing", Double.isNaN(value) && anyMatch);
+		assertFalse("Tariff [" + tariff.name() + "] value [" + value + "] is not used",
+				!Double.isNaN(value) && !anyMatch);
 	}
 }
