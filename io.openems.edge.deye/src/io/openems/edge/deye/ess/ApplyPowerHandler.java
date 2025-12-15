@@ -73,6 +73,9 @@ public class ApplyPowerHandler {
 		Integer maxAllowedChargePower = ess.getAllowedChargePower().get();
 		Integer maxAllowedDischargePower = ess.getAllowedDischargePower().get();
 		
+		// calculation of target power
+		activePowerTarget = activePowerTarget - pvPower;
+		
 		this.targetPowerAvg.addValue(activePowerTarget);
 
 		if (Stream.of(batteryVoltageRaw, batteryPower, maxAllowedChargePower, maxAllowedDischargePower)
@@ -88,8 +91,10 @@ public class ApplyPowerHandler {
 		this.cycleCounter ++;
 		
 		int powerDeciPercent = calculateDeciPercentFromPower(maxApparentPower, activePowerTarget);
+		int averageTargetPower = this.targetPowerAvg.getAverage();
 		
-		if (( Math.abs( this.targetPowerAvg.getAverage() - activePowerTarget) > 100) || this.cycleCounter > 3) {
+		
+		if (( Math.abs( averageTargetPower - activePowerTarget) > 100) || this.cycleCounter > 3) {
 
 			this.cycleCounter = 0;
 			
@@ -118,9 +123,10 @@ public class ApplyPowerHandler {
 		// convert for debugging
 		int powerPercent = (int) Math.round((double)powerDeciPercent / 10.0);
 		
- 		ess.logDebug(log, "\n-> AC target: " + activePowerTarget
+ 		ess.logDebug(log, "\n-> AC target: " + activePowerTarget + " avg Target:" + averageTargetPower
  				+ "(" + powerPercent +" /10%) " 
-				+ "\n   PV: " + pvPower 
+				+ "\n   PV: " + pvPower
+				+ "\n   DcDisCharge: " + dcDischargePower 				
 				+ "\n   ActivePower: " + activePower + " | Grid (Deye AC In): ToDo" 
 				+ "\n   Mode: " + lastMode
 				+ "\n | EnergyManagementModel: " + this.ess.getEnergyManagementModel()
@@ -185,7 +191,8 @@ public class ApplyPowerHandler {
 			this.ess.setChargeModeTimePoint1(1);
 		}
 		
-		if (battery.getBmsChargeCurrentLimit().get() != MAX_A ) {
+/*		
+		if (battery.getConfigurableChargeCurrentLimit().get() != MAX_A ) {
 			battery.setBmsMaxChargeCurrent(MAX_A);  // 108	
 		}
 		
@@ -196,7 +203,7 @@ public class ApplyPowerHandler {
 		if (this.ess.getGridChargeCurrent().get() != MAX_A) {
 			this.ess.setGridChargeCurrent(MAX_A);   // 128	
 		}
-		
+*/
 
 	}
 

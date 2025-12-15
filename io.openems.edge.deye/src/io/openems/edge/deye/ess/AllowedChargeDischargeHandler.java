@@ -48,34 +48,55 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		    
 		}
 		
-		// values from BMS regarding hardware limits
-		//Integer bmsMaxChargeCurrent = this.battery.getChargeMaxCurrent().get(); // A
-		//Integer bmsMaxDischargeCurrent = this.battery.getDischargeMaxCurrent().get(); // A
-		
-		Integer bmsMaxChargeCurrent = this.battery.getBmsChargeCurrentLimit().get();
-		Integer bmsMaxDischargeCurrent = this.battery.getBmsDischargeCurrentLimit().get();
-		Integer bmsVoltage = this.battery.getBatteryVoltage().orElse(0); // mV
-		
-		// configured values - cannot be used as we use these channels for battery controlling
-		Integer configuredBatteryMaxChargeCurrent = this.battery.getConfiguredMaxChargeCurrent(); // A
-		Integer configuredBatteryMaxDischargeCurrent = this.battery.getConfiguredMaxDischargeCurrent(); // A
-		
+		Integer configureableMaxChargeCurrent = this.battery.getConfigurableChargeCurrentLimit().get();        // [A] 108
+		Integer configurableMaxDischargeCurrent = this.battery.getConfigurableDischargeCurrentLimit().get();  // [A] 109
 
-		if (bmsMaxChargeCurrent == null || bmsMaxDischargeCurrent == null || bmsVoltage == null ) {
-			this.parent.logDebug(log, "[AllowChargeDischarge Handler] BMS values not available. Setting 0 W.");
-	        parent._setAllowedChargePower(0);
-	        parent._setAllowedDischargePower(0);
-			return;
-		}		
-		
-		double voltage = bmsVoltage / 1000.0;		
-		
-	    int maxChargeCurrent = Math.min((bmsMaxChargeCurrent),configuredBatteryMaxChargeCurrent); // A
-	    int maxDischargeCurrent =  Math.min((bmsMaxDischargeCurrent),configuredBatteryMaxDischargeCurrent); // A
-		
-	    // 
-	    double allowedChargePower = maxChargeCurrent * voltage * -1; // negative for charging
-	    double allowedDischargePower = maxDischargeCurrent * voltage; // positive for discharging
+		Integer batteryMaxChargeCurrent = this.battery.getChargeMaxCurrent().get();        // [A] 212 (dynamic)
+		Integer batteryMaxDischargeCurrent = this.battery.getDischargeMaxCurrent().get();  // [A] 213 (dynamic)
+
+		Integer offgridMaxChargeCurrent = this.battery.getOffgridMaxChargeCurrent().get();        // [A] 218 (dynamic)
+		Integer offgridMaxDischargeCurrent = this.battery.getOffgridMaxDischargeCurrent().get();  // [A] 219 (dynamic)
+
+		Integer configuredBatteryMaxChargeCurrent = this.battery.getConfiguredMaxChargeCurrent();        // [A] OpenEMS user
+		Integer configuredBatteryMaxDischargeCurrent = this.battery.getConfiguredMaxDischargeCurrent();  // [A] OpenEMS user
+
+		Integer bmsVoltage = this.battery.getBatteryVoltage().orElse(null); // [mV]
+
+		if (configureableMaxChargeCurrent == null
+		        || configurableMaxDischargeCurrent == null
+		        || batteryMaxChargeCurrent == null
+		        || batteryMaxDischargeCurrent == null
+		        || offgridMaxChargeCurrent == null
+		        || offgridMaxDischargeCurrent == null
+		        || configuredBatteryMaxChargeCurrent == null
+		        || configuredBatteryMaxDischargeCurrent == null
+		        || bmsVoltage == null
+		        || bmsVoltage <= 0) {
+
+		    this.parent.logDebug(log, "[AllowChargeDischarge Handler] Values not available. Setting 0 W.");
+		    parent._setAllowedChargePower(0);
+		    parent._setAllowedDischargePower(0);
+		    return;
+		}
+
+		double voltage = bmsVoltage / 1000.0; // [V]
+
+		// Min across: configurable (108/109), OpenEMS user, dynamic (212/213), dynamic offgrid (218/219)
+		int maxChargeCurrent = Math.min(
+		        configureableMaxChargeCurrent,
+		        Math.min(configuredBatteryMaxChargeCurrent,
+		                Math.min(batteryMaxChargeCurrent, offgridMaxChargeCurrent))
+		);
+
+		int maxDischargeCurrent = Math.min(
+		        configurableMaxDischargeCurrent,
+		        Math.min(configuredBatteryMaxDischargeCurrent,
+		                Math.min(batteryMaxDischargeCurrent, offgridMaxDischargeCurrent))
+		);
+
+		// Convert A * V -> W (floor so we never exceed)
+		int allowedChargePower = (int) Math.min(0, Math.ceil(maxChargeCurrent * voltage * -1));
+		int allowedDischargePower = (int) Math.max(0, Math.floor(maxDischargeCurrent * voltage));
 
 
 		this.parent.logDebug(log,"[AllowChargeDischarge Handler] max. ChargeCurrent  " + maxChargeCurrent 

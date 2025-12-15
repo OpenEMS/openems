@@ -60,10 +60,10 @@ public interface DeyeSunBattery
 	    BMS_DISCHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.MILLIVOLT)
 	            .accessMode(AccessMode.READ_WRITE)),	    
-	    BMS_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+	    CONFIGURABLE_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+	    CONIGURABLE_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
 	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    BMS_BATTERY_SOC(Doc.of(OpenemsType.INTEGER)
@@ -76,10 +76,10 @@ public interface DeyeSunBattery
 	            .unit(Unit.MILLIAMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIAMPERE)
+	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIAMPERE)
+	            .unit(Unit.AMPERE)
 	            .accessMode(AccessMode.READ_WRITE)),
 	    BMS_BATTERY_ALARM(Doc.of(OpenemsType.INTEGER)
 	            .accessMode(AccessMode.READ_WRITE)),
@@ -438,41 +438,41 @@ public interface DeyeSunBattery
 	}		
 	
 	/**
-	 * Gets the Channel for {@link ChannelId#BMS_DISCHARGE_CURRENT_LIMIT}.
+	 * Gets the Channel for {@link ChannelId#CONIGURABLE_DISCHARGE_CURRENT_LIMIT}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getBmsDischargeCurrentLimitChannel() {
-		return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
+	public default IntegerReadChannel getConfigurableDischargeCurrentLimitChannel() {
+		return this.channel(ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT);
 	}
 
 	/**
 	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#BMS_DISCHARGE_CURRENT_LIMIT}.
+	 * Discharge. See {@link ChannelId#CONIGURABLE_DISCHARGE_CURRENT_LIMIT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getBmsDischargeCurrentLimit() {
-		return this.getBmsDischargeCurrentLimitChannel().value();
+	public default Value<Integer> getConfigurableDischargeCurrentLimit() {
+		return this.getConfigurableDischargeCurrentLimitChannel().value();
 	}	
 	
 	/**
-	 * Gets the Channel for {@link ChannelId#BMS_CHARGE_CURRENT_LIMIT}.
+	 * Gets the Channel for {@link ChannelId#CONFIGURABLE_CHARGE_CURRENT_LIMIT}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getBmsChargeCurrentLimitChannel() {
-		return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
+	public default IntegerReadChannel getConfigurableChargeCurrentLimitChannel() {
+		return this.channel(ChannelId.CONFIGURABLE_CHARGE_CURRENT_LIMIT);
 	}
 
 	/**
 	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#BMS_CHARGE_CURRENT_LIMIT}.
+	 * Discharge. See {@link ChannelId#CONFIGURABLE_CHARGE_CURRENT_LIMIT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getBmsChargeCurrentLimit() {
-		return this.getBmsChargeCurrentLimitChannel().value();
+	public default Value<Integer> getConfigurableChargeCurrentLimit() {
+		return this.getConfigurableChargeCurrentLimitChannel().value();
 	}	
 		
 	/**
@@ -639,14 +639,29 @@ public interface DeyeSunBattery
 
 	public boolean hasWarning();
 
+	// 108 / 109
+	// Getter inverter configured values for Charge/Discharge max. Current
 	//
+	public default IntegerReadChannel getBmsMaxDischargeCurrentChannel() {
+	    return this.channel(ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT);
+	}
+
+	public default Value<Integer> getBmsMaxDischargeCurrent() {
+	    return this.getBmsMaxDischargeCurrentChannel().value();
+	}
+
+	public default IntegerReadChannel getBmsMaxChargeCurrentChannel() {
+	    return this.channel(ChannelId.CONFIGURABLE_CHARGE_CURRENT_LIMIT);
+	}
+
+	public default Value<Integer> getBmsMaxChargeCurrent() {
+	    return this.getBmsMaxChargeCurrentChannel().value();
+	}	
+	
+	// 212 / 213
 	// Getter / Setter Battery max. Charge Current
 	//
 	public default IntegerReadChannel getBatteryMaxChargeCurrentChannel() {
-	    return this.channel(ChannelId.BATTERY_MAX_CHARGE_CURRENT);
-	}
-
-	public default IntegerWriteChannel getSetBatteryMaxChargeCurrentChannel() {
 	    return this.channel(ChannelId.BATTERY_MAX_CHARGE_CURRENT);
 	}
 
@@ -654,64 +669,37 @@ public interface DeyeSunBattery
 	    return this.getBatteryMaxChargeCurrentChannel().value();
 	}
 
-	public default void setBatteryMaxChargeCurrent(int value) throws OpenemsNamedException {
-	    this.getSetBatteryMaxChargeCurrentChannel().setNextWriteValue(value);
-	}	
-
-	//
-	// Getter / Setter Battery max. Discharge Current
-	//
 	public default IntegerReadChannel getBatteryMaxDischargeCurrentChannel() {
-	    return this.channel(ChannelId.BATTERY_MAX_DISCHARGE_CURRENT);
-	}
-
-	public default IntegerWriteChannel getSetBatteryMaxDischargeCurrentChannel() {
 	    return this.channel(ChannelId.BATTERY_MAX_DISCHARGE_CURRENT);
 	}
 
 	public default Value<Integer> getBatteryMaxDischargeCurrent() {
 	    return this.getBatteryMaxDischargeCurrentChannel().value();
 	}
-
-	public default void setBatteryMaxDischargeCurrent(int value) throws OpenemsNamedException {
-	    this.getSetBatteryMaxDischargeCurrentChannel().setNextWriteValue(value);
-	}	
 	
+	// 218 / 219
+	// Getter Charge/Discharge Current
 	//
-	// Getter / Setter BMS max. Discharge Current
-	//
-	public default IntegerReadChannel getBmsMaxDischargeCurrentChannel() {
-	    return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
+	// 
+	public default IntegerReadChannel getOffgridMaxChargeCurrentChannel() {
+	    return this.channel(ChannelId.OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT);
 	}
 
-	public default IntegerWriteChannel getSetBmsMaxDischargeCurrentChannel() {
-	    return this.channel(ChannelId.BMS_DISCHARGE_CURRENT_LIMIT);
-	}
-
-	public default Value<Integer> getBmsMaxDischargeCurrent() {
-	    return this.getBmsMaxDischargeCurrentChannel().value();
-	}
-
-	public default void setBmsMaxDischargeCurrent(int value) throws OpenemsNamedException {
-	    this.getSetBmsMaxDischargeCurrentChannel().setNextWriteValue(value);
-	}	
-
-	// Charge current limit
-	public default IntegerReadChannel getBmsMaxChargeCurrentChannel() {
-	    return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
-	}
-
-	public default IntegerWriteChannel getSetBmsMaxChargeCurrentChannel() {
-	    return this.channel(ChannelId.BMS_CHARGE_CURRENT_LIMIT);
-	}
-
-	public default Value<Integer> getBmsMaxChargeCurrent() {
+	public default Value<Integer> getOffgridMaxChargeCurrent() {
 	    return this.getBmsMaxChargeCurrentChannel().value();
 	}
+	
+	public default IntegerReadChannel getOffgridMaxDischargeCurrentChannel() {
+	    return this.channel(ChannelId.OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT);
+	}
 
-	public default void setBmsMaxChargeCurrent(int value) throws OpenemsNamedException {
-	    this.getSetBmsMaxChargeCurrentChannel().setNextWriteValue(value);
-	}		
+	public default Value<Integer> getOffgridMaxDischargeCurrent() {
+	    return this.getBmsMaxDischargeCurrentChannel().value();
+	}
+	
+
+
+	
 	
 	public int getConfiguredMaxChargeCurrent();
 	

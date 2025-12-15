@@ -163,15 +163,15 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
-				new FC16WriteRegistersTask(108,
-						m(DeyeSunBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), // 0-185A
-						m(DeyeSunBattery.ChannelId.BMS_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109))), // 0-185A
+				//new FC16WriteRegistersTask(108,
+				//		m(DeyeSunBattery.ChannelId.CONFIGURABLE_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), // 0-185A
+				//		m(DeyeSunBattery.ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109))), // 0-185A
 
 				new FC3ReadRegistersTask(102, Priority.HIGH, // °C
 						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY, new SignedWordElement(102)),
 						new DummyRegisterElement(103, 107),
-						m(DeyeSunBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), //
-						m(DeyeSunBattery.ChannelId.BMS_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109)),
+						m(DeyeSunBattery.ChannelId.CONFIGURABLE_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), //
+						m(DeyeSunBattery.ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109)),
 
 						new DummyRegisterElement(110),
 						m(DeyeSunBattery.ChannelId.BATTERY_OPERATE_MODE, new UnsignedWordElement(111)),
@@ -201,7 +201,7 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 						m(DeyeSunBattery.ChannelId.BMS_DISCHARGING_VOLTAGE, new UnsignedWordElement(211),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 
-						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(212)),
+						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(212)), //[A] dynamically calculated
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(213)),
 
 						m(DeyeSunBattery.ChannelId.BMS_BATTERY_SOC, new UnsignedWordElement(214)),
@@ -212,10 +212,8 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 						new DummyRegisterElement(217),
 
 						// Hardware Limits Offgrid mode. Not clear!
-						m(DeyeSunBattery.ChannelId.OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(218),
-								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(DeyeSunBattery.ChannelId.OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT,
-								new UnsignedWordElement(219), ElementToChannelConverter.SCALE_FACTOR_3),
+						m(DeyeSunBattery.ChannelId.OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(218)),  // dynamically calculated
+						m(DeyeSunBattery.ChannelId.OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(219)),
 
 						m(DeyeSunBattery.ChannelId.BMS_BATTERY_ALARM, new UnsignedWordElement(220),
 								ElementToChannelConverter.SCALE_FACTOR_3),
@@ -406,8 +404,8 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		var batteryLowVoltage = this.getBatteryVoltageLow().get();
 
 		var batteryCurrent = this.getCurrent().get(); // from battery nature
-		var bmsDischargeCurrentLimit = this.getBmsDischargeCurrentLimit().get();
-		var bmsChargeCurrentLimit = this.getBmsChargeCurrentLimit().get();
+		var bmsDischargeCurrentLimit = this.getConfigurableDischargeCurrentLimit().get();
+		var bmsChargeCurrentLimit = this.getConfigurableChargeCurrentLimit().get();
 
 		// var bmsDischargeCurrentLimit = this.getDischargeMaxCurrent().get();
 
