@@ -49,7 +49,7 @@ public class TouAncillaryCostsTest {
 		final double fixedPrice = 1.0;
 		final var ac = new TouAncillaryCostsImpl();
 
-		var summerClock = Clock.fixed(Instant.parse("2026-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var summerClock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo") //
