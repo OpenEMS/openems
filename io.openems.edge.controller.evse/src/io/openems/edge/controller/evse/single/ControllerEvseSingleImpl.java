@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -28,11 +29,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.AddTask;
 import io.openems.common.jscalendar.DeleteTask;
 import io.openems.common.jscalendar.GetAllTasks;
+import io.openems.common.jscalendar.GetOneTasks;
+import io.openems.common.jscalendar.GetTask;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.jscalendar.UpdateTask;
@@ -290,8 +295,29 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 			return EmptyObject.INSTANCE;
 		});
 
+		builder.handleRequest(new GetTask<Payload>(Payload.serializer()), call -> {
+			var uid = call.getRequest().uid();
+			var task = this.tasks.tasks.stream()//
+					.filter(t -> t.uid().equals(uid))//
+					.collect(Collectors.collectingAndThen(Collectors.toList(), list -> {
+						if (list.size() != 1) {
+							throw new IllegalStateException("Expected exactly one task, but found " + list.size());
+						}
+						return list.get(0);
+					}));
+
+			return new GetTask.Response<Payload>(task);
+		});
+
 		builder.handleRequest(new GetAllTasks<Payload>(Payload.serializer()), call -> {
 			return new GetAllTasks.Response<Payload>(this.tasks.tasks);
+		});
+
+		builder.handleRequest(new GetOneTasks<Payload>(Payload.serializer()), call -> {
+			var from = call.getRequest().from();
+			var to = call.getRequest().to();
+			var oneTasksSet = this.tasks.getOneTasksBetween(from, to);
+			return new GetOneTasks.Response<Payload>(ImmutableList.copyOf(oneTasksSet));
 		});
 	}
 

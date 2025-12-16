@@ -57,7 +57,7 @@ public class DeleteTask implements EndpointRequestType<Request, EmptyObject> {
 					json -> new Request(//
 							json.getUuidOrNull("uid")), //
 					obj -> JsonUtils.buildJsonObject() //
-							.addProperty("uid", obj.uid().toString()) //
+							.addProperty("uid", obj.uid()) //
 							.build());
 		}
 	}
