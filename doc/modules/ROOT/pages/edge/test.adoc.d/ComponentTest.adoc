@@ -1,0 +1,168 @@
+
+== OSGi ComponentTest 
+
+=== What is ComponentTest?
+
+`ComponentTest` is OpenEMS's *OSGi lifecycle testing framework*. It simulates the OSGi container environment and tests the *real component implementation* (not a dummy).
+
+=== Example
+
+[source,java]
+----
+@Test
+public void testActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())  // Real component
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+It uses xref:MyConfig.adoc[MyConfig] for configuration and xref:DummyModbusBridge.adoc[DummyModbusBridge] to satisfy the Modbus dependency.
+
+=== Why Does OpenEMS Use This Pattern?
+
+OpenEMS components have an *OSGi lifecycle* with these methods:
+
+* `@Activate` - Called when component starts
+* `@Modified` - Called when configuration changes
+* `@Deactivate` - Called when component stops
+
+*ComponentTest verifies this lifecycle works correctly* before deploying to production.
+
+
+=== Consequences of Using ComponentTest
+
+==== ✅ Benefits
+
+. *Catches OSGi Errors Early*: Activation failures discovered before deployment
+. *Verifies Full Integration*: Tests how component works with dependencies
+. *Configuration Validation*: Ensures all config parameters work
+. *Channel Integrity*: Verifies all channels initialize properly
+. *Lifecycle Testing*: Tests @Activate, @Modified, @Deactivate
+. *CI/CD Integration*: Fast enough for continuous integration
+
+==== ⚠️ Limitations
+
+. *Not a Functional Test*: Only tests that component _activates_, not that it _works correctly_
+. *Requires Dummy Dependencies*: Need DummyModbusBridge, DummyConfigurationAdmin, etc.
+. *No Real Hardware*: Can't test actual Modbus communication
+. *Limited State Testing*: Use DummyComponent for complex state machine tests
+
+
+=== ComponentTest Structure and Lifecycle
+
+[source,java]
+----
+new ComponentTest(new RealComponent())           // 1. Create component instance
+    .addReference("dep1", new DummyDep1())       // 2. Inject dependencies
+    .addReference("dep2", new DummyDep2())       // 3. More dependencies
+    .activate(MyConfig.create().build())         // 4. Call @Activate
+    .next(new TestCase())                        // 5. Run test cycle
+    .next(new TestCase()                         // 6. Another cycle
+        .input(CHANNEL_ID, value)                // 6a. Set input
+        .output(CHANNEL_ID, expected))           // 6b. Assert output
+    .activate(MyConfig.create()                  // 7. Call @Modified
+        .setParam(newValue).build())
+    .next(new TestCase())                        // 8. Verify change
+    .deactivate();                               // 9. Call @Deactivate
+----
+
+=== Real-World Usage Examples
+
+==== Example 1: Minimum Test (Required for Every Component)
+
+[source,java]
+----
+@Test
+public void testActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase())  // Ensures one cycle runs without errors
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component activates without exceptions
+* All channels initialize
+* All references satisfied
+* Component deactivates cleanly
+
+==== Example 2: Configuration Testing
+
+[source,java]
+----
+@Test
+public void testReadOnlyMode() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create()
+            .setReadOnly(true)
+            .build())
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component handles read-only configuration
+* No errors when write operations are disabled
+
+==== Example 3: @Modified Lifecycle Testing
+
+[source,java]
+----
+@Test
+public void testConfigurationModification() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().setMaxCurrent(16).build())
+        .next(new TestCase())
+        // Simulate configuration change via Apache Felix Web Console
+        .activate(MyConfig.create().setMaxCurrent(32).build())  // Calls @Modified
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Component handles runtime configuration changes
+* @Modified method works without requiring restart
+
+==== Example 4: Advanced Channel Testing
+
+[source,java]
+----
+@Test
+public void testChannelValues() throws Exception {
+    var component = new EvseChargePointAblImpl();
+
+    new ComponentTest(component)
+        .addReference("cm", new DummyConfigurationAdmin())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build())
+        .next(new TestCase()
+            .output(STATE_MACHINE, State.IDLE))      // Assert initial state
+        .next(new TestCase()
+            .input(GRID_MODE, GridMode.ON_GRID)      // Provide input
+            .output(STATE_MACHINE, State.RUNNING))   // Assert state change
+        .deactivate();
+}
+----
+
+*What this verifies:*
+
+* Channel inputs work
+* Channel outputs produce expected values
+* State machine responds to inputs
+
+'''

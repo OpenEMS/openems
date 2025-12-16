@@ -1,0 +1,179 @@
+== MyConfig Pattern
+
+=== What is MyConfig?
+
+`MyConfig` is a *test configuration builder* that implements your component's `Config` interface. It provides a fluent API for creating configuration objects in tests.
+
+=== Example
+
+[source,java]
+----
+Config config = MyConfig.create()
+    .setId("evcs0")
+    .setEnabled(true)
+    .setReadOnly(false)
+    .setMaxCurrent(32)
+    .build();
+----
+
+=== Why Does OpenEMS Use This Pattern?
+
+OpenEMS components use *OSGi Declarative Services* with `@Designate` annotations. In production, configuration comes from OSGi's Configuration Admin service. In tests, we need a way to create configuration objects *without* a full OSGi container.
+
+*The Problem MyConfig Solves:*
+
+[source,java]
+----
+// ❌ WITHOUT MyConfig - This doesn't work in tests
+Config config = ???; // Can't instantiate interface directly
+
+// ❌ Mocking is verbose and brittle
+Config config = Mockito.mock(Config.class);
+when(config.id()).thenReturn("evcs0");
+when(config.enabled()).thenReturn(true);
+when(config.readOnly()).thenReturn(false);
+// ... 10+ more lines for all parameters
+
+// ✅ WITH MyConfig - Clean and readable
+Config config = MyConfig.create()
+    .setId("evcs0")
+    .setEnabled(true)
+    .setReadOnly(false)
+    .build();
+----
+
+=== Consequences of Using MyConfig
+
+==== ✅ Benefits
+
+. *Type Safety*: Compile-time checking of configuration parameters
+. *Readability*: Tests clearly show what configuration is being used
+. *Maintainability*: When Config interface changes, you update MyConfig once
+. *Defaults*: Sensible defaults reduce boilerplate (only set what differs)
+. *Consistency*: Same pattern across all OpenEMS components
+
+==== ⚠️ Responsibilities
+
+. *Keep in Sync*: When you modify `Config.java`, you *must* update `MyConfig.java`
+. *Test-Only*: MyConfig lives in `test/` directory, never use in production code
+. *Defaults Matter*: Choose sensible defaults (usually same as `@AttributeDefinition` defaults)
+
+=== Intended Usage by OpenEMS Project
+
+==== When to Create MyConfig
+
+*ALWAYS* create a MyConfig helper when:
+
+* You have a component with `@Designate(ocd = Config.class)`
+* You write tests using xref:ComponentTest.adoc[`ComponentTest`]
+* Your component has 2+ configuration parameters
+
+==== Pattern Recognition
+
+Look at existing OpenEMS components:
+
+----
+io.openems.edge.battery.fenecon.home/
+├── src/
+│   └── Config.java                    ← Production config interface
+└── test/
+    └── MyConfig.java                  ← Test config builder
+    └── BatteryFeneconHomeImplTest.java ← Uses MyConfig
+----
+
+==== MyConfig Structure (Template)
+
+[source,java]
+----
+public class MyConfig implements Config {
+
+    // Builder pattern entry point
+    public static Builder create() {
+        return new Builder();
+    }
+
+    // Builder with fluent API
+    public static class Builder {
+        private String id = "evcs0";           // Sensible default
+        private boolean enabled = true;         // Sensible default
+        private boolean readOnly = false;       // Sensible default
+        // ... all config parameters with defaults
+
+        public Builder setId(String id) {
+            this.id = id;
+            return this;
+        }
+
+        // ... setters for all parameters
+
+        public Config build() {
+            return new MyConfig(this);
+        }
+    }
+
+    // Private constructor - forces use of builder
+    private MyConfig(Builder builder) {
+        this.id = builder.id;
+        this.enabled = builder.enabled;
+        // ... copy all fields
+    }
+
+    // Interface implementation
+    @Override
+    public String id() {
+        return this.id;
+    }
+
+    // ... implement all Config methods
+}
+----
+
+=== Real-World Usage Examples
+These examples use the `io.openems.edge.evse.chargepoint.abl` component with Modbus bridge interface as context.
+
+==== Example 1: Basic Test
+
+[source,java]
+----
+@Test
+public void testBasicActivation() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().build()) // Uses all defaults
+        .deactivate();
+}
+----
+
+==== Example 2: Test with Specific Configuration
+
+[source,java]
+----
+@Test
+public void testReadOnlyMode() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create()
+            .setReadOnly(true)  // Only override what's needed
+            .build())
+        .deactivate();
+}
+----
+
+==== Example 3: Multiple Configurations
+
+[source,java]
+----
+@Test
+public void testConfigurationChange() throws Exception {
+    new ComponentTest(new EvseChargePointAblImpl())
+        .addReference("setModbus", new DummyModbusBridge("modbus0"))
+        .activate(MyConfig.create().setMaxCurrent(16).build())
+        .next(new TestCase())
+        .activate(MyConfig.create().setMaxCurrent(32).build()) // Test @Modified
+        .next(new TestCase())
+        .deactivate();
+}
+----
+
+'''
+

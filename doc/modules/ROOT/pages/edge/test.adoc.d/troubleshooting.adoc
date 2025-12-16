@@ -1,0 +1,69 @@
+== Common Mistakes and How to Avoid Them
+
+=== Mistake 1: Not Updating MyConfig When Config Changes
+
+[source,java]
+----
+// ❌ WRONG - Config changed but MyConfig not updated
+@interface Config {
+    String id();
+    int maxCurrent() default 32;
+    int minCurrent() default 6;  // NEW PARAMETER - forgot to add to MyConfig
+}
+
+// Build fails because MyConfig doesn't implement minCurrent()
+----
+
+*Solution*: Always update both files together. Use IDE refactoring.
+
+=== Mistake 2: Using ComponentTest for Functional Testing
+
+[source,java]
+----
+// ❌ WRONG - ComponentTest is too slow for this
+@Test
+public void testComplexStateMachine() throws Exception {
+    var component = new EvseChargePointAblImpl();
+    new ComponentTest(component)
+        .activate(MyConfig.create().build())
+        .next(new TestCase().input(...).output(...))  // 100+ test cases
+        .deactivate();
+}
+
+// ✅ CORRECT - Use DummyComponent for functional tests
+@Test
+public void testComplexStateMachine() {
+    DummyAblChargePoint cp = new DummyAblChargePoint("test0");
+    // Fast in-memory testing with 100+ cases
+}
+----
+
+=== Mistake 3: Not Adding Minimum ComponentTest
+
+[source,java]
+----
+// ❌ WRONG - Only have DummyComponent tests
+// No ComponentTest at all
+
+// Component might fail in production due to OSGi issues
+// that DummyComponent tests don't catch
+----
+
+*Solution*: Always have at least one ComponentTest for activation.
+
+=== Mistake 4: Using Wrong Dummy in ComponentTest
+
+[source,java]
+----
+// ❌ WRONG - Using custom mock instead of OpenEMS dummies
+new ComponentTest(new EvseChargePointAblImpl())
+    .addReference("setModbus", Mockito.mock(BridgeModbus.class))  // Wrong
+    .activate(...)
+
+// ✅ CORRECT - Use OpenEMS test infrastructure
+new ComponentTest(new EvseChargePointAblImpl())
+    .addReference("setModbus", new DummyModbusBridge("modbus0"))  // Correct
+    .activate(...)
+----
+
+'''

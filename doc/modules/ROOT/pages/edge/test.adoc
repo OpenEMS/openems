@@ -1,0 +1,248 @@
+= OpenEMS Testing Patterns Explained
+
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+== Overview
+
+There are patterns that are fundamental to OpenEMS's testing philosophy and are used consistently across the entire project.
+
+=== MyConfig
+
+*Purpose*: Create test configuration objects to avoid the need for a full OSGI environment +
+*Usage*: `MyConfig.create().setParam(value).build()` +
+*Consequence*: Must keep in sync with Config interface +
+*Benefit*: Type-safe, readable, maintainable tests
+
+=== ComponentTest
+
+*Purpose*: Test OSGi lifecycle and integration +
+*Usage*: Tests real component with dummy dependencies +
+*Consequence*: Only tests activation, not full functionality +
+*Benefit*: Catches OSGi errors before production deployment
+
+=== DummyDevice
+*Purpose*: Test business logic in isolation +
+*Usage*: Implements component interface with simplified logic, e.g. instead of a modbus bridge, with channels behaving like a real device +
+*Consequence*: Not suitable for OSGi lifecycle testing +
+*Benefit*: Fast, focused unit tests of core functionality
+
+=== Together
+
+These patterns form the *foundation* of OpenEMS component testing:
+
+. *MyConfig* provides configuration
+. *ComponentTest* verifies OSGi integration
+. *DummyDevice* verifies business logic
+. *Integration Tests* verify protocols
+
+All four layers work together to ensure components work correctly in production.
+
+
+=== The Complete Testing Stack
+using io.openems.edge.evse.chargepoint.abl as an example:
+
+----
+┌─────────────────────────────────────────────────────────────┐
+│                    OpenEMS Testing Stack                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ComponentTest (OSGi Lifecycle)                            │
+│  ├─ Uses: MyConfig                                         │
+│  ├─ Tests: Real component implementation                   │
+│  └─ Verifies: Activation, channels, config, lifecycle      │
+│                                                             │
+│  DummyDevice Tests (Business Logic)                     │
+│  ├─ Uses: DummyAblChargePoint                             │
+│  ├─ Tests: State machine, calculations, error handling     │
+│  └─ Verifies: Correctness of implementation                │
+│                                                             │
+│  Integration Tests (Modbus Protocol)                       │
+TODO:check!!! should test by inducing modbus data e.g. Modbus ASCII messages and result in modbus output reaction as well as channel value changes
+│  ├─ Uses: AblModbusSimulator                              │
+│  ├─ Tests: Real component + simulator                      │
+│  └─ Verifies: Protocol correctness, register mapping       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+----
+
+
+=== Example Structure
+Every component should have all. 
+
+TODO
+---- 
+io.openems.edge.evse.chargepoint.abl/
+├── test/
+│   ├── EvseChargePointAblImplTest.java      ← ComponentTest (5 tests)
+│   ├── DummyAblChargePoint.java             ← Dummy implementation
+│   ├── DummyAblChargePointTest.java         ← Dummy tests (12 tests)
+│   └── MyConfig.java                         ← Config builder
+----
+
+
+'''
+
+=== Example: Complete Test Suite
+
+[source,java]
+----
+// 1. ComponentTest - Does it activate?
+public class EvseChargePointAblImplTest {
+    @Test
+    public void testActivation() throws Exception {
+        new ComponentTest(new EvseChargePointAblImpl())
+            .addReference("cm", new DummyConfigurationAdmin())
+            .addReference("setModbus", new DummyModbusBridge("modbus0"))
+            .activate(MyConfig.create().build())  // Uses MyConfig
+            .next(new TestCase())
+            .deactivate();
+    }
+}
+
+// 2. DummyComponent Tests - Does logic work?
+public class DummyAblChargePointTest {
+    @Test
+    public void testChargingCycle() {
+        DummyAblChargePoint cp = new DummyAblChargePoint("test0");
+        cp.connectEv();
+        assertEquals(ChargingState.B1, cp.getCurrentState());
+
+        ChargePointActions actions = ChargePointActions.create(cp.getChargePointAbilities())
+            .setApplySetPoint(new ApplySetPoint.Action.MilliAmpere(16000))
+            .build();
+        cp.apply(actions);
+
+        assertEquals(ChargingState.C2, cp.getCurrentState());
+    }
+}
+
+// 3. Integration Tests - Does Modbus work?
+public class AblModbusIntegrationTest {
+    @Test
+    public void testWithSimulator() throws Exception {
+        AblModbusSimulator simulator = new AblModbusSimulator("127.0.0.1", 502, 1);
+        simulator.start();
+
+        // Connect real component to simulator
+        // Verify Modbus communication works
+
+        simulator.stop();
+    }
+}
+----
+
+
+== Quick Reference
+
+=== MyConfig Checklist
+
+* [ ] Implements Config interface
+* [ ] Has static `create()` method returning Builder
+* [ ] Builder has all config parameters as fields
+* [ ] Builder has sensible defaults
+* [ ] Builder has fluent setters (`return this`)
+* [ ] Builder has `build()` method
+* [ ] Private constructor takes Builder
+* [ ] Implements all Config interface methods
+* [ ] Located in `test/` directory
+
+=== ComponentTest Checklist
+
+* [ ] Tests real component implementation (not dummy)
+* [ ] Adds all required OSGi references
+* [ ] Uses MyConfig for configuration
+* [ ] Has at least one `.next(new TestCase())`
+* [ ] Calls `.deactivate()` at end
+* [ ] Tests activation without errors (minimum)
+* [ ] Optionally tests @Modified lifecycle
+* [ ] Optionally tests channel values
+
+'''
+
+== When to Create Each Pattern
+
+=== Create MyConfig When:
+
+* ✅ Component has `@Designate` annotation
+* ✅ Component has 2+ configuration parameters
+* ✅ You start writing ComponentTest
+
+=== Create ComponentTest When:
+
+* ✅ Component is a production component (not a test-only dummy)
+* ✅ Component has OSGi lifecycle methods (@Activate, @Modified, @Deactivate)
+* ✅ You want to verify OSGi integration works
+
+=== Create DummyDevice When:
+
+* ✅ You need to test complex business logic
+* ✅ Other components/controllers will use this component
+* ✅ You need fast test execution (thousands of test cycles)
+
+=== Create Integration Tests When:
+
+* ✅ Component communicates via protocol (Modbus, REST, etc.)
+* ✅ You need to verify protocol correctness
+* ✅ You want realistic end-to-end testing
+
+'''
+
+
+=== Intended Usage by OpenEMS Project
+
+==== ComponentTest vs DummyComponent - When to Use What?
+
+[cols="1,1,1"]
+|===
+| Use Case | ComponentTest | DummyComponent
+
+| Test component activation
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test OSGi lifecycle
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test channel initialization
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test configuration handling
+| ✅ Use ComponentTest
+| ❌ Not needed
+
+| Test state machine logic
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test calculations
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test error conditions
+| ❌ Too slow
+| ✅ Use DummyComponent
+
+| Test controllers using this component
+| ❌ Wrong tool
+| ✅ Use DummyComponent
+
+| CI/CD pipeline
+| ✅ Both
+| ✅ Both
+|===
+
+
+
+
+
+
+include::test.adoc.d/_include.adoc[leveloffset=+0]
