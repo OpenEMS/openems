@@ -82,7 +82,7 @@ import io.openems.edge.core.appmanager.validator.Validator;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
-		service = { AppManager.class, AppManagerImpl.class, OpenemsComponent.class, ComponentJsonApi.class },
+		service = { AppManager.class, AppManagerImpl.class, OpenemsComponent.class, ComponentJsonApi.class }, //
 		name = AppManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
@@ -181,9 +181,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		this.appInstallWorker.setKeyForFreeApps(config.keyForFreeApps());
 
+		var delayedExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES);
+
 		// resolve dependencies
-		CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES) //
-				.execute(new ResolveDependencies(componentContext.getBundleContext()));
+		delayedExecutor.execute(new ResolveDependencies(componentContext.getBundleContext()));
+
+		// update component configs
+		delayedExecutor.execute(new ForceUpdateComponentConfig(componentContext.getBundleContext()));
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;

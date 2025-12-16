@@ -6,10 +6,10 @@ import io.openems.common.utils.JsonUtils;
 public record ComponentDef(String id, String alias, String factoryId, ComponentProperties properties,
 		Configuration config) {
 
-	public record Configuration(boolean installAlways) {
+	public record Configuration(boolean installAlways, boolean forceUpdateOrCreate) {
 
 		private Configuration(Builder builder) {
-			this(builder.installAlways);
+			this(builder.installAlways, builder.forceUpdateOrCreate);
 		}
 
 		/**
@@ -26,6 +26,7 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		 */
 		public static final class Builder {
 			private boolean installAlways = false;
+			private boolean forceUpdateOrCreate = false;
 
 			private Builder() {
 			}
@@ -38,6 +39,18 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 			 */
 			public Builder installAlways(boolean installAlways) {
 				this.installAlways = installAlways;
+				return this;
+			}
+
+			/**
+			 * Sets whether the config should always be updated or the component to be
+			 * created.
+			 * 
+			 * @param forceUpdateOrCreate always to be updated or created
+			 * @return this builder
+			 */
+			public Builder forceUpdateOrCreate(boolean forceUpdateOrCreate) {
+				this.forceUpdateOrCreate = forceUpdateOrCreate;
 				return this;
 			}
 
@@ -58,7 +71,24 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		 * @return copied {@link Configuration}
 		 */
 		public Configuration withInstallAlways(boolean installAlways) {
-			return Configuration.create().installAlways(installAlways).build();
+			return Configuration.create() //
+					.installAlways(installAlways) //
+					.forceUpdateOrCreate(this.forceUpdateOrCreate) //
+					.build();
+		}
+
+		/**
+		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate
+		 * value.
+		 *
+		 * @param forceUpdateOrCreate new value
+		 * @return copied {@link Configuration}
+		 */
+		public Configuration withForceUpdate(boolean forceUpdateOrCreate) {
+			return Configuration.create() //
+					.forceUpdateOrCreate(forceUpdateOrCreate) //
+					.installAlways(this.installAlways) //
+					.build();
 		}
 	}
 
