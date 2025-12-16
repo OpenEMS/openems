@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <g fill="currentColor">
+        <path d="M12.01,3.02L2.01,20.98h20L12.01,3.02ZM12.01,5.08l8.3,14.9H3.71L12.01,5.08Z"/>
+        <rect x="11" y="17.02" width="2" height="1" rx=".2" ry=".2"/>
+        <rect x="11.5" y="8.02" width="1" height="6.5"/>
+    </g>
+</svg>

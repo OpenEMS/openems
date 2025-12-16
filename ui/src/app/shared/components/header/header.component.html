@@ -60,21 +60,20 @@
                     @case (0) {
                       <ion-icon color="success"
                         style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-                      name="checkmark-circle-outline"></ion-icon>
+                        name="oe-checkmark"></ion-icon>
                     }
                     @case (1) {
                       <ion-icon color="success"
                         style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-                        [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"
-                      size="medium"></ion-icon>
+                        [name]="edge.roleIsAtLeast('admin') ? 'oe-info' : 'oe-checkmark'" size="medium"></ion-icon>
                     }
                     @case (2) {
-                      <ion-icon color="warning" name="warning-outline"
-                      style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"></ion-icon>
+                      <ion-icon color="warning" name="oe-warning"
+                        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"></ion-icon>
                     }
                     @case (3) {
-                      <ion-icon color="danger" name="alert-circle-outline"
-                      style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-danger));"></ion-icon>
+                      <ion-icon color="danger" name="oe-error"
+                        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-danger));"></ion-icon>
                     }
                   }
                 </ion-button>

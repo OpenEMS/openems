@@ -13,21 +13,28 @@ export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from "ionicons";
+import { environment } from "src/environments";
 import { Edge } from "./components/edge/edge";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 
 addIcons({
-    "oe-consumption": "assets/img/icon/consumption.svg",
-    "oe-evcs": "assets/img/icon/evcs.svg",
-    "oe-grid": "assets/img/icon/grid.svg",
-    "oe-grid-storage": "assets/img/icon/gridStorage.svg",
-    "oe-grid-restriction": "assets/img/icon/gridRestriction.svg",
-    "oe-megafon": "assets/img/icon/megafon.svg",
-    "oe-offgrid": "assets/img/icon/offgrid.svg",
-    "oe-production": "assets/img/icon/production.svg",
-    "oe-storage": "assets/img/icon/storage.svg",
+    "oe-consumption": environment.icons.COMMON.CONSUMPTION,
+    "oe-heatpump": environment.icons.COMPONENT.HEATPUMP,
+    "oe-selfconsumption": environment.icons.COMMON.SELFCONSUMPTION,
+    "oe-evcs": environment.icons.COMPONENT.EVCS,
+    "oe-grid": environment.icons.COMMON.GRID,
+    "oe-grid-storage": environment.icons.COMMON.GRID_STORAGE,
+    "oe-grid-restriction": environment.icons.COMMON.GRID_RESTRICTION,
+    "oe-megafon": environment.icons.COMMON.MEGAFON,
+    "oe-offgrid": environment.icons.COMMON.OFFGRID,
+    "oe-production": environment.icons.COMMON.PRODUCTION,
+    "oe-storage": environment.icons.COMMON.STORAGE,
+    "oe-checkmark": environment.icons.STATUS.CHECKMARK,
+    "oe-error": environment.icons.STATUS.ERROR,
+    "oe-warning": environment.icons.STATUS.WARNING,
+    "oe-info": environment.icons.STATUS.INFO,
 });
 
 export class Permission {

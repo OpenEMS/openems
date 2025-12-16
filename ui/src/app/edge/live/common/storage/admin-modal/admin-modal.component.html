@@ -793,13 +793,13 @@
 
   <ion-fab *ngIf="formGroup?.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
     <ion-fab-button (click)="applyChanges()">
-      <ion-icon size="large" name="checkmark-circle-outline">
+      <ion-icon size="large" name="oe-checkmark">
       </ion-icon>
     </ion-fab-button>
   </ion-fab>
 
   <ng-template #noValidTargetTime>
-    <ion-icon name="warning-outline" color="warning"></ion-icon>
+    <ion-icon name="oe-warning" color="warning"></ion-icon>
     <ion-label style="text-align: center;">
       {{"EDGE.INDEX.RETROFITTING.SELECT_A_DATE" | translate}}
     </ion-label>
