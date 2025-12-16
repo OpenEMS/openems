@@ -357,7 +357,12 @@
           "TOTAL_CHARGING_POWER": "Total chargingpower",
           "UNCONTROLLABLE": "This charging station can not be controlled.",
           "UNKNOWN": "Unknown",
-          "UNPLUGGED": "Unplugged"
+          "UNPLUGGED": "Unplugged",
+          "ZERO": "No Charge",
+          "MINIMUM": "Minimum Charge with PV Surplus",
+          "SURPLUS": "PV Surplus",
+          "FORCE_CHARGE": "Fast Charging",
+          "TASKS": "Tasks"
         },
         "FIX_DIGITAL_OUTPUT": "Digital Outputcontroller",
         "GRID_OPTIMIZED_CHARGE": {
@@ -533,7 +538,14 @@
             "DELAY_DISCHARGE": "Delayed discharge"
           }
         },
-        "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply"
+        "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",
+        "EVSE": {
+          "SCHEDULE": {
+            "SCHEDULE": "Schedule",
+            "ADD_TASK": "Add task"
+          },
+          "CHARGE_MODE": "Charging mode"
+        }
       }
     },
     "NETWORK": {
@@ -1334,6 +1346,11 @@
       "UPDATE_SEARCH": "Checking for updates...",
       "UPDATE_TIME": "(This can take up to 10 minutes)",
       "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
+    }
+  },
+  "EVSE_SINGLE": {
+    "SETTINGS": {
+      "CHARGE_MODE": "What mode should be used for charging"
     }
   }
 }

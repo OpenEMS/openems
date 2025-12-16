@@ -1,0 +1,71 @@
+@if (isInitialized) {
+  <oe-navigation-view [title]="Schedule" [component]="component" [formGroup]="formGroup">
+    <ion-grid class="schedule-table">
+      <oe-modal-line [name]="'EVSE_SINGLE.HOME.MODE.LABEL' | translate" [converter]="CONVERT_TO_MODE_LABEL"
+        [channelAddress]="component.id + '/_PropertyMode'">
+      </oe-modal-line>
+
+      <ion-row class="header-row ion-hide-sm-down ion-padding-top">
+        <ion-col size="1"></ion-col>
+        <ion-col size="3" size-lg="3" size-xl="3" translate>
+          EVSE_SINGLE.SCHEDULE.START
+        </ion-col>
+        <ion-col size="2" size-lg="2" translate>
+          EVSE_SINGLE.SCHEDULE.DURATION
+        </ion-col>
+        <ion-col size="2" size-lg="2" translate>
+          EVSE_SINGLE.SCHEDULE.FREQUENCY
+        </ion-col>
+        <ion-col size="4" size-lg="4" translate>
+          EVSE_SINGLE.SCHEDULE.MODE
+        </ion-col>
+      </ion-row>
+      @for (item of schedule; track item) {
+        <ion-row class="data-row">
+          <ion-col size="1" class="edit-col ion-hide-sm-down">
+            <ion-button size="small" (click)="editTaskPage(item.uid)" translate>
+              EVSE_SINGLE.SCHEDULE.EDIT
+            </ion-button>
+          </ion-col>
+          <ion-col size="3" class="ion-hide-sm-down">
+            {{ item.start | date:'EEE MMM d HH:mm' }}
+          </ion-col>
+          <ion-col size="2" class="ion-hide-sm-down">
+            {{ item.durationText }}
+          </ion-col>
+          <ion-col size="2" class="repeat-col ion-hide-sm-down">
+            {{ item.recurrenceText }}
+          </ion-col>
+          <ion-col size="4" class="controllers-col ion-hide-sm-down">
+            {{ item.payloadText }}
+          </ion-col>
+          <ion-col size="12" class="ion-hide-sm-up mobile-card">
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>{{ item.start | date:'EEE MMM d HH:mm' }}</ion-card-title>
+                <ion-card-subtitle>{{ item.recurrenceText }}</ion-card-subtitle>
+              </ion-card-header>
+              <ion-card-content>
+                <ion-item lines="none">
+                  <ion-label>
+                    <strong translate>EVSE_SINGLE.SCHEDULE.DURATION</strong>:
+                    {{ item.durationText }}
+                  </ion-label>
+                </ion-item>
+                <ion-item lines="none">
+                  <ion-label>
+                    <strong translate>EVSE_SINGLE.SCHEDULE.MODE</strong>:
+                    {{ item.payloadText }}
+                  </ion-label>
+                </ion-item>
+                <ion-button size="small" expand="block" (click)="editTaskPage(item.uid)" class="mt-2" translate>
+                  EVSE_SINGLE.SCHEDULE.EDIT
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      }
+    </ion-grid>
+  </oe-navigation-view>
+}

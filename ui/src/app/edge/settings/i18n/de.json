@@ -13,9 +13,7 @@
         "STATUS_AVAILABLE": "Verfügbar",
         "STATUS_INCOMPATIBLE": "Inkompatibel",
         "STATUS_FILTER": "Verfügbarkeit",
-        "CATEGORY_FILTER": "App-Kategorien",
-        "NEXT_VERSION_INFO": "Wir beginnen den öffentlichen BETA-Feldtest der neuen FEMS App KEBA. Details und Neuheiten finden Sie hier in FENECON Docs.",
-        "EVSE_BETA_TEST": "Testen Sie die neue FEMS App KEBA (BETA)"
+        "CATEGORY_FILTER": "App-Kategorien"
       }
     }
   }
