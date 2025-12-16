@@ -166,8 +166,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		case V1_ESS_ONLY //
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
-				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, this.sum, this.ess,
-						this.ctrlLimiter14as, this.config.maxChargePowerFromGrid());
+				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
+						this.sum, this.ess, this.ctrlLimiter14as, //
+						this.config.maxChargePowerFromGrid(), //
+						null /* forceState */);
+			case FORCE_DELAY_DISCHARGE //
+				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
+						this.sum, this.ess, this.ctrlLimiter14as, //
+						this.config.maxChargePowerFromGrid(), //
+						StateMachine.DELAY_DISCHARGE /* forceState */);
+			case FORCE_CHARGE_GRID //
+				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
+						this.sum, this.ess, this.ctrlLimiter14as, //
+						this.config.maxChargePowerFromGrid(), //
+						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);
 			};
@@ -175,8 +187,17 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		case V2_ENERGY_SCHEDULABLE //
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
-				-> calculateAutomaticMode(this.sum, this.ess, this.config.maxChargePowerFromGrid(),
-						this.energyScheduleHandler.getCurrentPeriod());
+				-> calculateAutomaticMode(this.sum, this.ess, //
+						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						null /* forceState */);
+			case FORCE_DELAY_DISCHARGE //
+				-> calculateAutomaticMode(this.sum, this.ess, //
+						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						StateMachine.DELAY_DISCHARGE /* forceState */);
+			case FORCE_CHARGE_GRID //
+				-> calculateAutomaticMode(this.sum, this.ess, //
+						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);
 			};
@@ -190,7 +211,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 		// Apply ActivePower set-point
 		if (am.setPoint() != null) {
-			ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
+			if (am.setPoint() == 0) {
+				// No need to react on lazy behavior of a meter as the target is always the same
+				// (At the same time it would cause problems for lazy inverters)
+				this.ess.setActivePowerEquals(am.setPoint());
+			} else {
+				ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
+			}
 		}
 	}
 

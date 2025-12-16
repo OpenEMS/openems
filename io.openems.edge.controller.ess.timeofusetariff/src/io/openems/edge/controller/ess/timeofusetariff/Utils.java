@@ -67,13 +67,11 @@ public final class Utils {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @param period                 the scheduled {@link Period}
+	 * @param forceMode              force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
 	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, int maxChargePowerFromGrid,
-			Period<StateMachine, OptimizationContext> period) {
-		final StateMachine actualMode;
-		final Integer setPoint;
-
+			Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (period == null || gridActivePower == null || essActivePower == null) {
@@ -87,10 +85,12 @@ public final class Utils {
 		final var pwrChargeGrid = calculateChargeGridPower(period.coc().essChargePowerInChargeGrid(), ess,
 				essActivePower, gridActivePower, maxChargePowerFromGrid);
 		final var pwrDischargeGrid = calculateDischargeGridPower(ess, essActivePower, gridActivePower);
-		actualMode = postprocessRunState(ess, period.mode(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		final var actualMode = forceMode != null //
+				? forceMode //
+				: postprocessRunState(ess, period.mode(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
-		setPoint = switch (actualMode) {
+		final var setPoint = switch (actualMode) {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
