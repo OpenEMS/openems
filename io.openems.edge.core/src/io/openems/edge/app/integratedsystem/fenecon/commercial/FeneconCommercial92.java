@@ -62,7 +62,8 @@ public class FeneconCommercial92
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
-		GRID_CODE(AppDef.copyOfGeneric(gridCode())), //
+		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
+				.setDefaultValue(GridCode.VDE_4105))), //
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
