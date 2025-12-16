@@ -32,6 +32,7 @@ public final class UtilsV1 {
 	private UtilsV1() {
 	}
 
+	@Deprecated
 	public static final int PERIODS_PER_HOUR = 4;
 
 	/**
@@ -43,6 +44,7 @@ public final class UtilsV1 {
 	 *                                      {@link ControllerEssEmergencyCapacityReserve}
 	 * @return the value in [%]
 	 */
+	@Deprecated
 	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 		return concat(//
@@ -68,6 +70,7 @@ public final class UtilsV1 {
 	 * @param forceState             force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
+	@Deprecated
 	public static ApplyMode calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
 			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid, StateMachine forceState) {
 		final var targetState = getCurrentPeriodState(esh);
@@ -89,6 +92,7 @@ public final class UtilsV1 {
 	 * @param forceState                 force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
+	@Deprecated
 	protected static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
 			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState,
 			StateMachine forceState) {
@@ -126,6 +130,7 @@ public final class UtilsV1 {
 	 * @param esh the {@link EnergyScheduleHandlerV1}
 	 * @return the {@link StateMachine}
 	 */
+	@Deprecated
 	public static StateMachine getCurrentPeriodState(EnergyScheduleHandlerV1 esh) {
 		if (esh != null) {
 			var state = esh.getCurrentState();
@@ -142,6 +147,7 @@ public final class UtilsV1 {
 	 * @param ctrlLimiter14as the list of {@link ControllerEssLimiter14a}s
 	 * @return the (negative) charge value or {@link Integer#MIN_VALUE} for no limit
 	 */
+	@Deprecated
 	public static int calculateLimitChargePowerFor14aEnWG(List<ControllerEssLimiter14a> ctrlLimiter14as) {
 		var isLimited = ctrlLimiter14as.stream() //
 				.map(c -> c.getRestrictionMode()) //

@@ -7,7 +7,6 @@ import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Math.max;
-import static java.lang.Thread.currentThread;
 
 import java.util.Optional;
 import java.util.concurrent.Executor;
