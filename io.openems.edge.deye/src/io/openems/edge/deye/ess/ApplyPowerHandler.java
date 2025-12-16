@@ -8,6 +8,7 @@ import io.openems.edge.deye.enums.WorkState;
 import io.openems.edge.deye.enums.EnableDisable;
 import io.openems.edge.deye.enums.EnergyManagementModel;
 import io.openems.edge.deye.enums.LimitControlFunction;
+import io.openems.edge.deye.enums.RemoteMode;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -57,7 +58,8 @@ public class ApplyPowerHandler {
 		Integer batteryVoltageRaw = battery.getBatteryVoltage().get();
 		Integer maxAllowedChargePower = ess.getAllowedChargePower().get();
 		Integer maxAllowedDischargePower = ess.getAllowedDischargePower().get();
-
+		Integer activeDeciPercent = ess.getBatteryPowerDeciPercent().get();
+				
 		// calculation of target power
 		activePowerTarget = activePowerTarget - pvPower;
 
@@ -79,7 +81,7 @@ public class ApplyPowerHandler {
 
 		if ((Math.abs(averageTargetPower - activePowerTarget) > 100) || this.timerElapsed(10000)) { // write new values if difference > 100W or 10 seconds
 			if (powerDeciPercent != this.powerDeciPercentLast) {
-				this.ess.setSetRemoteMode(1); // reg 1100 0->disable, 1->enable
+				//this.ess.setRemoteMode(RemoteMode.ON); // reg 1100 0->disable, 1->enable
 				this.ess.setSetRemoteWatchdogTime(600); // reg 1101 Watchdog
 
 				// set placeholders to avoid splitted modbus writes
@@ -99,21 +101,25 @@ public class ApplyPowerHandler {
 				this.ess.setSetBatteryPowerSoc(0); // 1110
 
 				this.ess.setSetAcSetpoint3pPercent(0); // reg 1111. Negative values -> Charge
-				this.powerDeciPercentLast = powerDeciPercent;				
+				this.powerDeciPercentLast = powerDeciPercent;			
+
+				// convert for debugging
+				int powerPercent = (int) Math.round((double) powerDeciPercent / 10.0);
+				ess.logDebug(log,"\n\n\n Writing new values to ESS. Active DeciPercent: " + activeDeciPercent);				
+				ess.logDebug(log,
+						"\n-> AC target: " + activePowerTarget + " avg Target:" + averageTargetPower + "(" + powerPercent
+								+ "[d%]) " + "\n   PV: " + pvPower + "\n   DcDisCharge: " + dcDischargePower
+								+ "\n   ActivePower: " + activePower + " | Grid (Deye AC In): ToDo"
+								+ "\n | EnergyManagementModel: " + this.ess.getEnergyManagementModel()
+								+ "\n | LimitControlFunction: " + this.ess.getLimitControlFunction() + "\n | SolarSellMode: "
+								+ this.ess.getSolarSellMode() + "\n | GridChargeEnabled: " + this.ess.getGridCharingEnabled());
 			}
 
 
 		}
-		// convert for debugging
-		int powerPercent = (int) Math.round((double) powerDeciPercent / 10.0);
 
-		ess.logDebug(log,
-				"\n-> AC target: " + activePowerTarget + " avg Target:" + averageTargetPower + "(" + powerPercent
-						+ " /10%) " + "\n   PV: " + pvPower + "\n   DcDisCharge: " + dcDischargePower
-						+ "\n   ActivePower: " + activePower + " | Grid (Deye AC In): ToDo"
-						+ "\n | EnergyManagementModel: " + this.ess.getEnergyManagementModel()
-						+ "\n | LimitControlFunction: " + this.ess.getLimitControlFunction() + "\n | SolarSellMode: "
-						+ this.ess.getSolarSellMode() + "\n | GridChargeEnabled: " + this.ess.getGridCharingEnabled());
+
+
 	}
 
 	// ========================= Helper =========================

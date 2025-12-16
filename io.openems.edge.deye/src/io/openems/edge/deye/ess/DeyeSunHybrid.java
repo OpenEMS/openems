@@ -31,6 +31,7 @@ import io.openems.edge.deye.enums.GridStandard;
 import io.openems.edge.deye.enums.InverterRunState;
 import io.openems.edge.deye.enums.LimitControlFunction;
 import io.openems.edge.deye.enums.RemoteLockState;
+import io.openems.edge.deye.enums.RemoteMode;
 import io.openems.edge.deye.enums.WorkState;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -431,7 +432,8 @@ public interface DeyeSunHybrid
 		POWER_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
 		POWER_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)), //
 
-		SET_REMOTE_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
+		REMOTE_MODE(Doc.of(RemoteMode.values()).accessMode(AccessMode.READ_WRITE)), //
+//		SET_REMOTE_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
 		SET_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
 		SET_BATTERY_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
 		SET_3P_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)), //
@@ -591,13 +593,24 @@ public interface DeyeSunHybrid
 
 	// --- Remote mode + control registers (used in ApplyPowerHandler) ---
 
-	public default IntegerWriteChannel getSetRemoteModeChannel() {
-		return this.channel(ChannelId.SET_REMOTE_MODE);
+	public default EnumWriteChannel getSetRemoteModeChannel() {
+		return this.channel(ChannelId.REMOTE_MODE);
 	}
 
-	public default void setSetRemoteMode(int value) throws OpenemsNamedException {
+	public default Channel<RemoteMode> getRemoteModeChannel() {
+		return this.channel(ChannelId.REMOTE_MODE);
+	}	
+	
+	public default void setRemoteMode(RemoteMode value) throws OpenemsNamedException {
 		this.getSetRemoteModeChannel().setNextWriteValue(value);
 	}
+
+	public default RemoteMode getRemoteMode()  {
+		return this.getRemoteModeChannel().value().asEnum();
+	}
+		
+	
+	
 
 	public default IntegerWriteChannel getSetRemoteWatchdogTimeChannel() {
 		return this.channel(ChannelId.SET_REMOTE_WATCHDOG_TIME);
@@ -646,14 +659,23 @@ public interface DeyeSunHybrid
 	public default void setBatteryConstantCurrent(int value) throws OpenemsNamedException {
 		this.getSetBatteryConstantCurrentChannel().setNextWriteValue(value);
 	}
-
+	
+	// deci percent
 	public default IntegerWriteChannel getSetBatteryPowerDeciPercentChannel() {
+		return this.channel(ChannelId.SET_BATTERY_POWER_DECI_PERCENT);
+	}
+	
+	public default IntegerReadChannel getBatteryPowerDeciPercentChannel() {
 		return this.channel(ChannelId.SET_BATTERY_POWER_DECI_PERCENT);
 	}
 
 	public default void setSetBatteryPowerDeciPercent(int value) throws OpenemsNamedException {
 		this.getSetBatteryPowerDeciPercentChannel().setNextWriteValue(value);
 	}
+	
+	public default Value<Integer> getBatteryPowerDeciPercent() {
+		return this.getBatteryPowerDeciPercentChannel().value();
+	}	
 
 	public default IntegerWriteChannel getSetBatteryPowerSocChannel() {
 		return this.channel(ChannelId.SET_BATTERY_POWER_SOC);

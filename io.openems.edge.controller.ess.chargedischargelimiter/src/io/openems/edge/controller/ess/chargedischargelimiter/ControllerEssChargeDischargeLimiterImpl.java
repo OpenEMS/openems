@@ -107,7 +107,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			target = "(enabled=true)")
 	private List<ControllerEssThresholdPeakshaver> ctrlEssThresholdPeakshavers = new CopyOnWriteArrayList<>();
 
-	@Reference
+	@Reference(policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.OPTIONAL, //
+			target = "(enabled=true)")
 	private TimeOfUseTariff timeOfUseTariff;
 
 	public ControllerEssChargeDischargeLimiterImpl() {

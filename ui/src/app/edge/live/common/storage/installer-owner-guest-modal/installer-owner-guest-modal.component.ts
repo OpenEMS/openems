@@ -173,7 +173,8 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                 const chargedEnergy = currentData.channel[controller.id + "/ChargedEnergy"];
 
                                 const isChargeDischargeLimiterEnabled = currentData.channel[controller.id + "/_PropertyIsChargeDischargeLimiterEnabled"] == 1;
-                                const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
+                                //const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
+                                const stateKey = (ChargeDischargeControllerState[Number(stateNumber)] as keyof typeof ChargeDischargeControllerState) ?? "UNDEFINED";
                                 console.log("Current Data:", currentData);
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
@@ -184,7 +185,8 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                         maxSoc: new FormControl(maxSoc),
                                         forceChargeSoc: new FormControl(forceChargeSoc),
                                         energyBetweenBalancingCycles: new FormControl(energyBetweenBalancingCycles),
-                                        state: new FormControl(state),
+                                        //state: new FormControl(state),
+                                        stateKey: new FormControl(stateKey),
                                         stateNumber: new FormControl(stateNumber),
                                         balancingRemainingSeconds: new FormControl(balancingRemainingSeconds),
                                         chargedEnergy: new FormControl(chargedEnergy),
