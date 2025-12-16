@@ -319,7 +319,7 @@ public class PlcNextGdsDataProvider {
 	 * @param device      represents the device holding the channels
 	 */
 	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue, PlcNextDevice device) {
-		log.debug("Providing value '" + mappedValue.getValue() + "' to channel named '" + mappedValue.getChannelId()
+		log.info("Providing value '" + mappedValue.getValue() + "' to channel named '" + mappedValue.getChannelId()
 				+ "'");
 		device.channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 	}
