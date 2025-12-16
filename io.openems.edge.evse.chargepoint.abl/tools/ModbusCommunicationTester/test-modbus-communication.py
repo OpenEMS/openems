@@ -43,223 +43,336 @@ DEVICE_ID = 0x01                # Modbus device ID (1-16, default: 1)
 # RESPONSE PARSER FUNCTIONS
 # ============================================================================
 
-def parse_device_id_firmware(resp_hex):
-    """Parse response from 0x0001 - Read device-ID and firmware revision"""
+def parse_device_id_firmware(resp_hex): # getestet: passed
+    """Parse response from 0x0001..0x0002 - Read device-ID and firmware revision"""
+    # Read device-ID, firmware-revision and config 
     if len(resp_hex) < 14:
         return ["Response too short"]
 
     result = []
-    # Response format: 01 03 04 01 0F 15 09 CA (example)
-    # Positions 6-9: Register 0x0001 (4 hex chars)
-    # Positions 10-13: Register 0x0002 (4 hex chars)
-    reg_0001 = int(resp_hex[6:10], 16)   # Register 0x0001
-    reg_0002 = int(resp_hex[10:14], 16)  # Register 0x0002
-
-    # Register 0x0001: bits 23..22 = hardware, bits 15..0 = device ID
+    # Bytes: 01 03 04 01 0F 15 09 CA (example)
+    # (Expected: >010304010F1509CA CRLF)
+    # (Received: >010304014141363F CRLF)
+    # Response format: 01 03 04 XX YY ZZ WW
+    # Response Type: R2 (4 bytes)
     # For 16-bit register: bits 15..8 = high byte, bits 7..0 = low byte
-    hw_version = (reg_0001 >> 8) & 0xFF
-    dev_id = reg_0001 & 0xFF 
+    reg_0001 = int(resp_hex[6:10], 16)   # Register 0x0001 (0x010F) - Positions 6-9: XXYY (4 hex chars)
+    reg_0002 = int(resp_hex[10:14], 16)  # Register 0x0002 (0x1509) - Positions 10-13: ZZWW (4 hex chars)
 
-    hw_map = {0x00: "pcba: 141215", 0x01: "pcba: 160307", 0x10: "pcba: 170725"}
+    # Register 0x0001 (0x010F):
+
+    # bits 31..24 (0x01)
+    register = (reg_0001 >> 8) & 0xFF   # b0000 0001
+    result.append(f"Register which the answer is referring to: {register}")
+
+    # bits 23..22 (b00) = hardware
+    hw_version = (reg_0001 >>6) & 0x03
+    hw_map = {0x00: "pcba: 141215", 0x01: "pcba: 160307", 0x10: "pcba: 170725", 0x11: "not used"}
     hw_str = hw_map.get(hw_version, f"Unknown (0x{hw_version:02X})")
+    result.append(f"Hardware: (0b{hw_version:02b}) = {hw_str}")
 
-    result.append(f"Hardware: {hw_str}")
+    # bits 21..16 (b00ffff) = device ID
+    dev_id = reg_0001 & 0x3F 
     result.append(f"Device ID: {dev_id}")
 
-    # Register 0x0002: bits 15..12 = major version, bits 11..8 = minor version, bits 7..0 = flags
+    # Register 0x0002 (0x1509): 
+    
+    # bits 15..12 () = major version, bits 11..8 = minor version
     fw_major = (reg_0002 >> 12) & 0x0F
     fw_minor = (reg_0002 >> 8) & 0x0F
+    result.append(f"Firmware: V{fw_major}.{fw_minor}")
+    
+    #bits 7..0 = flags
     flags = reg_0002 & 0xFF
 
-    result.append(f"Firmware: V{fw_major}.{fw_minor}")
-
-    if flags & 0x80: result.append("  - Coding resistor reading enabled")
+    if flags & 0x80: result.append("  - Coding resistor reading enabled") # Reading of coding resistor at socket-input CS for rated current I_CS  of adapter enabled 
     if flags & 0x40: result.append("  - Upstream timeout enabled")
     if flags & 0x20: result.append("  - Internal phase current meter enabled")
     if flags & 0x10: result.append("  - Internal RDC-MD enabled")
     if flags & 0x08: result.append("  - Socket enabled")
-    if flags & 0x04: result.append("  - Welding detection enabled")
-
+    if flags & 0x04: result.append("  - Welding detection (contactor) enabled")
+    
     cable_mode = flags & 0x03
-    cable_map = {0: "No function", 1: "Must be closed for B1->B2", 2: "Closed: Outlet enabled", 3: "Invalid"}
-    result.append(f"  - Cable mode: {cable_map.get(cable_mode, 'Unknown')}")
+    cable_map = {0: "No function", 1: "Must be closed for transition B1->B2", 2: "Closed: Outlet enabled", 3: "Invalid"}
+    result.append(f"  - Cable mode: (0b{cable_mode:02b}) = {cable_map.get(cable_mode, 'Unknown')}")
 
     return result
 
-def parse_modbus_settings(resp_hex):
+def parse_modbus_settings(resp_hex): # tested: passed
     """Parse response from 0x0003 - Read MODBUS settings"""
     if len(resp_hex) < 10:
         return ["Response too short"]
-    print(f"resp_hex{resp_hex}") # debug jk
-    print(f"resp_hex6:8 : {resp_hex[6:10]}") # debug jk
 
     result = []
     # Bytes: 01 03 02 03 27 D0 (example)
-    settings = int(resp_hex[6:10], 16)
-    print(f"settings{settings}") # debug jk
-    stopbits = (settings >> 6) & 0x03
-    result.append(f"Stop bits: {1 if stopbits == 0 else 2}")
-    print(f"stopbits{stopbits}") # debug jk
+    # (Expected: >0103020327D0 CRLF)
+    # (Received: >0103020327D0 CRLF)
+    # Response format: 01 03 02 XX YY
+    # Response Type: R1 (2 bytes)
+    reg_0003 = int(resp_hex[6:10], 16) # 0x0327 = b0000 0011 0010 0111
 
-    parity = (settings >> 4) & 0x03
+    register = (reg_0003 >> 8) & 0xFF   # b0000 0011
+    result.append(f"Register which the answer is referring to: 0x{register:02X}")
+
+    stopbits = (reg_0003 >> 6) & 0x03   # b00 (b00 = 1 stop bit, b01 = 2 stop bits)
+    result.append(f"Stop bits: (0b{stopbits:02b}) = {1 if stopbits == 0 else 2}")
+
+    parity = (reg_0003 >> 4) & 0x03   # b10 (00=None, 01=Odd, 10=Even, 11=Invalid)
     parity_map = {0: "None", 1: "Odd", 2: "Even", 3: "Invalid"}
-    result.append(f"Parity: {parity_map.get(parity, 'Unknown')}")
-    print(f"parity{parity}") # debug jk
+    result.append(f"Parity: (0b{parity:02b}) = {parity_map.get(parity, 'Unknown')}")
 
-    baudrate_code = settings & 0x0F
+    baudrate_code = reg_0003 & 0x0F   # b0111 (5=9600, 6=19200, 7=38400, 8=57600)
     baud_map = {5: "9600", 6: "19200", 7: "38400", 8: "57600"}
-    result.append(f"Baudrate: {baud_map.get(baudrate_code, 'Invalid')} baud")
-    print(f"baudrate_code{baudrate_code}") # debug jk
+    result.append(f"Baudrate: (0b{baudrate_code:02b}) = {baud_map.get(baudrate_code, 'Invalid')} baud")
 
     return result
 
-def parse_system_flags(resp_hex):
+def parse_system_flags(resp_hex): # reviewed
     """Parse response from 0x0006 - Read system flags"""
     if len(resp_hex) < 14:
         return ["Response too short"]
 
     result = []
-    # Response format: 01 03 04 06 XX YY YY ZZ
-    # Positions 6-9: Register 0x0006 (4 hex chars)
-    # Positions 10-13: Register 0x0007 (4 hex chars)
-    reg_0006 = int(resp_hex[6:10], 16)   # Register 0x0006
-    reg_0007 = int(resp_hex[10:14], 16)  # Register 0x0007
+    # example: ???
+    # Response format: 01 03 04 XX XX YY YY
+    # Response Type: R2 (4 bytes)
+    reg_0006 = int(resp_hex[6:10], 16)   # Register 0x0006 Positions   6-9: (4 hex chars)
+    flags = int(resp_hex[10:14], 16)  # Register 0x0007 Positions 10-13: (4 hex chars)
 
-    # Register 0x0006: bits 23..16 = state pointer, bits 15..8 and 7..0 = flags
+    # Register 0x0006: 
+    # bits 31..24
+    register = (reg_0006 >> 8) & 0xFF   # 0x..
+    result.append(f"Register which the answer is referring to: 0x{register:02X}")
+
+    # bits 23..16 = state pointer
     state_pointer = (reg_0006 >> 8) & 0xFF
     result.append(f"State machine pointer: 0x{state_pointer:02X}")
 
-    # Extract flag bytes
-    flags_high = reg_0006 & 0xFF
-    flags_low = (reg_0007 >> 8) & 0xFF
+    # Register 0x0007:
+    result.append(f"System flags: (0x{flags:04X} = 0b{flags:016b})")
 
-    if flags_high & 0x80:
-        result.append("Upstream timeout triggers F14")
+    # bits 15
+    upstream_timeout = flags & 0x8000
+    if upstream_timeout:
+        result.append(f"(0b{upstream_timeout:01b}) = Upstream timeout triggers F14")
     else:
-        result.append("Upstream timeout triggers F4")
+        result.append(f"(0b{upstream_timeout:01b}) = Upstream timeout triggers F4")
 
-    if flags_high & 0x40:
-        result.append("B1->B2 enabled after power-cycle")
+    # bits 14
+    b1_b2_apc = flags & 0x4000
+    if b1_b2_apc:
+        result.append(f"(0b{b1_b2_apc:01b}) = B1->B2 enabled after power-cycle")
     else:
-        result.append("B1->B2 disabled after power-cycle")
+        result.append(f"(0b{b1_b2_apc:01b}) = B1->B2 disabled after power-cycle")
 
-    if flags_low & 0x02:
-        result.append("WARN: Upstream communication lost (BC6)")
+    # bits 13..12
+    limits_CP = (flags >> 12) & 0x03
+    if limits_CP == 0x00:
+        result.append(f"(0b{limits_CP:02b}) = Use default limits for CP detection and timing")
+    elif limits_CP == 0x10:
+        result.append(f"(0b{limits_CP:02b}) = Use China limits for CP detection and timing")
     else:
-        result.append("OK: Upstream communication established")
+        result.append(f"(0b{limits_CP:02b}) = (reserved)")
 
-    if flags_low & 0x01:
-        result.append("WARN: Load imbalance detected (BC3)")
+    # bits 11..10: reserved
+    
+    # bit 9
+    upstream_comm = flags & 0x200       
+    if upstream_comm:
+        result.append(f"(0b{upstream_comm:01b}) = WARN: Upstream communication lost (BC6); timeout may trigger F4/F14 ") 
+    else:
+        result.append(f"(0b{upstream_comm:01b}) = OK: Upstream communication established")
 
-    temp = (flags_low >> 7) & 0x01
-    if temp:
-        result.append("WARN: Temperature 60°C < T < 80°C (BC5)")
+    # bit 8
+    load_imbalance = flags & 0x100
+    if load_imbalance:
+        result.append(f"(0b{load_imbalance:01b}) = WARN: Load imbalance detected (BC3)")
+    else:    
+        result.append(f"(0b{load_imbalance:01b}) = OK: No load imbalance detected")
 
-    current_meter = (flags_low >> 6) & 0x01
+    # bit 7
+    onboard_temp = flags & 0x80
+    if onboard_temp:
+        result.append(f"(0b{onboard_temp:01b}) = WARN: Onboard Temperature 60°C < T < 80°C (BC5)")
+    else:
+        result.append(f"(0b{onboard_temp:01b}) = OK: Onboard Temperature T <= 60°C")
+
+    # bit 6
+    current_meter = flags & 0x40
     if current_meter:
-        result.append("WARN: Internal phase current metering failed (BC4)")
+        result.append(f"(0b{current_meter:01b}) = WARN: Internal phase current metering failed (BC4)")
+    else:
+        result.append(f"(0b{current_meter:01b}) = OK: Internal phase current metering available")
 
-    overcurrent = flags_low & 0x07
-    if overcurrent == 0:
-        result.append("OK: EV Current <= 100% Ic")
-    elif overcurrent == 1:
-        result.append("WARN: EV Current 100-105% Ic")
-    elif overcurrent == 5:
-        result.append("WARN: EV Current 105-110% Ic")
-    elif overcurrent == 3:
-        result.append("WARN: EV Current 110-120% Ic")
-    elif overcurrent == 7:
-        result.append("WARN: EV Current > 120% Ic")
-
+    # bit 5
+    e0_a1 = flags & 0x20
+    if e0_a1:
+        result.append(f"(0b{e0_a1:01b}) = E0->A1 disabled")
+    else:
+        result.append(f"(0b{e0_a1:01b}) = E0->A1 enabled")
+        
+    # bit 4
+    b1_b2_en = flags & 0x10
+    if b1_b2_en:
+        result.append(f"(0b{b1_b2_en:01b}) = B1->B2 disabled")
+    else:
+        result.append(f"(0b{b1_b2_en:01b}) = B1->B2 enabled")
+    
+    # bit 3
+    a1_b1_en = flags & 0x08
+    if a1_b1_en:
+        result.append(f"(0b{a1_b1_en:01b}) = A1->B1 disabled")
+    else:
+        result.append(f"(0b{a1_b1_en:01b}) = A1->B1 enabled")   
+    
+    # bits 2..0 = EV Current status 
+    
+    ev_current = flags & 0x07
+    if ev_current == 0b000:
+        result.append(f"(0b{ev_current:03b}) = OK: EV Current <= 100% I_c") # EV Current ≤ 100% I_c
+    elif ev_current == 0b001:
+        result.append(f"(0b{ev_current:03b}) = WARN: EV Current 100-105% I_c") # 100% I_c < EV Current ≤ 105% I_c  
+    elif ev_current == 0b101:
+        result.append(f"(0b{ev_current:03b}) = WARN: EV Current 105-110% I_c (failure aft. 1000s; not for China)") # 105% I_c < EV Current ≤ 110% I_c 
+    elif ev_current == 0b011:
+        result.append(f"(0b{ev_current:03b}) = WARN: EV Current 110-120% I_c (failure aft. 100s; China: 5s)") # 110% I_c < EV Current ≤ 120% I_c
+    elif ev_current == 0b111:
+        result.append(f"(0b{ev_current:03b}) = WARN: EV Current > 120% I_c  (failure aft. 10s; China: 5s)") # EV Current > 120 % I_c 
+    else: 
+        result.append(f"(0b{ev_current:03b}) = ERR: Undefined EV Current status")
+        
     return result
 
-def parse_current_short(resp_hex):
-    """Parse response from 0x0033 - Read current (short)"""
+def parse_current_short(resp_hex): # tested: 
+    """Parse response from 0x0033..0x0035 - Read current (short)"""
+    # Read state and current of each phase (1A) 
     if len(resp_hex) < 18:
         return ["Response too short"]
 
     result = []
-    # Response format: 01 03 06 33 80 C3 0A 0A 00 EC
-    # Positions 6-9: Register 0x0033 (UCP status + reserved)
-    # Positions 10-13: Register 0x0034 (State + ICT1)
-    # Positions 14-17: Register 0x0035 (ICT2 + ICT3)
-    reg_0033 = int(resp_hex[6:10], 16)
-    reg_0034 = int(resp_hex[10:14], 16)
-    reg_0035 = int(resp_hex[14:18], 16)
+    # example: 01 03 06 33 80 C3 0A 0A 00 EC
+    # (Expected: >0103063380C30A0A00EC CRLF)
+    # (Received: >0103063300A1646464F6 CRLF)
+    # Response format: 01 03 06 XX YY ZZ AA BB CC 
+    # Response Type: R3 (3 registers = 6 bytes)
+    reg_0033 = int(resp_hex[6:10], 16) # 0x3380 (= b0011 0011 1000 0000): XXYY - Positions 6-9: Register 0x0033 (UCP status + reserved)
+    reg_0034 = int(resp_hex[10:14], 16) # 0xC30A (= b1100 0011 0000 1010): ZZAA - Positions 10-13: Register 0x0034 (State + ICT1)
+    reg_0035 = int(resp_hex[14:18], 16) # 0x0A00 (= b0000 1010 0000 0000): BBCC - Positions 14-17: Register 0x0035 (ICT2 + ICT3)
 
-    # Register 0x0033: bits 15..8 = UCP state, bits 7..0 = reserved
-    ucp_state = (reg_0033 >> 8) & 0xFF
-
-    # Register 0x0034: bits 15..8 = state, bits 7..0 = ICT1
-    state_code = (reg_0034 >> 8) & 0xFF
-    ict1 = reg_0034 & 0xFF
-
-    # Register 0x0035: bits 15..8 = ICT2, bits 7..0 = ICT3
-    ict2 = (reg_0035 >> 8) & 0xFF
-    ict3 = reg_0035 & 0xFF
-
-    if ucp_state & 0x80:
-        result.append("UCP ≤ 10V (EV connected)")
+    # Register 0x0033: 
+    # bits 47..40 = Register which the answer is referring to
+    register = (reg_0033 >> 8) & 0xFF   # 0x33 = b0011 0011
+    result.append(f"Register which the answer is referring to: 0x{register:02X}")
+    
+    # bit 39 = UCP state
+    ucp_state = (reg_0033 >> 7) & 0x01   # b1
+    if ucp_state:
+        result.append(f"(0b{ucp_state:01b}) = U_CP ≤ 10V (EV connected)")     # not valid in state Ex and Fx 
     else:
-        result.append("UCP > 10V (no EV connected)")
-
-    result.append(f"State: 0x{state_code:02X}")
-
-    if ict1 == 0x64 or ict2 == 0x64 or ict3 == 0x64:
-        result.append("Phase current meter not available or state A")
+        result.append(f"(0b{ucp_state:01b}) = U_CP > 10V (no EV connected)")  # not valid in state Ex and Fx 
+    # bits 38..32 = reserved (=0x00)
+    
+    # Register 0x0034: 
+    # bits 31..24 = state of EVSE
+    state_code = (reg_0034 >> 8) & 0xFF # 0xC3 = b1100 0011
+    result.append(f"State of EVSE: 0x{state_code:02X}")    
+    
+    # bits 23..16 = I_CT1
+    ict1 = reg_0034 & 0xFF  # 0x0A = b0000 1010      # I_ct1  [A] (0…80A)
+    if ict1 == 0x64: 
+        result.append(f"(0x{ict1:02X}) = Phase L1 current meter not available or state A")
     else:
-        result.append(f"Phase currents: L1={ict1}A, L2={ict2}A, L3={ict3}A")
+        result.append(f"(0x{ict1:02X}) = Phase current: L1={ict1}A")
+    
+    # Register 0x0035: 
+    # bits 15..8 = I_CT2
+    ict2 = (reg_0035 >> 8) & 0xFF  # 0x0A = b0000 1010     # I_ct2  [A] (0…80A)
+    if ict2 == 0x64:
+        result.append(f"(0x{ict2:02X}) = Phase L2 current meter not available or state A")
+    else:
+        result.append(f"(0x{ict2:02X}) = Phase current: L2={ict2}A")
+    
+    # bits 7..0 = I_CT3
+    ict3 = reg_0035 & 0xFF  # 0x00 = b0000 0000    # I_ct3  [A] (0…80A)
+    if ict3 == 0x64:
+        result.append(f"(0x{ict3:02X}) = Phase L3 current meter not available or state A")
+    else:
+        result.append(f"(0x{ict3:02X}) = Phase current: L3={ict3}A")
 
     return result
 
-def parse_current_full(resp_hex):
-    """Parse response from 0x002E - Read current (full)"""
+def parse_current_full(resp_hex): # tested:
+    """Parse response from 0x002E..0x0032 - Read current (full)"""
+    # Read state, digital inputs, max charge current I_C  and current of each phase (resolution 0.1A) 
     if len(resp_hex) < 26:
         return ["Response too short"]
 
     result = []
-    # Response format: 01 03 0A 2E C3 81 0A 00 64 00 64 00 00 1F
-    # Positions 6-9: Register 0x002E (State + UCP flags)
-    # Positions 10-13: Register 0x002F (Icmax duty cycle)
-    # Positions 14-17: Register 0x0030 (ICT1)
-    # Positions 18-21: Register 0x0031 (ICT2)
-    # Positions 22-25: Register 0x0032 (ICT3)
-    reg_002E = int(resp_hex[6:10], 16)
-    icmax = int(resp_hex[10:14], 16)
-    ict1 = int(resp_hex[14:18], 16)
-    ict2 = int(resp_hex[18:22], 16)
-    ict3 = int(resp_hex[22:26], 16)
+    # example: 01 03 0A 2E C3 81 0A 00 64 00 64 00 00 1F
+    # (Expected: >01030A2EC3810A0064006400001F CRLF)
+    # (Received: >01030A2EA1121503E803E803E83B CRLF) 
+    # Response format: 01 03 0A XX YY ZZ AA BB CC DD EE FF GG
+    # Response Type: R5 (5 registers = 10 bytes)
+    reg_002E = int(resp_hex[6:10], 16)  # (0x2EC3) Positions   6-9: Register 0x002E - XXYY (State + UCP flags)
+    reg_002F = int(resp_hex[10:14], 16) # (0x810A) Positions 10-13: Register 0x002F - ZZAA (Icmax duty cycle)
+    ict1 = int(resp_hex[14:18], 16)     # (0x0064) Positions 14-17: Register 0x0030 - BBCC (ICT1)
+    ict2 = int(resp_hex[18:22], 16)     # (0x0064) Positions 18-21: Register 0x0031 - DDEE (ICT2)
+    ict3 = int(resp_hex[22:26], 16)     # (0x0000) Positions 22-25: Register 0x0032 - FFGG (ICT3)
 
-    # Register 0x002E: bits 15..8 = state, bits 7..0 = UCP flags
-    state_code = (reg_002E >> 8) & 0xFF
-    ucp_flags = reg_002E & 0xFF
-
+    # Register 0x002E:
+    # bits 79..72 = Register which the answer is referring to
+    register = (reg_002E >> 8) & 0xFF   # 0x2E = b0010 1110
+    result.append(f"Register which the answer is referring to: 0x{register:02X}")
+       
+    # bits 71..64 = State of EVSE 
+    state_code = reg_002E & 0xFF  # 0xC3 = b1100 0011
     result.append(f"State: 0x{state_code:02X}")
 
-    if ucp_flags & 0x80:
-        result.append("UCP ≤ 10V (EV connected)")
+    # Register 0x002F:    
+    # bits 7..0 = UCP flags
+    ucp_flags = (reg_002F >> 12) & 0x0F   # 0x8 = b1000
+    result.append(f"UCP flags: (0x{ucp_flags:01X}) = 0b{ucp_flags:04b})")
+    if ucp_flags & 0x8: # b1
+        result.append(f"({ucp_flags & 0x8}) = U_CP ≤ 10V (EV connected)") # not valid in state Ex and Fx
     else:
-        result.append("UCP > 10V (no EV connected)")
+        result.append(f"({ucp_flags & 0x8}) = U_CP > 10V (no EV connected)") # not valid in state Ex and Fx
 
-    if ucp_flags & 0x40:
-        result.append("WARN: Duty cycle reduced due to BC3-BC6")
+    if ucp_flags & 0x4: # b0
+        result.append(f"({ucp_flags & 0x4}) = WARN: Duty cycle reduced due to BC3-BC6")
+    else:    
+        result.append(f"({ucp_flags & 0x4}) = Duty cycle not reduced due to BC3-BC6")
 
-    if ucp_flags & 0x02:
-        result.append("EN2 closed")
+    if ucp_flags & 0x2: # b0
+        result.append(f"({ucp_flags & 0x2}) = EN2 closed")
     else:
-        result.append("EN2 open")
+        result.append(f"({ucp_flags & 0x2}) = EN2 open")
 
-    if ucp_flags & 0x01:
-        result.append("EN1 closed")
+    if ucp_flags & 0x1: # b0
+        result.append(f"({ucp_flags & 0x1}) = EN1 closed")
     else:
-        result.append("EN1 open")
+        result.append(f"({ucp_flags & 0x1}) = EN1 open")
+    
+    # Duty cycle I_c  [%]*10 (0…100%)   
+    icmax = reg_002F & 0x0FFF  # 0x10A = b0001 0000 1010
+    result.append(f"(0x{icmax:03X}) = Icmax (duty cycle): {icmax/10:.1f}%") # values: 0x000…0x3E8
 
-    result.append(f"Icmax (duty cycle): {icmax/10:.1f}%")
-
-    if ict1 == 0x03E8 or ict2 == 0x03E8 or ict3 == 0x03E8:
-        result.append("Phase current meter not available or state A")
+    # I_ct1  [0,1A] (0…80A)    
+    if ict1 == 0x03E8:
+        result.append(f"(0x{ict1:04X}) = Phase L1 current meter not available or state A")
     else:
-        result.append(f"Phase currents: L1={ict1/10:.1f}A, L2={ict2/10:.1f}A, L3={ict3/10:.1f}A")
+        result.append(f"(0x{ict1:04X}) = Phase currents: L1={ict1/10:.1f}A") # values: 0x0000…0x0320 
+
+    # I_ct2  [0,1A] (0…80A) 
+    if ict2 == 0x03E8:
+        result.append(f"(0x{ict2:04X}) = Phase L2 current meter not available or state A")
+    else:
+        result.append(f"(0x{ict2:04X}) = Phase currents: L2={ict2/10:.1f}A") # values: 0x0000…0x0320
+
+    # I_ct3  [0,1A] (0…80A) 
+    if ict3 == 0x03E8: 
+        result.append(f"(0x{ict3:04X}) = Phase L3 current meter not available or state A")
+    else:
+        result.append(f"(0x{ict3:04X}) = Phase currents: L3={ict3/10:.1f}A") # values: 0x0000…0x0320
 
     return result
 
@@ -377,7 +490,7 @@ def display_response(response, expected=None, interpreter=None):
                     print(f"   OK: Write successful to device 0x{dev_id}")
                 elif func_code == '90':
                     error_code = resp_hex[4:6] if len(resp_hex) >= 6 else '??'
-                    print(f"   ERR: Error response: Exception code 0x{error_code}")
+                    print(f"   ERR: Error response: Exception code 0x{error_code:02X} (0x04: 'Writing registers failed')" ) # Exception code “Writing registers failed” 
 
                 # Interpret the response if interpreter function is provided
                 if interpreter:
@@ -389,7 +502,15 @@ def display_response(response, expected=None, interpreter=None):
                     except Exception as e:
                         print(f"   ERR: Error interpreting response: {e}")
     else:
-        print("<- No response received (timeout)")
+        print("<- No response received (timeout)\n")
+        print("No response is returned, if :")
+        print("• device receives a request, but detects a communication error (parity, LRC, CRC, ...)") 
+        print("• function code is neither 0x03 (read) nor 0x10 (write) ")
+        print("• write-request does not access a valid register for writing")
+        print("• qty of registers of a write-request does not meet requirements of accessed register")
+        print("• number of value-bytes write-request does not meet qty of registers")
+        print("• read-request does not access a valid register for reading")
+        
 
 def display_config(com_port, device_id):
     """Display current COM port configuration"""
@@ -405,7 +526,7 @@ def display_config(com_port, device_id):
     print("="*70)
     print("MODBUS CONFIGURATION")  
     print("="*70)
-    print("Format:     Modbus ASCII")
+    print(f"Format:     Modbus ASCII")
     print(f"Device ID:  0x{device_id:02X} ({device_id})")
     print("="*70)
 
@@ -600,7 +721,7 @@ def main():
 
         msg = messages[1]
         send_message(ser, msg['request'])
-        send_message(ser, msg['request']) # repeated as sometimes no response at first time
+        #jk send_message(ser, msg['request'])
         time.sleep(0.1)
         response = receive_response(ser)
         display_response(response, msg['response'], msg.get('interpreter'))
