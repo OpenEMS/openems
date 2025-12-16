@@ -168,7 +168,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this.config = config;
-		this.setWorkState(WorkState.UNDEFINED);
+		this._setWorkState(WorkState.UNDEFINED);
 	}
 
 	@Override
@@ -277,14 +277,14 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				new FC16WriteRegistersTask(1100,
 						m(DeyeSunHybrid.ChannelId.SET_REMOTE_MODE, new UnsignedWordElement(1100)),
 						m(DeyeSunHybrid.ChannelId.SET_REMOTE_WATCHDOG_TIME, new UnsignedWordElement(1101)),
-						m(DeyeSunHybrid.ChannelId.FUCKOFF_1, new UnsignedWordElement(1102)),
-						m(DeyeSunHybrid.ChannelId.FUCKOFF_2, new UnsignedWordElement(1103)),						
+						m(DeyeSunHybrid.ChannelId.PLACEHOLDER_1, new UnsignedWordElement(1102)),
+						m(DeyeSunHybrid.ChannelId.PLACEHOLDER_2, new UnsignedWordElement(1103)),						
 						m(DeyeSunHybrid.ChannelId.SET_CONTROL_MODE, new UnsignedWordElement(1104)),  // set 1 for battery control (DC); set 0 for AC-control
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONTROL_MODE, new UnsignedWordElement(1105)),  // set 2 for for percentage control (reg 1109); set 3 for SOC control (reg 1110)
 						m(DeyeSunHybrid.ChannelId.SET_3P_CONTROL_MODE, new UnsignedWordElement(1106)),  // set 0 for 3p control via reg. 1111						
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_VOLTAGE, new UnsignedWordElement(1107)),  // set 0 for 3p control via reg. 1111
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_CURRENT, new UnsignedWordElement(1108)),  // set 0 for 3p control via reg. 1111
-						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_DECI_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_SOC, new SignedWordElement(1110),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),  // set battery power as SoC percentage
 						m(DeyeSunHybrid.ChannelId.SET_AC_SETPOINT_3P_PERCENT, new SignedWordElement(1111))),  // set total AC power for all phases
 						// ToDo: add register for individual phase control
@@ -323,17 +323,19 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 						// Generator / grid charge settings
 						m(DeyeSunHybrid.ChannelId.GENERATOR_MAX_OPERATING_TIME, new UnsignedWordElement(121),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(DeyeSunHybrid.ChannelId.GENERATOR_COOLING_TIME, new UnsignedWordElement(122),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(DeyeSunHybrid.ChannelId.GENERATOR_CHARGING_START_VOLTAGE, new UnsignedWordElement(123),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(DeyeSunHybrid.ChannelId.GENERATOR_CHARGING_START_CAPACITY, new UnsignedWordElement(124)),
-						m(DeyeSunHybrid.ChannelId.GENERATOR_CHARGE_CURRENT, new UnsignedWordElement(125)),
+						m(DeyeSunHybrid.ChannelId.GENERATOR_CHARGE_CURRENT, new UnsignedWordElement(125),
+						ElementToChannelConverter.SCALE_FACTOR_3), // mA
 						m(DeyeSunHybrid.ChannelId.GRID_CHARGING_START_VOLTAGE, new UnsignedWordElement(126),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(DeyeSunHybrid.ChannelId.GRID_CHARGING_START_CAPACITY, new UnsignedWordElement(127)),
-						m(DeyeSunHybrid.ChannelId.GRID_CHARGE_CURRENT, new UnsignedWordElement(128)),
+						m(DeyeSunHybrid.ChannelId.GRID_CHARGE_CURRENT, new UnsignedWordElement(128),
+						ElementToChannelConverter.SCALE_FACTOR_3), // mA
 						m(DeyeSunHybrid.ChannelId.GENERATOR_CHARGING_ENABLE, new UnsignedWordElement(129)),
 						m(DeyeSunHybrid.ChannelId.GRID_CHARGING_ENABLE, new UnsignedWordElement(130)),
 
@@ -353,8 +355,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 						m(DeyeSunHybrid.ChannelId.GEN_GRID_SIGNAL_ON, new UnsignedWordElement(140)),
 						m(DeyeSunHybrid.ChannelId.ENERGY_MANAGEMENT_MODEL, new UnsignedWordElement(141)),
 						m(DeyeSunHybrid.ChannelId.LIMIT_CONTROL_FUNCTION, new UnsignedWordElement(142)),
-						// m(DeyeSunHybrid.ChannelId.LIMIT_MAX_GRID_OUTPUT_POWER,new
-						// UnsignedWordElement(143)),
 						m(DeyeSunHybrid.ChannelId.POWER_TO_GRID_TARGET, new UnsignedWordElement(143)),
 						m(DeyeSunHybrid.ChannelId.EXTERNAL_CURRENT_SENSOR_CLAMP_PHASE, new UnsignedWordElement(144)),
 						m(DeyeSunHybrid.ChannelId.SOLAR_SELL_MODE, new UnsignedWordElement(145))),
@@ -416,46 +416,10 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(633, Priority.HIGH,
-/*						
-						
-						m(DeyeSunHybrid.ChannelId.BATTERY_TEMPERATURE, new UnsignedWordElement(586),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						m(DeyeSunHybrid.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(587),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(588)), new DummyRegisterElement(589),
-						m(DeyeSunHybrid.ChannelId.BATTERY_OUTPUT_POWER, new SignedWordElement(590)),
-						m(DeyeSunHybrid.ChannelId.BATTERY_OUTPUT_CURRENT, new SignedWordElement(591),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeSunHybrid.ChannelId.BATTERY_CORRECTED_AH, new UnsignedWordElement(592))),
 
-				new FC3ReadRegistersTask(607, Priority.HIGH, // Outputs
-						/*
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER, new SignedWordElement(607)),						
-						new DummyRegisterElement(608, 621),
-						// not totally clear. Maybe external generator is included?
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER_L1, new SignedWordElement(622)),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER_L2, new SignedWordElement(623)),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER_L3, new SignedWordElement(624)),
-						//m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_ACTIVE_POWER, new SignedWordElement(625)),
-						new DummyRegisterElement(625,626),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_VOLTAGE_L1, new UnsignedWordElement(627),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_VOLTAGE_L2, new UnsignedWordElement(628),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_VOLTAGE_L3, new UnsignedWordElement(629),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_CURRENT_L1, new SignedWordElement(630),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_CURRENT_L2, new SignedWordElement(631),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeSunHybrid.ChannelId.GRID_OUTPUT_CURRENT_L3, new SignedWordElement(632),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-*/
 						m(DeyeSunHybrid.ChannelId.POWER_L1, new SignedWordElement(633)),
 						m(DeyeSunHybrid.ChannelId.POWER_L2, new SignedWordElement(634)),
 						m(DeyeSunHybrid.ChannelId.POWER_L3, new SignedWordElement(635)),
-						// m(DeyeSunHybrid.ChannelId.ACTIVE_POWER, new SignedWordElement(636)),
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(636)), // negative values for
 																							// Charge; positive for
 																							// Discharge
@@ -465,14 +429,15 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(1100, Priority.LOW,
 						m(DeyeSunHybrid.ChannelId.SET_REMOTE_MODE, new UnsignedWordElement(1100)),
 						m(DeyeSunHybrid.ChannelId.SET_REMOTE_WATCHDOG_TIME, new UnsignedWordElement(1101)),
-						m(DeyeSunHybrid.ChannelId.FUCKOFF_1, new UnsignedWordElement(1102)),
-						m(DeyeSunHybrid.ChannelId.FUCKOFF_2, new UnsignedWordElement(1103)),						
+						new DummyRegisterElement(1102,1103),
+						//m(DeyeSunHybrid.ChannelId.PLACEHOLDER_1, new UnsignedWordElement(1102)),
+						//m(DeyeSunHybrid.ChannelId.PLACEHOLDER_2, new UnsignedWordElement(1103)),						
 						m(DeyeSunHybrid.ChannelId.SET_CONTROL_MODE, new UnsignedWordElement(1104)),  // set 1 for battery control (DC); set 0 for AC-control
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONTROL_MODE, new UnsignedWordElement(1105)),  // set 2 for for percentage control (reg 1109); set 3 for SOC control (reg 1110)
 						m(DeyeSunHybrid.ChannelId.SET_3P_CONTROL_MODE, new UnsignedWordElement(1106)),  // set 0 for 3p control via reg. 1111						
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_VOLTAGE, new UnsignedWordElement(1107)),  // set 0 for 3p control via reg. 1111
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_CONSTANT_CURRENT, new UnsignedWordElement(1108)),  // set 0 for 3p control via reg. 1111
-						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
+						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_DECI_PERCENT, new SignedWordElement(1109)),  // set battery power as percentage from inverter power, i.e. 12kW inverter /10% -> 1,2kW	
 						m(DeyeSunHybrid.ChannelId.SET_BATTERY_POWER_SOC, new SignedWordElement(1110),ElementToChannelConverter.SCALE_FACTOR_MINUS_1),  // set battery power as SoC percentage
 						m(DeyeSunHybrid.ChannelId.SET_AC_SETPOINT_3P_PERCENT, new SignedWordElement(1111)))
 								);  // set total AC power for all phases						
@@ -620,7 +585,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				return;
 			}
 
-			this.setWorkState(WorkState.NORMAL);
+			this._setWorkState(WorkState.NORMAL);
 
 		}
 	}
@@ -644,7 +609,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 			return false;
 		}
 		
-		this.setWorkState(nextState);
+		this._setWorkState(nextState);
 		return true;
 	}
 	
@@ -824,7 +789,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 			//this.setLimitControlFunction(LimitControlFunction.SELLING_ACTIVE); 
 			
 			// max power to grid including pv production
-			this._setPowerToGridTarget(this.config.maxSellToGridPower());
+			this.setPowerToGridTarget(this.config.maxSellToGridPower());
 
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to set initial values for ESS: " + e.getMessage());

@@ -169,7 +169,7 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			// this.calculateProductionEnergy.update(this.getActivePower().get());
-			this.calculateActualPower();
+			this.calculateAndSetActualValues();
 			break;
 			
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
@@ -234,9 +234,9 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 		return this.getActualPower().get();
 	}
 
-	private void calculateActualPower() {
+	private void calculateAndSetActualValues() {
 
-		// Sum DC Strings
+		// power sum DC Strings
 		Integer totalPower;
 		try {
 			totalPower = TypeUtils.sum(this.getDcPowerString1().getOrError(), this.getDcPowerString2().getOrError(),
@@ -245,7 +245,6 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to get DcCharger values " + e.getMessage());
 		}
-
 		
 	}
 
