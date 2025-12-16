@@ -613,12 +613,31 @@ public final class FeneconHomeComponents {
 			final String essId, //
 			final String gridMeterId //
 	) {
+		return selfConsumptionOptimization(t, essId, gridMeterId,
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED);
+	}
+
+	/**
+	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
+	 *
+	 * @param t            the {@link ConfigurationTarget}
+	 * @param essId        the id of the ess
+	 * @param gridMeterId  the id of the grid meter
+	 * @param deletePolicy the {@link DependencyDeclaration.DependencyDeletePolicy}
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration selfConsumptionOptimization(//
+			final ConfigurationTarget t, //
+			final String essId, //
+			final String gridMeterId, //
+			final DependencyDeclaration.DependencyDeletePolicy deletePolicy //
+	) {
 		return new DependencyDeclaration("SELF_CONSUMPTION_OPTIMIZATION", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 				DependencyDeclaration.UpdatePolicy.NEVER, //
 				DependencyDeclaration.DeletePolicy.IF_MINE, //
 				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				deletePolicy, //
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.PvSelfConsumption.SelfConsumptionOptimization") //
 						.setProperties(JsonUtils.buildJsonObject() //

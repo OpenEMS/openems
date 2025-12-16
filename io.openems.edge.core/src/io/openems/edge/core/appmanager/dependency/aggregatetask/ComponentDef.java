@@ -8,60 +8,13 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 
 	public record Configuration(boolean installAlways, boolean forceUpdateOrCreate) {
 
-		private Configuration(Builder builder) {
-			this(builder.installAlways, builder.forceUpdateOrCreate);
-		}
-
 		/**
-		 * Creates a new Builder for {@link Configuration}.
-		 *
-		 * @return a new {@link Builder}
+		 * Creates a default {@link Configuration}.
+		 * 
+		 * @return the default {@link Configuration}
 		 */
-		public static Builder create() {
-			return new Builder();
-		}
-
-		/**
-		 * Builder class for {@link Configuration}.
-		 */
-		public static final class Builder {
-			private boolean installAlways = false;
-			private boolean forceUpdateOrCreate = false;
-
-			private Builder() {
-			}
-
-			/**
-			 * Sets whether the component should always be installed.
-			 *
-			 * @param installAlways whether to always install
-			 * @return this builder
-			 */
-			public Builder installAlways(boolean installAlways) {
-				this.installAlways = installAlways;
-				return this;
-			}
-
-			/**
-			 * Sets whether the config should always be updated or the component to be
-			 * created.
-			 * 
-			 * @param forceUpdateOrCreate always to be updated or created
-			 * @return this builder
-			 */
-			public Builder forceUpdateOrCreate(boolean forceUpdateOrCreate) {
-				this.forceUpdateOrCreate = forceUpdateOrCreate;
-				return this;
-			}
-
-			/**
-			 * Builds the {@link Configuration} instance.
-			 *
-			 * @return the built {@link Configuration}
-			 */
-			public Configuration build() {
-				return new Configuration(this);
-			}
+		public static Configuration defaultConfig() {
+			return new Configuration(false, false);
 		}
 
 		/**
@@ -71,25 +24,29 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		 * @return copied {@link Configuration}
 		 */
 		public Configuration withInstallAlways(boolean installAlways) {
-			return Configuration.create() //
-					.installAlways(installAlways) //
-					.forceUpdateOrCreate(this.forceUpdateOrCreate) //
-					.build();
+			return new Configuration(installAlways, this.forceUpdateOrCreate());
 		}
 
 		/**
-		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate
-		 * value.
+		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate value.
 		 *
 		 * @param forceUpdateOrCreate new value
 		 * @return copied {@link Configuration}
 		 */
-		public Configuration withForceUpdate(boolean forceUpdateOrCreate) {
-			return Configuration.create() //
-					.forceUpdateOrCreate(forceUpdateOrCreate) //
-					.installAlways(this.installAlways) //
-					.build();
+		public Configuration withForceUpdateOrCreate(boolean forceUpdateOrCreate) {
+			return new Configuration(this.installAlways(), forceUpdateOrCreate);
 		}
+
+	}
+
+	/**
+	 * Returns a copy of this {@link ComponentDef} with the new properties.
+	 * 
+	 * @param properties the new properties
+	 * @return copied {@link ComponentDef}
+	 */
+	public ComponentDef withProperties(ComponentProperties properties) {
+		return new ComponentDef(this.id, this.alias, this.factoryId, properties, this.config);
 	}
 
 	/**
@@ -114,6 +71,6 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 			return null;
 		}
 		return new ComponentDef(comp.getId(), comp.getAlias(), comp.getFactoryId(),
-				ComponentProperties.fromMap(comp.getProperties()), Configuration.create().build());
+				ComponentProperties.fromMap(comp.getProperties()), Configuration.defaultConfig());
 	}
 }

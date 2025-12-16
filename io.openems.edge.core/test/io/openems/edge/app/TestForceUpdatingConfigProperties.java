@@ -65,7 +65,7 @@ public class TestForceUpdatingConfigProperties extends
 
 		@Override
 		public AppDef<? super TestForceUpdatingConfigProperties, ? super Property, ? super TestForceUpdatingConfigPropertiesParameter> def() {
-			return def;
+			return this.def;
 		}
 
 		@Override
@@ -104,8 +104,7 @@ public class TestForceUpdatingConfigProperties extends
 							.addProperty("phaseRotation", phaseRotation) //
 							.build(), //
 							"minPower", "maxPower"), //
-					ComponentDef.Configuration.create() //
-							.build());
+					ComponentDef.Configuration.defaultConfig());
 			return AppConfiguration.create().addTask(Tasks.component(component)).build();
 		};
 	}

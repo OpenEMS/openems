@@ -213,8 +213,12 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration,
-			PredictorManagerByCentralOrderConfiguration configuration) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final PredictorManagerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		if (configuration.components().isEmpty()) {
 			return;
 		}

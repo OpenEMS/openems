@@ -10,6 +10,8 @@ public final class Flags {
 
 	public static final Flag ALWAYS_INSTALLED = new FlagRecord("alwaysInstalled");
 
+	public static final Flag FREE_FROM_DEPENDENCY = new FlagRecord("freeFromDependency");
+
 	private Flags() {
 		super();
 	}

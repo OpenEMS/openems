@@ -14,6 +14,7 @@ import { environment } from "src/environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { InstallAppComponent } from "./install.component";
+import { Flags } from "./jsonrpc/flag/flags";
 import { GetApp } from "./jsonrpc/getApp";
 import { GetAppDescriptor } from "./jsonrpc/getAppDescriptor";
 import { GetApps } from "./jsonrpc/getApps";
@@ -201,7 +202,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     }
 
     protected installApp(appId: string) {
-        if (this.key || this.useMasterKey) {
+        if (this.key || this.useMasterKey || Flags.getByType(this.app.flags, Flags.FREE_FROM_DEPENDENCY)) {
             // if key already set navigate directly to installation view
             const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
             this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]

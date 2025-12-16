@@ -542,10 +542,22 @@ public final class Apps {
 		return app(t, TestComponentDefConfig::new, "App.Test.TestComponentDefConfig");
 	}
 
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigComponent}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
 	public static final TestForceUpdatingConfigComponent testForceUpdatingConfigComponent(AppManagerTestBundle t) {
 		return app(t, TestForceUpdatingConfigComponent::new, "App.Test.TestForceUpdatingConfigComponent");
 	}
 
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigProperties}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
 	public static final TestForceUpdatingConfigProperties testForceUpdatingConfigProperties(AppManagerTestBundle t) {
 		return app(t, TestForceUpdatingConfigProperties::new, "App.Test.TestForceUpdatingConfigProperties");
 	}

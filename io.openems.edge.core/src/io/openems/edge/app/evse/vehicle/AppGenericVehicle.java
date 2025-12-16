@@ -104,9 +104,8 @@ public class AppGenericVehicle extends
 							.addProperty("maxPowerThreePhase", maxPowerThreePhase)//
 							.addProperty("canInterrupt", canInterrupt)//
 							.build()), //
-					Configuration.create()//
-							.installAlways(true) //
-							.build());
+					Configuration.defaultConfig()//
+							.withInstallAlways(true));
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(component)) //

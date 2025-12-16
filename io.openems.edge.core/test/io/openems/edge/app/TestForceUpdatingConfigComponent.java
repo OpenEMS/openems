@@ -56,7 +56,7 @@ public class TestForceUpdatingConfigComponent extends
 
 		@Override
 		public AppDef<? super TestForceUpdatingConfigComponent, ? super Property, ? super TestForceUpdatingConfigComponentParameter> def() {
-			return def;
+			return this.def;
 		}
 
 		@Override
@@ -90,9 +90,8 @@ public class TestForceUpdatingConfigComponent extends
 					ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 							.addProperty("phaseRotation", phaseRotation) //
 							.build()), //
-					ComponentDef.Configuration.create() //
-							.forceUpdateOrCreate(true) //
-							.build());
+					ComponentDef.Configuration.defaultConfig() //
+							.withForceUpdateOrCreate(true));
 			return AppConfiguration.create().addTask(Tasks.component(component)).build();
 		};
 	}
