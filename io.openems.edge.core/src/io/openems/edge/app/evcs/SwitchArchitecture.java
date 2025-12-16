@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
 import io.openems.edge.common.component.ComponentManager;
@@ -32,6 +33,7 @@ import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse.Response;
+import io.openems.edge.energy.api.EnergyScheduler;
 
 @Component
 public final class SwitchArchitecture implements ComponentJsonApi {
@@ -149,6 +151,15 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				instantiatedApps.addAll(response);
 
 				this.appManager.updateAppManagerConfiguration(user, instantiatedApps);
+
+				// Switch to EnergyScheduler V1
+				var esProperty = new UpdateComponentConfigRequest.Property(//
+						"version", //
+						io.openems.edge.energy.api.Version.V1_ESS_ONLY.name());
+				var esRequest = new UpdateComponentConfig.Request(//
+						EnergyScheduler.SINGLETON_COMPONENT_ID, //
+						List.of(esProperty));
+				this.componentManager.handleUpdateComponentConfigRequest(user, esRequest);
 			}
 
 			if (current.equals("EVCS")) {
@@ -177,6 +188,15 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				));
 				newApps.addAll(response);
 				this.appManager.updateAppManagerConfiguration(user, newApps);
+
+				// Switch to EnergyScheduler V2
+				var esProperty = new UpdateComponentConfigRequest.Property(//
+						"version", //
+						io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE.name());
+				var esRequest = new UpdateComponentConfig.Request(//
+						EnergyScheduler.SINGLETON_COMPONENT_ID, //
+						List.of(esProperty));
+				this.componentManager.handleUpdateComponentConfigRequest(user, esRequest);
 			}
 			return new Response(response);
 

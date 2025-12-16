@@ -201,19 +201,20 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		var version = this.energyScheduler.getImplementationVersion();
-		if (version == null) {
-			return;
-		}
+		builder.handleRequest(GetScheduleRequest.METHOD, call -> {
+			var version = this.energyScheduler.getImplementationVersion();
+			if (version == null) {
+				throw new IllegalStateException("No EnergyScheduler version available");
+			}
 
-		builder.handleRequest(GetScheduleRequest.METHOD, call -> //
-		switch (version) {
-		case V1_ESS_ONLY //
-			-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
-
-		case V2_ENERGY_SCHEDULABLE //
-			-> GetScheduleResponse.from(call.getRequest().getId(), //
-					this.id(), this.componentManager.getClock(), this.ess, this.timedata, this.energyScheduleHandler);
+			return switch (version) {
+			case V1_ESS_ONLY //
+				-> this.energyScheduler.handleGetScheduleRequestV1(call, this.id());
+			case V2_ENERGY_SCHEDULABLE //
+				-> GetScheduleResponse.from(call.getRequest().getId(), //
+						this.id(), this.componentManager.getClock(), this.ess, this.timedata,
+						this.energyScheduleHandler);
+			};
 		});
 	}
 

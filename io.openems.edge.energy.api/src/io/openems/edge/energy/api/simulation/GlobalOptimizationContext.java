@@ -13,6 +13,7 @@ import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Pe
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static java.lang.Math.abs;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -473,8 +474,13 @@ public record GlobalOptimizationContext(//
 					+ "productions=" + productions.asArray().length + "; " //
 					+ "prices=" + prices.asArray().length + "; " //
 					+ "periods=" + periods.size() + "; " //
-					+ "eshs=#" + this.eshs.size() + "; " //
-					+ "eshsWithDifferentModes=#" + eshsWithDifferentModes.size());
+					+ "eshs=" + this.eshs.stream() //
+							.map(EnergyScheduleHandler::getParentId) //
+							.collect(joining(","))
+					+ "; " //
+					+ "eshsWithDifferentModes=" + eshsWithDifferentModes.stream() //
+							.map(EnergyScheduleHandler::getParentId) //
+							.collect(joining(",")));
 
 			return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
 					this.eshs, eshsWithDifferentModes, //

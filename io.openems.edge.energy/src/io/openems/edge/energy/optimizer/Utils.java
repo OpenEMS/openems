@@ -83,7 +83,8 @@ public final class Utils {
 	 * @return the {@link Simulator} or null
 	 * @throws InterruptedException on interrupted sleep
 	 */
-	public static synchronized Simulator createSimulator(Supplier<GlobalOptimizationContext> gocSupplier,
+	public static Simulator createSimulator(//
+			Supplier<GlobalOptimizationContext> gocSupplier, //
 			Consumer<Supplier<String>> error) throws InterruptedException {
 		GlobalOptimizationContext goc;
 		try {

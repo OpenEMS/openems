@@ -84,7 +84,7 @@ public record Params(//
 					new History(), // TODO
 					json.getEnum("phaseSwitching", PhaseSwitching.class), //
 					json.getObject("combinedAbilities", CombinedAbilities.serializer()), //
-					json.getObject("smartConfig", JSCalendar.Tasks.serializer(Payload.serializer()))); //
+					json.getObject("tasks", JSCalendar.Tasks.serializer(Payload.serializer()))); //
 		}, obj -> {
 			return buildJsonObject() //
 					.addProperty("componentId", obj.componentId) //

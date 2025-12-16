@@ -208,8 +208,10 @@ public class Simulator {
 	 *                                   {@link EvolutionStream}
 	 * @return the best Schedule
 	 */
-	public SimulationResult getBestSchedule(SimulationResult previousResult, boolean isCurrentPeriodFixed,
-			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor,
+	public SimulationResult getBestSchedule(//
+			SimulationResult previousResult, //
+			boolean isCurrentPeriodFixed,
+			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor, //
 			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor) {
 		final var codec = EshCodec.of(this.goc, this.modeCombinations, previousResult, isCurrentPeriodFixed);
 		if (codec == null) {
@@ -257,7 +259,7 @@ public class Simulator {
 
 		var stream = engine.build() //
 				.stream(initialPopulation) //
-				.limit(result -> !currentThread().isInterrupted());
+				.limit(result -> !Thread.currentThread().isInterrupted());
 		if (evolutionStreamInterceptor != null) {
 			stream = evolutionStreamInterceptor.apply(stream);
 		}

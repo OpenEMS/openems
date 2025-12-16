@@ -175,6 +175,7 @@ public class EshUtils {
 					switch (ot.payload()) {
 					case Payload.Manual m -> manualModes.put(p.componentId(), t, m.mode());
 					case Payload.Smart s -> smartPayloads.put(p.componentId(), t, s);
+					case null -> System.out.println("Task has no payload: " + ot.toString());
 					}
 				}
 			}
