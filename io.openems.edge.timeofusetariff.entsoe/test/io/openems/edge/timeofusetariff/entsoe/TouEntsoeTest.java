@@ -35,6 +35,7 @@ public class TouEntsoeTest {
 	private static final long FULL_DAY_MINUTES = 1440;
 	private static final ZoneId GERMAN_ZONE_ID = ZoneId.of("Europe/Berlin");
 	private static final ZoneId ZONE_ID = ZoneId.systemDefault();
+	private static final int YEAR = 2026;
 
 	@Test
 	public void test() throws Exception {
@@ -135,13 +136,13 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testStandardTariffOnJuly15At2PM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2025-07-15T00:00:00Z");
-		final var testTime = toZonedDateTime(2025, 7, 15, 14, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-07-15T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 7, 15, 14, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2025-07-15T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-07-15T00:00:00Z");
 
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
@@ -150,33 +151,33 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testLowTariffOnOctober20At3AM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2025-10-20T00:00:00Z");
-		final var testTime = toZonedDateTime(2025, 10, 20, 3, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-10-20T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 10, 20, 3, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_BW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("MIT_NETZ", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("MIT_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.MIT_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("E_DIS", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("E_DIS", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.E_DIS.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("LEW", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("LEW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.LEW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
@@ -184,33 +185,33 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testHighTariffOnOctober20At5PM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2025-10-20T00:00:00Z");
-		final var testTime = toZonedDateTime(2025, 10, 20, 17, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-10-20T00:00:00Z");
+		final var testTime = toZonedDateTime(YEAR, 10, 20, 17, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_BW", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("MIT_NETZ", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("MIT_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.MIT_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("WEST_NETZ", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("WEST_NETZ", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.WEST_NETZ.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("AVACON", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("AVACON", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.AVACON.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2025-10-20T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-10-20T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
@@ -218,24 +219,24 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testStandardTariffOnApril10At12PM() throws OpenemsNamedException {
-		var helper = this.buildHelper("BAYERNWERK", "2025-04-10T00:00:00Z");
-		var testTime = toZonedDateTime(2025, 4, 10, 12, 0);
+		var helper = this.buildHelper("BAYERNWERK", YEAR + "-04-10T00:00:00Z");
+		var testTime = toZonedDateTime(YEAR, 4, 10, 12, 0);
 		var expectedPrice = GermanDSO.BAYERNWERK.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2025-04-10T00:00:00Z");
+		helper = this.buildHelper("NETZE_BW", YEAR + "-04-10T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_BW", "2025-04-09T00:00:00Z");
-		testTime = toZonedDateTime(2025, 4, 10, 0, 0);
+		helper = this.buildHelper("NETZE_BW", YEAR + "-04-09T00:00:00Z");
+		testTime = toZonedDateTime(YEAR, 4, 10, 0, 0);
 		expectedPrice = GermanDSO.NETZE_BW.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
 
-		helper = this.buildHelper("NETZE_ODR", "2025-04-09T00:00:00Z");
+		helper = this.buildHelper("NETZE_ODR", YEAR + "-04-09T00:00:00Z");
 		expectedPrice = GermanDSO.NETZE_ODR.getPriceAt(testTime);
 
 		assertEquals(expectedPrice, helper.getPrices().getAt(testTime), 0.01);
@@ -243,7 +244,7 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testEmptyScheduleReturnsZeroPrice() throws OpenemsNamedException {
-		var clock = new TimeLeapClock(Instant.parse("2025-02-01T00:00:00Z"), GERMAN_ZONE_ID);
+		var clock = new TimeLeapClock(Instant.parse(YEAR + "-02-01T00:00:00Z"), GERMAN_ZONE_ID);
 		var ancillaryCosts = buildJsonObject() //
 				.addProperty("dso", "other") //
 				.add("schedule", buildJsonArray() //
@@ -254,13 +255,13 @@ public class TouEntsoeTest {
 		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var helper = new TouManualHelper(clock, schedule, 0.0);
 
-		var testTime = toZonedDateTime(2025, 2, 1, 10, 0);
+		var testTime = toZonedDateTime(YEAR, 2, 1, 10, 0);
 		assertEquals(0.0, helper.getPrices().getAt(testTime), 0.01);
 	}
 
 	@Test
 	public void testMissingSchedule() throws OpenemsNamedException {
-		var clock = new TimeLeapClock(Instant.parse("2025-02-01T00:00:00Z"), GERMAN_ZONE_ID);
+		var clock = new TimeLeapClock(Instant.parse(YEAR + "-02-01T00:00:00Z"), GERMAN_ZONE_ID);
 		var ancillaryCosts = buildJsonObject() //
 				.addProperty("dso", "other") // simulate missing schedule
 				.build() //
@@ -269,7 +270,7 @@ public class TouEntsoeTest {
 		var schedule = parseToSchedule(clock, BiddingZone.GERMANY, ancillaryCosts, msg -> fail(msg));
 		var helper = new TouManualHelper(clock, schedule, 0.0);
 
-		var testTime = toZonedDateTime(2025, 2, 1, 10, 0);
+		var testTime = toZonedDateTime(YEAR, 2, 1, 10, 0);
 		assertEquals(0.0, helper.getPrices().getAt(testTime), 0.01);
 	}
 }
