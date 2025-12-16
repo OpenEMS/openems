@@ -63,6 +63,11 @@ public class PlcNextDeviceImpl extends AbstractOpenemsComponent
 		this.tokenManagerConfig = new PlcNextTokenManagerConfig(config.authUrl(), config.username(), config.password());
 		this.gdsDataProviderConfig = new PlcNextGdsDataProviderConfig(config.dataUrl(), config.dataInstanceName(),
 				this);
+		
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculatePhasesFromActivePower(this);
+		ElectricityMeter.calculatePhasesFromReactivePower(this);
 	}
 
 	@Override
