@@ -2,9 +2,11 @@
 import { Component, effect, OnDestroy, OnInit } from "@angular/core";
 import { ModalController, ViewWillLeave } from "@ionic/angular";
 import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { MarketingAnnualReviewComponent } from "../shared/components/edge/popover/annual-review/popover";
 import { WeatherForecastApprovalComponent } from "../shared/components/edge/popover/data-privacy/popover";
 import { Pagination } from "../shared/service/pagination";
 import { RouteService } from "../shared/service/route.service";
+import { UserService } from "../shared/service/user.service";
 
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
@@ -26,6 +28,7 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
         private websocket: Websocket,
         private pagination: Pagination,
         private popoverCtrl: ModalController,
+        private userService: UserService,
     ) {
 
         effect(async () => {
@@ -37,6 +40,7 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
 
             pagination.subscribeEdge(edge);
             this.handlePrivacyPopover(edge);
+            this.handleAnnualReviewPopover(edge);
         });
     }
 
@@ -53,6 +57,20 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
 
         await popover.present();
         return popover.onDidDismiss();
+    }
+
+    /**
+    * Shows weather forecast approval.
+    *
+    * @param modalCtrl the modal controller
+    */
+    public static async showAnnualReviewPopover(modalCtrl: ModalController) {
+        const popover = await modalCtrl.create({
+            component: MarketingAnnualReviewComponent,
+        });
+
+        await popover.present();
+        popover.onDidDismiss();
     }
 
     public async ngOnInit() {
@@ -84,5 +102,20 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
         }
 
         await EdgeComponent.showPrivacyPolicyPopover(this.popoverCtrl);
+    }
+
+    /**
+     * Handles the privacy popover based on the user's choice.
+     *
+     * @param edge the edge
+     */
+    private async handleAnnualReviewPopover(edge: Edge): Promise<void> {
+        const showPopover = await MarketingAnnualReviewComponent.shouldShowPopover(edge, this.userService);
+
+        if (showPopover == false) {
+            return;
+        }
+
+        await EdgeComponent.showAnnualReviewPopover(this.popoverCtrl);
     }
 }
