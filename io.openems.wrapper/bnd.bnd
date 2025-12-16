@@ -18,8 +18,9 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.squareup.retrofit2:retrofit;version='3.0.0',\
 	com.sun.activation.javax.activation;version='1.2.0',\
 	de.bytefish:pgbulkinsert;version='8.1.6',\
-	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
+	de.bytefish:pgbulkinsert;version='8.1.8',\
 	eu.chargetime.ocpp:common;version='1.0.2',\
+	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
 	eu.chargetime.ocpp:v1_6;version='1.1.0',\
 	fr.turri:aXMLRPC;version='1.17.0',\
 	info.faljse:SDNotify;version='1.5.0',\

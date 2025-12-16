@@ -1,0 +1,9 @@
+{
+  "POPOVER": {
+    "WEATHER_PROGNOSIS": {
+      "CHECKBOX_LABEL": "I acknowledge that using the app requires sharing my personal data as the main user with third parties. You can find information about how we handle your personal data <a href={{link}} target='_blank'>here</a>.",
+      "DECLINE": "Decline",
+      "ACCEPT": "Accept & Install"
+    }
+  }
+}

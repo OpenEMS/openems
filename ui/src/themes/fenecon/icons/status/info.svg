@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <g fill="currentColor">
-        <path class="cls-1" d="M4,4.01v16h16V4.01H4ZM19,18.51c0,.28-.22.5-.5.5H5.5c-.28,0-.5-.22-.5-.5V5.51c0-.28.22-.5.5-.5h13c.28,0,.5.22.5.5v13Z"/>
-        <rect class="cls-1" x="11.01" y="8.01" width="2" height="1" rx=".2" ry=".2"/>
-        <rect class="cls-1" x="11.51" y="10.51" width="1" height="6.5"/>
-    </g>
-</svg>

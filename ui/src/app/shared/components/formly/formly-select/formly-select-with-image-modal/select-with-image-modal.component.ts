@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
-import { ComponentData } from "src/app/edge/installation/shared/ibndatatypes";
 
 @Component({
     selector: "select-with-image-modal",
@@ -39,7 +38,7 @@ import { ComponentData } from "src/app/edge/installation/shared/ibndatatypes";
     standalone: false,
 })
 export class FormlySelectOptionsWithImageModalComponent implements OnInit {
-    @Input() public options: ComponentData[] = [];
+    @Input() public options: any[] = [];
     @Input() public value: any;
     @Input() public title!: string;
 
