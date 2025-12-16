@@ -5,6 +5,7 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
+import static io.openems.edge.energy.api.EnergyConstants.SCHEDULE_PERIODS_ON_EMPTY;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
@@ -12,13 +13,13 @@ import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.HOUR;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static java.lang.Math.abs;
-import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -60,10 +61,43 @@ public record GlobalOptimizationContext(//
 		Grid grid, //
 		Ess ess, //
 		/**
-		 * Period is either mixed, with {@link Hour}s and {@link Quarter}s, or
-		 * {@link Quarter}s only.
+		 * Period is either mixed, with {@link Period.Hour}s and
+		 * {@link Period.Quarter}s, or {@link Period.Quarter}s only.
 		 */
 		ImmutableList<Period> periods) {
+
+	/**
+	 * Streams the {@link Period.WithPrice}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.WithPrice> streamPeriodsWithPrice() {
+		return this.periods().stream() //
+				.filter(Period.WithPrice.class::isInstance) //
+				.map(Period.WithPrice.class::cast);
+	}
+
+	/**
+	 * Streams the {@link Period.WithPrediction}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.WithPrediction> streamPeriodsWithPrediction() {
+		return this.periods().stream() //
+				.filter(Period.WithPrediction.class::isInstance) //
+				.map(Period.WithPrediction.class::cast);
+	}
+
+	/**
+	 * Streams the {@link Period.Complete}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.Complete> streamCompletePeriods() {
+		return this.periods().stream() //
+				.filter(Period.Complete.class::isInstance) //
+				.map(Period.Complete.class::cast);
+	}
 
 	/**
 	 * Serialize.
@@ -202,54 +236,194 @@ public record GlobalOptimizationContext(//
 		 */
 		public ZonedDateTime time();
 
-		/**
-		 * Production prediction for the Period in [Wh].
-		 * 
-		 * @return the production prediction
-		 */
-		public int production();
+		public static sealed interface Empty extends Period {
+		}
 
-		/**
-		 * Consumption prediction for the Period in [Wh].
-		 * 
-		 * @return the consumption prediction
-		 */
-		public int consumption();
+		public static sealed interface WithPrediction extends Period {
+			/**
+			 * Production prediction for the Period in [Wh].
+			 * 
+			 * @return the production prediction
+			 */
+			public int production();
 
-		/**
-		 * (Average) Grid-Buy-Price for the Period in [1/MWh].
-		 * 
-		 * @return the price
-		 */
-		public double price();
+			/**
+			 * Consumption prediction for the Period in [Wh].
+			 * 
+			 * @return the consumption prediction
+			 */
+			public int consumption();
+		}
 
-		public static record Quarter(//
-				int index, //
-				ZonedDateTime time, //
-				int production, //
-				int consumption, //
-				double price //
-		) implements Period {
+		public static sealed interface WithPrice extends Period {
+			/**
+			 * (Average) Grid-Buy-Price for the Period in [1/MWh].
+			 * 
+			 * @return the price
+			 */
+			public double price();
+		}
+
+		public static sealed interface Complete extends Period.WithPrediction, Period.WithPrice {
+		}
+
+		public static sealed interface Quarter extends Period {
+
+			/**
+			 * Creates an instance of {@link Period.Quarter}.
+			 * 
+			 * @param i           the index
+			 * @param time        the {@link ZonedDateTime}
+			 * @param production  the production prediction
+			 * @param consumption the consumption prediction
+			 * @param price       the price
+			 * @return {@link Period.Quarter}
+			 */
+			public static Period.Quarter from(
+					// From Period
+					int i, ZonedDateTime time,
+					// From Period.WithPrediction
+					Integer production, Integer consumption, //
+					// From Period.WithPrice
+					Double price //
+			) {
+				if (consumption != null && price != null) {
+					return new Period.Quarter.Complete(i, time, production, consumption, price);
+				} else if (price != null) {
+					return new Period.Quarter.WithPrice(i, time, price);
+				} else if (consumption != null) {
+					return new Period.Quarter.WithPrediction(i, time, //
+							Optional.ofNullable(production).orElse(0), // default to zero
+							consumption);
+				} else {
+					return new Period.Quarter.Empty(i, time);
+				}
+			}
 
 			@Override
-			public PeriodDuration duration() {
+			public default PeriodDuration duration() {
 				return QUARTER;
+			}
+
+			public static record Empty(
+					// From Period
+					int index, ZonedDateTime time //
+			) implements Quarter, Period.Empty {
+			}
+
+			public static record WithPrediction(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrediction
+					int production, int consumption //
+			) implements Quarter, Period.WithPrediction {
+			}
+
+			public static record WithPrice(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrice
+					double price //
+			) implements Quarter, Period.WithPrice {
+			}
+
+			public static record Complete(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrediction
+					int production, int consumption, //
+					// From Period.WithPrice
+					double price //
+			) implements Quarter, Period.Complete {
 			}
 		}
 
-		public static record Hour(//
-				int index, //
-				ZonedDateTime time, //
-				int production, //
-				int consumption, //
-				double price, //
-				/** Raw Periods, representing one QUARTER. */
-				ImmutableList<Period.Quarter> quarterPeriods //
-		) implements Period {
+		public static sealed interface Hour extends Period {
+
+			/**
+			 * Creates an instance of {@link Period.Hour}.
+			 * 
+			 * @param i              the index
+			 * @param time           the {@link ZonedDateTime}
+			 * @param production     the production prediction
+			 * @param consumption    the consumption prediction
+			 * @param price          the price
+			 * @param quarterPeriods the list of {@link Period.Quarter}
+			 * @return {@link Period.Quarter}
+			 */
+			public static Hour from(
+					// From Period
+					int i, ZonedDateTime time,
+					// From Period.WithPrediction
+					Integer production, Integer consumption, //
+					// From Period.WithPrice
+					Double price, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) {
+				if (consumption != null && price != null) {
+					return new Period.Hour.Complete(i, time, production, consumption, price, quarterPeriods);
+				} else if (price != null) {
+					return new Period.Hour.WithPrice(i, time, price, quarterPeriods);
+				} else if (consumption != null) {
+					return new Period.Hour.WithPrediction(i, time, //
+							Optional.ofNullable(production).orElse(0), // default to zero
+							consumption, quarterPeriods);
+				} else {
+					return new Period.Hour.Empty(i, time, quarterPeriods);
+				}
+			}
+
+			/**
+			 * Raw Periods, representing one QUARTER.
+			 * 
+			 * @return the Quarter Periods
+			 */
+			public ImmutableList<Period.Quarter> quarterPeriods();
 
 			@Override
-			public PeriodDuration duration() {
+			public default PeriodDuration duration() {
 				return HOUR;
+			}
+
+			public static record Empty(
+					// From Period
+					int index, ZonedDateTime time, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Hour, Period.Empty {
+			}
+
+			public static record WithPrediction(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrediction
+					int production, int consumption, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Hour, Period.WithPrediction {
+			}
+
+			public static record WithPrice(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrice
+					double price, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Hour, Period.WithPrice {
+			}
+
+			public static record Complete(
+					// From Period
+					int index, ZonedDateTime time,
+					// From Period.WithPrediction
+					int production, int consumption, //
+					// From Period.WithPrice
+					double price, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Hour, Period.Complete {
 			}
 		}
 	}
@@ -387,52 +561,52 @@ public record GlobalOptimizationContext(//
 
 			// Prediction values
 			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
+			final var hasPredictions = !consumptions.isEmpty();
 			final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
 
 			// Prices contains the price values and the time it is retrieved.
 			final var prices = this.timeOfUseTariff.getPrices();
+			final var hasPrices = !prices.isEmpty();
 
 			// Helpers
 			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
 				final var time = startTime.plusMinutes(i * 15);
-				final var consumption = consumptions.getAt(time);
+				final var production = QUARTER.convertPowerToEnergy(//
+						productions.getAtOrElse(time, 0 /* defaults to zero */));
+				final var consumption = Optional.ofNullable(consumptions.getAt(time)) //
+						.map(QUARTER::convertPowerToEnergy) //
+						.orElse(null);
 				final var price = prices.getAt(time);
-				if (consumption == null || price == null) {
-					return null;
-				}
-				final var production = productions.getAtOrElse(time, 0);
-				return new Period.Quarter(i, time, //
-						QUARTER.convertPowerToEnergy(production), QUARTER.convertPowerToEnergy(consumption), price);
+				return Period.Quarter.from(i, time, production, consumption, price);
 			};
+
 			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
 				final var i = periodLengthHourFromIndex + j * 4;
 				final var rangeStart = startTime.plusMinutes(i * 15);
 				final var rangeEnd = rangeStart.plusMinutes(60);
-
-				final var consumption = consumptions //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToInt(Integer::intValue) //
-						.toArray();
-				final var priceRange = prices //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToDouble(Double::doubleValue) //
-						.toArray();
-				if (consumption.length == 0 || priceRange.length == 0) {
-					return null;
-				}
-				final var price = stream(priceRange).average().getAsDouble();
 				final var production = productions //
 						.getBetween(rangeStart, rangeEnd) //
-						.mapToInt(Integer::intValue) //
-						.sum();
+						.reduce(Integer::sum) //
+						.map(QUARTER::convertPowerToEnergy) //
+						.orElse(null);
+				final var consumption = consumptions //
+						.getBetween(rangeStart, rangeEnd) //
+						.reduce(Integer::sum) //
+						.map(QUARTER::convertPowerToEnergy) //
+						.orElse(null);
+				final var priceOpt = prices //
+						.getBetween(rangeStart, rangeEnd) //
+						.mapToDouble(Double::doubleValue) //
+						.average();
+				final var price = priceOpt.isEmpty() //
+						? null //
+						: priceOpt.getAsDouble();
 				final var quarterPeriods = IntStream.range(i, i + 4) //
 						.mapToObj(toQuarterPeriod) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				return new Period.Hour(periodLengthHourFromIndex + j, rangeStart, //
-						QUARTER.convertPowerToEnergy(production), // ok, because 'sum'
-						QUARTER.convertPowerToEnergy(stream(consumption).sum()), //
-						price, quarterPeriods);
+				return Period.Hour.from(periodLengthHourFromIndex + j, rangeStart, //
+						production, consumption, price, quarterPeriods);
 			};
 
 			var periods = Stream.concat(//
@@ -440,7 +614,15 @@ public record GlobalOptimizationContext(//
 							.<Period>mapToObj(toQuarterPeriod), //
 					IntStream.iterate(0, i -> i + 1) //
 							.<Period>mapToObj(toHourPeriod) //
-							.takeWhile(Objects::nonNull)) //
+							.takeWhile(p -> {
+								return switch (p) {
+								case Period.Complete c -> true;
+								case Period.WithPrediction wp -> !hasPrices;
+								case Period.WithPrice wp -> !hasPredictions;
+								case Period.Empty e -> !hasPrices && !hasPredictions //
+										&& p.index() > SCHEDULE_PERIODS_ON_EMPTY;
+								};
+							})) //
 					.filter(Objects::nonNull) //
 					.collect(toImmutableList());
 

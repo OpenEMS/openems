@@ -291,9 +291,9 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		/**
 		 * Price [1/MWh].
 		 * 
-		 * @return the price per period
+		 * @return the price per period; possibly null
 		 */
-		public double price();
+		public Double price();
 
 		/**
 		 * Simulated {@link EnergyFlow}.

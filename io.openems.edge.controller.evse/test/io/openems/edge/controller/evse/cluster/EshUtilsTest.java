@@ -50,14 +50,14 @@ public class EshUtilsTest {
 				new GlobalOptimizationContext.Grid(0, 20000), //
 				new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 				ImmutableList.of(//
-						new GlobalOptimizationContext.Period.Quarter(0, TIME.plusMinutes(0), 0, 700, 123), //
-						new GlobalOptimizationContext.Period.Quarter(1, TIME.plusMinutes(15), 100, 600, 123), //
-						new GlobalOptimizationContext.Period.Quarter(2, TIME.plusMinutes(30), 200, 500, 125), //
-						new GlobalOptimizationContext.Period.Quarter(3, TIME.plusMinutes(45), 300, 400, 126), //
-						new GlobalOptimizationContext.Period.Quarter(4, TIME.plusMinutes(60), 400, 300, 123), //
-						new GlobalOptimizationContext.Period.Quarter(5, TIME.plusMinutes(75), 500, 200, 122), //
-						new GlobalOptimizationContext.Period.Quarter(6, TIME.plusMinutes(90), 600, 100, 121), //
-						new GlobalOptimizationContext.Period.Quarter(7, TIME.plusMinutes(105), 700, 0, 121)));
+						GlobalOptimizationContext.Period.Quarter.from(0, TIME.plusMinutes(0), 0, 700, 123.), //
+						GlobalOptimizationContext.Period.Quarter.from(1, TIME.plusMinutes(15), 100, 600, 123.), //
+						GlobalOptimizationContext.Period.Quarter.from(2, TIME.plusMinutes(30), 200, 500, 125.), //
+						GlobalOptimizationContext.Period.Quarter.from(3, TIME.plusMinutes(45), 300, 400, 126.), //
+						GlobalOptimizationContext.Period.Quarter.from(4, TIME.plusMinutes(60), 400, 300, 123.), //
+						GlobalOptimizationContext.Period.Quarter.from(5, TIME.plusMinutes(75), 500, 200, 122.), //
+						GlobalOptimizationContext.Period.Quarter.from(6, TIME.plusMinutes(90), 600, 100, 121.), //
+						GlobalOptimizationContext.Period.Quarter.from(7, TIME.plusMinutes(105), 700, 0, 121.)));
 
 		var t = EshUtils.parseTasks(goc, clusterEshConfig);
 		assertEquals(Mode.FORCE, t.a().get("ctrl0", ZonedDateTime.parse("2020-01-01T01:30Z")));

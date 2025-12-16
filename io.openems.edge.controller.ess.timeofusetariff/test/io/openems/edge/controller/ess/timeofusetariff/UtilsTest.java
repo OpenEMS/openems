@@ -149,7 +149,7 @@ public class UtilsTest {
 
 	private static DifferentModes.Period<StateMachine, OptimizationContext> mockPeriod(PeriodDuration duration,
 			StateMachine mode, int essChargePowerInChargeGrid) {
-		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0,
+		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0.,
 				new OptimizationContext(0, essChargePowerInChargeGrid, 0, 10), null, 0);
 	}
 
@@ -237,9 +237,9 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 1000, 0), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 1100, 0), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 0, 0) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 1000, 0.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 1100, 0.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 0, 0.) //
 						))));
 
 		assertEquals(2232, calculateChargePowerInChargeGrid(//
@@ -247,14 +247,14 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 700, 123), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 600, 123), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 500, 125), //
-								new GlobalOptimizationContext.Period.Quarter(3, TIME, 300, 400, 126), //
-								new GlobalOptimizationContext.Period.Quarter(4, TIME, 400, 300, 123), //
-								new GlobalOptimizationContext.Period.Quarter(5, TIME, 500, 200, 122), //
-								new GlobalOptimizationContext.Period.Quarter(6, TIME, 600, 100, 121), //
-								new GlobalOptimizationContext.Period.Quarter(7, TIME, 700, 0, 121) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 700, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 600, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 500, 125.), //
+								GlobalOptimizationContext.Period.Quarter.from(3, TIME, 300, 400, 126.), //
+								GlobalOptimizationContext.Period.Quarter.from(4, TIME, 400, 300, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(5, TIME, 500, 200, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(6, TIME, 600, 100, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(7, TIME, 700, 0, 121.) //
 						))));
 
 		assertEquals(2059, calculateChargePowerInChargeGrid(//
@@ -262,14 +262,14 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 700, 120), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 600, 121), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 500, 122), //
-								new GlobalOptimizationContext.Period.Quarter(3, TIME, 300, 1140, 126), //
-								new GlobalOptimizationContext.Period.Quarter(4, TIME, 400, 1150, 125), //
-								new GlobalOptimizationContext.Period.Quarter(5, TIME, 500, 200, 122), //
-								new GlobalOptimizationContext.Period.Quarter(6, TIME, 600, 100, 121), //
-								new GlobalOptimizationContext.Period.Quarter(7, TIME, 700, 0, 121) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 700, 120.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 600, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 500, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(3, TIME, 300, 1140, 126.), //
+								GlobalOptimizationContext.Period.Quarter.from(4, TIME, 400, 1150, 125.), //
+								GlobalOptimizationContext.Period.Quarter.from(5, TIME, 500, 200, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(6, TIME, 600, 100, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(7, TIME, 700, 0, 121.) //
 						))));
 	}
 

@@ -387,8 +387,8 @@ public class DifferentModes {
 			PeriodDuration duration,
 			/** MODE of the Period */
 			MODE mode,
-			/** Price [1/MWh] */
-			double price, //
+			/** Price [1/MWh]; possibly null */
+			Double price, //
 			/** ControllerOptimizationContext */
 			OPTIMIZATION_CONTEXT coc, //
 			/** Simulated EnergyFlow */
@@ -399,7 +399,7 @@ public class DifferentModes {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(PeriodDuration duration, int modeIndex, double price, EnergyFlow energyFlow,
+		public static record Transition(PeriodDuration duration, int modeIndex, Double price, EnergyFlow energyFlow,
 				int essInitialEnergy) {
 		}
 

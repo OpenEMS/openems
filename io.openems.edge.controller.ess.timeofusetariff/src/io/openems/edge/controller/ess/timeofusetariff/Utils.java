@@ -305,19 +305,21 @@ public final class Utils {
 		add(refs, fallback);
 
 		// Uses the total excess consumption as reference
-		add(refs, goc.periods().stream() //
+		add(refs, goc.streamPeriodsWithPrediction() //
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
-		add(refs, goc.periods().stream() //
+		add(refs, goc.streamPeriodsWithPrediction() //
 				.takeWhile(p -> p.consumption() >= p.production()) // take only first Periods
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
 		// Uses the excess consumption during high price periods as reference
 		{
-			var prices = goc.periods().stream() //
-					.mapToDouble(GlobalOptimizationContext.Period::price) //
+			var ps = goc.streamCompletePeriods() //
+					.toList();
+			var prices = ps.stream() //
+					.mapToDouble(GlobalOptimizationContext.Period.Complete::price) //
 					.toArray();
 			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
 			var firstPrices = stream(prices) //
@@ -325,7 +327,7 @@ public final class Utils {
 					.toArray();
 			if (firstPrices.length > 0) {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				add(refs, goc.periods().stream() //
+				add(refs, ps.stream() //
 						.limit(peakIndex) //
 						.filter(p -> p.price() >= percentilePrice) // takes only prices > percentile
 						.mapToInt(p -> p.consumption() - p.production()) // excess Consumption Energy per Period

@@ -246,10 +246,19 @@ public class Optimizer {
 		simulationResult.schedules().forEach((esh, schedule) -> esh.applySchedule(schedule));
 
 		// Apply schedules to EnergyScheduleHandlers.WithOnlyOneMode
-		var schedule = simulationResult.periods().entrySet().stream()
-				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, Entry::getKey,
-						e -> new OneMode.Period.Transition(e.getValue().period().duration(),
-								e.getValue().period().price(), e.getValue().energyFlow())));
+		var schedule = simulationResult.periods().entrySet().stream() //
+				.collect(toImmutableSortedMap(//
+						ZonedDateTime::compareTo, //
+						Entry::getKey, //
+						e -> {
+							var p = e.getValue();
+							var price = switch (p.period()) {
+							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+							default -> null;
+							};
+							return new OneMode.Period.Transition(p.period().duration(), price, p.energyFlow());
+						}));
+
 		simulationResult.eshsWithOnlyOneMode().forEach(esh -> esh.applySchedule(schedule));
 	}
 

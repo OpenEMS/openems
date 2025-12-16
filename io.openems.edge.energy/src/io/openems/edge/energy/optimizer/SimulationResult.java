@@ -88,10 +88,14 @@ public record SimulationResult(//
 				.collect(toImmutableMap(EshToMode::esh, //
 						eshToMode -> {
 							var p = eshToMode.period();
+							var price = switch (p.period) {
+							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+							default -> null;
+							};
 							return ImmutableSortedMap.of(p.period.time(),
 									new DifferentModes.Period.Transition(p.period.duration(),
-											eshToMode.postProcessedModeIndex(), p.period.price(), p.energyFlow(),
-											p.essInitialEnergy()));
+											eshToMode.postProcessedModeIndex(), //
+											price, p.energyFlow(), p.essInitialEnergy()));
 						}, //
 						(a, b) -> ImmutableSortedMap.<ZonedDateTime, DifferentModes.Period.Transition>naturalOrder()
 								.putAll(a).putAll(b).build()));
@@ -174,7 +178,11 @@ public record SimulationResult(//
 			final var ef = p.energyFlow;
 			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
-			log(b, "%5.0f ", p.period.price());
+			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
+				log(b, "%5.0f ", wp.price());
+			} else {
+				log(b, "      ");
+			}
 			log(b, "%5d ", ef.getProduction());
 			log(b, "%5d ", ef.getUnmanagedConsumption());
 			log(b, "%5d ", ef.getConsumption());

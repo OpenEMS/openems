@@ -63,37 +63,42 @@ public class EnergyScheduler {
 				.setInitialPopulationsProvider((goc, coc, modes) -> {
 					// Prepare Initial Population with cheapest price per valley set to
 					// DELAY_DISCHARGE or CHARGE_GRID
-					var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
-					generateInitialPopulation(result, goc, StateMachine.DELAY_DISCHARGE);
+					final var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
+					final var prices = goc.streamPeriodsWithPrice() //
+							.mapToDouble(Period.WithPrice::price) //
+							.toArray();
+
+					generateInitialPopulation(result, goc, prices, StateMachine.DELAY_DISCHARGE);
 					var hasChargeGrid = modes.streamForOptimizer().anyMatch(m -> m == StateMachine.CHARGE_GRID);
 					if (hasChargeGrid) {
-						generateInitialPopulation(result, goc, StateMachine.CHARGE_GRID);
+						generateInitialPopulation(result, goc, prices, StateMachine.CHARGE_GRID);
 					}
 					var hasDischargeGrid = modes.streamForOptimizer().anyMatch(m -> m == DISCHARGE_GRID);
 					if (hasDischargeGrid) {
-						generateInitialPopulationForDischargeToGrid(result, goc);
+						generateInitialPopulationForDischargeToGrid(result, goc, prices);
 					}
 					return result.build();
 				})
 
 				.setOptimizationContext(goc -> {
-					// Maximium-SoC in CHARGE_GRID is 90 %
+					final var prices = goc.streamPeriodsWithPrice() //
+							.mapToDouble(Period.WithPrice::price) //
+							.toArray();
+
+					// Maximium-SoC in CHARGE_GRID is 94 %
 					var maxSocEnergyInChargeGrid = round(goc.ess().totalEnergy() * (ESS_MAX_SOC / 100));
 					var essChargeInChargeGrid = calculateChargePowerInChargeGrid(goc);
 					var minSocEnergyInDischargeGrid = round(goc.ess().totalEnergy() * (ESS_MIN_SOC / 100));
 
-					var doNotDischargeToGridAfterPeriod = calculateDoNotDischargeToGridAfterPeriod(goc);
+					var doNotDischargeToGridAfterPeriod = calculateDoNotDischargeToGridAfterPeriod(goc, prices);
 					return new OptimizationContext(maxSocEnergyInChargeGrid, essChargeInChargeGrid,
 							minSocEnergyInDischargeGrid, doNotDischargeToGridAfterPeriod);
 				})
 
 				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
-					if (mode == null //
-							|| (mode == DISCHARGE_GRID && (period.production() > 0
-									|| period.index() > coc.doNotDischargeToGridAfterPeriod))) {
-						mode = BALANCING;
+					if (mode == null) {
+						mode = StateMachine.BALANCING;
 					}
-
 					switch (mode) {
 					case BALANCING -> applyBalancing(ef); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(ef);
@@ -162,10 +167,7 @@ public class EnergyScheduler {
 	}
 
 	private static void generateInitialPopulation(ImmutableSortedSet.Builder<InitialPopulation<StateMachine>> result,
-			GlobalOptimizationContext goc, StateMachine mode) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+			GlobalOptimizationContext goc, double[] prices, StateMachine mode) {
 		Arrays.stream(findValleyIndexes(prices)) //
 				.mapToObj(i -> goc.periods().stream() //
 						.map(p -> p.index() == i //
@@ -177,10 +179,8 @@ public class EnergyScheduler {
 	}
 
 	private static void generateInitialPopulationForDischargeToGrid(
-			ImmutableSortedSet.Builder<InitialPopulation<StateMachine>> result, GlobalOptimizationContext goc) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+			ImmutableSortedSet.Builder<InitialPopulation<StateMachine>> result, GlobalOptimizationContext goc,
+			double[] prices) {
 		IntStream.of(findFirstPeakIndex(1, prices)) //
 				.mapToObj(i -> goc.periods().stream() //
 						.map(p -> p.index() == i //
@@ -191,10 +191,7 @@ public class EnergyScheduler {
 				.forEach(result::add);
 	}
 
-	private static int calculateDoNotDischargeToGridAfterPeriod(GlobalOptimizationContext goc) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+	private static int calculateDoNotDischargeToGridAfterPeriod(GlobalOptimizationContext goc, double[] prices) {
 		return findFirstPeakIndex(findFirstValleyIndex(1, prices), prices);
 	}
 
