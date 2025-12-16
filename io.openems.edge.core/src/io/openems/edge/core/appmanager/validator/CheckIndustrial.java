@@ -36,7 +36,7 @@ public class CheckIndustrial extends AbstractCheckable implements Checkable {
 				"App.FENECON.Industrial.S.ISK010", //
 				"App.FENECON.Industrial.S.ISK011", //
 				"App.FENECON.Industrial.S.ISK110", //
-                "App.FENECON.Industrial.Xl.IXL010" //
+				"App.FENECON.Industrial.Xl.IXL010" //
 		).properties());
 
 		return !this.checkAppsNotInstalled.check();

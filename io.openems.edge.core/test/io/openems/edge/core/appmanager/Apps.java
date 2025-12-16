@@ -68,6 +68,7 @@ import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
+import io.openems.edge.app.integratedsystem.SystemFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
@@ -304,7 +305,7 @@ public final class Apps {
 
 	/**
 	 * Test method for creating a {@link AncillaryCosts}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
@@ -514,7 +515,7 @@ public final class Apps {
 
 	/**
 	 * Test method for creating a {@link TestFilter}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
@@ -950,6 +951,16 @@ public final class Apps {
 	 */
 	public static final GridOptimizedCharge gridOptimizedCharge(AppManagerTestBundle t) {
 		return app(t, GridOptimizedCharge::new, "App.PvSelfConsumption.GridOptimizedCharge");
+	}
+
+	/**
+	 * Test method for creating a {@link SystemFeneconHome}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SystemFeneconHome stateLed(AppManagerTestBundle t) {
+		return app(t, SystemFeneconHome::new, "App.System.Fenecon.Home");
 	}
 
 	/**

@@ -93,7 +93,7 @@ public enum OpenemsAppCategory {
 	 * Apis.
 	 */
 	API("api"),
-	
+
 	/**
 	 * Prediction.
 	 */

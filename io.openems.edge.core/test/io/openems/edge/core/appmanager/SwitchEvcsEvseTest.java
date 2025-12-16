@@ -22,8 +22,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.SwitchArchitecture;
 import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
@@ -62,7 +62,8 @@ public class SwitchEvcsEvseTest {
 				any(User.class), //
 				any(UpdateComponentConfig.Request.class));
 
-		this.sa = new SwitchArchitecture(this.amtb.appManagerUtil, this.cmSpy, this.amtb.sut, new DummyOpenemsEdgeOem());
+		this.sa = new SwitchArchitecture(this.amtb.appManagerUtil, this.cmSpy, this.amtb.sut,
+				new DummyOpenemsEdgeOem());
 	}
 
 	@Test

@@ -15,8 +15,8 @@ public final class ModberryX500M4S extends ModBerryX500 {
 			new ReadChannelId(20, "DIGITAL_INPUT_3"), //
 			new ReadChannelId(21, "DIGITAL_INPUT_4"), //
 			new WriteChannelId(40, "DIGITAL_OUTPUT_1"), //
-			new WriteChannelId(24, "DIGITAL_OUTPUT_2"), //
-			new WriteChannelId(41, "DIGITAL_OUTPUT_3"), //
+			new WriteChannelId(41, "DIGITAL_OUTPUT_2"), //
+			new WriteChannelId(24, "DIGITAL_OUTPUT_3"), //
 			new WriteChannelId(25, "DIGITAL_OUTPUT_4") //
 	);
 
