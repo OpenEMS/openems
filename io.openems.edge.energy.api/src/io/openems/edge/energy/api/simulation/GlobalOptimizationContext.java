@@ -43,6 +43,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 /**
@@ -551,10 +552,7 @@ public record GlobalOptimizationContext(//
 				this.logWarn("Predictor-Manager is not available");
 				return null;
 			}
-			if (this.timeOfUseTariff == null) {
-				this.logWarn("TimeOfUseTariff is not available");
-				return null;
-			}
+
 			final var clock = this.componentManager.getClock();
 			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
 			final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
@@ -565,8 +563,10 @@ public record GlobalOptimizationContext(//
 			final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
 
 			// Prices contains the price values and the time it is retrieved.
-			final var prices = this.timeOfUseTariff.getPrices();
-			final var hasPrices = !prices.isEmpty();
+			final var prices = this.timeOfUseTariff == null //
+					? TimeOfUsePrices.EMPTY_PRICES //
+					: this.timeOfUseTariff.getPrices();
+			final boolean hasPrices = !prices.isEmpty();
 
 			// Helpers
 			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {

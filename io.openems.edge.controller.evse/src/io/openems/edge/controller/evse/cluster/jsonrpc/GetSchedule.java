@@ -97,7 +97,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 
 	public record Response(ImmutableList<Period> schedule) {
 
-		public record Period(ZonedDateTime timestamp, double price, int mode, int grid, int production, int consumption,
+		public record Period(ZonedDateTime timestamp, Double price, int mode, int grid, int production, int consumption,
 				int managedConsumption) {
 
 			/**
