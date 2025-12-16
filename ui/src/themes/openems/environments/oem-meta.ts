@@ -114,8 +114,14 @@ export const OemMeta: BaseMeta = {
             SYSTEM: {
                 HOME: {
                     HOME_10: "#",
-                    HOME_20_30: "#",
-                    HOME_GEN_2: "#",
+                    HOME_20_30: {
+                        DE: "#",
+                        EN: "#",
+                    },
+                    HOME_GEN_2: {
+                        DE: "#",
+                        EN: "#",
+                    },
                 },
                 COMMERCIAL: {
                     COMMERCIAL_30: "#",

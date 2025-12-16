@@ -94,27 +94,27 @@ export class EdgePermission {
     }
 
     /**
-   * Determines if the edge has its channels in the edgeconfig
-   * or if they should be obtained with a separate request.
-   *
-   * The reason this was introduced is to reduce the size of the EdgeConfig
-   * and therefore improve performance in network, backend, ui, edge.
-   *
-   * @returns true if the channels are included in the edgeconfig
-   */
+     * Determines if the edge has its channels in the edgeconfig
+     * or if they should be obtained with a separate request.
+     *
+     * The reason this was introduced is to reduce the size of the EdgeConfig
+     * and therefore improve performance in network, backend, ui, edge.
+     *
+     * @returns true if the channels are included in the edgeconfig
+     */
     public static hasChannelsInEdgeConfig(edge: Edge): boolean {
         return !edge.isVersionAtLeast("2024.6.1");
     }
 
     /**
-   * Determines if the edge has only the factories which are used by the
-   * active components in the edgeconfig or if all factories are inlcuded.
-   *
-   * The reason this was introduced is to reduce the size of the EdgeConfig
-   * and therefore improve performance in network, backend, ui, edge.
-   *
-   * @returns true if only the factories of the used components are in the edgeconfig
-   */
+     * Determines if the edge has only the factories which are used by the
+     * active components in the edgeconfig or if all factories are inlcuded.
+     *
+     * The reason this was introduced is to reduce the size of the EdgeConfig
+     * and therefore improve performance in network, backend, ui, edge.
+     *
+     * @returns true if only the factories of the used components are in the edgeconfig
+     */
     public static hasReducedFactories(edge: Edge): boolean {
         return edge.isVersionAtLeast("2024.6.1");
     }
@@ -143,22 +143,22 @@ export class UserPermission {
 
 
     /**
-  * Checks if user is allowed to see {@link SystemRestartComponent}
-  *
-  * @param user the current user
-  * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
-  */
+     * Checks if user is allowed to see {@link SystemRestartComponent}
+     *
+     * @param user the current user
+     * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
+     */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
         const isAllowed = edge?.isVersionAtLeast("2024.2.2");
         return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
     }
 
     /**
-  * Checks if user is allowed to see additional updates.
-  *
-  * @param edge the current {@link Edge}
-  * @returns true, if user has access to see additional updates
-  */
+     * Checks if user is allowed to see additional updates.
+     *
+     * @param edge the current {@link Edge}
+     * @returns true, if user has access to see additional updates
+     */
     public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
         return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
     }
@@ -171,11 +171,11 @@ export enum Producttype {
 export namespace Currency {
 
     /**
-   * This method returns the corresponding label based on the user-selected currency in "core.meta."
-   *
-   * @param currency The currency enum.
-   * @returns the Currencylabel
-   */
+     * This method returns the corresponding label based on the user-selected currency in "core.meta."
+     *
+     * @param currency The currency enum.
+     * @returns the Currencylabel
+     */
     export function getCurrencyLabelByCurrency(currency: string): Label {
         switch (currency) {
             case "SEK":
@@ -188,11 +188,11 @@ export namespace Currency {
     }
 
     /**
-   * This method returns the corresponding label for the chart based on the user-selected currency.
-   *
-   * @param currency The currency enum.
-   * @returns the Currency Unit label
-   */
+     * This method returns the corresponding label for the chart based on the user-selected currency.
+     *
+     * @param currency The currency enum.
+     * @returns the Currency Unit label
+     */
     export function getChartCurrencyUnitLabel(currency: string) {
         switch (currency) {
             case "SEK":
@@ -239,8 +239,8 @@ export enum Limiter14aRestriction {
 }
 
 /**
-* Presents a simple
-*/
+ * Presents a simple
+ */
 export async function presentAlert(alertController: AlertController, translate: TranslateService, alertOptions: AlertOptions) {
 
     if (!alertOptions?.buttons) {

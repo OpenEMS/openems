@@ -83,12 +83,13 @@ export class Edge {
      * Gets the edge number from the edge id.
      *
      * @example
-     * If the edge id is "xxxx1234", this method will return 1234.
+     * "xxxx1234" -> 1234
+     * "User1ID50" -> 50
      *
      * @returns The edge number.
      */
     public getNameNumber(): number {
-        return Number.parseInt(this.id.replace(/\D/g, ""));
+        return StringUtils.getTrailingNumber(this.id);
     }
 
     /**

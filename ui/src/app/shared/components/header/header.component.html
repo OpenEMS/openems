@@ -20,8 +20,7 @@
       }
       <!-- page title is shown if the current page isn't Live nor History -->
       @if ((currentPage !== 'IndexLive' && currentPage !== 'IndexHistory')) {
-        <ion-title style="color: var(--ion-title-color);"
-          class="ion-hide-md-up" slot="start">
+        <ion-title style="color: var(--ion-title-color);" class="ion-hide-md-up" slot="start">
           {{ service.currentPageTitle }}
         </ion-title>
       }
@@ -36,12 +35,16 @@
             <ion-segment-button tabindex="0" class="focus-visible"
               style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content"
               value="IndexLive">
-              <ion-label style="color: var(--ion-color-header-contrast);">{{"GENERAL.LIVE" | translate}}</ion-label>
+              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
+                {{"GENERAL.LIVE" | translate}}
+              </ion-label>
             </ion-segment-button>
             <ion-segment-button
               style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color);min-width: fit-content"
               value="IndexHistory">
-              <ion-label style="color: var(--ion-color-header-contrast);">{{"GENERAL.HISTORY" | translate}}</ion-label>
+              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
+                {{"GENERAL.HISTORY" | translate}}
+              </ion-label>
             </ion-segment-button>
           </ion-segment>
         }

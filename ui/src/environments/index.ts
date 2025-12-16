@@ -133,8 +133,14 @@ export interface Environment {
             readonly SYSTEM: {
                 readonly HOME: {
                     readonly HOME_10: string,
-                    readonly HOME_20_30: string,
-                    readonly HOME_GEN_2: string,
+                    readonly HOME_20_30: {
+                        readonly DE: string,
+                        readonly EN: string,
+                    },
+                    readonly HOME_GEN_2: {
+                        readonly DE: string,
+                        readonly EN: string,
+                    },
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,
