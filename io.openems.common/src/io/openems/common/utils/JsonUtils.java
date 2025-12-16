@@ -498,6 +498,20 @@ public final class JsonUtils {
 			return this;
 		}
 
+        /**
+         * Add a {@link JsonObject} value to the {@link JsonObject} if it is not null.
+         *
+         * @param property the key
+         * @param value    the value
+         * @return the {@link JsonObjectBuilder}
+         */
+        public JsonObjectBuilder addIfNotNull(String property, JsonObject value) {
+            if (value != null) {
+                this.add(property, value);
+            }
+            return this;
+        }
+
 		/**
 		 * Call a method on a JsonObjectBuilder if an expression is true.
 		 *
