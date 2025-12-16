@@ -59,8 +59,10 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.flag.Flag;
-import io.openems.edge.core.appmanager.flag.Flags;
+import io.openems.edge.core.appmanager.flag.Flags.SwitchFlag;
 import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
+import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
 
 /**
  * Describes a Keba evcs App.
@@ -101,34 +103,10 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
 				})), //
-
-		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
-				.setRequired(true) //
-				.setTranslatedLabel("App.Evse.pickVehicleId.label").wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
-				})), //
-		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())//
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
-				})), //
-
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
 				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
-				.setAllowedToSave(false)), //
 
-		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
-				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
-				})), //
-		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
-		// Properties for P40 app
-		MODBUS_ID(AppDef.componentId("modbus0")), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255)//
 				.wrapField((app, property, l, parameter, field) -> {
@@ -138,7 +116,34 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE));
 					field.onlyShowIf(hardwareType.or(architectureType));
 				}))), //
-		READ_ONLY(EvcsProps.readOnly());
+
+		READ_ONLY(EvcsProps.readOnly()),
+
+		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
+				.setRequired(true) //
+				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
+				.setTranslatedDescription("App.Evse.pickVehicleId.description") //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
+				})), //
+		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
+				})), //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
+				.setAllowedToSave(false)), //
+		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
+				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
+				})), //
+		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
+		// Properties for P40 app
+		MODBUS_ID(AppDef.componentId("modbus0")), //
+		;
 
 		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
 
@@ -370,7 +375,11 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 	@Override
 	public Flag[] flags() {
 		final var flags = Lists.newArrayList(super.flags());
-		flags.add(Flags.CAN_SWITCH_ARCHITECTURE);
+		flags.add(new SwitchFlag(//
+				SwitchArchitecture.ID, // handler id
+				CanSwitchEvcsEvse.METHOD, // can switch method name
+				SwitchEvcsEvse.METHOD // switch method name
+		));
 		return flags.toArray(Flag[]::new);
 	}
 }

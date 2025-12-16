@@ -50,6 +50,7 @@ export const OemMeta: BaseMeta = {
     links: {
         DATA_PROTECTION: null,
         REDIRECT: {
+            BETA_CHANGE_LOG: null,
             COMMON_STORAGE: null,
             COMMON_AUTARCHY: null,
             COMMON_CONSUMPTION: null,

@@ -2,7 +2,6 @@ package io.openems.edge.app.evse.vehicle;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evse.vehicle.AppGenericVehicle.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -32,7 +30,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
@@ -143,12 +140,4 @@ public class AppGenericVehicle extends
 		return Property.values();
 	}
 
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanSee(Role.ADMIN)//
-				.setCanDelete(Role.ADMIN)//
-				.setCanInstall(List.of(Role.ADMIN))//
-				.build();
-	}
 }

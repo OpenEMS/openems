@@ -735,7 +735,11 @@
       "TUESDAY": "Dienstag",
       "WEDNESDAY": "Mittwoch"
     },
-    "YES": "Ja"
+    "YES": "Ja",
+    "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
+    "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
+    "LINK": "Details findest du unter folgendem Link:",
+    "HELP": "Hilfe"
   },
   "GRID_STATES": {
     "CONSUMPTION_LIMITATION": "Bezugslimitierung",

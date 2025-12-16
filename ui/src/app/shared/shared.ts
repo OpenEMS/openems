@@ -43,11 +43,22 @@ export class Permission {
 export class EdgePermission {
 
     /**
-  * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
-  *
-  * @param edge the edge
-  * @returns true, if user is at least {@link Role.OWNER}
-  */
+     * Checks if the edge has the switchArchitecture jsonRpc logic.
+     *
+     * @param edge The edge to check
+     * @returns True if the edge has the switchArchitecture jsonRpc logic, false otherwise
+     */
+    public static hasSwitchArchitecture(edge: Edge): boolean {
+        return edge.isVersionAtLeast("2025.12.4");
+    }
+
+
+    /**
+     * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
+     *
+     * @param edge the edge
+     * @returns true, if user is at least {@link Role.OWNER}
+     */
     public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
         return Role.isAtLeast(edge.role, Role.OWNER);
     }

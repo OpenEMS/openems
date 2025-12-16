@@ -169,4 +169,12 @@ public interface OpenemsEdgeOem {
 	public default String getOpenMeteoApiKey() {
 		return null;
 	}
+
+	/**
+	 * Returns a link to a given key.
+	 * 
+	 * @param key the key
+	 * @return the link
+	 */
+	public String getLink(String key);
 }

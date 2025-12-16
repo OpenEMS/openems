@@ -10,9 +10,11 @@ import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Response;
 
 public class CanSwitchEvcsEvse implements EndpointRequestType<EmptyObject, Response> {
 
+	public static final String METHOD = "canSwitchEvcsEvse";
+
 	@Override
 	public String getMethod() {
-		return "canSwitchEvcsEvse";
+		return METHOD;
 	}
 
 	@Override
@@ -25,7 +27,7 @@ public class CanSwitchEvcsEvse implements EndpointRequestType<EmptyObject, Respo
 		return Response.serializer();
 	}
 
-	public record Response(boolean canSwitch) {
+	public record Response(boolean canSwitch, Version current, String header, String info, String link) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link SwitchEvcsEvse.Response}.
@@ -34,13 +36,25 @@ public class CanSwitchEvcsEvse implements EndpointRequestType<EmptyObject, Respo
 		 */
 		public static JsonSerializer<Response> serializer() {
 			return jsonObjectSerializer(Response.class, json -> {
-				return new Response(json.getBoolean("canSwitch"));
+				return new Response(json.getBoolean("canSwitch"), //
+						json.getEnumOrNull("current", Version.class), //
+						json.getString("header"), //
+						json.getString("info"), //
+						json.getStringOrNull("link") //
+				);
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.addProperty("canSwitch", obj.canSwitch()) //
-						.build();
+						.addPropertyIfNotNull("current", obj.current()) //
+						.addProperty("header", obj.header()) //
+						.addProperty("info", obj.info()) //
+						.addPropertyIfNotNull("link", obj.link()).build();
 			});
 		}
+	}
+
+	public enum Version {
+		NEW, OLD;
 	}
 
 }

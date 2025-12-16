@@ -7,6 +7,7 @@ import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/li
 import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/pages/phase-switching/phase-switching";
+import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
@@ -32,6 +33,7 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/energy-limit", component: EvseEnergyLimitComponent },
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
     { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
+    { path: "navigation-info", component: NavigationInfoComponent },
     {
         path: "evse/:componentId/car/update/:appId",
         component: UpdateAppConfigComponent,

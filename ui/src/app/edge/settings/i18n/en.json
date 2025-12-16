@@ -1,20 +1,22 @@
 {
-    "PROFILE": {
-        "SYSTEM_PROTOCOL": {
-            "LABEL": "System protocol",
-            "DOWNLOAD": "Download",
-            "TITLE": "Currently"
-        }
-    },
-    "EDGE": {
-        "CONFIG": {
-            "APP": {
-                "STATUS_INSTALLED": "Installed",
-                "STATUS_AVAILABLE": "Available",
-                "STATUS_INCOMPATIBLE": "Incompatible",
-                "STATUS_FILTER": "Availability",
-                "CATEGORY_FILTER": "App-Categories"
-            }
-        }
+  "PROFILE": {
+    "SYSTEM_PROTOCOL": {
+      "LABEL": "System protocol",
+      "DOWNLOAD": "Download",
+      "TITLE": "Currently"
     }
+  },
+  "EDGE": {
+    "CONFIG": {
+      "APP": {
+        "STATUS_INSTALLED": "Installed",
+        "STATUS_AVAILABLE": "Available",
+        "STATUS_INCOMPATIBLE": "Incompatible",
+        "STATUS_FILTER": "Availability",
+        "CATEGORY_FILTER": "App-Categories",
+        "NEXT_VERSION_INFO": "We are starting the public BETA field test of the new FEMS app KEBA. Details and new features can be found here in FENECON Docs.",
+        "EVSE_BETA_TEST": "Try out the new FEMS app KEBA (BETA)"
+      }
+    }
+  }
 }

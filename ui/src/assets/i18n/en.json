@@ -731,7 +731,11 @@
       "WEDNESDAY": "Wednesday"
     },
     "WILL_BE_EXECUTED": "will be executed",
-    "YES": "Yes"
+    "YES": "Yes",
+    "NAVIGATION_INFO": "We are currently redesigning our monitoring and app, optimizing their navigation and functionality.",
+    "NAVIGATION_DETAILS": "This Help-Chip provides you with assistance. Read more about changes, get explanations and info, including the extended functionalities of your KEBA P40 charging station.",
+    "LINK": "Read more by following this link (German):",
+    "HELP": "Help"
   },
   "GRID_STATES": {
     "CONSUMPTION_LIMITATION": "Charge from grid limitation",

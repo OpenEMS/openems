@@ -14,9 +14,11 @@ import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse.Response;
 
 public class SwitchEvcsEvse implements EndpointRequestType<EmptyObject, Response> {
 
+	public static final String METHOD = "switchEvcsEvse";
+
 	@Override
 	public String getMethod() {
-		return "switchEvcsEvse";
+		return METHOD;
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class SwitchEvcsEvse implements EndpointRequestType<EmptyObject, Response
 		 */
 		public static JsonSerializer<Response> serializer() {
 			return jsonObjectSerializer(Response.class, json -> {
-				return new Response(json.getList("apps",  OpenemsAppInstance.serializer()));
+				return new Response(json.getList("apps", OpenemsAppInstance.serializer()));
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.add("apps", obj.apps.stream()//
