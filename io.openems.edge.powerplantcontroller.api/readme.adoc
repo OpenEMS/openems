@@ -1,3 +1,3 @@
-= io.openems.edge.powerplantcontrol.api
+= Power-Plant-Controller
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.powerplantcontrol.api[Source Code icon:github[]]
