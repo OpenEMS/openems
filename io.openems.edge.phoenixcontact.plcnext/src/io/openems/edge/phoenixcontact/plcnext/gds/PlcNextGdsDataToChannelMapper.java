@@ -185,66 +185,26 @@ public class PlcNextGdsDataToChannelMapper {
 	Object getChannelValue(Object jsonValue, PlcNextGdsDataType plcNextType, Doc openEmsChannelDoc) {
 		Object mappedValue = null;
 
-		if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.FLOAT == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Float.valueOf(((Float) jsonValue) * 1000.0f);				
-			} else {
-				mappedValue = jsonValue;
-			}
-		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.DOUBLE == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = ((Float) jsonValue).doubleValue() * 1000.0;
-			} else {
-				mappedValue = ((Float) jsonValue).doubleValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.SHORT == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Integer.valueOf(Float.valueOf(((Float) jsonValue) * 1000.0f).intValue()).shortValue();				
-			} else {
-				mappedValue = Integer.valueOf(((Float) jsonValue).intValue()).shortValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.INTEGER == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Float.valueOf(((Float) jsonValue) * 1000.0f).intValue();				
-			} else {
-				mappedValue = ((Float) jsonValue).intValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT32 == plcNextType && OpenemsType.LONG == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Float.valueOf(((Float) jsonValue) * 1000.0f).longValue();				
-			} else {
-				mappedValue = ((Float) jsonValue).longValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.FLOAT == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Double.valueOf(((double) jsonValue) * 1.000).floatValue();
-			} else {
-				mappedValue = ((Double) jsonValue).floatValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.DOUBLE == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Double.valueOf(((double) jsonValue) * 1000.0);				
-			} else {
-				mappedValue = jsonValue;
-			}
-		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.SHORT == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Integer.valueOf(Double.valueOf(((double) jsonValue) * 1000.0).intValue()).shortValue();
-			} else {
-				mappedValue = Integer.valueOf(((Double) jsonValue).intValue()).shortValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.INTEGER == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Double.valueOf(((Double) jsonValue) * 1000.0).intValue();				
-			} else {
-				mappedValue = ((Double) jsonValue).intValue();
-			}
-		} else if (PlcNextGdsDataType.FLOAT64 == plcNextType && OpenemsType.LONG == openEmsChannelDoc.getType()) {
-			if (isMilli(openEmsChannelDoc)) {
-				mappedValue = Double.valueOf(((double) jsonValue) * 1000.0).longValue();				
-			} else {
-				mappedValue = ((Double) jsonValue).longValue();
-			}
+		if (isPlcNextTypeFloat32(plcNextType) && isOpenEmsTypeFloat(openEmsChannelDoc)) {
+			mappedValue = jsonValue;
+		} else if (isPlcNextTypeFloat32(plcNextType) && isOpenEmsTypeDouble(openEmsChannelDoc)) {
+			mappedValue = ((Float) jsonValue).doubleValue();
+		} else if (isPlcNextTypeFloat32(plcNextType) && isOpenEmsTypeShort(openEmsChannelDoc)) {
+			mappedValue = Integer.valueOf(((Float) jsonValue).intValue()).shortValue();
+		} else if (isPlcNextTypeFloat32(plcNextType) && isOpenEmsTypeInteger(openEmsChannelDoc)) {
+			mappedValue = ((Float) jsonValue).intValue();
+		} else if (isPlcNextTypeFloat32(plcNextType) && isOpenEmsTypeLong(openEmsChannelDoc)) {
+			mappedValue = ((Float) jsonValue).longValue();
+		} else if (isPlcNextTypeFloat64(plcNextType) && isOpenEmsTypeFloat(openEmsChannelDoc)) {
+			mappedValue = ((Double) jsonValue).floatValue();
+		} else if (isPlcNextTypeFloat64(plcNextType) && isOpenEmsTypeDouble(openEmsChannelDoc)) {
+			mappedValue = jsonValue;
+		} else if (isPlcNextTypeFloat64(plcNextType) && isOpenEmsTypeShort(openEmsChannelDoc)) {
+			mappedValue = Integer.valueOf(((Double) jsonValue).intValue()).shortValue();
+		} else if (isPlcNextTypeFloat64(plcNextType) && isOpenEmsTypeInteger(openEmsChannelDoc)) {
+			mappedValue = ((Double) jsonValue).intValue();
+		} else if (isPlcNextTypeFloat64(plcNextType) && isOpenEmsTypeLong(openEmsChannelDoc)) {
+			mappedValue = ((Double) jsonValue).longValue();
 		} else {
 			throw new PlcNextGdsDataMappingException("Mapping from source type '" + plcNextType
 					+ "' to destination type '" + openEmsChannelDoc.getType() + "' is not supported.");
@@ -252,8 +212,32 @@ public class PlcNextGdsDataToChannelMapper {
 		return mappedValue;
 	}
 
-	private boolean isMilli(Doc openEmsChannelDoc) {
-		return openEmsChannelDoc.getUnit().name().contains("MILLI");
+	private boolean isOpenEmsTypeLong(Doc openEmsChannelDoc) {
+		return OpenemsType.LONG == openEmsChannelDoc.getType();
+	}
+
+	private boolean isOpenEmsTypeInteger(Doc openEmsChannelDoc) {
+		return OpenemsType.INTEGER == openEmsChannelDoc.getType();
+	}
+
+	private boolean isOpenEmsTypeShort(Doc openEmsChannelDoc) {
+		return OpenemsType.SHORT == openEmsChannelDoc.getType();
+	}
+
+	private boolean isOpenEmsTypeDouble(Doc openEmsChannelDoc) {
+		return OpenemsType.DOUBLE == openEmsChannelDoc.getType();
+	}
+
+	private boolean isOpenEmsTypeFloat(Doc openEmsChannelDoc) {
+		return OpenemsType.FLOAT == openEmsChannelDoc.getType();
+	}
+
+	private boolean isPlcNextTypeFloat64(PlcNextGdsDataType plcNextType) {
+		return PlcNextGdsDataType.FLOAT64 == plcNextType;
+	}
+
+	private boolean isPlcNextTypeFloat32(PlcNextGdsDataType plcNextType) {
+		return PlcNextGdsDataType.FLOAT32 == plcNextType;
 	}
 
 	/**
