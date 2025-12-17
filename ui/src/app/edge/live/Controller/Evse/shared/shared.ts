@@ -37,6 +37,71 @@ export namespace ControllerEvseSingleShared {
      * @param raw the raw value
      * @returns the value for chosen mode
      */
+    export const CONVERT_TO_PHASE_SWITCH_LABEL = (translate: TranslateService) => {
+        return (raw: string | null): string => {
+            return Converter.IF_STRING(raw, value => {
+                switch (value) {
+                    case "DISABLE":
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                    case "FORCE_SINGLE_PHASE":
+                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
+                    case "FORCE_THREE_PHASE":
+                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
+                    default:
+                        return Converter.HIDE_VALUE(value);
+                }
+            });
+        };
+    };
+
+    /**
+     * Converts a string mode to a presentable label
+     *
+     * @param raw the raw value
+     * @returns the value for chosen mode
+     */
+    export const CONVERT_TO_ACTUAL_MODE_LABEL = (translate: TranslateService) => {
+        return (raw: number | null): string => {
+            return Converter.IF_NUMBER(raw, value => {
+                switch (value) {
+                    case 0:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
+                    case 1:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                    case 2:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                    case 3:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
+                    default:
+                        return Converter.HIDE_VALUE(value);
+                }
+            });
+        };
+    };
+
+    /**
+     * Converts a string mode to a presentable label
+     *
+     * @param raw the raw value
+     * @returns the value for chosen mode
+     */
+    export const CONVERT_TO_ENERGY_LIMIT_LABEL = () => {
+        return (raw: number | null): string => {
+            return Converter.IF_NUMBER(raw, value => {
+                if (value <= 0) {
+                    return Converter.HIDE_VALUE(value);
+                }
+                return value.toString();
+            });
+        };
+    };
+
+    /**
+     * Converts a string mode to a presentable label
+     *
+     * @param raw the raw value
+     * @returns the value for chosen mode
+     */
     export const CONVERT_TO_STATE_MACHINE_LABEL = (translate: TranslateService) => {
         return (value: any): string => {
             switch (value) {

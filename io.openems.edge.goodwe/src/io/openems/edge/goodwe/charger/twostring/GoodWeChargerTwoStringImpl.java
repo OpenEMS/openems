@@ -73,6 +73,7 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 
 	private Config config;
 
+	@Deprecated
 	public GoodWeChargerTwoStringImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -96,6 +97,7 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 		this.essOrBatteryInverter.addCharger(this);
 	}
 
+	@Deprecated
 	@Override
 	@Deactivate
 	protected void deactivate() {
@@ -103,6 +105,7 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 		super.deactivate();
 	}
 
+	@Deprecated
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
@@ -112,6 +115,7 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 		}
 	}
 
+	@Deprecated
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
@@ -121,11 +125,13 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 						.build());
 	}
 
+	@Deprecated
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
 
+	@Deprecated
 	@Override
 	public PvPort pvPort() {
 		return this.config.pvPort();
@@ -146,6 +152,7 @@ public class GoodWeChargerTwoStringImpl extends AbstractOpenemsComponent impleme
 		}
 	}
 
+	@Deprecated
 	@Override
 	public final String debugLog() {
 		return "L:" + this.getActualPower().asString();

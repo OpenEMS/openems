@@ -10,8 +10,7 @@
         </ng-template>
       }
       @if (navigationService.position() === 'left') {
-        <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
-          >
+        <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main">
           <ng-container *ngTemplateOutlet="sidemenu">
           </ng-container>
           <div id="main">
@@ -30,8 +29,7 @@
 
   <oe-navigation></oe-navigation>
   @if (latestIncident !== null) {
-    <oe-notification color="warning" [text]="latestIncident.message"
-      [id]="latestIncident.id">
+    <oe-notification color="warning" [text]="latestIncident.message" [id]="latestIncident.id">
     </oe-notification>
   }
   <ng-container *ngTemplateOutlet="footer"></ng-container>
@@ -89,9 +87,13 @@
           <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
           </ion-icon>
           <ion-label>
-            <p style="color:var(--ion-text-color);">{{ user.name }}</p>
+            <p style="color:var(--ion-text-color); font-weight: bold;">
+              {{ user.name }}
+            </p>
             <ion-text>
-              <p style="color:var(--ion-text-color-shade);">{{ user.id }}</p>
+              <p style="color:var(--ion-text-color-shade); ">
+                {{ user.id }}
+              </p>
             </ion-text>
           </ion-label>
         </ion-item>

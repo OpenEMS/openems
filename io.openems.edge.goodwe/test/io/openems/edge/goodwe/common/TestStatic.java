@@ -279,21 +279,21 @@ public class TestStatic {
 
 	@Test
 	public void testCalculateDcLimitation() {
-		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(0, Optional.of(230), 30_000));
-		assertEquals(11500, (int) AbstractGoodWe.calculateDcLimitation(50, Optional.of(230), 30_000));
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(0, 230, 30_000));
+		assertEquals(11500, (int) AbstractGoodWe.calculateDcLimitation(50, 230, 30_000));
 		assertEquals(9000,
-				(int) AbstractGoodWe.calculateDcLimitation(50, Optional.of(230), FENECON_GEN2_6K.maxBatChargeP));
+				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatChargeP));
 		assertEquals(6600,
-				(int) AbstractGoodWe.calculateDcLimitation(50, Optional.of(230), FENECON_GEN2_6K.maxBatDischargeP));
-		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(50, Optional.empty(), 30_000));
-		assertEquals(20000, (int) AbstractGoodWe.calculateDcLimitation(50, Optional.of(400), 30_000));
-		assertEquals(-800, (int) AbstractGoodWe.calculateDcLimitation(-2, Optional.of(400), 30_000));
-		assertEquals(30_000, (int) AbstractGoodWe.calculateDcLimitation(null, Optional.of(400), 30_000));
+				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatDischargeP));
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(50, null, 30_000));
+		assertEquals(20000, (int) AbstractGoodWe.calculateDcLimitation(50, 400, 30_000));
+		assertEquals(-800, (int) AbstractGoodWe.calculateDcLimitation(-2, 400, 30_000));
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(null, 400, 30_000));
 	}
 
 	@Test
 	public void testCalculateMaxAcPower() {
-		final var volt = Optional.of(400); // V
+		final var volt = 400; // V
 
 		// Limited by ApparentPower
 		assertEquals(new MaxAcPower(-10_000, 10_000),
@@ -322,11 +322,10 @@ public class TestStatic {
 		assertEquals(new MaxAcPower(0, 20_000 /* 10 kW battery + 10kW pv */),
 				AbstractGoodWe.calculateMaxAcPower(30000, 50, 50, volt, 10_000, 10_000, 10_000 /* 10kW PV */));
 		assertEquals(new MaxAcPower(-2000 /* 5kW - 3kW */, 8000 /* 5kW + 3kW */),
-				AbstractGoodWe.calculateMaxAcPower(30000, 10, 10, Optional.of(500), 10_000, 10_000, 3000 /* 3kW PV */));
+				AbstractGoodWe.calculateMaxAcPower(30000, 10, 10, 500, 10_000, 10_000, 3000 /* 3kW PV */));
 
 		assertEquals(new MaxAcPower(1000, 5000), // Positive MaxAcImport was not allowed before refactoring
-				AbstractGoodWe.calculateMaxAcPower(5_000, -2 /* Force Discharge */, 50, Optional.of(500), 30_000,
-						30_000, 3000));
+				AbstractGoodWe.calculateMaxAcPower(5_000, -2 /* Force Discharge */, 50, 500, 30_000, 30_000, 3000));
 
 	}
 }

@@ -79,12 +79,13 @@ public final class Utils {
 	 * returning.
 	 * 
 	 * @param gocSupplier a {@link Supplier} for {@link GlobalOptimizationContext}
-	 * @param simulator   a callback for a {@link Simulator}; possibly null
 	 * @param error       a callback for a error string
+	 * @return the {@link Simulator} or null
 	 * @throws InterruptedException on interrupted sleep
 	 */
-	public static synchronized void createSimulator(Supplier<GlobalOptimizationContext> gocSupplier,
-			Consumer<Simulator> simulator, Consumer<Supplier<String>> error) throws InterruptedException {
+	public static Simulator createSimulator(//
+			Supplier<GlobalOptimizationContext> gocSupplier, //
+			Consumer<Supplier<String>> error) throws InterruptedException {
 		GlobalOptimizationContext goc;
 		try {
 			// Create GlobalOptimizationContext -> this might fail a few times during
@@ -97,22 +98,18 @@ public final class Utils {
 		}
 
 		if (goc == null) {
-			simulator.accept(null);
 			error.accept(() -> "Unable to create GlobalOptimizationContext");
 			Thread.sleep(60 * 1000);
-			return;
+			return null;
 		}
 
-		// Are there any schedulable ESHs?
-		if (goc.eshsWithDifferentModes().size() > 0) {
-			simulator.accept(new Simulator(goc));
-			return;
+		if (goc.eshsWithDifferentModes().isEmpty()) {
+			error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> sleep 15 minutes");
+			Thread.sleep(15 * 60 * 1000);
+			return null;
 		}
 
-		// None. Freeze till interrupt
-		simulator.accept(null);
-		error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> sleep 15 minutes");
-		Thread.sleep(15 * 60 * 1000);
+		return new Simulator(goc);
 	}
 
 	/**

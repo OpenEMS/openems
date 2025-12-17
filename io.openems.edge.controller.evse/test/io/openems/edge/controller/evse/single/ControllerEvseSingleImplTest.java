@@ -1,9 +1,9 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.edge.controller.evse.TestUtils.generateSingleSut;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class ControllerEvseSingleImplTest {
 	public void test() throws OpenemsException, Exception {
 		var sut = generateSingleSut(c -> c //
 				.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
-				.setSmartConfig("""
+				.setJsCalendar("""
 						[{
 						  "@type": "Task",
 						  "updated": "2020-01-01T00:00:00Z",
@@ -42,7 +42,7 @@ public class ControllerEvseSingleImplTest {
 				.deactivate();
 
 		final var ctrl = sut.ctrlSingle();
-		assertEquals("Mode:Minimum|Undefined", ctrl.debugLog());
+		assertEquals("Mode:Zero|Undefined", ctrl.debugLog());
 
 		var params = sut.ctrlSingle().getParams();
 		assertEquals("ctrlEvseSingle0", params.componentId());

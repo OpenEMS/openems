@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
@@ -142,6 +144,12 @@ public class AppValidateWorker extends AbstractWorker implements ConfigurationLi
 	protected void validateApps() {
 		final var unknownApps = new HashSet<String>();
 		final var handledKeys = Sets.newHashSet("UNKNOWNAPPS");
+
+		final var allConfigs = this.appManagerUtil.appConfigs(this.appManagerUtil.getInstantiatedApps(),
+				openemsAppInstance -> true);
+		final var configsByInstance = StreamSupport.stream(allConfigs.spliterator(), false) //
+				.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+
 		for (var entry : this.appManagerUtil.getInstantiatedApps().stream() //
 				.collect(groupingBy(t -> t.appId)).entrySet()) {
 			final var appId = entry.getKey();
@@ -155,7 +163,7 @@ public class AppValidateWorker extends AbstractWorker implements ConfigurationLi
 			final var errorsOfApp = new ArrayList<String>();
 			for (var instance : entry.getValue()) {
 				try {
-					this.validator.validate(instance);
+					this.validator.validate(instance, configsByInstance.get(instance), configsByInstance);
 				} catch (OpenemsNamedException e) {
 					errorsOfApp.add(e.getMessage());
 				}

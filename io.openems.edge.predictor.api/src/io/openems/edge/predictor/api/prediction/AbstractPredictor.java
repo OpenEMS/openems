@@ -96,8 +96,7 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 		}
 		switch (this.logVerbosity) {
 		case NONE -> doNothing();
-		case REQUESTED_PREDICTIONS, ARCHIVE_LOCALLY ->
-			this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
+		case REQUESTED_PREDICTIONS -> this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
 		}
 		return prediction;
 	}

@@ -383,7 +383,8 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				edge.isOnline(), //
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
-				Level.OK //
+				Level.OK, //
+                edge.getSettings() //
 		);
 	}
 

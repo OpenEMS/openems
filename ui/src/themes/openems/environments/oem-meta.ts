@@ -1,6 +1,44 @@
+import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircleOutline, warningOutline } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
+    icons: {
+        COMMON: {
+            CONSUMPTION: "assets/img/icon/consumption.svg",
+            SELFCONSUMPTION: "assets/img/icon/selfconsumption.svg",
+            GRID: "assets/img/icon/grid.svg",
+            GRID_STORAGE: "assets/img/icon/gridStorage.svg",
+            GRID_RESTRICTION: "assets/img/icon/gridRestriction.svg",
+            MEGAFON: "assets/img/icon/megafon.svg",
+            OFFGRID: "assets/img/icon/offgrid.svg",
+            PRODUCTION: "assets/img/icon/production.svg",
+            STORAGE: "assets/img/icon/storage.svg",
+            WEATHER: {
+                CLEAR_DAY: "assets/img/icon/clear_day.svg",
+                CLEAR_NIGHT: "assets/img/icon/clear_night.svg",
+                PARTLY_CLOUDY_DAY: "assets/img/icon/partly_cloudy_day.svg",
+                PARTLY_CLOUDY_NIGHT: "assets/img/icon/partly_cloudy_night.svg",
+                THUNDERSTORM: "assets/img/icon/thunderstorm.svg",
+                WEATHER_CLOUDY: "assets/img/icon/weather_cloudy.svg",
+                WEATHER_FOGGY: "assets/img/icon/weather_foggy.svg",
+                WEATHER_MIX: "assets/img/icon/weather_mix.svg",
+                WEATHER_RAINY: "assets/img/icon/weather_rainy.svg",
+                WEATHER_SNOWY: "assets/img/icon/weather_snowy.svg",
+                SUNSHINE_DURATION: "assets/img/icon/sunshine_duration.svg",
+                HELP: "assets/img/icon/help.svg",
+            },
+        },
+        COMPONENT: {
+            HEATPUMP: flame,
+            EVCS: "assets/img/icon/evcs.svg",
+        },
+        STATUS: {
+            CHECKMARK: checkmarkDoneCircleOutline,
+            ERROR: alertCircleOutline,
+            WARNING: warningOutline,
+            INFO: informationCircleOutline,
+        },
+    },
     images: {
         EVSE: {
             KEBA_P30: null,
@@ -12,6 +50,7 @@ export const OemMeta: BaseMeta = {
     links: {
         DATA_PROTECTION: null,
         REDIRECT: {
+            BETA_CHANGE_LOG: null,
             COMMON_STORAGE: null,
             COMMON_AUTARCHY: null,
             COMMON_CONSUMPTION: null,
@@ -75,8 +114,14 @@ export const OemMeta: BaseMeta = {
             SYSTEM: {
                 HOME: {
                     HOME_10: "#",
-                    HOME_20_30: "#",
-                    HOME_GEN_2: "#",
+                    HOME_20_30: {
+                        DE: "#",
+                        EN: "#",
+                    },
+                    HOME_GEN_2: {
+                        DE: "#",
+                        EN: "#",
+                    },
                 },
                 COMMERCIAL: {
                     COMMERCIAL_30: "#",

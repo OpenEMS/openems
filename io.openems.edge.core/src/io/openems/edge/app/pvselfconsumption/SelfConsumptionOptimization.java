@@ -1,10 +1,14 @@
 package io.openems.edge.app.pvselfconsumption;
 
-import java.util.EnumMap;
+import static io.openems.edge.app.common.props.CommonProps.alias;
+
+import java.util.Map;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
@@ -15,28 +19,25 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -57,16 +58,38 @@ import io.openems.edge.meter.api.ElectricityMeter;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.PvSelfConsumption.SelfConsumptionOptimization")
-public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.PvSelfConsumption.SelfConsumptionOptimization")
+public class SelfConsumptionOptimization
+		extends AbstractOpenemsAppWithProps<SelfConsumptionOptimization, Property, Type.Parameter.BundleParameter>
+		implements OpenemsApp {
 
-	public static enum Property implements Nameable {
-		// Component-IDs
-		METER_ID, //
+	public enum Property implements Type<Property, SelfConsumptionOptimization, Type.Parameter.BundleParameter> {
 		// Properties
-		ALIAS, //
-		ESS_ID, //
+		ALIAS(alias()), //
+		ESS_ID(ComponentProps.pickManagedSymmetricEssId()), //
+		METER_ID(ComponentProps.pickElectricityGridMeterId()), //
 		;
+
+		private final AppDef<? super SelfConsumptionOptimization, ? super Property, ? super Parameter.BundleParameter> def;
+
+		Property(AppDef<? super SelfConsumptionOptimization, ? super Property, ? super Parameter.BundleParameter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public AppDef<? super SelfConsumptionOptimization, ? super Property, ? super Parameter.BundleParameter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<SelfConsumptionOptimization>, Parameter.BundleParameter> getParamter() {
+			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
+
+		@Override
+		public Type<Property, SelfConsumptionOptimization, Parameter.BundleParameter> self() {
+			return this;
+		}
 	}
 
 	@Activate
@@ -76,17 +99,17 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 
-			final var ctrlBalacingId = "ctrlBalancing0";
+			final var ctrlBalancingId = "ctrlBalancing0";
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var essId = EnumUtils.getAsString(p, Property.ESS_ID);
-			final var meterId = EnumUtils.getAsString(p, Property.METER_ID);
+			final var essId = this.getString(p, Property.ESS_ID);
+			final var meterId = this.getString(p, Property.METER_ID);
 
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlBalacingId, alias, "Controller.Symmetric.Balancing",
+					new EdgeConfig.Component(ctrlBalancingId, alias, "Controller.Symmetric.Balancing",
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
@@ -98,36 +121,19 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(//
-							new SchedulerComponent(ctrlBalacingId, "Controller.Symmetric.Balancing", this.getAppId()))) //
+							new SchedulerComponent(ctrlBalancingId, "Controller.Symmetric.Balancing", this.getAppId()))) //
 					.build();
 		};
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.ESS_ID)//
-								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.label")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.description")) //
-								.isRequired(true) //
-								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
-										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
-								.build())
-						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
-								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.label")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
-								.isRequired(true) //
-								.setOptions(this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class),
-										SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
-								.build())
-						.build())
-				.build();
+	protected Property[] propertyValues() {
+		return Property.values();
+	}
+
+	@Override
+	protected SelfConsumptionOptimization getApp() {
+		return this;
 	}
 
 	@Override
@@ -143,13 +149,15 @@ public class SelfConsumptionOptimization extends AbstractEnumOpenemsApp<Property
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	public OpenemsAppCardinality getCardinality() {
+		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(Checkables.checkAppsNotInstalled("App.PeakShaving.PeakShaving",
+						"App.PeakShaving.PhaseAccuratePeakShaving"));
 	}
 
 }

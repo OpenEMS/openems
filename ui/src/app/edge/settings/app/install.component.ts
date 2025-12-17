@@ -14,6 +14,8 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { AddAppInstance } from "./jsonrpc/addAppInstance";
+import { Flags } from "./jsonrpc/flag/flags";
+import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
@@ -55,6 +57,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private edge: Edge | null = null;
     private hasPredefinedKey: boolean = false;
     private isAppFree: boolean = false;
+    private isAppFreeFromEdge: boolean = false;
 
     public constructor(
         private route: ActivatedRoute,
@@ -116,6 +119,17 @@ export class InstallAppComponent implements OnInit, OnDestroy {
             }).catch(() => {
                 this.isAppFree = false;
             });
+
+            this.edge.sendRequest(this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new GetApp.Request({ appId: appId }),
+                })).then(response => {
+                const result = (response as GetApp.Response).result;
+                this.appName = result.app.name;
+
+                this.isAppFreeFromEdge = Flags.getByType(result.app.flags, Flags.FREE_FROM_DEPENDENCY) !== undefined;
+            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App [" + appId + "]: " + error));
 
             this.service.metadata
                 .pipe(takeUntil(this.stopOnDestroy))
@@ -180,7 +194,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 }),
             });
             // if key not set send request with supplied key
-            if (!key) {
+            if (!key && !this.isAppFreeFromEdge) {
                 request = new AppCenter.Request({
                     payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
                         installRequest: request,
@@ -236,6 +250,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 return;
             }
             if (this.isAppFree) {
+                resolve(null);
+                return;
+            }
+            if (this.isAppFreeFromEdge) {
                 resolve(null);
                 return;
             }

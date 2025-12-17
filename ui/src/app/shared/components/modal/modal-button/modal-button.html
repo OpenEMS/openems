@@ -3,7 +3,7 @@
     @case("SELECT"){
       <ion-segment [formControlName]="controlName">
         @for (button of buttons; track button) {
-          <ion-segment-button [value]="button.value" (click)="button.callback" [ngStyle]="button.style">
+          <ion-segment-button [value]="button.value" (click)="button.callback($event)" [ngStyle]="button.style">
             <ion-label>
               <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
             </ion-label>

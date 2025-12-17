@@ -119,7 +119,8 @@ public class TestUtils {
 				.setChargePointId("chargePoint0") //
 				.setElectricVehicleId("electricVehicle0") //
 				.setPhaseSwitching(PhaseSwitching.DISABLE) //
-				.setSmartConfig("[]") //
+				.setOneShot("") //
+				.setJsCalendar("[]") //
 				.setManualEnergySessionLimit(10_000) //
 				.setLogVerbosity(LogVerbosity.NONE);
 		config.accept(myConfig);

@@ -30,28 +30,28 @@ public class ControllerHeatingElementImplTest10 {
 
 	private static final TimeLeapClock CLOCK = createDummyClock();
 
-	private static ControllerTest prepareTest() throws OpenemsError.OpenemsNamedException, Exception {
-		return new ControllerTest(new ControllerIoHeatingElementImpl()) //
-				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
-				.addReference("sum", new DummySum()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addComponent(new DummyInputOutput("io0")) //
-				.activate(MyConfig.create() //
-						.setId("ctrl0") //
-						.setOutputChannelPhaseL1("io0/InputOutput0") //
-						.setOutputChannelPhaseL2("io0/InputOutput1") //
-						.setOutputChannelPhaseL3("io0/InputOutput2") //
-						.setPowerOfPhase(2000) //
-						.setMode(Mode.AUTOMATIC) //
-						.setWorkMode(WorkMode.TIME) //
-						.setDefaultLevel(Level.LEVEL_1) //
-						.setMeterid("") //
-						.setEndTime("00:00") //
-						.setMinTime(2) //
-						.setMinimumSwitchingTime(60) //
-						.setMinEnergylimit(0) //
-						.setEndTimeWithMeter("00:00") //
-						.setScheduler("""
+    private static ControllerTest prepareTest() throws OpenemsError.OpenemsNamedException, Exception {
+        return new ControllerTest(new ControllerIoHeatingElementImpl()) //
+                .addReference("componentManager", new DummyComponentManager(CLOCK)) //
+                .addReference("sum", new DummySum()) //
+                .addReference("cm", new DummyConfigurationAdmin()) //
+                .addComponent(new DummyInputOutput("io0")) //
+                .activate(MyConfig.create() //
+                        .setId("ctrl0") //
+                        .setOutputChannelPhaseL1("io0/InputOutput0") //
+                        .setOutputChannelPhaseL2("io0/InputOutput1") //
+                        .setOutputChannelPhaseL3("io0/InputOutput2") //
+                        .setPowerOfPhase(2000) //
+                        .setMode(Mode.AUTOMATIC) //
+                        .setWorkMode(WorkMode.TIME) //
+                        .setDefaultLevel(Level.LEVEL_1) //
+                        .setMeterid("") //
+                        .setEndTime("00:00") //
+                        .setMinTime(2) //
+                        .setMinimumSwitchingTime(60) //
+                        .setMinEnergylimit(0) //
+                        .setEndTimeWithMeter("00:00") //
+                        .setScheduler("""
 								[
 									{
 										"@type":"Task",

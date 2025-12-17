@@ -1,9 +1,14 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.AbstractMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
@@ -178,5 +183,76 @@ public interface AppManagerUtil {
 	 * @return the referencing instances
 	 */
 	public List<OpenemsAppInstance> getAppsWithDependencyTo(OpenemsAppInstance instance);
+
+	/**
+	 * Gets an {@link Iterable} that loops through every instance and its
+	 * configuration.
+	 *
+	 * @param instances the instances
+	 * @param filter    the filter that gets applied to the instances
+	 * @return the {@link Iterable}
+	 */
+	public default Iterable<Map.Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(//
+			List<OpenemsAppInstance> instances, //
+			Predicate<? super OpenemsAppInstance> filter //
+	) {
+		return () -> this.appConfigIterator(instances, filter);
+	}
+
+	/**
+	 * Gets an {@link Iterator} that loops through every instance and its
+	 * configuration.
+	 *
+	 * @param instances the instances
+	 * @param filter    the filter that gets applied to the instances
+	 * @return the {@link Iterator}
+	 */
+	private Iterator<Map.Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(//
+			List<OpenemsAppInstance> instances, //
+			Predicate<? super OpenemsAppInstance> filter //
+	) {
+		final var actualInstances = instances.stream() //
+				.filter(i -> filter == null || filter.test(i)) //
+				.collect(Collectors.toList());
+		return new Iterator<>() {
+
+			private final Iterator<OpenemsAppInstance> instanceIterator = actualInstances.iterator();
+
+			private OpenemsAppInstance nextInstance = null;
+			private AppConfiguration nextConfiguration = null;
+
+			@Override
+			public Map.Entry<OpenemsAppInstance, AppConfiguration> next() {
+				var returnValue = new AbstractMap.SimpleEntry<>(this.nextInstance, this.nextConfiguration);
+				this.nextInstance = null;
+				this.nextConfiguration = null;
+				return returnValue;
+			}
+
+			@Override
+			public boolean hasNext() {
+				// value not obtained
+				if (this.nextConfiguration != null) {
+					return true;
+				}
+				while (this.instanceIterator.hasNext() && this.nextConfiguration == null) {
+					this.nextInstance = this.instanceIterator.next();
+
+					if (this.nextInstance.properties == null) {
+						continue;
+					}
+
+					try {
+						this.nextConfiguration = AppManagerUtil.this.getAppConfiguration(ConfigurationTarget.VALIDATE,
+								this.nextInstance, null);
+					} catch (OpenemsNamedException e) {
+						// move to the next app
+					}
+				}
+
+				return this.nextConfiguration != null;
+			}
+		};
+	}
 
 }

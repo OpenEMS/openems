@@ -215,7 +215,8 @@ public class FeneconCommercial92ClusterMaster
 					FeneconHomeComponents.selfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
-					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterAndExternalId) //
+					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterAndExternalId), //
+					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
 
 			if (hasEssLimiter14a) {
