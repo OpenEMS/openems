@@ -52,7 +52,7 @@
                   {{"GENERAL.ON" | translate}}
                 </ion-label>
                 <ion-icon [color]="component.properties['mode'] === 'ON' ? 'success' : 'normal'" style="width:40px"
-                name="play-outline"></ion-icon>
+                  name="play-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="AUTOMATIC">
                 <ion-label>
@@ -67,7 +67,7 @@
                   {{"GENERAL.OFF" | translate}}
                 </ion-label>
                 <ion-icon [color]="component.properties['mode'] === 'OFF' ? 'danger' : 'normal'" name="power-outline"
-                style="width: 40px"></ion-icon>
+                  style="width: 40px"></ion-icon>
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>
@@ -123,8 +123,7 @@
                     </tr>
                   </table>
                   @if (formGroup.controls.switchedLoadPower.dirty && formGroup.controls.inputMode.value === 'GRIDSELL') {
-                    <table class="full_width"
-                      >
+                    <table class="full_width">
                       <tr>
                         <td style="width: 100%">
                           <ion-text color="danger" translate>
@@ -140,7 +139,7 @@
                 <table class="full_width">
                   <tr>
                     <td style="width: 65%" translate>
-                    EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.CURRENT_VALUE</td>
+                      EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.CURRENT_VALUE</td>
                     @switch (inputMode.value) {
                       @case ('SOC') {
                         <td style="width: 35%" class="align_right">
@@ -179,7 +178,7 @@
                   <table class="full_width">
                     <tr>
                       <td style="width: 65%;" translate>
-                      EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD</td>
+                        EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD</td>
                       <td style="width: 35%" class="align_right">
                         {{ threshold.value | unitvalue:'%' }}
                       </td>
@@ -229,8 +228,7 @@
                 </table>
                 <!-- regular behaviour for invert if GridSell is not selected -->
                 @if (inputMode !== null && inputMode.value !== 'GRIDSELL') {
-                  <ion-segment formControlName="invert"
-                    scrollable="false" [value]="formGroup.controls['invert'].value">
+                  <ion-segment formControlName="invert" scrollable="false" [value]="formGroup.controls['invert'].value">
                     <ion-segment-button [value]="false">
                       <ion-label>
                         @if (inputMode?.value === 'SOC') {
@@ -259,8 +257,7 @@
                 }
                 <!-- invert behaviour for invert if GridSell is selected -->
                 @if (formGroup?.controls['invert']?.value !== null && inputMode && inputMode.value === 'GRIDSELL') {
-                  <ion-segment
-                    formControlName="invert" scrollable="false" [value]="invert.value">
+                  <ion-segment formControlName="invert" scrollable="false" [value]="invert.value">
                     <ion-segment-button [value]="true">
                       <ion-label>
                         <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
@@ -297,10 +294,9 @@
               </ion-card-content>
             </form>
             @if (formGroup.dirty) {
-              <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center"
-                slot="fixed">
+              <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
                 <ion-fab-button (click)="applyChanges()">
-                  <ion-icon size="large" name="checkmark-circle-outline">
+                  <ion-icon size="large" name="oe-checkmark">
                   </ion-icon>
                 </ion-fab-button>
               </ion-fab>

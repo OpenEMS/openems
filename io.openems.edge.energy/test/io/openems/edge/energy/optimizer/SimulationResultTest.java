@@ -36,7 +36,7 @@ public class SimulationResultTest {
 				m00, m00, m00, m00, m00, m00, m00, m00, m00, m11, m21, //
 				m00, m00, m00, m00, m00, m00, m00, m00, m00, m00, m00, //
 				m00, m11, m20 //
-		});
+		}, 0);
 
 		assertEquals(1165082.1, result.fitness().getGridBuyCost(), 0.1);
 	}

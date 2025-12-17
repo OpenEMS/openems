@@ -5,6 +5,7 @@ import { Edge, Service, Websocket } from "src/app/shared/shared";
 import { WeatherForecastApprovalComponent } from "../shared/components/edge/popover/data-privacy/popover";
 import { Pagination } from "../shared/service/pagination";
 import { RouteService } from "../shared/service/route.service";
+import { UserService } from "../shared/service/user.service";
 
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
@@ -26,6 +27,7 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
         private websocket: Websocket,
         private pagination: Pagination,
         private popoverCtrl: ModalController,
+        private userService: UserService,
     ) {
 
         effect(async () => {

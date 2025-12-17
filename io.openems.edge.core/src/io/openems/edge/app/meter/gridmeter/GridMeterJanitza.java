@@ -4,8 +4,10 @@ import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrialL;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustrialXl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,6 +46,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -219,7 +222,16 @@ public class GridMeterJanitza extends AbstractOpenemsAppWithProps<GridMeterJanit
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkIndustrialL());
+				.setCompatibleCheckableConfigs(checkIndustrialL().or(checkIndustrialXl()));
+	}
+
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create() //
+				.setCanSee(Role.INSTALLER) //
+				.setCanInstall(List.of(Role.ADMIN, Role.INSTALLER)) //
+				.setCanDelete(Role.INSTALLER) //
+				.build();
 	}
 
 }

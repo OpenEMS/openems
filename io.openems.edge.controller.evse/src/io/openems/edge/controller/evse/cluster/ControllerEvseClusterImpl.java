@@ -61,12 +61,30 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	// TODO sort by configuration
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
-	private volatile List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();
-
 	private Config config;
 	private EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
+
+	// TODO sort by configuration
+	private List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();
+
+	@Reference(cardinality = MULTIPLE, policy = DYNAMIC, policyOption = GREEDY)
+	private void bindController(ControllerEvseSingle ctrl) {
+		this.ctrls.add(ctrl);
+		Optional.ofNullable(this.energyScheduleHandler)
+				.ifPresent(esh -> esh.triggerReschedule("ControllerEvseClusterImpl::bindController()"));
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindController(ControllerEvseSingle ctrl) {
+		this.ctrls.remove(ctrl);
+		Optional.ofNullable(this.energyScheduleHandler)
+				.ifPresent(esh -> esh.triggerReschedule("ControllerEvseClusterImpl::unbindController()"));
+	}
+
+	@SuppressWarnings("unused")
+	private void updatedController(ControllerEvseSingle ctrl) {
+		this.energyScheduleHandler.triggerReschedule("ControllerEvseClusterImpl::modifiedController()");
+	}
 
 	public ControllerEvseClusterImpl() {
 		super(//
@@ -111,7 +129,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 				.filter(e -> e.params.combinedAbilities().chargePointAbilities() != null) //
 				.forEach(e -> {
 					// Apply actions
-					e.ctrl.apply(e.actualMode, e.actions.build());
+					e.ctrl.apply(e.mode, e.actions.build());
 				});
 	}
 

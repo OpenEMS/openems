@@ -50,7 +50,8 @@ public class TestFeneconHome30 {
 					Apps.techbaseCm3(t), //
 					Apps.techbaseCm4sGen2(t), //
 					Apps.ioGpio(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					this.meterApp = Apps.socomecMeter(t), //
+					Apps.predictionUnmanagedConsumption(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -72,16 +73,17 @@ public class TestFeneconHome30 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.30" -> 4;
+			case "App.FENECON.Home.30" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -294,19 +296,20 @@ public class TestFeneconHome30 {
 		final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", fullConfig));
 
-		assertEquals(4, response.instance().dependencies.size());
+		assertEquals(5, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
-		assertEquals(5, appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.30" -> 4;
+			case "App.FENECON.Home.30" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {

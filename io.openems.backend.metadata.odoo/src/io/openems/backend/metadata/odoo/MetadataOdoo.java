@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
@@ -676,6 +677,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				.map(DateTime::stringToDateTime) //
 				.orElse(null);
 
+		final var settings = getAsOptionalJsonObject(jDevice, "settings").orElse(null);
+
 		return new EdgeMetadata(//
 				edgeId, //
 				commment, //
@@ -687,7 +690,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				cachedEdge.isOnline(), //
 				lastmessage, //
 				firstSetupProtocol, //
-				sumState //
+				sumState, //
+				settings //
 		);
 	}
 

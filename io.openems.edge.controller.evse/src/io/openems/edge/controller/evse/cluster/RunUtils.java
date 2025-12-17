@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -25,6 +26,7 @@ import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -55,25 +57,23 @@ public class RunUtils {
 		 */
 		public static class Entry {
 			public final ControllerEvseSingle ctrl;
-			public final Mode.Actual actualMode;
+			public final Mode mode;
 			public final Params params;
 			public final Integer activePower;
 			public final ChargePointActions.Builder actions;
 
 			protected int setPointInWatt;
 
-			public Entry(ControllerEvseSingle ctrl, Params params) {
+			public Entry(SingleModes eshMode, ControllerEvseSingle ctrl, Params params) {
 				this.ctrl = ctrl;
 				this.params = params;
 
 				this.activePower = params.activePower();
 				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
 
-				this.actualMode = switch (params.mode()) {
-				case FORCE, MINIMUM, SURPLUS, ZERO -> params.mode().actual;
-				// TODO evaluate params smartConfig
-				case SMART -> Mode.Actual.SURPLUS;
-				};
+				this.mode = Optional.ofNullable(eshMode) //
+						.map(sm -> sm.getMode(params.componentId())) // Mode from EnergyScheduler
+						.orElse(params.mode()); // Fallback to fixed Mode
 			}
 
 			@Override
@@ -87,19 +87,6 @@ public class RunUtils {
 								: this.actions.build()) //
 						.toString();
 			}
-		}
-
-		/**
-		 * Creates {@link PowerDistribution} from a list of
-		 * {@link ControllerEvseSingle}.
-		 * 
-		 * @param ctrls the list of {@link ControllerEvseSingle}
-		 * @return a {@link PowerDistribution}
-		 */
-		protected static PowerDistribution of(List<ControllerEvseSingle> ctrls) {
-			return new PowerDistribution(ctrls.stream() //
-					.map(ctrl -> new PowerDistribution.Entry(ctrl, ctrl.getParams())) //
-					.collect(toImmutableList()));
 		}
 
 		public final ImmutableList<Entry> entries;
@@ -165,7 +152,7 @@ public class RunUtils {
 		 */
 		public final Stream<Entry> streamSurplus() {
 			return this.streamActives() //
-					.filter(e -> switch (e.actualMode) {
+					.filter(e -> switch (e.mode) {
 					case FORCE, MINIMUM, ZERO -> false;
 					case SURPLUS -> true;
 					});
@@ -203,14 +190,14 @@ public class RunUtils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
-	 * @param singleModes          the {@link SingleModes}
+	 * @param eshMode              the {@link SingleModes} from
+	 *                             {@link EnergyScheduleHandler}
 	 * @param logVerbosity         the configured {@link LogVerbosity}
 	 * @param logger               a log message consumer
 	 * @return the {@link PowerDistribution}
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, SingleModes singleModes, LogVerbosity logVerbosity,
-			Consumer<String> logger) {
+			List<ControllerEvseSingle> ctrls, SingleModes eshMode, LogVerbosity logVerbosity, Consumer<String> logger) {
 		// Build PowerDistribution
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
@@ -218,7 +205,7 @@ public class RunUtils {
 					if (params == null) {
 						return null;
 					}
-					return new PowerDistribution.Entry(ctrl, params);
+					return new PowerDistribution.Entry(eshMode, ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
 				.collect(toImmutableList()));
@@ -246,7 +233,7 @@ public class RunUtils {
 	private static void initializeSetPoints(PowerDistribution powerDistribution) {
 		powerDistribution.streamActives().forEach(e -> {
 			var asp = e.params.combinedAbilities().applySetPoint();
-			e.setPointInWatt = switch (e.actualMode) {
+			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM -> asp.min();
 			case FORCE -> asp.max();
 			case SURPLUS, ZERO -> 0;
@@ -295,7 +282,7 @@ public class RunUtils {
 	 */
 	private static void permitNonActives(PowerDistribution powerDistribution) {
 		powerDistribution.streamNonActives().forEach(e -> {
-			e.setPointInWatt = switch (e.actualMode) {
+			e.setPointInWatt = switch (e.mode) {
 			case MINIMUM, FORCE, SURPLUS -> e.params.combinedAbilities().applySetPoint().min();
 			case ZERO -> 0;
 			};
@@ -511,7 +498,7 @@ public class RunUtils {
 		if (chargePointAbilities == null) {
 			if (logVerbosity == TRACE) {
 				logger.accept(ctrl.id() + ": " //
-						+ "Mode [" + e.actualMode + "] " //
+						+ "Mode [" + e.mode + "] " //
 						+ "ChargePointCapability is null " //
 						+ params);
 			}
@@ -522,7 +509,7 @@ public class RunUtils {
 
 		if (logVerbosity == TRACE) {
 			logger.accept(ctrl.id() + ": " //
-					+ "Mode [" + e.actualMode + "] " //
+					+ "Mode [" + e.mode + "] " //
 					+ "Set [" + e.setPointInWatt + " W -> " + value + "] " //
 					+ params);
 		}
