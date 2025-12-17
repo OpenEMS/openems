@@ -4,7 +4,7 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
 export type Theme = "OpenEMS";
-export type BaseMeta = Pick<Environment, "links" | "images">;
+export type BaseMeta = Pick<Environment, "icons" | "links" | "images">;
 
 export interface Environment {
     readonly theme: Theme;
