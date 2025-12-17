@@ -1,5 +1,7 @@
 package io.openems.edge.edge2edge.common;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -247,7 +249,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					}
 
 					if (record instanceof ModbusRecordChannel r) {
-						m(r.getChannelId(), element, this.getConverterForType(record.getType()));
+						m(r.getChannelId(), element, getConverterForType(record.getType()));
 
 					} else {
 						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
@@ -359,6 +361,21 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	/**
+	 * Selects the appropriate converter for a given ModbusType.
+	 * 
+	 * @param type the type of the Modbus element
+	 * @return the converter
+	 */
+	protected static ElementToChannelConverter getConverterForType(ModbusType type) {
+		return switch (type) {
+		case UINT16 -> SET_NULL_FOR_DEFAULT(0xFFFF); 				// 65535
+		case UINT32 -> SET_NULL_FOR_DEFAULT(0xFFFFFFFFL); 			// 4294967295
+		case UINT64 -> SET_NULL_FOR_DEFAULT(0xFFFFFFFFFFFFFFFFL); 	// 18446744073709551615
+		default -> DIRECT_1_TO_1;
+		};
+	}
+
+	/**
 	 * Adds a Reak-Task with ModbusElements.
 	 * 
 	 * <ul>
@@ -443,19 +460,5 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 								}
 							});
 				});
-	}
-
-	/**
-	 * Selects the appropriate converter for a given ModbusType.
-	 * @param type the type of the Modbus element
-	 * @return the converter
-	 */
-	private ElementToChannelConverter getConverterForType(ModbusType type) {
-		return switch (type) {
-			case UINT16 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFF);				// 65535
-			case UINT32 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFFFFFFL);			// 4294967295
-			case UINT64 -> ElementToChannelConverter.SET_NULL_FOR_DEFAULT(0xFFFFFFFFFFFFFFFFL);	// 18446744073709551615
-			default -> ElementToChannelConverter.DIRECT_1_TO_1;
-		};
 	}
 }
