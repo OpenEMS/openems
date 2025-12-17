@@ -126,7 +126,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
         return Object.entries(this.evcss)
             .map(([_key, component]) => {
-                console.log("component", component, this.evcss);
+                //console.log("component", component, this.evcss);
                 return Name.METER_ALIAS_OR_ID(component);
             });
     }

@@ -602,8 +602,13 @@
                     <ion-item
                       [color]="getBackgroundClass(formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateNumber)">
                       <ion-label>
-                        <oe-modal-line [name]="'GENERAL.MODE' | translate"
+                        <!--<oe-modal-line [name]="'GENERAL.MODE' | translate"
                           [value]="'INSTALLATION.CHARGE_DISCHARGE_STATE.' + formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state | translate">
+                        </oe-modal-line>
+                        /-->
+
+                        <oe-modal-line [name]="'GENERAL.MODE' | translate"
+                          [value]="('INSTALLATION.CHARGE_DISCHARGE_STATE.' + (formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey ?? 'UNDEFINED')) | translate">
                         </oe-modal-line>
 
                         <ng-container

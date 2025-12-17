@@ -222,7 +222,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                 const isChargeDischargeLimiterEnabled = currentData.channel[controller.id + "/_PropertyIsChargeDischargeLimiterEnabled"] == 1;
                                 //const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
                                 const stateKey = (ChargeDischargeControllerState[Number(stateNumber)] as keyof typeof ChargeDischargeControllerState) ?? "UNDEFINED";
-                                console.log("Current Data:", currentData);
+                                //("Current Data:", currentData);
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
                                     this.formBuilder.group({

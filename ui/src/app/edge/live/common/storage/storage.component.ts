@@ -144,7 +144,7 @@ export class StorageComponent extends AbstractFlatWidget {
             );
         }
 
-        console.log("Starting chargeDischargeLimiterComponents");
+        //console.log("Starting chargeDischargeLimiterComponents");
         // Get chargeDischargeLimiters
         this.chargeDischargeLimiterComponents = this.config
             .getComponentsByFactory("Controller.Ess.ChargeDischargeLimiter")
