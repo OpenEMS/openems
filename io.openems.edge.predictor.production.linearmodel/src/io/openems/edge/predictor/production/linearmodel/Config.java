@@ -7,7 +7,7 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 import io.openems.edge.predictor.api.prediction.SourceChannel;
 
 @ObjectClassDefinition(//
-		name = "Predictor Production Linear Model", //
+		name = "Predictor Production Regression Model", //
 		description = "Predicts production based on weather forecast data.")
 @interface Config {
 
@@ -26,5 +26,5 @@ import io.openems.edge.predictor.api.prediction.SourceChannel;
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
-	String webconsole_configurationFactory_nameHint() default "Predictor Production Linear Model [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Predictor Production Regression Model [{id}]";
 }

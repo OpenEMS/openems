@@ -89,7 +89,7 @@ public class OneMode {
 			/** Duration of the Period */
 			PeriodDuration duration,
 			/** Price [1/MWh] */
-			double price, //
+			Double price, //
 			/** ControllerOptimizationContext */
 			OPTIMIZATION_CONTEXT coc, //
 			/** Simulated EnergyFlow */
@@ -98,7 +98,7 @@ public class OneMode {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(PeriodDuration duration, double price, EnergyFlow energyFlow) {
+		public static record Transition(PeriodDuration duration, Double price, EnergyFlow energyFlow) {
 		}
 
 		/**

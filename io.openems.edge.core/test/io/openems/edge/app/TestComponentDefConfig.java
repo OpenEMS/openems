@@ -129,9 +129,8 @@ public class TestComponentDefConfig
 							.addProperty("maxPowerThreePhase", 11040) //
 							.addProperty("canInterrupt", true)//
 							.build()), //
-					Configuration.create()//
-							.installAlways(true) //
-							.build());
+					Configuration.defaultConfig()//
+							.withInstallAlways(true));
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(component))//
 					.build();

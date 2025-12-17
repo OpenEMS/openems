@@ -57,7 +57,7 @@ jobs:
           node-version: '22'
 
       - name: Setup Cache for Node.js
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.npm
@@ -90,13 +90,13 @@ jobs:
     needs: [build-java, build-ui]
     steps:
       - name: Load Java build-artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: java-build-artifacts
           path: build
       
       - name: Load UI build-artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: ui-build-artifacts
           path: build

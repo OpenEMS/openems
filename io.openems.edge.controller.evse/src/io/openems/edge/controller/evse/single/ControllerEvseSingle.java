@@ -20,7 +20,7 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 				.text("Current State of State-Machine")//
 				.persistencePriority(HIGH)), //
 
-		ACTUAL_MODE(Doc.of(Mode.Actual.values())//
+		ACTUAL_MODE(Doc.of(Mode.values())//
 				.persistencePriority(HIGH)), //
 
 		SESSION_ENERGY(Doc.of(INTEGER)//
@@ -52,10 +52,10 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 	/**
 	 * Apply {@link ChargePointActions}.
 	 * 
-	 * @param actualMode the {@link Mode.Actual}
-	 * @param actions    the {@link ChargePointActions}
+	 * @param mode    the {@link Mode}
+	 * @param actions the {@link ChargePointActions}
 	 */
-	public void apply(Mode.Actual actualMode, ChargePointActions actions);
+	public void apply(Mode mode, ChargePointActions actions);
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SESSION_ENERGY}.

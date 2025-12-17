@@ -59,8 +59,11 @@ public final class UtilsV1 {
 	private UtilsV1() {
 	}
 
+	@Deprecated
 	public static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
+	@Deprecated
 	public static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
+	@Deprecated
 	public static final ChannelAddress SUM_UNMANAGED_CONSUMPTION = new ChannelAddress("_sum",
 			"UnmanagedConsumptionActivePower");
 
@@ -75,6 +78,7 @@ public final class UtilsV1 {
 	 * @return {@link ParamsV1}
 	 * @throws InvalidValueException on error
 	 */
+	@Deprecated
 	public static ParamsV1 createSimulatorParams(GlobalContextV1 globalContext,
 			ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) throws InvalidValueException {
 		final var time = roundDownToQuarter(ZonedDateTime.now());
@@ -129,6 +133,7 @@ public final class UtilsV1 {
 	 * @param minLength  the min length (= consumption prediction length)
 	 * @return new production prediction
 	 */
+	@Deprecated
 	protected static Integer[] generateProductionPrediction(Integer[] prediction, int minLength) {
 		if (prediction.length >= minLength) {
 			return prediction;
@@ -138,6 +143,7 @@ public final class UtilsV1 {
 				.toArray(Integer[]::new);
 	}
 
+	@Deprecated
 	protected static Integer[] joinConsumptionPredictions(int splitAfterIndex, Integer[] totalConsumption,
 			Integer[] unmanagedConsumption) {
 		return Streams.concat(//
@@ -148,6 +154,7 @@ public final class UtilsV1 {
 				.toArray(Integer[]::new);
 	}
 
+	@Deprecated
 	protected static boolean paramsAreValid(ParamsV1 p) {
 		if (p.optimizePeriods().isEmpty()) {
 			// No periods are available
@@ -180,6 +187,7 @@ public final class UtilsV1 {
 	 * @param essCapacity net {@link SymmetricEss.ChannelId#CAPACITY}
 	 * @return the value in [Wh]
 	 */
+	@Deprecated
 	protected static int getEssMinSocEnergy(ContextV1 context, int essCapacity) {
 		return essCapacity /* [Wh] */ / 100 //
 				* getEssMinSocPercentage(//
@@ -197,6 +205,7 @@ public final class UtilsV1 {
 	 * @param values the values
 	 * @return values without nulls
 	 */
+	@Deprecated
 	protected static double[] interpolateDoubleArray(Double[] values) {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //
@@ -234,6 +243,7 @@ public final class UtilsV1 {
 	 *                        down to 15 minutes)
 	 * @return the {@link GetScheduleResponse}
 	 */
+	@Deprecated
 	public static GetScheduleResponse handleGetScheduleRequest(OptimizerV1 optimizer, UUID requestId, Timedata timedata,
 			TimeOfUseTariff timeOfUseTariff, String componentId, ZonedDateTime now) {
 		final var b = ImmutableList.<ScheduleData>builder();
@@ -298,6 +308,7 @@ public final class UtilsV1 {
 	 *                         {@link StateMachine#CHARGE_GRID}
 	 * @return the new state
 	 */
+	@Deprecated
 	public static StateMachine postprocessSimulatorState(StateMachine state, EnergyFlowV1 efBalancing,
 			EnergyFlowV1 efDelayDischarge, EnergyFlowV1 efChargeGrid) {
 		if (state == CHARGE_GRID) {
@@ -325,6 +336,7 @@ public final class UtilsV1 {
 	 * @param power the power value
 	 * @return the energy value
 	 */
+	@Deprecated
 	public static int toEnergy(int power) {
 		return power / PERIODS_PER_HOUR;
 	}
@@ -335,6 +347,7 @@ public final class UtilsV1 {
 	 * @param energy the energy value
 	 * @return the power value
 	 */
+	@Deprecated
 	public static Integer toPower(Integer energy) {
 		return multiply(energy, PERIODS_PER_HOUR);
 	}
@@ -349,6 +362,7 @@ public final class UtilsV1 {
 	 * @param params  the {@link ParamsV1}
 	 * @param periods the map of {@link Period}s
 	 */
+	@Deprecated
 	protected static void logSchedule(ParamsV1 params, ImmutableSortedMap<ZonedDateTime, Period> periods) {
 		System.out.println("OPTIMIZER " + params.toLogString());
 		System.out.println(ScheduleDatas.fromSchedule(params.essTotalEnergy(), periods).toLogString("OPTIMIZER "));
@@ -367,6 +381,7 @@ public final class UtilsV1 {
 	 * @param schedule    the active Schedule
 	 * @param newSchedule the new Schedule
 	 */
+	@Deprecated
 	public static void updateSchedule(ZonedDateTime now, TreeMap<ZonedDateTime, Period> schedule,
 			ImmutableSortedMap<ZonedDateTime, Period> newSchedule) {
 		var thisQuarter = roundDownToQuarter(now);
@@ -389,6 +404,7 @@ public final class UtilsV1 {
 	 * @param orElse                              a default value; negative
 	 * @return max-charge-power as positive value
 	 */
+	@Deprecated
 	protected static int calculateMaxChargePower(int calculateLimitChargePowerFor14aEnWG,
 			Value<Integer> essMaxDischargePower, int orElse) {
 		return Math.abs(//
@@ -407,6 +423,7 @@ public final class UtilsV1 {
 	 * @param values the values
 	 * @return values without nulls
 	 */
+	@Deprecated
 	public static int[] interpolateArray(Integer[] values) {
 		var firstNonNull = stream(values) //
 				.filter(Objects::nonNull) //

@@ -30,18 +30,22 @@ export namespace FormlyUtils {
     }
 
     /**
-     * Gets the formly field templateOptions safely.
+     * Gets the formly field props safely.
      *
      * @param key the key
      * @param fields the formly fields
-     * @returns formly field templateOptions if existing, else null
+     * @returns formly field props if existing, else null
      */
-    export function changeFormlyFieldTemplateOptions(key: FormlyFieldConfig["key"], fields: FormlyFieldConfig[], callback: (props: FormlyFieldConfig["props"]) => FormlyFieldConfig["props"]): FormlyFieldConfig[] {
-        const field = fields.find(el => el.key = key) ?? null;
-        if (field == null || field.templateOptions == null) {
+    export function changeFormlyFieldProps(
+        key: FormlyFieldConfig["key"],
+        fields: FormlyFieldConfig[],
+        callback: (props: FormlyFieldConfig["props"]) => FormlyFieldConfig["props"]
+    ): FormlyFieldConfig[] {
+        const field = fields.find(el => el.key === key) ?? null;
+        if (field == null || field.props == null) {
             return fields;
         }
-        field.templateOptions = callback(field.templateOptions);
+        field.props = callback(field.props);
         return fields;
     }
 }

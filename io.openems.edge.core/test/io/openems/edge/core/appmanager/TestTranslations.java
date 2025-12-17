@@ -46,6 +46,10 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.feneconHome6(t), true, TestFeneconHome6.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome10Gen2(t), true, TestFeneconHome10Gen2.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconHome15(t), true, TestFeneconHome15.fullSettings()));
+			this.apps.add(new TestTranslation(Apps.stateLed(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("RELAY_ID", "io1") //
+					.addProperty("LED_ORDER", "DEFAULT_RED_BLUE_GREEN") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconCommercial50Gen3(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
@@ -253,6 +257,7 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}

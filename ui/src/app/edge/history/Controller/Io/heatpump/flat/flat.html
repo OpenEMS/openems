@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-flat-widget [title]="component.alias" [icon]="{name: 'flame', color: 'normal'}" button
+  <oe-flat-widget [title]="component.alias" [icon]="{name: 'oe-heatpump', color: 'normal'}" button
     [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/heatpumpchart'">
     <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION' | translate"
       [filter]="FILTER_NULL_WITH_THRESHOLD" [channelAddress]="component.id + '/RegularStateTime'"

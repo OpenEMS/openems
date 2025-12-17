@@ -773,7 +773,7 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setIsAllowedToSee(//
-			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, User> isAllowedToSee //
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToSee //
 	) {
 		this.isAllowedToSee = isAllowedToSee;
 		return this.self();
