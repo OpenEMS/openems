@@ -154,31 +154,30 @@ public class PlcNextGdsDataToChannelMapperTest {
 				.filter(item -> ElectricityMeter.ChannelId.VOLTAGE_L1 == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(phaseVolatageL1);		
-		Assert.assertEquals((Object)1100, phaseVolatageL1.getValue());
+		Assert.assertEquals((Object)1, phaseVolatageL1.getValue());
 		
 		PlcNextGdsDataMappedValue phaseVolatageL2 = mappedValues.stream()//
 				.filter(item -> ElectricityMeter.ChannelId.VOLTAGE_L2 == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(phaseVolatageL2);		
-		Assert.assertEquals((Object)2200, phaseVolatageL2.getValue());
+		Assert.assertEquals((Object)2, phaseVolatageL2.getValue());
 		
 		PlcNextGdsDataMappedValue phaseVolatageL3 = mappedValues.stream()//
 				.filter(item -> ElectricityMeter.ChannelId.VOLTAGE_L3 == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(phaseVolatageL3);		
-		Assert.assertEquals((Object)3300, phaseVolatageL3.getValue());
+		Assert.assertEquals((Object)3, phaseVolatageL3.getValue());
 		
 		PlcNextGdsDataMappedValue neutralCurrent = mappedValues.stream()//
 				.filter(item -> PlcNextDevice.ChannelId.NEUTRAL_CURRENT == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(neutralCurrent);		
-		Assert.assertEquals((Object)5500.0, neutralCurrent.getValue());
+		Assert.assertEquals((Object)5, neutralCurrent.getValue());
 		
 		PlcNextGdsDataMappedValue energyImport = mappedValues.stream()//
 				.filter(item -> ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(energyImport);		
 		Assert.assertEquals((Object)4l, energyImport.getValue());
-		
 	}
 }
