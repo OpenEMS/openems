@@ -169,7 +169,7 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 			if (this.config.remoteAccessMode() == AccessMode.READ_ONLY) {
 				return;
 			}
-			
+
 			this.bridgeStateHandler.setChannelValue(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS.id(),
 					new JsonPrimitive(t));
 		});
