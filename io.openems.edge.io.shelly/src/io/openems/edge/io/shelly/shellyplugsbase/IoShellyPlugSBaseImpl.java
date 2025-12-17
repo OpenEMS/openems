@@ -23,6 +23,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.StringUtils;
@@ -45,6 +47,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent implements IoShellyPlugSBase,
 		DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
+	public record ShellyValidation(String shellyAppName) {
+
+	}
+
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
@@ -57,9 +63,11 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	private SinglePhase phase = null;
 	private boolean invert = false;
 	private String baseUrl;
+	private ShellyValidation shellyValidation;
 
 	private BridgeHttp httpBridge;
 	private HttpBridgeCycleService cycleService;
+	private HttpBridgeTimeService timeService;
 
 	private AutoCloseable mdnsUnsubscribe;
 
@@ -81,7 +89,8 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, MeterType type,
-			SinglePhase phase, boolean invert, String ip, String mdnsName, DebugMode debugMode) {
+			SinglePhase phase, boolean invert, String ip, String mdnsName, DebugMode debugMode,
+			ShellyValidation shellyValidation) {
 		super.activate(context, id, alias, enabled);
 		this.meterType = type;
 		this.phase = phase;
@@ -89,6 +98,8 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 		this.httpBridge = this.getBridgeHttpFactory().get();
 		this.httpBridge.setDebugMode(debugMode);
 		this.cycleService = this.httpBridge.createService(this.getHttpBridgeCycleServiceDefinition());
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		this.shellyValidation = shellyValidation;
 
 		if (!this.isEnabled()) {
 			return;
@@ -146,6 +157,21 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	private void subscribe(String ip) {
 		this.log.info("Subscribing to Shelly at IP {}", ip);
 		this.baseUrl = "http://" + ip;
+
+		final var validation = this.shellyValidation;
+		if (validation != null) {
+			this.timeService.subscribeJsonTime(new ValidateTimeEndpointDelayTimeProvider(),
+					BridgeHttp.create(this.baseUrl + "/rpc/Shelly.GetDeviceInfo").build(), (result, httpError) -> {
+						if (httpError != null) {
+							this._setWrongDeviceType(false);
+							return;
+						}
+						final var deviceInfo = DeviceInfo.serializer().deserialize(result.data());
+						this._setWrongDeviceType(!deviceInfo.app().equals(validation.shellyAppName()));
+					});
+		} else {
+			this._setWrongDeviceType(false);
+		}
 		this.cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
 	}
 
@@ -179,35 +205,50 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	private void processHttpResult(HttpResponse<JsonElement> result, Throwable error) {
 		this._setSlaveCommunicationFailed(result == null);
 
-		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
-
-		Boolean relayStatus = null;
-		Boolean updatesAvailable = false;
-		Integer activePower = null;
-		Integer current = null;
-		Integer voltage = null;
+		if (this.getWrongDeviceType().orElse(false)) {
+			// do not apply values if device-type is wrong
+			this.resetValues();
+			return;
+		}
 
 		if (error != null) {
 			this.logWarn(this.log, error.getMessage());
-
-		} else {
-			try {
-				var response = getAsJsonObject(result.data());
-				var sysInfo = getAsJsonObject(response, "sys");
-				var update = getAsJsonObject(sysInfo, "available_updates");
-				updatesAvailable = update != null && !update.entrySet().isEmpty();
-
-				var relays = getAsJsonObject(response, "switch:0");
-				activePower = invert.apply(round(getAsFloat(relays, "apower")));
-				current = invert.apply(round(getAsFloat(relays, "current") * 1000));
-				voltage = round(getAsFloat(relays, "voltage") * 1000);
-				relayStatus = getAsBoolean(relays, "output");
-
-			} catch (Exception e) {
-				this.logWarn(this.log, e.getMessage());
-			}
+			this.resetValues();
+			return;
 		}
 
+		final IntFunction<Integer> invert = value -> this.invert ? value * -1 : value;
+
+		Boolean relayStatus = null;
+		boolean updatesAvailable = false;
+		Integer activePower = null;
+		Integer current = null;
+		Integer voltage = null;
+		try {
+			var response = getAsJsonObject(result.data());
+			var sysInfo = getAsJsonObject(response, "sys");
+			var update = getAsJsonObject(sysInfo, "available_updates");
+			updatesAvailable = !update.entrySet().isEmpty();
+
+			var relays = getAsJsonObject(response, "switch:0");
+			activePower = invert.apply(round(getAsFloat(relays, "apower")));
+			current = invert.apply(round(getAsFloat(relays, "current") * 1000));
+			voltage = round(getAsFloat(relays, "voltage") * 1000);
+			relayStatus = getAsBoolean(relays, "output");
+
+		} catch (Exception e) {
+			this.logWarn(this.log, e.getMessage());
+		}
+
+		this.updateValues(relayStatus, activePower, current, voltage, updatesAvailable);
+	}
+
+	private void resetValues() {
+		this.updateValues(null, null, null, null, false);
+	}
+
+	private void updateValues(Boolean relayStatus, Integer activePower, Integer current, Integer voltage,
+			boolean updatesAvailable) {
 		this._setRelay(relayStatus);
 		this._setActivePower(activePower);
 		this._setCurrent(current);

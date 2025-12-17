@@ -1,0 +1,31 @@
+Bundle-Name: OLCUT
+Bundle-DocURL: https://github.com/oracle/olcut
+Bundle-License: https://opensource.org/license/bsd-2-clause
+Bundle-Version: 5.3.1
+
+Include-Resource: \
+	@olcut-core-5.3.1.jar,\
+	@olcut-config-protobuf-5.3.1.jar,\
+
+Export-Package: \
+	com.oracle.labs.mlrg.olcut,\
+	com.oracle.labs.mlrg.olcut.command,\
+	com.oracle.labs.mlrg.olcut.config,\
+	com.oracle.labs.mlrg.olcut.config.io,\
+	com.oracle.labs.mlrg.olcut.config.property,\
+	com.oracle.labs.mlrg.olcut.config.protobuf,\
+	com.oracle.labs.mlrg.olcut.config.protobuf.protos,\
+	com.oracle.labs.mlrg.olcut.provenance,\
+	com.oracle.labs.mlrg.olcut.provenance.impl,\
+	com.oracle.labs.mlrg.olcut.provenance.io,\
+	com.oracle.labs.mlrg.olcut.provenance.primitives,\
+	com.oracle.labs.mlrg.olcut.util,\
+
+Import-Package: \
+	org.jline;resolution:=optional,\
+	org.jline.*;resolution:=optional,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *

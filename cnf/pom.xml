@@ -33,6 +33,18 @@
 			<version>2.11.4</version>
 		</dependency>
 		<dependency>
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-core</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-config-protobuf</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
 			<!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
@@ -358,7 +370,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.2.21</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -482,6 +494,46 @@
 			<version>3.9</version>
 		</dependency>
 		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-common-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-data</artifactId>
+		    <version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-math</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-util-onnx</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-util-tokenization</artifactId>
+		    <version>4.3.2</version>
+		</dependency>
+		<dependency>
 			<groupId>io.prometheus</groupId>
 			<artifactId>prometheus-metrics-core</artifactId>
 			<version>1.3.8</version>
@@ -505,7 +557,7 @@
 		<dependency>
 		  <groupId>org.mockito</groupId>
 		  <artifactId>mockito-core</artifactId>
-		  <version>5.20.0</version>
+		  <version>5.21.0</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>

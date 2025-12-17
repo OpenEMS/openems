@@ -13,6 +13,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.enums.KebaHardwareType;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.ComponentManager;
@@ -20,12 +21,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -224,7 +227,51 @@ public final class EvcsProps {
 				.wrapField((app, property, l, parameter, field) -> {
 					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
 				})//
-				.setRequired(true)//
+				.setRequired(true) //
 				.setDefaultValue(KebaHardwareType.P30);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a {@link EMobilityArchitectureType}.
+	 * 
+	 * @param evcsId {@link Nameable} of evcs id
+	 * @param <T>    type of app
+	 * @return the {@link AppDef}
+	 */
+	public static <T extends OpenemsApp & AppManagerUtilSupplier> AppDef<T, Nameable, BundleProvider> architectureType(
+			Nameable evcsId) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.Evcs.Keba.architectureType.label")//
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					var appManagerUtil = app.getAppManagerUtil();
+					var apps = appManagerUtil.getInstantiatedAppsByCategories(OpenemsAppCategory.EVCS);
+					var value = apps.stream().filter(t -> {
+						return t.properties.has("ARCHITECTURE_TYPE");
+					}).map(t -> {
+						return t.properties.get("ARCHITECTURE_TYPE");
+					}).map(t -> t.getAsString()).findFirst().orElse(null);
+
+					EMobilityArchitectureType excluded = null;
+
+					if (value != null) {
+						excluded = switch (value) {
+						case "EVCS" -> EMobilityArchitectureType.EVSE;
+						case "EVSE" -> EMobilityArchitectureType.EVCS;
+						default -> null;
+						};
+					}
+
+					if (excluded != null) {
+						field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class, excluded), l);
+					} else {
+						field.setOptions(OptionsFactory.of(EMobilityArchitectureType.class), l);
+					}
+
+				})//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.readonlyIf(Exp.currentModelValue(evcsId).notNull());
+				})//
+				.setRequired(true)//
+				.setDefaultValue(EMobilityArchitectureType.EVCS));
 	}
 }

@@ -39,6 +39,7 @@ public class ParamsUtilsV1 {
 	 * @param prices          Prices per period
 	 * @return the value in [Wh]
 	 */
+	@Deprecated
 	protected static int calculateChargeEnergyInChargeGrid(int essMinSocEnergy, int essMaxSocEnergy, int[] productions,
 			int[] consumptions, double[] prices) {
 		var refs = ImmutableIntArray.builder();
@@ -96,6 +97,7 @@ public class ParamsUtilsV1 {
 	 * @param time Start-Timestamp of the Schedule
 	 * @return the index
 	 */
+	@Deprecated
 	protected static int calculatePeriodLengthHourFromIndex(ZonedDateTime time) {
 		var minute = time.getMinute();
 		if (minute == 0) {

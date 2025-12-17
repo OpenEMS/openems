@@ -155,7 +155,7 @@ public class JsonUtilsTest {
 			.addProperty("Enum", Unit.WATT) //
 			.addProperty("Enum3", (Unit) null) //
 			.addProperty("Inet4Address", "192.168.1.2") //
-			.addProperty("UUID", "c48e2e28-09be-41d5-8e58-260d162991cc") //
+			.addProperty("UUID", UUID.fromString("c48e2e28-09be-41d5-8e58-260d162991cc")) //
 			.addProperty("ZonedDateTime", ZonedDateTime.of(1900, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))) //
 			.addProperty("LocalDateTime", LocalDateTime.of(1900, 1, 1, 0, 0, 0, 0)) //
 			.addPropertyIfNotNull("Boolean1", (Boolean) null) //

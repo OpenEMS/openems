@@ -32,6 +32,7 @@ public final class UtilsV1 {
 	private UtilsV1() {
 	}
 
+	@Deprecated
 	public static final int PERIODS_PER_HOUR = 4;
 
 	/**
@@ -43,6 +44,7 @@ public final class UtilsV1 {
 	 *                                      {@link ControllerEssEmergencyCapacityReserve}
 	 * @return the value in [%]
 	 */
+	@Deprecated
 	public static int getEssMinSocPercentage(List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves) {
 		return concat(//
@@ -65,15 +67,17 @@ public final class UtilsV1 {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param ctrlLimiter14as        the list of {@link ControllerEssLimiter14a}s
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
+	 * @param forceState             force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
+	@Deprecated
 	public static ApplyMode calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
-			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid) {
+			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid, StateMachine forceState) {
 		final var targetState = getCurrentPeriodState(esh);
 		final var essChargeInChargeGrid = esh.getCurrentEssChargeInChargeGrid();
 		final var limitChargePowerFor14aEnWG = calculateLimitChargePowerFor14aEnWG(ctrlLimiter14as);
 		return calculateAutomaticMode(sum, ess, essChargeInChargeGrid, maxChargePowerFromGrid,
-				limitChargePowerFor14aEnWG, targetState);
+				limitChargePowerFor14aEnWG, targetState, forceState);
 	}
 
 	/**
@@ -85,13 +89,13 @@ public final class UtilsV1 {
 	 * @param maxChargePowerFromGrid     the configured max charge from grid power
 	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
 	 * @param targetState                the scheduled target {@link StateMachine}
+	 * @param forceState                 force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
+	@Deprecated
 	protected static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
-			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState) {
-		final StateMachine actualState;
-		final Integer setPoint;
-
+			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState,
+			StateMachine forceState) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (gridActivePower == null || essActivePower == null) {
@@ -104,10 +108,12 @@ public final class UtilsV1 {
 		final var pwrDelayDischarge = calculateDelayDischargePower(ess);
 		final var pwrChargeGrid = max(limitChargePowerFor14aEnWG, calculateChargeGridPower(//
 				essChargeInChargeGrid, ess, essActivePower, gridActivePower, maxChargePowerFromGrid));
-		actualState = postprocessRunState(ess, targetState, pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		final var actualState = forceState != null //
+				? forceState //
+				: postprocessRunState(ess, targetState, pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
-		setPoint = switch (actualState) {
+		final var setPoint = switch (actualState) {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
@@ -124,6 +130,7 @@ public final class UtilsV1 {
 	 * @param esh the {@link EnergyScheduleHandlerV1}
 	 * @return the {@link StateMachine}
 	 */
+	@Deprecated
 	public static StateMachine getCurrentPeriodState(EnergyScheduleHandlerV1 esh) {
 		if (esh != null) {
 			var state = esh.getCurrentState();
@@ -140,6 +147,7 @@ public final class UtilsV1 {
 	 * @param ctrlLimiter14as the list of {@link ControllerEssLimiter14a}s
 	 * @return the (negative) charge value or {@link Integer#MIN_VALUE} for no limit
 	 */
+	@Deprecated
 	public static int calculateLimitChargePowerFor14aEnWG(List<ControllerEssLimiter14a> ctrlLimiter14as) {
 		var isLimited = ctrlLimiter14as.stream() //
 				.map(c -> c.getRestrictionMode()) //
