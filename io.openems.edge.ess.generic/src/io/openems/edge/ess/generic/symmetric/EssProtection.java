@@ -1,8 +1,10 @@
 package io.openems.edge.ess.generic.symmetric;
 
+import static io.openems.common.channel.PersistencePriority.MEDIUM;
+import static io.openems.common.channel.Unit.AMPERE;
+import static io.openems.common.types.OpenemsType.INTEGER;
+
 import io.openems.common.channel.Level;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -12,14 +14,18 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface EssProtection extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		EP_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
-		EP_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE)), //
+		EP_CHARGE_MAX_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
+				.persistencePriority(MEDIUM)), //
+		EP_DISCHARGE_MAX_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
+				.persistencePriority(MEDIUM)), //
 		EP_DEEP_DISCHARGE_PROTECTION(Doc.of(Level.FAULT)//
-				.text("Deep discharge protection triggered!")), //
+				.text("Deep discharge protection triggered!")//
+				.persistencePriority(MEDIUM)), //
 		EP_OVER_CHARGE_PROTECTION(Doc.of(Level.FAULT)//
-				.text("Over charge protection triggered!")),//
+				.text("Over charge protection triggered!")//
+				.persistencePriority(MEDIUM)), //
 		;
 
 		private final Doc doc;

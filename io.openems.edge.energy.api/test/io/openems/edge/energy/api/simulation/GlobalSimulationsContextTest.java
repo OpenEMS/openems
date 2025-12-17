@@ -17,6 +17,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.energy.api.EnergyConstants;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -72,7 +73,7 @@ public class GlobalSimulationsContextTest {
 		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
 		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
 		assertEquals(28, goc.periods().size());
-		var p0 = goc.periods().get(0);
+		var p0 = (Period.Quarter.Complete) goc.periods().get(0);
 		assertEquals(2000 /* Wh */, p0.production());
 		assertEquals(1000 /* Wh */, p0.consumption());
 	}

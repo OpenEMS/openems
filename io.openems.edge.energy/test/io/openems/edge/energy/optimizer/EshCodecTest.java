@@ -29,7 +29,7 @@ public class EshCodecTest {
 		final var simulator = DUMMY_SIMULATOR;
 		final var goc = simulator.goc;
 		final var mc = simulator.modeCombinations;
-		final var previousResult = SimulationResult.fromQuarters(goc, new int[] { 3, 1, 1, 1 });
+		final var previousResult = SimulationResult.fromQuarters(goc, new int[] { 3, 1, 1, 1 }, 0);
 
 		final var codec = EshCodec.of(goc, mc, previousResult, true);
 

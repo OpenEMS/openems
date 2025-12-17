@@ -7,8 +7,11 @@ Bundle-Description: \
 
 -buildpath: \
 	${buildpath},\
+	com.google.protobuf,\
 	io.openems.common,\
 	io.openems.edge.common,\
+	io.openems.wrapper.olcut,\
+	io.openems.wrapper.tribuo,\
 	org.apache.commons.math3,\
 
 -testpath: \

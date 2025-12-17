@@ -72,13 +72,14 @@ public final class FeneconIndustrialLComponents {
 
 	/**
 	 * Creates a default cycle component for a FENECON Industrial L.
-	 * 
+	 *
+	 * @param cycleTime the Cycle Time
 	 * @return the {@link Component}
 	 */
-	public static Component cycle() {
+	public static Component cycle(int cycleTime) {
 		return new Component(Cycle.SINGLETON_COMPONENT_ID, Cycle.SINGLETON_SERVICE_PID, Cycle.SINGLETON_SERVICE_PID, //
 				JsonUtils.buildJsonObject() //
-						.addProperty("cycleTime", 200) //
+						.addProperty("cycleTime", cycleTime) //
 						.build());
 	}
 
@@ -145,7 +146,7 @@ public final class FeneconIndustrialLComponents {
 			final ResourceBundle bundle, //
 			final boolean isNewHardware //
 	) {
-		return new Component(ioId, translate(bundle, "App.Hardware.IoGpio.Name"), "IO.Gpio", //
+		return new Component(ioId, translate(bundle, "App.FENECON.Industrial.io0"), "IO.Gpio", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("enabled", true) //
 						.addProperty("gpioPath", "/sys/class") //

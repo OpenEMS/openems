@@ -130,7 +130,7 @@ public interface ManagedEvcs extends Evcs {
 	public boolean pauseChargeProcess() throws Exception;
 
 	/**
-	 * Command to send the specified text to the EVCS display, if supported
+	 * Command to send the specified text to the EVCS display, if supported.
 	 * 
 	 * <p>
 	 * Writes to the display of the charging station, if the EVCS supports that
