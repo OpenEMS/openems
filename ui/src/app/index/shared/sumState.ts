@@ -24,16 +24,16 @@ export enum SumState {
         <ng-container class="sum-state-icon">
           @switch (sumState) {
             @case (SUM_STATE.OK) {
-              <ion-icon color="success" name="checkmark-circle-outline"></ion-icon>
+              <ion-icon color="success" name="oe-checkmark"></ion-icon>
             }
             @case (SUM_STATE.INFO) {
-              <ion-icon color="success" name="information-circle-outline"></ion-icon>
+              <ion-icon color="success" name="oe-info"></ion-icon>
             }
             @case (SUM_STATE.WARNING) {
-              <ion-icon color="warning" name="warning-outline"></ion-icon>
+              <ion-icon color="warning" name="oe-warning"></ion-icon>
             }
             @case (SUM_STATE.FAULT) {
-              <ion-icon color="danger" name="alert-circle-outline"></ion-icon>
+              <ion-icon color="danger" name="oe-error"></ion-icon>
             }
             @default {
               <ion-icon color="primary" name="play-outline"></ion-icon>

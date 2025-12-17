@@ -433,6 +433,50 @@ public class DataFrameTest {
 		assertNotEquals(this.dataframe.getValue(0, "column1"), copy.getValue(0, "column1"));
 	}
 
+	@Test
+	public void testInnerJoin_ShouldReturnOnlyCommonIndices() {
+		var index2 = List.of(0, 2, 4);
+		var columnNames2 = List.of("column3");
+		var values2 = List.of(//
+				List.of(7.0), //
+				List.of(8.0), //
+				List.of(9.0));
+		var dataframe2 = new DataFrame<>(index2, columnNames2, values2);
+
+		var newDataframe = this.dataframe.innerJoin(dataframe2);
+		assertEquals(List.of(0, 2), newDataframe.getIndex());
+		assertEquals(List.of("column1", "column2", "column3"), newDataframe.getColumnNames());
+		assertEquals(List.of(//
+				List.of(1.0, 2.0, 7.0), //
+				List.of(5.0, 6.0, 8.0)), //
+				newDataframe.getValues());
+	}
+
+	@Test
+	public void testTail_ShouldReturnCorrectTail() {
+		// Case 1
+		var result1 = this.dataframe.tail(2);
+		var expected1 = new DataFrame<>(//
+				List.of(1, 2), //
+				List.of("column1", "column2"), //
+				List.of(//
+						List.of(3.0, 4.0), //
+						List.of(5.0, 6.0)));
+		assertEquals(expected1, result1);
+
+		// Case 2
+		var result2 = this.dataframe.tail(4);
+		assertEquals(this.dataframe, result2);
+	}
+
+	@Test
+	public void testTail_SchouldThrowException_WhenNIsNegative() {
+		var exception = assertThrows(IllegalArgumentException.class, () -> {
+			this.dataframe.tail(-1);
+		});
+		assertEquals("n must be non-negative", exception.getMessage());
+	}
+
 	// --- equals and hashCode ---
 
 	@Test

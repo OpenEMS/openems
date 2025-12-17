@@ -10,6 +10,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BatteryState;
 import io.openems.edge.battery.bmw.enums.BatteryStateCommand;
 import io.openems.edge.battery.bmw.statemachine.GoRunningSubState;
+import io.openems.edge.battery.bmw.statemachine.GoStoppingSubState;
 import io.openems.edge.battery.bmw.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
@@ -24,273 +25,275 @@ import io.openems.edge.common.startstop.StartStoppable;
 public interface BatteryBmw extends Battery, ModbusComponent, OpenemsComponent, StartStoppable {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current state of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.FAULT)//
 				.text("Running the Logic failed")), //
-		ERROR_BATTERY_TYPE(Doc.of(Level.FAULT) //
+		ERROR_BATTERY_TYPE(Doc.of(Level.FAULT)//
 				.text("Configuring the Battery Type not successful!")), //
-		UNEXPECTED_STOPPED_STATE(Doc.of(Level.FAULT) //
+		UNEXPECTED_STOPPED_STATE(Doc.of(Level.FAULT)//
 				.text("Unexpected battery state in \"Stopped\"!")),
-		UNEXPECTED_RUNNING_STATE(Doc.of(Level.FAULT) //
+		UNEXPECTED_RUNNING_STATE(Doc.of(Level.FAULT)//
 				.text("Unexpected battery state in \"Running\"!")),
 		SOC_RAW_VALUE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_ONLY)), //
-		TIMEOUT_START_BATTERY(Doc.of(Level.FAULT) //
+		TIMEOUT_START_BATTERY(Doc.of(Level.FAULT)//
 				.text("The maximum start time is passed")), //
-		TIMEOUT_STOP_BATTERY(Doc.of(Level.FAULT) //
+		TIMEOUT_STOP_BATTERY(Doc.of(Level.FAULT)//
 				.text("The maximum stop time is passed")), //
-		GO_RUNNING_STATE_MACHINE(Doc.of(GoRunningSubState.values()) //
+		GO_RUNNING_STATE_MACHINE(Doc.of(GoRunningSubState.values())//
 				.text("Current State of GoRunning State-Machine")), //
+		GO_STOPPING_STATE_MACHINE(Doc.of(GoStoppingSubState.values())//
+				.text("Current State of GoStopping State-Machine")), //
 		/*
 		 * ErrBits1
 		 */
 
-		UNSPECIFIED_ERROR(Doc.of(Level.FAULT) //
+		UNSPECIFIED_ERROR(Doc.of(Level.FAULT)//
 				.text("Unspecified Error - Cell-config-Error, Slave-count-Error")), //
 
-		LOW_VOLTAGE_ERROR(Doc.of(Level.FAULT) //
+		LOW_VOLTAGE_ERROR(Doc.of(Level.FAULT)//
 				.text("Low Voltage Error - Cell voltage minimal")), //
 
-		HIGH_VOLTAGE_ERROR(Doc.of(Level.FAULT) //
+		HIGH_VOLTAGE_ERROR(Doc.of(Level.FAULT)//
 				.text("High Voltage Error - Cell voltage maximal")), //
 
-		CHARGE_CURRENT_ERROR(Doc.of(Level.FAULT) //
-				.text("Charge Current Error - Imax-HW, Imax-SW, I-High (e.g. current dependend on temperature")), //
+		CHARGE_CURRENT_ERROR(Doc.of(Level.FAULT)//
+				.text("Charge Current Error - Imax-HW, Imax-SW, I-High (e.g. current dependent on temperature")), //
 
-		DISCHARGE_CURRENT_ERROR(Doc.of(Level.FAULT) //
-				.text("Discharge Current Error - Imax-HW, Imax-SW, I-High (e.g. current dependend on temperature")), //
+		DISCHARGE_CURRENT_ERROR(Doc.of(Level.FAULT)//
+				.text("Discharge Current Error - Imax-HW, Imax-SW, I-High (e.g. current dependent on temperature")), //
 
-		CHARGE_POWER_ERROR(Doc.of(Level.FAULT) //
+		CHARGE_POWER_ERROR(Doc.of(Level.FAULT)//
 				.text("Charge Power Error")), //
 
-		DISCHARGE_POWER_ERROR(Doc.of(Level.FAULT) //
+		DISCHARGE_POWER_ERROR(Doc.of(Level.FAULT)//
 				.text("Discharge Power Error")), //
 
-		LOW_SOC_ERROR(Doc.of(Level.FAULT) //
+		LOW_SOC_ERROR(Doc.of(Level.FAULT)//
 				.text("Low SOC Error")), //
 
-		HIGH_SOC_ERROR(Doc.of(Level.FAULT) //
+		HIGH_SOC_ERROR(Doc.of(Level.FAULT)//
 				.text("High SOC Error")), //
 
-		LOW_TEMPERATURE_ERROR(Doc.of(Level.FAULT) //
+		LOW_TEMPERATURE_ERROR(Doc.of(Level.FAULT)//
 				.text("Low Temperature Error - Cell temperature minimal")), //
 
-		HIGH_TEMPERATURE_ERROR(Doc.of(Level.FAULT) //
+		HIGH_TEMPERATURE_ERROR(Doc.of(Level.FAULT)//
 				.text("High Temperature Error - Cell temperature maximal")), //
 
-		INSULATION_ERROR(Doc.of(Level.FAULT) //
+		INSULATION_ERROR(Doc.of(Level.FAULT)//
 				.text("Insulation Error - I-Diff error (self test error, I-Diff > |300 mA|)")), //
 
-		CONTACTOR_ERROR(Doc.of(Level.FAULT) //
+		CONTACTOR_ERROR(Doc.of(Level.FAULT)//
 				.text("Contactor Error (contactor feedback signals")), //
 
-		SENSOR_ERROR(Doc.of(Level.FAULT) //
+		SENSOR_ERROR(Doc.of(Level.FAULT)//
 				.text("Sensor Error - Current sensor error")), //
 
-		IMBALANCE_ERROR(Doc.of(Level.FAULT) //
+		IMBALANCE_ERROR(Doc.of(Level.FAULT)//
 				.text("Imbalance Error - Static and dynamic cell imbalance (voltage)")), //
 
-		COMMUNICATION_ERROR(Doc.of(Level.FAULT) //
+		COMMUNICATION_ERROR(Doc.of(Level.FAULT)//
 				.text("Communication Error - Batcom Error (Timeout), Master-Slave Can Error (Timeout)")), //
 
 		/*
 		 * ErrBits2
 		 */
 
-		CONTAINER_ERROR(Doc.of(Level.FAULT) //
+		CONTAINER_ERROR(Doc.of(Level.FAULT)//
 				.text("Container/(Room) Error")), //
 
-		SOH_ERROR(Doc.of(Level.FAULT) //
+		SOH_ERROR(Doc.of(Level.FAULT)//
 				.text("SOH Error")), //
 
-		RACK_STING_ERROR(Doc.of(Level.FAULT) //
+		RACK_STING_ERROR(Doc.of(Level.FAULT)//
 				.text("Rack/String Error")), //
 
 		/*
 		 * WarnBits1
 		 */
 
-		UNSPECIFIED_WARNING(Doc.of(Level.WARNING) //
+		UNSPECIFIED_WARNING(Doc.of(Level.WARNING)//
 				.text("Unspecified Warning - Cell-config-Error, Slave-count-Error")), //
 
-		LOW_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
+		LOW_VOLTAGE_WARNING(Doc.of(Level.WARNING)//
 				.text("Low Voltage Error - Cell voltage high")), //
 
-		HIGH_VOLTAGE_WARNING(Doc.of(Level.WARNING) //
+		HIGH_VOLTAGE_WARNING(Doc.of(Level.WARNING)//
 				.text("High Voltage Warning - Cell voltage high")), //
 
-		CHARGE_CURRENT_WARNING(Doc.of(Level.WARNING) //
-				.text("Charge Current Warning - Imax-HW, Imax-SW, I-High (e.g. current dependend on temperature")), //
+		CHARGE_CURRENT_WARNING(Doc.of(Level.WARNING)//
+				.text("Charge Current Warning - Imax-HW, Imax-SW, I-High (e.g. current dependent on temperature")), //
 
-		DISCHARGE_CURRENT_WARNING(Doc.of(Level.WARNING) //
-				.text("Discharge Current Warning - Imax-HW, Imax-SW, I-High (e.g. current dependend on temperature")), //
+		DISCHARGE_CURRENT_WARNING(Doc.of(Level.WARNING)//
+				.text("Discharge Current Warning - Imax-HW, Imax-SW, I-High (e.g. current dependent on temperature")), //
 
-		CHARGE_POWER_WARNING(Doc.of(Level.WARNING) //
+		CHARGE_POWER_WARNING(Doc.of(Level.WARNING)//
 				.text("Charge Power Warning")), //
 
-		DISCHARGE_POWER_WARNING(Doc.of(Level.WARNING) //
+		DISCHARGE_POWER_WARNING(Doc.of(Level.WARNING)//
 				.text("Discharge Power Warning")), //
 
-		LOW_SOC_WARNING(Doc.of(Level.WARNING) //
+		LOW_SOC_WARNING(Doc.of(Level.WARNING)//
 				.text("Low SOC Warning")), //
 
-		HIGH_SOC_WARNING(Doc.of(Level.WARNING) //
+		HIGH_SOC_WARNING(Doc.of(Level.WARNING)//
 				.text("High SOC Warning")), //
 
-		LOW_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
+		LOW_TEMPERATURE_WARNING(Doc.of(Level.WARNING)//
 				.text("Low Temperature Warning - Cell temperature high")), //
 
-		HIGH_TEMPERATURE_WARNING(Doc.of(Level.WARNING) //
+		HIGH_TEMPERATURE_WARNING(Doc.of(Level.WARNING)//
 				.text("High Temperature Warning - Cell temperature high")), //
 
-		INSULATION_WARNING(Doc.of(Level.WARNING) //
+		INSULATION_WARNING(Doc.of(Level.WARNING)//
 				.text("Insulation Warning - I-Diff error (self test error, I-Diff > |300 mA|)")), //
 
-		CONTACTOR_WARNING(Doc.of(Level.WARNING) //
+		CONTACTOR_WARNING(Doc.of(Level.WARNING)//
 				.text("Contactor Warning (contactor feedback signals")), //
 
-		SENSOR_WARNING(Doc.of(Level.WARNING) //
+		SENSOR_WARNING(Doc.of(Level.WARNING)//
 				.text("Sensor Warning - Current sensor error")), //
 
-		IMBALANCE_WARNING(Doc.of(Level.WARNING) //
+		IMBALANCE_WARNING(Doc.of(Level.WARNING)//
 				.text("Imbalance Warning - Static and dynamic cell imbalance (voltage)")), //
 
-		COMMUNICATION_WARNING(Doc.of(Level.WARNING) //
+		COMMUNICATION_WARNING(Doc.of(Level.WARNING)//
 				.text("Communication Warning - Batcom Error (Timeout), Master-Slave Can Error (Timeout)")), //
 
 		// WarnBits2
-		CONTAINER_WARNING(Doc.of(Level.WARNING) //
+		CONTAINER_WARNING(Doc.of(Level.WARNING)//
 				.text("Container/(Room) Warning")), //
 
-		SOH_WARNING(Doc.of(Level.WARNING) //
+		SOH_WARNING(Doc.of(Level.WARNING)//
 				.text("SOH Warning")), //
 
-		RACK_STING_WARNING(Doc.of(Level.WARNING) //
+		RACK_STING_WARNING(Doc.of(Level.WARNING)//
 				.text("Rack/String Warning - min. 1 string is in error condition (disconnected)")), //
 
 		// Read / write channels
-		BATTERY_STATE_COMMAND(Doc.of(BatteryStateCommand.values()) //
+		BATTERY_STATE_COMMAND(Doc.of(BatteryStateCommand.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		BATTERY_STATE(Doc.of(BatteryState.values()) //
-				.accessMode(AccessMode.READ_ONLY) //
+		BATTERY_STATE(Doc.of(BatteryState.values())//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
-		MAX_OPERATING_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE) //
+		MAX_OPERATING_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.AMPERE)//
 				.text("Absolute maximum operating (max. discharge current) current of battery")), //
 
-		MIN_OPERATING_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE) //
+		MIN_OPERATING_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.AMPERE)//
 				.text("Absolute minimum operating current (max. charge current) of battery")), //
 
-		MAX_DYNAMIC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		MAX_DYNAMIC_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.DEZIVOLT)), //
 
-		MIN_DYNAMIC_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		MIN_DYNAMIC_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.DEZIVOLT)), //
 
-		CONNECTED_STRING_NUMBER(Doc.of(OpenemsType.INTEGER) //
+		CONNECTED_STRING_NUMBER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		INSTALLED_STRING_NUMBER(Doc.of(OpenemsType.INTEGER) //
+		INSTALLED_STRING_NUMBER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		BATTERY_TOTAL_SOC(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.TENTHOUSANDTH) //
+		BATTERY_TOTAL_SOC(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.TENTHOUSANDTH)//
 				.text("Battery state of charge calculated for all strings, which are available (connected and not connected)")), //
 
-		BATTERY_SOC(Doc.of(OpenemsType.DOUBLE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.TENTHOUSANDTH) //
+		BATTERY_SOC(Doc.of(OpenemsType.DOUBLE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.TENTHOUSANDTH)//
 				.onChannelChange(BatteryBmwImpl::updateSoc)), //
 
-		REMAINING_CHARGE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		REMAINING_CHARGE_CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.AMPERE_HOURS)), //
 
-		REMAINING_DISCHARGE_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE_HOURS) //
+		REMAINING_DISCHARGE_CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.AMPERE_HOURS)//
 				.text("Remaining discharge capacity - Ah possible to charge from now on")), //
 
-		REMANING_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS) //
+		REMAINING_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.text("Remaining energy to charge")), //
 
-		REMANING_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS) //
+		REMAINING_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.text("Remaining energy to discharge")), //
 
-		NOMINAL_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS) //
+		NOMINAL_ENERGY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.text("Battery Nominal Energy (connected Racks)")), //
 
-		NOMINAL_ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOWATT_HOURS) //
+		NOMINAL_ENERGY_TOTAL(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.text("Battery Nominal Energy (all Racks)")), //
 
-		NOMINAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.AMPERE_HOURS) //
+		NOMINAL_CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.AMPERE_HOURS)//
 				.text("Battery Nominal Capacity (connected Racks)")), //
 
 		// External voltage (at DC connector) of the battery
-		LINK_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.DEZIVOLT) //
+		LINK_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.DEZIVOLT)//
 				.onChannelChange(BatteryBmwImpl::updateVoltage)), //
 
-		INTERNAL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.DEZIVOLT) //
+		INTERNAL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.DEZIVOLT)//
 				.onChannelChange(BatteryBmwImpl::updateVoltage)), //
 
-		AVG_BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		AVG_BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEZIDEGREE_CELSIUS)), //
 
 		MIN_BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEZIDEGREE_CELSIUS)), //
 
-		MAX_BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		MAX_BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEZIDEGREE_CELSIUS)), //
 
-		INSULATION_RESISTANCE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.KILOOHM) //
+		INSULATION_RESISTANCE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.KILOOHM)//
 				.text("Insulation Resistance")), //
 
-		DISCHARGE_MAX_CURRENT_HIGH_RESOLUTION(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.DEZIAMPERE) //
+		DISCHARGE_MAX_CURRENT_HIGH_RESOLUTION(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.DEZIAMPERE)//
 				.text("Battery maximum limit dynamic current (max. discharge current)")), //
 
-		CHARGE_MAX_CURRENT_HIGH_RESOLUTION(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.DEZIAMPERE) //
+		CHARGE_MAX_CURRENT_HIGH_RESOLUTION(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.DEZIAMPERE)//
 				.text("Battery minimum limit dynamic current (max. charge current)")), //
 
-		FULL_CYCLE_COUNT(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY) //
+		FULL_CYCLE_COUNT(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.text("Battery Full Cycles Count - count complete energy throughputs")), //
 
 		// actual not implemented @ BCS side
 		HEART_BEAT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_ONLY) //
+				.accessMode(AccessMode.READ_ONLY)//
 				.text("Life sign signal")), //
 
-		AVG_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		AVG_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
 		; //
 
@@ -565,6 +568,25 @@ public interface BatteryBmw extends Battery, ModbusComponent, OpenemsComponent, 
 	 */
 	public default void _setGoRunningStateMachine(GoRunningSubState value) {
 		this.getGoRunningStateMachineChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#GO_STOPPING_STATE_MACHINE} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setGoStoppingStateMachine(GoStoppingSubState value) {
+		this.getGoStoppingStateMachineChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GO_STOPPING_STATE_MACHINE}.
+	 * 
+	 * @return the Channel
+	 */
+	public default Channel<GoStoppingSubState> getGoStoppingStateMachineChannel() {
+		return this.channel(ChannelId.GO_STOPPING_STATE_MACHINE);
 	}
 
 	/**

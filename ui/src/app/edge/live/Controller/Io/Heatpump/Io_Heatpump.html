@@ -1,6 +1,6 @@
 @if (isInitialized) {
-  <oe-flat-widget button [modalComponent]="modalComponent"
-    [icon]="{color: 'normal', name: 'flame', size: 'medium'}" [title]="component.alias">
+  <oe-flat-widget button [modalComponent]="modalComponent" [icon]="{color: 'normal', name: 'oe-heatpump'}"
+    [title]="component.alias">
     @if (isConnectionSuccessful) {
       <oe-flat-widget-line [name]="'GENERAL.STATE'|translate" [value]="statusValue">
       </oe-flat-widget-line>

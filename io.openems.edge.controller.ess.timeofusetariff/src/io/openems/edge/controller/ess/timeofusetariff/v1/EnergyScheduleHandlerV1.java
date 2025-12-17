@@ -19,6 +19,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 @Deprecated
 public class EnergyScheduleHandlerV1 {
 
+	@Deprecated
 	public static record ContextV1(List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves,
 			List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges,
 			List<ControllerEssLimiter14a> ctrlLimiter14as, ManagedSymmetricEss ess, ControlMode controlMode,
@@ -30,6 +31,7 @@ public class EnergyScheduleHandlerV1 {
 
 	private ImmutableSortedMap<ZonedDateTime, Period<StateMachine>> schedule = ImmutableSortedMap.of();
 
+	@Deprecated
 	public EnergyScheduleHandlerV1(Supplier<StateMachine[]> availableStates, Supplier<ContextV1> context) {
 		this.availableStates = availableStates;
 		this.context = context;
@@ -40,6 +42,7 @@ public class EnergyScheduleHandlerV1 {
 	 * 
 	 * @return an Array of States
 	 */
+	@Deprecated
 	public StateMachine[] getAvailableStates() {
 		return this.availableStates.get();
 	}
@@ -49,10 +52,12 @@ public class EnergyScheduleHandlerV1 {
 	 * 
 	 * @return the Context
 	 */
+	@Deprecated
 	public ContextV1 getContext() {
 		return this.context.get();
 	}
 
+	@Deprecated
 	public static record Period<STATE>(STATE state, Integer essChargeInChargeGrid) {
 	}
 
@@ -61,6 +66,7 @@ public class EnergyScheduleHandlerV1 {
 	 * 
 	 * @param schedule the Schedule
 	 */
+	@Deprecated
 	public synchronized void setSchedule(ImmutableSortedMap<ZonedDateTime, Period<StateMachine>> schedule) {
 		this.schedule = schedule;
 	}
@@ -70,6 +76,7 @@ public class EnergyScheduleHandlerV1 {
 	 * 
 	 * @return the State or null
 	 */
+	@Deprecated
 	public synchronized StateMachine getCurrentState() {
 		return Optional.ofNullable(this.schedule.get(roundDownToQuarter(ZonedDateTime.now()))) //
 				.map(Period::state) //
@@ -81,6 +88,7 @@ public class EnergyScheduleHandlerV1 {
 	 * 
 	 * @return the essChargeInChargeGrid or null
 	 */
+	@Deprecated
 	public synchronized Integer getCurrentEssChargeInChargeGrid() {
 		return Optional.ofNullable(this.schedule.get(roundDownToQuarter(ZonedDateTime.now()))) //
 				.map(Period::essChargeInChargeGrid) //

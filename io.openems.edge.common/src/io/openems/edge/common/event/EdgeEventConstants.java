@@ -16,7 +16,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE = "io/openems/edge/cycle/";
 
 	/**
-	 * BEFORE_PROCESS_IMAGE event
+	 * BEFORE_PROCESS_IMAGE event.
 	 *
 	 * <p>
 	 * allows to execute anything that is required to be executed before the current
@@ -26,7 +26,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_BEFORE_PROCESS_IMAGE = TOPIC_CYCLE + "BEFORE_PROCESS_IMAGE";
 
 	/**
-	 * AFTER_PROCESS_IMAGE event
+	 * AFTER_PROCESS_IMAGE event.
 	 *
 	 * <p>
 	 * allows to execute anything that is required to be executed after the current
@@ -36,7 +36,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_AFTER_PROCESS_IMAGE = TOPIC_CYCLE + "AFTER_PROCESS_IMAGE";
 
 	/**
-	 * BEFORE_CONTROLLERS event
+	 * BEFORE_CONTROLLERS event.
 	 *
 	 * <p>
 	 * allows to execute anything that is required to be executed before the
@@ -45,7 +45,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_BEFORE_CONTROLLERS = TOPIC_CYCLE + "BEFORE_CONTROLLERS";
 
 	/**
-	 * AFTER_CONTROLLERS event
+	 * AFTER_CONTROLLERS event.
 	 * 
 	 * <p>
 	 * allows to execute anything that is required to be executed after the
@@ -54,7 +54,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_AFTER_CONTROLLERS = TOPIC_CYCLE + "AFTER_CONTROLLERS";
 
 	/**
-	 * BEFORE_WRITE event
+	 * BEFORE_WRITE event.
 	 *
 	 * <p>
 	 * allows to execute anything that is required to be executed before the data is
@@ -63,7 +63,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_BEFORE_WRITE = TOPIC_CYCLE + "BEFORE_WRITE";
 
 	/**
-	 * EXECUTE_WRITE event
+	 * EXECUTE_WRITE event.
 	 *
 	 * <p>
 	 * triggers to actually write the data to the devices. The event is executed
@@ -72,7 +72,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE_EXECUTE_WRITE = TOPIC_CYCLE + "EXECUTE_WRITE";
 
 	/**
-	 * AFTER_WRITE event
+	 * AFTER_WRITE event.
 	 *
 	 * <p>
 	 * allows to execute anything that is required to be executed after the data was
@@ -87,7 +87,7 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CONFIG = "io/openems/edge/config/";
 
 	/**
-	 * UPDATE event
+	 * UPDATE event.
 	 *
 	 * <p>
 	 * Called when the {@link EdgeConfig} was updated, e.g. because configuration

@@ -366,7 +366,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasAcMeter.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(property).notNull());
+				}));
 	}
 
 	/**

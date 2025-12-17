@@ -24,7 +24,7 @@ public class DummyControllerEvseSingle extends AbstractDummyControllerEvseSingle
 	}
 
 	@Override
-	public void apply(Mode.Actual actualMode, ChargePointActions actions) {
+	public void apply(Mode mode, ChargePointActions actions) {
 		// do nothing
 	}
 }

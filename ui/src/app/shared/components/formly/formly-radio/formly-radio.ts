@@ -32,6 +32,6 @@ export class FormlyRadioTypeComponent extends FieldType implements OnInit, OnCha
     private updateFieldOptions(): void {
         const opts = this.props?.options;
         this.fieldOptions = Array.isArray(opts) ? opts : [];
-        this.defaultOption = this.fieldOptions.find(el => el.default) ?? null;
+        this.defaultOption = this.fieldOptions.find(el => el.default) ?? this.field?.defaultValue ?? null;
     }
 }

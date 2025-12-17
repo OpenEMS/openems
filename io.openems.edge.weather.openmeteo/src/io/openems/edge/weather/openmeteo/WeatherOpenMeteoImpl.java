@@ -41,6 +41,12 @@ import io.openems.edge.weather.api.DailyWeatherSnapshot;
 import io.openems.edge.weather.api.HourlyWeatherSnapshot;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
 import io.openems.edge.weather.api.Weather;
+import io.openems.edge.weather.openmeteo.data.DefaultWeatherDataParser;
+import io.openems.edge.weather.openmeteo.forecast.WeatherForecastDelayTimeProvider;
+import io.openems.edge.weather.openmeteo.forecast.WeatherForecastPersistenceService;
+import io.openems.edge.weather.openmeteo.forecast.WeatherForecastService;
+import io.openems.edge.weather.openmeteo.historical.HistoricalWeatherService;
+import io.openems.edge.weather.openmeteo.jsonrpc.DailyWeatherForecastEndpoint;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -53,9 +59,9 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 
 	private static final long MINUTES_PER_QUARTER = 15L;
 
-	protected static final int FORECAST_DAYS = 7;
-	protected static final int PAST_DAYS = 1;
-	protected static final int MAX_FORECAST_AGE_DAYS = 1;
+	public static final int FORECAST_DAYS = 7;
+	public static final int PAST_DAYS = 1;
+	public static final int MAX_FORECAST_AGE_DAYS = 1;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -96,7 +102,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 	public void updatedMeta(Meta updatedMeta) {
 		if (!Objects.equals(this.coordinates, updatedMeta.getCoordinates())) {
 			this.weatherForecastService.subscribeToWeatherForecast(//
-					new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
+					new WeatherForecastDelayTimeProvider(this.componentManager.getClock()), //
 					updatedMeta.getCoordinates(), //
 					() -> this.componentManager.getClock(), //
 					() -> this.onFetchWeatherForecastSuccess());
@@ -153,7 +159,7 @@ public class WeatherOpenMeteoImpl extends AbstractOpenemsComponent
 				() -> this.componentManager.getClock());
 
 		this.weatherForecastService.subscribeToWeatherForecast(//
-				new OpenMeteoDelayTimeProvider(this.componentManager.getClock()), //
+				new WeatherForecastDelayTimeProvider(this.componentManager.getClock()), //
 				this.meta.getCoordinates(), //
 				() -> this.componentManager.getClock(), //
 				() -> this.onFetchWeatherForecastSuccess());

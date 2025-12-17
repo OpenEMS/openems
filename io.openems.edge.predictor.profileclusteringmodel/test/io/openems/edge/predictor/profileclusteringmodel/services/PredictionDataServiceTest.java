@@ -34,9 +34,8 @@ public class PredictionDataServiceTest {
 		}
 
 		var sut = new PredictionDataService(timedata, () -> clock, channelAddress);
-		var queryWindow = new QueryWindow(3, 7);
 
-		var series = sut.fetchSeriesForWindow(queryWindow);
+		var series = sut.fetchSeriesForWindow(7);
 
 		// Should have 7 (days) * 96 (quarters) entries
 		assertEquals(7 * (24 * 4), series.getValues().size());
