@@ -103,7 +103,6 @@
 	bnd.identity;id='io.openems.edge.controller.io.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.io.heatingelement',\
 	bnd.identity;id='io.openems.edge.controller.io.heatpump.sgready',\
-	bnd.identity;id='io.openems.edge.controller.levl',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.fixpowerlimit',\
 	bnd.identity;id='io.openems.edge.controller.pvinverter.selltogridlimit',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.balancingschedule',\
@@ -300,7 +299,6 @@
 	io.openems.edge.controller.io.heating.room;version=snapshot,\
 	io.openems.edge.controller.io.heatingelement;version=snapshot,\
 	io.openems.edge.controller.io.heatpump.sgready;version=snapshot,\
-	io.openems.edge.controller.levl;version=snapshot,\
 	io.openems.edge.controller.pvinverter.fixpowerlimit;version=snapshot,\
 	io.openems.edge.controller.pvinverter.selltogridlimit;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancingschedule;version=snapshot,\

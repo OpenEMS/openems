@@ -23,7 +23,7 @@ public interface ManagedPowerPlantController extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_ACTIVE_POWER_FEED_IN(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.PERCENT)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.MEDIUM)),
 		
 		/**
@@ -37,7 +37,7 @@ public interface ManagedPowerPlantController extends OpenemsComponent {
 		 * </ul>
 		 */
 		MAX_ACTIVE_POWER_FEED_EXPORT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.PERCENT)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.MEDIUM));
 
 		private final Doc doc;
@@ -51,5 +51,4 @@ public interface ManagedPowerPlantController extends OpenemsComponent {
 			return this.doc;
 		}
 	}
-
 }
