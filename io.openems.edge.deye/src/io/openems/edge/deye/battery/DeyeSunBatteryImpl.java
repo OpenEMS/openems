@@ -35,7 +35,6 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 
 import io.openems.edge.common.component.ComponentManager;
@@ -123,7 +122,7 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 			return;
 		}
 		this.config = config;
-		this._setRunState(runState);
+		this._setRunState(this.runState);
 		if (this.isEnabled() && this.getStartStop() == StartStop.UNDEFINED) {
 			this._setStartStop(StartStop.START);
 		}
@@ -180,12 +179,9 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 						// UnsignedWordElement(113)),
 						m(Battery.ChannelId.INNER_RESISTANCE, new UnsignedWordElement(113)),
 						m(DeyeSunBattery.ChannelId.BATTERY_CHARGING_EFFICIENCY, new UnsignedWordElement(114)),
-						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY_SHUTDOWN, new UnsignedWordElement(115)), // default
-																												// 1%
-						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY_RESTART, new UnsignedWordElement(116)), // default
-																											// 1%
-						m(DeyeSunBattery.ChannelId.BATTERY_LOW_BATT_CAPACITY, new UnsignedWordElement(117)), // default
-																												// 1%
+						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY_SHUTDOWN, new UnsignedWordElement(115)), // default 1%
+						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY_RESTART, new UnsignedWordElement(116)), // default 1%
+						m(DeyeSunBattery.ChannelId.BATTERY_LOW_BATT_CAPACITY, new UnsignedWordElement(117)), // default  1%
 						m(DeyeSunBattery.ChannelId.BATTERY_VOLTAGE_SHUTDOWN, new UnsignedWordElement(118),
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(DeyeSunBattery.ChannelId.BATTERY_VOLTAGE_RESTART, new UnsignedWordElement(119),
@@ -255,6 +251,11 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		super.logInfo(log, message);
 	}
 
+	/**
+	 * Collects data for extended debugging.
+	 * 
+	 * @return stream of debug data
+	 */
 	public String collectDebugData() {
 		// Collect channel values in one stream
 		return Stream.of(DeyeSunBattery.ChannelId.values(), Battery.ChannelId.values()
@@ -316,27 +317,27 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 	private void defineWorkState() {
 
 		if (this.getBatteryOperateMode().asEnum() == BatteryOperateMode.NO_BATTERY) {
-			changeState(BatteryRunState.NO_BATTERY);
+			this.changeState(BatteryRunState.NO_BATTERY);
 			return;
 		}
 
 		// high prio OFFLINE
-		if (offlineReason != null) {
-			changeState(BatteryRunState.OFFLINE);
+		if (this.offlineReason != null) {
+			this.changeState(BatteryRunState.OFFLINE);
 			return;
 		}
 		// local errors
-		if (hasError()) {
-			changeState(BatteryRunState.ERROR);
+		if (this.hasError()) {
+			this.changeState(BatteryRunState.ERROR);
 			return;
 		}
-		if (hasWarning()) {
-			changeState(BatteryRunState.WARNING);
+		if (this.hasWarning()) {
+			this.changeState(BatteryRunState.WARNING);
 			return;
 		}
 		//
 		if (!isEnabled()) {
-			changeState(BatteryRunState.OFFLINE);
+			this.changeState(BatteryRunState.OFFLINE);
 			return;
 		}
 
@@ -345,11 +346,11 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		StartStop startStop = this.getStartStop(); // <-- Channel
 
 		if (startStop == StartStop.UNDEFINED) {
-			changeState(BatteryRunState.INITIALIZING);
+			this.changeState(BatteryRunState.INITIALIZING);
 			return;
 		}
 
-		changeState(BatteryRunState.NORMAL);
+		this.changeState(BatteryRunState.NORMAL);
 
 		this.logDebug(this.log, "Battery: " + this + " Running: " + this.isStarted() + " RunState: "
 				+ this.getRunState().toString() + "" + "");
@@ -399,44 +400,71 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public boolean hasWarning() {
-		// ToDo
-		var batteryVoltage = this.getBatteryVoltage().get(); // from battery nature
-		var batteryLowVoltage = this.getBatteryVoltageLow().get();
 
-		var batteryCurrent = this.getCurrent().get(); // from battery nature
-		var bmsDischargeCurrentLimit = this.getConfigurableDischargeCurrentLimit().get();
-		var bmsChargeCurrentLimit = this.getConfigurableChargeCurrentLimit().get();
+	    final var batteryVoltage = getBatteryVoltage().get();            // from battery nature
+	    final var batteryLowVoltage = getBatteryVoltageLow().get();
+	    final var batteryCurrent = getCurrent().get();                   // from battery nature
 
-		// var bmsDischargeCurrentLimit = this.getDischargeMaxCurrent().get();
+	    final var bmsDischargeCurrentLimit = getConfigurableDischargeCurrentLimit().get();
+	    final var bmsChargeCurrentLimit = getConfigurableChargeCurrentLimit().get();
 
-		// var bmsChargeCurrentLimit = this.getChargeMaxCurrent().get();
+	    final var chargeMaxCurrent = getChargeMaxCurrent().get();                // [A] 212 (dynamic)
+	    final var dischargeMaxCurrent = getDischargeMaxCurrent().get();          // [A] 213 (dynamic)
+	    final var offgridMaxChargeCurrent = getOffgridMaxChargeCurrent().get();  // [A] 218 (dynamic)
+	    final var offgridMaxDischargeCurrent = getOffgridMaxDischargeCurrent().get(); // [A] 219 (dynamic)
 
-		if (batteryVoltage == null || batteryLowVoltage == null || batteryCurrent == null
-				|| bmsDischargeCurrentLimit == null || bmsChargeCurrentLimit == null) {
-			this.logWarn(log, "Battery values are not complete (yet)");
-			return true;
-		}
+	    if (bmsChargeCurrentLimit == null) {
+	        logWarn(this.log, "Configurable charge current limit is null");
+	        return true;
+	    }
+	    if (bmsDischargeCurrentLimit == null) {
+	        logWarn(this.log, "Configurable discharge current limit is null");
+	        return true;
+	    }
+	    if (chargeMaxCurrent == null) {
+	        logWarn(this.log, "Charge max current is null");
+	        return true;
+	    }
+	    if (dischargeMaxCurrent == null) {
+	        logWarn(this.log, "Discharge max current is null");
+	        return true;
+	    }
+	    if (offgridMaxChargeCurrent == null) {
+	        logWarn(this.log, "Offgrid max charge current is null");
+	        return true;
+	    }
+	    if (offgridMaxDischargeCurrent == null) {
+	        logWarn(this.log, "Offgrid max discharge current is null");
+	        return true;
+	    }
 
-		if (batteryVoltage < batteryLowVoltage) {
-			this.logWarn(log, "Battery Voltage too low");
-			return true;
-		}
+	    if (batteryVoltage == null || batteryLowVoltage == null || batteryCurrent == null) {
+	        logWarn(this.log, "Battery values are not complete (yet)");
+	        return true;
+	    }
 
-		if (batteryCurrent < 0 && Math.abs(batteryCurrent) > bmsDischargeCurrentLimit) {
-			this.logWarn(log, "Battery discharge current too high");
-			return true;
-		}
+	    if (batteryVoltage < batteryLowVoltage) {
+	        logWarn(this.log, "Battery voltage too low");
+	        return true;
+	    }
 
-		if (batteryCurrent > 0 && Math.abs(batteryCurrent) > bmsChargeCurrentLimit) {
-			this.logWarn(log, "Battery charge current too high");
-			return true;
-		}
+	    final var absCurrent = Math.abs(batteryCurrent);
 
-		// ...and so forth
+	    if (batteryCurrent < 0 && absCurrent > bmsDischargeCurrentLimit) {
+	        logWarn(this.log, "Battery discharge current too high");
+	        return true;
+	    }
 
-		return false;
+	    if (batteryCurrent > 0 && absCurrent > bmsChargeCurrentLimit) {
+	        logWarn(this.log, "Battery charge current too high");
+	        return true;
+	    }
 
+	    // ...and so forth
+
+	    return false;
 	}
+
 
 	@Override
 	public Timedata getTimedata() {
@@ -472,31 +500,33 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		StartStop previous = this.getStartStop(); //
-		if (previous == value)
+		if (previous == value) {
 			return;
+		}
+			
 
 		this._setStartStop(value); //
 
 		if (value == StartStop.START) {
-			changeState(BatteryRunState.INITIALIZING);
+			this.changeState(BatteryRunState.INITIALIZING);
 		} else {
-			changeState(BatteryRunState.OFFLINE);
+			this.changeState(BatteryRunState.OFFLINE);
 		}
 	}
 
 	@Override
 	public void setOfflineByExternal(String reason) {
-		offlineReason = reason;
-		if (changeState(BatteryRunState.OFFLINE)) {
-			this.logWarn(log, "Battery set to OFFLINE by external request. Reason: " + reason);
+		this.offlineReason = reason;
+		if (this.changeState(BatteryRunState.OFFLINE)) {
+			this.logWarn(this.log, "Battery set to OFFLINE by external request. Reason: " + reason);
 		}
 	}
 
 	@Override
 	public void clearExternalOffline() {
-		if (offlineReason != null) {
-			this.logInfo(log, "External OFFLINE reason cleared: " + offlineReason);
-			offlineReason = null;
+		if (this.offlineReason != null) {
+			this.logInfo(this.log, "External OFFLINE reason cleared: " + this.offlineReason);
+			this.offlineReason = null;
 		}
 	}
 

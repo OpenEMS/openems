@@ -16,12 +16,10 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-//import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.deye.enums.BatteryChargeMode;
 import io.openems.edge.deye.enums.BatteryOperateMode;
 import io.openems.edge.deye.enums.BatteryRunState;
@@ -47,320 +45,272 @@ public interface DeyeSunBattery
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		// OpenEMS state machine
-		RUN_STATE(Doc.of(BatteryRunState.values()) //
-				.text("Current State of State-Machine").persistencePriority(HIGH)), //	
-		
-		//START_STOP(Doc.of(StartStop.values())),
 
-	    // BMS Status Registers (read-only)
-	    BMS_CHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIVOLT)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_DISCHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIVOLT)
-	            .accessMode(AccessMode.READ_WRITE)),	    
-	    CONFIGURABLE_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.AMPERE)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    CONIGURABLE_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.AMPERE)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_SOC(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.PERCENT)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BMS_BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIVOLT)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.MILLIAMPERE)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.AMPERE)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.AMPERE)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_ALARM(Doc.of(OpenemsType.INTEGER)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_FAULT_LOCATION(Doc.of(OpenemsType.INTEGER)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_SYMBOL_2(Doc.of(OpenemsType.INTEGER)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_LITHIUM_TYPE(Doc.of(OpenemsType.INTEGER)
-	            .accessMode(AccessMode.READ_WRITE)),
-	    BMS_BATTERY_SOH(Doc.of(OpenemsType.INTEGER)
-	            .accessMode(AccessMode.READ_WRITE)),		
-		
-		SET_BATTERY_CHARGE_MODE(Doc.of(BatteryChargeMode.values()) // lead or lithium optimized charge curve
-				.accessMode(AccessMode.WRITE_ONLY)), //		
-		BATTERY_CHARGE_MODE(Doc.of(BatteryChargeMode.values()) // 
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
-		SET_BATTERY_EQUALIZATION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
-		BATTERY_EQUALIZATION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //				
-				.accessMode(AccessMode.READ_ONLY)), //			
-
-		SET_BATTERY_ABSORPTION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
 		BATTERY_ABSORPTION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
+		        .accessMode(AccessMode.READ_ONLY)), //
 
-		SET_BATTERY_FLOAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
-		BATTERY_FLOAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
-		SET_BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
 		BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE_HOURS) //				
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
-		SET_BATTERY_EMPTY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
+		        .unit(Unit.AMPERE_HOURS) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
+		BATTERY_CAPACITY_RESTART(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 116
+
+		BATTERY_CAPACITY_SHUTDOWN(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 115
+
+		BATTERY_CHARGE_MODE(Doc.of(BatteryChargeMode.values()) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
+		BATTERY_CHARGING_EFFICIENCY(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 114
+
+		BATTERY_CORRECTED_AH(Doc.of(OpenemsType.INTEGER) // register 592
+		        .unit(Unit.AMPERE_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
 		BATTERY_EMPTY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-	
-		
-		SET_BATTERY_ZERO_EXPORT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		BATTERY_ZERO_EXPORT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //		
-		
-		// Days between battery balancing cycles
-		// Values between 0-90 days are vaild
-		SET_BATTERY_EQUALIZATION_DAY_CYCLE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //	
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
 		BATTERY_EQUALIZATION_DAY_CYCLE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
-		// time in balancing mode. Resolution 0.5h
-		// Values 0-20 are valid (-> max. 10h) 
-		SET_BATTERY_EQUALIZATION_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //		
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
 		BATTERY_EQUALIZATION_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_ONLY)), //			
-		
-		SET_BATTERY_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //		
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
+		BATTERY_FLOAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.READ_ONLY)), //
+
+		BATTERY_INTERNAL_RESISTANCE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIOHM)
+		        .accessMode(AccessMode.READ_ONLY)), // register 113
+
+		BATTERY_LOW_BATT_CAPACITY(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 117
+
 		BATTERY_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_WRITE)), //			
-		
-		SET_BATTERY_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //		
+		        .unit(Unit.MILLIAMPERE) //
+		        .accessMode(AccessMode.READ_WRITE)), //
+
 		BATTERY_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_WRITE)), //		
-		
-		// Battery voltages need to be adjusted based on temperature 
-		// (for example, charging voltage must be higher in cold conditions). 
-		// The TEMPCO register defines by how many millivolts per degree Celsius the voltage setpoints shift per cell.
-		SET_BATTERY_TEMPERATURE_COMPENSATION_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //		
+		        .unit(Unit.MILLIAMPERE) //
+		        .accessMode(AccessMode.READ_WRITE)), //
+
+		BATTERY_OPERATE_MODE(Doc.of(BatteryOperateMode.values())
+		        .accessMode(AccessMode.READ_ONLY)), // register 111
+
+		BATTERY_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) // register 591
+		        .unit(Unit.MILLIAMPERE)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		BATTERY_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) // register 590
+		        .unit(Unit.WATT)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		BATTERY_SOC(Doc.of(OpenemsType.INTEGER) // register 588
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) // register 586
+		        .unit(Unit.DEGREE_CELSIUS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
 		BATTERY_TEMPERATURE_COMPENSATION_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.accessMode(AccessMode.READ_ONLY)), //			
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.READ_ONLY)), //
 
-	    // Battery operating parameters (read-only)
-	    BATTERY_OPERATE_MODE(Doc.of(BatteryOperateMode.values())
-	        .accessMode(AccessMode.READ_ONLY)), // register 111
-	    
-	    // Battery operating parameters (read-only)
-	    SET_BATTERY_OPERATE_MODE(Doc.of(BatteryOperateMode.values())
-	        .accessMode(AccessMode.WRITE_ONLY)), // register 111	    
+		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) // register 587
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_ONLY)),
 
-	    LITHIUM_WAKE_UP_SIGN(Doc.of(OpenemsType.INTEGER)
-	        .accessMode(AccessMode.READ_ONLY)), // register 112
+		BATTERY_VOLTAGE_LOW_BATT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 120
 
-	    BATTERY_INTERNAL_RESISTANCE(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.MILLIOHM)
-	        .accessMode(AccessMode.READ_ONLY)), // register 113
+		BATTERY_VOLTAGE_RESTART(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 119
 
-	    BATTERY_CHARGING_EFFICIENCY(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.PERCENT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 114
+		BATTERY_VOLTAGE_SHUTDOWN(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_ONLY)), // register 118
 
-	    BATTERY_CAPACITY_SHUTDOWN(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.PERCENT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 115
+		BATTERY_ZERO_EXPORT_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.WATT) //
+		        .accessMode(AccessMode.READ_ONLY)), //
 
-	    BATTERY_CAPACITY_RESTART(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.PERCENT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 116
+		BMS_BATTERY_ALARM(Doc.of(OpenemsType.INTEGER)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    BATTERY_LOW_BATT_CAPACITY(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.PERCENT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 117
+		BMS_BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIAMPERE)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    BATTERY_VOLTAGE_SHUTDOWN(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.MILLIVOLT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 118
+		BMS_BATTERY_FAULT_LOCATION(Doc.of(OpenemsType.INTEGER)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    BATTERY_VOLTAGE_RESTART(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.MILLIVOLT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 119
+		BMS_BATTERY_LITHIUM_TYPE(Doc.of(OpenemsType.INTEGER)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    BATTERY_VOLTAGE_LOW_BATT(Doc.of(OpenemsType.INTEGER)
-	        .unit(Unit.MILLIVOLT)
-	        .accessMode(AccessMode.READ_ONLY)), // register 120
-	    
-	    // BMS Metrics
-	    BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER) // register 586
-	            .unit(Unit.DEGREE_CELSIUS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER) // register 587
-	            .unit(Unit.MILLIVOLT)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BATTERY_SOC(Doc.of(OpenemsType.INTEGER) // register 588
-	            .unit(Unit.PERCENT)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BATTERY_OUTPUT_POWER(Doc.of(OpenemsType.INTEGER) // register 590
-	            .unit(Unit.WATT)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BATTERY_OUTPUT_CURRENT(Doc.of(OpenemsType.INTEGER) // register 591
-	            .unit(Unit.MILLIAMPERE)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    BATTERY_CORRECTED_AH(Doc.of(OpenemsType.INTEGER) // register 592
-	            .unit(Unit.AMPERE_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),	   	    
+		BMS_BATTERY_SOC(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.PERCENT)
+		        .accessMode(AccessMode.READ_ONLY)),
 
-	
+		BMS_BATTERY_SYMBOL_2(Doc.of(OpenemsType.INTEGER)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    // Battery Energy
-	    TODAY_BATTERY_CHARGE(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    TODAY_BATTERY_DISCHARGE(Doc.of(OpenemsType.INTEGER)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    
-	    TOTAL_BATTERY_CHARGE(Doc.of(OpenemsType.LONG)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    TOTAL_BATTERY_DISCHARGE(Doc.of(OpenemsType.LONG)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    
-	    // OpenEMS calculated channels
-	    // Ideally they have the same values as total
-	    // counters from Deye
-	    DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)
-	            .unit(Unit.WATT_HOURS)
-	            .accessMode(AccessMode.READ_ONLY)),
+		BMS_BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_WRITE)),
 
+		BMS_CHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-	    // Temperatures
-	    DC_TRANSFORMER_TEMP(Doc.of(OpenemsType.FLOAT)
-	            .unit(Unit.DEGREE_CELSIUS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	    HEATSINK_TEMP(Doc.of(OpenemsType.FLOAT)
-	            .unit(Unit.DEGREE_CELSIUS)
-	            .accessMode(AccessMode.READ_ONLY)),
-	
-		// EnumWriteChannels
-		SET_WORK_STATE(Doc.of(WorkState.values()) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
+		BMS_DISCHARGING_VOLTAGE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIVOLT)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-		// IntegerWriteChannel
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		
-		SET_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //		
+		CONFIGURABLE_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.AMPERE)
+		        .accessMode(AccessMode.READ_WRITE)),
 
-		SET_GEN_PEAK_SHAVING_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_GRID_PEAK_SHAVING_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
+		CONIGURABLE_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.AMPERE)
+		        .accessMode(AccessMode.READ_WRITE)),
+
 		CT_RATIO(Doc.of(OpenemsType.INTEGER)), //
-		
-		//BATTERY_RUN_STATE(Doc.of(BatteryRunState.values()).accessMode(AccessMode.READ_WRITE)),	
-		
 
+		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
 
-		// LongReadChannel
+		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		DC_TRANSFORMER_TEMP(Doc.of(OpenemsType.FLOAT)
+		        .unit(Unit.DEGREE_CELSIUS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		HEATSINK_TEMP(Doc.of(OpenemsType.FLOAT)
+		        .unit(Unit.DEGREE_CELSIUS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		LITHIUM_WAKE_UP_SIGN(Doc.of(OpenemsType.INTEGER)
+		        .accessMode(AccessMode.READ_ONLY)), // register 112
+
+		OFF_GRID_BATTERY_CHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIAMPERE) //changed unit
+		        .accessMode(AccessMode.READ_WRITE)),
+
+		OFF_GRID_BATTERY_DISCHARGE_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.MILLIAMPERE) //changed unit
+		        .accessMode(AccessMode.READ_WRITE)),
+
 		ORIGINAL_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)), //
 		ORIGINAL_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)), //
 
-		
-/*		
-		// IntegerReadChannels
-		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
-				.onChannelUpdate((self, newValue) -> {
-					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
-					// delta of max 500
-					IntegerReadChannel currentValueChannel = self
-							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-					var originalValue = newValue.asOptional();
-					var currentValue = currentValueChannel.value().asOptional();
-					final int value;
-					if (!originalValue.isPresent() && !currentValue.isPresent()) {
-						value = 0;
-					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-						value = originalValue.get();
-					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-						value = currentValue.get();
-					} else {
-						value = Math.max(originalValue.get(), currentValue.get() - 500);
-					}
-					currentValueChannel.setNextValue(value);
-				})), //
+		RUN_STATE(Doc.of(BatteryRunState.values()) //
+		        .text("Current State of State-Machine").persistencePriority(HIGH)), //
 
-		ORIGINAL_ALLOWED_DISCHARGE_POWER(new IntegerDoc() //
-				.onChannelUpdate((self, newValue) -> {
-					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
-					// delta of max 500
-					IntegerReadChannel currentValueChannel = self
-							.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-					var originalValue = newValue.asOptional();
-					var currentValue = currentValueChannel.value().asOptional();
-					final int value;
-					if (!originalValue.isPresent() && !currentValue.isPresent()) {
-						value = 0;
-					} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-						value = originalValue.get();
-					} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-						value = currentValue.get();
-					} else {
-						value = Math.min(originalValue.get(), currentValue.get() + 500);
-					}
-					currentValueChannel.setNextValue(value);
-				})), //
-*/
-	
-		APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE)), //
+		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.WATT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.VOLT_AMPERE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_ABSORPTION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.AMPERE_HOURS) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_CHARGE_MODE(Doc.of(BatteryChargeMode.values()) // lead or lithium optimized charge curve
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_EMPTY_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_EQUALIZATION_DAY_CYCLE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_EQUALIZATION_TIME(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_EQUALIZATION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_FLOAT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIVOLT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIAMPERE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_MAX_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.MILLIAMPERE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_OPERATE_MODE(Doc.of(BatteryOperateMode.values())
+		        .accessMode(AccessMode.WRITE_ONLY)), // register 111
+
+		SET_BATTERY_TEMPERATURE_COMPENSATION_VALUE(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.NONE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_BATTERY_ZERO_EXPORT_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.WATT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_GEN_PEAK_SHAVING_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.WATT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_GRID_PEAK_SHAVING_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.WATT) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		        .unit(Unit.VOLT_AMPERE_REACTIVE) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		SET_WORK_STATE(Doc.of(WorkState.values()) //
+		        .accessMode(AccessMode.WRITE_ONLY)), //
+
+		TODAY_BATTERY_CHARGE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		TODAY_BATTERY_DISCHARGE(Doc.of(OpenemsType.INTEGER)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		TOTAL_BATTERY_CHARGE(Doc.of(OpenemsType.LONG)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY)),
+
+		TOTAL_BATTERY_DISCHARGE(Doc.of(OpenemsType.LONG)
+		        .unit(Unit.WATT_HOURS)
+		        .accessMode(AccessMode.READ_ONLY));
+
 
 
 		;

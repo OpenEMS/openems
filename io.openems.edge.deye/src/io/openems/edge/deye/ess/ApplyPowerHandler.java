@@ -80,8 +80,8 @@ public class ApplyPowerHandler {
 		int averageTargetPower = this.targetPowerAvg.getAverage();
 
 		if ((Math.abs(averageTargetPower - activePowerTarget) > 100) || this.timerElapsed(10000)) { // write new values if difference > 100W or 10 seconds
-			if (powerDeciPercent != this.powerDeciPercentLast) {
-				//this.ess.setRemoteMode(RemoteMode.ON); // reg 1100 0->disable, 1->enable
+			if (powerDeciPercent != this.powerDeciPercentLast || powerDeciPercent != activeDeciPercent) {
+				this.ess.setRemoteMode(RemoteMode.ON); // reg 1100 0->disable, 1->enable
 				this.ess.setSetRemoteWatchdogTime(600); // reg 1101 Watchdog
 
 				// set placeholders to avoid splitted modbus writes
