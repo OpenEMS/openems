@@ -538,7 +538,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 			}
 
 			// --- BMS COMMUNICATION ERROR handling ---
-			boolean commError = DeyeSunHybrid.isBmsCommError(this);
+			boolean commError = DeyeSunHybrid.isBmsCommError(this);  // ToDo: move to battery
 			if (commError) {
 				// set battery offine
 				battery.setOfflineByExternal("BMS Communication Error");
@@ -568,7 +568,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				this.logError(log, "Error in battery component");
 				return;
 			}
-
+ 
 			if (this.dcCharger.hasError()) {
 				this.changeState(WorkState.ERROR);
 				this.logError(log, "Error in DC Charger component");

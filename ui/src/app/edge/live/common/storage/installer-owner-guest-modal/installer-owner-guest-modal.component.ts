@@ -163,6 +163,8 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                     BALANCING_WANTED = 7,       // balancing procedure is desired
                                     BALANCING_ACTIVE = 8,       // balancing is active
                                     PRICE_LIMIT = 9,            // balancing delayed due to high price
+                                    APPROACHING_MIN_SOC = 10,   // reduced power
+                                    APPROACHING_MAX_SOC = 11,   // reduced power                                    
                                 }
                                 const minSoc = currentData.channel[controller.id + "/_PropertyMinSoc"];
                                 const maxSoc = currentData.channel[controller.id + "/_PropertyMaxSoc"];
@@ -271,6 +273,10 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
             case 8:  // BALANCING_ACTIVE
                 return "primary"; // blinking orange -> active Balancing
             case 9:  // PRICE_LIMIT
+                return "warning"; // blinking orange -> active Balancing
+            case 10:  // approaching min SoC. Reduce power
+                return "warning"; // blinking orange -> active Balancing
+            case 11:  // approaching max SoC. Reduce power
                 return "warning"; // blinking orange -> active Balancing
             default:
                 return ""; // no color

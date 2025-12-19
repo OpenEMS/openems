@@ -58,7 +58,7 @@ public class ApplyPowerHandler {
 		Integer batteryVoltageRaw = battery.getBatteryVoltage().get();
 		Integer maxAllowedChargePower = ess.getAllowedChargePower().get();
 		Integer maxAllowedDischargePower = ess.getAllowedDischargePower().get();
-		Integer activeDeciPercent = ess.getBatteryPowerDeciPercent().get();
+		Integer activeDeciPercent = ess.getBatteryPowerDeciPercent().orElse(0);
 				
 		// calculation of target power
 		activePowerTarget = activePowerTarget - pvPower;

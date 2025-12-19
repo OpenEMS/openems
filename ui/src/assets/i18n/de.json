@@ -860,7 +860,9 @@
       "BALANCING_ACTIVE": "Kalibrierung aktiv",
       "BALANCING_REMAINING_SECONDS": "Restzeit: ",
       "CHARGED_ENERGY_SINCE_LAST_BALANCING": "Geladene Energie seit der letzten Kalibrierung: ",
-      "PRICE_LIMIT": "Balancing verzögert weil Preis zu hoch"
+      "PRICE_LIMIT": "Balancing verzögert weil Preis zu hoch",
+      "APPROACHING_MIN_SOC": "Nahe min. SoC. Reduzierte Leistung",
+      "APPROACHING_MAX_SOC": "Nahe max. SoC. Reduzierte Leistung"
     },
     "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
       "HEADER": "Auswahl der Kommunikationsart"
