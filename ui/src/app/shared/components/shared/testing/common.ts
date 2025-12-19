@@ -40,9 +40,15 @@ export namespace OeTester {
                 "plugins": {
                     "colors": { "enabled": false },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true,
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
                             "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     },
                     "tooltip": { "usePointStyle": true, "intersect": false, "mode": "index", "callbacks": {}, "enabled": true, "caretSize": 0 },
@@ -65,7 +71,11 @@ export namespace OeTester {
                         "beginAtZero": false,
                         "display": true,
                         ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
-                        "title": { "text": options["left"]?.title ?? "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": options["left"]?.title ?? "kW", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left",
                         "grid": { "display": true },
                         "ticks": {
@@ -98,9 +108,15 @@ export namespace OeTester {
                 "plugins": {
                     "colors": { "enabled": false },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true,
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
                             "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     },
                     "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 },
@@ -125,7 +141,11 @@ export namespace OeTester {
                         "display": true,
                         ...options["left"]?.scale,
                         ...(chartType === "line" ? { stacked: false } : {}),
-                        "title": { "text": title ?? "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": title ?? "kWh", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left",
                         "grid": { "display": true },
                         "ticks": {
@@ -151,8 +171,15 @@ export namespace OeTester {
                         "enabled": false,
                     },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true, "textAlign": "center",
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
+                            "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     }, "tooltip": {
                         "intersect": false, "mode": "index", "callbacks": {},
@@ -172,7 +199,11 @@ export namespace OeTester {
                         "stacked": false,
                         "display": true,
                         ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-                        "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": "kW", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left", "grid": { "display": true },
                         "ticks": {
                             ...options["left"]?.ticks,
@@ -186,7 +217,11 @@ export namespace OeTester {
                         "display": true,
                         ...options["right"]?.scale as any,
                         ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-                        "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 }, ...options["right"]?.scale.title },
+                        "title": {
+                            "text": "Zustand", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            }, ...options["right"]?.scale.title,
+                        },
                         "position": "right",
                         "grid": { "display": false, ...options["right"]?.scale.grid },
                         "ticks": {
@@ -207,9 +242,17 @@ export namespace OeTester {
                     "intersect": false,  // Allow hovering over line, not just points
                 },
                 "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-                    "colors": { "enabled": false }, "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true, "textAlign": "center",
+                    "colors": { "enabled": false },
+                    "legend": {
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
+                            "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 }, "annotation": { "annotations": {} }, "datalabels": {
                         display: false,

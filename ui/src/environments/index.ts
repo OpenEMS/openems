@@ -4,7 +4,7 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
 export type Theme = "OpenEMS";
-export type BaseMeta = Pick<Environment, "links" | "images">;
+export type BaseMeta = Pick<Environment, "icons" | "links" | "images">;
 
 export interface Environment {
     readonly theme: Theme;
@@ -21,6 +21,44 @@ export interface Environment {
     debugMode: boolean;
 
     readonly docsUrlPrefix: string;
+    readonly icons: {
+        readonly "COMMON": {
+            readonly "CONSUMPTION": string,
+            readonly "SELFCONSUMPTION": string,
+            readonly "GRID": string,
+            readonly "GRID_STORAGE": string,
+            readonly "GRID_RESTRICTION": string,
+            readonly "MEGAFON": string,
+            readonly "OFFGRID": string,
+            readonly "PRODUCTION": string,
+            readonly "STORAGE": string,
+
+            readonly "WEATHER": {
+                readonly "CLEAR_DAY": string,
+                readonly "CLEAR_NIGHT": string,
+                readonly "PARTLY_CLOUDY_DAY": string,
+                readonly "PARTLY_CLOUDY_NIGHT": string,
+                readonly "THUNDERSTORM": string,
+                readonly "WEATHER_CLOUDY": string,
+                readonly "WEATHER_FOGGY": string,
+                readonly "WEATHER_MIX": string,
+                readonly "WEATHER_RAINY": string,
+                readonly "WEATHER_SNOWY": string,
+                readonly "SUNSHINE_DURATION": string,
+                readonly "HELP": string,
+            },
+        },
+        readonly "COMPONENT": {
+            readonly "HEATPUMP": string,
+            readonly "EVCS": string,
+        },
+        readonly "STATUS": {
+            readonly "CHECKMARK": string,
+            readonly "ERROR": string,
+            readonly "WARNING": string,
+            readonly "INFO": string,
+        },
+    },
     readonly images: {
         readonly EVSE: {
             readonly KEBA_P30: string | null,
@@ -31,6 +69,7 @@ export interface Environment {
     },
     readonly links: {
         readonly REDIRECT: {
+            readonly BETA_CHANGE_LOG: string | null,
             readonly COMMON_STORAGE: string | null,
             readonly COMMON_AUTARCHY: string | null,
             readonly COMMON_CONSUMPTION: string | null,
@@ -94,8 +133,14 @@ export interface Environment {
             readonly SYSTEM: {
                 readonly HOME: {
                     readonly HOME_10: string,
-                    readonly HOME_20_30: string,
-                    readonly HOME_GEN_2: string,
+                    readonly HOME_20_30: {
+                        readonly DE: string,
+                        readonly EN: string,
+                    },
+                    readonly HOME_GEN_2: {
+                        readonly DE: string,
+                        readonly EN: string,
+                    },
                 },
                 readonly COMMERCIAL: {
                     readonly COMMERCIAL_30: string,

@@ -20,8 +20,8 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusE
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
@@ -37,6 +37,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -81,7 +82,10 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -248,24 +252,30 @@ public class FeneconCommercial50Gen3 extends
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var components = Lists.newArrayList(//
-					battery(bundle, batteryId, modbusIdInternal), //
-					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
-							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection, gridCode), //
-					ess(bundle, essId, batteryId, batteryInverterId), //
-					io(bundle, modbusIdInternal), //
-					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
-					modbusInternal(bundle, t, modbusIdInternal), //
-					modbusExternal(bundle, t, modbusIdExternal), //
-					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
-					predictor(bundle, t), //
-					ctrlEssSurplusFeedToGrid(bundle, essId), //
-					power() //
+					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
+					ComponentDef.from(batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType,
+							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection,
+							gridCode)), //
+					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
+					ComponentDef.from(io(bundle, modbusIdInternal)), //
+					ComponentDef
+							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
+					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
+					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
+					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
+					ComponentDef.from(predictor(bundle, t)), //
+					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
+					new ComponentDef("_power", "", "Ess.Power", new ComponentProperties(List.of(//
+							ComponentProperties.Property.of("enablePid") //
+									.withValue(false) //
+									.withPriority(5))),
+							ComponentDef.Configuration.defaultConfig()) //
 			);
 
 			if (hasEmergencyReserve) {
-				components.add(emergencyMeter(bundle, modbusIdExternal));
-				components.add(
-						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc));
+				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
+				components.add(ComponentDef.from(
+						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc)));
 			}
 
 			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
@@ -275,14 +285,23 @@ public class FeneconCommercial50Gen3 extends
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(MPPT_ALIAS.apply(i)));
-				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
+				components.add(ComponentDef.from(charger(chargerId, chargerAlias, batteryInverterId, i)));
 			}
 
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
-					selfConsumptionOptimization(t, essId, gridMeterId), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					predictionUnmanagedConsumption() //
 			);
+
+			if (t == ConfigurationTarget.ADD) {
+				dependencies.add(selfConsumptionOptimization(t, essId, gridMeterId,
+						DependencyDeclaration.DependencyDeletePolicy.ALLOWED));
+			} else {
+				dependencies.add(selfConsumptionOptimization(t, essId, gridMeterId,
+						DependencyDeclaration.DependencyDeletePolicy.ALLOWED) //
+						.withCreatePolicy(DependencyDeclaration.CreatePolicy.NEVER));
+			}
 
 			final var gpioId = FunctionUtils
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
@@ -299,12 +318,12 @@ public class FeneconCommercial50Gen3 extends
 					"ctrlEssSurplusFeedToGrid0", "Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
 
 			if (feedInType == ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) {
-				components.add(dynamicRippleControlReceiverComponent(bundle, gpioId.get()));
+				components.add(ComponentDef.from(dynamicRippleControlReceiverComponent(bundle, gpioId.get())));
 				schedulerComponents.add(dynamicRippleControlReceiverScheduler(this.getAppId()));
 			}
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.componentFromComponentConfig(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
 					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //

@@ -39,6 +39,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -64,6 +65,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
 import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
@@ -82,6 +84,7 @@ import io.openems.edge.core.appmanager.validator.Validator;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
+		service = { AppManager.class, AppManagerImpl.class, OpenemsComponent.class, ComponentJsonApi.class }, //
 		name = AppManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
@@ -180,9 +183,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 
 		this.appInstallWorker.setKeyForFreeApps(config.keyForFreeApps());
 
+		var delayedExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES);
+
 		// resolve dependencies
-		CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES) //
-				.execute(new ResolveDependencies(componentContext.getBundleContext()));
+		delayedExecutor.execute(new ResolveDependencies(componentContext.getBundleContext()));
+
+		// update component configs
+		delayedExecutor.execute(new ForceUpdateComponentConfig(componentContext.getBundleContext()));
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
@@ -584,7 +591,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 			List<String> warnings = new ArrayList<>();
 			var instance = new OpenemsAppInstance(openemsApp.getAppId(), request.alias(), UUID.randomUUID(),
 					request.properties(), null);
-			if (!ignoreBackend) {
+
+			var isFree = false;
+			if (request.key() == null) {
+				isFree = this.getFreeApps().contains(request.appId());
+			}
+
+			if (!ignoreBackend && !isFree) {
 				try {
 					// try to send the backend the install request
 					this.backendUtil.addInstallAppInstanceHistory(user, request.key(), request.appId(),
@@ -776,7 +789,23 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 		var instances = this.instantiatedApps.stream() //
 				.filter(t -> t.appId.equals(request.appId())) //
 				.toList();
-		return GetApp.Response.newInstance(app, instances, user.getLanguage(), this.validator);
+
+		final var freeApps = this.getFreeApps();
+
+		return GetApp.Response.newInstance(app, instances, user.getLanguage(), this.validator, freeApps);
+	}
+
+	private List<String> getFreeApps() {
+		return Streams.stream(this.appConfigs()).<String>mapMulti((entry, consumer) -> {
+			for (var dependency : entry.getValue().dependencies()) {
+				if (entry.getKey().dependencies.stream().anyMatch(t -> t.key.equals(dependency.key))) {
+					continue;
+				}
+				if (dependency.createPolicy == DependencyDeclaration.CreatePolicy.NEVER) {
+					consumer.accept(dependency.appConfigs.getFirst().appId);
+				}
+			}
+		}).toList();
 	}
 
 	/**
@@ -788,7 +817,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 */
 	private GetApps.Response handleGetAppsRequest(User user) throws OpenemsNamedException {
 		return GetApps.Response.newInstance(this.availableApps, this.instantiatedApps, user.getRole(),
-				user.getLanguage(), this.validator);
+				user.getLanguage(), this.validator, this.getFreeApps());
 	}
 
 	@Override
@@ -1149,7 +1178,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	 * @param apps the new apps that should be written in the configuration
 	 * @throws OpenemsNamedException when the configuration can not be updated
 	 */
-	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
+	// TODO: find a way to make private again
+	public void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
 		this.waitingForModified = true;
 		AppManagerImpl.sortApps(apps);
 		var p = new Property("apps", this.getJsonAppsString(apps));

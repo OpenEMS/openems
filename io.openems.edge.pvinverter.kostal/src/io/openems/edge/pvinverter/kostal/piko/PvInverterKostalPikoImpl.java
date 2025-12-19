@@ -193,10 +193,13 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 			acPower = value != null ? value : 0;
 		}
 
-		// Total Energy - second value
+		// Total Energy - second value (HTML provides kWh, need to convert to Wh)
 		Long totalYield = null;
 		if (index < valueCells.size()) {
 			totalYield = this.parseLongValue(valueCells.get(index++).text());
+			if (totalYield != null) {
+          		totalYield = totalYield * 1000; // Convert kWh to Wh
+      		}
 		}
 
 		// Day Energy - third value

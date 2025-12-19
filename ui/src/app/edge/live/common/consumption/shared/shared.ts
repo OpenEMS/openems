@@ -266,6 +266,7 @@ export namespace SharedConsumption {
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
             lines: lines,
             component: new EdgeConfig.Component(),
+            isCommonWidget: "true",
         };
     }
 }

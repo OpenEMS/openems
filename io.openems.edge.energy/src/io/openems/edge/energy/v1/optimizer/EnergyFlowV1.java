@@ -32,6 +32,7 @@ public record EnergyFlowV1(//
 	 * @param essInitial ESS Initially Available Energy (SoC in [Wh])
 	 * @return the {@link EnergyFlowV1}
 	 */
+	@Deprecated
 	public static EnergyFlowV1 withBalancing(ParamsV1 p, OptimizePeriod op, int essInitial) {
 		return create(p, op, essInitial, //
 				p.essTotalEnergy(), // Allow Balancing till full battery
@@ -46,6 +47,7 @@ public record EnergyFlowV1(//
 	 * @param essInitial ESS Initially Available Energy (SoC in [Wh])
 	 * @return the {@link EnergyFlowV1}
 	 */
+	@Deprecated
 	public static EnergyFlowV1 withDelayDischarge(ParamsV1 p, OptimizePeriod op, int essInitial) {
 		return create(p, op, essInitial, //
 				p.essTotalEnergy(), // Allow Delay-Discharge with full battery
@@ -60,6 +62,7 @@ public record EnergyFlowV1(//
 	 * @param essInitial ESS Initially Available Energy (SoC in [Wh])
 	 * @return the {@link EnergyFlowV1}
 	 */
+	@Deprecated
 	public static EnergyFlowV1 withChargeGrid(ParamsV1 p, OptimizePeriod op, int essInitial) {
 		return create(p, op, essInitial, //
 				p.essMaxSocEnergy(), // Allow Charge-Grid only till Max-SoC
@@ -67,6 +70,7 @@ public record EnergyFlowV1(//
 				min(0, op.consumption() - op.production()) - op.essChargeInChargeGrid());
 	}
 
+	@Deprecated
 	protected static EnergyFlowV1 create(ParamsV1 p, OptimizePeriod op, int essInitial, int essMaxSocEnergy,
 			int essTarget) {
 		var essMaxDischarge = max(0, essInitial - p.essMinSocEnergy());

@@ -423,7 +423,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		// configure PID filter
 		var minPower = power.getMinPower(ess, ALL, ACTIVE);
 		var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
-		
+
 		if (maxPower < minPower) {
 			maxPower = minPower; // avoid rounding error
 		}

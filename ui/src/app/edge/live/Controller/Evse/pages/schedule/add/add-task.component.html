@@ -1,0 +1,12 @@
+@if (isInitialized) {
+  <oe-navigation-view [title]="'this.component.alias'" [component]="'component'">
+    <task-form [(startTime)]="startTime" [(endTime)]="endTime" [(selectedMode)]="selectedMode"></task-form>
+    <ion-grid>
+      <ion-row class="ion-justify-content-end ion-padding-top">
+        <ion-button (click)="saveTaskToEdge()">
+          {{ "EVSE_SINGLE.SCHEDULE.ADD" | translate }}
+        </ion-button>
+      </ion-row>
+    </ion-grid>
+  </oe-navigation-view>
+}

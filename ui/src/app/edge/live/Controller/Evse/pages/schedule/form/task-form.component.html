@@ -1,0 +1,26 @@
+<ion-item>
+  <ion-input [label]="'EVSE_SINGLE.SCHEDULE.START' | translate" placeholder="HH:mm" style="text-align: end;"
+    [value]="startTime()" (ionChange)="startTime.set($event.detail.value)">
+  </ion-input>
+</ion-item>
+<ion-item>
+  <ion-input [label]="'EVSE_SINGLE.SCHEDULE.END' | translate" placeholder="HH:mm" style="text-align: end;"
+    [value]="endTime()" (ionChange)="endTime.set($event.detail.value)">
+  </ion-input>
+</ion-item>
+<ion-item>
+  <ion-select [label]="'EVSE_SINGLE.SCHEDULE.FREQUENCY' | translate" value="daily">
+    <ion-select-option value="daily">{{ "EVSE_SINGLE.SCHEDULE.FREQ.DAILY" | translate }}</ion-select-option>
+  </ion-select>
+</ion-item>
+<ion-item>
+  <ion-select [label]="'EVSE_SINGLE.SCHEDULE.MODE' | translate"
+    [placeholder]="'EVSE_SINGLE.SCHEDULE.MODE_SELECTION_PLACEHOLDER' | translate" [value]="selectedMode()"
+    (ionChange)="selectedMode.set($event.detail.value)">
+    @for (option of modeOptions; track option) {
+      <ion-select-option [value]="option.value">
+        {{ option.label }}
+      </ion-select-option>
+    }
+  </ion-select>
+</ion-item>
