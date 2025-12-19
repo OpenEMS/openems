@@ -1,24 +1,170 @@
 = ESS (Energy Storage System)
 
-An Energy Storage System is an integrated system with battery and battery inverter.
+An Energy Storage System is an integrated system with battery and battery inverter. This API bundle defines the core natures (interfaces) that ESS components implement.
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[Ess icon:code[]]::
-A generic Energy Storage System
-// +
-// |===
-// include::https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/_old/devices/_include/EssNature.adoc[tag=channels]
-// |===
+== Core ESS Natures
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[SymmetricEssReadonly icon:code[]]::
-A symmetric Energy Storage System in readonly-mode.
-// TODO add channels
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[SymmetricEss icon:code[]]::
+A symmetric Energy Storage System that provides balanced power across all phases. This is the base nature for most ESS implementations.
++
+*Key Channels:*
++
+* `SOC` - State of Charge (%)
+* `CAPACITY` - Battery capacity (Wh)
+* `GRID_MODE` - Current grid mode (On-Grid/Off-Grid)
+* `ACTIVE_POWER` - Active power (W, negative=charge, positive=discharge)
+* `REACTIVE_POWER` - Reactive power (var)
 
-//link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/ManagedSymmetricEss.java[SymmetricEss icon:code[]]::
-A symmetric, controllable Energy Storage System.
-// TODO add channels
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/ManagedSymmetricEss.java[ManagedSymmetricEss icon:code[]]::
+A controllable symmetric Energy Storage System that extends `SymmetricEss`. Supports active and reactive power control commands.
+This is the most commonly used nature for controllable ESS implementations.
++
+*Key Channels:*
++
+* `ALLOWED_CHARGE_POWER` - Maximum allowed charge power (W, negative value)
+* `ALLOWED_DISCHARGE_POWER` - Maximum allowed discharge power (W, positive value)
+* `SET_ACTIVE_POWER_EQUALS` - Write command to set active power
+* `SET_ACTIVE_POWER_LESS_OR_EQUALS` - Write command to limit maximum discharge power
+* `SET_ACTIVE_POWER_GREATER_OR_EQUALS` - Write command to limit maximum charge power
+* `SET_REACTIVE_POWER_EQUALS` - Write command to set reactive power
++
 
-// TODO: describe SymmetricPower 'Active/Reactive Power circle' + callback
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/AsymmetricEss.java[AsymmetricEss icon:code[]]::
+A three-phase Asymmetric Energy Storage System that extends `SymmetricEss`. Provides separate power measurements for each phase (L1, L2, L3).
++
+*Key Channels:*
++
+* `ACTIVE_POWER_L1`, `ACTIVE_POWER_L2`, `ACTIVE_POWER_L3` - Active power per phase (W)
+* `REACTIVE_POWER_L1`, `REACTIVE_POWER_L2`, `REACTIVE_POWER_L3` - Reactive power per phase (var)
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/ManagedAsymmetricEss.java[ManagedAsymmetricEss icon:code[]]::
+A controllable asymmetric Energy Storage System that extends both `ManagedSymmetricEss` and `AsymmetricEss`. Allows independent control of each phase.
++
+*Key Channels:*
++
+* `SET_ACTIVE_POWER_L1_EQUALS`, `SET_ACTIVE_POWER_L2_EQUALS`, `SET_ACTIVE_POWER_L3_EQUALS` - Write commands for active power per phase
+* `SET_REACTIVE_POWER_L1_EQUALS`, `SET_REACTIVE_POWER_L2_EQUALS`, `SET_REACTIVE_POWER_L3_EQUALS` - Write commands for reactive power per phase
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SinglePhaseEss.java[SinglePhaseEss icon:code[]]::
+A single-phase Energy Storage System that extends `AsymmetricEss`. Connected to only one phase (L1, L2, or L3).
++
+*Key Methods:*
++
+* `getPhase()` - Returns which phase (L1/L2/L3) the ESS is connected to
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/ManagedSinglePhaseEss.java[ManagedSinglePhaseEss icon:code[]]::
+A controllable single-phase Energy Storage System that extends both `ManagedSymmetricEss` and `SinglePhaseEss`.
+
+== Specialized ESS Natures
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/HybridEss.java[HybridEss icon:code[]]::
+An ESS with one or more DC-coupled PV chargers. Extends `SymmetricEss`.
++
+*Key Channels:*
++
+* `DC_DISCHARGE_POWER` - Actual battery discharge power (W), i.e., `ACTIVE_POWER` minus DC charger production
+* `DC_CHARGE_ENERGY` - Cumulative battery charge energy (Wh)
+* `DC_DISCHARGE_ENERGY` - Cumulative battery discharge energy (Wh)
++
+*Note:* For hybrid inverters, `ACTIVE_POWER` includes excess DC-PV production, while `DC_DISCHARGE_POWER` represents the actual battery power flow.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/MetaEss.java[MetaEss icon:code[]]::
+A virtual ESS that wraps one or more physical energy storage systems. Extends `SymmetricEss`. Used for ESS clusters or combined systems.
++
+*Key Methods:*
++
+* `getEssIds()` - Returns array of Component-IDs of the physical ESS components
++
+*Usage:* Implements aggregation logic to combine multiple ESS into a single logical unit.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/offgrid/api/OffGridEss.java[OffGridEss icon:code[]]::
+An ESS with off-grid (island mode) capabilities. Extends `ManagedSymmetricEss`.
++
+*Key Methods:*
++
+* `isOffGridPossible()` - Returns true if the ESS can build a micro-grid in off-grid mode
++
+*Usage:* Typically used with systems that can form and maintain an AC grid when disconnected from the utility grid.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/EssErrorAcknowledge.java[EssErrorAcknowledge icon:code[]]::
+Defines error acknowledgement capabilities for ESS components. Extends `OpenemsComponent`.
++
+*Key Channels:*
++
+* `TIMEOUT_START_BATTERY` - Fault state when battery start timeout is exceeded
+* `TIMEOUT_START_BATTERY_INVERTER` - Fault state when battery inverter start timeout is exceeded
+* `TIMEOUT_STOP_BATTERY` - Fault state when battery stop timeout is exceeded
+* `TIMEOUT_STOP_BATTERY_INVERTER` - Fault state when battery inverter stop timeout is exceeded
++
+*Key Methods:*
++
+* `executeErrorAcknowledge()` - Attempts to clear error channels
++
+*Usage:* Implemented by ESS components that require explicit error acknowledgement and timeout handling.
+
+== Auxiliary Components
+
+=== DC Charger
 
 link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/dccharger/api/EssDcCharger.java[EssDcCharger icon:code[]]::
-A solar charger that is connected to DC side of an energy storage system. 
-// TODO add channels
+A DC-coupled solar charger connected to the DC side of an energy storage system. Extends `OpenemsComponent`.
++
+*Key Channels:*
++
+* `ACTUAL_POWER` - Current DC power production (W, positive value)
+* `ACTUAL_ENERGY` - Cumulative energy production (Wh)
+* `MAX_ACTUAL_POWER` - Maximum ever recorded power (W)
+* `VOLTAGE` - DC voltage (V)
++
+*Usage:* Used in hybrid ESS systems where PV production feeds directly into the battery DC bus.
+
+=== Off-Grid Switch
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/offgrid/api/OffGridSwitch.java[OffGridSwitch icon:code[]]::
+A device that determines grid status and actively switches between on-grid and off-grid modes. Extends `OpenemsComponent`.
++
+*Key Channels:*
++
+* `MAIN_CONTACTOR` - Main contactor state connecting inverter to public grid (Boolean)
+* `GROUNDING_CONTACTOR` - Grounding contactor state for off-grid neutral connection (Boolean)
+* `GRID_MODE` - Current grid mode (On-Grid/Off-Grid)
++
+*Usage:* Used in systems with active grid separation capabilities.
+
+== Nature Hierarchy
+
+The following diagram shows the inheritance relationships:
+
+[source]
+----
+OpenemsComponent (base interface)
+├── SymmetricEss
+│   ├── ManagedSymmetricEss
+│   │   ├── ManagedAsymmetricEss (also extends AsymmetricEss)
+│   │   ├── ManagedSinglePhaseEss (also extends SinglePhaseEss)
+│   │   └── OffGridEss
+│   ├── AsymmetricEss
+│   │   ├── ManagedAsymmetricEss (also extends ManagedSymmetricEss)
+│   │   └── SinglePhaseEss
+│   │       └── ManagedSinglePhaseEss (also extends ManagedSymmetricEss)
+│   ├── MetaEss
+│   └── HybridEss
+├── EssDcCharger
+├── OffGridSwitch
+└── EssErrorAcknowledge
+----
+
+== Implementation Guidelines
+
+When implementing an ESS component, choose the appropriate nature(s):
+
+* *Read-only ESS*: Implement `SymmetricEss` only
+* *Controllable ESS*: Implement `ManagedSymmetricEss`
+* *Three-phase with independent control*: Implement `ManagedAsymmetricEss`
+* *Single-phase system*: Implement `ManagedSinglePhaseEss`
+* *Hybrid inverter with DC-PV*: Implement `HybridEss` and provide `EssDcCharger` component(s)
+* *Off-grid capable*: Implement `OffGridEss` and optionally `OffGridSwitch`
+* *ESS cluster/aggregation*: Implement `MetaEss`
+
+Multiple natures can be combined. For example, a hybrid off-grid ESS would implement both `HybridEss` and `OffGridEss`.
+

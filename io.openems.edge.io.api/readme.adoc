@@ -1,5 +1,15 @@
-= I/O (Digital Input/Output)
+= I/O (Digital or Analog Input/Output)
 
 link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.io.api/src/io/openems/edge/io/api/DigitalOutput.java[DigitalOutput icon:code[]]::
 One or more digital outputs or relays. 
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.io.api/src/io/openems/edge/io/api/DigitalInput.java[DigitalInput icon:code[]]::
+One or more digital inputs. 
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.io.api/src/io/openems/edge/io/api/AnalogVoltageOutput.java[AnalogVoltageOutput icon:code[]]::
+One or more Analog Voltage outputs. 
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.io.api/src/io/openems/edge/io/api/AnalogInput.java[AnalogInput icon:code[]]::
+One or more analog inputs. 
+
 // TODO add channels
