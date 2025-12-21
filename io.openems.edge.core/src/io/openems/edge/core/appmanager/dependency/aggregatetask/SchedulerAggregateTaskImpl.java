@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 
@@ -106,7 +108,8 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 			return;
 		}
 		this.order = this.componentUtil.insertSchedulerOrder(this.componentUtil.getSchedulerIds(), this.order);
-		this.componentUtil.updateScheduler(user, this.order, this.aggregateTask.getCreatedComponents());
+		this.componentUtil.updateSchedulerFromComponentConfig(user, this.order,
+				this.aggregateTask.getCreatedComponents());
 
 		this.delete(user, otherAppConfigurations);
 	}
@@ -146,14 +149,19 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration, SchedulerConfiguration configuration) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final SchedulerConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;
 		}
 
 		// Prepare Queue
-		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(configuration.componentOrder(),
-				appConfiguration.getComponents()));
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
+				configuration.componentOrder(), appConfiguration.getComponents()));
 
 		if (controllers.isEmpty()) {
 			return;

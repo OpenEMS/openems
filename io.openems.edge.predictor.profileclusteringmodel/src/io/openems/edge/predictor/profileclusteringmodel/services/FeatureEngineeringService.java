@@ -28,11 +28,6 @@ public class FeatureEngineeringService {
 
 	/**
 	 * Transforms the raw feature-label matrix into a processed form for training.
-	 * 
-	 * <p>
-	 * This applies transformations such as day-of-week extraction, working day
-	 * encoding, lag feature creation and validation, handling of missing values,
-	 * and one-hot encoding of categorical variables.
 	 *
 	 * @param rawFeatureLabelMatrix the raw input {@link DataFrame} containing
 	 *                              features and labels
@@ -62,12 +57,7 @@ public class FeatureEngineeringService {
 
 	/**
 	 * Transforms the base feature matrix for prediction by applying the same
-	 * transformations as during training, except label removal and one-hot
-	 * encoding.
-	 * 
-	 * <p>
-	 * This step prepares the base matrix so that lag features and calendar features
-	 * are aligned with the training setup.
+	 * transformations as during training.
 	 *
 	 * @param baseFeatureMatrix the raw feature matrix without labels
 	 * @return the transformed base feature matrix

@@ -8,43 +8,43 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
-  selector: "Controller_Ess_FixActivePower",
-  templateUrl: "./flat.html",
-  standalone: false,
+    selector: "Controller_Ess_FixActivePower",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
 
-  public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-  public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
+    public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
-  public chargeDischargePower: { name: string, value: number };
-  public propertyMode: DefaultTypes.ManualOnOff | null = null;
+    public chargeDischargePower: { name: string, value: number };
+    public propertyMode: DefaultTypes.ManualOnOff | null = null;
 
-  protected modalComponent: Modal | null = null;
+    protected modalComponent: Modal | null = null;
 
-  protected override afterIsInitialized(): void {
-    this.modalComponent = this.getModalComponent();
-  }
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
 
-  protected getModalComponent(): Modal {
-    return {
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
+    protected getModalComponent(): Modal {
+        return {
+            component: ModalComponent,
+            componentProps: {
+                component: this.component,
+            },
+        };
     };
-  };
 
-  protected override getChannelAddresses(): ChannelAddress[] {
-    return [
-      new ChannelAddress(this.component.id, "_PropertyPower"),
-      new ChannelAddress(this.component.id, "_PropertyMode"),
-    ];
-  }
+    protected override getChannelAddresses(): ChannelAddress[] {
+        return [
+            new ChannelAddress(this.component.id, "_PropertyPower"),
+            new ChannelAddress(this.component.id, "_PropertyMode"),
+        ];
+    }
 
-  protected override onCurrentData(currentData: CurrentData) {
-    this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/_PropertyPower"]);
-    this.propertyMode = currentData.allComponents[this.component.id + "/_PropertyMode"];
-  }
+    protected override onCurrentData(currentData: CurrentData) {
+        this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/_PropertyPower"]);
+        this.propertyMode = currentData.allComponents[this.component.id + "/_PropertyMode"];
+    }
 
 }

@@ -4,7 +4,6 @@
     <ion-row class="ion-justify-content-center">
       <ngx-spinner [name]='"loginspinner"'></ngx-spinner>
       <ion-col size="12" size-md="6" size-lg="4">
-
         @switch (websocket.status) {
           <!-- Sent authentication request; waiting for response -->
           @case ('authenticating') {
@@ -16,7 +15,7 @@
             <ion-card>
               <ion-item color="primary" lines="full">
                 <ion-icon slot="start" name="person-outline"></ion-icon>
-                <ion-label>{{ "LOGIN.TITLE" | translate }}</ion-label>
+                <ion-label>{{"LOGIN.TITLE" | translate}}</ion-label>
               </ion-item>
               <!-- OpenEMS Edge Login -->
               @if (environment.backend === 'OpenEMS Edge') {
@@ -29,9 +28,9 @@
                         </ion-text>
                       </ion-item>
                       <ion-item>
-                        <ion-label position="floating" translate>LOGIN.PASSWORD_LABEL</ion-label>
                         <ion-input #password required type="password" [placeholder]="'LOGIN.PASSWORD_LABEL' | translate"
-                          value="user"></ion-input>
+                          label-placement="floating" [label]="'LOGIN.PASSWORD_LABEL' | translate">
+                        </ion-input>
                       </ion-item>
                       <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                       <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
@@ -48,7 +47,7 @@
                   <form (ngSubmit)="doLogin({ username: username.value, password: password.value})">
                     <ion-item>
                       <ion-input #username required type="input"
-                        [placeholder]="'E-Mail / ' + ('LOGIN.PASSWORD_LABEL' | translate)"
+                        [placeholder]="'E-Mail / ' + ('LOGIN.USER' | translate)"
                         [label]="'E-Mail / '  + ('LOGIN.USER' | translate)" label-placement="floating">
                       </ion-input>
                     </ion-item>
@@ -64,14 +63,16 @@
                         <tr>
                           <th>
                         <tr>
-                          <a type="button" class="ion-float-left" size="small"
-                            [href]="environment.links.FORGET_PASSWORD" style="text-decoration: none;">
+                          <a class="ion-float-left" size="small" [href]="environment.links.FORGET_PASSWORD"
+                            style="text-decoration: none;">
                             <small translate>LOGIN.PASSWORD_RESET</small>
                           </a>
                         </tr>
-                        <tr>
-                          <registration style="cursor: pointer;"></registration>
-                        </tr>
+                        @if (!isApp) {
+                          <tr>
+                            <registration style="cursor: pointer;"></registration>
+                          </tr>
+                        }
                         </th>
                         <th>
                           <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right" size="medium">
@@ -89,7 +90,6 @@
           }
         }
       </ion-col>
-
     </ion-row>
   </ion-grid>
 </ion-content>

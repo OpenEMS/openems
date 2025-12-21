@@ -1,9 +1,0 @@
-@if (isInitialized && component) {
-  <oe-chart [title]="(title ?? component.alias) + '&nbsp;-&nbsp;' + ('EDGE.HISTORY.PHASE_ACCURATE' | translate)"
-    [showPhases]="showPhases" [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)"
-    (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod.value">
-    <pickdate custom-pickdate [historyPeriods]="['day', 'week']"></pickdate>
-    <common-grid-details-phase-accurate-chart [isOnlyChart]="true"></common-grid-details-phase-accurate-chart>
-  </oe-chart>
-  <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
-}

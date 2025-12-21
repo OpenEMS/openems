@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.modbus.readonly.rtu;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -8,9 +12,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
@@ -26,7 +27,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.modbus.AbstractModbusRtuApi;
+import io.openems.edge.controller.api.modbus.AbstractModbusApi;
+import io.openems.edge.controller.api.modbus.CommonConfig;
 import io.openems.edge.controller.api.modbus.ModbusApi;
 
 @Designate(ocd = Config.class, factory = true)
@@ -35,7 +37,7 @@ import io.openems.edge.controller.api.modbus.ModbusApi;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
+public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusApi
 		implements ControllerApiModbusRtuReadOnly, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	@Reference
@@ -47,10 +49,10 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 	@Reference
 	private ComponentManager componentManager;
 
-	private RtuConfig config;
+	private CommonConfig.Rtu config;
 
 	public ControllerApiModbusRtuReadOnlyImpl() {
-		super("Modbus/RTU-Api Read-Only", //
+		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ModbusApi.ChannelId.values(), //
@@ -59,7 +61,7 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
 	protected void addComponent(OpenemsComponent component) {
 		super.addComponent(component);
 	}
@@ -71,17 +73,13 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusRtuApi
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), 0 /* no timeout */, config.portName(), config.baudRate(), config.databits(),
-				config.stopbits(), config.parity(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
 		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsException {
-		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), 0 /* no timeout */, config.portName(), config.baudRate(), config.databits(),
-				config.stopbits(), config.parity(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
 		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 	}
 

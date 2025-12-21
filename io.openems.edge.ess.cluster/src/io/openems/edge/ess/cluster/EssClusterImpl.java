@@ -54,7 +54,7 @@ import io.openems.edge.ess.power.api.Power;
 public class EssClusterImpl extends AbstractOpenemsComponent implements EssCluster, ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, MetaEss, SumOptions, OpenemsComponent, ModbusSlave, EventHandler, StartStoppable {
 
-	private final Logger log = LoggerFactory.getLogger(EssCluster.class);
+	private final Logger log = LoggerFactory.getLogger(EssClusterImpl.class);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 	private final ChannelManager channelManager = new ChannelManager(this);
 	private final List<SymmetricEss> esss = new CopyOnWriteArrayList<>();

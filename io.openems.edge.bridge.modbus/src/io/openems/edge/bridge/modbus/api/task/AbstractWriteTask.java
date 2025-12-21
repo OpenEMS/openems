@@ -92,7 +92,7 @@ public abstract class AbstractWriteTask<//
 
 		/**
 		 * Factory for a {@link ModbusRequest}.
-		 * 
+		 *
 		 * @return a new {@link ModbusRequest}
 		 * @throws OpenemsException on error
 		 */

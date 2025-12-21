@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellyplusplugs;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
@@ -23,6 +24,9 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Shelly Plug connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 
+	@AttributeDefinition(name = "MDNS Name")
+	String mdnsName();
+
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
 	String ip();
 
@@ -31,6 +35,12 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;
+
+	@AttributeDefinition(name = "Device type validation", description = "If enabled and type is wrong no values will be read from the device.")
+	boolean validateDevice() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus Plug S [{id}]";
 }

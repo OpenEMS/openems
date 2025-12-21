@@ -1,5 +1,6 @@
 package io.openems.edge.scheduler.jscalendar;
 
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static java.time.DayOfWeek.FRIDAY;
@@ -15,14 +16,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -36,90 +37,142 @@ public class SchedulerJSCalendarImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var tasks = ImmutableList.of(//
-				// TODO overlapping tasks are not yet handled properly
-				// Suggested solution: split Tasks in such a case
-				// JSCalendar.Task.<Payload>create() //
-				// .setStart(LocalTime.of(11, 00)) //
-				// .setDuration(Duration.ofHours(1)) //
-				// .addRecurrenceRule(b -> b //
-				// .setFrequency(DAILY)) //
-				// .setPayload(new Payload(new String[] { "ctrl3" })) //
-				// .build(), //
-				JSCalendar.Task.<Payload>create() //
+		final var clock = createDummyClock(); // Starts on a WEDNESDAY
+		final var tasks = JSCalendar.Tasks.<Payload>create() //
+				.setClock(clock) //
+				.add(t -> t //
+						.setStart(LocalTime.of(11, 00)) //
+						.setDuration(Duration.ofHours(1)) //
+						.addRecurrenceRule(b -> b //
+								.setFrequency(DAILY)) //
+						.setPayload(new Payload(new String[] { "dailyAt11" })) //
+						.build()) //
+				.add(t -> t //
 						.setStart(LocalTime.of(8, 30)) //
 						.setDuration(Duration.ofHours(10)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) //
-						.setPayload(new Payload(new String[] { "ctrl0", "ctrl1" })) //
-						.build(), //
-				JSCalendar.Task.<Payload>create() //
+						.setPayload(new Payload(new String[] { "weekdaysAt8_30#1", "weekdaysAt8_30#2" })) //
+						.build()) //
+				.add(t -> t //
 						.setStart(LocalTime.of(7, 30)) //
 						.setDuration(Duration.ofHours(14)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(SATURDAY, SUNDAY)) //
-						.setPayload(new Payload(new String[] { "ctrl2" })) //
-						.build());
+						.setPayload(new Payload(new String[] { "weekendsAt7_30" })) //
+						.build()) //
+				.build();
 
-		final var clock = createDummyClock(); // Starts on a WEDNESDAY
 		final SchedulerJSCalendarImpl sut = new SchedulerJSCalendarImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addComponent(new DummyController("ctrl0")) //
-				.addComponent(new DummyController("ctrl1")) //
-				.addComponent(new DummyController("ctrl2")) //
-				.addComponent(new DummyController("ctrl3")) //
-				.addComponent(new DummyController("ctrl4")) //
-				.addComponent(new DummyController("ctrl5")) //
-				.addComponent(new DummyController("ctrl6")) //
+				.addComponent(new DummyController("weekdaysAt8_30#1")) //
+				.addComponent(new DummyController("weekdaysAt8_30#2")) //
+				.addComponent(new DummyController("weekendsAt7_30")) //
+				.addComponent(new DummyController("dailyAt11")) //
+				.addComponent(new DummyController("alwaysBefore")) //
+				.addComponent(new DummyController("alwaysAfter#1")) //
+				.addComponent(new DummyController("alwaysAfter#2")) //
 				.activate(MyConfig.create() //
 						.setId("scheduler0") //
-						.setAlwaysRunBeforeControllerIds("ctrl4") //
-						.setJSCalendar(JSCalendar.Tasks.serializer(Payload.serializer()) //
+						.setAlwaysRunBeforeControllerIds("alwaysBefore") //
+						.setJSCalendar(JSCalendar.Tasks.serializer(clock, Payload.serializer()) //
 								.serialize(tasks) //
 								.toString()) //
-						.setAlwaysRunAfterControllerIds("ctrl5", "ctrl6") //
+						.setAlwaysRunAfterControllerIds("alwaysAfter#1", "alwaysAfter#2") //
 						.build()) //
-				.next(new TestCase("00:00") // No active task
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "ctrl4", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("08:29") // No active task
+				.next(new TestCase() // No active task
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 00:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() // No active task
 						.timeleap(clock, 8 * 60 + 29, MINUTES) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "ctrl4", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("08:30") //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 08:29")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
-						.onBeforeControllersCallbacks(
-								() -> assertControllerIds(sut, "ctrl4", "ctrl0", "ctrl1", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("18:29") //
-						.timeleap(clock, 9 * 60 + 59, MINUTES) //
-						.onBeforeControllersCallbacks(
-								() -> assertControllerIds(sut, "ctrl4", "ctrl0", "ctrl1", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("18:30") //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 08:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
+								"alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 2 * 60 + 29, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 10:59")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
+								"alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "ctrl4", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("00:00") // THURSDAY
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 11:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 59, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 11:59")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 1, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 12:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", "weekdaysAt8_30#1",
+								"weekdaysAt8_30#2", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 6 * 60 + 29, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 18:29")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
+								"alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 1, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 18:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 5 * 60 + 30, MINUTES) //
-						.onBeforeControllersCallbacks(() -> assertEquals(LocalTime.of(0, 0), LocalTime.now(clock)))) //
-				.next(new TestCase("00:00") // SATURDAY
+						.onBeforeProcessImage(() -> assertTime(clock, "Thu 2020-01-02 00:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 2, DAYS) //
-						.onBeforeControllersCallbacks(
-								() -> assertEquals(SATURDAY, ZonedDateTime.now(clock).getDayOfWeek()))) //
-				.next(new TestCase("07:29") //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 00:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 7 * 60 + 29, MINUTES) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "ctrl4", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("07:30") //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 07:29")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
-						.onBeforeControllersCallbacks(
-								() -> assertControllerIds(sut, "ctrl4", "ctrl2", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("21:29") //
-						.timeleap(clock, 13 * 60 + 59, MINUTES) //
-						.onBeforeControllersCallbacks(
-								() -> assertControllerIds(sut, "ctrl4", "ctrl2", "ctrl5", "ctrl6"))) //
-				.next(new TestCase("21:31") //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 07:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "weekendsAt7_30", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 3 * 60 + 30, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 11:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 10 * 60 + 29, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 21:29")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "weekendsAt7_30", "alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "ctrl4", "ctrl5", "ctrl6"))) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 21:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
 				.deactivate();
+	}
+
+	private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("E yyyy-MM-dd HH:mm")
+			.withLocale(Locale.ENGLISH);
+
+	private static void assertTime(TimeLeapClock clock, String dateTime) throws OpenemsNamedException {
+		assertEquals(dateTime, clock.now().format(DTF));
 	}
 
 	private static void assertControllerIds(Scheduler scheduler, String... controllerIds) throws OpenemsNamedException {

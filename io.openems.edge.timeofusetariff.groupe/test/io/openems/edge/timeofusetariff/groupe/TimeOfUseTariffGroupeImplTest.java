@@ -10,7 +10,7 @@ import static org.junit.Assert.assertThrows;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -407,7 +407,9 @@ public class TimeOfUseTariffGroupeImplTest {
 		var dummyMeta = new DummyMeta("foo0") //
 				.withCurrency(CHF);
 		new ComponentTest(groupe) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+				.addReference("httpBridgeFactory",
+						DummyBridgeHttpFactory.ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //

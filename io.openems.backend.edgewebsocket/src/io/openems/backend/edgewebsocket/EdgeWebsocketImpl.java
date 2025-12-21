@@ -42,6 +42,7 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
+import io.openems.backend.oauthregistry.OAuthRegistry;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
@@ -75,6 +76,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
 	protected volatile AppCenterMetadata.EdgeData appCenterMetadata;
+
+	@Reference
+	protected OAuthRegistry oAuthRegistry;
 
 	@Reference
 	protected volatile TimedataManager timedataManager;

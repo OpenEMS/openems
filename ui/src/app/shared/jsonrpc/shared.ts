@@ -24,6 +24,7 @@ export enum UserSettings {
     THEME = "theme",
     CAPACITOR_TEST = "capacitorTest",
     USE_NEW_UI = "useNewUI",
+    ANNUAL_REVIEW = "annualReview",
 }
 
 export class User {
@@ -34,7 +35,7 @@ export class User {
         public globalRole: "admin" | "installer" | "owner" | "guest",
         public language: string,
         public hasMultipleEdges: boolean,
-        public settings: Partial<{ [k in UserSettings]: number | boolean | string }>,
+        public settings: Partial<{ [k in UserSettings]: number | boolean | string | string[] }>,
     ) { }
 
     /**
@@ -44,7 +45,7 @@ export class User {
      * @returns the user if passed User is valid, else null
      */
     public static from(user: AuthenticateResponse["result"]["user"]): User | null {
-        if (!user || !(ArrayUtils.containsAllStrings(Object.keys(user), User.getPropertyKeys()))) {
+        if (!user || !(ArrayUtils.containsAll({ strings: Object.keys(user), arr: User.getPropertyKeys() }))) {
             return null;
         }
         return new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, user.settings ?? {});
@@ -78,9 +79,9 @@ export class User {
     }
 
     /**
-     * Gets the current theme from user settings
+     * Checks if new ui is activated from user settings
      *
-     * @returns the theme if existing, else null
+     * @returns true if new ui is activated, else false
      */
     public getUseNewUIFromSettings(): boolean {
 
@@ -89,6 +90,20 @@ export class User {
         }
 
         return false;
+    }
+
+    /**
+     * Checks if new ui is activated from user settings
+     *
+     * @returns true if new ui is activated, else false
+     */
+    public getAnnualReviewFromSettings(): string[] {
+
+        if (UserSettings.ANNUAL_REVIEW in this.settings) {
+            return this.settings[UserSettings.ANNUAL_REVIEW] as string[];
+        }
+
+        return [];
     }
 
     public isAtLeast(role: Role) {

@@ -23,37 +23,29 @@ updates:
       guava:
         patterns:
           - "com.google.guava:*"
-      retrofit2:
-        patterns:
-          - "com.squareup.retrofit2:*"
       prometheus:
         patterns:
           - "io.prometheus:*"
+      squareup:
+        patterns:
+          - "com.squareup.*:*"
+      tribuo:
+        patterns:
+          - "org.tribuo:*"
+      olcut:
+        patterns:
+          - "com.oracle.labs.olcut:*"
 
   - package-ecosystem: npm
     directory: "/ui"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 1
     target-branch: develop
     groups:
       openems-ui:
         patterns:
-          - "@angular/*"
-          - "@angular-devkit/*"
-          - "@angular-eslint/*"
-          - "@schematics/angular"
-          - "@capacitor/*"
-          - "@capacitor-community/*"
-          - "capacitor-*"
-          - "@ionic-native/*"
-          - "@ngx-formly/*"
-          - "karma-*"
-          - "karma"
-          - "@stylistic/eslint-plugin"
-          - "@typescript-eslint/*"
-          - "eslint-*"
-          - "eslint"
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"

@@ -25,6 +25,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Low Price", description = "The low price, active from 02 to 06 am and 12 am to 04 pm [Cent/kWh]")
 	double lowPrice();
+	
+	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
+	String ancillaryCosts();
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Octopus Heat [{id}]";
 

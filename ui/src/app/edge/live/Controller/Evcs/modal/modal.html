@@ -1,6 +1,6 @@
 @if (isInitialized && formGroup) {
-  <oe-modal [title]="this.component.alias" [component]="controller" [formGroup]="formGroup"
-    helpKey="EVCS" [useDefaultPrefix]="useDefaultPrefix">
+  <oe-modal [title]="this.component.alias" [component]="controller" [formGroup]="formGroup" [helpKey]="helpKey"
+    [useDefaultPrefix]="useDefaultPrefix">
     @if (isReadWrite) {
       <ion-button button (click)="presentModal()" (keydown.enter)="presentModal()" tabindex="0">
         <ion-icon name="car"></ion-icon>
@@ -12,8 +12,7 @@
       </oe-modal-line>
       @if (isReadWrite) {
         @if (chargePowerLimit >= maxChargePower) {
-          <oe-modal-line
-            [name]="'EDGE.INDEX.WIDGETS.EVCS.CHARGE_TARGET' | translate" [value]="maxChargePower">
+          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.CHARGE_TARGET' | translate" [value]="maxChargePower">
           </oe-modal-line>
         } @else {
           <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.CHARGE_TARGET' | translate" [value]="chargePowerLimit">
@@ -21,8 +20,7 @@
         }
       }
       @if (chargePower?.value > 0) {
-        <oe-modal-line
-          [name]="'EDGE.INDEX.WIDGETS.EVCS.CHARGING_POWER' | translate" [value]="chargePower.value"
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.CHARGING_POWER' | translate" [value]="chargePower.value"
           [converter]="Utils.CONVERT_TO_WATT">
         </oe-modal-line>
       } @else {
@@ -30,8 +28,7 @@
         </oe-modal-line>
       }
       @if (chargePower?.value > 0 || state === 2 || state === 7) {
-        <oe-modal-line
-          [name]="'EDGE.INDEX.WIDGETS.EVCS.ENERGY_SINCE_BEGINNING' | translate" [value]="energySession">
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.ENERGY_SINCE_BEGINNING' | translate" [value]="energySession">
         </oe-modal-line>
       }
       @if (isReadWrite) {
@@ -56,15 +53,14 @@
             @if (formGroup.value.chargeMode !== 'OFF') {
               <td class="align_right">
                 <ion-icon (click)="isPrioritization = false; presentPopover()" class="ion-no-padding"
-                  style="text-align: right; font-size: 20px" style="cursor: pointer" name="information-circle-outline">
+                  style="text-align: right; font-size: 20px" style="cursor: pointer" name="oe-info">
                 </ion-icon>
               </td>
             }
           </tr>
         </table>
         @if (formGroup.controls['chargeMode'].value) {
-          <oe-modal-buttons [formGroup]="formGroup" controlName="chargeMode"
-        [component]="component" [buttons]="[
+          <oe-modal-buttons [formGroup]="formGroup" controlName="chargeMode" [component]="component" [buttons]="[
     { name: ('GENERAL.MANUALLY' | translate), value: 'FORCE_CHARGE', icon: {color:'success', name: 'options-outline'}},
     { name: ('GENERAL.AUTOMATIC' | translate), value: 'EXCESS_POWER', icon: {color:'primary', name: 'sunny-outline'}},
     { name: ('GENERAL.OFF' | translate), value: 'OFF', icon: {color:'danger', name: 'power-outline'}}]">
@@ -82,8 +78,7 @@
             </oe-modal-line>
             <!-- this section has to be change later -->
             @if (minChargePower && maxChargePower && numberOfPhases && formGroup.value.forceChargeMinPower) {
-              <table class="full_width"
-                >
+              <table class="full_width">
                 <tr>
                   <ion-range style="width: 100%" (ionChange)="updateForceMinPower($event, controller, numberOfPhases)"
                     min="{{ formatNumber(minChargePower) }}" max="{{ formatNumber(maxChargePower) }}" color="dark"
@@ -121,9 +116,8 @@
           <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.EVCS.PRIORITIZATION'| translate">
           </oe-modal-line>
           @if (formGroup.controls['priority'].value) {
-            <oe-modal-buttons [formGroup]="formGroup" controlName="priority"
-              [component]="component"
-          [buttons]="[
+            <oe-modal-buttons [formGroup]="formGroup" controlName="priority" [component]="component"
+              [buttons]="[
     { name: ('EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.CHARGING_PRIORITY.CAR' | translate), value: 'CAR', icon: {color:'success', name: 'oe-evcs'}},
     { name: ('EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.CHARGING_PRIORITY.STORAGE' | translate), value: 'STORAGE', icon: {color:'success', name: 'oe-storage'}}]">
             </oe-modal-buttons>

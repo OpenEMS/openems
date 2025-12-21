@@ -43,6 +43,18 @@ public class DependencyDeclaration {
 		this.dependencyDeletePolicy = dependencyDeletePolicy;
 	}
 
+	/**
+	 * Creates a copy of the current instance with the new {@link CreatePolicy}.
+	 * 
+	 * @param createPolicy the new {@link CreatePolicy}
+	 * @return the new {@link DependencyDeclaration}
+	 */
+	public DependencyDeclaration withCreatePolicy(CreatePolicy createPolicy) {
+		return new DependencyDeclaration(this.key, createPolicy, this.updatePolicy, this.deletePolicy,
+				this.dependencyUpdatePolicy, this.dependencyDeletePolicy,
+				this.appConfigs.toArray(AppDependencyConfig[]::new));
+	}
+
 	public static class AppDependencyConfig {
 
 		// NOTE: must have either appId or specificInstanceId
@@ -178,8 +190,8 @@ public class DependencyDeclaration {
 	 */
 	public static enum UpdatePolicy {
 		ALWAYS(v -> true), //
-		IF_MINE(v -> !v.allInstances.stream() //
-				.filter(i -> !i.equals(v.parent)) //
+		IF_MINE(v -> !v.allInstances.stream()//
+				.filter(i -> !i.equals(v.parent))//
 				.anyMatch(a -> a.dependencies != null
 						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
 		NEVER(v -> false), //

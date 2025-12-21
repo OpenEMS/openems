@@ -73,9 +73,7 @@ public class KebaUdpTest {
 				.output(KebaUdp.ChannelId.AUTH_REQ, false) //
 				.output(KebaUdp.ChannelId.ENABLE_SYS, false) //
 				.output(KebaUdp.ChannelId.ENABLE_USER, false) //
-				.output(KebaUdp.ChannelId.MAX_CURR, 0) //
 				.output(KebaUdp.ChannelId.MAX_CURR_PERCENT, 1_000) //
-				.output(KebaUdp.ChannelId.CURR_HW, 32_000) //
 				.output(KebaUdp.ChannelId.CURR_USER, 10_000) //
 				.output(KebaUdp.ChannelId.CURR_FAILSAFE, 0) //
 				.output(KebaUdp.ChannelId.TIMEOUT_FAILSAFE, 0) //
@@ -114,7 +112,7 @@ public class KebaUdpTest {
 			"Authreq": 0,
 			"Enable sys": 0,
 			"Enable user": 0,
-			"Max curr": 0,
+			"Max curr": 6567,
 			"Max curr %": 1000,
 			"Curr HW": 32000,
 			"Curr user": 10000,
@@ -125,7 +123,7 @@ public class KebaUdpTest {
 			"Setenergy": 0,
 			"Output": 0,
 			"Input": 0,
-			"X2 phaseSwitch source": 0,
+			"X2 phaseSwitch source": 3,
 			"X2 phaseSwitch": 0,
 			"Serial": "22054282",
 			"Sec": 530786

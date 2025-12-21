@@ -1,0 +1,9 @@
+{
+  "POPOVER": {
+    "WEATHER_PROGNOSIS": {
+      "CHECKBOX_LABEL": "Ich habe zur Kenntnis genommen, dass für die Nutzung der App die Weitergabe meiner personenbezogenen Daten des Hauptnutzers an Dritte erforderlich ist. Hinweise zum Umgang mit Ihren personenbezogenen Daten finden Sie <a href={{link}} target='_blank'>hier</a>.",
+      "DECLINE": "Ablehnen",
+      "ACCEPT": "Akzeptieren & Installieren"
+    }
+  }
+}

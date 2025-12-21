@@ -1,6 +1,6 @@
 <ion-content>
   <ion-grid>
-    @for (varinstance of instances; track varinstance) {
+    @for (varinstance of instances; track varinstance; let appIndex = $index) {
       <ion-row class="ion-justify-content-center">
         <ion-col size="12" size-xl="8">
           <ion-card>
@@ -9,23 +9,75 @@
                 <ion-label>{{ appName }}</ion-label>
               </ion-item>
               <ion-card-content>
-                <formly-form [form]="varinstance.form" [fields]="varinstance.fields" [model]="varinstance.properties">
-                </formly-form>
-                <ion-item>
-                  <ion-button type="submit" color="primary"
-                    [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
-                    translate> EDGE.CONFIG.APP.UPDATE_APP
-                  </ion-button>
-                  <ion-button (click)="submitDelete(varinstance)" color="primary"
-                    [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
-                    EDGE.CONFIG.APP.DELETE_APP
-                  </ion-button>
-                  @if (varinstance.isDeleting || varinstance.isUpdating) {
-                    <div style="min-height: 100px;">
-                    </div>
+                @for (step of varinstance.steps; track step) {
+                  @switch(step.type) {
+                    @case('configuration') {
+                      <formly-form [form]="varinstance.form" [fields]="varinstance.fields"
+                        [model]="varinstance.properties">
+                      </formly-form>
+
+                      <!--
+                        only show inside the card of the first app of all instances
+                      -->
+                      @if (appIndex === 0 && showSwitchArchitecture) {
+
+                        <div
+                          class="ion-padding-horizontal ion-margin-top ion-display-flex ion-align-items-center ion-justify-content-between">
+
+                          <div class="ion-text-sm" translate>
+                            {{ header }}
+                          </div>
+
+                          <ion-toggle [checked]="currentArchitecture === 'NEW'" (ionChange)="switchArchitecture()">
+                          </ion-toggle>
+
+                        </div>
+
+                        <!-- Info row as link -->
+                        <ion-item button lines="none" detail="false"
+                          class="ion-no-padding ion-margin-horizontal ion-margin-top ion-text-start" [href]="link"
+                          [attr.target]="'_blank'" [attr.rel]="'noopener'">
+
+                          <ion-icon slot="start" name="information-circle-outline" class="ion-text-color-primary">
+                          </ion-icon>
+
+                          <ion-label class="ion-text-wrap ion-text-xs ion-text-color-primary">
+                            {{ info }}
+                          </ion-label>
+
+                        </ion-item>
+
+                      }
+
+
+
+                      <ion-item>
+                        <ion-button type="submit" color="primary"
+                          [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
+                          translate> EDGE.CONFIG.APP.UPDATE_APP
+                        </ion-button>
+                        <ion-button (click)="submitDelete(varinstance)" color="primary"
+                          [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
+                          EDGE.CONFIG.APP.DELETE_APP
+                        </ion-button>
+                        @if (varinstance.isDeleting || varinstance.isUpdating) {
+                          <div style="min-height: 100px;">
+                          </div>
+                        }
+                        <ngx-spinner [name]="varinstance.instanceId"></ngx-spinner>
+                      </ion-item>
+                    }
+                    @case('oauth') {
+                      <configuration-oauth [instanceProperties]="varinstance.properties" [step]="step">
+                      </configuration-oauth>
+                    }
+                    @default {
+                      <p>
+                        {{ 'EDGE.CONFIG.APP.UNKNOWN_INSTALLATION_STEP' | translate: { step: step.type } }}
+                      </p>
+                    }
                   }
-                  <ngx-spinner [name]="varinstance.instanceId"></ngx-spinner>
-                </ion-item>
+                }
               </ion-card-content>
             </form>
           </ion-card>

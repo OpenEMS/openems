@@ -7,11 +7,11 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.ess.api.EssTimeoutFailure;
+import io.openems.edge.ess.api.EssErrorAcknowledge;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
-public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave, EssTimeoutFailure {
+public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave, EssErrorAcknowledge {
 
 	/**
 	 * Efficiency factor to calculate AC Charge/Discharge limits from DC. Used at

@@ -823,6 +823,9 @@ public class TypeUtils {
 	 * @return the adjusted int value
 	 */
 	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		if (lowLimit > highLimit) {
+			throw new IllegalArgumentException("lowLimit must be <= highLimit");
+		}
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}
@@ -836,6 +839,9 @@ public class TypeUtils {
 	 * @return the adjusted long value
 	 */
 	public static long fitWithin(long lowLimit, long highLimit, long value) {
+		if (lowLimit > highLimit) {
+			throw new IllegalArgumentException("lowLimit must be <= highLimit");
+		}
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}
@@ -849,6 +855,9 @@ public class TypeUtils {
 	 * @return the adjusted double value
 	 */
 	public static double fitWithin(double lowLimit, double highLimit, double value) {
+		if (lowLimit > highLimit) {
+			throw new IllegalArgumentException("lowLimit must be <= highLimit");
+		}
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}
@@ -862,6 +871,9 @@ public class TypeUtils {
 	 * @return the adjusted float value
 	 */
 	public static float fitWithin(float lowLimit, float highLimit, float value) {
+		if (lowLimit > highLimit) {
+			throw new IllegalArgumentException("lowLimit must be <= highLimit");
+		}
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
 	}

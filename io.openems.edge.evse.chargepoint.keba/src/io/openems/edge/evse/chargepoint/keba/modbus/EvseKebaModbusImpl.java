@@ -179,7 +179,9 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 				new FC3ReadRegistersTask(1046, Priority.LOW, //
 						m(Keba.ChannelId.POWER_FACTOR, new UnsignedDoublewordElement(1046), SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(1100, Priority.LOW, //
-						m(KebaModbus.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100))),
+						m(Keba.ChannelId.MAX_CHARGING_CURRENT, new UnsignedDoublewordElement(1100))),
+				new FC3ReadRegistersTask(1110, Priority.LOW, //
+						m(Keba.ChannelId.MAX_SUPPORTED_CURRENT, new UnsignedDoublewordElement(1110))),
 				// todo: read Register 1500 RFID once solution is found
 				// this register is can not always be read with keba firmware 1.1.9 or less
 				// there is currently no way of knowing when it can be read
@@ -206,7 +208,7 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 					new FC6WriteRegisterTask(5050,
 							m(Keba.ChannelId.SET_PHASE_SWITCH_SOURCE, new UnsignedWordElement(5050))),
 					new FC6WriteRegisterTask(5052,
-							m(Keba.ChannelId.SET_PHASE_SWITCH_STATE, new UnsignedWordElement(5052))));
+							m(Keba.ChannelId.SET_TRIGGER_PHASE_SWITCH, new UnsignedWordElement(5052))));
 		}
 		return modbusProtocol;
 	}

@@ -73,7 +73,7 @@ public final class CommunicationProps {
 	 */
 	public static final <APP extends OpenemsApp & ComponentManagerSupplier & HostSupplier, //
 			PROP extends Nameable, PARAM extends BundleProvider> //
-	AppDef<APP, PROP, PARAM> excludingIp() {
+			AppDef<APP, PROP, PARAM> excludingIp() {
 		return AppDef.copyOfGeneric(ip(),
 				def -> def.setField(JsonFormlyUtil::buildInputFromNameable, (app, prop, l, param, f) -> {
 					try {
@@ -141,11 +141,11 @@ public final class CommunicationProps {
 	 */
 	public static final <APP extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier, //
 			PROP extends Nameable, PARAM extends BundleProvider> //
-	AppDef<APP, PROP, PARAM> modbusGroup(//
-			PROP modbusId, //
-			AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
-			PROP modbusUnitId, //
-			AppDef<? super APP, ? super PROP, ? super PARAM> modbusUnitIdDef //
+			AppDef<APP, PROP, PARAM> modbusGroup(//
+					PROP modbusId, //
+					AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
+					PROP modbusUnitId, //
+					AppDef<? super APP, ? super PROP, ? super PARAM> modbusUnitIdDef //
 	) {
 		return modbusGroup(modbusId, modbusIdDef, modbusUnitId, modbusUnitIdDef, null);
 	}
@@ -168,12 +168,12 @@ public final class CommunicationProps {
 	 */
 	public static final <APP extends OpenemsApp & ComponentManagerSupplier & ComponentUtilSupplier, //
 			PROP extends Nameable, PARAM extends BundleProvider> //
-	AppDef<APP, PROP, PARAM> modbusGroup(//
-			PROP modbusId, //
-			AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
-			PROP modbusUnitId, //
-			AppDef<? super APP, ? super PROP, ? super PARAM> modbusUnitIdDef, //
-			PROP connectionModubsType //
+			AppDef<APP, PROP, PARAM> modbusGroup(//
+					PROP modbusId, //
+					AppDef<? super APP, ? super PROP, ? super PARAM> modbusIdDef, //
+					PROP modbusUnitId, //
+					AppDef<? super APP, ? super PROP, ? super PARAM> modbusUnitIdDef, //
+					PROP connectionModubsType //
 	) {
 		return AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {

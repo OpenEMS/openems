@@ -1,10 +1,9 @@
 package io.openems.edge.core.meta;
 
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
+import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.cycleSubscriber;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyBridgeHttpExecutor;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.dummyEndpointFetcher;
-import static io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -19,14 +18,13 @@ import org.junit.Test;
 
 import com.google.gson.JsonParser;
 
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.CurrencyConfig;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.jsonapi.Call;
@@ -57,7 +55,6 @@ public class GeocodingTest {
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//
-				() -> cycleSubscriber(), //
 				() -> fetcher, //
 				() -> executor//
 		);
@@ -94,7 +91,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, res1.countryCode());
 		assertEquals("Berlin", res1.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, res1.subdivisionCode());
-		assertEquals("Mitte", res1.placeName());
+		assertEquals("Berlin", res1.placeName());
 		assertEquals("10115", res1.postcode());
 		assertEquals("Invalidenstraße", res1.road());
 		assertEquals("117", res1.houseNumber());
@@ -185,7 +182,6 @@ public class GeocodingTest {
 		final var executor = dummyBridgeHttpExecutor(clock, true);
 
 		final var factory = ofBridgeImpl(//
-				DummyBridgeHttpFactory::cycleSubscriber, //
 				() -> fetcher, //
 				() -> executor//
 		);
@@ -206,7 +202,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, result.countryCode());
 		assertEquals("Berlin", result.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, result.subdivisionCode());
-		assertEquals("Mitte", result.placeName());
+		assertEquals("Berlin", result.placeName());
 		assertEquals("10115", result.postcode());
 		assertEquals("Invalidenstraße", result.road());
 		assertEquals("117", result.houseNumber());

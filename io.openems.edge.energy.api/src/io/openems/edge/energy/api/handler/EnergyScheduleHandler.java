@@ -4,6 +4,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.ZonedDateTime;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonObject;
 
@@ -11,6 +12,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.EnergyScheduler;
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentModes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -170,27 +173,32 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		}
 
 		/**
-		 * Gets the index of the default Mode.
+		 * Gets the {@link Modes} of this
+		 * {@link EnergyScheduleHandler.WithDifferentModes}.
 		 * 
-		 * @return the index of the default Mode
+		 * @return the {@link Modes}
 		 */
-		public int getDefaultModeIndex();
+		public Modes<?> modes();
 
 		/**
-		 * Gets the total number of available modes. This is implemented as
-		 * Array.length.
+		 * Generates {@link InitialPopulation} for this
+		 * {@link EnergyScheduleHandler.WithDifferentModes}.
 		 * 
-		 * @return number of available modes
+		 * @param goc the {@link GlobalOptimizationContext}
+		 * @return a List of {@link InitialPopulation}s
 		 */
-		public int getNumberOfAvailableModes();
+		public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc);
 
 		/**
-		 * Gets the string representation for the given modeIndex.
+		 * Pre-Process a Mode of a Period before Simulation, i.e. replace with fixed or
+		 * manually planned Mode.
 		 * 
-		 * @param modeIndex the index of the Mode
-		 * @return string representation
+		 * @param period    the {@link GlobalOptimizationContext.Period}
+		 * @param gsc       the {@link GlobalScheduleContext}
+		 * @param modeIndex the index of the simulated Mode
+		 * @return the post-processed Mode index
 		 */
-		public String toModeString(int modeIndex);
+		public int preProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, int modeIndex);
 
 		/**
 		 * Simulates a Mode for one Period of a Schedule.
@@ -199,7 +207,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * @param gsc       the {@link GlobalScheduleContext}
 		 * @param csc       the ControllerScheduleContext
 		 * @param ef        the {@link EnergyFlow.Model}
-		 * @param modeIndex the index of the simulated Mode
+		 * @param modeIndex the index of the simulated Mode; -1 if no Mode is available
 		 * @param fitness   the {@link Fitness} result
 		 */
 		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
@@ -283,9 +291,9 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		/**
 		 * Price [1/MWh].
 		 * 
-		 * @return the price per period
+		 * @return the price per period; possibly null
 		 */
-		public double price();
+		public Double price();
 
 		/**
 		 * Simulated {@link EnergyFlow}.

@@ -23,6 +23,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
+import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.Simulator.EshToMode;
 
 public record SimulationResult(//
@@ -31,7 +32,8 @@ public record SimulationResult(//
 		ImmutableMap<//
 				? extends EnergyScheduleHandler.WithDifferentModes, //
 				ImmutableSortedMap<ZonedDateTime, DifferentModes.Period.Transition>> schedules, //
-		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode) {
+		ImmutableSet<? extends EnergyScheduleHandler.WithOnlyOneMode> eshsWithOnlyOneMode, //
+		int simulationsCounter) {
 
 	/**
 	 * A Period in a {@link SimulationResult}. Duration of one period is always one
@@ -39,6 +41,7 @@ public record SimulationResult(//
 	 */
 	public record Period(//
 			GlobalOptimizationContext.Period period, //
+			ModeCombination modeCombination, //
 			EnergyFlow energyFlow, //
 			int essInitialEnergy //
 	) {
@@ -52,9 +55,9 @@ public record SimulationResult(//
 		 *                         in [Wh]
 		 * @return a {@link Period}
 		 */
-		public static Period from(GlobalOptimizationContext.Period gocPeriod, EnergyFlow energyFlow,
-				int essInitialEnergy) {
-			return new Period(gocPeriod, energyFlow, essInitialEnergy);
+		public static Period from(GlobalOptimizationContext.Period gocPeriod, ModeCombination modeCombination,
+				EnergyFlow energyFlow, int essInitialEnergy) {
+			return new Period(gocPeriod, modeCombination, energyFlow, essInitialEnergy);
 		}
 	}
 
@@ -62,31 +65,37 @@ public record SimulationResult(//
 	 * An empty {@link SimulationResult}.
 	 */
 	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(new Fitness(), //
-			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of());
+			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), 0);
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
 	 * 
-	 * @param cache    the {@link GenotypeCache}
-	 * @param goc      the {@link GlobalOptimizationContext}
-	 * @param schedule the schedule as defined by {@link EshCodec}
+	 * @param cache              the {@link GenotypeCache}
+	 * @param goc                the {@link GlobalOptimizationContext}
+	 * @param schedule           the schedule as defined by {@link EshCodec}
+	 * @param simulationsCounter the total number of simulations
 	 * @return the {@link SimulationResult}
 	 */
-	private static SimulationResult from(GlobalOptimizationContext goc, int[][] schedule) {
+	private static SimulationResult from(GlobalOptimizationContext goc, int[] schedule, int simulationsCounter) {
 		var allPeriods = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
 		var allEshToModes = new ArrayList<EshToMode>();
-		var fitness = Simulator.simulate(goc, schedule, new Simulator.BestScheduleCollector(//
-				p -> allPeriods.put(p.period().time(), p), //
-				allEshToModes::add));
+		var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule,
+				new Simulator.BestScheduleCollector(//
+						p -> allPeriods.put(p.period().time(), p), //
+						allEshToModes::add));
 
 		var schedules = allEshToModes.stream() //
 				.collect(toImmutableMap(EshToMode::esh, //
 						eshToMode -> {
 							var p = eshToMode.period();
+							var price = switch (p.period) {
+							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+							default -> null;
+							};
 							return ImmutableSortedMap.of(p.period.time(),
 									new DifferentModes.Period.Transition(p.period.duration(),
-											eshToMode.postProcessedModeIndex(), p.period.price(), p.energyFlow(),
-											p.essInitialEnergy()));
+											eshToMode.postProcessedModeIndex(), //
+											price, p.energyFlow(), p.essInitialEnergy()));
 						}, //
 						(a, b) -> ImmutableSortedMap.<ZonedDateTime, DifferentModes.Period.Transition>naturalOrder()
 								.putAll(a).putAll(b).build()));
@@ -96,7 +105,7 @@ public record SimulationResult(//
 				.map(EnergyScheduleHandler.WithOnlyOneMode.class::cast) //
 				.collect(toImmutableSet());
 
-		return new SimulationResult(fitness, allPeriods.build(), schedules, eshsWithOnlyOneMode);
+		return new SimulationResult(fitness, allPeriods.build(), schedules, eshsWithOnlyOneMode, simulationsCounter);
 	}
 
 	/**
@@ -106,11 +115,12 @@ public record SimulationResult(//
 	 * This method re-simulates using the {@link Quarter} periods and not (only) the
 	 * {@link Hour} periods.
 	 * 
-	 * @param goc      the {@link GlobalOptimizationContext}
-	 * @param schedule the schedule as defined by {@link EshCodec}
+	 * @param goc                the {@link GlobalOptimizationContext}
+	 * @param schedule           the schedule as defined by {@link EshCodec}
+	 * @param simulationsCounter the total number of simulations
 	 * @return the {@link SimulationResult}
 	 */
-	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[][] schedule) {
+	public static SimulationResult fromQuarters(GlobalOptimizationContext goc, int[] schedule, int simulationsCounter) {
 		if (goc == null || schedule.length == 0) {
 			return EMPTY_SIMULATION_RESULT;
 		}
@@ -133,21 +143,13 @@ public record SimulationResult(//
 				case GlobalOptimizationContext.Period.Quarter pq //
 					-> IntStream.of(periodIndex);
 				}) //
-				.mapToObj(periodIndex //
-				-> IntStream.range(0, goc.eshsWithDifferentModes().size()) //
-						.map(eshIndex -> {
-							if (periodIndex < schedule.length && eshIndex < schedule[periodIndex].length) {
-								return schedule[periodIndex][eshIndex];
-							}
-							if (periodIndex < goc.eshsWithDifferentModes().size()) {
-								return goc.eshsWithDifferentModes().get(periodIndex).getDefaultModeIndex();
-							}
-							return 0;
-						}) //
-						.toArray()) //
-				.toArray(int[][]::new);
+				.map(periodIndex -> periodIndex < schedule.length //
+						? schedule[periodIndex] //
+						: 0) // fallback
+				// TODO use default index
+				.toArray();
 
-		return from(quarterGoc, quarterSchedule);
+		return from(quarterGoc, quarterSchedule, simulationsCounter);
 	}
 
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -163,10 +165,10 @@ public record SimulationResult(//
 	 */
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
-				.append("Time  Price  Prod  Cons   Ess  Grid ProdToCons ProdToGrid ProdToEss GridToCons GridToEss EssToCons EssInitial");
+				.append("Time  Price  Prod  Cons MCons   Ess  Grid  EssInitial");
 		var firstEntry = this.periods.firstEntry();
 		if (firstEntry != null) {
-			firstEntry.getValue().energyFlow.getManagedCons().keySet() //
+			firstEntry.getValue().energyFlow.getManagedConsumptions().keySet() //
 					.forEach(v -> log(b, " %-10s", v.substring(Math.max(0, v.length() - 10))));
 		}
 		b.append("\n");
@@ -176,26 +178,26 @@ public record SimulationResult(//
 			final var ef = p.energyFlow;
 			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
-			log(b, "%5.0f ", p.period.price());
-			log(b, "%5d ", ef.getProd());
-			log(b, "%5d ", ef.getCons());
+			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
+				log(b, "%5.0f ", wp.price());
+			} else {
+				log(b, "      ");
+			}
+			log(b, "%5d ", ef.getProduction());
+			log(b, "%5d ", ef.getUnmanagedConsumption());
+			log(b, "%5d ", ef.getConsumption());
 			log(b, "%5d ", ef.getEss());
 			log(b, "%5d ", ef.getGrid());
-			log(b, "%10d ", ef.getProdToCons());
-			log(b, "%10d ", ef.getProdToGrid());
-			log(b, "%9d ", ef.getProdToEss());
-			log(b, "%10d ", ef.getGridToCons());
-			log(b, "%9d ", ef.getGridToEss());
-			log(b, "%9d ", ef.getEssToCons());
 			log(b, "%10d ", p.essInitialEnergy);
-			ef.getManagedCons().values().stream() //
+			ef.getManagedConsumptions().values().stream() //
 					.forEach(v -> log(b, "%10d", v));
 			this.schedules.forEach((esh, schedule) -> {
-				log(b, " %-10s ", esh.toModeString(schedule.get(time).modeIndex()));
+				log(b, " %-10s ", esh.modes().getAsString(schedule.get(time).modeIndex()));
 			});
 			b.append("\n");
 		});
-		b.append(prefix).append("fitness=").append(this.fitness);
+		b.append(prefix).append("totalNumberOfSimulations=").append(this.simulationsCounter).append(";fitness=")
+				.append(this.fitness);
 		return b.toString();
 	}
 }
