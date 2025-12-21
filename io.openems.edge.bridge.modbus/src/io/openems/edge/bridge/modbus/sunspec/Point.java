@@ -6,6 +6,7 @@ import static io.openems.edge.bridge.modbus.api.element.AbstractModbusElement.Fi
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
@@ -13,6 +14,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
@@ -98,25 +100,45 @@ public abstract sealed class Point {
 	 * Represents a Point with a ChannelId.
 	 */
 	public abstract static sealed class ChannelIdPoint extends Point
-			permits Point.ValuePoint, Point.EnumPoint, Point.ScaleFactorPoint, Point.BitPoint {
+			permits Point.ValuePoint, Point.EnumPoint, Point.ScaleFactorPoint, Point.BitPoint, EnumBooleanPoint {
 
 		public final ChannelId channelId;
+		public final Class<?> clazz;
+		public final String channelKey;
 
 		private ChannelIdPoint(String name, String label, String description, Point.Type type, boolean mandatory,
 				AccessMode accessMode, AbstractDoc<?> doc) {
+			this(name, label, description, type, mandatory, accessMode, doc, DEFAULT_PERSISTENCE_PRIORITY, null, null);
+		}
+
+		private ChannelIdPoint(String name, String label, String description, Point.Type type, boolean mandatory,
+				AccessMode accessMode, AbstractDoc<?> doc, PersistencePriority priority) {
+			this(name, label, description, type, mandatory, accessMode, doc, priority, null, null);
+		}
+
+		private ChannelIdPoint(String name, String label, String description, Point.Type type, boolean mandatory,
+				AccessMode accessMode, AbstractDoc<?> doc, PersistencePriority priority, Class<?> clazz,
+				String channelKey) {
 			super(name, label, description, type, mandatory, accessMode);
-			if (!label.isBlank() && !description.isBlank()) {
+
+			if (clazz != null && channelKey != null) {
+				doc.translationKey(clazz, channelKey);
+			} else if (!label.isBlank() && !description.isBlank()) {
 				doc.text(label + ". " + description);
 			} else if (!label.isBlank()) {
 				doc.text(label);
 			} else {
 				doc.text(description);
 			}
+
 			doc.accessMode(accessMode);
-			doc.persistencePriority(DEFAULT_PERSISTENCE_PRIORITY);
+			doc.persistencePriority(priority);
+
+			this.clazz = clazz;
+			this.channelKey = channelKey;
+
 			this.channelId = new SunSChannelId<>(name, doc);
 		}
-
 	}
 
 	/**
@@ -316,6 +338,76 @@ public abstract sealed class Point {
 	/**
 	 * Represents a Point with BitField values.
 	 */
+	public static final class EnumFieldPoint extends Point {
+
+		public interface SunSpecEnumPoint extends SunSpecPoint, OptionsEnum {
+			@Override
+			public EnumBooleanPoint get();
+
+			@Override
+			public int getValue();
+
+			@Override
+			public String getName();
+		}
+
+		public static enum Type implements Point.Type {
+			ENUMFIELD16(1), ENUMFIELD32(2);
+
+			public final int length;
+
+			private Type(int length) {
+				this.length = length;
+			}
+
+			@Override
+			public boolean isDefined(Object value) {
+				return switch (this) {
+				case ENUMFIELD16 -> !value.equals(UNDEFINED_16);
+				case ENUMFIELD32 -> !value.equals(UNDEFINED_32);
+				};
+			}
+		}
+
+		public final SunSpecEnumPoint[] points;
+		public final EnumFieldPoint.Type type;
+
+		public EnumFieldPoint(String name, String label, String description, EnumFieldPoint.Type type,
+				boolean mandatory, AccessMode accessMode, SunSpecEnumPoint[] points) {
+			super(name, label, description, type, mandatory, accessMode);
+			this.points = points;
+			this.type = type;
+		}
+
+		protected AbstractModbusElement<?, ?, ?> generateModbusElement(int startAddress,
+				Consumer<Predicate<SunSpecEnumPoint>> onUpdate) {
+			return switch (this.type) {
+			case ENUMFIELD16 //
+				-> new UnsignedWordElement(startAddress).onUpdateCallback(t -> {
+					onUpdate.accept(t2 -> {
+						if (t == null) {
+							return false;
+						}
+						return t == t2.getValue();
+					});
+				});
+			case ENUMFIELD32 //
+				-> new UnsignedDoublewordElement(startAddress).onUpdateCallback(t -> {
+					onUpdate.accept(t2 -> {
+						if (t == null) {
+							return false;
+						}
+						return t == t2.getValue();
+					});
+				});
+			};
+		}
+
+	}
+
+	/**
+	 * Represents a Point with BitField values.
+	 */
 	public static final class BitFieldPoint extends Point {
 
 		public interface SunSpecBitPoint extends SunSpecPoint {
@@ -398,6 +490,30 @@ public abstract sealed class Point {
 				yield List.of(bwe0, bwe1);
 			}
 			};
+		}
+	}
+
+	public static final class EnumBooleanPoint extends Point.ChannelIdPoint {
+
+		public final int value;
+
+		private EnumBooleanPoint(int value, String name, String description, AbstractDoc<?> doc,
+				PersistencePriority priority, Class<?> clazz, String channelKey) {
+			super(name, "", description, null /* point type */, false, AccessMode.READ_ONLY, doc, priority, clazz,
+					channelKey);
+			this.value = value;
+		}
+
+		public EnumBooleanPoint(int value, String name) {
+			this(value, name, "", Doc.of(OpenemsType.BOOLEAN), DEFAULT_PERSISTENCE_PRIORITY, null, null);
+		}
+
+		public EnumBooleanPoint(int value, String name, Level level, String text) {
+			this(value, name, text, Doc.of(level), PersistencePriority.HIGH, null, null);
+		}
+
+		public EnumBooleanPoint(int value, String name, Level level, Class<?> clazz, String channelKey) {
+			this(value, name, "", Doc.of(level), PersistencePriority.HIGH, clazz, channelKey);
 		}
 	}
 

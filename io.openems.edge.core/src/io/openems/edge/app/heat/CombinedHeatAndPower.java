@@ -123,7 +123,7 @@ public class CombinedHeatAndPower
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 1, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5 }), //
 										PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
@@ -228,7 +228,7 @@ public class CombinedHeatAndPower
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition), def -> //
 		def.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
 				.setTranslatedDescription("App.Heat.outputChannel.description"));

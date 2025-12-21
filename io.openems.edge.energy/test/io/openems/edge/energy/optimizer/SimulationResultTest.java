@@ -12,20 +12,32 @@ public class SimulationResultTest {
 
 		// ESH1 (BALANCING, DELAY_DISCHARGE, CHARGE_GRID)
 		// ESH2 (FOO, BAR)
-		var result = SimulationResult.fromQuarters(simulator.goc, new int[][] { //
-				p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
-				p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
-				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
-				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1), p(0, 0), p(0, 0),
-				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(1, 1), p(2, 1),
-				p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0), p(0, 0),
-				p(0, 0), p(1, 1), p(2, 0) //
-		});
+		final var mc = simulator.modeCombinations;
+		assertEquals(6, mc.size());
+		final var m00 = 0; // Defaults
+		assertEquals(mc.getDefault(), mc.get(m00));
+		assertEquals("BALANCING", mc.get(m00).mode(0).name());
+		assertEquals("Controller.Dummy:FOO", mc.get(m00).mode(1).name());
+		final var m11 = 3;
+		assertEquals("DELAY_DISCHARGE", mc.get(m11).mode(0).name());
+		assertEquals("Controller.Dummy:BAR", mc.get(m11).mode(1).name());
+		final var m20 = 4;
+		assertEquals("CHARGE_GRID", mc.get(m20).mode(0).name());
+		assertEquals("Controller.Dummy:FOO", mc.get(m20).mode(1).name());
+		final var m21 = 5;
+		assertEquals("CHARGE_GRID", mc.get(m21).mode(0).name());
+		assertEquals("Controller.Dummy:BAR", mc.get(m21).mode(1).name());
+
+		var result = SimulationResult.fromQuarters(simulator.goc, new int[] { //
+				m00, m11, m21, m00, m00, m00, m00, m00, m00, m00, m00, //
+				m00, m00, m00, m11, m21, m00, m00, m00, m00, m00, m00, //
+				m00, m00, m00, m00, m00, m11, m21, m00, m00, m00, m00, //
+				m00, m00, m00, m00, m00, m00, m00, m11, m21, m00, m00, //
+				m00, m00, m00, m00, m00, m00, m00, m00, m00, m11, m21, //
+				m00, m00, m00, m00, m00, m00, m00, m00, m00, m00, m00, //
+				m00, m11, m20 //
+		}, 0);
 
 		assertEquals(1165082.1, result.fitness().getGridBuyCost(), 0.1);
-	}
-
-	private static int[] p(int... states) {
-		return states;
 	}
 }

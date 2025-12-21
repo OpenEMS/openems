@@ -7,11 +7,13 @@ import io.openems.edge.common.sum.GridMode;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
-		private Integer maxApparentPower = null;
-		private Integer capacity = null;
-		private Integer initialSoc = null;
-		private GridMode gridMode = null;
+		private String id;
+		private int maxApparentPower;
+		private int maxChargePower;
+		private int maxDischargePower;
+		private int capacity;
+		private int initialSoc;
+		private GridMode gridMode;
 
 		private Builder() {
 
@@ -27,6 +29,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMaxChargePower(int maxChargePower) {
+			this.maxChargePower = maxChargePower;
+			return this;
+		}
+		
+		public Builder setMaxDischargePower(int maxDischargePower) {
+			this.maxDischargePower = maxDischargePower;
+			return this;
+		}
+		
 		public Builder setCapacity(int capacity) {
 			this.capacity = capacity;
 			return this;
@@ -66,6 +78,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxApparentPower() {
 		return this.builder.maxApparentPower;
+	}
+
+	@Override
+	public int maxChargePower() {
+		return this.builder.maxChargePower;
+	}
+
+	@Override
+	public int maxDischargePower() {
+		return this.builder.maxDischargePower;
 	}
 
 	@Override

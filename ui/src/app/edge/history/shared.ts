@@ -87,6 +87,9 @@ export type ChartOptions = {
     maintainAspectRatio: boolean,
     legend: {
         labels: {
+            font: {
+                family: string,
+            },
             generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
             filter?(legendItem: Chart.LegendItem, data: ChartData): any,
         },
@@ -202,6 +205,9 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
 
                 color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
                 generateLabels: (chart: Chart.Chart) => { return null; },
+                font: {
+                    family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                },
             },
             onClick: (event, legendItem, legend) => { },
         },
@@ -283,7 +289,11 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
     datasets: {},
     maintainAspectRatio: false,
     legend: {
-        labels: {},
+        labels: {
+            font: {
+                family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+            },
+        },
         position: "bottom",
     },
     elements: {
@@ -537,6 +547,9 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
             labels: {
                 color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
                 generateLabels: (chart: Chart.Chart) => { return null; },
+                font: {
+                    family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                },
             },
             onClick: (event, legendItem, legend) => { },
         },
@@ -572,6 +585,11 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
                 },
             },
             bounds: "data",
+        },
+    },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
         },
     },
 });

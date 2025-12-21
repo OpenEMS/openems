@@ -1,55 +1,65 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { ViewWillLeave } from "@ionic/angular";
-import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { Component, effect, OnDestroy, OnInit } from "@angular/core";
+import { ModalController, ViewWillLeave } from "@ionic/angular";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { WeatherForecastApprovalComponent } from "../shared/components/edge/popover/data-privacy/popover";
+import { Pagination } from "../shared/service/pagination";
+import { RouteService } from "../shared/service/route.service";
+import { UserService } from "../shared/service/user.service";
 
 /*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
 @Component({
     selector: "edge",
     template: `
     <ion-content></ion-content>
-         <ion-router-outlet id="content"></ion-router-outlet>
+    <ion-router-outlet id="content"></ion-router-outlet>
     `,
     standalone: false,
 })
-export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
+export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
 
     protected latestIncident: { message: string | null, id: string } | null = null;
-
     private edge: Edge | null = null;
 
     constructor(
-        private router: Router,
-        private activatedRoute: ActivatedRoute,
+        private routeService: RouteService,
         private service: Service,
         private websocket: Websocket,
-    ) { }
+        private pagination: Pagination,
+        private popoverCtrl: ModalController,
+        private userService: UserService,
+    ) {
 
-    public ngOnInit(): void {
-        this.activatedRoute.params.subscribe((params) => {
-            // Set CurrentEdge in Metadata
-            const edgeId = params["edgeId"];
-            this.service.updateCurrentEdge(edgeId).then((edge) => {
-                this.edge = edge;
+        effect(async () => {
+            const edge = this.service.currentEdge();
+            const edgeId = this.routeService.getRouteParam<string>("edgeId");
+            if (!edgeId || !edge) {
+                return;
+            }
 
-                this.checkMessages();
-                this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
-                    .then(() => {
-
-                        // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, "", [
-                            new ChannelAddress("_sum", "State"),
-                        ]);
-                    });
-            }).catch(() => {
-                this.router.navigate(["index"]);
-            });
+            pagination.subscribeEdge(edge);
+            this.handlePrivacyPopover(edge);
         });
     }
 
-    public checkMessages(): void {
+    /**
+     * Shows weather forecast approval.
+     *
+     * @param modalCtrl the modal controller
+     * @returns
+     */
+    public static async showPrivacyPolicyPopover(modalCtrl: ModalController) {
+        const popover = await modalCtrl.create({
+            component: WeatherForecastApprovalComponent,
+        });
+
+        await popover.present();
+        return popover.onDidDismiss();
+    }
+
+    public async ngOnInit() {
+        const edgeId = this.routeService.getRouteParam<string>("edgeId");
+        await this.service.updateCurrentEdge(edgeId);
     }
 
     public ionViewWillLeave() {
@@ -62,5 +72,19 @@ export class EdgeComponent implements OnInit, OnDestroy, ViewWillLeave {
             return;
         }
         this.edge.unsubscribeAllChannels(this.websocket);
+    }
+
+    /**
+     * Handles the privacy popover based on the user's choice.
+     *
+     * @param edge the edge
+     */
+    private async handlePrivacyPopover(edge: Edge): Promise<void> {
+        const showPrivacyPolicyPopover = await edge.shouldShowPrivacyPolicyPopover(this.websocket);
+        if (showPrivacyPolicyPopover == false) {
+            return;
+        }
+
+        await EdgeComponent.showPrivacyPolicyPopover(this.popoverCtrl);
     }
 }

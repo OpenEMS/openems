@@ -320,21 +320,52 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(7, BatteryFeneconHome.ChannelId.RACK_SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE) //
 								.bit(8, BatteryFeneconHome.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(BatteryFeneconHome.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
+
 				new FC3ReadRegistersTask(18000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, new UnsignedWordElement(18000))), //
+						m(new UnsignedWordElement(18000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+				
 				new FC3ReadRegistersTask(16000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, new UnsignedWordElement(16000))), //
+						m(new UnsignedWordElement(16000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+
 				new FC3ReadRegistersTask(14000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, new UnsignedWordElement(14000))), //
+						m(new UnsignedWordElement(14000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+				
 				new FC3ReadRegistersTask(12000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, new UnsignedWordElement(12000))), //
-				new FC3ReadRegistersTask(10000, Priority.LOW, //
-						m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, new UnsignedWordElement(10000)), //
+						m(new UnsignedWordElement(12000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build() //
+				), //
+
+				new FC3ReadRegistersTask(10000, Priority.HIGH, //
+						m(new UnsignedWordElement(10000)) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
+								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION, VERSION_CONVERTER) //
+								.build(), //
+
 						new DummyRegisterElement(10001, 10018), //
 						m(BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE, new UnsignedWordElement(10019),
 								SCALE_FACTOR_MINUS_1), //
 						new DummyRegisterElement(10020, 10023), //
 						m(BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER, new UnsignedWordElement(10024))), //
+
 				new FC3ReadRegistersTask(44000, Priority.HIGH, //
 						m(new BitsWordElement(44000, this) //
 								.bit(0, BatteryFeneconHome.ChannelId.BMS_CONTROL, INVERT)) //
@@ -648,7 +679,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_BAT_UNDER_VOLTAGE",
 												Level.WARNING))), //
 								m(new BitsWordElement(towerOffset + 6, this)
-										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICAITON_FAULT",
+										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICATION_FAULT",
 												Level.WARNING)) //
 										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT",
 												Level.WARNING)) //
@@ -1104,4 +1135,19 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		BELOW_LIMIT, //
 		BELOW_LIMIT_CHARGING; //
 	}
+
+	protected static final ElementToChannelConverter MAJ_VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).major();
+	});
+
+	protected static final ElementToChannelConverter MIN_VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).minor();
+	});
+
+	protected static final ElementToChannelConverter VERSION_CONVERTER = new ElementToChannelConverter(v -> {
+		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+		return TwoPartVersion.fromRegisterValue(value).toString();
+	});
 }

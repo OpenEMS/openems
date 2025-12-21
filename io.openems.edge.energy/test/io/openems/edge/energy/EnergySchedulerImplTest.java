@@ -25,15 +25,13 @@ import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.energy.optimizer.Optimizer;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -84,10 +82,6 @@ public class EnergySchedulerImplTest {
 						dummyEssGridOptimizedCharge("ctrlGridOptimizedCharge0", LocalTime.of(10, 00))) //
 				.addReference("addSchedulable",
 						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION)) //
-				.addReference("addSchedulable",
-						EnergySchedulerTestUtils.dummyEvseSingle("ctrlEvseSingle0",
-								io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE,
-								new Limit(SingleThreePhase.THREE_PHASE, 6000, 32000), 10_000)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

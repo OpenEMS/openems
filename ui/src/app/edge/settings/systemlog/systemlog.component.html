@@ -12,30 +12,33 @@
             <ion-grid class="ion-no-padding">
               <ion-row>
                 <ion-col>
-                  <ion-item lines="none">
+                  <ion-item lines="none" (keydown.enter)="toggleSubscribe($event)" (click)="toggleSubscribe($event)">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
-                      {{'Edge.Config.Log.automaticUpdating' | translate}}
+                      {{'EDGE.CONFIG.LOG.AUTOMATIC_UPDATING' | translate}}
                     </ion-checkbox>
                   </ion-item>
                 </ion-col>
-                <ion-col *ngIf="isCondensedOutput !== null && isAtLeastGuest">
-                  <ion-item lines="none">
-                    <ion-toggle mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
-                      [(ngModel)]="isCondensedOutput">
-                    </ion-toggle>
-                    <ion-label class="ion-text-wrap" translate>Edge.Config.Log.CONDENSED_OUTPUT</ion-label>
-                  </ion-item>
-                </ion-col>
+                @if (isCondensedOutput !== null && isAtLeastGuest) {
+                  <ion-col>
+                    <ion-item lines="none">
+                      <ion-toggle tabindex="0" mode="md" (ionChange)="toggleCondensedOutput($event)" slot="start"
+                        [(ngModel)]="isCondensedOutput">
+                      </ion-toggle>
+                      <ion-label class="ion-text-wrap">{{"EDGE.CONFIG.LOG.CONDENSED_OUTPUT" | translate}}</ion-label>
+                    </ion-item>
+                  </ion-col>
+                }
                 <ion-col>
                   <ion-item lines="none">
-                    <ion-select interface="popover" [multiple]="true" label="Level" fill="outline"
+                    <ion-select interface="popover" [multiple]="filters.multiple" label="Level" fill="outline"
                       class="custom-ion-popover" style="white-space: initial; --color: var(--ion-color-primary)"
                       (ionDismiss)="searchOnChange($event)" style="white-space: initial;">
-                      <ng-container *ngFor="let filter of filters.options">
-                        <ion-select-option [value]="filter.value">{{filter.name}}
+                      @for (filter of filters.options; track filter) {
+                        <ion-select-option (keydown.enter)="searchOnChange($event)" button
+                          [value]="filter.option.value">{{filter.name}}
                         </ion-select-option>
-                      </ng-container>
+                      }
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -54,25 +57,26 @@
           </ion-card-content>
 
           <ion-card-content style="overflow-x: scroll">
-            <ion-grid *ngFor="let line of logLines" class="ion-no-padding" style="user-select: text;">
-
-              <ion-row style="font-family: monospace; font-size: small" style.color="black">
-                <ion-col size-sm="2" size="6">
-                  {{ line.time }}
-                </ion-col>
-                <ion-col size-sm="1" size="6">
-                  {{ line.level }}
-                </ion-col>
-                <ion-col size-sm="auto" size="12">
-                  {{ line.source }}
-                </ion-col>
-              </ion-row>
-              <ion-row style="font-family: monospace" [style.color]="line.color">
-                <ion-col size="12">
-                  <ion-text [innerHTML]="line.message"></ion-text>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
+            @for (line of logLines; track line) {
+              <ion-grid class="ion-no-padding" style="user-select: text;">
+                <ion-row style="font-family: monospace; font-size: small" style.color="black">
+                  <ion-col size-sm="2" size="6">
+                    {{ line.time }}
+                  </ion-col>
+                  <ion-col size-sm="1" size="6">
+                    {{ line.level }}
+                  </ion-col>
+                  <ion-col size-sm="auto" size="12">
+                    {{ line.source }}
+                  </ion-col>
+                </ion-row>
+                <ion-row style="font-family: monospace" [style.color]="line.color">
+                  <ion-col size="12">
+                    <ion-text [innerHTML]="line.message"></ion-text>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            }
           </ion-card-content>
 
         </ion-card>

@@ -4,6 +4,19 @@
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
 	<packaging>pom</packaging>
+	<repositories>
+	  <repository>
+	    <name>Central Portal Snapshots</name>
+	    <id>central-portal-snapshots</id>
+	    <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+	    <releases>
+	      <enabled>false</enabled>
+	    </releases>
+	    <snapshots>
+	      <enabled>true</enabled>
+	    </snapshots>
+	  </repository>
+	</repositories>
 	<dependencies>
 		<!-- biz -->
 		<dependency>
@@ -17,13 +30,25 @@
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
-			<version>2.9.3</version>
+			<version>2.11.4</version>
 		</dependency>
 		<dependency>
-			<!-- Changelog: https://github.com/steveohara/j2mod/blob/master/RELEASE_NOTES.md -->
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-core</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by org.tribuo -->
+		    <groupId>com.oracle.labs.olcut</groupId>
+		    <artifactId>olcut-config-protobuf</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+		<dependency>
+			<!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.2.1</version>
+			<version>3.2.2-openems.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
@@ -33,12 +58,12 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.13.1</version>
+			<version>2.13.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.4.8-jre</version>
+			<version>33.5.0-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -49,19 +74,19 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>4.12.0</version>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>4.12.0</version>
+			<artifactId>okhttp-jvm</artifactId>
+			<version>5.3.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.12.0</version>
+			<version>3.16.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -97,7 +122,7 @@
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>6.3.0</version>
+			<version>7.0.2</version>
 		</dependency>
 		<!-- de -->
 		<dependency>
@@ -105,7 +130,7 @@
 			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
 			<groupId>de.bytefish</groupId>
 			<artifactId>pgbulkinsert</artifactId>
-			<version>8.1.5</version>
+			<version>8.1.8</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -170,27 +195,21 @@
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
-			<version>3.1.10</version>
+			<version>3.1.12</version>
 		</dependency>
 		<dependency>
 			<!-- Jenetics - Java Genetic Algorithm Library -->
 			<!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
-			<version>8.2.0</version>
-		</dependency>
-		<!-- javax -->
-		<dependency>
-			<groupId>javax.jmdns</groupId>
-			<artifactId>jmdns</artifactId>
-			<version>3.4.1</version>
+			<version>8.3.0</version>
 		</dependency>
 		<!-- net -->
 		<dependency>
 			<!-- Used by SDNotify -->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.17.0</version>
+			<version>5.18.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -231,7 +250,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.0.34</version>
+			<version>1.1.6</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -258,14 +277,14 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.scr</artifactId>
-			<version>2.2.12</version>
+			<version>2.2.14</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Management Console -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>5.0.12</version>
+			<version>5.0.18</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
@@ -284,14 +303,14 @@
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.81</version>
+			<version>1.83</version>
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.81</version>
+			<version>1.83</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -304,40 +323,54 @@
 			<version>0.19.0</version>
 		</dependency>
 		<dependency>
+			<!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>1.2.5</version>
+		</dependency>
+		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
+			<!-- Java mDNS Library -->
+			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
+		    <groupId>org.jmdns</groupId>
+		    <artifactId>jmdns</artifactId>
+		    <version>3.6.2</version>
+		</dependency>
+		<!-- com -->
+		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>7.3.0</version>
+			<version>7.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
 			<artifactId>Java-WebSocket</artifactId>
-			<version>1.5.4</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.1.21</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -348,7 +381,18 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.20.1</version>
+			<version>1.21.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.junit.jupiter</groupId>
+		    <artifactId>junit-jupiter-api</artifactId>
+		    <version>6.0.1</version>
+		</dependency>
+		<dependency>
+			<!-- Used by org.junit.jupiter:junit-jupiter-api -->
+		    <groupId>org.opentest4j</groupId>
+		    <artifactId>opentest4j</artifactId>
+		    <version>1.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -403,12 +447,12 @@
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.0</version>
+			<version>2.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.0</version>
+			<version>2.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -429,13 +473,13 @@
 			<!-- Used by Apache Felix Web Management Console -->
 			<groupId>org.owasp.encoder</groupId>
 			<artifactId>encoder</artifactId>
-			<version>1.3.1</version>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.7</version>
+			<version>42.7.8</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
@@ -448,6 +492,46 @@
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
 			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-common-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-data</artifactId>
+		    <version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-math</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-core</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-regression-tree</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tribuo</groupId>
+			<artifactId>tribuo-util-onnx</artifactId>
+			<version>4.3.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.tribuo</groupId>
+		    <artifactId>tribuo-util-tokenization</artifactId>
+		    <version>4.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.prometheus</groupId>
@@ -468,7 +552,25 @@
 			<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.31.1</version>
+			<version>4.33.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.mockito</groupId>
+		  <artifactId>mockito-core</artifactId>
+		  <version>5.21.0</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>net.bytebuddy</groupId>
+		  <artifactId>byte-buddy</artifactId>
+		  <version>1.18.2</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.objenesis</groupId>
+		  <artifactId>objenesis</artifactId>
+		  <version>3.4</version>
+		  <scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

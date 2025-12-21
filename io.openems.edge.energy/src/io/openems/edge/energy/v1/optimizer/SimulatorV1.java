@@ -30,9 +30,11 @@ import io.openems.edge.energy.v1.optimizer.ParamsV1.OptimizePeriod;
 @Deprecated
 public class SimulatorV1 {
 
+	@Deprecated
 	/** Used to incorporate charge/discharge efficiency. */
 	public static final double EFFICIENCY_FACTOR = 1.17;
 
+	@Deprecated
 	public record Period(OptimizePeriod op, StateMachine state, int essInitial, EnergyFlowV1 ef) {
 	}
 
@@ -43,6 +45,7 @@ public class SimulatorV1 {
 	 * @param schedule the {@link StateMachine} states of the Schedule
 	 * @return the cost, lower is better; always positive
 	 */
+	@Deprecated
 	protected static double calculateCost(ParamsV1 p, StateMachine[] schedule) {
 		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
 		var sum = 0.;
@@ -59,6 +62,7 @@ public class SimulatorV1 {
 	 * @param schedule the {@link StateMachine} states of the Schedule
 	 * @return a Map of {@link Period}s
 	 */
+	@Deprecated
 	protected static ImmutableSortedMap<ZonedDateTime, Period> simulate(ParamsV1 p, StateMachine[] schedule) {
 		final var nextEssInitial = new AtomicInteger(p.essInitialEnergy());
 		var result = ImmutableSortedMap.<ZonedDateTime, Period>naturalOrder();
@@ -89,6 +93,7 @@ public class SimulatorV1 {
 	 *                       reduce workload during simulation.
 	 * @return the cost, lower is better; always positive
 	 */
+	@Deprecated
 	protected static double simulatePeriod(ParamsV1 p, OptimizePeriod op, StateMachine state,
 			final AtomicInteger nextEssInitial, Consumer<Period> collect) {
 		// Constants
@@ -136,10 +141,12 @@ public class SimulatorV1 {
 	 * @param executionLimitSeconds limit.byExecutionTime.ofSeconds
 	 * @return the best schedule
 	 */
+	@Deprecated
 	protected static StateMachine[] getBestSchedule(ParamsV1 p, long executionLimitSeconds) {
 		return getBestSchedule(p, executionLimitSeconds, null, null);
 	}
 
+	@Deprecated
 	protected static StateMachine[] getBestSchedule(ParamsV1 p, long executionLimitSeconds, Integer populationSize,
 			Integer limit) {
 		// Return pure BALANCING Schedule if no predictions are available

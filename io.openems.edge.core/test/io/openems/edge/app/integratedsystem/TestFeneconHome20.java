@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -41,12 +41,14 @@ public class TestFeneconHome20 {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					this.meterApp = Apps.socomecMeter(t), //
+					Apps.predictionUnmanagedConsumption(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 	}
 
 	@Test
@@ -62,16 +64,17 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -114,7 +117,7 @@ public class TestFeneconHome20 {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -130,7 +133,7 @@ public class TestFeneconHome20 {
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -161,16 +164,17 @@ public class TestFeneconHome20 {
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -195,7 +199,7 @@ public class TestFeneconHome20 {
 	public static final JsonObject fullSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", true) //
@@ -219,7 +223,7 @@ public class TestFeneconHome20 {
 	public static final JsonObject minSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", false) //

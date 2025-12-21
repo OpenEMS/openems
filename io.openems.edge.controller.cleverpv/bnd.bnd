@@ -5,15 +5,15 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	Java-WebSocket,\
 	io.openems.common,\
-	io.openems.edge.bridge.http,\
+	io.openems.common.bridge.http,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
-	io.openems.edge.controller.api.common,\
-	io.openems.wrapper.okhttp,\
-
+	io.openems.edge.controller.ess.timeofusetariff,\
+	io.openems.edge.energy.api,\
+	io.openems.edge.ess.api,\
+	io.openems.edge.timedata.api,\
+	io.openems.edge.timeofusetariff.api
 -testpath: \
 	${testpath},\
-	io.openems.wrapper.okhttp,\
-	
+	io.openems.edge.energy.api,\

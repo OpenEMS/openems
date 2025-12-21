@@ -1,15 +1,15 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.controller.ess.fixactivepower.ControllerEssFixActivePowerImpl.getAcPower;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 
@@ -27,8 +27,8 @@ public class ControllerEssFixActivePowerImplTest {
 						.setMode(Mode.MANUAL_ON) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
-						.setPhase(Phase.ALL) //
-						.setRelationship(Relationship.EQUALS) //
+						.setPhase(ALL) //
+						.setRelationship(EQUALS) //
 						.build()) //
 				.deactivate();
 	}
@@ -44,8 +44,8 @@ public class ControllerEssFixActivePowerImplTest {
 						.setMode(Mode.MANUAL_OFF) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
-						.setPhase(Phase.ALL) //
-						.setRelationship(Relationship.EQUALS) //
+						.setPhase(ALL) //
+						.setRelationship(EQUALS) //
 						.build()) //
 				.deactivate();
 	}

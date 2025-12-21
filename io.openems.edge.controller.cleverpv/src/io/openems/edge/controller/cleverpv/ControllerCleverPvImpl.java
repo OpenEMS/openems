@@ -1,9 +1,16 @@
 package io.openems.edge.controller.cleverpv;
 
-import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
@@ -13,24 +20,34 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.common.collect.ImmutableList;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpResponse;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.cleverpv.Types.SendData;
+import io.openems.edge.controller.cleverpv.Types.SendData.ActiveControlModes;
+import io.openems.edge.controller.cleverpv.Types.SendData.AvailableControlModes;
+import io.openems.edge.controller.cleverpv.Types.SendData.CurrentData;
+import io.openems.edge.controller.cleverpv.Types.SendData.Ess;
+import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -39,25 +56,22 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerCleverPvImpl extends AbstractOpenemsComponent
-		implements ControllerCleverPv, Controller, OpenemsComponent {
+		implements TimedataProvider, ControllerCleverPv, Controller, OpenemsComponent {
 
-	private static final int SEND_SECONDS = 15;
-	private static final ChannelAddress GRID = new ChannelAddress("_sum", "GridActivePower");
-	private static final ChannelAddress PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	private static final ChannelAddress ESS_SOC = new ChannelAddress("_sum", "EssSoc");
-	private static final ChannelAddress ESS_POWER = new ChannelAddress("_sum", "EssDischargePower");
+	private static final int SEND_SECONDS = 5;
+	private static final int VOLT_PER_AMPERE = 230;
 
-	protected static enum PowerStorageState {
-		IDLE(0), CHARGING(1), DISABLED(2), DISCHARGING(3);
+	private final CalculateActiveTime calculateCumulatedNoDischargeTime = new CalculateActiveTime(this,
+			ControllerCleverPv.ChannelId.CUMULATED_NO_DISCHARGE_TIME);
 
-		public final int value;
+	private final CalculateActiveTime calculateCumulatedChargeFromGridTime = new CalculateActiveTime(this,
+			ControllerCleverPv.ChannelId.CUMULATED_CHARGE_FROM_GRID_TIME);
 
-		private PowerStorageState(int value) {
-			this.value = value;
-		}
-	}
+	private final CalculateActiveTime calculateCumulatedInactiveTime = new CalculateActiveTime(this,
+			ControllerCleverPv.ChannelId.CUMULATED_INACTIVE_TIME);
 
-	private final Logger log = LoggerFactory.getLogger(ControllerCleverPvImpl.class);
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
@@ -66,9 +80,30 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	private String url;
-	private Instant lastSend = Instant.MIN;
-	private LogVerbosity logVerbosity = LogVerbosity.NONE;
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	private ManagedSymmetricEss ess;
+
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
+	private volatile TimeOfUseTariffController timeOfUseTariffController;
+
+	@Reference
+	private Power power;
+
+	@Reference
+	private Host host;
+
+	@Reference
+	protected Meta meta;
+
+	@Reference
+	private Sum sum;
+
+	private Config config;
+
+	private RemoteControlMode remoteControlMode = RemoteControlMode.OFF;
+	private ActiveControlModes activeControlModes = null;
+	private Integer limit = 0;
+	private Integer maxChargePower = 0;
 
 	public ControllerCleverPvImpl() {
 		super(//
@@ -79,7 +114,8 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!this.isEnabled()) {
@@ -87,8 +123,53 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		}
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.url = config.url();
-		this.logVerbosity = config.logVerbosity();
+		this.httpBridge.setDebugMode(config.debugMode());
+
+		this.sendData();
+	}
+
+	/**
+	 * Send data and async parse response.
+	 */
+	private void sendData() {
+
+		final var delay = DelayTimeProvider.Delay.of(Duration.ofSeconds(SEND_SECONDS));
+		final var delayTime = new DefaultDelayTimeProvider(DelayTimeProvider.Delay::immediate, t -> delay, t -> delay);
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+
+		timeService.subscribeJsonTime(delayTime, () -> {
+			var data = this.collectData();
+			return BridgeHttp.create(this.config.url()) //
+					.setBodyJson(SendData.serializer().serialize(data)) //
+					.build();
+		}, (jsonHttpResponse, httpError) -> {
+			setValue(this, ControllerCleverPv.ChannelId.UNABLE_TO_SEND, httpError != null);
+
+			if (httpError != null || this.config.controlMode() != ControlMode.REMOTE_CONTROL) {
+				this.resetControlMode();
+				return;
+			}
+
+			var parsedResponse = SendData.Response.serializer().deserialize(jsonHttpResponse.data());
+
+			if (parsedResponse.activateControlModes().ess() == null) {
+				this.resetControlMode();
+				return;
+			}
+
+			switch (parsedResponse.activateControlModes().ess().remoteControlMode()) {
+			case OFF, UNDEFINED -> {
+				this.resetControlMode();
+			}
+			case NO_DISCHARGE -> {
+				this.setActiveMode(RemoteControlMode.NO_DISCHARGE, null);
+			}
+			case CHARGE_FROM_GRID -> {
+				var limit = parsedResponse.activateControlModes().ess().chargePower();
+				this.setActiveMode(RemoteControlMode.CHARGE_FROM_GRID, limit);
+			}
+			}
+		});
 	}
 
 	@Override
@@ -101,94 +182,130 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		var now = Instant.now();
-		if (Duration.between(this.lastSend, now).getSeconds() >= SEND_SECONDS) {
-			var data = this.collectData();
-			this.sendData(data);
-			this.lastSend = now;
+		if (this.config.readOnly()) {
+			this.setDefaultMode();
+			return;
 		}
-	}
 
-	protected JsonObject collectData() {
-		final var essPower = this.getAsInt(ESS_POWER);
-		return JsonUtils.buildJsonObject() //
-				.add("watt", this.getAsJson(GRID)) //
-				.add("producingWatt", this.getAsJson(PRODUCTION)) //
-				.add("soc", this.getAsJson(ESS_SOC)) //
-				.add("powerStorageState", //
-						new JsonPrimitive(essPower.map(p -> {
-							if (p > 0) {
-								return PowerStorageState.DISCHARGING;
-							} else if (p < 0) {
-								return PowerStorageState.CHARGING;
-							} else {
-								return PowerStorageState.IDLE;
-							}
-						}).orElse(PowerStorageState.DISABLED).value)) //
-				.add("chargingPower", essPower.<JsonElement>map(p -> new JsonPrimitive(Math.abs(p))) //
-						.orElse(JsonNull.INSTANCE)) //
-				.build();
-	}
-
-	private JsonElement getAsJson(ChannelAddress address) {
-		try {
-			var channel = this.componentManager.getChannel(address);
-			return channel.value().asJson();
-		} catch (IllegalArgumentException | OpenemsNamedException e) {
-			// ignore
-			return JsonNull.INSTANCE;
+		switch (this.remoteControlMode) {
+		case OFF, UNDEFINED -> {
+			this.setDefaultMode();
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private Optional<Integer> getAsInt(ChannelAddress address) {
-		try {
-			var channel = this.componentManager.getChannel(address);
-			return (Optional<Integer>) channel.value().asOptional();
-		} catch (IllegalArgumentException | OpenemsNamedException e) {
-			// ignore
-			return Optional.empty();
-		}
-	}
-
-	private void sendData(JsonObject data) {
-		this.httpBridge.postJson(this.url, data) //
-				.whenComplete((msg, ex) -> {
-					this.log(data, msg, ex);
-					this.channel(ControllerCleverPv.ChannelId.UNABLE_TO_SEND).setNextValue(ex != null);
-				});
-	}
-
-	private void log(JsonObject data, HttpResponse<JsonElement> msg, Throwable ex) {
-		switch (this.logVerbosity) {
-		case NONE, DEBUG_LOG -> doNothing();
-		case FULL_JSON_ON_SEND -> {
-			var b = new StringBuilder("");
-			b.append("Data:").append(data.toString());
-			if (ex != null) {
-				b.append("|").append("Error:").append(ex.getClass().getSimpleName()).append(":").append(ex.toString());
+		case NO_DISCHARGE -> {
+			if (!this.isNoDischargeAllowed()) {
+				this.setDefaultMode();
+			} else {
+				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.NO_DISCHARGE);
+				this.setActiveTime(false, true, false);
+				this.ess.setActivePowerEqualsWithPid(0);
 			}
-			if (msg != null) {
-				b.append("|").append("Response:").append(msg.toString());
+		}
+		case CHARGE_FROM_GRID -> {
+			if (!this.isEssChargeFromGridAllowed()) {
+				this.setDefaultMode();
+			} else {
+				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.CHARGE_FROM_GRID);
+				this.setActiveTime(false, false, true);
+				Integer absoluteLimitNegated = (Math.min(Math.abs(this.maxChargePower), Math.abs(this.limit)) * -1);
+				this.ess.setActivePowerEquals(absoluteLimitNegated);
 			}
-			this.logInfo(this.log, b.toString());
 		}
 		}
+	}
+
+	private void setDefaultMode() {
+		this.setActiveTime(true, false, false);
+		setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.OFF);
+	}
+
+	private void setActiveTime(boolean inactive, boolean noDischarge, boolean ChargeFromGrid) {
+		this.calculateCumulatedInactiveTime.update(inactive);
+		this.calculateCumulatedNoDischargeTime.update(noDischarge);
+		this.calculateCumulatedChargeFromGridTime.update(ChargeFromGrid);
+	}
+
+	protected SendData collectData() {
+		final var currentData = CurrentData.fromComponentManager(this.componentManager);
+		var currentlyActiveEssMode = new Ess(this.remoteControlMode, null, null);
+
+		final AvailableControlModes availableControlModes;
+
+		if (this.config.readOnly()) {
+			return new SendData(currentData, null, this.activeControlModes, this.host, this.sum);
+		}
+
+		final var essModes = ImmutableList.<Ess>builder();
+		if (this.isNoDischargeAllowed()) {
+			essModes.add(new Ess(RemoteControlMode.NO_DISCHARGE, null, null));
+		}
+
+		if (this.isEssChargeFromGridAllowed()) {
+			final int gridConnectionPointFuseLimit = this.meta.getGridConnectionPointFuseLimit(); // Ampere
+			final int essMaxPower = this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE);
+			final double safetyMargin = 0.1F; // 10% less than max for safety
+
+			int maxGridFeedIn = Optional
+					.of((int) Math.round(gridConnectionPointFuseLimit * (1 - safetyMargin)) * VOLT_PER_AMPERE * 3)
+					.orElse(0);
+			int currentConsumption = Optional.ofNullable(this.sum.getConsumptionActivePower().get()).orElse(0);
+			int currentProduction = Optional.ofNullable(this.sum.getProductionActivePower().get()).orElse(0);
+
+			this.maxChargePower = Math.max(0, (maxGridFeedIn - currentConsumption + currentProduction));
+			this.maxChargePower = (int) Math.round(Math.min(essMaxPower, this.maxChargePower) * (1 - safetyMargin));
+
+			currentlyActiveEssMode = new Ess(this.remoteControlMode, null, Math.min(this.limit, this.maxChargePower));
+			essModes.add(new Ess(RemoteControlMode.CHARGE_FROM_GRID, this.maxChargePower, null));
+		}
+
+		availableControlModes = new AvailableControlModes(essModes.build());
+		this.activeControlModes = new ActiveControlModes(currentlyActiveEssMode);
+
+		return new SendData(currentData, availableControlModes, this.activeControlModes, this.host, this.sum);
+	}
+
+	private boolean isNoDischargeAllowed() {
+		return Optional.ofNullable(this.timeOfUseTariffController).map(TimeOfUseTariffController::getStateMachine)
+				.map(s -> switch (s) {
+				case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
+				case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
+				}).orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
+	}
+
+	private boolean isEssChargeFromGridAllowed() {
+		if (!this.meta.getIsEssChargeFromGridAllowed()) {
+			return false;
+		}
+
+		if (this.ess.getPower().getMaxPower(this.ess, ALL, ACTIVE) <= 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private void setActiveMode(RemoteControlMode mode, Integer limit) {
+		this.remoteControlMode = mode;
+		this.limit = 0;
+
+		if (limit != null) {
+			this.limit = limit;
+		}
+
+		if (mode == RemoteControlMode.NO_DISCHARGE) {
+			this.limit = 0;
+		}
+
+		JsonUtils.JsonObjectBuilder builder = buildJsonObject().add("mode", JsonUtils.toJson(mode.toString()));
+
+		builder.add("power", JsonUtils.toJson(this.limit));
+	}
+
+	private void resetControlMode() {
+		this.remoteControlMode = RemoteControlMode.OFF;
 	}
 
 	@Override
-	public String debugLog() {
-		return switch (this.logVerbosity) {
-		case NONE -> null;
-		case DEBUG_LOG, FULL_JSON_ON_SEND -> {
-			var b = new StringBuilder("Sent:");
-			if (this.lastSend == Instant.MIN) {
-				b.append("NEVER");
-			} else {
-				b.append(Duration.between(this.lastSend, Instant.now()).getSeconds()).append("s ago");
-			}
-			yield b.toString();
-		}
-		};
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

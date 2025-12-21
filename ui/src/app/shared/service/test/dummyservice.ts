@@ -3,15 +3,15 @@ import { ActivatedRoute } from "@angular/router";
 import { SumState } from "src/app/index/shared/sumState";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
+import { DefaultTypes } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { Role } from "../../type/role";
 import { AbstractService } from "../abstractservice";
-import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
     public readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
+        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date(), {});
 
     public currentEdge: WritableSignal<Edge> = signal(this.edge);
 
@@ -56,9 +56,6 @@ export class DummyService extends AbstractService {
         throw new Error("Method not implemented.");
     }
     toast(message: string, level: "success" | "warning" | "danger") {
-        throw new Error("Method not implemented.");
-    }
-    isPartnerAllowed(edge: Edge): boolean {
         throw new Error("Method not implemented.");
     }
     // https://v16.angular.io/api/core/ErrorHandler#errorhandler

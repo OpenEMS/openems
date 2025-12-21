@@ -102,7 +102,7 @@ image::scheduler-ess-priority.png[Prioritization of ESS power setpoints]
 
 == Cycle
 
-The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.core/src/io/openems/edge/core/cycle/Cycle.java[Cycle component icon:code[]]. It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
+The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.core/src/io/openems/edge/core/cycle/CycleImpl.java[Cycle component icon:code[]]. It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
 
 .OpenEMS Edge Cycle
 image::edge-cycle.png[OpenEMS Edge Cycle]

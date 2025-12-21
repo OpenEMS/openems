@@ -13,4 +13,10 @@ if pgrep -f "[n]ginx:" >/dev/null; then
     sleep 1
 fi
 
+if [[ "$UI_WEBSOCKET" == *"<hostname>"* ]]; then
+    echo ""
+    echo "UI_WEBSOCKET contains <hostname> placeholder, replace it with the actual hostname or IP address of the Docker host."
+    sleep infinity
+fi
+
 exec /usr/sbin/nginx

@@ -1,6 +1,7 @@
 package io.openems.edge.core.sum;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
 
@@ -405,7 +406,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		var productionDcActualPowerSum = productionDcActualPower.calculate();
 		this._setProductionDcActualPower(productionDcActualPowerSum);
 		var productionActivePower = TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum);
-		this._setProductionActivePower(productionActivePower);
+		setValue(this, Sum.ChannelId.PRODUCTION_ACTIVE_POWER, productionActivePower);
+		// TODO calculate actual "Unmanaged"-ProductionActivePower
+		setValue(this, Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER, productionActivePower);
 
 		var productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
 		productionAcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY,

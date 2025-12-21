@@ -149,7 +149,7 @@ public class UtilsTest {
 
 	private static DifferentModes.Period<StateMachine, OptimizationContext> mockPeriod(PeriodDuration duration,
 			StateMachine mode, int essChargePowerInChargeGrid) {
-		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0,
+		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0.,
 				new OptimizationContext(0, essChargePowerInChargeGrid, 0, 10), null, 0);
 	}
 
@@ -160,14 +160,14 @@ public class UtilsTest {
 						new DummySum(), //
 						new DummyManagedSymmetricEss("ess0"), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), null));
 		assertEquals("Null-Check", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
 						new DummySum() //
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0"), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), null));
 
 		assertEquals("BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -176,7 +176,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), null));
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
@@ -185,7 +185,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), null));
 
 		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -194,7 +194,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), null));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyMode(CHARGE_GRID, -1400), //
 				calculateAutomaticMode(//
@@ -203,7 +203,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 2000, //
-						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1500)));
+						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1500), null));
 
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
@@ -212,7 +212,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 400, //
-						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), null));
 
 		assertEquals("CHARGE_GRID to BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -221,7 +221,7 @@ public class UtilsTest {
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500), //
 						/* maxChargePowerFromGrid */ 0, //
-						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000)));
+						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), null));
 	}
 
 	@Test
@@ -237,9 +237,9 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 1000, 0), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 1100, 0), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 0, 0) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 1000, 0.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 1100, 0.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 0, 0.) //
 						))));
 
 		assertEquals(2232, calculateChargePowerInChargeGrid(//
@@ -247,14 +247,14 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 700, 123), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 600, 123), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 500, 125), //
-								new GlobalOptimizationContext.Period.Quarter(3, TIME, 300, 400, 126), //
-								new GlobalOptimizationContext.Period.Quarter(4, TIME, 400, 300, 123), //
-								new GlobalOptimizationContext.Period.Quarter(5, TIME, 500, 200, 122), //
-								new GlobalOptimizationContext.Period.Quarter(6, TIME, 600, 100, 121), //
-								new GlobalOptimizationContext.Period.Quarter(7, TIME, 700, 0, 121) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 700, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 600, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 500, 125.), //
+								GlobalOptimizationContext.Period.Quarter.from(3, TIME, 300, 400, 126.), //
+								GlobalOptimizationContext.Period.Quarter.from(4, TIME, 400, 300, 123.), //
+								GlobalOptimizationContext.Period.Quarter.from(5, TIME, 500, 200, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(6, TIME, 600, 100, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(7, TIME, 700, 0, 121.) //
 						))));
 
 		assertEquals(2059, calculateChargePowerInChargeGrid(//
@@ -262,19 +262,19 @@ public class UtilsTest {
 						new GlobalOptimizationContext.Grid(0, 20000), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						ImmutableList.of(//
-								new GlobalOptimizationContext.Period.Quarter(0, TIME, 0, 700, 120), //
-								new GlobalOptimizationContext.Period.Quarter(1, TIME, 100, 600, 121), //
-								new GlobalOptimizationContext.Period.Quarter(2, TIME, 200, 500, 122), //
-								new GlobalOptimizationContext.Period.Quarter(3, TIME, 300, 1140, 126), //
-								new GlobalOptimizationContext.Period.Quarter(4, TIME, 400, 1150, 125), //
-								new GlobalOptimizationContext.Period.Quarter(5, TIME, 500, 200, 122), //
-								new GlobalOptimizationContext.Period.Quarter(6, TIME, 600, 100, 121), //
-								new GlobalOptimizationContext.Period.Quarter(7, TIME, 700, 0, 121) //
+								GlobalOptimizationContext.Period.Quarter.from(0, TIME, 0, 700, 120.), //
+								GlobalOptimizationContext.Period.Quarter.from(1, TIME, 100, 600, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(2, TIME, 200, 500, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(3, TIME, 300, 1140, 126.), //
+								GlobalOptimizationContext.Period.Quarter.from(4, TIME, 400, 1150, 125.), //
+								GlobalOptimizationContext.Period.Quarter.from(5, TIME, 500, 200, 122.), //
+								GlobalOptimizationContext.Period.Quarter.from(6, TIME, 600, 100, 121.), //
+								GlobalOptimizationContext.Period.Quarter.from(7, TIME, 700, 0, 121.) //
 						))));
 	}
 
 	@Test
-	public void testPostprocessSimulatorState() {
+	public void testPostprocessSimulatorState() throws Exception {
 		var m = new EnergyFlow.Model(//
 				/* production */ 200, //
 				/* consumption */ 500, //
@@ -282,10 +282,8 @@ public class UtilsTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = m.finalizeConsumption();
-		applyDelayDischarge(m, consumption);
+		applyDelayDischarge(m);
 		var ef = m.solve();
-		m.logMinMaxValues();
 		var goc = new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, null, null, null,
 				new GlobalOptimizationContext.Ess(0, 0, 0, 0), null);
 		var gsc = GlobalScheduleContext.from(goc);

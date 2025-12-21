@@ -3,7 +3,6 @@ package io.openems.edge.core.host.jsonrpc;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import io.openems.common.jsonrpc.serialization.EmptyObject;
@@ -20,7 +19,33 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 		return "getNetworkInfo";
 	}
 
-	public record NetworkInfoWrapper(String hardwareInterface, List<Inet4AddressWithSubnetmask> ips) {
+	public record NetworkInfoAddress(Inet4AddressWithSubnetmask ip, boolean dynamic) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link NetworkInfoAddress}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<NetworkInfoAddress> serializer() {
+			return jsonObjectSerializer(NetworkInfoAddress.class, json -> {
+				return new NetworkInfoAddress(new Inet4AddressWithSubnetmask(//
+						json.getString("label"), //
+						json.getStringParsed("address", new Inet4AddressWithSubnetmask.StringParserInet4Address()), //
+						json.getInt("subnetmask")), //
+						json.getOptionalBoolean("dynamic").orElse(false));
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("label", obj.ip().getLabel())//
+						.addProperty("address", obj.ip().getInet4Address().getHostAddress())//
+						.addProperty("subnetmask", obj.ip().getSubnetmaskAsCidr())//
+						.onlyIf(obj.dynamic(), b -> b//
+								.addProperty("dynamic", obj.dynamic()))//
+						.build();
+			});
+		}
+	}
+
+	public record NetworkInfoWrapper(String hardwareInterface, List<NetworkInfoAddress> ips) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Route}.
@@ -29,31 +54,14 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 		 */
 		public static JsonSerializer<GetNetworkInfo.NetworkInfoWrapper> serializer() {
 			return jsonObjectSerializer(GetNetworkInfo.NetworkInfoWrapper.class, json -> {
-				JsonUtils.stream(json.getJsonArray("ips")).map(entry -> {
-					var ip = entry.getAsJsonObject();
-					try {
-						var inet = (Inet4Address) Inet4Address.getByName(ip.get("prefsrc").getAsString());
-						return new Inet4AddressWithSubnetmask(//
-								ip.get("family").getAsString(), //
-								inet, //
-								ip.get("subnetmask").getAsInt());
-					} catch (UnknownHostException e) {
-						// TODO: use Get Inet4Address Method once available
-						return null;
-					}
-				});
-				return new GetNetworkInfo.NetworkInfoWrapper(json.getString("hardwareInterface"), List.of());
+				return new GetNetworkInfo.NetworkInfoWrapper(//
+						json.getString("hardwareInterface"), //
+						json.getList("ips", NetworkInfoAddress.serializer()) //
+				);
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.addProperty("hardwareInterface", obj.hardwareInterface())//
-						.add("ips", //
-								obj.ips().stream().map(ip -> {
-									return JsonUtils.buildJsonObject()//
-											.addProperty("family", ip.getLabel())//
-											.addProperty("address", ip.getInet4Address().getHostAddress())//
-											.addProperty("subnetmask", ip.getSubnetmaskAsCidr())//
-											.build();
-								}).collect(JsonUtils.toJsonArray()))//
+						.add("ips", NetworkInfoAddress.serializer().toListSerializer().serialize(obj.ips()))//
 						.build();
 			});
 		}
@@ -65,7 +73,7 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 			String protocol, //
 			String scope, //
 			Inet4Address prefsrc, //
-			int metric //
+			Integer metric //
 	) {
 
 		/**
@@ -75,36 +83,30 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 		 */
 		public static JsonSerializer<GetNetworkInfo.Route> serializer() {
 			return jsonObjectSerializer(GetNetworkInfo.Route.class, json -> {
-				Inet4Address prefsrc;
-				try {
-					// TODO: use inet4 method
-					prefsrc = (Inet4Address) Inet4Address.getByName(json.getString("prefsrc"));
-				} catch (UnknownHostException e) {
-					prefsrc = null;
-				}
 				return new GetNetworkInfo.Route(//
 						json.getString("dst"), //
 						json.getString("dev"), //
 						json.getString("protocol"), //
-						json.getString("scope"), //
-						prefsrc, //
-						// TODO: use int method once implemented
-						json.get().get("metric") == null ? 0 : json.get().get("metric").getAsInt());
+						json.getOptionalString("scope").orElse("link"), //
+						json.getStringParsedOrNull("prefsrc",
+								new Inet4AddressWithSubnetmask.StringParserInet4Address()), //
+						json.getOptionalInt("metric").orElse(null));
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.addProperty("dst", obj.dst())//
 						.addProperty("dev", obj.dev())//
 						.addProperty("protocol", obj.protocol())//
 						.addProperty("scope", obj.scope())//
-						.addProperty("prefsrc", obj.prefsrc().getHostAddress())//
-						.addProperty("metric", obj.metric())//
+						.onlyIf(obj.prefsrc() != null, //
+								b -> b.addProperty("prefsrc", obj.prefsrc().getHostAddress()))
+						.addPropertyIfNotNull("metric", obj.metric()) //
 						.build();
 			});
 		}
 
 	}
 
-	public record Response(List<NetworkInfoWrapper> ips, List<Route> route) {
+	public record Response(List<NetworkInfoWrapper> networkInterfaces, List<Route> route) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link GetNetworkInfo.Response}.
@@ -120,7 +122,7 @@ public class GetNetworkInfo implements EndpointRequestType<EmptyObject, Response
 			}, obj -> {
 				return JsonUtils.buildJsonObject()//
 						.add("networkInterfaces",
-								NetworkInfoWrapper.serializer().toListSerializer().serialize(obj.ips()))//
+								NetworkInfoWrapper.serializer().toListSerializer().serialize(obj.networkInterfaces()))//
 						.add("routes", Route.serializer().toListSerializer().serialize(obj.route()))//
 						.build();
 			});

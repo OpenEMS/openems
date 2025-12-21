@@ -6,9 +6,10 @@ import * as Chart from "chart.js";
 import { calculateResolution, ChronoUnit, Resolution } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/service/utils";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { ChannelAddress, Currency, EdgeConfig, Logger, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "scheduleChart",
@@ -27,8 +28,9 @@ export class ChartComponent extends AbstractHistoryChart {
         protected override translate: TranslateService,
         protected override route: ActivatedRoute,
         protected override logger: Logger,
+        protected override navigationService: NavigationService,
     ) {
-        super(service, cdRef, translate, route, logger);
+        super(service, cdRef, translate, route, logger, navigationService);
         effect(() => {
             const edge = this.service.currentEdge();
 
@@ -76,28 +78,31 @@ export class ChartComponent extends AbstractHistoryChart {
             ],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
+                    name: this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.Balancing),
                     color: "rgb(51,102,0)",
                     stack: 1,
+                    custom: {
+                        formatNumber: ChartConstants.NumberFormat.TWO,
+                    },
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
+                    name: this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.ChargeGrid),
                     color: "rgb(0, 204, 204)",
                     stack: 1,
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+                    name: this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
                     converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.DelayDischarge),
                     color: "rgb(0,0,0)",
                     stack: 1,
                     order: 2,
                 },
                 {
-                    name: this.translate.instant("General.soc"),
+                    name: this.translate.instant("GENERAL.SOC"),
                     converter: () => data["Soc"]?.map(value => Utils.multiplySafely(value, 1000)),
                     color: "rgb(189, 195, 199)",
                     borderDash: [10, 10],
@@ -110,7 +115,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 1,
                 },
                 {
-                    name: this.translate.instant("General.gridBuyAdvanced"),
+                    name: this.translate.instant("GENERAL.GRID_BUY_ADVANCED"),
                     converter: () => data["GridBuy"],
                     color: ChartConstants.Colors.BLUE_GREY,
                     yAxisId: ChartAxis.RIGHT_2,
@@ -125,7 +130,7 @@ export class ChartComponent extends AbstractHistoryChart {
             },
 
             tooltip: {
-                formatNumber: "1.0-4",
+                formatNumber: ChartConstants.NumberFormat.TWO,
             },
             yAxes: [{
                 unit: YAxisType.CURRENCY,
@@ -255,9 +260,9 @@ export class ChartComponent extends AbstractHistoryChart {
     private getMinimumAxisValue(datasets: Chart.ChartDataset[]): number {
 
         const labels = [
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.BALANCING"),
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
-            this.translate.instant("Edge.Index.Widgets.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+            this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
+            this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
+            this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
         ];
 
         const finalArray: number[] = labels

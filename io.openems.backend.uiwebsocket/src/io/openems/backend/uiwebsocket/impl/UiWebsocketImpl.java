@@ -56,8 +56,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	private static final String COMPONENT_ID = "uiwebsocket0";
 
-	private final UiWebsocketValidator uiWebsocketValidator = new UiWebsocketValidator();
-
 	protected WebsocketServer server = null;
 
 	@Reference
@@ -100,9 +98,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(), this.config.requestLimit());
 			this.server.start();
-			this.uiWebsocketValidator.start(this.server);
 		}
 	}
 
@@ -110,7 +107,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 * Stop existing websocket server.
 	 */
 	private synchronized void stopServer() {
-		this.uiWebsocketValidator.stop();
 		if (this.server == null) {
 			return;
 		}

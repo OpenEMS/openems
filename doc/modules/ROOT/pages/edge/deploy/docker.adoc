@@ -8,6 +8,7 @@
 :icons: font
 :imagesdir: ../../../assets/images
 
+
 This chapter explains how OpenEMS can be deployed using our official https://hub.docker.com/r/openems/edge[Docker image].
 
 Prerequisites:
@@ -36,13 +37,13 @@ __if not already installed, follow <<Setup docker>>__
 
 === Setup docker
 
-To setup docker follow the instuctions from https://docs.docker.com/engine/install/[docs.docker.com].
+To setup docker follow the instructions from https://docs.docker.com/engine/install/[docs.docker.com].
 
 == Start Container 
 
 === Create a Docker compose
 
-Paste content into a `docker-compose.yml`
+Paste content into a `docker-compose.yml` in a directory of your choice:
 
 [source,yaml]
 ----
@@ -65,7 +66,7 @@ volumes:
 
 === Run compose file
 
-To start the previously created `docker-compose.yml` run the command:
+To start the previously created `docker-compose.yml` `cd` into the directory of it and run the command:
 
 [source,bash]
 ----
@@ -118,7 +119,8 @@ services:
       - openems-ui-conf:/etc/nginx:rw
       - openems-ui-log:/var/log/nginx:rw
     environment:
-      - UI_WEBSOCKET=ws://<hostname>:8085
+      - WEBSOCKET_HOST=openems_edge
+      - WEBSOCKET_PORT=8085
     ports:
       - 80:80
       - 443:443
@@ -130,13 +132,11 @@ volumes:
   openems-ui-log:
 ----
 
-summary of the changes:
+Summary of the changes:
 
-1. Open a Port for UI Websocket (8085) on the `openems-edge` service
-2. Added a new service `openems-ui` to the docker-compose file
-3. Added the volumes `openems-ui-conf` and `openems-ui-log`
-
-NOTE: The `UI_WEBSOCKET` environment variable must be set to the hostname of the OpenEMS Edge container. This URL is used by the UI to connect to the OpenEMS Edge Websocket. Make sure it is reachable from any device you want to use the UI on.
+1. Open a Port for UI Websocket (8085) on the `openems-edge` service  
+2. Added a new service `openems-ui` to the docker-compose file  
+3. Added the volumes `openems-ui-conf` and `openems-ui-log`  
 
 === Update docker-compose
 
@@ -155,3 +155,24 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 == InfluxDB
 
 If you want to add the InfluxDB time series database to your setup, follow the https://openems.github.io/openems.io/openems/latest/backend/deploy/docker.html#_setup_influxdb[OpenEMS Backend deploy instructions to setup InfluxDB].
+
+== Changing the Language in the UI
+
+To change the language in the OpenEMS UI:
+
+1. Open the OpenEMS Edge UI in your browser.
+2. Click the menu-icon in the top-left corner of the UI.
+3. Click on the user to enter user settings.
+4. Choose your preferred language from the "Sprache wählen"/"Select language" dropdown.
+5. The UI will immediately switch to the selected language.
+
+== Next Steps
+
+After successful deployment:
+
+1. Open your browser and go to `http://localhost` or the IP address of your device.
+2. Log in using default credentials provided in the documentation.
+3. Verify that your OpenEMS Edge instance is connected and running.
+4. For additional configuration, see:
+   * link:../controllers/[Edge Controllers Configuration]
+   * link:../ui/[OpenEMS UI Usage Guide]

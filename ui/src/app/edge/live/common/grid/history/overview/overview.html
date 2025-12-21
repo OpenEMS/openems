@@ -1,0 +1,10 @@
+@if (isInitialized) {
+  <oe-chart [title]="'GENERAL.GRID' | translate" [showPhases]="showPhases" (setShowPhases)="setShowPhases($event)"
+    [period]="service.historyPeriod">
+    <gridchart [isOnlyChart]="true" [showPhases]="showPhases" [showTotal]="showTotal">
+    </gridchart>
+    @if (isAllowed) {
+      <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+    }
+  </oe-chart>
+}

@@ -1,9 +1,11 @@
 package io.openems.edge.evse.chargepoint.keba.modbus;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evse.api.SingleThreePhase;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
-import io.openems.edge.evse.chargepoint.keba.common.enums.P30S10PhaseSwitching;
+import io.openems.edge.common.type.Phase.SingleOrThreePhase;
+import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,11 +13,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private boolean readOnly;
-		private boolean debugMode;
 		private String modbusId;
 		private PhaseRotation phaseRotation;
-		private SingleThreePhase wiring;
-		private P30S10PhaseSwitching p30S10PhaseSwitching;
+		private SingleOrThreePhase wiring;
+		private LogVerbosity logVerbosity;
+		private int modbusUnitId = 1;
 
 		private Builder() {
 		}
@@ -30,11 +32,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
-			return this;
-		}
-
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
@@ -45,13 +42,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setWiring(SingleThreePhase wiring) {
+		public Builder setWiring(SingleOrThreePhase wiring) {
 			this.wiring = wiring;
 			return this;
 		}
 
-		public Builder setP30S10PhaseSwitching(P30S10PhaseSwitching p30s10PhaseSwitching) {
-			this.p30S10PhaseSwitching = p30s10PhaseSwitching;
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -82,8 +79,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 
 	@Override
@@ -92,17 +89,22 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String Modbus_target() {
+		return generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
 	public PhaseRotation phaseRotation() {
 		return this.builder.phaseRotation;
 	}
 
 	@Override
-	public SingleThreePhase wiring() {
+	public SingleOrThreePhase wiring() {
 		return this.builder.wiring;
 	}
 
 	@Override
-	public P30S10PhaseSwitching p30S10PhaseSwitching() {
-		return this.builder.p30S10PhaseSwitching;
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 }

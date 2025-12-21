@@ -151,4 +151,30 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
+	/**
+	 * Gets the OpenCage API key for geocoding.
+	 *
+	 * @return the API key
+	 */
+	public String getOpenCageApiKey();
+
+	/**
+	 * Returns the Open-Meteo API key.
+	 * 
+	 * <p>
+	 * The API can also be used without a key for non-commercial use.
+	 *
+	 * @return the API key, or null if not set
+	 */
+	public default String getOpenMeteoApiKey() {
+		return null;
+	}
+
+	/**
+	 * Returns a link to a given key.
+	 * 
+	 * @param key the key
+	 * @return the link
+	 */
+	public String getLink(String key);
 }

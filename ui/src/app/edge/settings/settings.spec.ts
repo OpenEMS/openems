@@ -26,6 +26,15 @@ describe("Edge", () => {
                 isAtLeast(role) {
                     return true;
                 },
+                getNavigationTree(navigation, translate) {
+                    return null;
+                },
+                getUseNewUIFromSettings: function (): boolean {
+                    throw new Error("Function not implemented.");
+                },
+                getAnnualReviewFromSettings() {
+                    return [];
+                },
             },
         }),
     });
@@ -34,7 +43,7 @@ describe("Edge", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
-                TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+                TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
             ],
             providers: [
                 TranslateService,
@@ -91,6 +100,15 @@ export async function expectNgOnInit(serviceSypObject: jasmine.SpyObj<Service>, 
             },
             isAtLeast(role) {
                 return true;
+            },
+            getNavigationTree(navigation, translate) {
+                return null;
+            },
+            getUseNewUIFromSettings: function (): boolean {
+                throw new Error("Function not implemented.");
+            },
+            getAnnualReviewFromSettings() {
+                return [];
             },
         },
     });

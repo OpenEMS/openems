@@ -11,7 +11,7 @@ import { Component, Input } from "@angular/core";
 export class ModalHorizontalLineComponent {
 
     /** Components-Array to iterate over */
-    @Input({ required: true }) protected components!: any[];
+    @Input({ required: true }) public components!: any[];
     /** index is an iterator */
-    @Input({ required: true }) protected index!: number;
+    @Input({ required: true }) public index!: number;
 }

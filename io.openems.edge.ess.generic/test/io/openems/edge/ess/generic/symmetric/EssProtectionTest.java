@@ -6,17 +6,19 @@ import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURREN
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MIN_VOLTAGE;
 import static io.openems.edge.battery.api.Battery.ChannelId.SOC;
 import static io.openems.edge.battery.api.Battery.ChannelId.VOLTAGE;
-import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_CHARGE_MAX_CURRENT;
+import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
@@ -24,7 +26,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
@@ -87,7 +88,16 @@ public class EssProtectionTest {
 						.input("battery0", CHARGE_MAX_CURRENT, 169)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594))//
+						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594), 10)//
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> clock.leap(1, MINUTES)), 10)//
+				.next(new TestCase()//
+						.input("battery0", VOLTAGE, 700)//
+						.input("battery0", SOC, 80)//
+						.input("battery0", CHARGE_MAX_CURRENT, 169)//
+						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
+						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
+						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594), 10)//
 		;//
 		assertEquals("Started|SoC:80 %|L:0 W|Allowed:-92000;92000", ess.debugLog());
 		sutManaged//
@@ -121,146 +131,20 @@ public class EssProtectionTest {
 		// Force charge
 		sutManaged//
 				.next(new TestCase()//
+						.input("battery0", SOC, 0)//
 						.input("battery0", VOLTAGE, 645)//
 						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 167)//
-				)//
+						.input("battery0", DISCHARGE_MAX_CURRENT, 0), 50)//
 				.next(new TestCase()//
 						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 112)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 75)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 49)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 32)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 20)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 12)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 6)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 3)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 0)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 0)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, -1)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 645)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 0)//
-						.output(EP_DISCHARGE_MAX_CURRENT, -2)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 650)//
 						.input("battery0", SOC, 0)//
 						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.output(EP_DISCHARGE_MAX_CURRENT, -2)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 650)//
-						.input("battery0", SOC, 0)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, -2)//
-						.output(EP_DISCHARGE_MAX_CURRENT, -1)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 650)//
-						.input("battery0", SOC, 0)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, -2)//
-						.output(EP_DISCHARGE_MAX_CURRENT, -1)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 650)//
-						.input("battery0", SOC, 0)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, -2)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 0)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 650)//
-						.input("battery0", SOC, 0)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, -2)//
-						.output(EP_DISCHARGE_MAX_CURRENT, 0)//
 				)//
 		;//
-		assertEquals("Started|SoC:0 %|L:-1235 W|Allowed:-92000;-1235", ess.debugLog());
+		assertEquals("Started|SoC:0 %|L:-1225 W|Allowed:-92000;-1225", ess.debugLog());
 
 		// normal condition
 		sutManaged//
@@ -270,7 +154,7 @@ public class EssProtectionTest {
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.output(EP_CHARGE_MAX_CURRENT, 674)//
+						.output(EP_CHARGE_MAX_CURRENT, 772)//
 				)//
 				.next(new TestCase()//
 						.timeleap(clock, 1, MINUTES))//
@@ -280,7 +164,7 @@ public class EssProtectionTest {
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.output(EP_CHARGE_MAX_CURRENT, 619)//
+						.output(EP_CHARGE_MAX_CURRENT, 747)//
 				)//
 				.next(new TestCase()//
 						.timeleap(clock, 1, MINUTES))//
@@ -290,174 +174,31 @@ public class EssProtectionTest {
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_CURRENT, 169)//
-						.output(EP_CHARGE_MAX_CURRENT, 581)//
+						.output(EP_CHARGE_MAX_CURRENT, 725)//
 				)//
-				.next(new TestCase()//
-						.timeleap(clock, 1, MINUTES))//
-
 		;//
 
 		// Force discharge
 		sutManaged//
 				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
+						.input("battery0", SOC, 100)//
+						.input("battery0", VOLTAGE, 804)//
 						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 403)//
-				)//
+						.timeleap(clock, 1, ChronoUnit.SECONDS), //
+						60)//
 				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 281)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 198)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 142)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 103)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 77)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 58)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 46)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 38)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 32)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 28)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 25)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 23)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 798)//
+						.input("battery0", VOLTAGE, 804)//
 						.input("battery0", SOC, 100)//
 						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
 						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
 						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
 						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 19)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 798)//
-						.input("battery0", SOC, 100)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 16)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 798)//
-						.input("battery0", SOC, 100)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 14)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", SOC, 100)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 16)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", SOC, 100)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 17)//
-				)//
-				.next(new TestCase()//
-						.input("battery0", VOLTAGE, 796)//
-						.input("battery0", SOC, 100)//
-						.input("battery0", CHARGE_MAX_VOLTAGE, 800)//
-						.input("battery0", DISCHARGE_MIN_VOLTAGE, 594)//
-						.input("battery0", DISCHARGE_MAX_CURRENT, 169)//
-						.input("battery0", CHARGE_MAX_CURRENT, 0)//
-						.output(EP_CHARGE_MAX_CURRENT, 18)//
+						.output(EP_CHARGE_MAX_CURRENT, -2)//
 				)//
 		;//
-		assertEquals("Started|SoC:100 %|L:0 W|Allowed:0;92000", ess.debugLog());
+		assertEquals("Started|SoC:100 %|L:1608 W|Allowed:1608;92000", ess.debugLog());
 	}
 }

@@ -1,5 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
+import static io.openems.common.utils.StreamUtils.dictionaryToStream;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
@@ -169,7 +171,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			return emptyMap();
 		}
 
-		return StreamUtils.dictionaryToStream(config.getProperties())
+		if (config == null) {
+			return emptyMap();
+		}
+		final var props = config.getProperties();
+		if (props == null) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(props) //
 				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
@@ -586,12 +596,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 					config.getPid() + ": Properties is 'null'");
 		}
 
-		// Reset all target properties to avoid missing old references
-		for (var k = properties.keys(); k.hasMoreElements();) {
-			var property = k.nextElement();
-			if (property.endsWith(".target")) {
-				properties.put(property, "(enabled=true)");
-			}
+		// Reset Target-Properties to avoid missing old references
+		for (var property : getResetTargetProperties(properties, request.properties())) {
+			properties.put(property, "(enabled=true)");
 		}
 
 		for (Property property : request.properties()) {
@@ -619,6 +626,34 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			e.printStackTrace();
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(), e.getMessage());
 		}
+	}
+
+	/**
+	 * Finds properties with depending '.target' properties, like 'battery.id' and
+	 * 'battery.target'. If such a ID-Property should be updated (via
+	 * UpdateComponentConfig.Request), the corresponding Target-Property is returned
+	 * in the list and later reset to "(enabled=true)". In the Component this
+	 * triggers Deactivate/Activate instead of Modified.
+	 * 
+	 * @param properties Properties of the existing configuration
+	 * @param request    Properties of UpdateComponentConfig.Request
+	 * @return list of Target-Properties that should be reset
+	 */
+	private static List<String> getResetTargetProperties(Dictionary<String, Object> properties,
+			List<Property> request) {
+		return dictionaryToStream(properties) //
+				.map(Entry::getKey) //
+				.filter(p -> p.endsWith(".target")) // e.g. 'battery.target'
+				.filter(p -> {
+					var base = p.substring(0, p.length() //
+							- "target".length()) // keep the final dot, e.g. 'battery.'
+							.toLowerCase(); // match case-insensitive
+					return request.stream() //
+							.map(Property::getName) //
+							// matches 'battery.id' but not 'batteryInverter.id'
+							.anyMatch(n -> n.toLowerCase().startsWith(base));
+				}) //
+				.toList();
 	}
 
 	@Override
@@ -717,47 +752,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * searching through Factory default values.
 	 *
 	 * @param componentId the Component-ID
-	 * @return an array of Configurations
+	 * @return a {@link List} of {@link Configuration Configurations}
 	 * @throws InvalidSyntaxException on error
 	 * @throws IOException            on error
 	 */
 	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
-		List<Configuration> result = new ArrayList<>();
-		var configs = this.cm.listConfigurations(null);
+		var configs = this.cm.listConfigurations("(id=" + componentId + ")");
+
 		if (configs == null) {
-			return result;
+			return emptyList();
 		}
 
-		for (Configuration config : configs) {
-			var id = config.getProperties().get("id");
-			if (id != null) {
-				// Configuration has an 'id' property
-				if (id instanceof String && componentId.equals(id)) {
-					// 'id' property matches
-					result.add(config);
-				}
-
-			} else {
-				// compare default value for property 'id'
-				var factoryPid = config.getFactoryPid();
-				if (factoryPid == null) {
-					// Singleton?
-					factoryPid = config.getPid();
-					if (factoryPid == null) {
-						continue;
-					}
-				}
-				var factory = this.getEdgeConfig().getFactories().get(factoryPid);
-				if (factory == null) {
-					continue;
-				}
-				var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
-				if (defaultValue.isPresent() && componentId.equals(defaultValue.get())) {
-					result.add(config);
-				}
-			}
-		}
-		return result;
+		return List.of(configs);
 	}
 
 	@Override

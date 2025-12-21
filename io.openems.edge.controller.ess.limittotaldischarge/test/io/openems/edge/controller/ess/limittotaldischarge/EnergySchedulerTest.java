@@ -1,8 +1,6 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -16,8 +14,7 @@ public class EnergySchedulerTest {
 	public void testNull() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
-		assertEquals(4000 /* no discharge limitation */,
-				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
+		assertEquals(4000 /* no discharge limitation */, t.simulatePeriod().ef().setEss(4000));
 	}
 
 	@Test
@@ -28,7 +25,6 @@ public class EnergySchedulerTest {
 		assertEquals("ctrl0", esh.getParentId());
 
 		var t = EnergyScheduleTester.from(esh);
-		assertEquals(600 /* discharge limited */,
-				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
+		assertEquals(600 /* discharge limited */, t.simulatePeriod().ef().setEss(4000));
 	}
 }

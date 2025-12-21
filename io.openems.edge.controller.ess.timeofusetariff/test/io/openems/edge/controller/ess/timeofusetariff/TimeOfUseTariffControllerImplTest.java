@@ -10,13 +10,13 @@ import org.junit.Test;
 
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.Call;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.energy.api.EnergyScheduler;
@@ -97,7 +97,7 @@ public class TimeOfUseTariffControllerImplTest {
 				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
-						.setEnabled(false) //
+						.setEnabled(true) //
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //
 						.setControlMode(CHARGE_CONSUMPTION) //

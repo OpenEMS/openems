@@ -1,0 +1,15 @@
+ion-accordion.ng-invalid {
+    border-bottom-style: solid;
+    border-bottom-color: var(--ion-color-danger);
+    --highlight-color-focused: var(--ion-color-danger);
+    --border-color: var(--ion-color-danger);
+}
+
+ion-item {
+    ion-checkbox.ng-invalid {
+        border-bottom-style: solid;
+        border-bottom-color: var(--ion-color-danger);
+        --highlight-color-focused: var(--ion-color-danger);
+        --border-color: var(--ion-color-danger);
+    }
+}

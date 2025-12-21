@@ -1,0 +1,15 @@
+@if (isInitialized) {
+  <oe-flat-widget button [title]="component.alias" button
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/enerixchart'"
+    [icon]="{name:'swap-vertical-outline', color:'normal'}">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE' | translate"
+      [channelAddress]="this.component.id + '/CumulatedNoDischargeTime'" [converter]="TIME_CONVERTER"
+      [leftColumnWidth]="80"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE' | translate"
+      [channelAddress]="this.component.id + '/CumulatedInactiveTime'" [converter]="TIME_CONVERTER"
+      [leftColumnWidth]="80"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID' | translate"
+      [channelAddress]="this.component.id + '/CumulatedChargeFromGridTime'" [converter]="TIME_CONVERTER"
+      [leftColumnWidth]="80"></oe-flat-widget-line>
+  </oe-flat-widget>
+}

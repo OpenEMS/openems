@@ -2,6 +2,7 @@
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { EdgePermission } from "../shared";
+import { TEnumKeys } from "./utility";
 
 export enum WidgetClass {
     "Energymonitor",
@@ -17,6 +18,7 @@ export enum WidgetClass {
 
 export enum WidgetNature {
     "io.openems.edge.evcs.api.Evcs",
+    "io.openems.edge.heat.api.ManagedHeatElement",
     "io.openems.impl.controller.channelthreshold.ChannelThresholdController", // TODO deprecated
     "io.openems.edge.io.api.DigitalInput",
 }
@@ -28,6 +30,7 @@ export enum WidgetFactory {
     "Controller.Asymmetric.PeakShaving",
     "Controller.ChannelThreshold",
     "Controller.CHP.SoC",
+    "Controller.Clever-PV",
     "Controller.Ess.DelayedSellToGrid",
     "Controller.Ess.FixActivePower",
     "Controller.Ess.GridOptimizedCharge",
@@ -38,10 +41,12 @@ export enum WidgetFactory {
     "Controller.IO.HeatingElement",
     "Controller.IO.Heating.Room",
     "Controller.Io.HeatPump.SgReady",
+    "Controller.Heat.Heatingelement",
     "Controller.Symmetric.PeakShaving",
     "Controller.TimeslotPeakshaving",
     "Evcs.Cluster.PeakShaving",
     "Evcs.Cluster.SelfConsumption",
+    "Weather.OpenMeteo",
 }
 
 export type Icon = {
@@ -56,7 +61,7 @@ export type ImageIcon = {
 };
 
 export class Widget {
-    public name: WidgetNature | WidgetFactory | string;
+    public name: TEnumKeys<typeof WidgetNature | typeof WidgetFactory> | string;
     public componentId: string;
     public alias: string;
 }
@@ -137,6 +142,13 @@ export class Widgets {
         for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
             for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
                 const component = config.getComponent(componentId);
+                if (factory === "Controller.Clever-PV") {
+                    // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
+                    const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
+                    if (readOnly !== false) {
+                        continue;
+                    }
+                }
                 if (component.isEnabled) {
                     list.push({ name: factory, componentId: componentId, alias: component.alias });
                 }
