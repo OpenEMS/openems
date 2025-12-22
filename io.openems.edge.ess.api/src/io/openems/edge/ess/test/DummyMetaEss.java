@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -14,7 +13,7 @@ import io.openems.edge.ess.api.SymmetricEss;
  * can be used together with the OpenEMS Component test framework.
  */
 public class DummyMetaEss extends AbstractDummyManagedSymmetricEss<DummyMetaEss>
-		implements ManagedSymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent, MetaEss, SumOptions {
+		implements ManagedSymmetricEss, SymmetricEss, StartStoppable, OpenemsComponent, MetaEss {
 
 	private final String[] essIds;
 

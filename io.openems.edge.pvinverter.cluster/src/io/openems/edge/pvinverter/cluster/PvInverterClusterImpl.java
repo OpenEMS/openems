@@ -1,5 +1,9 @@
 package io.openems.edge.pvinverter.cluster;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +33,9 @@ import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -46,11 +47,11 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_CONTROLLERS //
 })
 public class PvInverterClusterImpl extends AbstractOpenemsComponent implements PvInverterCluster,
-		ManagedSymmetricPvInverter, VirtualMeter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, SumOptions {
+		ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterClusterImpl.class);
 
@@ -83,25 +84,25 @@ public class PvInverterClusterImpl extends AbstractOpenemsComponent implements P
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
-			this.channel(PvInverterCluster.ChannelId.EXECUTION_FAILED).setNextValue(false);
+			setValue(this, PvInverterCluster.ChannelId.EXECUTION_FAILED, false);
 			return;
 		}
 		try {
 			switch (event.getTopic()) {
 
-			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 				this.calculateChannelValues();
 				break;
 
-			case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
+			case TOPIC_CYCLE_AFTER_CONTROLLERS:
 				this.distributePvLimit();
 				break;
 			}
 
-			this.channel(PvInverterCluster.ChannelId.EXECUTION_FAILED).setNextValue(false);
+			setValue(this, PvInverterCluster.ChannelId.EXECUTION_FAILED, false);
 
 		} catch (OpenemsNamedException e) {
-			this.channel(PvInverterCluster.ChannelId.EXECUTION_FAILED).setNextValue(true);
+			setValue(this, PvInverterCluster.ChannelId.EXECUTION_FAILED, true);
 			this.logError(this.log, "Failed to distribute PV-Limit: " + e.getMessage());
 		}
 	}

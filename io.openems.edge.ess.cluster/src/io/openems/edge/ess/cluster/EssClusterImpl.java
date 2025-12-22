@@ -33,7 +33,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
@@ -52,7 +51,7 @@ import io.openems.edge.ess.power.api.Power;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class EssClusterImpl extends AbstractOpenemsComponent implements EssCluster, ManagedAsymmetricEss, AsymmetricEss,
-		ManagedSymmetricEss, SymmetricEss, MetaEss, SumOptions, OpenemsComponent, ModbusSlave, EventHandler, StartStoppable {
+		ManagedSymmetricEss, SymmetricEss, MetaEss, OpenemsComponent, ModbusSlave, EventHandler, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(EssClusterImpl.class);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);

@@ -23,7 +23,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Virtual.Subtract", //
@@ -31,7 +30,7 @@ import io.openems.edge.meter.api.VirtualMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
 public class VirtualSubtractMeterImpl extends AbstractOpenemsComponent
-		implements VirtualSubtractMeter, VirtualMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, SumOptions {
+		implements VirtualSubtractMeter, ElectricityMeter, OpenemsComponent, ModbusSlave, SumOptions {
 
 	private final SubtractChannelManager channelManager = new SubtractChannelManager(this);
 

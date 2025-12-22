@@ -23,7 +23,7 @@ import io.openems.common.types.MeterType;
 	MeterType meterType() default MeterType.PRODUCTION;
 
 	@AttributeDefinition(name = "Add to Sum?", description = "Should the data of this cluster be added to the Sum?")
-	boolean addToSum() default true;
+	boolean addToSum() default false;
 
 	@AttributeDefinition(name = "PV-Inverter-IDs", description = "IDs of PvInverter devices.")
 	String[] pvInverter_ids();
