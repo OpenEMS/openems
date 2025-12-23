@@ -149,16 +149,12 @@
       <ion-item
         [color]="getBackgroundClass(formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateNumber)">
         <ion-label>
-          <!--<oe-modal-line [name]="'GENERAL.MODE' | translate"
-          [value]="'INSTALLATION.CHARGE_DISCHARGE_STATE.' + formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state |translate">
-          </oe-modal-line>
-        -->
           <oe-modal-line [name]="'GENERAL.MODE' | translate"
             [value]="('INSTALLATION.CHARGE_DISCHARGE_STATE.' + (formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey ?? 'UNDEFINED')) | translate">
           </oe-modal-line>
 
           <ng-container
-            *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state === 'BALANCING_ACTIVE'">
+            *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey === 'BALANCING_ACTIVE'">
             <oe-modal-line [name]="'INSTALLATION.CHARGE_DISCHARGE_STATE.BALANCING_REMAINING_SECONDS' | translate"
               [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.balancingRemainingSeconds | formatSecondsToDuration">
             </oe-modal-line>
@@ -168,22 +164,6 @@
       </ion-item>
 
       <ng-container>
-        <table class="full_width" style="margin-top: 2%;">
-          <tr>
-            <ion-item-divider color="light">
-              <td style="width: 85%;" translate class="align_left">
-                INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.IS_ENABLED
-              </td>
-
-              <td style="width: auto;" class="align_right;">
-                <ng-container
-                  *ngIf="formGroup.controls[component.id].value['chargeDischargeLimiterController'].hasOwnProperty('isChargeDischargeLimiterEnabled')">
-                  <ion-toggle [formControlName]="'isChargeDischargeLimiterEnabled'"></ion-toggle>
-                </ng-container>
-              </td>
-            </ion-item-divider>
-          </tr>
-        </table>
         <table class="full_width" style="margin-top: 2%;">
           <tr>
             <td style="width: 10%">
@@ -218,8 +198,7 @@
 
 
         <!-- Show only when ChargeDischargeLimiter is enabled -->
-        <ng-container
-          *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc'] && formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['isChargeDischargeLimiterEnabled']">
+        <ng-container *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc']">
 
           <!-- FIRST Line -> MIN SOC VALUE -->
           <ion-item-divider color="light">
@@ -602,17 +581,12 @@
                     <ion-item
                       [color]="getBackgroundClass(formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateNumber)">
                       <ion-label>
-                        <!--<oe-modal-line [name]="'GENERAL.MODE' | translate"
-                          [value]="'INSTALLATION.CHARGE_DISCHARGE_STATE.' + formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state | translate">
-                        </oe-modal-line>
-                        /-->
-
                         <oe-modal-line [name]="'GENERAL.MODE' | translate"
                           [value]="('INSTALLATION.CHARGE_DISCHARGE_STATE.' + (formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey ?? 'UNDEFINED')) | translate">
                         </oe-modal-line>
 
                         <ng-container
-                          *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state === 'BALANCING_ACTIVE'">
+                          *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey === 'BALANCING_ACTIVE'">
                           <oe-modal-line
                             [name]="'INSTALLATION.CHARGE_DISCHARGE_STATE.BALANCING_REMAINING_SECONDS' | translate"
                             [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.balancingRemainingSeconds | formatSecondsToDuration">
@@ -622,21 +596,6 @@
                     </ion-item>
 
                     <ng-container>
-                      <table class="full_width" style="margin-top: 2%;">
-                        <tr>
-                          <ion-item-divider color="light">
-                            <td style="width: 85%;" translate class="align_left">
-                              INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.IS_ENABLED
-                            </td>
-                            <td style="width: auto;" class="align_right;">
-                              <ng-container
-                                *ngIf="formGroup.controls[component.id].value['chargeDischargeLimiterController'].hasOwnProperty('isChargeDischargeLimiterEnabled')">
-                                <ion-toggle [formControlName]="'isChargeDischargeLimiterEnabled'"></ion-toggle>
-                              </ng-container>
-                            </td>
-                          </ion-item-divider>
-                        </tr>
-                      </table>
 
                       <table class="full_width" style="margin-top: 2%;">
                         <tr>
@@ -670,8 +629,7 @@
 
                       <!-- Slider nur wenn Limiter aktiv -->
                       <ng-container
-                        *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc']
-               && formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['isChargeDischargeLimiterEnabled']">
+                        *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc']">
 
                         <!-- MIN SOC -->
                         <ion-item-divider color="light">
@@ -895,11 +853,11 @@
           [color]="getBackgroundClass(formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateNumber)">
           <ion-label>
             <oe-modal-line [name]="'GENERAL.MODE' | translate"
-              [value]="'INSTALLATION.CHARGE_DISCHARGE_STATE.' + formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state |translate">
+              [value]="('INSTALLATION.CHARGE_DISCHARGE_STATE.' + (formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey ?? 'UNDEFINED')) | translate">
             </oe-modal-line>
 
             <ng-container
-              *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state === 'BALANCING_ACTIVE'">
+              *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateKey === 'BALANCING_ACTIVE'">
               <oe-modal-line [name]="'INSTALLATION.CHARGE_DISCHARGE_STATE.BALANCING_REMAINING_SECONDS' | translate"
                 [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.balancingRemainingSeconds | formatSecondsToDuration">
               </oe-modal-line>
@@ -909,22 +867,6 @@
         </ion-item>
 
         <ng-container>
-          <table class="full_width" style="margin-top: 2%;">
-            <tr>
-              <ion-item-divider color="light">
-                <td style="width: 85%;" translate class="align_left">
-                  INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.IS_ENABLED
-                </td>
-
-                <td style="width: auto;" class="align_right;">
-                  <ng-container
-                    *ngIf="formGroup.controls[component.id].value['chargeDischargeLimiterController'].hasOwnProperty('isChargeDischargeLimiterEnabled')">
-                    <ion-toggle [formControlName]="'isChargeDischargeLimiterEnabled'"></ion-toggle>
-                  </ng-container>
-                </td>
-              </ion-item-divider>
-            </tr>
-          </table>
           <table class="full_width" style="margin-top: 2%;">
             <tr>
               <td style="width: 10%">
@@ -959,8 +901,7 @@
 
 
           <!-- Show only when ChargeDischargeLimiter is enabled -->
-          <ng-container
-            *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc'] && formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['isChargeDischargeLimiterEnabled']">
+          <ng-container *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.['minSoc']">
 
             <!-- FIRST Line -> MIN SOC VALUE -->
             <ion-item-divider color="light">

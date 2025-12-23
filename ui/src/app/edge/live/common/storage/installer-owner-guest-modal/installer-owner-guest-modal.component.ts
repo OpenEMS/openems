@@ -112,7 +112,6 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
             // ChargeDischargeLimiter: subscribe channels
             for (const ctrl of chargeDischargeLimiterCtrl as EdgeConfig.Component[]) {
                 channelAddresses.push(
-                    new ChannelAddress(ctrl.id, "_PropertyIsChargeDischargeLimiterEnabled"),
                     new ChannelAddress(ctrl.id, "_PropertyMinSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyMaxSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyForceChargeSoc"),
@@ -164,7 +163,7 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                     BALANCING_ACTIVE = 8,       // balancing is active
                                     PRICE_LIMIT = 9,            // balancing delayed due to high price
                                     APPROACHING_MIN_SOC = 10,   // reduced power
-                                    APPROACHING_MAX_SOC = 11,   // reduced power                                    
+                                    APPROACHING_MAX_SOC = 11,   // reduced power
                                 }
                                 const minSoc = currentData.channel[controller.id + "/_PropertyMinSoc"];
                                 const maxSoc = currentData.channel[controller.id + "/_PropertyMaxSoc"];
@@ -173,16 +172,12 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                 const stateNumber = currentData.channel[controller.id + "/StateMachine"];
                                 const balancingRemainingSeconds = currentData.channel[controller.id + "/BalancingRemainingSeconds"];
                                 const chargedEnergy = currentData.channel[controller.id + "/ChargedEnergy"];
-
-                                const isChargeDischargeLimiterEnabled = currentData.channel[controller.id + "/_PropertyIsChargeDischargeLimiterEnabled"] == 1;
-                                //const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
                                 const stateKey = (ChargeDischargeControllerState[Number(stateNumber)] as keyof typeof ChargeDischargeControllerState) ?? "UNDEFINED";
                                 //console.log("Current Data:", currentData);
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
                                     this.formBuilder.group({
                                         controllerId: new FormControl(controller["id"]),
-                                        isChargeDischargeLimiterEnabled: new FormControl(isChargeDischargeLimiterEnabled),
                                         minSoc: new FormControl(minSoc),
                                         maxSoc: new FormControl(maxSoc),
                                         forceChargeSoc: new FormControl(forceChargeSoc),

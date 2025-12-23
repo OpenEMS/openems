@@ -154,7 +154,6 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             // ChargeDischargeLimiter: subscribe channels
             for (const ctrl of chargeDischargeLimiterCtrl as EdgeConfig.Component[]) {
                 channelAddresses.push(
-                    new ChannelAddress(ctrl.id, "_PropertyIsChargeDischargeLimiterEnabled"),
                     new ChannelAddress(ctrl.id, "_PropertyMinSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyMaxSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyForceChargeSoc"),
@@ -220,16 +219,11 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                 const stateNumber = currentData.channel[controller.id + "/StateMachine"];
                                 const balancingRemainingSeconds = currentData.channel[controller.id + "/BalancingRemainingSeconds"];
                                 const chargedEnergy = currentData.channel[controller.id + "/ChargedEnergy"];
-
-                                const isChargeDischargeLimiterEnabled = currentData.channel[controller.id + "/_PropertyIsChargeDischargeLimiterEnabled"] == 1;
-                                //const state = ChargeDischargeControllerState[stateNumber] ?? ChargeDischargeControllerState.UNDEFINED;
                                 const stateKey = (ChargeDischargeControllerState[Number(stateNumber)] as keyof typeof ChargeDischargeControllerState) ?? "UNDEFINED";
-                                //("Current Data:", currentData);
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
                                     this.formBuilder.group({
                                         controllerId: new FormControl(controller["id"]),
-                                        isChargeDischargeLimiterEnabled: new FormControl(isChargeDischargeLimiterEnabled),
                                         minSoc: new FormControl(minSoc),
                                         maxSoc: new FormControl(maxSoc),
                                         forceChargeSoc: new FormControl(forceChargeSoc),
@@ -365,6 +359,33 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                 }
 
             }
+
+            const chargeDischargeLimiterController = (essGroups.get("chargeDischargeLimiterController") as FormGroup)?.controls ?? {};
+            if (chargeDischargeLimiterController && Object.keys(chargeDischargeLimiterController).length > 0) {
+
+                // Only allow config-related properties to be persisted
+                const allowedProps = [
+                    "minSoc",
+                    "maxSoc",
+                    "forceChargeSoc",
+                    "energyBetweenBalancingCycles",
+                ];
+
+                for (const prop of allowedProps) {
+                    if (chargeDischargeLimiterController[prop] && chargeDischargeLimiterController[prop].dirty) {
+
+                        if (updateArray.get(chargeDischargeLimiterController["controllerId"].value)) {
+                            updateArray.get(chargeDischargeLimiterController["controllerId"].value)
+                                .push(new Map().set(prop, chargeDischargeLimiterController[prop].value));
+                        } else {
+                            updateArray.set(chargeDischargeLimiterController["controllerId"].value,
+                                [new Map().set(prop, chargeDischargeLimiterController[prop].value)]);
+                        }
+                    }
+                }
+            }
+
+
             const prepareBatteryExtensionController = (essGroups.get("prepareBatteryExtensionController") as FormGroup)?.controls ?? {};
             for (const essGroup of Object.keys(prepareBatteryExtensionController)) {
                 if (prepareBatteryExtensionController[essGroup].dirty) {
