@@ -316,7 +316,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			break;
 		case ERROR:
-			// log errors
+			if (currentSoc != null && currentActivePower != null) {
+				this.changeState(State.UNDEFINED);
+			}
 			break;
 		case APPROACHING_MIN_SOC:
 			if (currentSoc > (this.minSoc + TAPER_PERCENT)) {
@@ -364,6 +366,7 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				break;
 			}
 
+			
 			lin = (float) (this.maxSoc - currentSoc) / (float) TAPER_PERCENT; // 1..0
 			taperFactor = lin * lin; // quadratisch
 			calculatedPower = Math.round(this.fullChargePower * taperFactor); // fullChargePower negativ
@@ -505,6 +508,14 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (this.state == State.APPROACHING_MAX_SOC || this.state == State.APPROACHING_MIN_SOC) {
 			Float target = calculatedPower != null ? calculatedPower.floatValue() : null;
 			rampedPower = this.rampFilter.getFilteredValueAsInteger(target, this.rampPowerW);
+			
+
+			this.logDebug(this.log,
+					"[RAMP] state=" + this.state
+							+ " | target=" + calculatedPower + "W"
+							+ " | rampPowerW=" + this.rampPowerW
+							+ " -> ramped=" + rampedPower + "W \n");
+			
 		}
 
 		this.applyActivePowerConstraint(rampedPower);
