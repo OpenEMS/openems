@@ -325,6 +325,10 @@ image::newbie-guide-UI-live-view.png[Energy Monitor in OpenEMS UI Live view]
 
 Watch the values change as the simulation runs! The system updates once per second by default, as defined by the Cycle-Time setting of "1000 ms" in the _**Core Cycle (Core.Cycle)**_ component (see also xref:gettingstarted.adoc[Getting Started] and xref:edge/architecture.adoc#_cycle[Edge Architecture - Cycle]).
 
+NOTE: The bars in the gauge are not based on the current power distribution but on the maximum values ever recorded for each source.
+So they do not represent the actual live ratio between grid, PV, and consumption. Instead, they show how the current values compare to their respective historical maximums.
+That’s why the textual values and arrows (which reflect the real-time power flow) can differ significantly from the bar lengths, which are only scaled to the peak values seen so far.
+
 === Understanding What You See
 
 In the beginning of the simulation there is no PV production as it is simulating nighttime. Just observe for a while.
