@@ -95,6 +95,9 @@ describe("OverviewComponent", () => {
                 getUseNewUIFromSettings: function (): boolean {
                     throw new Error("Function not implemented.");
                 },
+                getAnnualReviewFromSettings() {
+                    return [];
+                },
             },
         });
 

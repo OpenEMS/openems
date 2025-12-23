@@ -14,17 +14,17 @@ import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
-import static java.util.Arrays.stream;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -53,46 +53,52 @@ public class EnergyScheduler {
 		return EnergyScheduleHandler.WithDifferentModes.<StateMachine, OptimizationContext, Void>create(parent) //
 				.setSerializer(Config.serializer(), configSupplier) //
 
-				.setAvailableModes(() -> {
+				.setModes(() -> {
 					var config = configSupplier.get();
 					return config != null //
-							? config.controlMode.modes //
-							: new StateMachine[] { BALANCING };
+							? Modes.of(config.controlMode.modes) //
+							: Modes.empty();
 				})
 
-				.setInitialPopulationsProvider((goc, coc, availableModes) -> {
+				.setInitialPopulationsProvider((goc, coc, modes) -> {
 					// Prepare Initial Population with cheapest price per valley set to
 					// DELAY_DISCHARGE or CHARGE_GRID
-					var result = ImmutableList.<InitialPopulation<StateMachine>>builder();
-					generateInitialPopulation(result, goc, StateMachine.DELAY_DISCHARGE);
-					var hasChargeGrid = stream(availableModes).anyMatch(m -> m == StateMachine.CHARGE_GRID);
+					final var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
+					final var prices = goc.streamPeriodsWithPrice() //
+							.mapToDouble(Period.WithPrice::price) //
+							.toArray();
+
+					generateInitialPopulation(result, goc, prices, StateMachine.DELAY_DISCHARGE);
+					var hasChargeGrid = modes.streamForOptimizer().anyMatch(m -> m == StateMachine.CHARGE_GRID);
 					if (hasChargeGrid) {
-						generateInitialPopulation(result, goc, StateMachine.CHARGE_GRID);
+						generateInitialPopulation(result, goc, prices, StateMachine.CHARGE_GRID);
 					}
-					var hasDischargeGrid = stream(availableModes).anyMatch(m -> m == DISCHARGE_GRID);
+					var hasDischargeGrid = modes.streamForOptimizer().anyMatch(m -> m == DISCHARGE_GRID);
 					if (hasDischargeGrid) {
-						generateInitialPopulationForDischargeToGrid(result, goc);
+						generateInitialPopulationForDischargeToGrid(result, goc, prices);
 					}
 					return result.build();
 				})
 
 				.setOptimizationContext(goc -> {
-					// Maximium-SoC in CHARGE_GRID is 90 %
+					final var prices = goc.streamPeriodsWithPrice() //
+							.mapToDouble(Period.WithPrice::price) //
+							.toArray();
+
+					// Maximium-SoC in CHARGE_GRID is 94 %
 					var maxSocEnergyInChargeGrid = round(goc.ess().totalEnergy() * (ESS_MAX_SOC / 100));
 					var essChargeInChargeGrid = calculateChargePowerInChargeGrid(goc);
 					var minSocEnergyInDischargeGrid = round(goc.ess().totalEnergy() * (ESS_MIN_SOC / 100));
 
-					var doNotDischargeToGridAfterPeriod = calculateDoNotDischargeToGridAfterPeriod(goc);
+					var doNotDischargeToGridAfterPeriod = calculateDoNotDischargeToGridAfterPeriod(goc, prices);
 					return new OptimizationContext(maxSocEnergyInChargeGrid, essChargeInChargeGrid,
 							minSocEnergyInDischargeGrid, doNotDischargeToGridAfterPeriod);
 				})
 
 				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
-					if (mode == DISCHARGE_GRID
-							&& (period.production() > 0 || period.index() > coc.doNotDischargeToGridAfterPeriod)) {
-						mode = BALANCING;
+					if (mode == null) {
+						mode = StateMachine.BALANCING;
 					}
-
 					switch (mode) {
 					case BALANCING -> applyBalancing(ef); // TODO Move to CtrlBalancing
 					case DELAY_DISCHARGE -> applyDelayDischarge(ef);
@@ -160,11 +166,8 @@ public class EnergyScheduler {
 		model.setEss(target);
 	}
 
-	private static void generateInitialPopulation(ImmutableList.Builder<InitialPopulation<StateMachine>> result,
-			GlobalOptimizationContext goc, StateMachine mode) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+	private static void generateInitialPopulation(ImmutableSortedSet.Builder<InitialPopulation<StateMachine>> result,
+			GlobalOptimizationContext goc, double[] prices, StateMachine mode) {
 		Arrays.stream(findValleyIndexes(prices)) //
 				.mapToObj(i -> goc.periods().stream() //
 						.map(p -> p.index() == i //
@@ -176,10 +179,8 @@ public class EnergyScheduler {
 	}
 
 	private static void generateInitialPopulationForDischargeToGrid(
-			ImmutableList.Builder<InitialPopulation<StateMachine>> result, GlobalOptimizationContext goc) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+			ImmutableSortedSet.Builder<InitialPopulation<StateMachine>> result, GlobalOptimizationContext goc,
+			double[] prices) {
 		IntStream.of(findFirstPeakIndex(1, prices)) //
 				.mapToObj(i -> goc.periods().stream() //
 						.map(p -> p.index() == i //
@@ -190,10 +191,7 @@ public class EnergyScheduler {
 				.forEach(result::add);
 	}
 
-	private static int calculateDoNotDischargeToGridAfterPeriod(GlobalOptimizationContext goc) {
-		final var prices = goc.periods().stream() //
-				.mapToDouble(Period::price) //
-				.toArray();
+	private static int calculateDoNotDischargeToGridAfterPeriod(GlobalOptimizationContext goc, double[] prices) {
 		return findFirstPeakIndex(findFirstValleyIndex(1, prices), prices);
 	}
 

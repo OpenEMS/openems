@@ -18,12 +18,11 @@ import io.openems.edge.predictor.profileclusteringmodel.Profile;
 import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineeringService;
 import io.openems.edge.predictor.profileclusteringmodel.services.PredictionDataService;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringPredictionService;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.predictor.profileclusteringmodel.services.TimeSeriesPreprocessingService;
 
 public class PredictionOrchestrator {
 
-	private static final QueryWindow WINDOW_ONE_DAY = new QueryWindow(1);
+	private static final int WINDOW_ONE_DAY = 1;
 
 	private final PredictionContext predictionContext;
 

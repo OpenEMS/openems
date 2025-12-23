@@ -33,6 +33,7 @@ public class RunOptimizerFromLogV1App {
 	 * @param args the args
 	 * @throws Exception on error
 	 */
+	@Deprecated
 	public static void main(String[] args) throws Exception {
 		var params = IntegrationTestsV1.parseParams(LOG);
 		var schedule = getBestSchedule(params, EXECUTION_LIMIT_SECONDS);

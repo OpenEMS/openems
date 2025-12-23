@@ -76,7 +76,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
 
             // Extracting prices, states, timestamps from the schedule array
             const { priceArray, modeArray, timestampArray } = {
-                priceArray: schedule.map(entry => entry.price),
+                priceArray: schedule.map(entry => entry.price === null ? 10 : entry.price), // TODO: Use different chart type when no prices
                 modeArray: schedule.map(entry => entry.mode),
                 timestampArray: schedule.map(entry => entry.timestamp),
             };

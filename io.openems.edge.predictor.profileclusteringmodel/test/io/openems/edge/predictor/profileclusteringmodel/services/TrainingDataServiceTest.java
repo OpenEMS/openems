@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.profileclusteringmodel.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Clock;
@@ -12,8 +11,6 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.predictor.api.common.TrainingException;
-import io.openems.edge.predictor.profileclusteringmodel.training.TrainingError;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class TrainingDataServiceTest {
@@ -37,9 +34,8 @@ public class TrainingDataServiceTest {
 		}
 
 		var sut = new TrainingDataService(timedata, () -> clock, channelAddress);
-		var queryWindow = new QueryWindow(3, 7);
 
-		var series = sut.fetchSeriesForWindow(queryWindow);
+		var series = sut.fetchSeriesForWindow(7);
 
 		// Should have 7 (days) * 96 (quarters) entries
 		assertEquals(7 * (24 * 4), series.getValues().size());
@@ -57,30 +53,5 @@ public class TrainingDataServiceTest {
 		for (int i = 1; i < timestamps.size(); i++) {
 			assertEquals(15, ChronoUnit.MINUTES.between(timestamps.get(i - 1), timestamps.get(i)));
 		}
-	}
-
-	@Test
-	public void testFetchSeriesForWindow_ShouldThrowException_WhenNotEnoughData() {
-		var timedata = new DummyTimedata("timedata0");
-		var clock = Clock.fixed(ZonedDateTime.parse("2025-07-10T00:00:00+02:00").toInstant(),
-				ZoneId.of("Europe/Berlin"));
-		var channelAddress = new ChannelAddress("_sum", "testChannel");
-
-		// Add data for 2 days (less than the required minimum of 5 days)
-		for (int day = 0; day < 2; day++) {
-			var dayStart = ZonedDateTime.now(clock).minusDays(day).truncatedTo(ChronoUnit.DAYS);
-			for (int min = 0; min < 24 * 60; min += 15) {
-				timedata.add(dayStart.plusMinutes(min), channelAddress, day * 10 + min);
-			}
-		}
-
-		var sut = new TrainingDataService(timedata, () -> clock, channelAddress);
-		var queryWindow = new QueryWindow(5, 10);
-
-		// Expect TrainingException because not enough data to satisfy minWindowDays
-		var exception = assertThrows(TrainingException.class, () -> {
-			sut.fetchSeriesForWindow(queryWindow);
-		});
-		assertEquals(TrainingError.INSUFFICIENT_TRAINING_DATA, exception.getError());
 	}
 }

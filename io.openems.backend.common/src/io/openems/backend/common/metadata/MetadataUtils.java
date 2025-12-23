@@ -90,7 +90,8 @@ public class MetadataUtils {
 							myEdge.isOnline(), //
 							myEdge.getLastmessage(), //
 							null, // firstSetupProtocol
-							Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK));
+							Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
+                            myEdge.getSettings());
 				}).toList();
 	}
 

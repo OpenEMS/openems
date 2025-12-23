@@ -1,14 +1,16 @@
 package io.openems.edge.evcs.openwb;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String ip;
-		private int port;
+		private String mqttBridgeId = "mqtt0";
+		private ChargePoint chargePoint = ChargePoint.CP0;
+		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 		private Builder() {
 		}
@@ -18,13 +20,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setIp(String ip) {
-			this.ip = ip;
+		public Builder setMqttBridgeId(String mqttBridgeId) {
+			this.mqttBridgeId = mqttBridgeId;
 			return this;
 		}
 
-		public Builder setPort(int port) {
-			this.port = port;
+		public Builder setChargePoint(ChargePoint chargePoint) {
+			this.chargePoint = chargePoint;
+			return this;
+		}
+
+		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
+			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -50,17 +57,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ip() {
-		return this.builder.ip;
-	}
-
-	@Override
-	public int port() {
-		return this.builder.port;
+	public String mqttBridgeId() {
+		return this.builder.mqttBridgeId;
 	}
 
 	@Override
 	public ChargePoint chargePoint() {
-		return ChargePoint.CP0;
+		return this.builder.chargePoint;
+	}
+
+	@Override
+	public PhaseRotation phaseRotation() {
+		return this.builder.phaseRotation;
 	}
 }

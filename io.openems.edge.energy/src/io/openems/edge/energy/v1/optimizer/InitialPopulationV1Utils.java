@@ -28,7 +28,7 @@ public class InitialPopulationV1Utils {
 	}
 
 	/**
-	 * Builds an initial population:
+	 * Builds an initial population:.
 	 * 
 	 * <ol>
 	 * <li>Schedule with all periods BALANCING
@@ -44,6 +44,7 @@ public class InitialPopulationV1Utils {
 	 * @param p the {@link ParamsV1}
 	 * @return the {@link Genotype}
 	 */
+	@Deprecated
 	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(ParamsV1 p) {
 		var states = List.of(p.states());
 		if (!states.contains(BALANCING)) {

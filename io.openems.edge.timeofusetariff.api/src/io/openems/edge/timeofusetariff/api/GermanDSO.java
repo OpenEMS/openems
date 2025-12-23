@@ -1,5 +1,10 @@
 package io.openems.edge.timeofusetariff.api;
 
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.DateRange.Quarter.FULL_YEAR;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.DateRange.Quarter.Q1;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.DateRange.Quarter.Q2;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.DateRange.Quarter.Q3;
+import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.DateRange.Quarter.Q4;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.HIGH;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.LOW;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff.STANDARD;
@@ -17,16 +22,8 @@ public enum GermanDSO {
 	// CHECKSTYLE:ON
 
 	BAYERNWERK(GridFee.create()//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(8.75)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
+			.addDateRange(dr -> dr// 
+					.setQuarters(2025, Q4)//
 					.setLowTariff(0.88)//
 					.setStandardTariff(8.75)//
 					.setHighTariff(11.58)//
@@ -45,14 +42,46 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(21, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))
+
+			.addDateRange(dr -> dr// 
+					.setQuarters(2026, Q1, Q4)//
+					.setStandardTariff(5.62)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+			.addDateRange(dr -> dr// 
+					.setQuarters(2026, Q2, Q3)//
+					.setLowTariff(0.56)//
+					.setStandardTariff(5.62)//
+					.setHighTariff(10.75)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(15, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(22, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	NETZE_BW(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(11.58)//
+					.setQuarters(2025, FULL_YEAR)//
 					.setLowTariff(4.63)//
+					.setStandardTariff(11.58)//
 					.setHighTariff(17.09)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -73,15 +102,64 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(22, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))
+
+			// 2026
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, FULL_YEAR)//
+					.setLowTariff(3.61)//
+					.setStandardTariff(9.01)//
+					.setHighTariff(13.16)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(14, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(14, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(22, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	EWE_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(4.89)//
+					.setQuarters(2025, FULL_YEAR)//
 					.setLowTariff(0.49)//
+					.setStandardTariff(4.89)//
 					.setHighTariff(8.59)//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 0)//
+							.setEnd(17, 30)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(17, 30)//
+							.setEnd(20, 30)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(20, 30)//
+							.setEnd(23, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(23, 0)//
+							.setEnd(5, 0)//
+							.setTariff(LOW)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, FULL_YEAR)//
+					.setLowTariff(0.32)//
+					.setStandardTariff(3.20)//
+					.setHighTariff(5.62)//
 					.addTimeRange(tr -> tr//
 							.setStart(5, 0)//
 							.setEnd(17, 30)//
@@ -102,17 +180,9 @@ public enum GermanDSO {
 
 	MIT_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(8.95)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(8.95)//
+					.setQuarters(2025, Q4)//
 					.setLowTariff(0.99)//
+					.setStandardTariff(8.95)//
 					.setHighTariff(17.90)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -137,21 +207,50 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(19, 0)//
 							.setEnd(0, 0)//
-							.setTariff(LOW)))),
+							.setTariff(LOW)))//
 
-	SH_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(10.41)//
+					.setQuarters(2026, Q1, Q4)//
+					.setLowTariff(0.82)//
+					.setStandardTariff(7.51)//
+					.setHighTariff(15.02)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(3, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(3, 0)//
+							.setEnd(8, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(8, 0)//
+							.setEnd(12, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(19, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(19, 0)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setStandardTariff(7.51)//
 					.addTimeRange(tr -> tr//
 							.setFullDay()//
 							.setTariff(STANDARD)))//
+	),
+
+	SH_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(10.41)//
+					.setQuarters(2025, Q4)//
 					.setLowTariff(1.05)//
+					.setStandardTariff(10.41)//
 					.setHighTariff(15.83)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -176,14 +275,54 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(21, 0)//
 							.setEnd(0, 0)//
-							.setTariff(LOW)))),
+							.setTariff(LOW)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q1, Q4)//
+					.setLowTariff(0.76)//
+					.setStandardTariff(7.62)//
+					.setHighTariff(9.90)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(5, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 0)//
+							.setEnd(9, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(9, 0)//
+							.setEnd(14, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(14, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(21, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(21, 0)//
+							.setEnd(22, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setStandardTariff(7.62)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+	),
 
 	WEST_NETZ(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(11.88)//
+					.setQuarters(2025, FULL_YEAR)//
 					.setLowTariff(1.19)//
+					.setStandardTariff(11.88)//
 					.setHighTariff(17.75)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -200,56 +339,112 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(20, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, FULL_YEAR)//
+					.setLowTariff(1.13)//
+					.setStandardTariff(11.34)//
+					.setHighTariff(18.62)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(7, 0)//
+							.setTariff(LOW))
+					.addTimeRange(tr -> tr//
+							.setStart(7, 0)//
+							.setEnd(15, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(20, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(20, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	E_DIS(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(7.16)//
+					.setQuarters(2025, Q4)//
+					.setLowTariff(1.04)//
+					.setStandardTariff(10.29)//
+					.setHighTariff(16.35)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(4, 45)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(4, 45)//
+							.setEnd(11, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(11, 0)//
+							.setEnd(12, 45)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 45)//
+							.setEnd(16, 45)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(16, 45)//
+							.setEnd(20, 0)//
+							.setTariff(HIGH))//
+					.addTimeRange(tr -> tr//
+							.setStart(20, 0)//
+							.setEnd(23, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 30)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q1, Q4)//
+					.setLowTariff(0.65)//
+					.setStandardTariff(6.50)//
+					.setHighTariff(10.47)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(5, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 0)//
+							.setEnd(10, 15)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 15)//
+							.setEnd(12, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 0)//
+							.setEnd(16, 45)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(16, 45)//
+							.setEnd(20, 15)//
+							.setTariff(HIGH))//
+					.addTimeRange(tr -> tr//
+							.setStart(20, 15)//
+							.setEnd(23, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 30)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setStandardTariff(6.50)//
 					.addTimeRange(tr -> tr//
 							.setFullDay()//
 							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(7.16)//
-					.setLowTariff(0.79)//
-					.setHighTariff(13.04)//
-					.addTimeRange(tr -> tr//
-							.setStart(0, 0)//
-							.setEnd(5, 45)//
-							.setTariff(LOW))//
-					.addTimeRange(tr -> tr//
-							.setStart(5, 45)//
-							.setEnd(16, 30)//
-							.setTariff(STANDARD))//
-					.addTimeRange(tr -> tr//
-							.setStart(16, 30)//
-							.setEnd(20, 45)//
-							.setTariff(HIGH))
-					.addTimeRange(tr -> tr//
-							.setStart(20, 45)//
-							.setEnd(23, 15)//
-							.setTariff(STANDARD))//
-					.addTimeRange(tr -> tr//
-							.setStart(23, 15)//
-							.setEnd(0, 0)//
-							.setTariff(LOW)))),
+	),
 
 	AVACON(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(10.79)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(10.79)//
+					.setQuarters(2025, Q4)//
 					.setLowTariff(1.08)//
+					.setStandardTariff(10.79)//
 					.setHighTariff(15.01)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 15)//
@@ -270,14 +465,46 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(23, 0)//
 							.setEnd(0, 15)//
-							.setTariff(LOW)))),
+							.setTariff(LOW)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q1, Q4)//
+					.setLowTariff(0.71)//
+					.setStandardTariff(7.19)//
+					.setHighTariff(10.01)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 15)//
+							.setEnd(5, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(5, 0)//
+							.setEnd(16, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(16, 30)//
+							.setEnd(21, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(21, 0)//
+							.setEnd(23, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(23, 0)//
+							.setEnd(0, 15)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setStandardTariff(7.19)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+	),
 
 	LEW(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(6.99)//
+					.setQuarters(2025, FULL_YEAR)//
 					.setLowTariff(0.70)//
+					.setStandardTariff(6.99)//
 					.setHighTariff(13.88)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
@@ -298,21 +525,40 @@ public enum GermanDSO {
 					.addTimeRange(tr -> tr//
 							.setStart(21, 0)//
 							.setEnd(0, 0)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, FULL_YEAR)//
+					.setLowTariff(0.49)//
+					.setStandardTariff(4.87)//
+					.setHighTariff(9.63)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(10, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 0)//
+							.setEnd(15, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(15, 0)//
+							.setEnd(17, 0)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(17, 0)//
+							.setEnd(21, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(21, 0)//
+							.setEnd(0, 0)//
+							.setTariff(STANDARD)))//
+	),
 
 	TE_NETZE(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setStandardTariff(8.81)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(8.81)//
+					.setQuarters(2025, Q4)//
 					.setLowTariff(3.52)//
+					.setStandardTariff(8.81)//
 					.setHighTariff(11.86)//
 					.addTimeRange(tr -> tr//
 							.setStart(1, 30)//
@@ -339,28 +585,82 @@ public enum GermanDSO {
 							.setEnd(22, 0)//
 							.setTariff(STANDARD))//
 					.addTimeRange(tr -> tr//
-							.setStart(22, 00)//
-							.setEnd(23, 00)//
+							.setStart(22, 0)//
+							.setEnd(23, 0)//
 							.setTariff(HIGH))
 					.addTimeRange(tr -> tr//
 							.setStart(23, 0)//
 							.setEnd(1, 30)//
-							.setTariff(STANDARD)))),
+							.setTariff(STANDARD)))//
+
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q1, Q4)//
+					.setLowTariff(1.99)//
+					.setStandardTariff(6.62)//
+					.setHighTariff(10.26)//
+					.addTimeRange(tr -> tr//
+							.setStart(0, 0)//
+							.setEnd(6, 0)//
+							.setTariff(LOW))//
+					.addTimeRange(tr -> tr//
+							.setStart(6, 0)//
+							.setEnd(8, 00)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(8, 0)//
+							.setEnd(9, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(9, 0)//
+							.setEnd(10, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(10, 30)//
+							.setEnd(12, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(12, 0)//
+							.setEnd(17, 30)//
+							.setTariff(STANDARD))//
+					.addTimeRange(tr -> tr//
+							.setStart(17, 30)//
+							.setEnd(19, 0)//
+							.setTariff(HIGH))
+					.addTimeRange(tr -> tr//
+							.setStart(19, 0)//
+							.setEnd(22, 0)//
+							.setTariff(STANDARD))
+					.addTimeRange(tr -> tr//
+							.setStart(22, 0)//
+							.setEnd(0, 0)//
+							.setTariff(LOW)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setStandardTariff(6.62)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+	),
 
 	NETZE_ODR(GridFee.create()//
 			.addDateRange(dr -> dr//
-					.setStart(2025, 1, 1)//
-					.setEnd(2025, 3, 31)//
+					.setQuarters(2025, Q4)//
 					.setStandardTariff(7.63)//
 					.addTimeRange(tr -> tr//
 							.setFullDay()//
 							.setTariff(STANDARD)))//
+
 			.addDateRange(dr -> dr//
-					.setStart(2025, 4, 1)//
-					.setEnd(2025, 9, 30)//
-					.setLowTariff(3.05)//
-					.setStandardTariff(7.63)//
-					.setHighTariff(13.23)//
+					.setQuarters(2026, Q1, Q4)//
+					.setStandardTariff(6.99)//
+					.addTimeRange(tr -> tr//
+							.setFullDay()//
+							.setTariff(STANDARD)))//
+			.addDateRange(dr -> dr//
+					.setQuarters(2026, Q2, Q3)//
+					.setLowTariff(2.80)//
+					.setStandardTariff(6.99)//
+					.setHighTariff(12.11)//
 					.addTimeRange(tr -> tr//
 							.setStart(0, 0)//
 							.setEnd(5, 0)//
@@ -381,13 +681,6 @@ public enum GermanDSO {
 							.setStart(22, 0)//
 							.setEnd(0, 0)//
 							.setTariff(HIGH)))//
-			.addDateRange(dr -> dr//
-					.setStart(2025, 10, 1)//
-					.setEnd(2025, 12, 31)//
-					.setStandardTariff(7.63)//
-					.addTimeRange(tr -> tr//
-							.setFullDay()//
-							.setTariff(STANDARD)))//
 	);
 
 	private static final ZoneId GERMAN_ZONE_ID = ZoneId.of("Europe/Berlin");

@@ -4,6 +4,7 @@ import { FlagType } from "./flagType";
 export namespace Flags {
 
     export const SHOW_AFTER_KEY_REDEEM: FlagType = { name: "showAfterKeyRedeem" };
+    export const FREE_FROM_DEPENDENCY: FlagType = { name: "freeFromDependency" };
 
     /**
      * Gets a flag by its type from an array of flags.

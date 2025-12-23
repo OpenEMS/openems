@@ -41,7 +41,8 @@ public class TestFeneconHome20 {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					this.meterApp = Apps.socomecMeter(t), //
+					Apps.predictionUnmanagedConsumption(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -63,16 +64,17 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -162,16 +164,17 @@ public class TestFeneconHome20 {
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 5;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {

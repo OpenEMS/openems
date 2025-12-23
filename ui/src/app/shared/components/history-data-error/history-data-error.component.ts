@@ -7,7 +7,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     template: `
     @if (type !== null) {
       <ion-item lines="full" color="warning">
-        <ion-icon size="large" slot="start" name="warning-outline"></ion-icon>
+        <ion-icon size="large" slot="start" name="oe-warning"></ion-icon>
         <ion-label class="ion-text-wrap" style="text-align: center">
           @switch (type) {
             @case ('TOO_LONG') {

@@ -20,11 +20,12 @@ import io.openems.edge.timeofusetariff.api.GermanDSO;
 public class TouAncillaryCostsTest {
 
 	private static final String COMPONENT_ID = "tou0";
+	private static final int YEAR = 2026;
 
 	@Test
 	public void testBasicActivation() throws Exception {
 		var ac = new TouAncillaryCostsImpl();
-		var clock = Clock.fixed(Instant.parse("2025-07-29T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var clock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo").withCurrency(EUR)) //
@@ -48,7 +49,7 @@ public class TouAncillaryCostsTest {
 		final double fixedPrice = 1.0;
 		final var ac = new TouAncillaryCostsImpl();
 
-		var summerClock = Clock.fixed(Instant.parse("2025-07-29T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var summerClock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo") //
@@ -68,7 +69,7 @@ public class TouAncillaryCostsTest {
 		var expectedPrice = (summerAncillaryPrice + fixedPrice) * 10;
 		assertEquals(expectedPrice, summerPrices.getFirst(), 0.01);
 
-		var autumnClock = Clock.fixed(Instant.parse("2025-10-01T18:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var autumnClock = Clock.fixed(Instant.parse(YEAR + "-10-01T18:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta("foo") //

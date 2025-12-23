@@ -61,7 +61,11 @@ public interface IoShellyPlugSBase
 		 * <li>Type: State
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)); //
+		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)), //
+
+		WRONG_DEVICE_TYPE(Doc.of(Level.WARNING) //
+				.translationKey(IoShellyPlugSBase.class, "IoShellyPlugSBase.WrongDeviceType")), //
+		;
 
 		private final Doc doc;
 
@@ -139,6 +143,35 @@ public interface IoShellyPlugSBase
 	 */
 	public default void _setSlaveCommunicationFailed(boolean value) {
 		this.getSlaveCommunicationFailedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#WRONG_DEVICE_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getWrongDeviceTypeChannel() {
+		return this.channel(ChannelId.WRONG_DEVICE_TYPE);
+	}
+
+	/**
+	 * Gets the Slave Communication Failed State. See
+	 * {@link ChannelId#WRONG_DEVICE_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getWrongDeviceType() {
+		return this.getWrongDeviceTypeChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#WRONG_DEVICE_TYPE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setWrongDeviceType(boolean value) {
+		this.getWrongDeviceTypeChannel().setNextValue(value);
 	}
 
 }

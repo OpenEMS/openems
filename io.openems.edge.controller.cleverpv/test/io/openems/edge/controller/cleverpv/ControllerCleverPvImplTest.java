@@ -10,6 +10,7 @@ import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
 import static io.openems.edge.common.sum.Sum.ChannelId.GRID_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_ACTIVE_POWER;
 import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE;
+import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.UNABLE_TO_SEND;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.NO_DISCHARGE;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.OFF;
 import static org.junit.Assert.assertEquals;
@@ -176,6 +177,80 @@ public class ControllerCleverPvImplTest {
 							executor.update();
 						}).onAfterWriteCallbacks(executor::update) //
 						.output("ctrlCleverPv0", REMOTE_CONTROL_MODE, NO_DISCHARGE)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testReadOnly() throws Exception {
+		final var clock = createDummyClock();
+		final var executor = dummyBridgeHttpExecutor(clock);
+		final var fetcher = dummyEndpointFetcher();
+
+		fetcher.addEndpointHandler(t -> {
+			if (Objects.equals(t.body(), """
+					{
+					  "state": 0,
+					  "watt":1000,
+					  "producingWatt":500,
+					  "soc":25,
+					  "powerStorageState":1,
+					  "chargingPower":-300,
+					  "currentData":{
+						"sumGridActivePower":1000,
+						"productionActivePower":500,
+						"sumEssSoc":25,
+						"sumEssDischargePower":-300
+					  }
+					}
+					""".replaceAll("\\s+", ""))) {
+				return HttpResponse.ok("""
+						{ activateControlModes: {
+							ess: {
+								mode: "NO_DISCHARGE" }
+							}
+						}
+						""");
+			}
+
+			throw HttpError.ResponseError.notFound();
+		});
+
+		final var sut = new ControllerCleverPvImpl(); //
+		final var sum = new DummySum(); //
+		final var host = new DummyHost();
+		final var ess = new DummyManagedSymmetricEss("ess0"); //
+		final var power = new DummyPower(); //
+
+		new ControllerTest(sut) //
+				.addReference("ess", ess) //
+				.addReference("power", power) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofBridgeImpl(//
+						() -> fetcher, //
+						() -> executor))
+				.addReference("host", host) //
+				.addReference("sum", sum) //
+				.addReference("meta", new DummyMeta("meta0")) //
+				.addComponent(sum) //
+				.activate(MyConfig.create() //
+						.setId("ctrlCleverPv0") //
+						.setReadOnly(true) //
+						.setUrl("127.0.0.1") //
+						.setMode(ControlMode.OFF) //
+						.setDebugMode(DebugMode.OFF) //
+						.build())
+				.next(new TestCase() //
+						.input("_sum", GRID_ACTIVE_POWER, 1000) //
+						.input("_sum", PRODUCTION_ACTIVE_POWER, 500) //
+						.input("_sum", ESS_SOC, 25) //
+						.input("_sum", ESS_DISCHARGE_POWER, -300) //
+						.onAfterWriteCallbacks(executor::update)) //
+				.next(new TestCase() //
+						.also(testCase -> {
+							executor.update();
+						}).onAfterWriteCallbacks(executor::update) //
+						.output("ctrlCleverPv0", REMOTE_CONTROL_MODE, OFF) //
+						.output("ctrlCleverPv0", UNABLE_TO_SEND, false)) //
 				.deactivate();
 	}
 

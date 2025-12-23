@@ -58,7 +58,8 @@ public class FeneconCommercial92ClusterSlave
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
-		GRID_CODE(AppDef.copyOfGeneric(gridCode())), //
+		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
+				.setDefaultValue(GridCode.VDE_4105))), //
 		BATTERY_TARGET(FeneconCommercialProps.batteryStartStopTarget()), //
 		;
 

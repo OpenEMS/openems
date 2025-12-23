@@ -25,7 +25,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						BALANCING));
+						BALANCING, null));
 		assertEquals("Null-Check", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -34,7 +34,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						BALANCING));
+						BALANCING, null));
 
 		assertEquals("BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -45,7 +45,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						BALANCING));
+						BALANCING, null));
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
@@ -56,7 +56,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						DELAY_DISCHARGE));
+						DELAY_DISCHARGE, null));
 		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -66,7 +66,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						DELAY_DISCHARGE));
+						DELAY_DISCHARGE, null));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyMode(CHARGE_GRID, -1400), //
 				calculateAutomaticMode(//
@@ -77,7 +77,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1500, //
 						/* maxChargePowerFromGrid */ 2000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -88,7 +88,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 400, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -99,7 +99,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 1000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 		assertEquals("CHARGE_GRID to BALANCING", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -109,7 +109,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 0, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 
 		assertEquals("CHARGE_GRID with §14a EnWG limit", new ApplyMode(CHARGE_GRID, -4200), //
 				calculateAutomaticMode(//
@@ -120,7 +120,7 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 6000, //
 						/* maxChargePowerFromGrid */ 7000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 		assertEquals("CHARGE_GRID without §14a EnWG limit", new ApplyMode(CHARGE_GRID, -6400), //
 				calculateAutomaticMode(//
 						new DummySum() //
@@ -130,6 +130,6 @@ public class UtilsV1Test {
 						/* essChargeInChargeGrid */ 7000, //
 						/* maxChargePowerFromGrid */ 7000, //
 						/* limitChargePowerFor14aEnWG */ Integer.MIN_VALUE, //
-						CHARGE_GRID));
+						CHARGE_GRID, null));
 	}
 }
