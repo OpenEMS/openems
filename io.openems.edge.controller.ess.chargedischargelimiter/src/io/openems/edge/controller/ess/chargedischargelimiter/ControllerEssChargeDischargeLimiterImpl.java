@@ -20,8 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
@@ -874,9 +875,17 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				this.getModbusSlaveNatureTable(accessMode));
-	}
+		return new ModbusSlaveTable(
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
+				ModbusSlaveNatureTable.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
+				.channel(0, ControllerEssChargeDischargeLimiter.ChannelId.USEABLE_CAPACITY, ModbusType.UINT16)
+				.channel(1, ControllerEssChargeDischargeLimiter.ChannelId.USEABLE_SOC, ModbusType.UINT16)
+				.channel(2, ControllerEssChargeDischargeLimiter.ChannelId.CHARGED_ENERGY, ModbusType.UINT16)
+				.channel(3, ControllerEssChargeDischargeLimiter.ChannelId.AWAITING_HYSTERESIS, ModbusType.UINT16)
+				.channel(4, ControllerEssChargeDischargeLimiter.ChannelId.STATE_MACHINE, ModbusType.UINT16)
+				.channel(5, ControllerEssChargeDischargeLimiter.ChannelId.BALANCING_REMAINING_SECONDS, ModbusType.UINT16)
+
+				.build());
+	}		
 
 }
