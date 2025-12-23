@@ -15,9 +15,7 @@
 	sun.misc,\
 	com.sun.net.httpserver
 
--runblacklist:\
-	bnd.identity;id='org.osgi.service.cm',\
-
+-runblacklist: bnd.identity;id='org.osgi.service.cm'
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
 	org.apache.felix.configadmin;startlevel=11,\
@@ -55,7 +53,6 @@
 	bnd.identity;id='io.openems.edge.bridge.mqtt',\
 	bnd.identity;id='io.openems.edge.bridge.onewire',\
 	bnd.identity;id='io.openems.edge.common',\
-	bnd.identity;id='io.openems.edge.controller.api.backend',\
 	bnd.identity;id='io.openems.edge.controller.api.common',\
 	bnd.identity;id='io.openems.edge.controller.api.modbus',\
 	bnd.identity;id='io.openems.edge.controller.api.mqtt',\
@@ -136,7 +133,6 @@
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
-	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
 	bnd.identity;id='io.openems.edge.evse.electricvehicle.generic',\
@@ -227,7 +223,11 @@
 	bnd.identity;id='io.openems.edge.predictor.api',\
 	bnd.identity;id='io.openems.edge.weather.api',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
+<<<<<<< HEAD
+	bnd.identity;id='io.openems.edge.controller.api.backend'
+=======
 
+>>>>>>> 26afb9db7ecafea5ebb69c51c14d5bd4ebdfbbd8
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
@@ -266,7 +266,6 @@
 	io.openems.edge.bridge.onewire;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.controller.api;version=snapshot,\
-	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.common;version=snapshot,\
 	io.openems.edge.controller.api.modbus;version=snapshot,\
 	io.openems.edge.controller.api.mqtt;version=snapshot,\
@@ -337,7 +336,6 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
-	io.openems.edge.evcs.goe;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.heidelberg;version=snapshot,\
 	io.openems.edge.evcs.mennekes;version=snapshot,\
@@ -350,8 +348,6 @@
 	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.evse.api;version=snapshot,\
-	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
-	io.openems.edge.evse.chargepoint.hardybarth;version=snapshot,\
 	io.openems.edge.evse.chargepoint.heidelberg;version=snapshot,\
 	io.openems.edge.evse.chargepoint.keba;version=snapshot,\
 	io.openems.edge.evse.electricvehicle.generic;version=snapshot,\
@@ -401,7 +397,6 @@
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
 	io.openems.edge.predictor.production.linearmodel;version=snapshot,\
-	io.openems.edge.predictor.profileclusteringmodel;version=snapshot,\
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
@@ -412,7 +407,6 @@
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
-	io.openems.edge.scheduler.jscalendar;version=snapshot,\
 	io.openems.edge.simulator;version=snapshot,\
 	io.openems.edge.sma;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
@@ -422,7 +416,6 @@
 	io.openems.edge.timedata.api;version=snapshot,\
 	io.openems.edge.timedata.influxdb;version=snapshot,\
 	io.openems.edge.timedata.rrd4j;version=snapshot,\
-	io.openems.edge.timeofusetariff.ancillarycosts;version=snapshot,\
 	io.openems.edge.timeofusetariff.api;version=snapshot,\
 	io.openems.edge.timeofusetariff.awattar;version=snapshot,\
 	io.openems.edge.timeofusetariff.corrently;version=snapshot,\
