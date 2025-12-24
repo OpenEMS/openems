@@ -7,7 +7,7 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "Meter Eastron SDM 630", //
-		description = "Implements the Eastron SDM630 meter.")
+		description = "Implements the Eastron SDM630 meter. Also compatible with SDM72D-M-2.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

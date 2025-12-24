@@ -2,8 +2,9 @@
 
 This implementation is functionally compatible with a number of energy meters with the names:
 
-- SDM 630 and
+- SDM 630
 - SDM 120
+- SDM72D-M-2 (compatible with SDM630 implementation)
 
 Implemented Natures:
 - ElectricityMeter
