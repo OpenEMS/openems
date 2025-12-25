@@ -1,5 +1,7 @@
 package io.openems.edge.battery.victron;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,14 +33,17 @@ import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.controller.ess.chargedischargelimiter.State;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
+import io.openems.edge.victron.enums.WorkState;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -51,11 +56,22 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 
 	public static final int DEFAULT_UNIT_ID = 225;
 	public static final int BATTERY_VOLTAGE = 48;
+	private static final int MIN_MAX_TOLERANCE = 50; // tolerance between Min/Max cell voltage in mV
+	
 
 	private int minSocPercentage;
+	private WorkState state = WorkState.UNDEFINED;
+	
+
+	private int maxSocPercentage;
+	private static final int HYSTERESIS = 10; // seconds
+	private Instant lastStateChangeTime = Instant.MIN;	
 
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	@Reference
+	private ComponentManager componentManager;	
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 
@@ -90,7 +106,6 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 			target = "(enabled=true)")
 	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
-	private int maxSocPercentage;
 
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
@@ -151,7 +166,79 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 		this.logDebug(this.log, "checkSocControllers: MinSoC set to " + this.minSocPercentage + ", MaxSoC set to "
 				+ this.maxSocPercentage);
 	}
+	
+	/**
+	 * Handles the State-Machine.
+	 */
+	private void handleWorkState() {
 
+		switch (this.state) {
+		// ToDo
+		
+		}
+	}	
+
+	/**
+	 * Changes the state if hysteresis time passed, to avoid too quick changes.
+	 *
+	 * @param nextState the target state
+	 * @return whether the state was changed
+	 */
+	private boolean changeState(WorkState nextState) {
+		this.logDebug(this.log, "Change state " + this.state + "->" + nextState);
+
+		if (Duration.between(//
+				this.lastStateChangeTime, //
+				Instant.now(this.componentManager.getClock()) //
+		).toSeconds() >= HYSTERESIS) {
+			this.state = nextState;
+			this.lastStateChangeTime = Instant.now(this.componentManager.getClock());
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Checks for null values in operational parameters.
+	 *
+	 * @return true if all values are available
+	 */
+	private boolean checkOperationalValues() {
+		if (this.getMaxCellVoltage().get() == null) {
+			this.logWarn(this.log, "Max. cell voltage is null");
+			return false;
+		}
+		
+		if (this.getMinCellVoltage().get() == null) {
+			this.logWarn(this.log, "Min. cell voltage is null");
+			return false;
+		}		
+		return true;
+	}
+	
+	private boolean hasErrors() {
+		
+		if ((this.getMaxCellVoltage().get() - this.getMinCellVoltage().get()) > (this.MIN_MAX_TOLERANCE) *2) {
+			this.logWarn(this.log, "Difference between min/max cell voltage too high");
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean hasWarnings() {
+		
+
+		
+		if ((this.getMaxCellVoltage().get() - this.getMinCellVoltage().get()) > this.MIN_MAX_TOLERANCE) {
+			this.logWarn(this.log, "Difference between min/max cell voltage too high");
+			return true;
+		}
+			
+		return false;
+	}
+	
 	private void installListener() {
 		this.getCapacityInAmphoursChannel().onUpdate(value -> {
 
@@ -338,9 +425,9 @@ public class VictronCanBusBatteryImpl extends AbstractOpenemsModbusComponent
 						this.m(VictronBattery.ChannelId.BATTERIES_SERIES, new UnsignedWordElement(1288)),
 						this.m(VictronBattery.ChannelId.NUMBER_OF_CELLS_PER_BATTERY, new UnsignedWordElement(1289)),
 						this.m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1290),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1291),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						this.m(VictronBattery.ChannelId.SHUTDOWNS_DUE_ERROR, new UnsignedWordElement(1292)),
 						this.m(VictronBattery.ChannelId.DIAGNOSTICS_1ST_LAST_ERROR, new UnsignedWordElement(1293)),
 						this.m(VictronBattery.ChannelId.DIAGNOSTICS_2ND_LAST_ERROR, new UnsignedWordElement(1294)),
