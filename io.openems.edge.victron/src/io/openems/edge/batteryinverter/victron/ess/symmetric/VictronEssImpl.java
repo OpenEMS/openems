@@ -455,7 +455,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 				+ this.getActivePowerOutputL3().orElse(0);
 
 		if (activePowerTarget == 0) {
-			this.logDebug(this.log, "\n Disabling Charging / Discharging");
+			this.logDebug(this.log, "\n ActivePower Target = 0 -> Disabling Charging / Discharging");
 			this._setDisableChargeFlag(EnableDisable.ENABLE);
 			this._setDisableDischargeFlag(EnableDisable.ENABLE);
 		} else {
