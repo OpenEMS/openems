@@ -52,7 +52,8 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComponent implements ControllerEssChargeDischargeLimiter, Controller, OpenemsComponent, EnergySchedulable, ModbusSlave {
+public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComponent
+		implements ControllerEssChargeDischargeLimiter, Controller, OpenemsComponent, EnergySchedulable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssChargeDischargeLimiterImpl.class);
 
@@ -133,8 +134,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		this.updateConfig(config);
 
-		this.energyScheduleHandler = io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler.buildEnergyScheduleHandler(this,
-				() -> this.config.enabled() ? new io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler.Config(this.config.minSoc(), this.config.maxSoc()) : null);
+		this.energyScheduleHandler = io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler
+				.buildEnergyScheduleHandler(this,
+						() -> this.config.enabled()
+								? new io.openems.edge.controller.ess.chargedischargelimiter.EnergyScheduler.Config(
+										this.config.minSoc(), this.config.maxSoc())
+								: null);
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
@@ -189,16 +194,19 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		this.logDebug(this.log, "Querying Timedata service for the latest energy value...");
 
-		this.timedata.getLatestValue(new ChannelAddress(this.id(), ControllerEssChargeDischargeLimiter.ChannelId.CHARGED_ENERGY.id())).thenAccept(chargedEnergy -> {
-			if (chargedEnergy.isPresent()) {
-				Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, chargedEnergy.get());
-				this.logDebug(this.log, "Fetched latest ChargedEnergy value: " + value);
-				this._setChargedEnergy(value);
-			} else {
-				this.logDebug(this.log, "No current energy value found for ChargedEnergy channel");
-				this._setChargedEnergy(0);
-			}
-		});
+		this.timedata
+				.getLatestValue(new ChannelAddress(this.id(),
+						ControllerEssChargeDischargeLimiter.ChannelId.CHARGED_ENERGY.id()))
+				.thenAccept(chargedEnergy -> {
+					if (chargedEnergy.isPresent()) {
+						Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, chargedEnergy.get());
+						this.logDebug(this.log, "Fetched latest ChargedEnergy value: " + value);
+						this._setChargedEnergy(value);
+					} else {
+						this.logDebug(this.log, "No current energy value found for ChargedEnergy channel");
+						this._setChargedEnergy(0);
+					}
+				});
 	}
 
 	private Object getTimedata() {
@@ -212,9 +220,11 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this.fullChargePower = -500;
 		this.fullDischargePower = 500;
 
-		if (this.ess == null || this.ess.getAllowedChargePower().get() == null || this.ess.getAllowedDischargePower().get() == null) {
+		if (this.ess == null || this.ess.getAllowedChargePower().get() == null
+				|| this.ess.getAllowedDischargePower().get() == null) {
 			this.changeState(State.UNDEFINED);
-			this.logDebug(this.log, "Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");
+			this.logDebug(this.log,
+					"Waiting for ESS initialization to set slow charge and discharge power. Setting minimum values");
 			return;
 		}
 
@@ -367,7 +377,6 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 				break;
 			}
 
-			
 			lin = (float) (this.maxSoc - currentSoc) / (float) TAPER_PERCENT; // 1..0
 			taperFactor = lin * lin; // quadratisch
 			calculatedPower = Math.round(this.fullChargePower * taperFactor); // fullChargePower negativ
@@ -478,7 +487,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			} else {
 				this.balancingRemainingTime = (int) (this.balancingHysteresisTime - this.balancingTime);
-				this.logDebug(this.log, "Balancing active since " + this.balancingStartTime + "|Remaining: " + this.balancingRemainingTime + "s \n");
+				this.logDebug(this.log, "Balancing active since " + this.balancingStartTime + "|Remaining: "
+						+ this.balancingRemainingTime + "s \n");
 
 				//
 				this._setBalancingRemainingSeconds(this.balancingRemainingTime);
@@ -509,14 +519,10 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		if (this.state == State.APPROACHING_MAX_SOC || this.state == State.APPROACHING_MIN_SOC) {
 			Float target = calculatedPower != null ? calculatedPower.floatValue() : null;
 			rampedPower = this.rampFilter.getFilteredValueAsInteger(target, this.rampPowerW);
-			
 
-			this.logDebug(this.log,
-					"[RAMP] state=" + this.state
-							+ " | target=" + calculatedPower + "W"
-							+ " | rampPowerW=" + this.rampPowerW
-							+ " -> ramped=" + rampedPower + "W \n");
-			
+			this.logDebug(this.log, "[RAMP] state=" + this.state + " | target=" + calculatedPower + "W"
+					+ " | rampPowerW=" + this.rampPowerW + " -> ramped=" + rampedPower + "W \n");
+
 		}
 
 		this.applyActivePowerConstraint(rampedPower);
@@ -529,8 +535,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		// save current state channel
 		this._setStateMachine(this.state);
 
-		this.logDebug(this.log, "\nCurrent State " + this.state.getName() + "\n" + "Current SoC " + this.ess.getSoc().get() + "% \n" + "Current ActivePower " + this.getEssChargePower().get() + "W \n" + "Calculated ActivePower " + calculatedPower
-				+ "W \n" + "Energy charged since last balancing " + this.getChargedEnergy().get() + "Wh \n");
+		this.logDebug(this.log,
+				this.config.id() + "Current State " + this.state.getName() + "\n" + this.config.id() + "Current SoC "
+						+ this.ess.getSoc().get() + "% \n" + this.config.id() + "Current ActivePower "
+						+ this.getEssChargePower().get() + "W \n" + this.config.id() + "Calculated ActivePower "
+						+ calculatedPower + "W \n" + this.config.id() + "Energy charged since last balancing "
+						+ this.getChargedEnergy().get() + "Wh \n");
 
 	}
 
@@ -549,7 +559,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	private boolean isBalancingDurationExceeded() {
 		// calculate balancing time so far to seconds
-		this.balancingTime = Duration.between(this.balancingStartTime, Instant.now(this.componentManager.getClock())).getSeconds();
+		this.balancingTime = Duration.between(this.balancingStartTime, Instant.now(this.componentManager.getClock()))
+				.getSeconds();
 
 		return this.balancingTime >= this.balancingHysteresisTime;
 	}
@@ -565,10 +576,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 			this.log.warn("TimeOfUseTariff service is null.");
 			return true; // Ignore check if no ToU controller is available and no price can be obtained
 		}
-		currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst() / 10); // Price in €/MWh. Divided to ct/kWh
+		currentPrice = (int) Math.round(this.timeOfUseTariff.getPrices().getFirst() / 10); // Price in €/MWh. Divided to
+																							// ct/kWh
 		// balancing is not desired
 		if (currentPrice > this.config.maxPrice()) {
-			this.logDebug(this.log, "Balancing is deactivated due to high price. Configured limit: " + this.config.maxPrice() + " Current price: " + currentPrice + "[ct/kWh]");
+			this.logDebug(this.log, "Balancing is deactivated due to high price. Configured limit: "
+					+ this.config.maxPrice() + " Current price: " + currentPrice + "[ct/kWh]");
 			return false;
 		}
 		return true;
@@ -654,7 +667,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			case FORCE_CHARGE_ACTIVE, BALANCING_ACTIVE -> {
 				// Fit calculated power within min/max limits and apply
-				calculatedPower = this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess, SingleOrAllPhase.ALL, Pwr.ACTIVE, calculatedPower);
+				calculatedPower = this.ess.getPower().fitValueIntoMinMaxPower(this.id(), this.ess, SingleOrAllPhase.ALL,
+						Pwr.ACTIVE, calculatedPower);
 				this.ess.setActivePowerLessOrEquals(calculatedPower);
 
 			}
@@ -714,10 +728,12 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 		Long currentEssActiveChargeEnergy = 0L;
 
-		currentEssActiveChargeEnergy = this.getEssChargedEnergy().get(); // Cumulative counter of ESS device. No matter if DC or AC coupled
+		currentEssActiveChargeEnergy = this.getEssChargedEnergy().get(); // Cumulative counter of ESS device. No matter
+																			// if DC or AC coupled
 
 		// Ess Active Charge Energy directly from ESS (cumulative)
-		Integer storedChargedEnergy = this.getChargedEnergy().get(); // Stored charged energy from this controller's channel
+		Integer storedChargedEnergy = this.getChargedEnergy().get(); // Stored charged energy from this controller's
+																		// channel
 
 		// Early exit if any data is not available
 		if (currentEssActiveChargeEnergy == null || storedChargedEnergy == null) {
@@ -796,7 +812,9 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		}
 
 		// normalize
-		int useableSoc = soc > maxSocPercentage ? 100 : soc < minSocPercentage ? 0 : (int) (((double) (soc - minSocPercentage) / (maxSocPercentage - minSocPercentage)) * 100);
+		int useableSoc = soc > maxSocPercentage ? 100
+				: soc < minSocPercentage ? 0
+						: (int) (((double) (soc - minSocPercentage) / (maxSocPercentage - minSocPercentage)) * 100);
 
 		this.logDebug(this.log, "Normalized usable SoC: " + useableSoc + "% based on current SoC: " + soc);
 
@@ -812,7 +830,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 		this._setUseableSoc(useableSoc);
 		this._setUseableCapacity(useableCapacityWh);
 
-		this.logDebug(this.log, "Capacity info: totalCapacity=" + totalCapacityWh + "Wh, usableRange=" + totalUsableCapacityWh + "Wh, currentUsableCapacity=" + useableCapacityWh + "Wh");
+		this.logDebug(this.log, "Capacity info: totalCapacity=" + totalCapacityWh + "Wh, usableRange="
+				+ totalUsableCapacityWh + "Wh, currentUsableCapacity=" + useableCapacityWh + "Wh");
 	}
 
 	private boolean isPeakshavingActive() {
@@ -875,17 +894,17 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
-				ModbusSlaveNatureTable.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode), ModbusSlaveNatureTable
+				.of(ControllerEssChargeDischargeLimiter.class, accessMode, 100) //
 				.channel(0, ControllerEssChargeDischargeLimiter.ChannelId.USEABLE_CAPACITY, ModbusType.UINT16)
 				.channel(1, ControllerEssChargeDischargeLimiter.ChannelId.USEABLE_SOC, ModbusType.UINT16)
 				.channel(2, ControllerEssChargeDischargeLimiter.ChannelId.CHARGED_ENERGY, ModbusType.UINT16)
 				.channel(3, ControllerEssChargeDischargeLimiter.ChannelId.AWAITING_HYSTERESIS, ModbusType.UINT16)
 				.channel(4, ControllerEssChargeDischargeLimiter.ChannelId.STATE_MACHINE, ModbusType.UINT16)
-				.channel(5, ControllerEssChargeDischargeLimiter.ChannelId.BALANCING_REMAINING_SECONDS, ModbusType.UINT16)
+				.channel(5, ControllerEssChargeDischargeLimiter.ChannelId.BALANCING_REMAINING_SECONDS,
+						ModbusType.UINT16)
 
 				.build());
-	}		
+	}
 
 }
