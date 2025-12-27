@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.victron;
+package io.openems.edge.victron.pvinverter;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -10,8 +10,6 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.victron.pvinverter.VictronPvInverter;
-import io.openems.edge.victron.pvinverter.VictronPvInverterImpl;
 
 public class VictronPvInverterImplTest {
 

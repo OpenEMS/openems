@@ -1,4 +1,4 @@
-package io.openems.edge.battery.victron;
+package io.openems.edge.victron.battery;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,8 +10,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.victron.battery.VictronBattery;
-import io.openems.edge.victron.battery.VictronBatteryImpl;
 
 public class VictronCanBusBatteryImplTest {
 

@@ -1,17 +1,9 @@
-package io.openems.edge.batteryinverter.victron.statemachine;
+package io.openems.edge.victron.batteryinverter.statemachine;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-
-import io.openems.edge.victron.batteryinverter.statemachine.ErrorHandler;
-import io.openems.edge.victron.batteryinverter.statemachine.GoRunningHandler;
-import io.openems.edge.victron.batteryinverter.statemachine.GoStoppedHandler;
-import io.openems.edge.victron.batteryinverter.statemachine.RunningHandler;
-import io.openems.edge.victron.batteryinverter.statemachine.StateMachine;
-import io.openems.edge.victron.batteryinverter.statemachine.StoppedHandler;
-import io.openems.edge.victron.batteryinverter.statemachine.UndefinedHandler;
 
 /**
  * Tests for the Victron State Machine.

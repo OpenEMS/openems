@@ -1,8 +1,8 @@
-package io.openems.edge.meter.victron.grid;
+package io.openems.edge.victron.pvinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.victron.meter.grid.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean enabled;
 		private String modbusId;
 		private int modbusUnitId;
+		private MeterType type;
 
 		private Builder() {
 		}
@@ -39,6 +40,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setType(MeterType type) {
+			this.type = type;
 			return this;
 		}
 
@@ -91,6 +97,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public MeterType type() {
+		return this.builder.type;
 	}
 
 }

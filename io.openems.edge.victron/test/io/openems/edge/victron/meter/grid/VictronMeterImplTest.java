@@ -1,4 +1,4 @@
-package io.openems.edge.meter.victron.grid;
+package io.openems.edge.victron.meter.grid;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -13,8 +13,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.ess.test.DummyPower;
-import io.openems.edge.victron.meter.grid.VictronMeter;
-import io.openems.edge.victron.meter.grid.VictronMeterImpl;
 
 public class VictronMeterImplTest {
 

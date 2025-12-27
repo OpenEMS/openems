@@ -1,4 +1,4 @@
-package io.openems.edge.batteryinverter.victron.ess.symmetric;
+package io.openems.edge.victron.ess;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
-import io.openems.edge.victron.ess.VictronEss;
-import io.openems.edge.victron.ess.VictronEssImpl;
 
 /**
  * Tests for {@link VictronEssImpl}.
