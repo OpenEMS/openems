@@ -1,8 +1,10 @@
-package io.openems.edge.pvinverter.victron;
+package io.openems.edge.victron.pvinverter;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.channel.AccessMode.READ_ONLY;
+import static io.openems.common.channel.Unit.KILOWATT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.STRING;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.victron.enums.Position;
@@ -11,12 +13,12 @@ public interface VictronPvInverter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		POSITION(Doc.of(Position.values())//
-				.accessMode(AccessMode.READ_ONLY)), //
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
-				.accessMode(AccessMode.READ_ONLY)), //
-		MAXIMUM_POWER_CAPACITY(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.KILOWATT)), //
+				.accessMode(READ_ONLY)), //
+		SERIAL_NUMBER(Doc.of(STRING)//
+				.accessMode(READ_ONLY)), //
+		MAXIMUM_POWER_CAPACITY(Doc.of(INTEGER)//
+				.accessMode(READ_ONLY)//
+				.unit(KILOWATT)), //
 		;
 
 		private final Doc doc;

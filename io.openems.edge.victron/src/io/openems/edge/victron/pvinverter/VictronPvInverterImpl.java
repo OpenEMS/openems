@@ -1,4 +1,11 @@
-package io.openems.edge.pvinverter.victron;
+package io.openems.edge.victron.pvinverter;
+
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.function.Consumer;
 
@@ -6,18 +13,13 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -35,17 +37,14 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PV-Inverter.Victron", //
+		name = "Victron.PV-Inverter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		configurationPolicy = REQUIRE, //
 		property = { //
 				"type=PRODUCTION" //
 		}) //
 public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, ManagedSymmetricPvInverter, VictronPvInverter, ModbusComponent, OpenemsComponent {
-
-	// private final Logger log =
-	// LoggerFactory.getLogger(VictronPvInverterImpl.class);
 
 	private static final int MAX_APPARENT_POWER = 10_000;
 
@@ -65,11 +64,10 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 
 		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
-
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -116,32 +114,31 @@ public class VictronPvInverterImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(1026, Priority.HIGH, //
 						this.m(VictronPvInverter.ChannelId.POSITION, new UnsignedWordElement(1026)), //
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(1027), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedWordElement(1028), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(1029)), //
 						new DummyRegisterElement(1030), //
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(1031), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L2, new SignedWordElement(1032), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(1033)), //
 						new DummyRegisterElement(1034), //
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(1035), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedWordElement(1036), //
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+								SCALE_FACTOR_2), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(1037)), //
 						new DummyRegisterElement(1038), //
 						this.m(VictronPvInverter.ChannelId.SERIAL_NUMBER, new StringWordElement(1039, 7)), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
-								new UnsignedDoublewordElement(1046), ElementToChannelConverter.SCALE_FACTOR_1), //
+								new UnsignedDoublewordElement(1046), SCALE_FACTOR_1), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
-								new UnsignedDoublewordElement(1048), ElementToChannelConverter.SCALE_FACTOR_1), //
+								new UnsignedDoublewordElement(1048), SCALE_FACTOR_1), //
 						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
-								new UnsignedDoublewordElement(1050), ElementToChannelConverter.SCALE_FACTOR_1)) //
-		); //
-
+								new UnsignedDoublewordElement(1050), SCALE_FACTOR_1)) //
+		);
 	}
 
 }

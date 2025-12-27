@@ -3,6 +3,7 @@ package io.openems.edge.pvinverter.victron;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.victron.pvinverter.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

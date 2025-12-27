@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverterviadccharger.victron;
+package io.openems.edge.victron.pvinverterviadccharger;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
