@@ -123,9 +123,8 @@ public class PreferDcPower {
 				for (Pwr pwr : Pwr.values()) {
 					var c = coefficients.of(essId, inv.getPhase(), pwr);
 					var value = point[c.getIndex()];
-					var test = result[c.getIndex()];
 
-					System.out.println("Solution -> "+essId+" "+pwr+" "+value+" | "+test);
+					System.out.println("Solution -> "+essId+" "+pwr+" "+value);
 				}
 			}
 		}
@@ -251,9 +250,19 @@ public class PreferDcPower {
 				.mapToDouble(inv -> getPvProductionFromEss(getEss(essList,inv.getEssId())))//
 				.toArray();
 
+		// Handle discharge case (limit to maxmimum power if exceedsTotalUpperBound)
+		if (direction == TargetDirection.DISCHARGE && power > Arrays.stream(essUpperLimit).sum()) {
+			System.out.print("!! Limit discharge power "+power+" to "+Arrays.stream(essUpperLimit).sum());
+			power = Arrays.stream(essUpperLimit).sum();
+		}
+
+		// Handle charge case (limit to minimum power if exceedsTotalLowerBound)
+		if (direction == TargetDirection.CHARGE && power < Arrays.stream(essLowerLimit).sum()) {
+			System.out.print("!! Limit charge power "+power+" to "+Arrays.stream(essLowerLimit).sum());
+			power = Arrays.stream(essLowerLimit).sum();
+		}
+
 		var essPowerRequired = new double[sortedInverters.size()];
-
-
 		double remainingPowerRequired = power;
 
 
@@ -376,6 +385,19 @@ public class PreferDcPower {
 		case KEEP_ZERO -> Relationship.EQUALS;
 		};
 
+		for (var inv : sortedInverters) {
+			// Create Constraint to force Ess positive/negative/zero according to
+			// targetDirection
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					createSimpleConstraint(coefficients, //
+							inv.toString() + ": Force ActivePower " + direction.name(), //
+							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0));
+			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+					createSimpleConstraint(coefficients, //
+							inv.toString() + ": Force ReactivePower " + direction.name(), //
+							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, relationship, 0));
+		}
+
 		for (int i=0; i<sortedInverters.size(); i++) {
 			var inv = sortedInverters.get(i);
 
@@ -386,20 +408,7 @@ public class PreferDcPower {
 							inv.getEssId(), inv.getPhase(), pwr, relationship, essPowerRequired[i]));
 		}
 
-
-		// Write result into contraints array result2 (sorted/index equals as within constraints)
-		var point = result.getPoint();
-		double[] result2 = new double[point.length];
-		for (Inverter inv : sortedInverters) {
-			var essId = inv.getEssId();
-			var c = coefficients.of(essId, inv.getPhase(), pwr);
-			var value = point[c.getIndex()];
-
-			result2[c.getIndex()] = value;
-			if(debug) System.out.println("["+pwr+"] Solved Solution for "+essId+": EQUALS "+value+ " (should be equal to added constraints!!)");
-		}
-
-		return new PointValuePair(result2, 0);
+		return result;
 	}
 
 	private static ManagedSymmetricEss getEss(List<ManagedSymmetricEss> esss, String essId) {
