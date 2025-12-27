@@ -34,7 +34,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PvInverter.via.DCCharger.Victron", //
+		name = "Victron.PvInverter.via.DCCharger", //
 		immediate = true, //
 		configurationPolicy = REQUIRE, //
 		property = { //

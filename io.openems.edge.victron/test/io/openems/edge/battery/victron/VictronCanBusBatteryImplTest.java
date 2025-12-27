@@ -1,5 +1,8 @@
 package io.openems.edge.battery.victron;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -214,14 +217,14 @@ public class VictronCanBusBatteryImplTest {
 	public void testChannelIds() {
 		var channelIds = VictronBattery.ChannelId.values();
 		for (var channelId : channelIds) {
-			org.junit.Assert.assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
 		}
 	}
 
 	@Test
 	public void testConstants() {
-		org.junit.Assert.assertEquals(225, VictronBatteryImpl.DEFAULT_UNIT_ID);
-		org.junit.Assert.assertEquals(48, VictronBatteryImpl.BATTERY_VOLTAGE);
+		assertEquals(225, VictronBatteryImpl.DEFAULT_UNIT_ID);
+		assertEquals(48, VictronBatteryImpl.BATTERY_VOLTAGE);
 	}
 
 }

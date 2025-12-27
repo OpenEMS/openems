@@ -1,5 +1,7 @@
 package io.openems.edge.dccharger.victron;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -128,14 +130,14 @@ public class VictronDcChargerImplTest {
 	public void testChannelIds() {
 		var channelIds = VictronDcCharger.ChannelId.values();
 		for (var channelId : channelIds) {
-			org.junit.Assert.assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
 		}
 	}
 
 	@Test
 	public void testDebugLog() throws Exception {
 		var charger = new VictronDcChargerImpl();
-		org.junit.Assert.assertNotNull(charger);
+		assertNotNull(charger);
 	}
 
 }
