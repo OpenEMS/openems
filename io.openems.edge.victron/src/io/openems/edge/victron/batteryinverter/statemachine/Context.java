@@ -1,9 +1,9 @@
-package io.openems.edge.batteryinverter.victron.statemachine;
+package io.openems.edge.victron.batteryinverter.statemachine;
 
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
-import io.openems.edge.batteryinverter.victron.ro.Config;
-import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverterImpl;
 import io.openems.edge.common.statemachine.AbstractContext;
+import io.openems.edge.victron.batteryinverter.Config;
+import io.openems.edge.victron.batteryinverter.VictronBatteryInverterImpl;
 
 public class Context extends AbstractContext<VictronBatteryInverterImpl> {
 

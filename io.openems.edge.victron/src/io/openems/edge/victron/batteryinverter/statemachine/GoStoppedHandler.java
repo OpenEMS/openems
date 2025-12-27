@@ -1,9 +1,9 @@
-package io.openems.edge.batteryinverter.victron.statemachine;
+package io.openems.edge.victron.batteryinverter.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
 
 /**
  * Handles the GO_STOPPED state - transition from running to stopped.

@@ -1,25 +1,31 @@
-package io.openems.edge.batteryinverter.victron.ro;
+package io.openems.edge.victron.batteryinverter;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.channel.AccessMode.READ_WRITE;
+import static io.openems.common.channel.Level.FAULT;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.AMPERE;
+import static io.openems.common.channel.Unit.AMPERE_HOURS;
+import static io.openems.common.channel.Unit.ON_OFF;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.SECONDS;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.STRING;
+
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.victron.battery.VictronBattery;
+import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
 import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
 import io.openems.edge.victron.enums.BatteryState;
@@ -44,79 +50,79 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 		// ================= State Machine =================
 		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current state of the component state-machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT)//
+		RUN_FAILED(Doc.of(FAULT)//
 				.text("Running the component logic failed")), //
 
 		// ================= System Info =================
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
+		SERIAL_NUMBER(Doc.of(STRING)//
 				.text("Serial number of the Victron system")), //
 
 		// ================= Relay Control =================
 		CCGX_RELAY1_STATE(new IntegerDoc()//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.ON_OFF)//
+				.accessMode(READ_WRITE)//
+				.unit(ON_OFF)//
 				.text("Cerbo GX Relay 1 state")), //
 		CCGX_RELAY2_STATE(new IntegerDoc()//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.ON_OFF)//
+				.accessMode(READ_WRITE)//
+				.unit(ON_OFF)//
 				.text("Cerbo GX Relay 2 state")), //
 
 		// ================= AC PV on Output (Critical Loads) =================
-		AC_PV_ON_OUTPUT_POWER_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_OUTPUT_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on critical loads output L1")), //
-		AC_PV_ON_OUTPUT_POWER_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_OUTPUT_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on critical loads output L2")), //
-		AC_PV_ON_OUTPUT_POWER_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_OUTPUT_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on critical loads output L3")), //
 
 		// ================= AC PV on Input (Grid Side) =================
-		AC_PV_ON_INPUT_POWER_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_INPUT_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on grid input L1")), //
-		AC_PV_ON_INPUT_POWER_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_INPUT_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on grid input L2")), //
-		AC_PV_ON_INPUT_POWER_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_PV_ON_INPUT_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC PV power on grid input L3")), //
 
 		// ================= AC Consumption =================
-		AC_CONSUMPTION_POWER_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_CONSUMPTION_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC consumption power L1")), //
-		AC_CONSUMPTION_POWER_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_CONSUMPTION_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC consumption power L2")), //
-		AC_CONSUMPTION_POWER_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_CONSUMPTION_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC consumption power L3")), //
 
 		// ================= Grid Power =================
-		GRID_POWER_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		GRID_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)//
 				.text("Grid power L1. Positive=Import; Negative=Export")), //
-		GRID_POWER_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		GRID_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)//
 				.text("Grid power L2. Positive=Import; Negative=Export")), //
-		GRID_POWER_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		GRID_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)//
 				.text("Grid power L3. Positive=Import; Negative=Export")), //
 
 		// ================= Generator Power =================
-		AC_GENSET_POWER_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_GENSET_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC generator power L1")), //
-		AC_GENSET_POWER_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_GENSET_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC generator power L2")), //
-		AC_GENSET_POWER_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		AC_GENSET_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("AC generator power L3")), //
 
 		// ================= Active Input Source =================
@@ -124,98 +130,98 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 				.text("Currently active AC input source")), //
 
 		// ================= DC Battery Measurements =================
-		DC_BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.VOLT)//
+		DC_BATTERY_VOLTAGE(Doc.of(INTEGER)//
+				.unit(VOLT)//
 				.text("DC battery voltage")), //
-		DC_BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
+		DC_BATTERY_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
 				.text("DC battery current. Positive=Discharge; Negative=Charge")), //
 
 		// ================= Battery Status =================
-		BATTERY_SOC(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.PERCENT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		BATTERY_SOC(Doc.of(INTEGER)//
+				.unit(PERCENT)//
+				.persistencePriority(HIGH)//
 				.text("Battery state of charge")), //
 		BATTERY_STATE(Doc.of(BatteryState.values())//
 				.text("Battery charging/discharging state")), //
-		BATTERY_CONSUMED_AMPHOURS(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE_HOURS)//
+		BATTERY_CONSUMED_AMPHOURS(Doc.of(INTEGER)//
+				.unit(AMPERE_HOURS)//
 				.text("Consumed amp-hours since last full charge")), //
-		BATTERY_TIME_TO_GO(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.SECONDS)//
+		BATTERY_TIME_TO_GO(Doc.of(INTEGER)//
+				.unit(SECONDS)//
 				.text("Estimated time until battery empty")), //
 
 		// ================= DC PV (MPPT Chargers) =================
-		DC_PV_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		DC_PV_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)//
 				.text("Total DC PV power from MPPT chargers")), //
-		DC_PV_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
+		DC_PV_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
 				.text("Total DC PV current from MPPT chargers")), //
 
 		// ================= Charger & System Power =================
-		CHARGER_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		CHARGER_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("Total charger power")), //
-		DC_SYSTEM_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		DC_SYSTEM_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("DC system power (DC loads)")), //
 
 		// ================= VE.Bus Charging =================
-		VE_BUS_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
+		VE_BUS_CHARGE_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
 				.text("VE.Bus charging current")), //
-		VE_BUS_CHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
+		VE_BUS_CHARGE_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
 				.text("VE.Bus charging power")), //
 
 		// ================= ESS Control Parameters =================
-		ESS_CONTROL_LOOP_SETPOINT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT)//
+		ESS_CONTROL_LOOP_SETPOINT(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(WATT)//
 				.text("ESS control loop setpoint (16-bit)")), //
-		ESS_CONTROL_LOOP_SETPOINT_SCALE_FACTOR_2(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT)//
+		ESS_CONTROL_LOOP_SETPOINT_SCALE_FACTOR_2(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(WATT)//
 				.text("ESS control loop setpoint with scale factor 2")), //
 
 		// ================= ESS Current Limits =================
-		ESS_MAX_CHARGE_CURRENT_PERCENTAGE(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.PERCENT)//
+		ESS_MAX_CHARGE_CURRENT_PERCENTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(PERCENT)//
 				.text("Max charge current as percentage of system max")), //
-		ESS_MAX_DISCHARGE_CURRENT_PERCENTAGE(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.PERCENT)//
+		ESS_MAX_DISCHARGE_CURRENT_PERCENTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(PERCENT)//
 				.text("Max discharge current as percentage of system max")), //
-		ESS_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT)//
+		ESS_MAX_DISCHARGE_POWER(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(WATT)//
 				.text("Maximum discharge power limit")), //
-		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.AMPERE)//
+		SYSTEM_MAX_CHARGE_CURRENT(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(AMPERE)//
 				.text("System maximum charge current")), //
 
 		// ================= Feed-in Control =================
-		MAX_FEED_IN_POWER(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.WATT)//
+		MAX_FEED_IN_POWER(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(WATT)//
 				.text("Maximum grid feed-in power")), //
-		FEED_EXCESS_DC(Doc.of(OpenemsType.BOOLEAN)//
-				.accessMode(AccessMode.READ_WRITE)//
+		FEED_EXCESS_DC(Doc.of(BOOLEAN)//
+				.accessMode(READ_WRITE)//
 				.text("Feed excess DC-coupled PV to grid")), //
-		DONT_FEED_EXCESS_AC(Doc.of(OpenemsType.BOOLEAN)//
-				.accessMode(AccessMode.READ_WRITE)//
+		DONT_FEED_EXCESS_AC(Doc.of(BOOLEAN)//
+				.accessMode(READ_WRITE)//
 				.text("Do not feed excess AC-coupled PV to grid")), //
 		PV_POWER_LIMITER_ACTIVE(Doc.of(ActiveInactive.values())//
 				.text("PV power limiter currently active")), //
 
 		// ================= Battery Voltage Control =================
-		MAX_CHARGE_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.VOLT)//
+		MAX_CHARGE_VOLTAGE(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
+				.unit(VOLT)//
 				.text("Maximum battery charge voltage"));
 
 		private final Doc doc;
@@ -231,7 +237,6 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 	}
 
 	// ================= AC PV on Output (Critical Loads) Accessors
-	// =================
 
 	/**
 	 * Gets the AC PV power on critical loads output L1 in [W].
@@ -898,34 +903,10 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 	 */
 	public Integer getMaxDischargePower();
 
-	@Override
-	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
-				this.getModbusSlaveNatureTable(accessMode));
-	}
-
-	/**
-	 * Gets the Modbus slave nature table for this component.
-	 *
-	 * @param accessMode the access mode filter
-	 * @return the {@link ModbusSlaveNatureTable}
-	 */
-	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(VictronBatteryInverter.class, accessMode, 200) //
-				.channel(0, ChannelId.ESS_MAX_CHARGE_CURRENT_PERCENTAGE, ModbusType.UINT16) //
-				.channel(1, ChannelId.ESS_MAX_DISCHARGE_CURRENT_PERCENTAGE, ModbusType.UINT16) //
-				.channel(2, ChannelId.ESS_MAX_DISCHARGE_POWER, ModbusType.UINT16) //
-				.build();
-	}
-
 	/**
 	 * Calculates hardware limits from battery and inverter.
 	 *
 	 * @return true if limits were successfully calculated
 	 */
 	public boolean calculateHardwareLimits();
-
 }

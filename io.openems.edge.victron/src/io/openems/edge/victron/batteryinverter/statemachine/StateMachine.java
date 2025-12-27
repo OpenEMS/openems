@@ -1,4 +1,4 @@
-package io.openems.edge.batteryinverter.victron.statemachine;
+package io.openems.edge.victron.batteryinverter.statemachine;
 
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;

@@ -1,7 +1,7 @@
-package io.openems.edge.batteryinverter.victron.statemachine;
+package io.openems.edge.victron.batteryinverter.statemachine;
 
-import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
 
 public class UndefinedHandler extends StateHandler<State, Context> {
 

@@ -1,4 +1,18 @@
-package io.openems.edge.batteryinverter.victron.ro;
+package io.openems.edge.victron.batteryinverter;
+
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -6,29 +20,23 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.victron.statemachine.Context;
-import io.openems.edge.batteryinverter.victron.statemachine.StateMachine;
-import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
@@ -38,8 +46,10 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
@@ -49,6 +59,9 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.victron.battery.VictronBattery;
+import io.openems.edge.victron.batteryinverter.statemachine.Context;
+import io.openems.edge.victron.batteryinverter.statemachine.StateMachine;
+import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
 import io.openems.edge.victron.enums.DeviceType;
 import io.openems.edge.victron.ess.VictronEss;
 
@@ -70,12 +83,13 @@ import io.openems.edge.victron.ess.VictronEss;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Battery-Inverter.Victron", //
+		name = "Victron.Battery-Inverter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE) //
+		configurationPolicy = REQUIRE //
+) //
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent implements VictronBatteryInverter,
 		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
@@ -109,16 +123,29 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile VictronEss ess;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private VictronBattery battery;
+
+	@Reference(cardinality = OPTIONAL, policy = STATIC)
+	@Override
+	public synchronized void setBattery(VictronBattery battery) {
+		this.battery = battery;
+	}
+
+	@Override
+	public synchronized void unsetBattery(VictronBattery battery) {
+		if (this.battery == battery) {
+			this.battery = null;
+		}
+	}
 
 	private Integer batteryInverterMaxChargePower;
 	private Integer batteryInverterMaxDischargePower;
@@ -242,20 +269,6 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		return true;
 	}
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.STATIC)
-	@Override
-	public synchronized void setBattery(VictronBattery battery) {
-		this.battery = battery;
-
-	}
-
-	@Override
-	public synchronized void unsetBattery(VictronBattery battery) {
-		if (this.battery == battery) {
-			this.battery = null;
-		}
-	}
-
 	/**
 	 * Runs the battery inverter state machine and applies power setpoints.
 	 *
@@ -287,9 +300,10 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		var context = new Context(this, this.config, this.targetGridMode.get(), setActivePower, setReactivePower);
 		try {
 			this.stateMachine.run(context);
-			this.channel(VictronBatteryInverter.ChannelId.RUN_FAILED).setNextValue(false);
+			setValue(this, VictronBatteryInverter.ChannelId.RUN_FAILED, false);
+
 		} catch (OpenemsNamedException e) {
-			this.channel(VictronBatteryInverter.ChannelId.RUN_FAILED).setNextValue(true);
+			setValue(this, VictronBatteryInverter.ChannelId.RUN_FAILED, true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 			this.stateMachine.forceNextState(State.ERROR);
 		}
@@ -395,28 +409,28 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 						this.m(VictronBatteryInverter.ChannelId.ACTIVE_INPUT_SOURCE, new UnsignedWordElement(826))),
 				new FC3ReadRegistersTask(840, Priority.HIGH, //
 						this.m(VictronBatteryInverter.ChannelId.DC_BATTERY_VOLTAGE, new UnsignedWordElement(840),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(VictronBatteryInverter.ChannelId.DC_BATTERY_CURRENT, new SignedWordElement(841),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(842), // DC POWER
-								ElementToChannelConverter.INVERT),
+								INVERT),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_SOC, new UnsignedWordElement(843)),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_STATE, new UnsignedWordElement(844)),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_CONSUMED_AMPHOURS, new UnsignedWordElement(845),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(true)),
+								SCALE_FACTOR_MINUS_1_AND_INVERT),
 						this.m(VictronBatteryInverter.ChannelId.BATTERY_TIME_TO_GO, new UnsignedWordElement(846),
-								ElementToChannelConverter.SCALE_FACTOR_2)),
+								SCALE_FACTOR_2)),
 				new FC3ReadRegistersTask(850, Priority.LOW,
 						this.m(VictronBatteryInverter.ChannelId.DC_PV_POWER, new UnsignedWordElement(850)),
 						this.m(VictronBatteryInverter.ChannelId.DC_PV_CURRENT, new SignedWordElement(851),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
+								SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(855, Priority.LOW,
 						this.m(VictronBatteryInverter.ChannelId.CHARGER_POWER, new UnsignedWordElement(855))),
 				new FC3ReadRegistersTask(860, Priority.LOW,
 						this.m(VictronBatteryInverter.ChannelId.DC_SYSTEM_POWER, new SignedWordElement(860))),
 				new FC3ReadRegistersTask(865, Priority.HIGH,
 						this.m(VictronBatteryInverter.ChannelId.VE_BUS_CHARGE_CURRENT, new SignedWordElement(865),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(VictronBatteryInverter.ChannelId.VE_BUS_CHARGE_POWER, new SignedWordElement(866))),
 
 				new FC3ReadRegistersTask(2700, Priority.HIGH,
@@ -426,17 +440,17 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 						this.m(VictronBatteryInverter.ChannelId.ESS_MAX_DISCHARGE_CURRENT_PERCENTAGE,
 								new UnsignedWordElement(2702)),
 						this.m(VictronBatteryInverter.ChannelId.ESS_CONTROL_LOOP_SETPOINT_SCALE_FACTOR_2,
-								new SignedWordElement(2703), ElementToChannelConverter.SCALE_FACTOR_2),
+								new SignedWordElement(2703), SCALE_FACTOR_2),
 						this.m(VictronBatteryInverter.ChannelId.ESS_MAX_DISCHARGE_POWER, new UnsignedWordElement(2704),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronBatteryInverter.ChannelId.SYSTEM_MAX_CHARGE_CURRENT, new SignedWordElement(2705)),
 						this.m(VictronBatteryInverter.ChannelId.MAX_FEED_IN_POWER, new SignedWordElement(2706),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								SCALE_FACTOR_2),
 						this.m(VictronBatteryInverter.ChannelId.FEED_EXCESS_DC, new SignedWordElement(2707)),
 						this.m(VictronBatteryInverter.ChannelId.DONT_FEED_EXCESS_AC, new SignedWordElement(2708)),
 						this.m(VictronBatteryInverter.ChannelId.PV_POWER_LIMITER_ACTIVE, new SignedWordElement(2709)),
 						this.m(VictronBatteryInverter.ChannelId.MAX_CHARGE_VOLTAGE, new UnsignedWordElement(2710),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1))); //
+								SCALE_FACTOR_MINUS_1))); //
 
 	}
 
@@ -462,5 +476,20 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 	@Override
 	public Integer getMaxDischargePower() {
 		return this.maxDischargePowerLimit;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricBatteryInverter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(VictronBatteryInverter.class, accessMode, 200) //
+						.channel(0, VictronBatteryInverter.ChannelId.ESS_MAX_CHARGE_CURRENT_PERCENTAGE,
+								ModbusType.UINT16) //
+						.channel(1, VictronBatteryInverter.ChannelId.ESS_MAX_DISCHARGE_CURRENT_PERCENTAGE,
+								ModbusType.UINT16) //
+						.channel(2, VictronBatteryInverter.ChannelId.ESS_MAX_DISCHARGE_POWER, ModbusType.UINT16) //
+						.build());
 	}
 }

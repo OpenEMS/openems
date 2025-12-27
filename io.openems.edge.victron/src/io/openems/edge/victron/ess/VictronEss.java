@@ -23,7 +23,6 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -36,6 +35,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.victron.battery.VictronBattery;
+import io.openems.edge.victron.batteryinverter.VictronBatteryInverter;
 import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
 import io.openems.edge.victron.enums.Alarm;
