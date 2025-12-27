@@ -1,8 +1,9 @@
-package io.openems.edge.meter.victron.acout;
+package io.openems.edge.victron.meter.acout;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.channel.AccessMode.READ_ONLY;
+import static io.openems.common.channel.Unit.WATT_HOURS;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -11,25 +12,25 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface VictronAcOutPowerMeter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)), //
-		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)),
-		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)),
+		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)), //
+		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)),
+		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)),
 
-		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)),
-		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)),
-		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(OpenemsType.LONG)//
-				.accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT_HOURS)),;
+		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)),
+		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)),
+		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(LONG)//
+				.accessMode(READ_ONLY)//
+				.unit(WATT_HOURS)),;
 
 		private final Doc doc;
 

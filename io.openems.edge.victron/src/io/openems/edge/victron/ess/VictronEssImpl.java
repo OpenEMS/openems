@@ -694,6 +694,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 			this.updateOperationalValues();

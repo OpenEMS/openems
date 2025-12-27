@@ -1,17 +1,21 @@
-package io.openems.edge.meter.victron.acout;
+package io.openems.edge.victron.meter.acout;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -31,7 +35,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -42,33 +45,15 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.Victron.AcOut", //
+		name = "Victron.Meter.AcOut", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent implements VictronAcOutPowerMeter,
 		ElectricityMeter, OpenemsComponent, ModbusSlave, EventHandler, TimedataProvider {
-
-	private Config config;
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	public VictronAcOutPowerMeterImpl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ElectricityMeter.ChannelId.values(), //
-				VictronAcOutPowerMeter.ChannelId.values(), ModbusComponent.ChannelId.values() //
-		);
-		ElectricityMeter.calculateSumActivePowerFromPhases(this);
-		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
-	}
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -76,14 +61,33 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent i
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	private volatile Timedata timedata = null;
+
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
+	private Config config;
+
+	public VictronAcOutPowerMeterImpl() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
+				VictronAcOutPowerMeter.ChannelId.values(), //
+				ModbusComponent.ChannelId.values() //
+		);
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateSumReactivePowerFromPhases(this);
+	}
+
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -125,9 +129,14 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent i
 
 	@Override
 	public void handleEvent(Event event) {
-
-		this.setEnergyValues();
-
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.setEnergyValues();
+		}
+		}
 	}
 
 	@Override
@@ -138,22 +147,19 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent i
 
 						// Output Voltages
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(15),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(16),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(17),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 
 						// Output Currents
 						this.m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedWordElement(18),
-								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
+								SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						this.m(ElectricityMeter.ChannelId.CURRENT_L2, new SignedWordElement(19),
-								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
+								SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						this.m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedWordElement(20),
-								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
+								SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
 
 						// Output Frequency
 						this.m(ElectricityMeter.ChannelId.FREQUENCY, new SignedWordElement(21),
@@ -172,20 +178,20 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent i
 
 						// Be careful! Values reset after system reboot
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT,
-								new UnsignedDoublewordElement(74), ElementToChannelConverter.SCALE_FACTOR_1),
+								new UnsignedDoublewordElement(74), SCALE_FACTOR_1),
 						new DummyRegisterElement(76, 77),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_IN_2_TO_AC_OUT,
-								new UnsignedDoublewordElement(78), ElementToChannelConverter.SCALE_FACTOR_1),
+								new UnsignedDoublewordElement(78), SCALE_FACTOR_1),
 						new DummyRegisterElement(80, 81),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_1,
-								new UnsignedDoublewordElement(82), ElementToChannelConverter.SCALE_FACTOR_1),
+								new UnsignedDoublewordElement(82), SCALE_FACTOR_1),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_2,
-								new UnsignedDoublewordElement(84), ElementToChannelConverter.SCALE_FACTOR_1),
+								new UnsignedDoublewordElement(84), SCALE_FACTOR_1),
 						new DummyRegisterElement(86, 89),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT,
-								new UnsignedDoublewordElement(90), ElementToChannelConverter.SCALE_FACTOR_1),
+								new UnsignedDoublewordElement(90), SCALE_FACTOR_1),
 						this.m(VictronAcOutPowerMeter.ChannelId.ENERGY_FROM_AC_OUT_TO_BATTERY,
-								new UnsignedDoublewordElement(92), ElementToChannelConverter.SCALE_FACTOR_1)
+								new UnsignedDoublewordElement(92), SCALE_FACTOR_1)
 
 				));
 	}

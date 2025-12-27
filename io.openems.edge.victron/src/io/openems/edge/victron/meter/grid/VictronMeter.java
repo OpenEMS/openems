@@ -1,13 +1,14 @@
-package io.openems.edge.meter.victron.grid;
+package io.openems.edge.victron.meter.grid;
 
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.types.OpenemsType.STRING;
+
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public interface VictronMeter extends ElectricityMeter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
+		SERIAL_NUMBER(Doc.of(STRING)//
 		);
 
 		private final Doc doc;

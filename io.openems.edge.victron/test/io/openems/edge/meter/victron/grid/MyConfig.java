@@ -2,6 +2,7 @@ package io.openems.edge.meter.victron.grid;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.victron.meter.grid.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

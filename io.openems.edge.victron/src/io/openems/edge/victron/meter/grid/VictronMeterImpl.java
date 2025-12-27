@@ -1,7 +1,8 @@
-package io.openems.edge.meter.victron.grid;
+package io.openems.edge.victron.meter.grid;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.util.function.Consumer;
 
@@ -9,7 +10,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -38,9 +38,9 @@ import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.Victron.Grid", //
+		name = "Victron.Meter.Grid", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 		implements VictronMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
@@ -159,8 +159,7 @@ public class VictronMeterImpl extends AbstractOpenemsModbusComponent
 						this.m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3,
 								new UnsignedDoublewordElement(2632), //
 								SCALE_FACTOR_1)) //
-		); //
-
+		);
 	}
 
 	@Override
