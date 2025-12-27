@@ -7,6 +7,8 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.victron.dccharger.VictronDcCharger;
+import io.openems.edge.victron.dccharger.VictronDcChargerImpl;
 
 public class VictronDcChargerImplTest {
 

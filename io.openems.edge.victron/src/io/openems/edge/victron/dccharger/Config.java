@@ -1,4 +1,4 @@
-package io.openems.edge.dccharger.victron;
+package io.openems.edge.victron.dccharger;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
