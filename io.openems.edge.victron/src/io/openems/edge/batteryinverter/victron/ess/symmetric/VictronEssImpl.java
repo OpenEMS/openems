@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.battery.victron.VictronBattery;
 import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -56,6 +55,7 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.enums.AllowDisallow;
 import io.openems.edge.victron.enums.EnableDisable;
 

@@ -6,6 +6,8 @@ import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.victron.battery.VictronBattery;
+import io.openems.edge.victron.battery.VictronBatteryImpl;
 import io.openems.edge.common.test.ComponentTest;
 
 public class VictronCanBusBatteryImplTest {
@@ -20,7 +22,7 @@ public class VictronCanBusBatteryImplTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new VictronCanBusBatteryImpl()) //
+		new ComponentTest(new VictronBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						.withRegisters(259,
@@ -218,8 +220,8 @@ public class VictronCanBusBatteryImplTest {
 
 	@Test
 	public void testConstants() {
-		org.junit.Assert.assertEquals(225, VictronCanBusBatteryImpl.DEFAULT_UNIT_ID);
-		org.junit.Assert.assertEquals(48, VictronCanBusBatteryImpl.BATTERY_VOLTAGE);
+		org.junit.Assert.assertEquals(225, VictronBatteryImpl.DEFAULT_UNIT_ID);
+		org.junit.Assert.assertEquals(48, VictronBatteryImpl.BATTERY_VOLTAGE);
 	}
 
 }

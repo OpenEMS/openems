@@ -1,4 +1,4 @@
-package io.openems.edge.battery.victron;
+package io.openems.edge.victron.battery;
 
 import static java.lang.Math.max;
 

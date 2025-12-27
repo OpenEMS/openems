@@ -1,10 +1,10 @@
-package io.openems.edge.battery.victron;
+package io.openems.edge.victron.battery;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Battery Victron", //
+		name = "Victron Battery", //
 		description = "Implements the Victron CANBus Battery.")
 public @interface Config {
 
@@ -32,5 +32,5 @@ public @interface Config {
 	@AttributeDefinition(name = "Debug", description = "Enable debug mode?")
 	boolean debugMode() default false;
 
-	String webconsole_configurationFactory_nameHint() default "Battery Victron [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Victron Battery [{id}]";
 }
