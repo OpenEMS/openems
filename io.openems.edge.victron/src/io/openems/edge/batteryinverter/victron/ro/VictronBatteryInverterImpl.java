@@ -23,7 +23,6 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
-import io.openems.edge.batteryinverter.victron.ess.symmetric.VictronEss;
 import io.openems.edge.batteryinverter.victron.statemachine.Context;
 import io.openems.edge.batteryinverter.victron.statemachine.StateMachine;
 import io.openems.edge.batteryinverter.victron.statemachine.StateMachine.State;
@@ -51,6 +50,7 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.enums.DeviceType;
+import io.openems.edge.victron.ess.VictronEss;
 
 /**
  * Implementation of the Victron Battery Inverter component.

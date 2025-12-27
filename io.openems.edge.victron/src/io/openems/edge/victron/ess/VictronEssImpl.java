@@ -1,15 +1,29 @@
-package io.openems.edge.batteryinverter.victron.ess.symmetric;
+package io.openems.edge.victron.ess;
+
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -17,12 +31,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
@@ -33,17 +47,14 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.Phase;
-import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
-import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
-import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
-import static io.openems.edge.ess.power.api.Relationship.EQUALS;
-
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
@@ -77,13 +88,13 @@ import io.openems.edge.victron.enums.EnableDisable;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "ESS.Victron", //
+		name = "Victron.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		implements VictronEss, ManagedSinglePhaseEss, SinglePhaseEss, ManagedSymmetricEss, SymmetricEss, AsymmetricEss,
@@ -95,23 +106,66 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private volatile Timedata timedata = null;
 
 	@Reference
 	protected ComponentManager componentManager;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	// XXX: NOTE OSGi References are not used correctly here!
+	@Reference(policy = DYNAMIC, policyOption = GREEDY)
 	private volatile VictronBatteryInverter batteryInverter;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(cardinality = OPTIONAL, policy = DYNAMIC)
+	@Override
+	public synchronized void setBatteryInverter(VictronBatteryInverter batteryInverter) {
+		if (batteryInverter == null) {
+			this.logError(this.log, "Attempt to bind a null BatteryInverter");
+			return;
+		}
+		this.batteryInverter = batteryInverter;
+		logInfo(this.log, "Battery Inverter bound successfully.");
+
+		// Ensuring that the battery inverter is not null before attempting to get max
+		// apparent power
+		if (this.batteryInverter.getMaxApparentPower().get() != null) {
+			Integer maxApparentPower = this.batteryInverter.getMaxApparentPower().get();
+			this._setMaxApparentPower(maxApparentPower);
+		} else {
+			this.logError(this.log, "ESS->BatteryInverter max. apparent power not set ");
+		}
+	}
+
+	@Override
+	public void unsetBatteryInverter(VictronBatteryInverter batteryInverter) {
+		this.batteryInverter = null;
+
+	}
+
+	@Reference(policy = DYNAMIC, policyOption = GREEDY)
 	private volatile VictronBattery battery;
+
+	@Reference(cardinality = OPTIONAL, policy = DYNAMIC)
+	@Override
+	public synchronized void setBattery(VictronBattery battery) {
+
+		if (battery == null) {
+			this.logError(this.log, "ESS->Battery not activated ");
+			return;
+		}
+		this.battery = battery;
+	}
+
+	@Override
+	public synchronized void unsetBattery(VictronBattery battery) {
+		this.battery = null;
+	}
 
 	private final Logger log = LoggerFactory.getLogger(VictronEssImpl.class);
 
@@ -157,19 +211,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setCapacity(config.capacity());
 
-		switch (config.phase()) {
-		case L1:
-			this.singlePhase = SinglePhase.L1;
-			break;
-		case L2:
-			this.singlePhase = SinglePhase.L2;
-			break;
-		case L3:
-			this.singlePhase = SinglePhase.L3;
-			break;
-		default:
-			this.singlePhase = null;
-		}
+		this.singlePhase = switch (config.phase()) {
+		case L1 -> SinglePhase.L1;
+		case L2 -> SinglePhase.L2;
+		case L3 -> SinglePhase.L3;
+		default -> null;
+		};
 
 		if (this.singlePhase != null) {
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
@@ -648,12 +695,12 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 			this.updateOperationalValues();
 			this._setMyActivePower();
 
 		}
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
+		case TOPIC_CYCLE_BEFORE_CONTROLLERS -> {
 			this._setMyActivePower();
 			this.calculateEnergy();
 		}
@@ -717,80 +764,58 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(3, Priority.HIGH, //
 
 						// Voltage AC In
-						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L1, new UnsignedWordElement(3),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L2, new UnsignedWordElement(4),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L3, new UnsignedWordElement(5),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L1, new UnsignedWordElement(3), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L2, new UnsignedWordElement(4), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_INPUT_L3, new UnsignedWordElement(5), SCALE_FACTOR_2),
 
 						// Current AC In
-						this.m(VictronEss.ChannelId.CURRENT_INPUT_L1, new SignedWordElement(6),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.CURRENT_INPUT_L2, new SignedWordElement(7),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.CURRENT_INPUT_L3, new SignedWordElement(8),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_INPUT_L1, new SignedWordElement(6), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_INPUT_L2, new SignedWordElement(7), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_INPUT_L3, new SignedWordElement(8), SCALE_FACTOR_2),
 
 						// Frequencies AC In
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L1, new SignedWordElement(9),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L2, new SignedWordElement(10),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L3, new SignedWordElement(11),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L1, new SignedWordElement(9), SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L2, new SignedWordElement(10), SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_INPUT_L3, new SignedWordElement(11), SCALE_FACTOR_1),
 
 						// Power AC In
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_INPUT_L1, new SignedWordElement(12),
-								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(true)),
+								SCALE_FACTOR_1_AND_INVERT),
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_INPUT_L2, new SignedWordElement(13),
-								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(true)),
+								SCALE_FACTOR_1_AND_INVERT),
 						this.m(VictronEss.ChannelId.ACTIVE_POWER_INPUT_L3, new SignedWordElement(14),
-								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(true)),
+								SCALE_FACTOR_1_AND_INVERT),
 
 						// Output Voltages
-						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L1, new UnsignedWordElement(15),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L2, new UnsignedWordElement(16),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L3, new UnsignedWordElement(17),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L1, new UnsignedWordElement(15), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L2, new UnsignedWordElement(16), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.VOLTAGE_OUTPUT_L3, new UnsignedWordElement(17), SCALE_FACTOR_2),
 
 						// Output Currents
-						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L1, new SignedWordElement(18),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L2, new SignedWordElement(19),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L3, new SignedWordElement(20),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L1, new SignedWordElement(18), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L2, new SignedWordElement(19), SCALE_FACTOR_2),
+						this.m(VictronEss.ChannelId.CURRENT_OUTPUT_L3, new SignedWordElement(20), SCALE_FACTOR_2),
 
 						// Output Frequency
-						this.m(VictronEss.ChannelId.FREQUENCY_OUTPUT, new SignedWordElement(21),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.FREQUENCY_OUTPUT, new SignedWordElement(21), SCALE_FACTOR_1),
 
 						this.m(VictronEss.ChannelId.CURRENT_INPUT_LIMIT, new SignedWordElement(22),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 
-						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L1, new SignedWordElement(23),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L2, new SignedWordElement(24),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L3, new SignedWordElement(25),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L1, new SignedWordElement(23), SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L2, new SignedWordElement(24), SCALE_FACTOR_1),
+						this.m(VictronEss.ChannelId.ACTIVE_POWER_OUTPUT_L3, new SignedWordElement(25), SCALE_FACTOR_1),
 
 						// Battery Voltage and Current
-						this.m(VictronEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(26),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						this.m(VictronEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(27),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						this.m(VictronEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(26), SCALE_FACTOR_MINUS_2),
+						this.m(VictronEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(27), SCALE_FACTOR_MINUS_1),
 
 						// Phase Count & Active Input
 						this.m(VictronEss.ChannelId.PHASE_COUNT, new UnsignedWordElement(28)),
 						this.m(VictronEss.ChannelId.ACTIVE_INPUT, new UnsignedWordElement(29)),
 
 						// VE.Bus State of Charge & State
-						this.m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(30),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						this.m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(30), SCALE_FACTOR_MINUS_1),
 						this.m(VictronEss.ChannelId.VE_BUS_STATE, new UnsignedWordElement(31)),
 
 						// VE.Bus Error & Switch Position
@@ -840,7 +865,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 						// Additional Battery Information
 						this.m(VictronEss.ChannelId.BATTERY_TEMPERATURE, new SignedWordElement(61),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								SCALE_FACTOR_MINUS_1),
 						this.m(VictronEss.ChannelId.VE_BUS_RESET, new UnsignedWordElement(62)),
 						this.m(VictronEss.ChannelId.PHASE_ROTATION_WARNING, new UnsignedWordElement(63)),
 
@@ -862,25 +887,25 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 						//
 						// Attention! Energy values reset on system reboot
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_AC_OUT, new UnsignedDoublewordElement(74),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_1_TO_BATTERY, new UnsignedDoublewordElement(76),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_AC_OUT, new UnsignedDoublewordElement(78),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_IN_2_TO_BATTERY, new UnsignedDoublewordElement(80),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_1, new UnsignedDoublewordElement(82),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_AC_IN_2, new UnsignedDoublewordElement(84),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_1, new UnsignedDoublewordElement(86),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_IN_2, new UnsignedDoublewordElement(88),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_BATTERY_TO_AC_OUT, new UnsignedDoublewordElement(90),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.ENERGY_FROM_AC_OUT_TO_BATTERY, new UnsignedDoublewordElement(92),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+								SCALE_FACTOR_1),
 						this.m(VictronEss.ChannelId.LOW_CELL_VOLTAGE_IMMINENT, new UnsignedWordElement(94)),
 						this.m(VictronEss.ChannelId.CHARGE_STATE, new UnsignedWordElement(95)),
 
@@ -907,49 +932,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	@Override
-	public synchronized void setBatteryInverter(VictronBatteryInverter batteryInverter) {
-		if (batteryInverter == null) {
-			this.logError(this.log, "Attempt to bind a null BatteryInverter");
-			return;
-		}
-		this.batteryInverter = batteryInverter;
-		logInfo(this.log, "Battery Inverter bound successfully.");
-
-		// Ensuring that the battery inverter is not null before attempting to get max
-		// apparent power
-		if (this.batteryInverter.getMaxApparentPower().get() != null) {
-			Integer maxApparentPower = this.batteryInverter.getMaxApparentPower().get();
-			this._setMaxApparentPower(maxApparentPower);
-		} else {
-			this.logError(this.log, "ESS->BatteryInverter max. apparent power not set ");
-		}
-	}
-
-	@Override
-	public void unsetBatteryInverter(VictronBatteryInverter batteryInverter) {
-		this.batteryInverter = null;
-
-	}
-
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	@Override
-	public synchronized void setBattery(VictronBattery battery) {
-
-		if (battery == null) {
-			this.logError(this.log, "ESS->Battery not activated ");
-			return;
-		}
-		this.battery = battery;
-	}
-
-	@Override
-	public synchronized void unsetBattery(VictronBattery battery) {
-		this.battery = null;
-
-	}
-
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		if (this.config.readOnlyMode() || !this.operationalValuesOk) {
@@ -960,4 +942,39 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(VictronEss.class, accessMode, 200) //
+						.channel(0, VictronEss.ChannelId.SET_ACTIVE_POWER_L1, ModbusType.UINT16) //
+						.channel(1, VictronEss.ChannelId.SET_ACTIVE_POWER_L2, ModbusType.UINT16) //
+						.channel(2, VictronEss.ChannelId.SET_ACTIVE_POWER_L3, ModbusType.UINT16) //
+						.channel(3, VictronEss.ChannelId.CHARGE_STATE, ModbusType.UINT16) //
+						.channel(4, VictronEss.ChannelId.BATTERY_VOLTAGE, ModbusType.UINT16) //
+						.channel(5, VictronEss.ChannelId.BATTERY_CURRENT, ModbusType.UINT16) //
+						.channel(6, VictronEss.ChannelId.VE_BUS_STATE, ModbusType.UINT16) //
+						.channel(7, VictronEss.ChannelId.VE_BUS_ERROR, ModbusType.UINT16) //
+						.channel(8, VictronEss.ChannelId.USEABLE_CAPACITY, ModbusType.UINT16) //
+						.channel(9, VictronEss.ChannelId.USEABLE_SOC, ModbusType.UINT16) //
+						.channel(10, VictronEss.ChannelId.TEMPERATURE_ALARM, ModbusType.UINT16) //
+						.channel(11, VictronEss.ChannelId.TEMPERATURE_ALARM_L1, ModbusType.UINT16) //
+						.channel(12, VictronEss.ChannelId.TEMPERATURE_ALARM_L2, ModbusType.UINT16) //
+						.channel(13, VictronEss.ChannelId.TEMPERATURE_ALARM_L3, ModbusType.UINT16) //
+						.channel(14, VictronEss.ChannelId.LOW_BATTERY_ALARM, ModbusType.UINT16) //
+						.channel(15, VictronEss.ChannelId.LOW_BATTERY_ALARM_L1, ModbusType.UINT16) //
+						.channel(16, VictronEss.ChannelId.LOW_BATTERY_ALARM_L2, ModbusType.UINT16) //
+						.channel(17, VictronEss.ChannelId.LOW_BATTERY_ALARM_L3, ModbusType.UINT16) //
+						.channel(18, VictronEss.ChannelId.OVERLOAD_ALARM, ModbusType.UINT16) //
+						.channel(19, VictronEss.ChannelId.OVERLOAD_ALARM_L1, ModbusType.UINT16) //
+						.channel(20, VictronEss.ChannelId.OVERLOAD_ALARM_L2, ModbusType.UINT16) //
+						.channel(21, VictronEss.ChannelId.OVERLOAD_ALARM_L3, ModbusType.UINT16) //
+						.channel(22, VictronEss.ChannelId.RIPPLE_ALARM_L1, ModbusType.UINT16) //
+						.channel(23, VictronEss.ChannelId.RIPPLE_ALARM_L2, ModbusType.UINT16) //
+						.channel(24, VictronEss.ChannelId.RIPPLE_ALARM_L3, ModbusType.UINT16) //
+						.build());
+	}
 }

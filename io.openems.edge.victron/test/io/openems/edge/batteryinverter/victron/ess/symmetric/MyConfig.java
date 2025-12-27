@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.victron.ess.symmetric;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.victron.ess.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

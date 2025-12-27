@@ -1,4 +1,4 @@
-package io.openems.edge.batteryinverter.victron.ess.symmetric;
+package io.openems.edge.victron.ess;
 
 import io.openems.common.types.OptionsEnum;
 

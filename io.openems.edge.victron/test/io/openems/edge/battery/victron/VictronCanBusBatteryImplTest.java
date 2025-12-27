@@ -6,9 +6,9 @@ import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.battery.VictronBatteryImpl;
-import io.openems.edge.common.test.ComponentTest;
 
 public class VictronCanBusBatteryImplTest {
 

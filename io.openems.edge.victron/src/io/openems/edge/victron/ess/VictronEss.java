@@ -1,12 +1,28 @@
-package io.openems.edge.batteryinverter.victron.ess.symmetric;
+package io.openems.edge.victron.ess;
+
+import static io.openems.common.channel.AccessMode.READ_WRITE;
+import static io.openems.common.channel.AccessMode.WRITE_ONLY;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.AMPERE;
+import static io.openems.common.channel.Unit.CUMULATED_WATT_HOURS;
+import static io.openems.common.channel.Unit.DEGREE_CELSIUS;
+import static io.openems.common.channel.Unit.MILLIAMPERE;
+import static io.openems.common.channel.Unit.MILLIHERTZ;
+import static io.openems.common.channel.Unit.MILLIVOLT;
+import static io.openems.common.channel.Unit.NONE;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.channel.Unit.VOLT_AMPERE;
+import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.channel.Unit.WATT_HOURS;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.SHORT;
 
 import org.osgi.service.event.EventHandler;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.batteryinverter.victron.ro.VictronBatteryInverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Channel;
@@ -18,13 +34,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.type.Phase.SinglePhase;
-import io.openems.edge.ess.api.AsymmetricEss;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
@@ -55,98 +65,98 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		// ================= Power Setpoints =================
-		APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.VOLT_AMPERE)//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		APPARENT_POWER(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE)//
+				.persistencePriority(HIGH)), //
 
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_ACTIVE_POWER_L2(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_ACTIVE_POWER_L3(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
+		SET_ACTIVE_POWER(Doc.of(SHORT)//
+				.unit(WATT)//
+				.accessMode(WRITE_ONLY)), //
+		SET_ACTIVE_POWER_L1(Doc.of(SHORT)//
+				.unit(WATT)//
+				.accessMode(WRITE_ONLY)), //
+		SET_ACTIVE_POWER_L2(Doc.of(SHORT)//
+				.unit(WATT)//
+				.accessMode(WRITE_ONLY)), //
+		SET_ACTIVE_POWER_L3(Doc.of(SHORT)//
+				.unit(WATT)//
+				.accessMode(WRITE_ONLY)), //
 
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_REACTIVE_POWER_L1(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_REACTIVE_POWER_L2(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_REACTIVE_POWER_L3(Doc.of(OpenemsType.SHORT)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
-				.accessMode(AccessMode.WRITE_ONLY)), //
+		SET_REACTIVE_POWER(Doc.of(SHORT)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.accessMode(WRITE_ONLY)), //
+		SET_REACTIVE_POWER_L1(Doc.of(SHORT)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.accessMode(WRITE_ONLY)), //
+		SET_REACTIVE_POWER_L2(Doc.of(SHORT)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.accessMode(WRITE_ONLY)), //
+		SET_REACTIVE_POWER_L3(Doc.of(SHORT)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.accessMode(WRITE_ONLY)), //
 
 		// ================= AC Input Measurements (Grid Side) =================
-		VOLTAGE_INPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
-		VOLTAGE_INPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
-		VOLTAGE_INPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
+		VOLTAGE_INPUT_L1(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_INPUT_L2(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_INPUT_L3(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
 
-		CURRENT_INPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
-		CURRENT_INPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
-		CURRENT_INPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
+		CURRENT_INPUT_L1(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
+		CURRENT_INPUT_L2(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
+		CURRENT_INPUT_L3(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
 
-		FREQUENCY_INPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIHERTZ)), //
-		FREQUENCY_INPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIHERTZ)), //
-		FREQUENCY_INPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIHERTZ)), //
+		FREQUENCY_INPUT_L1(Doc.of(INTEGER)//
+				.unit(MILLIHERTZ)), //
+		FREQUENCY_INPUT_L2(Doc.of(INTEGER)//
+				.unit(MILLIHERTZ)), //
+		FREQUENCY_INPUT_L3(Doc.of(INTEGER)//
+				.unit(MILLIHERTZ)), //
 
-		ACTIVE_POWER_INPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
-		ACTIVE_POWER_INPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
-		ACTIVE_POWER_INPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
+		ACTIVE_POWER_INPUT_L1(Doc.of(INTEGER)//
+				.unit(WATT)), //
+		ACTIVE_POWER_INPUT_L2(Doc.of(INTEGER)//
+				.unit(WATT)), //
+		ACTIVE_POWER_INPUT_L3(Doc.of(INTEGER)//
+				.unit(WATT)), //
 
 		// ================= AC Output Measurements (Load Side) =================
-		VOLTAGE_OUTPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
-		VOLTAGE_OUTPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
-		VOLTAGE_OUTPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIVOLT)), //
+		VOLTAGE_OUTPUT_L1(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_OUTPUT_L2(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_OUTPUT_L3(Doc.of(INTEGER)//
+				.unit(MILLIVOLT)), //
 
-		CURRENT_OUTPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
-		CURRENT_OUTPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
-		CURRENT_OUTPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)), //
+		CURRENT_OUTPUT_L1(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
+		CURRENT_OUTPUT_L2(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
+		CURRENT_OUTPUT_L3(Doc.of(INTEGER)//
+				.unit(MILLIAMPERE)), //
 
-		FREQUENCY_OUTPUT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIHERTZ)), //
+		FREQUENCY_OUTPUT(Doc.of(INTEGER)//
+				.unit(MILLIHERTZ)), //
 
-		ACTIVE_POWER_OUTPUT_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
-		ACTIVE_POWER_OUTPUT_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
-		ACTIVE_POWER_OUTPUT_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)), //
+		ACTIVE_POWER_OUTPUT_L1(Doc.of(INTEGER)//
+				.unit(WATT)), //
+		ACTIVE_POWER_OUTPUT_L2(Doc.of(INTEGER)//
+				.unit(WATT)), //
+		ACTIVE_POWER_OUTPUT_L3(Doc.of(INTEGER)//
+				.unit(WATT)), //
 
 		// ================= Battery Measurements =================
-		BATTERY_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.VOLT)), //
-		BATTERY_CURRENT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)), //
-		CURRENT_INPUT_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.AMPERE)//
-				.accessMode(AccessMode.READ_WRITE)), //
+		BATTERY_VOLTAGE(Doc.of(INTEGER)//
+				.unit(VOLT)), //
+		BATTERY_CURRENT(Doc.of(INTEGER)//
+				.unit(AMPERE)), //
+		CURRENT_INPUT_LIMIT(Doc.of(INTEGER)//
+				.unit(AMPERE)//
+				.accessMode(READ_WRITE)), //
 
 		/**
 		 * DC Discharge Power.
@@ -156,28 +166,28 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * for discharge. This is the power actually going into/out of the battery, not
 		 * including inverter losses.
 		 */
-		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
+		DC_DISCHARGE_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)//
 				.text("DC battery power. Negative=Charge; Positive=Discharge")), //
 
 		/**
 		 * Cumulated DC Charge Energy.
 		 */
-		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DC_CHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH)), //
 
 		/**
 		 * Cumulated DC Discharge Energy.
 		 */
-		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DC_DISCHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH)), //
 
 		// ================= System Status =================
-		PHASE_COUNT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
+		PHASE_COUNT(Doc.of(INTEGER)//
+				.unit(NONE)), //
 
 		ACTIVE_INPUT(Doc.of(ActiveInputSource.values())//
 				.text("0=AC Input 1; 1=AC Input 2")), //
@@ -189,7 +199,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.text("VE.Bus error code")), //
 
 		SWITCH_POSITION(Doc.of(SwitchPosition.values())//
-				.accessMode(AccessMode.READ_WRITE)//
+				.accessMode(READ_WRITE)//
 				.text("1=Charger Only; 2=Inverter Only; 3=On; 4=Off")), //
 
 		// ================= Alarms =================
@@ -201,26 +211,26 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.text("0=Ok; 1=Warning; 2=Alarm")), //
 
 		// ================= ESS Power Setpoints (16-bit) =================
-		ESS_POWER_SETPOINT_PHASE_1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		ESS_POWER_SETPOINT_PHASE_2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		ESS_POWER_SETPOINT_PHASE_3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
+		ESS_POWER_SETPOINT_PHASE_1(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		ESS_POWER_SETPOINT_PHASE_2(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		ESS_POWER_SETPOINT_PHASE_3(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
 
 		// ================= ESS Power Setpoints (32-bit signed) =================
-		INT32_ESS_POWER_SETPOINT_PHASE_1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		INT32_ESS_POWER_SETPOINT_PHASE_2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		INT32_ESS_POWER_SETPOINT_PHASE_3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
+		INT32_ESS_POWER_SETPOINT_PHASE_1(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		INT32_ESS_POWER_SETPOINT_PHASE_2(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		INT32_ESS_POWER_SETPOINT_PHASE_3(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
 
 		// ================= ESS Control Flags =================
 		/**
@@ -230,7 +240,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * 0 = Charge allowed; 1 = Charge DISABLED.
 		 */
 		ESS_DISABLE_CHARGE_FLAG(Doc.of(EnableDisable.values())//
-				.accessMode(AccessMode.READ_WRITE)//
+				.accessMode(READ_WRITE)//
 				.text("0=Charge allowed; 1=Charge DISABLED (inverse logic)")), //
 
 		/**
@@ -240,7 +250,7 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * 0 = Feed-in allowed; 1 = Feed-in DISABLED.
 		 */
 		ESS_DISABLE_FEEDBACK_FLAG(Doc.of(EnableDisable.values())//
-				.accessMode(AccessMode.READ_WRITE)//
+				.accessMode(READ_WRITE)//
 				.text("0=Feed-in allowed; 1=Feed-in DISABLED (inverse logic)")), //
 
 		// ================= Per-Phase Alarms =================
@@ -274,56 +284,56 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.text("0=Disallow; 1=Allow")), //
 		VE_BUS_BMS_ALLOW_BATTERY_DISCHARGE(Doc.of(AllowDisallow.values())//
 				.text("0=Disallow; 1=Allow")), //
-		VE_BUS_RESET(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		VE_BUS_RESET(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
 				.text("Write 1 to reset VE.Bus")), //
 
 		// ================= PV & Solar Settings =================
 		DISABLE_PV_INVERTER(Doc.of(EnableDisable.values())//
-				.accessMode(AccessMode.READ_WRITE)//
+				.accessMode(READ_WRITE)//
 				.text("0=PV enabled; 1=PV disabled")), //
-		SOLAR_OFFSET_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)//
-				.accessMode(AccessMode.READ_WRITE)//
+		SOLAR_OFFSET_VOLTAGE(Doc.of(INTEGER)//
+				.unit(NONE)//
+				.accessMode(READ_WRITE)//
 				.text("0=1V offset; 1=0.1V offset for overvoltage feed-in")), //
 
 		// ================= Other Status =================
-		BATTERY_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.DEGREE_CELSIUS)), //
+		BATTERY_TEMPERATURE(Doc.of(INTEGER)//
+				.unit(DEGREE_CELSIUS)), //
 		SUSTAIN_ACTIVE(Doc.of(ActiveInactive.values())//
 				.text("Sustain mode active")), //
 
 		// ================= Energy Metering =================
-		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_IN_1_TO_BATTERY(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_IN_2_TO_BATTERY(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_BATTERY_TO_AC_IN_1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_BATTERY_TO_AC_IN_2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
-		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		ENERGY_FROM_AC_IN_1_TO_AC_OUT(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_IN_1_TO_BATTERY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_IN_2_TO_AC_OUT(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_IN_2_TO_BATTERY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_OUT_TO_AC_IN_1(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_OUT_TO_AC_IN_2(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_BATTERY_TO_AC_IN_1(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_BATTERY_TO_AC_IN_2(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_BATTERY_TO_AC_OUT(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+		ENERGY_FROM_AC_OUT_TO_BATTERY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
 
 		// ================= Charging State =================
 		CHARGE_STATE(Doc.of(ChargeStateEss.values())//
@@ -332,29 +342,29 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 				.text("0=Ok; 1=Warning - cell voltage low")), //
 
 		// ================= Generator Control =================
-		PREFER_RENEWABLE_ENERGY(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		SELECT_REMOTE_GENERATOR(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		REMOTE_GENERATOR_SELECTED(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.NONE)), //
+		PREFER_RENEWABLE_ENERGY(Doc.of(INTEGER)//
+				.unit(NONE)//
+				.accessMode(READ_WRITE)), //
+		SELECT_REMOTE_GENERATOR(Doc.of(INTEGER)//
+				.unit(NONE)//
+				.accessMode(READ_WRITE)), //
+		REMOTE_GENERATOR_SELECTED(Doc.of(INTEGER)//
+				.unit(NONE)), //
 
 		// ================= Overvoltage Feed-in Settings =================
-		FEED_DC_OVERVOLTAGE_TO_GRID(Doc.of(OpenemsType.INTEGER)//
+		FEED_DC_OVERVOLTAGE_TO_GRID(Doc.of(INTEGER)//
 				.text("0=Feed-in; 1=Do not feed-in")), //
-		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L1(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L2(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L3(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
-				.accessMode(AccessMode.READ_WRITE)), //
-		AC_POWER_SETPOINT_AS_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		MAX_DC_OVERVOLTAGE_POWER_TO_GRID_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.accessMode(READ_WRITE)), //
+		AC_POWER_SETPOINT_AS_FEED_IN_LIMIT(Doc.of(INTEGER)//
+				.accessMode(READ_WRITE)//
 				.text("0=Normal; 1=Setpoint is feed-in limit")), //
 
 		// ================= AC Input Status =================
@@ -373,9 +383,9 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * This is the capacity available for use, excluding emergency reserves from
 		 * controllers like EmergencyCapacityReserve and LimitTotalDischarge.
 		 */
-		USEABLE_CAPACITY(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.HIGH)), //
+		USEABLE_CAPACITY(Doc.of(INTEGER)//
+				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
 
 		/**
 		 * Useable State of Charge in %.
@@ -384,9 +394,9 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 		 * This is the SoC available for use, with controller reserves
 		 * (EmergencyCapacityReserve, LimitTotalDischarge) already subtracted.
 		 */
-		USEABLE_SOC(Doc.of(OpenemsType.INTEGER)//
+		USEABLE_SOC(Doc.of(INTEGER)//
 				.unit(Unit.PERCENT)//
-				.persistencePriority(PersistencePriority.HIGH)); //
+				.persistencePriority(HIGH)); //
 
 		private final Doc doc;
 
@@ -1161,59 +1171,10 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	 */
 	public void unsetBattery(VictronBattery battery);
 
-	@Override
-	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				this.getModbusSlaveNatureTable(accessMode));
-	}
-
-	/**
-	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
-	 * of this Component.
-	 *
-	 * @param accessMode filters the Modbus-Records that should be shown
-	 * @return the {@link ModbusSlaveNatureTable}
-	 */
-	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(VictronEss.class, accessMode, 200) //
-				.channel(0, ChannelId.SET_ACTIVE_POWER_L1, ModbusType.UINT16) //
-				.channel(1, ChannelId.SET_ACTIVE_POWER_L2, ModbusType.UINT16) //
-				.channel(2, ChannelId.SET_ACTIVE_POWER_L3, ModbusType.UINT16) //
-				.channel(3, ChannelId.CHARGE_STATE, ModbusType.UINT16) //
-				.channel(4, ChannelId.BATTERY_VOLTAGE, ModbusType.UINT16) //
-				.channel(5, ChannelId.BATTERY_CURRENT, ModbusType.UINT16) //
-				.channel(6, ChannelId.VE_BUS_STATE, ModbusType.UINT16) //
-				.channel(7, ChannelId.VE_BUS_ERROR, ModbusType.UINT16) //
-				.channel(8, ChannelId.USEABLE_CAPACITY, ModbusType.UINT16) //
-				.channel(9, ChannelId.USEABLE_SOC, ModbusType.UINT16) //
-				.channel(10, ChannelId.TEMPERATURE_ALARM, ModbusType.UINT16) //
-				.channel(11, ChannelId.TEMPERATURE_ALARM_L1, ModbusType.UINT16) //
-				.channel(12, ChannelId.TEMPERATURE_ALARM_L2, ModbusType.UINT16) //
-				.channel(13, ChannelId.TEMPERATURE_ALARM_L3, ModbusType.UINT16) //
-				.channel(14, ChannelId.LOW_BATTERY_ALARM, ModbusType.UINT16) //
-				.channel(15, ChannelId.LOW_BATTERY_ALARM_L1, ModbusType.UINT16) //
-				.channel(16, ChannelId.LOW_BATTERY_ALARM_L2, ModbusType.UINT16) //
-				.channel(17, ChannelId.LOW_BATTERY_ALARM_L3, ModbusType.UINT16) //
-				.channel(18, ChannelId.OVERLOAD_ALARM, ModbusType.UINT16) //
-				.channel(19, ChannelId.OVERLOAD_ALARM_L1, ModbusType.UINT16) //
-				.channel(20, ChannelId.OVERLOAD_ALARM_L2, ModbusType.UINT16) //
-				.channel(21, ChannelId.OVERLOAD_ALARM_L3, ModbusType.UINT16) //
-				.channel(22, ChannelId.RIPPLE_ALARM_L1, ModbusType.UINT16) //
-				.channel(23, ChannelId.RIPPLE_ALARM_L2, ModbusType.UINT16) //
-				.channel(24, ChannelId.RIPPLE_ALARM_L3, ModbusType.UINT16) //
-
-				.build();
-	}
-
 	/**
 	 * Gets the phase the ESS is connected to.
 	 *
 	 * @return the {@link SinglePhase}
 	 */
 	public SinglePhase getPhase();
-
 }
