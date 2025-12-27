@@ -211,6 +211,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
+	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 
 -runbundles: \
@@ -420,6 +421,7 @@
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
+	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.weather.openmeteo;version=snapshot,\
 	io.openems.j2mod;version='[3.2.2,3.2.3)',\
