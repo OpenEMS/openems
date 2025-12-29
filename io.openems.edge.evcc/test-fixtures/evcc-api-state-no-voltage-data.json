@@ -1,0 +1,38 @@
+{
+  "loadpoints": [
+    {
+      "title": "Garage",
+      "mode": "pv",
+      "charging": true,
+      "enabled": true,
+      "connected": true,
+      "chargePower": 3450,
+      "chargeCurrents": [
+        15.2,
+        0,
+        0
+      ],
+      "chargeVoltages": null,
+      "phasesActive": 1,
+      "phasesEnabled": 1,
+      "sessionEnergy": 1250,
+      "chargeTotalImport": 5703.631,
+      "vehicleTitle": "e-Golf"
+    },
+    {
+      "title": "eBikes",
+      "mode": "pv",
+      "charging": false,
+      "enabled": false,
+      "connected": true,
+      "chargePower": 0,
+      "chargeCurrents": null,
+      "chargeVoltages": null,
+      "phasesActive": 1,
+      "phasesEnabled": null,
+      "sessionEnergy": 0,
+      "chargeTotalImport": 24.77,
+      "vehicleTitle": "e-Bike"
+    }
+  ]
+}
