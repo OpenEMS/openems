@@ -61,6 +61,7 @@ public class MetadataUtils {
 					case "sumState" -> Comparator.<EDGE, Level>comparing(o -> {
 						return Optional.ofNullable(o.getSumState()).orElse(Level.OK);
 					});
+					case "isOnline" -> Comparator.comparing(EDGE::isOnline);
 					default -> null;
 					};
 					if (c == null) {
