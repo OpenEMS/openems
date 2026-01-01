@@ -138,7 +138,9 @@ public class MetadataUtilsTest {
 				edge.isOnline(), //
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
-				edge.getSumState());
+				edge.getSumState(), //
+                edge.getSettings() //
+        );
 	}
 
 }

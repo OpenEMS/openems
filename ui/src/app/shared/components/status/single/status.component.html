@@ -21,16 +21,16 @@
             </ion-label>
             @switch (sum.state) {
               @case (0) {
-                <ion-icon color="success" name="checkmark-circle-outline"></ion-icon>
+                <ion-icon color="success" name="oe-checkmark"></ion-icon>
               }
               @case (1) {
-                <ion-icon color="success" name="information-outline"></ion-icon>
+                <ion-icon color="success" name="oe.info"></ion-icon>
               }
               @case (2) {
-                <ion-icon color="warning" name="warning-outline"></ion-icon>
+                <ion-icon color="warning" name="oe-warning"></ion-icon>
               }
               @case (3) {
-                <ion-icon color="danger" name="alert-circle-outline"></ion-icon>
+                <ion-icon color="danger" name="oe-error"></ion-icon>
               }
             }
           </ion-item>
@@ -55,8 +55,7 @@
                           <span> {{ item.id }}</span>
                         }
                         @if (!item.isEnabled) {
-                          <small> (<span
-                          translate>GENERAL.COMPONENT_INACTIVE</span>) </small>
+                          <small> (<span translate>GENERAL.COMPONENT_INACTIVE</span>) </small>
                         }
                       </h3>
                     </ion-text>
@@ -76,8 +75,7 @@
                                   </ion-text>
                                 }
                                 @case ('WARNING') {
-                                  <ion-text color="warning"
-                                    translate>
+                                  <ion-text color="warning" translate>
                                     GENERAL.WARNING&nbsp;
                                   </ion-text>
                                 }
@@ -88,8 +86,7 @@
                                 }
                               }
                               @if (channels[address.componentId][address.channelId].text.length > 0) {
-                                <ion-text
-                                  >
+                                <ion-text>
                                   {{ channels[address.componentId][address.channelId].text }}
                                 </ion-text>
                               } @else {
@@ -102,30 +99,28 @@
                     }
                   </ion-label>
                   @if ((currentData.channel[item.id+'/State'] ?? -1) > 0 && !item['showProperties']) {
-                    <ion-icon style="cursor: pointer"
-                      name="arrow-down-circle-outline" color="primary"
+                    <ion-icon style="cursor: pointer" name="arrow-down-circle-outline" color="primary"
                       (click)="item['showProperties'] = !item['showProperties']; subscribeInfoChannels(item)">
                     </ion-icon>
                   }
                   @if (item['showProperties']) {
-                    <ion-icon style="cursor: pointer"
-                      name="arrow-up-circle-outline" color="primary"
+                    <ion-icon style="cursor: pointer" name="arrow-up-circle-outline" color="primary"
                       (click)="item['showProperties'] = !item['showProperties']; unsubscribeInfoChannels(item)">
                     </ion-icon>
                   }
                   @switch (currentData.channel[item.id+'/State']) {
                     @case (0) {
-                      <ion-icon color="success" name="checkmark-circle-outline">
+                      <ion-icon color="success" name="oe-checkmark">
                       </ion-icon>
                     }
                     @case (1) {
-                      <ion-icon color="success" name="information-outline"></ion-icon>
+                      <ion-icon color="success" name="oe-info"></ion-icon>
                     }
                     @case (2) {
-                      <ion-icon color="warning" name="warning-outline"></ion-icon>
+                      <ion-icon color="warning" name="oe-warning"></ion-icon>
                     }
                     @case (3) {
-                      <ion-icon color="danger" name="alert-circle-outline"></ion-icon>
+                      <ion-icon color="danger" name="oe-error"></ion-icon>
                     }
                   }
                 </ion-item>

@@ -1,0 +1,5 @@
+= System FENECON
+
+Core Components for FENECON integrated Energy Storage Systems.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.system.fenecon[Source Code icon:github[]]

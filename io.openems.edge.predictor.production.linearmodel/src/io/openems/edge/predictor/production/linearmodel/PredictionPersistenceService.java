@@ -161,6 +161,11 @@ public class PredictionPersistenceService {
 						parent::_setPrediction1hAhead, //
 						parent::_setPrediction1hRealized), //
 				new ChannelMapping(//
+						3, //
+						parent.getPrediction3hAheadChannel().address(), //
+						parent::_setPrediction3hAhead, //
+						parent::_setPrediction3hRealized), //
+				new ChannelMapping(//
 						6, //
 						parent.getPrediction6hAheadChannel().address(), //
 						parent::_setPrediction6hAhead, //

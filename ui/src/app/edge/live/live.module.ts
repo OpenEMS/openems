@@ -48,6 +48,7 @@ import { LiveComponent } from "./live.component";
 import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-api-cluster/flat/flat";
 import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
 import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
+import { NavigationInfoComponent } from "./navigation-info/navigation-info";
 
 @NgModule({
     imports: [
@@ -81,6 +82,7 @@ import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-
     ],
     declarations: [
         AdministrationComponent,
+        NavigationInfoComponent,
         Controller_Asymmetric_PeakShavingComponent,
         Controller_Asymmetric_PeakShavingModalComponent,
         Controller_ChannelthresholdComponent,

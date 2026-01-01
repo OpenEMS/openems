@@ -180,6 +180,7 @@ export class NavigationService {
                 return null;
             }
             tree.updateNavigationTreeByAbsolutePath(this.navigationTree(), currentNode.routerLink.baseString, node => {
+                childNavigationTree.parent = node;
                 node.children.push(childNavigationTree);
             });
             // const clone = structuredClone(tree);

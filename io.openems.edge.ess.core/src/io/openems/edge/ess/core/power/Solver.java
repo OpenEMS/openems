@@ -267,7 +267,7 @@ public class Solver {
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
 				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.data.getEsss(), allInverters,
-						allConstraints, targetDirection);
+						allConstraints, targetDirection, this.debugMode);
 				break;
 			}
 

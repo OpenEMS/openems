@@ -95,11 +95,11 @@ public class EnergyScheduleTester {
 			var csc = this.cscs.get(esh);
 			switch (esh) {
 			case EnergyScheduleHandler.WithDifferentModes e -> {
-				var modeIndex = eshIndex++;
-				if (modeIndex >= modes.length) {
-					throw new IllegalArgumentException("Missing ModeIndex [" + modeIndex + "] for " + esh);
-				}
-				e.simulate(period, gsc, csc, ef, modes[modeIndex], fitness);
+				final var modeIndex = e.modes().hasForOptimizer() //
+						? -1 // none available
+						: modes[eshIndex++];
+				final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
 			}
 			case EnergyScheduleHandler.WithOnlyOneMode e //
 				-> e.simulate(period, gsc, csc, ef, fitness);

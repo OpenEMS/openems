@@ -71,7 +71,7 @@ export class UserService {
      * @param key the key to update
      * @param value the value for given key
      */
-    public async updateUserSettingsWithProperty(key: string, value: boolean | string | number) {
+    public async updateUserSettingsWithProperty(key: string, value: User["settings"][keyof User["settings"]]) {
         const user = this.currentUser();
         AssertionUtils.assertIsDefined(user);
         const updatedSettings = { ...user.settings, [key]: value };
