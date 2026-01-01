@@ -4,7 +4,9 @@ import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 public class GoodWeChargerPv1Test {
 
@@ -17,6 +19,11 @@ public class GoodWeChargerPv1Test {
 						.setId("charger0") //
 						.setBatteryInverterId("ess0") //
 						.setModbusId("modbus0") //
-						.build());
+						.build()) //
+				.next(new TestCase().input(EssDcCharger.ChannelId.VOLTAGE, 50_000) // 50 V
+						.input(EssDcCharger.ChannelId.CURRENT, 2_000)) // 2 A
+				.next(new TestCase() //
+						.output(EssDcCharger.ChannelId.ACTUAL_POWER, 100)) // 100 W
+				.deactivate();
 	}
 }
