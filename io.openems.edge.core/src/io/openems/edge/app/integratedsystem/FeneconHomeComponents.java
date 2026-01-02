@@ -21,6 +21,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.Task;
+import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
@@ -376,6 +379,17 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a default predictor task for a PersistenceModel Predictor.
+	 * 
+	 * @return the {@link Task}
+	 */
+	public static Task<PredictorManagerByCentralOrderConfiguration> persistencePredictorTask() {
+		return Tasks.predictorManagerByCentralOrder(//
+				new PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent("predictor0",
+						"Predictor.PersistenceModel"));
+	}
+
+	/**
 	 * Creates a default ctrlEssSurplusFeedToGrid component for a FENECON Home.
 	 *
 	 * @param bundle the translation bundle
@@ -587,6 +601,27 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a default stateLED dependency for a FENECON Home.
+	 * 
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration stateLed() {
+		return new DependencyDeclaration("STATE_LED", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.IF_MINE, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.System.Fenecon.Home") //
+						.setInitialProperties(JsonUtils.buildJsonObject() //
+								.addProperty(SystemFeneconHome.Property.RELAY_ID.name(), "io1") //
+								.addProperty(SystemFeneconHome.Property.LED_ORDER.name(), "DEFAULT_RED_BLUE_GREEN") //
+								.build())
+						.build());
+	}
+
+	/**
 	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
 	 *
 	 * @param t           the {@link ConfigurationTarget}
@@ -599,12 +634,31 @@ public final class FeneconHomeComponents {
 			final String essId, //
 			final String gridMeterId //
 	) {
+		return selfConsumptionOptimization(t, essId, gridMeterId,
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED);
+	}
+
+	/**
+	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
+	 *
+	 * @param t            the {@link ConfigurationTarget}
+	 * @param essId        the id of the ess
+	 * @param gridMeterId  the id of the grid meter
+	 * @param deletePolicy the {@link DependencyDeclaration.DependencyDeletePolicy}
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration selfConsumptionOptimization(//
+			final ConfigurationTarget t, //
+			final String essId, //
+			final String gridMeterId, //
+			final DependencyDeclaration.DependencyDeletePolicy deletePolicy //
+	) {
 		return new DependencyDeclaration("SELF_CONSUMPTION_OPTIMIZATION", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 				DependencyDeclaration.UpdatePolicy.NEVER, //
 				DependencyDeclaration.DeletePolicy.IF_MINE, //
 				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				deletePolicy, //
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.PvSelfConsumption.SelfConsumptionOptimization") //
 						.setProperties(JsonUtils.buildJsonObject() //
@@ -736,6 +790,27 @@ public final class FeneconHomeComponents {
 	 * @return true if there is a default relay for it; else false
 	 */
 	public static final boolean isLimiter14aCompatible(OpenemsAppInstance hardwareInstance) {
+		return isHardwareRelayInstalled(hardwareInstance);
+	}
+
+	/**
+	 * Checks if the provided id of the app is compatible with the
+	 * {@link SystemFeneconHome}.
+	 *
+	 * @param hardwareInstance the current installed hardware instance; nullable
+	 * @return true if there is a default relay for it; else false
+	 */
+	public static final boolean isStateLedCompatible(OpenemsAppInstance hardwareInstance) {
+		return isHardwareRelayInstalled(hardwareInstance);
+	}
+
+	/**
+	 * Checks if the current installed hardware instance has a relay installed.
+	 *
+	 * @param hardwareInstance the current installed hardware instance; nullable
+	 * @return true if there is a default relay for it; else false
+	 */
+	private static final boolean isHardwareRelayInstalled(OpenemsAppInstance hardwareInstance) {
 		if (hardwareInstance == null) {
 			return false;
 		}
@@ -745,6 +820,24 @@ public final class FeneconHomeComponents {
 			true;
 		default -> false;
 		};
+	}
+
+	/**
+	 * Creates a default predictionUnmanagedConsumption dependency for a FENECON
+	 * Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration predictionUnmanagedConsumption() {
+		return new DependencyDeclaration("PREDICTION_UNMANAGED_CONSUMPTION", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.Prediction.UnmanagedConsumption") //
+						.build());
 	}
 
 	private FeneconHomeComponents() {

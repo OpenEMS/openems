@@ -18,13 +18,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,8 +52,11 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
-
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+
 	private String baseUrl;
 	private Map<String, String> headers;
 
@@ -83,8 +88,10 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		if (this.isEnabled()) {
 			this.logInfo(this.log, "Subscribing to KOSTAL PIKO at " + this.baseUrl);
 
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 			// Subscribe for updates every cycle
-			this.httpBridge.subscribeCycle(1,
+			this.cycleService.subscribeCycle(1, //
 					() -> new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
 							BridgeHttp.DEFAULT_READ_TIMEOUT, null, this.headers),
 					this::handleSuccessfulResult, this::handleError);
@@ -163,7 +170,8 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 				// current cell has numeric value or "x x x", next cell is a unit (text)
 				boolean hasNumericOrNoData = valueText.matches(".*\\d+.*") || valueText.matches("x\\s*x\\s*x")
 						|| valueText.equals("x");
-				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude pure unit labels
+				// Exclude pure unit labels
+				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$");
 				boolean nextIsUnit = nextText.matches("\\s*[kMGmµ]?[WhVA]+\\s*"); // Match units like W, kWh, V, A, etc.
 
 				if (hasNumericOrNoData && prevIsLabel && nextIsUnit) {
@@ -185,10 +193,13 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 			acPower = value != null ? value : 0;
 		}
 
-		// Total Energy - second value
+		// Total Energy - second value (HTML provides kWh, need to convert to Wh)
 		Long totalYield = null;
 		if (index < valueCells.size()) {
 			totalYield = this.parseLongValue(valueCells.get(index++).text());
+			if (totalYield != null) {
+          		totalYield = totalYield * 1000; // Convert kWh to Wh
+      		}
 		}
 
 		// Day Energy - third value

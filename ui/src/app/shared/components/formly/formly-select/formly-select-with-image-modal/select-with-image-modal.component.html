@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-radio-group [value]="selectedValue">
+      @for (option of options; track option.value; let last = $last) {
+        <ion-item [button]="true" (click)="selectOption(option.value)" [lines]="option.imageUrl ? 'none' : 'full'">
+          <ion-radio slot="start" [value]="option.value"></ion-radio>
+          <ion-label class="option-label">
+            <span>{{ option.label }}</span>
+            @if(option.docUrl) {
+              <a [href]="option.docUrl" target="_blank" class="doc-link" (click)="$event.stopPropagation()" translate>
+                GENERAL.FORMLY.LINK_TO_DOCS
+              </a>
+            }
+          </ion-label>
+        </ion-item>
+        @if (option.imageUrl) {
+          <ion-item [lines]="last ? 'none' : 'full'">
+            <div class="option-image-container">
+              <img [src]="option.imageUrl" alt="option.label" class="option-image" />
+            </div>
+          </ion-item>
+        }
+      }
+    </ion-radio-group>
+  </ion-list>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="primary" (click)="confirm()" translate>GENERAL.CANCEL</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button color="primary" (click)="confirm()" translate>GENERAL.OK</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

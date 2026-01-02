@@ -16,19 +16,16 @@ export class NavigationComponent {
     @ViewChild("modal") private modal: IonModal | null = null;
 
     protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
-    protected children: (NavigationTree | null)[] = [];
-    protected parents: (NavigationTree | null)[] = [];
     protected isVisible: boolean = true;
 
     constructor(
         public navigationService: NavigationService,
     ) {
         effect(() => {
-            const currentNode = navigationService.currentNode();
-            if (!currentNode) {
-                this.navigationService.position.set("disabled");
-            }
-            this.isVisible = this.navigationService.position() === "bottom";
+            const currentNode = this.navigationService.currentNode();
+            this.isVisible = this.navigationService.position() === "bottom"
+                && ((currentNode?.children?.length && currentNode.children.length > 0)
+                    || currentNode?.parent != null);
         });
     }
 

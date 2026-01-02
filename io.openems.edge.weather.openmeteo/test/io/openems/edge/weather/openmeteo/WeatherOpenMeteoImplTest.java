@@ -32,6 +32,8 @@ import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.weather.api.DailyWeatherSnapshot;
 import io.openems.edge.weather.api.HourlyWeatherSnapshot;
 import io.openems.edge.weather.api.QuarterlyWeatherSnapshot;
+import io.openems.edge.weather.openmeteo.forecast.WeatherForecastService;
+import io.openems.edge.weather.openmeteo.historical.HistoricalWeatherService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WeatherOpenMeteoImplTest {
@@ -115,6 +117,7 @@ public class WeatherOpenMeteoImplTest {
 		var result = sut.getQuarterlyWeatherForecast(forecastQuarters);
 
 		assertEquals(2, result.size());
+
 		assertEquals(quarterlyWeatherSnapshots(clock).get(1), result.get(0));
 		assertEquals(quarterlyWeatherSnapshots(clock).get(2), result.get(1));
 	}
@@ -137,6 +140,7 @@ public class WeatherOpenMeteoImplTest {
 		var result = sut.getHourlyWeatherForecast(forecastHours);
 
 		assertEquals(2, result.size());
+
 		assertEquals(hourlyWeatherSnapshots(clock).get(1), result.get(0));
 		assertEquals(hourlyWeatherSnapshots(clock).get(2), result.get(1));
 	}
@@ -158,6 +162,7 @@ public class WeatherOpenMeteoImplTest {
 		var result = sut.getDailyWeatherForecast();
 
 		assertEquals(3, result.size());
+
 		assertEquals(dailyWeatherSnapshots(clock).get(1), result.get(0));
 		assertEquals(dailyWeatherSnapshots(clock).get(2), result.get(1));
 		assertEquals(dailyWeatherSnapshots(clock).get(3), result.get(2));
@@ -254,7 +259,7 @@ public class WeatherOpenMeteoImplTest {
 		when(meta2.getCoordinates()).thenReturn(Coordinates.of(3.0, 4.0));
 		sut.updatedMeta(meta2);
 
-		verify(weatherForecastService).subscribeToWeatherForecast(any(), eq(Coordinates.of(3, 4)), any());
+		verify(weatherForecastService).subscribeToWeatherForecast(any(), eq(Coordinates.of(3, 4)), any(), any());
 	}
 
 	@Test
@@ -273,7 +278,7 @@ public class WeatherOpenMeteoImplTest {
 
 		sut.updatedMeta(meta1);
 
-		verify(weatherForecastService, never()).subscribeToWeatherForecast(any(), any(), any());
+		verify(weatherForecastService, never()).subscribeToWeatherForecast(any(), any(), any(), any());
 	}
 
 	private static List<QuarterlyWeatherSnapshot> quarterlyWeatherSnapshots(Clock clock) {
@@ -281,19 +286,39 @@ public class WeatherOpenMeteoImplTest {
 				new QuarterlyWeatherSnapshot(//
 						ZonedDateTime.now(clock).minusMinutes(15), //
 						-1.1, //
-						-1.2), //
+						-1.2, //
+						-1.3, //
+						-1.4, //
+						-1.5, //
+						-1.6, //
+						-1.7), //
 				new QuarterlyWeatherSnapshot(//
 						ZonedDateTime.now(clock), //
 						1.1, //
-						1.2), //
+						1.2, //
+						1.3, //
+						1.4, //
+						1.5, //
+						1.6, //
+						1.7), //
 				new QuarterlyWeatherSnapshot(//
 						ZonedDateTime.now(clock).plusMinutes(15), //
 						2.1, //
-						2.2), //
+						2.2, //
+						2.3, //
+						2.4, //
+						2.5, //
+						2.6, //
+						2.7), //
 				new QuarterlyWeatherSnapshot(//
 						ZonedDateTime.now(clock).plusMinutes(30), //
 						3.1, //
-						3.2));
+						3.2, //
+						3.3, //
+						3.4, //
+						3.5, //
+						3.6, //
+						3.7));
 	}
 
 	private static List<HourlyWeatherSnapshot> hourlyWeatherSnapshots(Clock clock) {

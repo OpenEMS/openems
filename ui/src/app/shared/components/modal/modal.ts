@@ -29,12 +29,13 @@ export class ModalComponent {
 
     /** Title in Header */
     @Input({ required: true }) public title!: string | null;
+    @Input() public isCommonWidget: boolean = false;
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
-            {}, icon: Icon
+        {}, icon: Icon
     } | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 

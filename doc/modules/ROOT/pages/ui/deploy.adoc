@@ -1,0 +1,114 @@
+= Deploy the UI with Docker
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+== Deploy OpenEMS UI together with Edge or Backend
+
+If you want to deploy the UI together with Edge or Backend on Docker, look at the respective pages: 
+* xref:edge/deploy/docker.adoc#_openems_edge_ui[Edge]
+* xref:backend/deploy/docker.adoc[Backend]
+
+== Deploy just OpenEMS UI (prepared for development)
+
+If you just want to have the OpenEMS UI served from a docker container on your local machine, configured to talk to your Edge development setup, you can do so by adjusting your `docker-compose.yml` file to look like this:
+
+[source,yaml]
+----
+services:
+  openems-ui-dev:
+    image: openems/ui-edge:latest
+    container_name: openems_ui_dev
+    hostname: openems_ui
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - openems-ui-conf:/etc/nginx:rw
+      - openems-ui-log:/var/log/nginx:rw
+    environment:
+      - WEBSOCKET_HOST=host.docker.internal
+      - WEBSOCKET_PORT=8085
+    ports:
+      - 4200:80
+
+volumes:
+  openems-ui-conf:
+  openems-ui-log:
+----
+
+You can find this at `tools/docker/ui/docker-compose.yml`.
+
+Summary of the changes (compared to what you find for xref:edge/deploy/docker.adoc#_openems_edge_ui[Edge]):
+1. Just the service `openems-ui` in the docker-compose file
+2. The WEBSOCKET_HOST is directed to the localhost of the host computer (assumed to be your development machine)
+3. The internal port 80 is mapped to the external port 4200 to allow the links to localhost:4200 in the dev environment and documentation to function
+4. The volumes `openems-ui-conf` and `openems-ui-log`
+
+=== Run docker-compose
+
+Update the compose running with: 
+
+[source,bash]
+----
+cd tools/docker/ui/
+docker compose up -d
+----
+
+==== Check container status
+
+[source,bash]
+----
+admin@ubuntu:~$ docker ps
+CONTAINER ID   IMAGE                    COMMAND   CREATED       STATUS             PORTS                                                                              NAMES
+d708a6cd1583   openems/ui-edge:latest   "/init"   2 hours ago   Up About an hour   0.0.0.0:443->443/tcp, [::]:443->443/tcp, 0.0.0.0:4200->80/tcp, [::]:4200->80/tcp   openems_ui_dev
+----
+
+=== Troubleshooting 
+If after opening the OpenEMS UI page at http://localhost:4200/ you get an error page telling you to wait in case the OpenEMS device was just started, then make sure:
+* The Apache Felix Web Console is reachable at http://localhost:8080/system/console/configMgr,
+    * if not, make sure that the OpenEMS Edge is running (Eclipse: `Run OSGi` in `EdgeApp.bndrun` under `io.openems.edge.application`),
+* Check in Apache Felix, that you have configured the openEMS component 'Controller Api Websocket` with Port set to `8085`.
+
+==== UI shows "Connection Failed"
+
+**1. Verify Edge is running:**
+[source,bash]
+----
+curl -I http://localhost:8085
+# Expected: HTTP/1.1 404 WebSocket Upgrade Failure
+----
+
+**2. For WSL2 - use the helper script **
+This creates/updates a `docker-compose.override.yml` that fixes the IP-Address resolution problem in WSL2:
+
+[source,bash]
+----
+./start-dev-ui-wsl.sh
+----
+
+Afterwards you can start the UI container with the usual:
+[source,bash]
+----
+docker compose up -d
+----
+
+==== WSL2: IP changed after reboot
+
+[source,bash]
+----
+./start-dev-ui-wsl.sh  # Auto-detects and updates IP
+----
+
+==== further Docker related issues
+
+For more docker related issues, like
+* Port 4200 already in use
+* Container won't start
+
+see xref:edge/deploy/docker.adoc#_troubleshooting_docker[Edge Docker Troubleshooting] or xref:https://docs.docker.com/compose/gettingstarted/[Docker's documentation]

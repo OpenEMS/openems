@@ -11,6 +11,26 @@ import com.google.gson.JsonElement;
 public class StringUtils {
 
 	/**
+	 * Checks if a string is null or empty.
+	 *
+	 * @param s the string
+	 * @return true if the string is null or empty
+	 */
+	public static boolean isNullOrEmpty(String s) {
+		return s == null || s.isEmpty();
+	}
+
+	/**
+	 * Checks if a string is null or blank (empty or only white-space).
+	 *
+	 * @param s the string
+	 * @return true if the string is null or blank
+	 */
+	public static boolean isNullOrBlank(String s) {
+		return s == null || s.isBlank();
+	}
+
+	/**
 	 * Shortens a string to a given length.
 	 *
 	 * <p>
@@ -111,6 +131,31 @@ public class StringUtils {
 	 */
 	public static boolean containsWithNullCheck(String string, String value) {
 		return string != null && string.contains(value);
+	}
+
+	/**
+	 * Checks if the search string is included in the string ignoring case.
+	 * 
+	 * @param str       the string to check
+	 * @param searchStr the sequence to search for
+	 * @return true if the string contains the search string ignoring case
+	 */
+	public static boolean containsIgnoreCase(String str, String searchStr) {
+		if (str == null || searchStr == null) {
+			return false;
+		}
+
+		final int length = searchStr.length();
+		if (length == 0) {
+			return true;
+		}
+
+		for (int i = str.length() - length; i >= 0; i--) {
+			if (str.regionMatches(true, i, searchStr, 0, length)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

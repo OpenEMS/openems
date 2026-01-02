@@ -1,16 +1,20 @@
 package io.openems.edge.evcs.hardybarth;
 
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
-import static io.openems.edge.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
-import static io.openems.edge.bridge.http.api.HttpMethod.GET;
-import static io.openems.edge.bridge.http.api.HttpMethod.PUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
+import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
+import static io.openems.common.bridge.http.api.HttpMethod.GET;
+import static io.openems.common.bridge.http.api.HttpMethod.PUT;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.evcs.api.ChargingType.AC;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static java.lang.Math.round;
 import static java.util.Collections.emptyMap;
 
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.osgi.service.component.ComponentContext;
@@ -26,19 +30,23 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.HttpStatus;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
@@ -55,28 +63,36 @@ import io.openems.edge.meter.api.PhaseRotation;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, EvcsHardyBarth, Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter {
 
+	// Default Heartbeat timeout is 30 seconds
+	private static final int HEART_BEAT_TIME = 15;
+
 	private final Logger log = LoggerFactory.getLogger(EvcsHardyBarthImpl.class);
 
-	protected final HardyBarthReadUtils readUtils = new HardyBarthReadUtils(this);
+	private HardyBarthReadUtils readUtils;
 
 	/**
 	 * Master EVCS is responsible for RFID authentication (Not implemented for now).
 	 */
 	protected boolean masterEvcs = true;
 
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+	private HttpBridgeTimeService timeService;
+
 	private Config config;
 
 	@Reference
 	private EvcsPower evcsPower;
-
-	@Reference
-	private BridgeHttpFactory httpBridgeFactory;
 
 	public EvcsHardyBarthImpl() {
 		super(//
@@ -95,6 +111,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		this.config = config;
+		this.readUtils = new HardyBarthReadUtils(this, config.logVerbosity(), this::logInfo);
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// TODO stop here if not enabled
 		this._setChargingType(AC);
@@ -104,23 +121,60 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		this._setPhases(THREE_PHASE);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-
-		if (!this.config.readOnly()) {
-			// The internal heartbeat is currently too fast - it is not enough to write
-			// every second by default. We have to disable it to run the evcs
-			// properly.
-			this.httpBridge.subscribeCycle(1, //
-					this.createEndpoint(PUT, "/api/secc", "{\"salia/heartbeat\":\"off\"}"), //
-					t -> this._setChargingstationCommunicationFailed(false),
-					t -> this._setChargingstationCommunicationFailed(true));
-		}
-		this.httpBridge.subscribeCycle(1, //
+		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+		this.cycleService.subscribeCycle(1, //
 				this.createEndpoint(GET, "/api", null), //
 				t -> {
 					this.readUtils.handleGetApiCallResponse(t, config.phaseRotation());
 					this._setChargingstationCommunicationFailed(false);
 				}, //
 				t -> this._setChargingstationCommunicationFailed(true));
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		var delay = Delay.of(Duration.ofSeconds(HEART_BEAT_TIME));
+		var heartBeat = this.config.readOnly() ? "off" : "on";
+		this.timeService.subscribeTime(new DefaultDelayTimeProvider(() -> Delay.immediate(), //
+				t -> delay, error -> delay),
+				this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+						.addProperty("salia/heartbeat", heartBeat) //
+						.build()),
+				t -> {
+					switch (this.config.logVerbosity()) {
+					case NONE, DEBUG_LOG -> doNothing();
+					case WRITES, READS -> this.logInfo(this.log, "Set heartbeat=" + heartBeat);
+					}
+				}, //
+				t -> {
+					doNothing();
+				});
+	}
+
+	/**
+	 * Set manual mode.
+	 * 
+	 * <p>
+	 * Sets the chargemode to manual if not set.
+	 */
+	private void setManualMode() {
+		if (this.isReadOnly()) {
+			return;
+		}
+		var chargeMode = "manual";
+		StringReadChannel channelChargeMode = this.channel(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
+		Optional<String> valueOpt = channelChargeMode.value().asOptional();
+		if (valueOpt.map(t -> t.equals(chargeMode)).orElse(false)) {
+			return;
+		}
+		this.httpBridge //
+				.requestJson(this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+						.addProperty("salia/chargemode", chargeMode) //
+						.build())) //
+				.thenAccept(t -> {
+					switch (this.config.logVerbosity()) {
+
+					case NONE, DEBUG_LOG -> doNothing();
+					case WRITES, READS -> this.logInfo(this.log, "Set chargemode=" + chargeMode);
+					}
+				});
 	}
 
 	@Override
@@ -136,103 +190,14 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		return this.config.phaseRotation();
 	}
 
-	private Endpoint getTargetEndpoint(int target) {
-		return this.createEndpoint(PUT, "/api/secc", "{\"salia/pausecharging\":\"" + target + "\"}");
-	}
-
-	private Endpoint createEndpoint(HttpMethod httpMethod, String url, String body) {
-		return createEndpoint(this.config.ip(), httpMethod, url, body);
-	}
-
-	protected static Endpoint createEndpoint(String ip, HttpMethod httpMethod, String url, String body) {
-		return new Endpoint(//
-				new StringBuilder("http://").append(ip).append(url).toString(), //
-				httpMethod, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, //
-				body, //
-				emptyMap());
-	}
-
 	@Override
 	protected WriteHandler createWriteHandler() {
 		return new HardyBarthWriteHandler(this);
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		super.handleEvent(event);
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-			-> this.setManualMode();
-		}
-	}
-
-	/**
-	 * Set manual mode.
-	 * 
-	 * <p>
-	 * Sets the chargemode to manual if not set.
-	 */
-	private void setManualMode() {
-		StringReadChannel channelChargeMode = this.channel(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
-		Optional<String> valueOpt = channelChargeMode.value().asOptional();
-		if (valueOpt.map(t -> !t.equals("manual")).orElse(true)) {
-			return;
-		}
-		this.debugLog("Setting HardyBarth to manual chargemode");
-		this.httpBridge //
-				.requestJson(this.createEndpoint(PUT, "/api/secc", "{\"salia/chargemode\":\"manual\"}")) //
-				.thenAccept(t -> this.debugLog(t.toString()));
-
-	}
-
-	/**
-	 * Enable external meter.
-	 * 
-	 * <p>
-	 * Enables the external meter if not set.
-	 */
-	// TODO: Set the external meter to true because it's disabled per default.
-	// Not usable for now, because we haven't an update process defined and
-	// this REST Entry is only available with a beta firmware
-	// (http://salia.echarge.de/firmware/firmware_1.37.8_beta.image) or the next
-	// higher stable version. Be aware that the REST call and the update should not
-	// be called every cycle
-	/*
-	 * private void enableExternalMeter() {
-	 * 
-	 * BooleanReadChannel channelChargeMode =
-	 * this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHANGE_METER);
-	 * Optional<Boolean> valueOpt = channelChargeMode.value().asOptional(); if
-	 * (valueOpt.isPresent()) { if (!valueOpt.get().equals(true)) { // Enable
-	 * external meter try {
-	 * this.parent.debugLog("Enable external meter of HardyBarth " +
-	 * this.parent.id()); JsonElement result =
-	 * this.parent.api.sendPutRequest("/api/secc", "salia/changemeter",
-	 * "enable | /dev/ttymxc0 | klefr | 9600 | none | 1");
-	 * this.parent.debugLog(result.toString());
-	 * 
-	 * if (result.toString().equals("{\"result\":\"ok\"}")) { // Reboot the charger
-	 * this.parent.debugLog("Reboot of HardyBarth " + this.parent.id()); JsonElement
-	 * resultReboot = this.parent.api.sendPutRequest("/api/secc",
-	 * "salia/servicereboot", "1"); this.parent.debugLog(resultReboot.toString()); }
-	 * } catch (OpenemsNamedException e) { e.printStackTrace(); } } } }
-	 */
-
-	/**
-	 * Debug Log.
-	 *
-	 * <p>
-	 * Logging only if the debug mode is enabled
-	 *
-	 * @param message text that should be logged
-	 */
-	public void debugLog(String message) {
-		if (this.config.debugMode()) {
-			this.logInfo(this.log, message);
-		}
+	public String debugLog() {
+		return this.readUtils.debugLog();
 	}
 
 	@Override
@@ -241,17 +206,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	}
 
 	@Override
-	public boolean getConfiguredDebugMode() {
-		return this.config.debugMode();
-	}
-
-	@Override
-	public boolean applyChargePowerLimit(int power) throws OpenemsNamedException {
-		// TODO: Use power precision to set valid power if it is used in UI part too
-		// e.g. int precision = TypeUtils.getAsType(OpenemsType.INTEGER,
-		// this.getPowerPrecision().orElse(230d));
-		// power = IntUtils.roundToPrecision(power, Round.TOWARDS_ZERO, precision);
-
+	public boolean applyChargePowerLimit(int power) {
 		// Convert it to ampere and apply hard limits
 		int phases = this.getPhasesAsInt();
 		final var current = round(power / (float) phases / 230.F);
@@ -260,7 +215,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	}
 
 	@Override
-	public boolean pauseChargeProcess() throws OpenemsNamedException {
+	public boolean pauseChargeProcess() {
 		return this.setTarget(0);
 	}
 
@@ -271,42 +226,32 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	 * @return boolean if the target was set
 	 * @throws OpenemsNamedException on error
 	 */
-	private boolean setTarget(int current) throws OpenemsNamedException {
-		var resultPause = this.pauseChargeIfNeeded(current);
+	private boolean setTarget(int current) {
+		switch (this.config.logVerbosity()) {
+		case NONE, DEBUG_LOG -> doNothing();
+		case WRITES, READS -> this.logInfo(this.log, "Set Target=" + current);
+		}
 
-		// Send charge power limit
-		final var resultLimit = this.httpBridge.requestJson(
-				this.createEndpoint(PUT, "/api/secc", "{\"" + "grid_current_limit" + "\":\"" + current + "\"}"));
+		final var ep = this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+				.addProperty("grid_current_limit", current) //
+				.build());
+
+		final var result = this.httpBridge.requestJson(ep);
 		try {
-			return resultLimit.get().status().equals(HttpStatus.OK) && resultPause;
+			return result.get().status().equals(HttpStatus.OK);
+
 		} catch (InterruptedException | ExecutionException e) {
 			this.log.error("Unable to set EVCS Target");
 			return false;
 		}
 	}
 
-	private boolean pauseChargeIfNeeded(int current) throws OpenemsNamedException {
-		final var softwareVersion = this.getSoftwareVersion();
-		if (softwareVersion == null || softwareVersion.startsWith("1.")) {
-			CompletableFuture<HttpResponse<JsonElement>> resultPause = null;
-			if (current > 0) {
-				// Send stop pause request
-				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(0));
-			} else {
-				// Send pause charging request
-				resultPause = this.httpBridge.requestJson(this.getTargetEndpoint(1));
-				this.debugLog("Setting HardyBarth " + this.alias() + " to pause");
-			}
-			try {
-				return resultPause.get().status().equals(HttpStatus.OK);
-			} catch (InterruptedException | ExecutionException e) {
-				this.log.error("Unable to pause charge process");
-				return false;
-			}
-		} else {
-			return true;
-		}
-
+	private Endpoint createEndpoint(HttpMethod httpMethod, String url, JsonObject body) {
+		return new Endpoint(//
+				new StringBuilder("http://").append(this.config.ip()).append(url).toString(), //
+				httpMethod, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, //
+				body == null ? null : body.toString(), //
+				emptyMap());
 	}
 
 	@Override
@@ -337,5 +282,32 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	@Override
 	public boolean isReadOnly() {
 		return this.config.readOnly();
+	}
+
+	@Override
+	public boolean getConfiguredDebugMode() {
+		return switch (this.config.logVerbosity()) {
+		case NONE -> false;
+		case DEBUG_LOG, READS, WRITES -> true;
+		};
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		super.handleEvent(event);
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		-> {
+			this.setManualMode();
+		}
+		}
+	}
+
+	@Override
+	public int getWriteInterval() {
+		return HEART_BEAT_TIME;
 	}
 }

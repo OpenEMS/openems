@@ -126,21 +126,6 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 	}
 
 	@Override
-	public boolean enableTermination() {
-		return this.builder.enableTermination;
-	}
-
-	@Override
-	public int delayBeforeTx() {
-		return this.builder.delayBeforeTx;
-	}
-
-	@Override
-	public int delayAfterTx() {
-		return this.builder.delayAfterTx;
-	}
-
-	@Override
 	public LogVerbosity logVerbosity() {
 		return this.builder.logVerbosity;
 	}
