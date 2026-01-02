@@ -48,18 +48,27 @@ public abstract class AbstractLoadpointMeterEvcc extends AbstractOpenemsComponen
 	private boolean fallbackWarningLogged = false;
 
 	/**
-	 * Energy calculator for power-based calculation from charger power values.
+	 * Energy calculators for both positive and negative power values.
+	 *
+	 * <p>
+	 * EVCC loadpoint is a consumption meter that typically reports positive
+	 * ActivePower values (consumption). According to ElectricityMeter API:
+	 * <ul>
+	 * <li>ACTIVE_PRODUCTION_ENERGY = integral over positive ACTIVE_POWER values
+	 * <li>ACTIVE_CONSUMPTION_ENERGY = integral over negative ACTIVE_POWER values
+	 * </ul>
+	 * Both are provided for completeness, though for a wallbox/charging station,
+	 * ACTIVE_PRODUCTION_ENERGY is the primary channel as it accumulates positive
+	 * power (consumption). This ensures compatibility with UI history charts which
+	 * expect consumption meters to use ActiveProductionEnergy.
 	 */
-	protected final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
+	protected final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	protected final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	/**
 	 * Energy calculators for each phase (L1, L2, L3).
-	 *
-	 * <p>
-	 * EVCS devices only consume energy (positive power), so only production energy
-	 * calculators are needed. Consumption energy is automatically provided by
-	 * DeprecatedEvcs channel listeners that copy production energy values.
 	 */
 	protected final CalculateEnergyFromPower calculateProductionEnergyL1 = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1);
@@ -127,10 +136,34 @@ public abstract class AbstractLoadpointMeterEvcc extends AbstractOpenemsComponen
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			// Calculate energy from power (always active)
-			this.calculateEnergy.update(this.getActivePowerValue());
+			this.calculateEnergy();
 			this.calculateEnergyPerPhase();
 			break;
+		}
+	}
+
+	/**
+	 * Calculate energy from power values, splitting positive and negative values.
+	 *
+	 * <p>
+	 * Positive power values (consumption) are accumulated in ACTIVE_PRODUCTION_ENERGY,
+	 * negative power values (production) are accumulated in ACTIVE_CONSUMPTION_ENERGY.
+	 * For a wallbox/charging station, positive values are expected (consumption only),
+	 * so ACTIVE_PRODUCTION_ENERGY is the primary channel used by UI history charts.
+	 */
+	protected void calculateEnergy() {
+		final var activePower = this.getActivePowerValue();
+		if (activePower == null) {
+			this.calculateProductionEnergy.update(null);
+			this.calculateConsumptionEnergy.update(null);
+		} else if (activePower > 0) {
+			// Positive power = consumption -> accumulate in ACTIVE_PRODUCTION_ENERGY
+			this.calculateProductionEnergy.update(activePower);
+			this.calculateConsumptionEnergy.update(0);
+		} else {
+			// Negative power = production -> accumulate in ACTIVE_CONSUMPTION_ENERGY
+			this.calculateProductionEnergy.update(0);
+			this.calculateConsumptionEnergy.update(Math.abs(activePower));
 		}
 	}
 
@@ -246,10 +279,6 @@ public abstract class AbstractLoadpointMeterEvcc extends AbstractOpenemsComponen
 
 	/**
 	 * Calculate production energy per phase from phase-specific power values.
-	 *
-	 * <p>
-	 * EVCS devices only consume energy (always positive power). Consumption energy
-	 * is automatically provided by DeprecatedEvcs channel listeners.
 	 */
 	protected void calculateEnergyPerPhase() {
 		// L1

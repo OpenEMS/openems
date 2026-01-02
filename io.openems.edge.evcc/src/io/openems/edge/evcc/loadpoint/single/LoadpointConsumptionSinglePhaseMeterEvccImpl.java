@@ -31,7 +31,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.evcc.loadpoint.AbstractLoadpointMeterEvcc;
 import io.openems.edge.evcc.loadpoint.PlugState;
-import io.openems.edge.evcs.api.DeprecatedEvcs;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.SocEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -48,7 +47,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractLoadpointMeterEvcc
-		implements LoadpointConsumptionSinglePhaseMeterEvcc, SocEvcs, Evcs, DeprecatedEvcs, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
+		implements LoadpointConsumptionSinglePhaseMeterEvcc, SocEvcs, Evcs, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,
 		TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -70,13 +69,9 @@ public class LoadpointConsumptionSinglePhaseMeterEvccImpl extends AbstractLoadpo
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				SocEvcs.ChannelId.values(), //
-				DeprecatedEvcs.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				LoadpointConsumptionSinglePhaseMeterEvcc.ChannelId.values() //
 		);
-
-		// Copy production energy to consumption energy (Keba pattern)
-		DeprecatedEvcs.copyToDeprecatedEvcsChannels(this);
 
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
