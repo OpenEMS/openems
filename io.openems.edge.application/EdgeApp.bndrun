@@ -167,6 +167,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
+	bnd.identity;id='io.openems.edge.meter.hager',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
@@ -371,6 +372,7 @@
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
+	io.openems.edge.meter.hager;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
