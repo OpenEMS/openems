@@ -306,9 +306,9 @@ public class AppDef<APP extends OpenemsApp, //
 			APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER> & OpenemsApp, //
 			PROPERTY extends Nameable & Type<PROPERTY, APP, PARAMETER>, //
 			PARAMETER extends Type.Parameter.BundleParameter> //
-	AppDef<APP, PROPERTY, PARAMETER> copyOf(//
-			final Class<PROPERTY> propertyClass, //
-			final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
+					AppDef<APP, PROPERTY, PARAMETER> copyOf(//
+							final Class<PROPERTY> propertyClass, //
+							final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
 	) {
 		return copyOfGeneric(otherDef);
 	}
@@ -446,7 +446,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * 
 	 * <p>
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
-	 * overridden and return a non null value.
+	 * overridden and return a non-null value.
 	 * 
 	 * @param key    the key of the translation
 	 * @param params the parameter of the translation
@@ -687,11 +687,11 @@ public class AppDef<APP extends OpenemsApp, //
 	private static final <APP extends OpenemsApp, //
 			PROPERTY, //
 			PARAMETER> //
-	String fieldValuesToAppName(//
-			final APP app, //
-			final PROPERTY prop, //
-			final Language language, //
-			final PARAMETER param //
+			String fieldValuesToAppName(//
+					final APP app, //
+					final PROPERTY prop, //
+					final Language language, //
+					final PARAMETER param //
 	) {
 		return app.getName(language);
 	}
@@ -773,7 +773,7 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setIsAllowedToSee(//
-			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, User> isAllowedToSee //
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToSee //
 	) {
 		this.isAllowedToSee = isAllowedToSee;
 		return this.self();

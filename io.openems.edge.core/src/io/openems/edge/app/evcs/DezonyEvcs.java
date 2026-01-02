@@ -80,12 +80,12 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 		// Properties
 		ALIAS(alias()), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp(), //
-				def -> def.setDefaultValue("192.168.50.88") //
+				def -> def.setDefaultValue("192.168.50.88")//
 						.setRequired(true))), //
 		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), //
-				def -> def.setDefaultValue(5000) //
+				def -> def.setDefaultValue(5000)//
 						.setRequired(true))), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //
 		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //

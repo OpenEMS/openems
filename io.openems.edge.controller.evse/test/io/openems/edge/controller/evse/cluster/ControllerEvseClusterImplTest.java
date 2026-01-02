@@ -1,31 +1,21 @@
 package io.openems.edge.controller.evse.cluster;
 
-import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
-import static io.openems.edge.controller.evse.single.ControllerEvseSingleImplTest.generateSingleSut;
-import static java.util.Arrays.stream;
+import static io.openems.edge.controller.evse.TestUtils.generateClusterSut;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.FunctionUtils;
-import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
-import io.openems.edge.controller.evse.single.ControllerEvseSingleImplTest.SingleSut;
 import io.openems.edge.controller.evse.single.LogVerbosity;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
-import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
@@ -41,8 +31,8 @@ public class ControllerEvseClusterImplTest {
 				.setMode(Mode.FORCE) //
 				.setManualEnergySessionLimit(1500) //
 				.setLogVerbosity(LogVerbosity.DEBUG_LOG));
-		final var clock = sut.clock;
-		final var singleSut = sut.singles[0];
+		final var clock = sut.clock();
+		final var singleSut = sut.singles()[0];
 		final var single = singleSut.ctrlSingle();
 		final var chargePoint = singleSut.chargePoint();
 		final IntConsumer assertSetPoint = value -> assertEquals(value,
@@ -59,7 +49,7 @@ public class ControllerEvseClusterImplTest {
 				.setThreePhaseLimitInMilliAmpere(6000, 16000) //
 				.build());
 
-		sut.test //
+		sut.test() //
 				.next(new TestCase("Force Next State UNDEFINED (but not called)") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.output(single.id(), ControllerEvseSingle.ChannelId.STATE_MACHINE, State.UNDEFINED)) //
@@ -73,7 +63,7 @@ public class ControllerEvseClusterImplTest {
 				.setIsReadyForCharging(false) //
 				.build());
 
-		sut.test //
+		sut.test() //
 				.next(new TestCase("EV_NOT_CONNECTED") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // minimum
@@ -85,7 +75,7 @@ public class ControllerEvseClusterImplTest {
 				.setIsReadyForCharging(true) //
 				.build());
 
-		sut.test //
+		sut.test() //
 				.next(new TestCase("EV_NOT_CONNECTED transition") //
 						.timeleap(clock, 1, ChronoUnit.SECONDS)
 						.onAfterControllersCallbacks(() -> assertSetPoint.accept(6000)) // minimum
@@ -131,47 +121,9 @@ public class ControllerEvseClusterImplTest {
 		;
 
 		// Debug-Log
-		assertNull(sut.cluster.debugLog());
-		assertEquals("Mode:Force|FinishedEnergySessionLimit", single.debugLog());
+		assertNull(sut.cluster().debugLog());
+		assertEquals("Mode:Zero|FinishedEnergySessionLimit", single.debugLog());
 
-		sut.test.deactivate();
-	}
-
-	private record ClusterSut(TimeLeapClock clock, ControllerTest test, ControllerEvseClusterImpl cluster,
-			SingleSut... singles) {
-	}
-
-	@SafeVarargs
-	private static ClusterSut generateClusterSut(Consumer<MyConfig.Builder> clusterConfig,
-			Consumer<io.openems.edge.controller.evse.single.MyConfig.Builder>... singleConfigs)
-			throws OpenemsException, Exception {
-
-		final var clock = createDummyClock();
-		final var singleConfigCounter = new AtomicInteger(0);
-		final var singleSuts = stream(singleConfigs) //
-				.map(config -> generateSingleSut(clock, singleConfigCounter.getAndIncrement(), config)) //
-				.toArray(SingleSut[]::new);
-		final var myConfig = MyConfig.create() //
-				.setId("ctrlEvseCluster0") //
-				.setDistributionStrategy(DistributionStrategy.EQUAL_POWER) //
-				.setDebugMode(false) //
-				.setCtrlIds("ctrlEvseSingle0");
-		clusterConfig.accept(myConfig);
-
-		final var ctrlCluster = new ControllerEvseClusterImpl();
-		final var test = new ControllerTest(ctrlCluster) //
-				.addReference("sum", new DummySum()) //
-				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("ctrls", stream(singleSuts) //
-						.map(SingleSut::ctrlSingle) //
-						.toList()); //
-		stream(singleSuts).map(SingleSut::chargePoint) //
-				.forEach(cp -> test.addComponent(cp));
-		stream(singleSuts).map(SingleSut::electricVehicle) //
-				.forEach(ev -> test.addComponent(ev));
-		test.activate(myConfig.build());
-
-		return new ClusterSut(clock, test, ctrlCluster, singleSuts);
+		sut.test().deactivate();
 	}
 }

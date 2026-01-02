@@ -67,13 +67,11 @@ public final class Utils {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
 	 * @param period                 the scheduled {@link Period}
+	 * @param forceMode              force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
 	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, int maxChargePowerFromGrid,
-			Period<StateMachine, OptimizationContext> period) {
-		final StateMachine actualMode;
-		final Integer setPoint;
-
+			Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (period == null || gridActivePower == null || essActivePower == null) {
@@ -87,10 +85,12 @@ public final class Utils {
 		final var pwrChargeGrid = calculateChargeGridPower(period.coc().essChargePowerInChargeGrid(), ess,
 				essActivePower, gridActivePower, maxChargePowerFromGrid);
 		final var pwrDischargeGrid = calculateDischargeGridPower(ess, essActivePower, gridActivePower);
-		actualMode = postprocessRunState(ess, period.mode(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
+		final var actualMode = forceMode != null //
+				? forceMode //
+				: postprocessRunState(ess, period.mode(), pwrBalancing, pwrDelayDischarge, pwrChargeGrid);
 
 		// Get and apply ActivePower Less-or-Equals Set-Point
-		setPoint = switch (actualMode) {
+		final var setPoint = switch (actualMode) {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
@@ -168,26 +168,23 @@ public final class Utils {
 	 */
 	public static StateMachine postprocessSimulatorState(String id, GlobalOptimizationContext.Period period,
 			GlobalScheduleContext gsc, EnergyFlow ef, OptimizationContext coc, StateMachine state) {
+		if (state == DELAY_DISCHARGE) {
+			if (gsc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
+				// ess is empty or is charging -> switch to balancing
+				state = BALANCING;
+			}
+		}
+
 		if (state == DISCHARGE_GRID) {
-			// DISCHARGE_GRID,...
-			if (ef.getGridToEss() >= 0) {
-				// but battery is not discharged to grid
+			if (!(ef.getEss() > 0 && ef.getGrid() < 0)) {
+				// ess is not discharging to grid -> switch to balancing
 				state = BALANCING;
 			}
 		}
 
 		if (state == CHARGE_GRID) {
-			// CHARGE_GRID,...
-			if (ef.getGridToEss() <= 0) {
-				// but battery is not charged from grid
-				state = DELAY_DISCHARGE;
-			}
-		}
-
-		if (state == DELAY_DISCHARGE) {
-			// DELAY_DISCHARGE,...
-			if (gsc.ess.getInitialEnergy() == 0 || ef.getEss() < 0) {
-				// but battery is empty or gets charged
+			if (!(ef.getEss() < 0 && ef.getGrid() > 0)) {
+				// ess is not charging from grid -> switch to balancing
 				state = BALANCING;
 			}
 		}
@@ -308,19 +305,21 @@ public final class Utils {
 		add(refs, fallback);
 
 		// Uses the total excess consumption as reference
-		add(refs, goc.periods().stream() //
+		add(refs, goc.streamPeriodsWithPrediction() //
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
-		add(refs, goc.periods().stream() //
+		add(refs, goc.streamPeriodsWithPrediction() //
 				.takeWhile(p -> p.consumption() >= p.production()) // take only first Periods
 				.mapToInt(p -> p.consumption() - p.production()) // calculates excess Consumption Energy per Period
 				.sum());
 
 		// Uses the excess consumption during high price periods as reference
 		{
-			var prices = goc.periods().stream() //
-					.mapToDouble(GlobalOptimizationContext.Period::price) //
+			var ps = goc.streamCompletePeriods() //
+					.toList();
+			var prices = ps.stream() //
+					.mapToDouble(GlobalOptimizationContext.Period.Complete::price) //
 					.toArray();
 			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
 			var firstPrices = stream(prices) //
@@ -328,7 +327,7 @@ public final class Utils {
 					.toArray();
 			if (firstPrices.length > 0) {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				add(refs, goc.periods().stream() //
+				add(refs, ps.stream() //
 						.limit(peakIndex) //
 						.filter(p -> p.price() >= percentilePrice) // takes only prices > percentile
 						.mapToInt(p -> p.consumption() - p.production()) // excess Consumption Energy per Period

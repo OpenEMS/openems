@@ -5,6 +5,8 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
@@ -151,7 +153,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedDescriptionWithAppPrefix(".rippleControlReceiver.description") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //
@@ -159,8 +161,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 		FEED_IN_TYPE(AppDef.copyOfGeneric(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION), def -> def //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
-				}))
-				.appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
+				})).appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
@@ -181,7 +182,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV1.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger1());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 1 Alias") //
@@ -197,7 +198,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV2.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger2());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 2 Alias") //
@@ -426,7 +427,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					predictionUnmanagedConsumption()//
 			);
 
 			if (hasAcMeter) {
@@ -449,6 +451,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
+					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

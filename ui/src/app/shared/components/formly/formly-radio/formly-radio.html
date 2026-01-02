@@ -1,32 +1,50 @@
-<div [ngClass]="field.className">
-    <ion-list>
+<ion-radio-group [formControl]="formControl" [formlyAttributes]="field" [value]="defaultOption">
+  @if (to.label || to.description){
+    <ion-item class="ion-no-padding" lines="none">
+      <ion-label>
+        {{ to.label }}
 
-        <ion-item *ngIf="to.label || to.description" lines="none">
-            <ion-label>
-                <h2 *ngIf="to.label">{{ to.label }}</h2>
-                <p *ngIf="to.description" class="ion-text-secondary">{{ to.description }}</p>
-            </ion-label>
-        </ion-item>
-
-        <ion-radio-group [formControl]="formControl" [formlyAttributes]="field">
-            <ion-item *ngFor="let option of to.options">
-                <ng-container *ngIf="to.radioSlot === 'start'; else end">
-                    <ion-radio justify="start" labelPlacement="end" [value]="option.value">
-                        {{ option.label }}
-                    </ion-radio>
-                </ng-container>
-                <ng-template #end>
-                    <ion-radio [value]="option.value">
-                        {{ option.label }}
-                    </ion-radio>
-                </ng-template>
-            </ion-item>
-        </ion-radio-group>
-
-        <ion-item *ngIf="showError" lines="none">
-            <ion-label color="danger" class="ion-text-wrap">
-                <formly-validation-message [field]="field"></formly-validation-message>
-            </ion-label>
-        </ion-item>
-    </ion-list>
-</div>
+        @if (to.description) {
+          <p class="ion-padding-left ion-text-secondary">
+            {{ to.description }}
+          </p>
+        }
+      </ion-label>
+    </ion-item>
+  } @for (option of fieldOptions; track option; let last = $last) {
+    @if (option.url !== undefined){
+      <ion-card>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-radio justify="start" labelPlacement="end" [value]="option.value">
+                  {{ option.label }}
+                </ion-radio>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row class="ion-justify-content-center">
+            <ion-col>
+              <ion-list lines="none">
+                <ion-item>
+                  <ion-img [src]="option.url"></ion-img>
+                </ion-item>
+              </ion-list>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card>
+    } @else {
+      <ion-item [lines]="last ? 'none' : 'full' ">
+        @if (to.radioSlot === 'start') {
+          <ion-radio justify="start" labelPlacement="end" [value]="option.value">
+            {{ option.label }}
+          </ion-radio>
+        } @else {
+          <ion-radio [value]="option.value"> {{ option.label }} </ion-radio>
+        }
+      </ion-item>
+    }
+  }
+</ion-radio-group>

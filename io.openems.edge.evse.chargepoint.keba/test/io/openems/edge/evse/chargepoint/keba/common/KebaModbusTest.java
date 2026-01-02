@@ -50,16 +50,18 @@ public class KebaModbusTest {
 								new int[] { 0x0000, 0x00E7 }) //
 						.withRegisters(1046, // POWER_FACTOR: 905
 								new int[] { 0x0000, 0x235A }) //
-						.withRegisters(1100, // MAX_CHARGING_CURRENT - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1100, // MAX_CHARGING_CURRENT
+								new int[] { 0x0000, 0x19A7 }) //
+						.withRegisters(1110, // MAX_SUPPORTED_CURRENT
+								new int[] { 0x0000, 0x7D00 }) //
 						.withRegisters(1500, // RFID - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1502, // ENERGY_SESSION
 								new int[] { 0x0000, 0xFF14 }) //
-						.withRegisters(1550, // PHASE_SWITCH_SOURCE - TODO
-								new int[] { 0x0000, 0x0000 }) //
-						.withRegisters(1552, // PHASE_SWITCH_STATE - TODO
-								new int[] { 0x0000, 0x0000 }) //
+						.withRegisters(1550, // PHASE_SWITCH_SOURCE
+								new int[] { 0x0000, 0x0003 }) //
+						.withRegisters(1552, // PHASE_SWITCH_STATE
+								new int[] { 0x0000, 0x0001 }) //
 						.withRegisters(1600, // FAILSAFE_CURRENT_SETTING - TODO
 								new int[] { 0x0000, 0x0000 }) //
 						.withRegisters(1602, // FAILSAFE_TIMEOUT_SETTING - TODO
@@ -79,7 +81,6 @@ public class KebaModbusTest {
 
 				.output(KebaModbus.ChannelId.ERROR_CODE, 0) //
 				.output(KebaModbus.ChannelId.SERIAL_NUMBER, 0) //
-				.output(KebaModbus.ChannelId.MAX_CHARGING_CURRENT, 0) //
 				.output(KebaModbus.ChannelId.FAILSAFE_CURRENT_SETTING, 0) //
 				.output(KebaModbus.ChannelId.FAILSAFE_TIMEOUT_SETTING, 0) //
 				.output(KebaModbus.ChannelId.DEVICE_SOFTWARE_OUTDATED, false) //

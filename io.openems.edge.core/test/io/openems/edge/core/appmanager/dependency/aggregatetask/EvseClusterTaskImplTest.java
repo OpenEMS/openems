@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class EvseClusterTaskImplTest {
 		this.task.aggregate(config, null);
 		this.task.create(DUMMY_ADMIN, emptyList());
 		List<String> errors = new ArrayList<String>();
-		this.task.validate(errors, null, config);
+		this.task.validate(errors, null, config, emptyMap());
 		assertEquals(0, errors.size());
 	}
 
@@ -70,7 +71,7 @@ public class EvseClusterTaskImplTest {
 		this.task.aggregate(null, config);
 		this.task.delete(DUMMY_ADMIN, emptyList());
 		List<String> errors = new ArrayList<String>();
-		this.task.validate(errors, null, new ClusterConfiguration());
+		this.task.validate(errors, null, new ClusterConfiguration(), emptyMap());
 		assertEquals(0, errors.size());
 	}
 }

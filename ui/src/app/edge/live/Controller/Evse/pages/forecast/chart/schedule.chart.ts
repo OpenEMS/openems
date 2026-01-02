@@ -66,14 +66,17 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
 
         this.edge.sendRequest(
             this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
+            new ComponentJsonApiRequest({
+                componentId: "ctrlEvseCluster0",
+                payload: new GetScheduleRequest({ componentId: this.component.id }),
+            }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
             const schedule = result.schedule;
 
             // Extracting prices, states, timestamps from the schedule array
             const { priceArray, modeArray, timestampArray } = {
-                priceArray: schedule.map(entry => entry.price),
+                priceArray: schedule.map(entry => entry.price === null ? 10 : entry.price), // TODO: Use different chart type when no prices
                 modeArray: schedule.map(entry => entry.mode),
                 timestampArray: schedule.map(entry => entry.timestamp),
             };

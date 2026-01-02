@@ -1,56 +1,61 @@
-<oe-modal [title]="props.attributes.title" *ngIf="props">
-    <ngx-spinner name="formly-field-modal"></ngx-spinner>
-    <ng-container *ngFor="let entry of props.options">
-        <ng-container *ngFor="let line of entry.lines">
-            <ng-container [ngSwitch]="line.type">
+<formly-form [form]="form" [fields]="[]" [model]="model"></formly-form>
 
-                <!-- OeFormlyField.ChannelLine -->
-                <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel"
-                    [converter]="line.converter">
-                </oe-modal-line>
+<oe-modal [title]="props.attributes.title" *ngIf="props" [helpKey]="props.attributes.helpKey" useDefaultPrefix="false"
+  [isCommonWidget]="props.attributes.isCommonWidget === 'true'">
+  <ngx-spinner name="formly-field-modal"></ngx-spinner>
+  <ng-container *ngFor="let entry of props.options">
+    <ng-container *ngFor="let line of entry.lines">
+      <ng-container [ngSwitch]="line.type">
 
-                <!-- OeFormlyField.ChildrenLine -->
-                <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name">
-                    <ng-container *ngFor="let lineItem of line.children">
-                        <!-- OeFormlyField.Item -->
-                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
-                            [converter]="lineItem.converter">
-                        </oe-modal-line-item>
-                    </ng-container>
-                </oe-modal-line>
+        <!-- OeFormlyField.ChannelLine -->
+        <oe-modal-line *ngSwitchCase="'channel-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
+          [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
+        </oe-modal-line>
 
-                <!-- OeFormlyField.InfoLine -->
-                <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
-                </oe-modal-info-line>
+        <!-- OeFormlyField.ChildrenLine -->
+        <oe-modal-line *ngSwitchCase="'children-line'" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
+          [name]="line.name">
+          <ng-container *ngFor="let lineItem of line.children">
+            <!-- OeFormlyField.Item -->
+            <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+              [converter]="lineItem.converter">
+            </oe-modal-line-item>
+          </ng-container>
+        </oe-modal-line>
 
-                <!-- OeFormlyField.HorizontalLine -->
-                <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
+        <!-- OeFormlyField.InfoLine -->
+        <oe-modal-info-line *ngSwitchCase="'info-line'" [info]="line.name">
+        </oe-modal-info-line>
 
-                <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'"
-                    [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'"
-                    [valueCallback]="line.value" [filters]="line.filter ?? null"
-                    [name]="line.name"></oe-modal-value-line>
+        <!-- OeFormlyField.HorizontalLine -->
+        <oe-modal-horizontal-line *ngSwitchCase="'horizontal-line'"></oe-modal-horizontal-line>
 
-                <!-- FormGrouped -->
-                <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
-                    <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
-                        [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
-                        [channelAddress]="line.channel?.toString() ?? null">
-                    </oe-modal-buttons>
-                </ng-container>
+        <oe-modal-value-line *ngSwitchCase="'value-from-channels-line'" [channelsToSubscribe]="line.channelsToSubscribe"
+          [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null"
+          [name]="line.name"></oe-modal-value-line>
 
-                <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
-                <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
-                    [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
-                    <ion-fab-button (click)="onSubmit()">
-                        <ion-icon size="large" name="checkmark-circle-outline">
-                        </ion-icon>
-                    </ion-fab-button>
-                </ion-fab>
-
-            </ng-container>
+        <!-- FormGrouped -->
+        <ng-container *ngSwitchCase="'buttons-from-form-control-line'">
+          <oe-modal-buttons *ngIf="form.controls[line.controlName] !== null" [formGroup]="form"
+            [controlName]="line.controlName" [component]="component" [buttons]="line.buttons"
+            [channelAddress]="line.channel?.toString() ?? null">
+          </oe-modal-buttons>
         </ng-container>
+
+        <ng-container *ngSwitchCase="'percentage-bar-line'">
+          <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value">
+          </oe-flat-widget-percentagebar>
+        </ng-container>
+
+        <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
+        <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
+          [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+          <ion-fab-button (click)="onSubmit()">
+            <ion-icon size="large" name="oe-checkmark">
+            </ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+      </ng-container>
     </ng-container>
+  </ng-container>
 </oe-modal>

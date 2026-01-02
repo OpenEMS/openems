@@ -2,9 +2,13 @@ package io.openems.edge.energy.api.test;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -43,6 +47,8 @@ public class EnergyScheduleTester {
 	public final ImmutableList<EshContainer> perEsh;
 	public final ImmutableMap<EnergyScheduleHandler, Object> cscs;
 
+	private final Logger log = LoggerFactory.getLogger(EnergyScheduleTester.class);
+
 	private int nextPeriod;
 
 	private EnergyScheduleTester(GlobalOptimizationContext goc, ImmutableList<EshContainer> perEsh) {
@@ -74,18 +80,26 @@ public class EnergyScheduleTester {
 		var index = this.nextPeriod++;
 		var gsc = GlobalScheduleContext.from(this.goc);
 		var period = this.goc.periods().get(index);
-		var ef = EnergyFlow.Model.from(gsc, period);
+
+		final EnergyFlow.Model ef;
+		try {
+			ef = EnergyFlow.Model.from(gsc, period);
+		} catch (OpenemsException e) {
+			this.log.error("Error while simulating period [" + index + "]", e);
+			fitness.addHardConstraintViolation();
+			return new SimulatedPeriod(period, gsc, null, fitness);
+		}
 
 		var eshIndex = 0;
 		for (var esh : this.goc.eshs()) {
 			var csc = this.cscs.get(esh);
 			switch (esh) {
 			case EnergyScheduleHandler.WithDifferentModes e -> {
-				var modeIndex = eshIndex++;
-				if (modeIndex >= modes.length) {
-					throw new IllegalArgumentException("Missing ModeIndex [" + modeIndex + "] for " + esh);
-				}
-				e.simulate(period, gsc, csc, ef, modes[modeIndex], fitness);
+				final var modeIndex = e.modes().hasForOptimizer() //
+						? -1 // none available
+						: modes[eshIndex++];
+				final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
 			}
 			case EnergyScheduleHandler.WithOnlyOneMode e //
 				-> e.simulate(period, gsc, csc, ef, fitness);

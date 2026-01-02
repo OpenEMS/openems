@@ -268,7 +268,6 @@ public class EssGenericOffGridImpl
 	}
 
 	@Override
-	public void clearEssTimeoutFailure() {
-
+	public void executeErrorAcknowledge() {
 	}
 }

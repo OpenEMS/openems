@@ -62,9 +62,10 @@ public class TouAncillaryCostsImpl extends AbstractOpenemsComponent implements T
 
 	private void applyConfig(Config config) {
 		this.fixedTariff = config.fixedTariff();
+		final var clock = this.componentManager.getClock();
 		try {
-			var schedule = parseForGermany(config.ancillaryCosts());
-			this.helper = new TouManualHelper(this.componentManager.getClock(), schedule, 0.0);
+			var schedule = parseForGermany(clock, config.ancillaryCosts());
+			this.helper = new TouManualHelper(clock, schedule, 0.0);
 		} catch (OpenemsNamedException e) {
 			this.logWarn(this.log, "Unable to parse Schedule:" + e.getMessage());
 			this.helper = EMPTY_TOU_MANUAL_HELPER;

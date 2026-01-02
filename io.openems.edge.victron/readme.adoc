@@ -1,0 +1,13 @@
+= Victron Battery Inverter
+
+Implementation of Victron Battery Inverter.
+
+
+== Compatibility 
+- Victron Multiplus 2GX ESS
+
+
+Open Issues:
+* only read only implementation is tested
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.victron[Source Code icon:github[]]

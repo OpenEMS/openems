@@ -65,7 +65,6 @@ export class ChartComponent extends AbstractHistoryChart {
     private static getDataset(data: HistoryUtils.ChannelData, desiredState: number): any[] {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        console.log(data, desiredState);
         const states = data["ActualMode"]
             .map(val => Utils.multiplySafely(val, 1000))
             .map(val => {

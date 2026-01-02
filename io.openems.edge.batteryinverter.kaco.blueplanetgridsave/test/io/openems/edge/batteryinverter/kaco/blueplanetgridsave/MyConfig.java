@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private StartStopConfig startStopConfig = null;
 		private String modbusId = null;
 		private boolean activateWatchdog;
+		private GridCode gridCode;
 
 		private Builder() {
 		}
@@ -33,6 +34,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setActivateWatchdog(boolean activateWatchdog) {
 			this.activateWatchdog = activateWatchdog;
+			return this;
+		}
+		
+		public Builder setGridCode(GridCode gridCode) {
+			this.gridCode = gridCode;
 			return this;
 		}
 
@@ -75,5 +81,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean activateWatchdog() {
 		return this.builder.activateWatchdog;
+	}
+	
+	@Override
+	public GridCode gridCode() {
+		return this.builder.gridCode;
 	}
 }
