@@ -40,19 +40,19 @@ public interface LoadpointConsumptionMeterEvcc extends ElectricityMeter, Openems
 		 * Name of the connected vehicle.
 		 */
 		VEHICLE_NAME(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * EVCC charging mode (pv, now, minpv, off).
 		 */
 		MODE(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Whether charging is enabled by EVCC.
 		 */
 		ENABLED(Doc.of(OpenemsType.BOOLEAN) //
-				.persistencePriority(PersistencePriority.HIGH)),
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Cable/Plug state.
@@ -61,7 +61,7 @@ public interface LoadpointConsumptionMeterEvcc extends ElectricityMeter, Openems
 		 * Generic plug state based on EVCC's boolean "connected" status.
 		 */
 		PLUG(Doc.of(PlugState.values()) //
-				.persistencePriority(PersistencePriority.HIGH)) //
+				.persistencePriority(PersistencePriority.LOW)) //
 		;
 
 		private final Doc doc;
