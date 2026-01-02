@@ -139,6 +139,7 @@ export class StorageComponent extends AbstractFlatWidget {
         for (const component of Object.values(this.emergencyReserveComponents)) {
 
             channelAddresses.push(
+                new ChannelAddress(component.id, "ActualReserveSoc"),
                 new ChannelAddress(component.id, "_PropertyReserveSoc"),
                 new ChannelAddress(component.id, "_PropertyIsReserveSocEnabled"),
             );
@@ -210,7 +211,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
         for (const essId in this.emergencyReserveComponents) {
             const controller = this.emergencyReserveComponents[essId];
-            controller["currentReserveSoc"] = currentData.allComponents[controller.id + "/_PropertyReserveSoc"];
+            controller["currentReserveSoc"] = currentData.allComponents[controller.id + "/ActualReserveSoc"] ?? currentData.allComponents[controller.id + "/_PropertyReserveSoc"] ;
             this.isEmergencyReserveEnabled[essId] = currentData.allComponents[controller.id + "/_PropertyIsReserveSocEnabled"] == 1 ? true : false;
         }
     }
