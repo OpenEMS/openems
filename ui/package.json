@@ -4,7 +4,6 @@
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
-    "@angular/animations": "20.3.15",
     "@angular/common": "20.3.15",
     "@angular/core": "20.3.15",
     "@angular/forms": "20.3.15",

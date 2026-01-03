@@ -127,7 +127,6 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
-    public animationSpeed: number = 500;
 
     protected valueText: string = "";
     protected innerRadius: number = 0;

@@ -1,64 +1,48 @@
 // @ts-strict-ignore
-import { animate, state, style, transition, trigger } from "@angular/animations";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[productionsection]",
     templateUrl: "./production.component.html",
-    animations: [
-        trigger("Production", [
-            state("show", style({
-                opacity: 0.4,
-                transform: "translateY(0)",
-            })),
-            state("hide", style({
-                opacity: 0.1,
-                transform: "translateY(17%)",
-            })),
-            transition("show => hide", animate("650ms ease-out")),
-            transition("hide => show", animate("0ms ease-in")),
-        ]),
-    ],
+    styleUrls: ["../animation.scss"],
     standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
-    // animation variable to stop animation on destroy
-    private startAnimation = null;
-    private showAnimation: boolean = false;
+    private subShow?: Subscription;
+    private productionAnimationClass: string = "production-hide";
     private animationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
         service: Service,
         unitpipe: UnitvaluePipe,
+        private animationService: AnimationService,
     ) {
         super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
         this.unitpipe = unitpipe;
     }
 
-    get stateName() {
-        return this.showAnimation ? "show" : "hide";
-    }
-
     ngOnInit() {
         this.adjustFillRefbyBrowser();
+        this.subShow = this.animationService.toggleAnimation$.subscribe((show) => {
+            this.productionAnimationClass = show ? "production-show" : "production-hide";
+        });
     }
 
     ngOnDestroy() {
-        clearInterval(this.startAnimation);
+        this.subShow?.unsubscribe();
     }
 
     toggleAnimation() {
-        this.startAnimation = setInterval(() => {
-            this.showAnimation = !this.showAnimation;
-        }, this.animationSpeed);
         this.animationTrigger = true;
     }
 
