@@ -60,14 +60,14 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 	@Activate
 	private void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors()));
+				config.invalidateElementsAfterReadErrors(), config.cycleTime(), config.minSleepTime()));
 		this.applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.modified(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
-				config.invalidateElementsAfterReadErrors()));
+				config.invalidateElementsAfterReadErrors(), config.cycleTime(), config.minSleepTime()));
 		this.applyConfig(config);
 		this.closeModbusConnection();
 	}
