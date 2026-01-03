@@ -3,20 +3,24 @@
 == PV Inverter
 
 Tested on
+
 - Fronius Symo
 
 Implemented Natures:
+
 - ElectricityMeter
 - ManagedSymmetricPvInverter
 
 == Smart Meter
 
 Tested on
+
 - Fronius Smart Meter 63A-3, TS 65A-3
 
 Note: The SmartMeter must be configured to use the Sunspec Model Type *float*.
 
 Implemented Natures:
+
 - ElectricityMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fronius[Source Code icon:github[]]
