@@ -115,10 +115,11 @@ To avoid these situations and relieve the programmer from taking care of all kin
 The idea is to untie the producers and consumers of data and introducing a central buffer for all channel data. This buffer - the Process Image - is updated only once in every computing cycle when it activates the latest data in each Channel.
 
 Therefore, the implementation of channel objects in OpenEMS has two data variables:
+
 - The `value` field keeping the currently active value that should be used by consumers
 - The `nextValue` field representing the latest data that was received, e.g. via Modbus communication.
 
-At - and only at - 'Switch Process Image' of the Cycle, the `nextValue` gets copied to the `value` field.
+At -- and only at -- 'Switch Process Image' of the Cycle, the `nextValue` gets copied to the `value` field.
 This assures, that the data in the Process Image does not change during a computing Cycle.
 
 == Asynchronous threads and Cycle synchronization
