@@ -12,6 +12,36 @@ Physical hardware is abstracted in OpenEMS Edge using _Natures_. A Nature define
 
 Technically Natures are implemented as OSGi API Bundles.
 
+Each .api bundle contains the nature interfaces that device implementations must implement. For example, io.openems.edge.ess.api defines interfaces like SymmetricEss, AsymmetricEss, ManagedSymmetricEss, etc. These are sub-natures of the Ess nature.
+
+OpenEMS Edge provides the following types of Natures:
+
+== Device Natures
+e.g.:
+- io.openems.edge.battery.api - Battery interfaces
+- io.openems.edge.batteryinverter.api - Battery inverter interfaces
+- io.openems.edge.ess.api - Energy Storage System interfaces
+- io.openems.edge.evcs.api - EV Charging Station interfaces
+- io.openems.edge.evse.api - EV Supply Equipment interfaces
+- io.openems.edge.meter.api - Power meter interfaces
+- io.openems.edge.pvinverter.api - PV inverter interfaces
+- io.openems.edge.io.api - IO device interfaces
+- io.openems.edge.heat.api - Heat pump interfaces
+- io.openems.edge.thermometer.api - Thermometer interfaces
+
+== Service/Support Natures
+e.g.:
+- io.openems.edge.controller.api - Controller interfaces
+- io.openems.edge.scheduler.api - Scheduler interfaces
+- io.openems.edge.timedata.api - Time-series data interfaces
+- io.openems.edge.timeofusetariff.api - Dynamic pricing interfaces
+- io.openems.edge.predictor.api - Forecasting interfaces
+- io.openems.edge.weather.api - Weather service interfaces
+- io.openems.edge.energy.api - Energy management interfaces
+
+
+Following you find all natures currently defined in OpenEMS Edge:
+
 include::nature.adoc.d/_include.adoc[leveloffset=+0]
 
 // TODO
