@@ -383,6 +383,7 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
+	io.openems.edge.powerplantcontroller.api;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
