@@ -42,6 +42,11 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint32;
+import io.openems.edge.common.modbusslave.ModbusRecordUint64;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.taskmanager.Priority;
@@ -368,10 +373,12 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 */
 	protected static ElementToChannelConverter getConverterForType(ModbusType type) {
 		return switch (type) {
-		case UINT16 -> SET_NULL_FOR_DEFAULT(0xFFFF); 				// 65535
-		case UINT32 -> SET_NULL_FOR_DEFAULT(0xFFFFFFFFL); 			// 4294967295
-		case UINT64 -> SET_NULL_FOR_DEFAULT(0xFFFFFFFFFFFFFFFFL); 	// 18446744073709551615
-		default -> DIRECT_1_TO_1;
+		case FLOAT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat32.UNDEFINED_VALUE);
+		case FLOAT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat64.UNDEFINED_VALUE);
+		case STRING16 -> DIRECT_1_TO_1; // TODO
+		case ENUM16, UINT16 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint16.UNDEFINED_VALUE);
+		case UINT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint32.UNDEFINED_VALUE);
+		case UINT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint64.UNDEFINED_VALUE);
 		};
 	}
 

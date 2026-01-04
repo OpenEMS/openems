@@ -2,13 +2,29 @@ package io.openems.edge.common.modbusslave;
 
 import static io.openems.common.test.DummyOptionsEnum.UNDEFINED;
 import static io.openems.common.test.DummyOptionsEnum.VALUE_1;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.junit.Test;
 
 public class ModbusRecordUint64Test {
+
+	@Test
+	public void testUndefined() {
+		assertEquals(//
+				ModbusRecordUint64.UNDEFINED_VALUE, //
+				ByteBuffer.wrap(ModbusRecordUint64.UNDEFINED_BYTE_ARRAY).getLong());
+		assertArrayEquals(//
+				ModbusRecordUint64.UNDEFINED_BYTE_ARRAY, //
+				ModbusRecordUint64.toByteArray(ModbusRecordUint64.UNDEFINED_VALUE));
+		assertEquals(//
+				"0xFFFFFFFFFFFFFFFF", //
+				"0x" + Long.toHexString(ModbusRecordUint64.UNDEFINED_VALUE).toUpperCase());
+		assertEquals(ModbusRecordUint64.UNDEFINED_BYTE_ARRAY.length, ModbusRecordUint64.BYTE_LENGTH);
+	}
 
 	@Test
 	public void testValue() {

@@ -8,8 +8,8 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint16 extends ModbusRecordConstant {
 
-	public static final byte[] UNDEFINED_VALUE = { (byte) 0xFF, (byte) 0xFF };
-
+	public static final short UNDEFINED_VALUE = (short) 0xFFFF;
+	public static final byte[] UNDEFINED_BYTE_ARRAY = toByteArray(UNDEFINED_VALUE);
 	public static final int BYTE_LENGTH = 2;
 
 	protected final Short value;
@@ -42,7 +42,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null || (value instanceof OptionsEnum oe && oe.isUndefined())) {
-			return UNDEFINED_VALUE;
+			return UNDEFINED_BYTE_ARRAY;
 		}
 		return toByteArray((short) TypeUtils.getAsType(OpenemsType.SHORT, value));
 	}
