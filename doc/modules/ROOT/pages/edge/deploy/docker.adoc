@@ -152,6 +152,10 @@ CONTAINER ID  IMAGE                   COMMAND   CREATED               STATUS
 0b2d32fe6203  openems/edge:latest     "/init"   About a minute ago    Up About a minute
 ----
 
+== InfluxDB
+
+If you want to add the InfluxDB time series database to your setup, follow the https://openems.github.io/openems.io/openems/latest/backend/deploy/docker.html#_setup_influxdb[OpenEMS Backend deploy instructions to setup InfluxDB].
+
 == Changing the Language in the UI
 
 To change the language in the OpenEMS UI:

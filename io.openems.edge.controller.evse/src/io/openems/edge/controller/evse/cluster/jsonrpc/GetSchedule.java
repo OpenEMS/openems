@@ -97,7 +97,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 
 	public record Response(ImmutableList<Period> schedule) {
 
-		public record Period(ZonedDateTime timestamp, double price, int mode, int grid, int production, int consumption,
+		public record Period(ZonedDateTime timestamp, Double price, int mode, int grid, int production, int consumption,
 				int managedConsumption) {
 
 			/**
@@ -149,7 +149,8 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								// Mode from Schedule
 								p.mode().getMode(componentId))
 								// Mode configured in Evse.Controller.Single
-								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode().actual);
+								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode());
+
 						return new Response.Period(e.getKey(), p.price(), //
 								mode.getValue(), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //

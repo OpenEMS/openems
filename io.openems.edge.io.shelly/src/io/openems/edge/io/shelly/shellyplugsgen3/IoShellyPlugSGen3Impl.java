@@ -67,7 +67,8 @@ public class IoShellyPlugSGen3Impl extends IoShellyPlugSBaseImpl implements IoSh
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.type(), config.phase(),
-				config.invert(), config.ip(), config.mdnsName(), config.debugMode());
+				config.invert(), config.ip(), config.mdnsName(), config.debugMode(),
+				config.validateDevice() ? new ShellyValidation("PlugSG3") : null);
 	}
 
 	@Override

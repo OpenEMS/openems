@@ -321,7 +321,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.bit(8, BatteryFeneconHome.ChannelId.RACK_SYSTEM_SHORT_CIRCUIT)), //
 						m(BatteryFeneconHome.ChannelId.UPPER_VOLTAGE, new UnsignedWordElement(528))), //
 
-				new FC3ReadRegistersTask(18000, Priority.HIGH, //
+				new FC3ReadRegistersTask(18000, Priority.LOW, //
 						m(new UnsignedWordElement(18000)) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_4_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
@@ -329,7 +329,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.build() //
 				), //
 				
-				new FC3ReadRegistersTask(16000, Priority.HIGH, //
+				new FC3ReadRegistersTask(16000, Priority.LOW, //
 						m(new UnsignedWordElement(16000)) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_3_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
@@ -337,7 +337,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.build() //
 				), //
 
-				new FC3ReadRegistersTask(14000, Priority.HIGH, //
+				new FC3ReadRegistersTask(14000, Priority.LOW, //
 						m(new UnsignedWordElement(14000)) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_2_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
@@ -345,7 +345,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.build() //
 				), //
 				
-				new FC3ReadRegistersTask(12000, Priority.HIGH, //
+				new FC3ReadRegistersTask(12000, Priority.LOW, //
 						m(new UnsignedWordElement(12000)) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_1_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //
@@ -353,7 +353,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								.build() //
 				), //
 
-				new FC3ReadRegistersTask(10000, Priority.LOW, //
+				new FC3ReadRegistersTask(10000, Priority.HIGH, //
 						m(new UnsignedWordElement(10000)) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MAJ, MAJ_VERSION_CONVERTER) //
 								.m(BatteryFeneconHome.ChannelId.TOWER_0_BMS_SOFTWARE_VERSION_MIN, MIN_VERSION_CONVERTER) //

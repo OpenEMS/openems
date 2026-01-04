@@ -87,15 +87,6 @@ public class RunOptimizerApp {
 					// .build()) //
 					// .build())
 
-					// ESS Time-of-Use-Tariff-Optimization
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_TIME_OF_USE_TARIFF.factoryPid) //
-							.addProperty("id", "ctrlEssTimeOfUseTariff0") //
-							.add("source", buildJsonObject() //
-									.addProperty("controlMode", "CHARGE_CONSUMPTION") //
-									.build()) //
-							.build())
-
 					// EVSE Cluster
 					.add(buildJsonObject() //
 							.addProperty("factoryPid", Controller.EVSE_CLUSTER.factoryPid) //
@@ -155,7 +146,7 @@ public class RunOptimizerApp {
 													.build()) //
 											.add(buildJsonObject() //
 													.addProperty("componentId", "ctrlEvseSingle1") //
-													.addProperty("mode", "SMART") //
+													.addProperty("mode", "ZERO") //
 													.addProperty("activePower", 0) //
 													.addProperty("sessionEnergy", 0) //
 													.addProperty("sessionEnergyLimit", 0) //
@@ -203,19 +194,30 @@ public class RunOptimizerApp {
 													.add("smartConfig", buildJsonArray() //
 															.add(buildJsonObject() //
 																	.addProperty("@type", "Task") //
-																	.addProperty("start", "12:00:00") //
+																	.addProperty("start", "13:00:00") //
+																	.addProperty("duration", "PT2H") //
 																	.add("recurrenceRules", buildJsonArray() //
 																			.add(buildJsonObject() //
 																					.addProperty("frequency", "daily") //
 																					.build())
 																			.build())
 																	.add("openems.io:payload", buildJsonObject() //
-																			.addProperty("sessionEnergyMinimum", 10000) //
+																			.addProperty("class", "Manual") //
+																			.addProperty("mode", "FORCE") //
 																			.build())
 																	.build())
 															.build()) //
 													.build()) //
 											.build()) //
+									.build()) //
+							.build())
+
+					// ESS Time-of-Use-Tariff-Optimization
+					.add(buildJsonObject() //
+							.addProperty("factoryPid", Controller.ESS_TIME_OF_USE_TARIFF.factoryPid) //
+							.addProperty("id", "ctrlEssTimeOfUseTariff0") //
+							.add("source", buildJsonObject() //
+									.addProperty("controlMode", "CHARGE_CONSUMPTION") //
 									.build()) //
 							.build())
 

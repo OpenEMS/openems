@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +31,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 
@@ -117,9 +119,10 @@ public class PersistencePredictorAggregateTaskImpl implements PersistencePredict
 
 	@Override
 	public void validate(//
-			List<String> errors, //
-			AppConfiguration appConfiguration, //
-			PersistencePredictorConfiguration config //
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final PersistencePredictorConfiguration config, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		final Set<String> existingChannels;
 		try {

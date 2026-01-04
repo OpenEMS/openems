@@ -1,7 +1,9 @@
 package io.openems.edge.battery.protection;
 
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
+import static io.openems.common.channel.PersistencePriority.MEDIUM;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -10,10 +12,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface BatteryVoltageProtection extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		BVP_CHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
-		BVP_DISCHARGE_BMS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT)), //
+		BVP_CHARGE_BMS(Doc.of(INTEGER)//
+				.unit(VOLT)//
+				.persistencePriority(MEDIUM)), //
+		BVP_DISCHARGE_BMS(Doc.of(INTEGER)//
+				.unit(VOLT)//
+				.persistencePriority(MEDIUM)), //
 		;
 
 		private final Doc doc;

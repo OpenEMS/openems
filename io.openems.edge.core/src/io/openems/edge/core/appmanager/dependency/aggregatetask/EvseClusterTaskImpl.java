@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +29,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 
@@ -153,12 +155,18 @@ public class EvseClusterTaskImpl implements EvseClusterTask {
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration, ClusterConfiguration config) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final ClusterConfiguration config, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		var clusterControllers = this.componentManager.getEdgeConfig()
 				.getComponentsByFactory("Evse.Controller.Cluster");
 
 		if (clusterControllers.isEmpty() && !config.evseIds().isEmpty()) {
 			errors.add("cluster controller not exists");
+			return;
 		}
 
 		var clusterController = clusterControllers.getFirst();

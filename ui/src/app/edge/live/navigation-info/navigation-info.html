@@ -1,0 +1,27 @@
+@if (isInitialized) {
+  <oe-navigation-view [title]="Help">
+    <div class="ion-padding ion-text-wrap ion-font">
+
+      <!-- Icon -->
+      <ion-icon name="information-outline" class="ion-margin-bottom ion-color-primary"
+        style="font-size: 2rem;"></ion-icon>
+
+      <!-- Text -->
+      <p class="ion-margin-bottom" translate>
+        GENERAL.NAVIGATION_INFO
+      </p>
+
+      <p class="ion-margin-bottom" translate>
+        GENERAL.NAVIGATION_DETAILS
+      </p>
+
+      <p>
+        <strong translate>GENERAL.LINK</strong><br>
+        <a href="{{link}}">
+          {{ link }}
+        </a>
+      </p>
+
+    </div>
+  </oe-navigation-view>
+}

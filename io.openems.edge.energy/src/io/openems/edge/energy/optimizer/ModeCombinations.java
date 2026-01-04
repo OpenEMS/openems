@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -23,9 +22,17 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
  */
 public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 
+	// TODO Refactor to be more generic
 	public static final ImmutableList<List<String>> INFEASIBLE_COMBINATIONS = ImmutableList.<List<String>>builder() //
 			.add(List.of("Evse.Controller.Single:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:DELAY_DISCHARGE")) //
 			.add(List.of("Evse.Controller.Single:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS", "Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS+ctrlEvseSingle1:SURPLUS",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:SURPLUS+ctrlEvseSingle1:ZERO",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
+			.add(List.of("ctrlEvseSingle0:ZERO+ctrlEvseSingle1:SURPLUS",
+					"Controller.Ess.Time-Of-Use-Tariff:CHARGE_GRID")) //
 			.build();
 
 	/**
@@ -39,7 +46,7 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 			if (!factoryPid.isBlank()) {
 				b.append(factoryPid).append(":");
 			}
-			final var name = b.append(esh.toModeString(index)).toString();
+			final var name = b.append(esh.modes().getAsString(index)).toString();
 			return new Mode(esh, index, name);
 		}
 
@@ -118,16 +125,18 @@ public record ModeCombinations(ImmutableList<ModeCombination> combinations) {
 		final var result = new ModeCombinations.Builder() //
 				.addInfeasibles(INFEASIBLE_COMBINATIONS);
 
-		// Set first ModeCombination as default (index = 0) Mode for all ESHs.
-		result.addCombination(goc.eshsWithDifferentModes().stream() //
-				.map(esh -> Mode.from(esh, 0)) //
-				.toList());
-
 		var cp = Lists.cartesianProduct(//
 				goc.eshsWithDifferentModes().stream() //
-						.map(esh -> IntStream.range(0, esh.getNumberOfAvailableModes()) //
-								.mapToObj(i -> Mode.from(esh, i)) //
-								.collect(toImmutableList())) //
+						.map(esh -> {
+							var modes = esh.modes();
+							var optimizerModes = modes.streamAllIndices() //
+									.filter(i -> modes.addToOptimizer(i)) //
+									.mapToObj(i -> Mode.from(esh, i)) //
+									.collect(toImmutableList());
+							return optimizerModes.isEmpty() //
+									? ImmutableList.of(Mode.from(esh, -1)) // no optimizable mode
+									: optimizerModes;
+						}) //
 						.collect(toImmutableList())); //
 		cp.forEach(mss -> result.addCombination(mss));
 		return result.build();

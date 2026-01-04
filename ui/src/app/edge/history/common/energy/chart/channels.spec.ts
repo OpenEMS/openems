@@ -25,10 +25,15 @@ export namespace History {
             "plugins": {
                 "colors": { "enabled": false },
                 "legend": {
-                    "display": true, "position": "bottom", "labels": {
+                    "display": true,
+                    "position": "bottom",
+                    "labels": {
                         "color": "",
                         "usePointStyle": true,
                         "textAlign": "center",
+                        "font": {
+                            "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                        },
                     },
                 },
                 "tooltip": {
@@ -98,9 +103,15 @@ export namespace History {
             "plugins": {
                 "colors": { "enabled": false },
                 "legend": {
-                    "display": true, "position": "bottom", "labels": {
-                        "color": "", "usePointStyle": true,
+                    "display": true,
+                    "position": "bottom",
+                    "labels": {
+                        "color": "",
+                        "usePointStyle": true,
                         "textAlign": "center",
+                        "font": {
+                            "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                        },
                     },
                 },
                 "tooltip": {

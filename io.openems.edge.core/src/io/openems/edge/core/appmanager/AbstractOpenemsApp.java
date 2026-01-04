@@ -191,7 +191,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	/**
-	 * Gets the id of the map with the given default id
+	 * Gets the id of the map with the given default id.
 	 *
 	 * <p>
 	 * e. g. defaultId: "ess0" => the next available id with the base-name "ess" and

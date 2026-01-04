@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -99,7 +100,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class), emptyMap());
 		assertTrue("Validation has error but all channels got added.", errors.isEmpty());
 	}
 
@@ -112,7 +113,7 @@ public class PersistencePredictorAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class), emptyMap());
 		assertFalse("Validation has no error but channels are missing.", errors.isEmpty());
 	}
 

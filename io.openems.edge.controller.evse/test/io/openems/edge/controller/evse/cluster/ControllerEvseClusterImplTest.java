@@ -122,7 +122,7 @@ public class ControllerEvseClusterImplTest {
 
 		// Debug-Log
 		assertNull(sut.cluster().debugLog());
-		assertEquals("Mode:Force|FinishedEnergySessionLimit", single.debugLog());
+		assertEquals("Mode:Zero|FinishedEnergySessionLimit", single.debugLog());
 
 		sut.test().deactivate();
 	}
