@@ -220,7 +220,7 @@
         "INFO_FOR_EMERGENCY_RESERVE_SLIDER": "Durch Aktivieren kann eine Notstromreserve zwischen 5 % und 100 % der Batteriekapazität eingestellt werden."
       },
       "CHARGE_DISCHARGE_LIMITER": {
-        "INFO_FOR_CHARGE_DISCHARGE_LIMITER_SLIDER": "Durch Aktivieren wird der Batteriespeicher zwischen eine Minimum und Maximum gehalten",
+        "INFO_FOR_CHARGE_DISCHARGE_LIMITER_SLIDER": "Durch Aktivieren wird der Batteriespeicher zwischen einem Minimum und Maximum gehalten",
         "CHARGE_DISCHARGE_LIMITER": "Arbeitsbereich"
       },
       "ENERGYMONITOR": {

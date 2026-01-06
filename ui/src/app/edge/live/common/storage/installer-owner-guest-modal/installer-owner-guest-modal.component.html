@@ -669,7 +669,6 @@
             </ng-container>
           </ng-container>
 
-
           <!-- Show if ess has chargeDischargeLimiterController assigned-->
           <ng-container [formGroupName]="'chargeDischargeLimiterController'"
             *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']">
@@ -806,8 +805,6 @@
             </ng-container>
           </ng-container>
 
-
-
           <ng-container [formGroupName]="'prepareBatteryExtensionController'"
             *ngIf="formGroup.value[component.id]?.['prepareBatteryExtensionController']?.hasOwnProperty('isRunning') && isAtLeastInstaller">
 
@@ -933,6 +930,7 @@
               <!-- Show only when isRunning is activated -->
             </ng-container>
           </ng-container>
+
         </ng-container>
         </ion-card-content>
       </ng-container>

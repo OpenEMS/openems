@@ -218,7 +218,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                 const energyBetweenBalancingCycles = currentData.channel[controller.id + "/_PropertyEnergyBetweenBalancingCycles"];
                                 const stateNumber = currentData.channel[controller.id + "/StateMachine"];
                                 const balancingRemainingSeconds = currentData.channel[controller.id + "/BalancingRemainingSeconds"];
-                                const chargedEnergy = currentData.channel[controller.id + "/ChargedEnergy"];
+                                const chargedEnergy = currentData.channel[controller.id + "/ChargedEnergy"] ?? 0;
                                 const stateKey = (ChargeDischargeControllerState[Number(stateNumber)] as keyof typeof ChargeDischargeControllerState) ?? "UNDEFINED";
 
                                 controllerFrmGrp.addControl("chargeDischargeLimiterController",
