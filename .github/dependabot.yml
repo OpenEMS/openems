@@ -4,7 +4,7 @@ updates:
     directory: "/cnf"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     target-branch: develop
     groups:
       influxdb:
@@ -51,5 +51,5 @@ updates:
     directory: "/.github/workflows"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     target-branch: develop
