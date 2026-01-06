@@ -24,7 +24,7 @@
 			<!-- On update: also update gradle.properties file -->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.1.0</version>
+			<version>7.2.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -339,7 +339,7 @@
 			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
 		    <groupId>org.jmdns</groupId>
 		    <artifactId>jmdns</artifactId>
-		    <version>3.6.2</version>
+		    <version>3.6.3</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -381,7 +381,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.21.2</version>
+			<version>1.22.1</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
@@ -563,7 +563,7 @@
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.18.2</version>
+		  <version>1.18.3</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
