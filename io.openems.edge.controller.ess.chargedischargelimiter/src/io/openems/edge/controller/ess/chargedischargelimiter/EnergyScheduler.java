@@ -8,8 +8,6 @@ import java.util.function.Supplier;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EnergyScheduler {
 
@@ -27,8 +25,6 @@ public class EnergyScheduler {
 	public static EnergyScheduleHandler.WithOnlyOneMode buildEnergyScheduleHandler(OpenemsComponent parent,
 			Supplier<Config> configSupplier) {
 
-		final Logger log = LoggerFactory.getLogger(EnergyScheduler.class);
-
 		return EnergyScheduleHandler.WithOnlyOneMode.<OptimizationContext, Void>create(parent)
 				.setSerializer(Config.serializer(), configSupplier)
 
@@ -41,12 +37,6 @@ public class EnergyScheduler {
 					var totalEnergy = gsc.ess().totalEnergy();
 					var minEnergy = socToEnergy(totalEnergy, config.minSoc());
 					var maxEnergy = socToEnergy(totalEnergy, config.maxSoc());
-/*
-					log.info(
-							"[OPTIMIZER ChargeDischargeLimiter-Scheduler] {}: Build OptimizationContext -> "
-									+ "minSoc={}%, maxSoc={}%, totalE={}Wh, minE={}Wh, maxE={}Wh",
-							parent.id(), config.minSoc(), config.maxSoc(), totalEnergy, minEnergy, maxEnergy);
-*/
 					return new OptimizationContext(minEnergy, maxEnergy);
 				})
 
@@ -64,12 +54,6 @@ public class EnergyScheduler {
 					// limit charge
 					var allowedCharge = max(0, coc.maxEnergy() - currentEnergy);
 					ef.setEssMaxCharge(allowedCharge);
-/*
-					log.info("[ChargeDischargeLimiter-Scheduler] {}: period duration={}, price={}, "
-							+ "E_init={}Wh, minE={}Wh, maxE={}Wh, " + "allowedCharge={}Wh, allowedDischarge={}Wh", id,
-							period.duration(), period.price(), currentEnergy, coc.minEnergy(), coc.maxEnergy(),
-							allowedCharge, allowedDischarge);
-*/
 				})
 
 				.build();

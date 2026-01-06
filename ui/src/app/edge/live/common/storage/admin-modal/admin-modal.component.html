@@ -139,8 +139,6 @@
     <!-- ================================ -->
     <!-- ChargeDischargeLimiterController  -->
     <!-- ================================ -->
-    <pre>component.id={{component?.id}} hasGroup={{!!formGroup?.get(component?.id)}}</pre>
-
     <ng-container [formGroupName]="'chargeDischargeLimiterController'"
       *ngIf="formGroup.value[component.id]?.['chargeDischargeLimiterController']">
       <ion-item
@@ -163,13 +161,6 @@
         </ion-label>
       </ion-item>
 
-      <pre>parentGroup={{formGroup?.get(component?.id) ? 'OK' : 'MISSING'}}</pre>
-
-      <pre>{{ formGroup.value[component.id]?.['chargeDischargeLimiterController'] | json }} <br>
-      State: {{ formGroup.value[component.id]?.['chargeDischargeLimiterController']?.state }} <br>
-      Applied Class:
-      {{ getBackgroundClass(formGroup.value[component.id]?.['chargeDischargeLimiterController']?.stateNumber) }}
-      </pre>
       <ion-item lines="none">
         <ion-icon slot="start" name="information-outline" size="large"></ion-icon>
         <ion-note class="ion-text-wrap">
@@ -382,12 +373,6 @@
 
     <!-- more than one ESS component -->
     <ng-container *ngIf="essComponents?.length > 1">
-      <ng-container *ngIf="edge.currentData | async as currentData">
-        <pre style="white-space: pre-wrap;">
-currentData.summary.storage =
-{{ currentData?.summary?.storage | json }}
-  </pre>
-      </ng-container>
 
       <!-- summary of all ESS components -->
       <ion-card-content class="underline" *ngIf="edge.currentData | async as currentData">
