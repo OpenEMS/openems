@@ -11,6 +11,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String alias;
 		private boolean enabled;
+		private String batteryInverterId;
+		private String batteryId;
 		private String modbusId;
 		private int modbusUnitId;
 		private SingleOrAllPhase phase;
@@ -34,6 +36,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEnabled(boolean enabled) {
 			this.enabled = enabled;
+			return this;
+		}
+
+		public Builder setBatteryInverterId(String batteryInverterId) {
+			this.batteryInverterId = batteryInverterId;
+			return this;
+		}
+
+		public Builder setBatteryId(String batteryId) {
+			this.batteryId = batteryId;
 			return this;
 		}
 
@@ -106,6 +118,26 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean enabled() {
 		return this.builder.enabled;
+	}
+
+	@Override
+	public String batteryInverter_id() {
+		return this.builder.batteryInverterId;
+	}
+
+	@Override
+	public String batteryInverter_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.batteryInverter_id());
+	}
+
+	@Override
+	public String battery_id() {
+		return this.builder.batteryId;
+	}
+
+	@Override
+	public String battery_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
 	}
 
 	@Override

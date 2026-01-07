@@ -10,7 +10,6 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
-import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -22,7 +21,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -60,7 +58,6 @@ import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
-import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.batteryinverter.statemachine.Context;
 import io.openems.edge.victron.batteryinverter.statemachine.StateMachine;
 import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
@@ -93,9 +90,9 @@ import io.openems.edge.victron.ess.VictronEss;
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent implements VictronBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave,
-		EventHandler {
+public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent
+		implements VictronBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent,
+		StartStoppable, ModbusSlave, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 
@@ -131,23 +128,10 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
-	private volatile VictronEss ess;
-
-	private volatile VictronBattery battery;
-
-	@Reference(cardinality = OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = GREEDY)
-	@Override
-	public synchronized void setBattery(VictronBattery battery) {
-		this.battery = battery;
-	}
-
-	@Override
-	public synchronized void unsetBattery(VictronBattery battery) {
-		if (this.battery == battery) {
-			this.battery = null;
-		}
-	}
+	/**
+	 * Battery reference, set via run() method from ESS.
+	 */
+	private volatile Battery battery;
 
 	private Integer batteryInverterMaxChargePower;
 	private Integer batteryInverterMaxDischargePower;
@@ -165,14 +149,10 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 			return;
 		}
 
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id());
-
 		this._setMaxApparentPower(this.config.DeviceType().getApparentPowerLimit());
 		this._setGridMode(GridMode.ON_GRID);
-
-		if (this.ess != null) {
-			this.ess.setBatteryInverter(this);
-		}
+		// Note: ESS binds to this BatteryInverter via its own @Reference - no callback
+		// needed
 	}
 
 	@Override
@@ -303,6 +283,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		if (this.config == null) {
 			return;
 		}
+
+		// Store battery reference for limit calculations
+		this.battery = battery;
 
 		if (this.config.DeviceType() == DeviceType.UNDEFINED) {
 			this.logError(this.log, "Device Type of inverter not configured!");

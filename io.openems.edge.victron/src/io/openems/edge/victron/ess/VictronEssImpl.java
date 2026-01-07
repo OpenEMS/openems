@@ -13,8 +13,6 @@ import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
-import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
-import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -118,51 +116,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
-	private volatile VictronBatteryInverter batteryInverter;
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	private VictronBatteryInverter batteryInverter;
 
-	@Reference(cardinality = OPTIONAL, policy = DYNAMIC, policyOption = GREEDY)
-	@Override
-	public synchronized void setBatteryInverter(VictronBatteryInverter batteryInverter) {
-		if (batteryInverter == null) {
-			this.logError(this.log, "Attempt to bind a null BatteryInverter");
-			return;
-		}
-		this.batteryInverter = batteryInverter;
-		logInfo(this.log, "Battery Inverter bound successfully.");
-
-		// Ensuring that the battery inverter is not null before attempting to get max
-		// apparent power
-		if (this.batteryInverter.getMaxApparentPower().get() != null) {
-			Integer maxApparentPower = this.batteryInverter.getMaxApparentPower().get();
-			this._setMaxApparentPower(maxApparentPower);
-		} else {
-			this.logError(this.log, "ESS->BatteryInverter max. apparent power not set ");
-		}
-	}
-
-	@Override
-	public void unsetBatteryInverter(VictronBatteryInverter batteryInverter) {
-		this.batteryInverter = null;
-
-	}
-
-	private volatile VictronBattery battery;
-
-	@Reference(cardinality = OPTIONAL, policy = DYNAMIC, policyOption = GREEDY)
-	@Override
-	public synchronized void setBattery(VictronBattery battery) {
-
-		if (battery == null) {
-			this.logError(this.log, "ESS->Battery not activated ");
-			return;
-		}
-		this.battery = battery;
-	}
-
-	@Override
-	public synchronized void unsetBattery(VictronBattery battery) {
-		this.battery = null;
-	}
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	private VictronBattery battery;
 
 	private final Logger log = LoggerFactory.getLogger(VictronEssImpl.class);
 
@@ -204,6 +162,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 
+		// Update filter for 'BatteryInverter'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "batteryInverter",
+				config.batteryInverter_id())) {
+			return;
+		}
+
+		// Update filter for 'Battery'
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "battery", config.battery_id())) {
+			return;
+		}
+
 		// Set initial values from config
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setCapacity(config.capacity());
@@ -221,23 +190,15 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 		this._setGridMode(GridMode.ON_GRID);
 
-		if (this.batteryInverter == null) {
-			this.logError(this.log, "ESS->BatteryInverter not yet activated ");
-			return;
+		// Set max apparent power from battery inverter if available
+		if (this.batteryInverter != null && this.batteryInverter.getMaxApparentPower().get() != null) {
+			this._setMaxApparentPower(this.batteryInverter.getMaxApparentPower().get());
 		}
-
-		if (this.battery == null) {
-			this.logError(this.log, "ESS->Battery not yet activated ");
-			return;
-		}
-
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		this.unsetBattery(this.battery);
-		this.unsetBatteryInverter(this.batteryInverter);
 		super.deactivate();
 	}
 

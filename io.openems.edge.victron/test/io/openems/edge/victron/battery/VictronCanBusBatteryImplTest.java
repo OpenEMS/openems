@@ -15,7 +15,6 @@ public class VictronCanBusBatteryImplTest {
 
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
-	private static final String ESS_ID = "ess0";
 
 	private static final ChannelAddress BATTERY_SOC = new ChannelAddress(BATTERY_ID, "Soc");
 	private static final ChannelAddress BATTERY_VOLTAGE = new ChannelAddress(BATTERY_ID, "Voltage");
@@ -201,7 +200,6 @@ public class VictronCanBusBatteryImplTest {
 						.setAlias("Victron Battery") //
 						.setEnabled(true) //
 						.setModbusId(MODBUS_ID) //
-						.setEssId(ESS_ID) //
 						.setDebugMode(false) //
 						.build()) //
 				.next(new TestCase()) // First cycle to read registers

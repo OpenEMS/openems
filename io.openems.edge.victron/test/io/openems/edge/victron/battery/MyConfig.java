@@ -11,7 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String alias;
 		private boolean enabled;
 		private String modbusId;
-		private String essId;
 		private boolean debugMode;
 
 		private Builder() {
@@ -34,11 +33,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
-			return this;
-		}
-
-		public Builder setEssId(String essId) {
-			this.essId = essId;
 			return this;
 		}
 
@@ -91,16 +85,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String Modbus_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
-	public String ess_id() {
-		return this.builder.essId;
-	}
-
-	@Override
-	public String Ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override

@@ -23,7 +23,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int maxDischargePower;
 		private boolean debugMode;
 		private boolean readOnlyMode;
-		private String essId;
 
 		private Builder() {
 		}
@@ -90,11 +89,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
-			return this;
-		}
-
-		public Builder setEssId(String essId) {
-			this.essId = essId;
 			return this;
 		}
 
@@ -187,16 +181,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean readOnlyMode() {
 		return this.builder.readOnlyMode;
-	}
-
-	@Override
-	public String ess_id() {
-		return this.builder.essId;
-	}
-
-	@Override
-	public String Ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 }

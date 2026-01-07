@@ -13,6 +13,8 @@ import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 public class VictronEssImplTest {
 
 	private static final String ESS_ID = "ess0";
+	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
+	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
 
 	@Test
@@ -38,6 +40,8 @@ public class VictronEssImplTest {
 				.setId(ESS_ID) //
 				.setAlias("Victron ESS") //
 				.setEnabled(true) //
+				.setBatteryInverterId(BATTERY_INVERTER_ID) //
+				.setBatteryId(BATTERY_ID) //
 				.setModbusId(MODBUS_ID) //
 				.setModbusUnitId(227) //
 				.setPhase(SingleOrAllPhase.ALL) //
@@ -50,6 +54,8 @@ public class VictronEssImplTest {
 		assertEquals(ESS_ID, config.id());
 		assertEquals("Victron ESS", config.alias());
 		assertEquals(true, config.enabled());
+		assertEquals(BATTERY_INVERTER_ID, config.batteryInverter_id());
+		assertEquals(BATTERY_ID, config.battery_id());
 		assertEquals(MODBUS_ID, config.modbus_id());
 		assertEquals(227, config.modbusUnitId());
 		assertEquals(SingleOrAllPhase.ALL, config.phase());

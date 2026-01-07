@@ -24,7 +24,6 @@ public class VictronBatteryInverterImplTest {
 
 	private static final String INVERTER_ID = "batteryInverter0";
 	private static final String MODBUS_ID = "modbus0";
-	private static final String ESS_ID = "ess0";
 
 	private static final ChannelAddress ACTIVE_POWER = new ChannelAddress(INVERTER_ID, "ActivePower");
 	private static final ChannelAddress BATTERY_SOC = new ChannelAddress(INVERTER_ID, "BatterySoc");
@@ -151,7 +150,6 @@ public class VictronBatteryInverterImplTest {
 						.setMaxDischargePower(2000) //
 						.setDebugMode(false) //
 						.setReadOnlyMode(false) //
-						.setEssId(ESS_ID) //
 						.build()) //
 				.next(new TestCase()) // First cycle to read registers
 				.next(new TestCase() //
@@ -193,7 +191,6 @@ public class VictronBatteryInverterImplTest {
 				.setMaxDischargePower(2000) //
 				.setDebugMode(false) //
 				.setReadOnlyMode(false) //
-				.setEssId(ESS_ID) //
 				.build();
 
 		assertEquals(INVERTER_ID, config.id());
@@ -209,7 +206,6 @@ public class VictronBatteryInverterImplTest {
 		assertEquals(2000, config.maxDischargePower());
 		assertEquals(false, config.debugMode());
 		assertEquals(false, config.readOnlyMode());
-		assertEquals(ESS_ID, config.ess_id());
 	}
 
 	@Test

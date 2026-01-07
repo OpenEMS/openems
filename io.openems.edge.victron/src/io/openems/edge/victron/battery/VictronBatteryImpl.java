@@ -7,7 +7,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
-import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -47,7 +46,6 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
 import io.openems.edge.victron.batteryinverter.VictronBatteryInverterImpl;
-import io.openems.edge.victron.ess.VictronEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -86,9 +84,6 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
-	private volatile VictronEss ess;
-
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
 	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
@@ -102,13 +97,8 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 		this.config = config;
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id())
-				|| OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
+				config.modbus_id())) {
 			return;
-		}
-
-		if (this.ess != null) {
-			this.ess.setBattery(this);
 		}
 
 		this.installListener();
@@ -142,13 +132,6 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void checkSocControllers() {
-		if (this.ess == null) {
-			this.logDebug(this.log, "No Controller active on ESS, exiting.");
-			this.minSocPercentage = 0;
-			this.maxSocPercentage = 100;
-			return;
-		}
-
 		this.minSocPercentage = Utils.getEssMinSocPercentage(this.ctrlLimitTotalDischarges,
 				this.ctrlEmergencyCapacityReserves);
 		this.maxSocPercentage = 100; // Default max SoC
@@ -159,11 +142,6 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void installListener() {
 		this.getCapacityInAmphoursChannel().onUpdate(value -> {
-
-			if (this.ess == null) {
-				this.logError(this.log, "No ESS reference available.");
-				return;
-			}
 
 			// Check if value is null or invalid
 			if (value == null) {
@@ -182,7 +160,7 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 
 			this.logDebug(this.log, "Current State of Charge (SoC): " + soc);
 
-			// Update SoC limits
+			// Update SoC limits from controllers
 			this.checkSocControllers();
 			this.logDebug(this.log,
 					"SoC limits updated - MinSoC: " + this.minSocPercentage + ", MaxSoC: " + this.maxSocPercentage);
@@ -199,33 +177,10 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 			// Calculate total capacity in watt-hours
 			int totalCapacityWh = totalCapacityAh * BATTERY_VOLTAGE;
 
-			// Calculate the usable SoC within the MinSoC and MaxSoC limits
-			int useableSoc = soc > this.maxSocPercentage ? 100
-					: soc < this.minSocPercentage ? 0
-							: (int) (((double) (soc - this.minSocPercentage)
-									/ (this.maxSocPercentage - this.minSocPercentage)) * 100);
-			this.logDebug(this.log, "Normalized usable SoC: " + useableSoc + "% based on current SoC: " + soc);
-
-			// Calculate the usable capacity based on MinSoC and MaxSoC limits
-			// First, calculate the percentage of capacity that can be used between MinSoC
-			// and MaxSoC
-			double usableCapacityRange = (this.maxSocPercentage - this.minSocPercentage) / 100.0;
-			// Usable capacity within min and max SoC range
-			int totalUsableCapacityWh = (int) (totalCapacityWh * usableCapacityRange);
-
-			// Now calculate the current usable capacity based on the usable SoC
-			int useableCapacityWh = (int) (totalUsableCapacityWh * (useableSoc / 100.0));
-
-			// Ensure useableCapacityWh is within valid bounds (0 to totalUsableCapacityWh)
-			useableCapacityWh = Math.max(Math.min(useableCapacityWh, totalUsableCapacityWh), 0);
-
-			// Set the capacities in ESS
+			// Set the capacity on Battery
 			this._setCapacity(totalCapacityWh);
-			this.ess._setUseableSoc(useableSoc);
-			this.ess._setUseableCapacity(useableCapacityWh);
 
-			this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc
-					+ "[%] Capacity real|usable " + totalCapacityWh + "|" + useableCapacityWh + " [Wh]");
+			this.logDebug(this.log, "installListener: SoC: " + soc + "[%] Capacity: " + totalCapacityWh + " [Wh]");
 		});
 	}
 
