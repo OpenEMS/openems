@@ -1,11 +1,12 @@
 #/bin/sh
 
 ### Config ###
-
+JAVA_HOME="/usr/lib/jvm/temurin-21-jre-armhf"
+PATH="$JAVA_HOME/bin:$PATH"
 JVM_OPTIONS=""
 OPENEMS_TRUSTSTORE_PASSWD="changeit"
 
-PATH_JRE_TRUSTSTORE="/usr/lib/jvm/temurin-21-jre-armhf/lib/security/cacerts"
+PATH_JRE_TRUSTSTORE="$JAVA_HOME/lib/security/cacerts"
 PATH_OPENEMS_EDGE_CONFIG="/opt/plcnext/apps/openems-edge/conf"
 PATH_OPENEMS_EDGE_JAR="/opt/plcnext/apps/openems-edge/bin/openems-edge.jar"
 PATH_OPENEMS_TRUSTSTORE="$PATH_OPENEMS_EDGE_CONFIG/plcnext-truststore.jks"
