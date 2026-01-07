@@ -23,6 +23,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -92,7 +94,8 @@ import io.openems.edge.victron.ess.VictronEss;
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent implements VictronBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave {
+		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable, ModbusSlave,
+		EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 
@@ -131,10 +134,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile VictronEss ess;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = OPTIONAL)
-	private VictronBattery battery;
+	private volatile VictronBattery battery;
 
-	@Reference(cardinality = OPTIONAL, policy = STATIC)
+	@Reference(cardinality = OPTIONAL, policy = ReferencePolicy.DYNAMIC, policyOption = GREEDY)
 	@Override
 	public synchronized void setBattery(VictronBattery battery) {
 		this.battery = battery;
@@ -177,6 +179,21 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+			// Prepare for cycle
+		}
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.calculateHardwareLimits();
+		}
+		}
 	}
 
 	/**
