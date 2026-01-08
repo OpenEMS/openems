@@ -96,9 +96,9 @@ public class ApplyPowerHandlerTest {
 				/* maxAcExport */ 5000, //
 				/* surplusPower */ 105));
 
-		// SMART - CHARGE_BAT
-		assertResult(EmsPowerMode.CHARGE_BAT, 300, ApplyPowerHandler.calculate(//
-				/* activePowerSetPoint */ 0, //
+		// SMART - Surplus: activePowerSetPoint == surplusPower → AUTO (balanced)
+		assertResult(EmsPowerMode.AUTO, 0, ApplyPowerHandler.calculate(//
+				/* activePowerSetPoint */ 105,
 				/* pvProduction */ 300, //
 				ControlMode.SMART, //
 				/* gridActivePower */ 250, //
@@ -107,7 +107,29 @@ public class ApplyPowerHandlerTest {
 				/* maxAcExport */ 5000, //
 				/* surplusPower */ 105));
 
-		// SMART - null
+		// SMART - CHARGE_BAT: Battery charges with PV surplus
+		assertResult(EmsPowerMode.CHARGE_BAT, 2000, ApplyPowerHandler.calculate(//
+				/* activePowerSetPoint */ 1000,
+				/* pvProduction */ 3000,
+				ControlMode.SMART, //
+				/* gridActivePower */ 500,
+				/* essActivePower */ 300, //
+				/* maxAcImport */ 5000, //
+				/* maxAcExport */ 5000, //
+				/* surplusPower */ 0));
+
+		// SMART - Constraint: activePowerSetPoint == 0 → battery neutral
+		assertResult(EmsPowerMode.DISCHARGE_BAT, 0, ApplyPowerHandler.calculate(//
+				/* activePowerSetPoint */ 0,
+				/* pvProduction */ 300, //
+				ControlMode.SMART, //
+				/* gridActivePower */ 350, //
+				/* essActivePower */ 420, //
+				/* maxAcImport */ 5000, //
+				/* maxAcExport */ 5000, //
+				/* surplusPower */ 0));
+
+		// SMART - Missing data falls back to AUTO
 		assertResult(EmsPowerMode.AUTO, 0, ApplyPowerHandler.calculate(//
 				/* activePowerSetPoint */ 1000, //
 				/* pvProduction */ 300, //
@@ -236,5 +258,33 @@ public class ApplyPowerHandlerTest {
 		assertTrue(noSmartMeterDetected.get());
 		assertEquals(5300, emsPowerSet.get());
 		assertEquals(EmsPowerMode.CHARGE_BAT, emsPowerMode.get());
+	}
+
+	@Test
+	public void testConstraintedRealWorldScenario() throws OpenemsNamedException {
+		// Real-world scenario: evcc storage lock with EV charging (GitHub evcc-io/evcc #22827)
+		// PV: 5000W, Consumption: 12200W, Loadpoint-Consumption: 7200, Constraint: battery not discharging
+
+		// REMOTE mode: battery stays neutral
+		assertResult(EmsPowerMode.DISCHARGE_BAT, 0, ApplyPowerHandler.calculate(//
+				/* activePowerSetPoint */ 0,
+				/* pvProduction */ 5000, //
+				ControlMode.REMOTE, //
+				/* gridActivePower */ 12200, //
+				/* essActivePower */ -5000, //
+				/* maxAcImport */ 20000, //
+				/* maxAcExport */ 20000, //
+				/* surplusPower */ 0));
+
+		// SMART mode: falls through to REMOTE, same result
+		assertResult(EmsPowerMode.DISCHARGE_BAT, 0, ApplyPowerHandler.calculate(//
+				/* activePowerSetPoint */ 0,
+				/* pvProduction */ 5000, //
+				ControlMode.SMART, //
+				/* gridActivePower */ 12200, //
+				/* essActivePower */ -5000, //
+				/* maxAcImport */ 20000, //
+				/* maxAcExport */ 20000, //
+				/* surplusPower */ 0));
 	}
 }

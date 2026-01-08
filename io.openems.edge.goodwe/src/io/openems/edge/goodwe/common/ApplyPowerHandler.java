@@ -138,6 +138,12 @@ public final class ApplyPowerHandler {
 	private static Result handleRemoteMode(int activePowerSetPoint, int pvProduction) {
 		// TODO PV curtail: (surplus power == setpoint && battery soc == 100% => PV
 		// curtail)
+
+		// Constraint case: keep battery neutral (e.g., external controller constraint)
+		if (activePowerSetPoint == 0) {
+			return new Result(EmsPowerMode.DISCHARGE_BAT, 0);
+		}
+
 		if (activePowerSetPoint < 0) {
 			return new Result(EmsPowerMode.CHARGE_BAT, activePowerSetPoint * -1 + pvProduction);
 		}
