@@ -386,7 +386,7 @@
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
 		    <artifactId>junit-jupiter-api</artifactId>
-		    <version>6.0.1</version>
+		    <version>6.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.junit.jupiter:junit-jupiter-api -->
@@ -491,7 +491,7 @@
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.9</version>
+			<version>3.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.tribuo</groupId>
