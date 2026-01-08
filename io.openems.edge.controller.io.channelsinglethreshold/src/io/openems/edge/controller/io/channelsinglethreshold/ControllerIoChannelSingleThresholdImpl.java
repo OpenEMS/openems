@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.DoubleReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -155,7 +155,7 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 		var inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
 
 		// Get average input value of the last 'minimumSwitchingTime' seconds
-		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
+		DoubleReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
 		var values = inputChannel.getPastValues().tailMap(
 				LocalDateTime.now(this.componentManager.getClock()).minusSeconds(this.config.minimumSwitchingTime()),
 				true).values();
@@ -167,7 +167,7 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 		}
 
 		var inputValueOpt = values.stream().filter(Value::isDefined) //
-				.mapToInt(Value::get) //
+				.mapToDouble(Value::get) //
 				.average();
 		int inputValue;
 		if (inputValueOpt.isPresent()) {
