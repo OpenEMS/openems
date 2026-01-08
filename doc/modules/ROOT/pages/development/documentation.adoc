@@ -58,3 +58,65 @@ Docs should be building.. the finished HTML Folder can be found in your local 'b
 NOTE: If you want to build your own docs with Antora see https://fabianfnc.github.io/bocs/[this guide icon:external-link[]] 
 
 
+== Dynamic Documentation Generation
+
+Some parts of the OpenEMS documentation are generated dynamically during the build process. 
+
+In the repository you can find pages like `nature.adoc` with some text and then 
+[source,adoc]
+----
+include::nature.adoc.d/_include.adoc[leveloffset=+0]
+----
+where the corresponding folder `nature.adoc.d` is basically empty. (It only contains a `.gitignore` file to keep it that way in version control.) This is, where the dynamic generation happens.
+
+=== The Process
+(shown at the example of link:https://openems.github.io/openems.io/openems/latest/edge/nature.html[Natures] documentation)
+
+1. Build-Time Generation (in `doc/build.gradle` lines 320-405)
+
+The copyBundleReadmes Gradle task runs during the documentation build process and:
+
+1. Creates an empty `_include.adoc` file in `doc/modules/ROOT/pages/edge/nature.adoc.d/`
+2. Scans all bundles in the project looking for `readme.adoc` files
+3. Identifies .api bundles - When it finds a bundle ending with .api, it:
+- Copies that bundle's `readme.adoc` to `nature.adoc.d/{bundle-name}.adoc`
+- Appends an include statement to `_include.adoc`:
+[source,adoc]
+----
+include::{bundle-name}.adoc[leveloffset=+1]
+----
+
+2. The Result
+
+The generated `nature.adoc.d/_include.adoc` file contains something like:
+
+[source,adoc]
+----
+include::io.openems.edge.battery.api.adoc[leveloffset=+1]
+include::io.openems.edge.batteryinverter.api.adoc[leveloffset=+1]
+include::io.openems.edge.ess.api.adoc[leveloffset=+1]
+include::io.openems.edge.meter.api.adoc[leveloffset=+1]
+...
+----
+
+3. AsciiDoc Processing
+
+When Antora builds the documentation, it processes `nature.adoc` which includes the line:
+include::nature.adoc.d/_include.adoc[leveloffset=+0]
+
+This cascades to include all the individual bundle readme files, creating the complete list of natures.
+
+=== Why This Pattern?
+
+- Automatic: New .api bundles with `readme.adoc` files automatically appear in the documentation
+- Maintainable: Each bundle documents itself in its own `readme.adoc`
+- DRY: No need to manually maintain a central list
+- Build artifact: The `_include.adoc` is git-ignored (hence the `.gitignore` in the directory) and regenerated on each build
+
+You can see this in action by running:
+[source,bash]
+----
+./gradlew copyBundleReadmes
+----
+
+This will not only populate `doc/modules/ROOT/pages/edge/nature.adoc.d/` with all the individual nature documentation files! It will do it for all dynamically generated documentation parts in the OpenEMS docs that follow this pattern.
