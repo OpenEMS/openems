@@ -91,11 +91,13 @@ public class GetApps implements EndpointRequestType<EmptyObject, Response> {
 		 * @param userRole         the current {@link Role} of the user
 		 * @param language         the current {@link Language} of the user
 		 * @param validator        the {@link Validator} to validate the app
+		 * @param freeApps         a list of free apps
 		 * @return the created Response
 		 */
 		public static Response newInstance(List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps,
-				Role userRole, Language language, Validator validator) {
-			return new Response(createAppsArray(availableApps, instantiatedApps, userRole, language, validator));
+				Role userRole, Language language, Validator validator, List<String> freeApps) {
+			return new Response(
+					createAppsArray(availableApps, instantiatedApps, userRole, language, validator, freeApps));
 		}
 
 		/**
@@ -115,7 +117,8 @@ public class GetApps implements EndpointRequestType<EmptyObject, Response> {
 		}
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
-				List<OpenemsAppInstance> instantiatedApps, Role userRole, Language language, Validator validator) {
+				List<OpenemsAppInstance> instantiatedApps, Role userRole, Language language, Validator validator,
+				List<String> freeApps) {
 			return availableApps.stream() //
 					.filter(app -> {
 						final var permissions = app.getAppPermissions();
@@ -127,7 +130,7 @@ public class GetApps implements EndpointRequestType<EmptyObject, Response> {
 					.parallel() //
 					.map(app -> {
 						try {
-							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language);
+							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language, freeApps);
 						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
 							return null;

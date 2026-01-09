@@ -35,7 +35,8 @@ public class TrainingOrchestrator {
 				trainingContext.subdivisionCodeSupplier());
 		this.classifierTrainingService = new ClassifierTrainingService(//
 				trainingContext.classifierFitter(), //
-				trainingContext.minTrainingSamplesRequired());
+				trainingContext.minTrainingSamples(), //
+				trainingContext.maxTrainingSamples());
 	}
 
 	/**
@@ -46,7 +47,7 @@ public class TrainingOrchestrator {
 	 */
 	public ModelBundle runTraining() throws TrainingException {
 		var rawTimeSeries = this.trainingDataService.fetchSeriesForWindow(//
-				this.trainingContext.trainingWindow());
+				this.trainingContext.trainingWindowInDays());
 
 		var timeSeriesPerDay = this.timeSeriesPreprocessingService.preprocessTimeSeriesForTraining(rawTimeSeries);
 

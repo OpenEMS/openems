@@ -142,9 +142,10 @@ export namespace ChartConstants {
            * @returns the horizontally centered position for the y axis title
           */
                     function calculateXPositionForTitle(chart, totalScaleWidth, scale: string): number {
-                        const rightAxes = [ChartAxis.RIGHT, ChartAxis.RIGHT_2].filter(
-                            a => chart.scales[a]?.options.display !== false
-                        );
+                        const rightAxes = [ChartAxis.RIGHT, ChartAxis.RIGHT_2].filter(axis => {
+                            const scale = chart.scales[axis];
+                            return scale && scale.options.display !== false;
+                        });
 
                         if (scale === ChartAxis.RIGHT) {
                             // two right axis

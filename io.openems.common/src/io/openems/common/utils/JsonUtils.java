@@ -365,6 +365,20 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link UUID} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, UUID value) {
+			if (value != null) {
+				this.j.addProperty(property, value.toString());
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -484,6 +498,20 @@ public final class JsonUtils {
 			return this;
 		}
 
+        /**
+         * Add a {@link JsonObject} value to the {@link JsonObject} if it is not null.
+         *
+         * @param property the key
+         * @param value    the value
+         * @return the {@link JsonObjectBuilder}
+         */
+        public JsonObjectBuilder addIfNotNull(String property, JsonObject value) {
+            if (value != null) {
+                this.add(property, value);
+            }
+            return this;
+        }
+
 		/**
 		 * Call a method on a JsonObjectBuilder if an expression is true.
 		 *
@@ -506,7 +534,6 @@ public final class JsonUtils {
 		public JsonObject build() {
 			return this.j;
 		}
-
 	}
 
 	public static class JsonArrayCollector implements Collector<JsonElement, JsonArrayBuilder, JsonArray> {

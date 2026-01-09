@@ -124,6 +124,11 @@ formly-field-ion-radio {
     text-shadow: var(--ion-text-shadow);
 }
 
+.percentage-style-dark {
+    fill: var(--ion-text-color-dark);
+    text-shadow: var(--ion-text-shadow);
+}
+
 .ion-card-style {
     ion-item {
         --background: var(--ion-color-primary);
@@ -224,7 +229,7 @@ ion-select::part(icon) {
 }
 
 .command-textbox {
-    font-family: monospace;
+    font-family: var(--ion-font-family);
     color: var(--ion-color-text);
 }
 
@@ -295,7 +300,7 @@ ion-range {
 }
 
 ion-label {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--ion-font-family);
 }
 
 ion-item.noPadding {

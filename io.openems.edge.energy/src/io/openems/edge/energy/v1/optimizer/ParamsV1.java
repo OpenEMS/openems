@@ -35,10 +35,16 @@ public record ParamsV1(//
 		/** Periods for the Optimizer, representing QUARTER or HOUR. */
 		ImmutableList<OptimizePeriod> optimizePeriods //
 ) {
+	@Deprecated
 	public static enum Length {
-		HOUR, QUARTER
+		@Deprecated
+		HOUR, //
+
+		@Deprecated
+		QUARTER
 	}
 
+	@Deprecated
 	public static record OptimizePeriod(//
 			/** Start-Timestamp of the Period */
 			ZonedDateTime time, //
@@ -63,6 +69,7 @@ public record ParamsV1(//
 	) {
 	}
 
+	@Deprecated
 	public static record QuarterPeriod(//
 			/** Start-Timestamp of the Period */
 			ZonedDateTime time,
@@ -83,6 +90,7 @@ public record ParamsV1(//
 	) {
 	}
 
+	@Deprecated
 	public static class Builder {
 		private ZonedDateTime time;
 		private int essTotalEnergy;
@@ -98,66 +106,79 @@ public record ParamsV1(//
 		private StateMachine[] states = new StateMachine[0];
 		private ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule;
 
+		@Deprecated
 		protected Builder setTime(ZonedDateTime time) {
 			this.time = time;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssTotalEnergy(int essTotalEnergy) {
 			this.essTotalEnergy = essTotalEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssMinSocEnergy(int essMinSocEnergy) {
 			this.essMinSocEnergy = essMinSocEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssMaxSocEnergy(int essMaxSocEnergy) {
 			this.essMaxSocEnergy = essMaxSocEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssInitialEnergy(int essInitialEnergy) {
 			this.essInitialEnergy = essInitialEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssMaxChargeEnergy(int essMaxChargeEnergy) {
 			this.essMaxChargeEnergy = essMaxChargeEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setEssMaxDischargeEnergy(int essMaxDischargeEnergy) {
 			this.essMaxDischargeEnergy = essMaxDischargeEnergy;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setMaxBuyFromGrid(int maxBuyFromGrid) {
 			this.maxBuyFromGrid = maxBuyFromGrid;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setProductions(int... productions) {
 			this.productions = productions;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setConsumptions(int... consumptions) {
 			this.consumptions = consumptions;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setPrices(double... prices) {
 			this.prices = prices;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setStates(StateMachine... states) {
 			this.states = states;
 			return this;
 		}
 
+		@Deprecated
 		protected Builder setExistingSchedule(ImmutableSortedMap<ZonedDateTime, StateMachine> existingSchedule) {
 			this.existingSchedule = existingSchedule.tailMap(this.time);
 			return this;
@@ -207,6 +228,7 @@ public record ParamsV1(//
 			return result.build();
 		}
 
+		@Deprecated
 		public ParamsV1 build() {
 			return new ParamsV1(this.time, this.essTotalEnergy, this.essMinSocEnergy, this.essMaxSocEnergy,
 					this.essInitialEnergy, this.states, //
@@ -214,15 +236,18 @@ public record ParamsV1(//
 		}
 	}
 
+	@Deprecated
 	protected static Builder create() {
 		return new ParamsV1.Builder();
 	}
 
+	@Deprecated
 	@Override
 	public String toString() {
 		return this.toLogString();
 	}
 
+	@Deprecated
 	public static final Pattern PARAMS_PATTERN = Pattern.compile("^" //
 			+ ".*time=(?<time>\\S+)," //
 			+ ".*essTotalEnergy=(?<essTotalEnergy>\\d+)" //
@@ -232,6 +257,7 @@ public record ParamsV1(//
 			+ ".*states=\\[(?<states>[A-Z_, ]+)\\]" //
 			+ ".*$");
 
+	@Deprecated
 	protected String toLogString() {
 		return new StringBuilder() //
 				.append("Params") //

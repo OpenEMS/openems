@@ -2,47 +2,33 @@ package io.openems.edge.evse.api.chargepoint;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum Mode {
-	SMART(null), //
-	ZERO(Actual.ZERO), //
-	MINIMUM(Actual.MINIMUM), //
-	SURPLUS(Actual.SURPLUS), //
-	FORCE(Actual.FORCE);
+public enum Mode implements OptionsEnum {
+	ZERO(0, "Zero"), //
+	MINIMUM(1, "Minimum"), //
+	SURPLUS(2, "Surplus"), //
+	FORCE(3, "Force") //
+	;
 
-	public final Mode.Actual actual;
+	private final int value;
+	private final String name;
 
-	private Mode(Mode.Actual actual) {
-		this.actual = actual;
+	private Mode(int value, String name) {
+		this.value = value;
+		this.name = name;
 	}
 
-	public enum Actual implements OptionsEnum {
-		ZERO(0, "Zero"), //
-		MINIMUM(1, "Minimum charge"), // Avoid interrupting of old EVs
-		SURPLUS(2, "Surplus charge"), //
-		FORCE(3, "Force charge") //
-		;
+	@Override
+	public int getValue() {
+		return this.value;
+	}
 
-		private final int value;
-		private final String name;
+	@Override
+	public String getName() {
+		return this.name;
+	}
 
-		private Actual(int value, String name) {
-			this.value = value;
-			this.name = name;
-		}
-
-		@Override
-		public int getValue() {
-			return this.value;
-		}
-
-		@Override
-		public String getName() {
-			return this.name;
-		}
-
-		@Override
-		public OptionsEnum getUndefined() {
-			return ZERO;
-		}
+	@Override
+	public OptionsEnum getUndefined() {
+		return ZERO;
 	}
 }

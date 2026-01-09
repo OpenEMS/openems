@@ -86,6 +86,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 		return new SystemUpdateParams(null, null, null, null);
 	}
 
+	private final Map<String, String> links = new ImmutableMap.Builder<String, String>()//
+			.put("SwitchEvcsLink", "") //
+			.build();
+
 	private final Map<String, String> appToWebsiteUrl = new ImmutableMap.Builder<String, String>() //
 			.put("App.FENECON.Home", "https://fenecon.de/fenecon-home-10/") //
 			.put("App.FENECON.Home.20", "https://fenecon.de/fenecon-home-20-30/") //
@@ -102,6 +106,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.ProHybrid.10", "") //
+			.put("App.System.Fenecon.Home", "") //
 			.put("App.TimeOfUseTariff.AncillaryCosts", "") //
 			.put("App.TimeOfUseTariff.LuoxEnergy", "") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
@@ -180,7 +185,13 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.put("App.Ess.Limiter14a", "") //
+			.put("App.Prediction.UnmanagedConsumption", "") //
 			.build();
+
+	@Override
+	public String getLink(String key) {
+		return this.links.get(key);
+	}
 
 	// NOTE: this will certainly get refactored in future, but it's a good start to
 	// simplify creation of OpenEMS distributions.

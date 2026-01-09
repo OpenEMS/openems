@@ -43,6 +43,18 @@ public class DependencyDeclaration {
 		this.dependencyDeletePolicy = dependencyDeletePolicy;
 	}
 
+	/**
+	 * Creates a copy of the current instance with the new {@link CreatePolicy}.
+	 * 
+	 * @param createPolicy the new {@link CreatePolicy}
+	 * @return the new {@link DependencyDeclaration}
+	 */
+	public DependencyDeclaration withCreatePolicy(CreatePolicy createPolicy) {
+		return new DependencyDeclaration(this.key, createPolicy, this.updatePolicy, this.deletePolicy,
+				this.dependencyUpdatePolicy, this.dependencyDeletePolicy,
+				this.appConfigs.toArray(AppDependencyConfig[]::new));
+	}
+
 	public static class AppDependencyConfig {
 
 		// NOTE: must have either appId or specificInstanceId

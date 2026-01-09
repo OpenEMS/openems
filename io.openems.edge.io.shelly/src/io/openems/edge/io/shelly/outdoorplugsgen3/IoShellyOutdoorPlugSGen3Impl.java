@@ -39,8 +39,9 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		TOPIC_CYCLE_EXECUTE_WRITE, //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyOutdoorPlugSGen3Impl extends IoShellyPlugSBaseImpl implements IoShellyOutdoorPlugSGen3, IoShellyPlugSBase,
-		DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
+public class IoShellyOutdoorPlugSGen3Impl extends IoShellyPlugSBaseImpl
+		implements IoShellyOutdoorPlugSGen3, IoShellyPlugSBase, DigitalOutput, SinglePhaseMeter, ElectricityMeter,
+		OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
@@ -67,7 +68,8 @@ public class IoShellyOutdoorPlugSGen3Impl extends IoShellyPlugSBaseImpl implemen
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.type(), config.phase(),
-				config.invert(), config.ip(), config.mdnsName(), config.debugMode());
+				config.invert(), config.ip(), config.mdnsName(), config.debugMode(),
+				config.validateDevice() ? new ShellyValidation("OutdoorPlugSG3") : null);
 	}
 
 	@Override

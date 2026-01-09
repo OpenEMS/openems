@@ -9,11 +9,15 @@ import { NgxSpinnerComponent } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
-import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
+import { Edge, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
 import { InstallAppComponent } from "./install.component";
+import { CanSwitchArchitecture } from "./jsonrpc/canSwitchArchitecture";
 import { DeleteAppInstance } from "./jsonrpc/deleteAppInstance";
+import { Flag } from "./jsonrpc/flag/flag";
+import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { GetAppInstances } from "./jsonrpc/getAppInstances";
+import { SwitchArchitecture } from "./jsonrpc/switchArchitecture";
 import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
 
@@ -46,10 +50,17 @@ export class UpdateAppComponent implements OnInit {
     private static readonly SELECTOR = "app-update";
     public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
+    protected showSwitchArchitecture = false;
+    protected currentArchitecture: string = null;
     protected instances: MyInstance[] = [];
     protected appName: string | null = null;
 
+    protected header: string;
+    protected info: string;
+    protected link: string;
     private edge: Edge | null = null;
+    private switchMethod: string;
+    private handlerId: string;
 
     public constructor(
         private route: ActivatedRoute,
@@ -68,13 +79,22 @@ export class UpdateAppComponent implements OnInit {
         const appName = this.route.snapshot.queryParams["name"] ?? this.service.currentPageTitle;
         this.service.setCurrentComponent(appName ?? "", this.route).then(edge => {
             this.edge = edge;
+            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
+                componentId: "_appManager",
+                payload: new GetApp.Request({ appId: appId }),
+            })).then(getAppResponse => {
+                const app = (getAppResponse as GetApp.Response).result.app;
+                const flag = app.flags.filter(t => t.name === "canSwitchVersion");
+                if (flag.length > 0) {
+                    this.canSwitchArchitecture(flag[0]);
+                }
+            });
             edge.sendRequest(this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new GetAppInstances.Request({ appId: appId }),
                 })).then(getInstancesResponse => {
                 const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
-
                 edge.sendRequest(this.websocket,
                     new ComponentJsonApiRequest({
                         componentId: "_appManager",
@@ -114,6 +134,53 @@ export class UpdateAppComponent implements OnInit {
                 }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
             }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
         });
+    }
+
+    protected canSwitchArchitecture(flag: Flag) {
+        if (!EdgePermission.hasSwitchArchitecture(this.edge)) {
+            this.showSwitchArchitecture = false;
+            return;
+        }
+        this.edge.sendRequest(this.websocket,
+            new ComponentJsonApiRequest({
+                componentId: flag.handlerId,
+                payload: new CanSwitchArchitecture.Request(flag.canSwitchMethod),
+            })).then(response => {
+            const result = (response as CanSwitchArchitecture.Response).result;
+            this.switchMethod = flag.switchMethod;
+            this.handlerId = flag.handlerId;
+            this.showSwitchArchitecture = result.canSwitch;
+            this.currentArchitecture = result.current;
+            this.header = result.header;
+            this.info = result.info;
+            this.link = result.link;
+        }).catch(reason => {
+            console.log(reason);
+        });
+    }
+
+    protected switchArchitecture() {
+        this.instances.forEach(instance => {
+            this.service.startSpinnerTransparentBackground(instance.instanceId);
+            instance.isUpdating = true;
+        });
+        this.edge.sendRequest(this.websocket,
+            new ComponentJsonApiRequest({
+                componentId: this.handlerId,
+                payload: new SwitchArchitecture.Request(this.switchMethod),
+            })).then(response => {
+            const navigationExtras = { state: { appInstanceChange: true } };
+            this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
+            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
+        }).catch(reason => {
+            this.service.toast(reason, "danger");
+        }).finally(() => {
+            this.instances.forEach(instance => {
+                this.service.stopSpinner(instance.instanceId);
+                instance.isUpdating = false;
+            });
+        }
+        );
     }
 
     protected submit(instance: MyInstance) {

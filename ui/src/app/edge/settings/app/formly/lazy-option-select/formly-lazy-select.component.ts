@@ -11,13 +11,11 @@ import { FormlyFieldConfigWithInitialModel } from "../../jsonrpc/getAppAssistant
 import { FormlyLazySelectModal } from "./formly-lazy-select.modal";
 import { GetOptions, Option } from "./jsonrpc/getOptions";
 
-
 @Component({
     selector: FormlyLazySelectComponent.SELECTOR,
     templateUrl: "./formly-lazy-select.component.html",
     imports: [
         CommonUiModule,
-        FormlyLazySelectModal,
     ],
 })
 export class FormlyLazySelectComponent extends FieldType<FormlyFieldConfigWithInitialModel<FormlyFieldProps & {

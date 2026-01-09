@@ -32,6 +32,7 @@ export const settingsRoutes: Routes = [
     { path: "app/oauth", data: { navbarTitle: "OAuth" }, loadComponent: () => import("./app/oauth/oauth.component").then(m => m.OAuthIndexComponent), canActivate: [hasEdgeRole(Role.ADMIN)] },
     { path: "alerting", loadChildren: () => import("./alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.ALERTING" } },
     { path: "jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
+    { path: "powerAssistant", loadComponent: () => import("./assistant/powerassistant/powerassistant").then(m => m.PowerAssistantComponent), canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Power-Assistant" } },
 ];
 
 @NgModule({
