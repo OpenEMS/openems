@@ -169,9 +169,9 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 		var inputValueOpt = values.stream().filter(Value::isDefined) //
 				.mapToDouble(Value::get) //
 				.average();
-		int inputValue;
+		Double inputValue;
 		if (inputValueOpt.isPresent()) {
-			inputValue = (int) Math.round(inputValueOpt.getAsDouble());
+			inputValue = inputValueOpt.getAsDouble();
 
 			/*
 			 * Power value (switchedLoadPower) of the output device is added to the input
@@ -189,7 +189,7 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 			}
 		} else {
 			// no input value available
-			inputValue = -1; // is ignored later
+			inputValue = -1.0; // is ignored later
 			this.changeState(State.UNDEFINED);
 		}
 
