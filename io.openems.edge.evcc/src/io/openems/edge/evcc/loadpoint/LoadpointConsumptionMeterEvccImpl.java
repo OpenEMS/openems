@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 )
 @EventTopics(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
 public class LoadpointConsumptionMeterEvccImpl extends AbstractLoadpointMeterEvcc
-		implements LoadpointConsumptionMeterEvcc, SocEvcs, Evcs, ElectricityMeter, OpenemsComponent, TimedataProvider {
+		implements LoadpointConsumptionMeterEvcc, SocEvcs, Evcs, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -67,6 +68,8 @@ public class LoadpointConsumptionMeterEvccImpl extends AbstractLoadpointMeterEvc
 				ElectricityMeter.ChannelId.values(), //
 				LoadpointConsumptionMeterEvcc.ChannelId.values() //
 		);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
 	}
 
 	@Activate
