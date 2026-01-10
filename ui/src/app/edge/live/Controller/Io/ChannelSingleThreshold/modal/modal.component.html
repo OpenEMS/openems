@@ -236,7 +236,7 @@
                           {{ threshold.value | unitvalue:'%' }}
                         } @else {
                           <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
-                          {{ threshold.value | unitvalue:'W'}}
+                          {{ threshold.value | unitvalue:inputChannelUnit}}
                         }
                       </ion-label>
                       <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
@@ -248,7 +248,7 @@
                           {{ threshold.value | unitvalue:'%' }}
                         } @else {
                           <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW</span>
-                          {{ threshold.value | unitvalue:'W' }}
+                          {{ threshold.value | unitvalue:inputChannelUnit }}
                         }
                       </ion-label>
                       <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
