@@ -627,13 +627,24 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	}
 	
 	protected void updateDcDischargePowerChannel() {
-		
-		/*
-		 * Fill DcDischargePower Channel
-		 */
-		var dcBatteryActualPower = this.getBattery1ActualPowerChannel().getNextValue().get();
-		if(dcBatteryActualPower != null) {
-			this._setDcDischargePower(dcBatteryActualPower * -1);
+		try {
+			/*
+			 * Fill DcDischargePower Channel
+			 * Reverse calculation from PV production as battery power values are outdated,
+			 * because the inverter has to retrieve the value from the SESTI interface.
+			 */
+			final IntegerReadChannel activeDcPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_ACTIVE_DC_POWER);
+
+			// PV-Production
+			Integer pvProduction = 0;
+			for (SolarEdgeCharger charger : this.chargers) {
+				pvProduction = TypeUtils.sum(pvProduction, charger.getActualPowerChannel().getNextValue().getOrError());
+			}
+
+			var dcBatteryActualPower = activeDcPowerChannel.getNextValue().getOrError()-pvProduction;
+			this._setDcDischargePower(Math.abs(dcBatteryActualPower) > 50 ? dcBatteryActualPower : 0);
+		} catch (Exception e) {
+			return;
 		}
 	}
 
