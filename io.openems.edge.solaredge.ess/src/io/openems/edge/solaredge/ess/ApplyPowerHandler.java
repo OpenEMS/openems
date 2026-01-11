@@ -123,7 +123,13 @@ public class ApplyPowerHandler {
 			// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
 			// charge battery
 			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
-			var result = round((pvProduction - activePowerSetPoint)*DISCHARGE_EFFICIENCY_FACTOR);
+			var result = pvProduction-activePowerSetPoint;
+			if(result>0) {
+				var dischargeEfficencyAbsolute = round(activePowerSetPoint*(1-DISCHARGE_EFFICIENCY_FACTOR)); // Decrease battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
+				if(result-dischargeEfficencyAbsolute>0){
+					result = result-dischargeEfficencyAbsolute;
+				}
+			}
 			if(solarEdge.getSoc().orElse(100)>=100) {
 				// battery full, limit charge power to zero -> required for Set-Point 0
 				result = 0;
@@ -136,7 +142,7 @@ public class ApplyPowerHandler {
 		} else {
 			// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
 			// discharge battery
-			var result = round((activePowerSetPoint - pvProduction)/DISCHARGE_EFFICIENCY_FACTOR);			
+			var result = (activePowerSetPoint-pvProduction)+round(activePowerSetPoint*(1-DISCHARGE_EFFICIENCY_FACTOR)); // Increase battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
 			//log.info("[3] activePowerSetPoint: "+activePowerSetPoint+ ", pvProducution: "+pvProduction+", allowed "+solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)+", DISCHARGE_BAT "+result+" ("+(activePowerSetPoint-pvProduction)+")");
 			if(solarEdge.getSoc().orElse(0)<=10) {
 				// battery empty (=SOC equals or less than soc_min of 10), limit charge power to zero -> required for Set-Point 0
