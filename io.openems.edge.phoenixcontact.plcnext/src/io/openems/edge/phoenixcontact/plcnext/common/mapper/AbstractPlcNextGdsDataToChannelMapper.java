@@ -27,7 +27,10 @@ public abstract class AbstractPlcNextGdsDataToChannelMapper implements PlcNextGd
 	
 	private static final Logger log = LoggerFactory.getLogger(AbstractPlcNextGdsDataToChannelMapper.class);
 	
-	protected abstract PlcNextGdsDataVariableDefinition[] getVariableDefinitions();
+	/**
+	 * @return	definition of variables to be mapped
+	 */
+	public abstract PlcNextGdsDataVariableDefinition[] getVariableDefinitions();
 
 	@Override
 	public List<PlcNextGdsDataMappedValue> mapSingleValueToChannel(JsonElement variable, String dataInstanceName) {
@@ -60,12 +63,10 @@ public abstract class AbstractPlcNextGdsDataToChannelMapper implements PlcNextGd
 		List<PlcNextGdsDataMappedValue> mappedValues = new ArrayList<>();
 
 		variables.forEach(variable -> mappedValues.addAll(mapSingleValueToChannel(variable, dataInstanceName)));
-		log.debug("Mapped values: " + mappedValues);
+		log.debug("Mapped values: {}", mappedValues);
 
 		return Collections.unmodifiableList(mappedValues);		
 	}
-	
-	// Helper
 	
 	private Optional<PlcNextGdsDataVariableDefinition> valueByIdentifier(String identifier, PlcNextGdsDataVariableDefinition[] variableDefinitions) {
 		return Stream.of(variableDefinitions)
@@ -116,14 +117,16 @@ public abstract class AbstractPlcNextGdsDataToChannelMapper implements PlcNextGd
 
 		JsonPrimitive primitiveValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonPrimitive();
 		if (Objects.isNull(primitiveValue)) {
-			log.warn("Got NULL value for variable '" + varName + "' from PLCnext API! Publishing to channel skipped.");
+			log.warn("Got NULL value for variable '{}' from PLCnext API! Publishing to channel skipped.",
+					varName );
 			return List.of();
 		}
 
 		ChannelId destinationChannelId = varDefinition.getOpenEmsChannelIds().get(0);
 
 		PlcNextGdsDataMappedValue mappedValue = mapValue(primitiveValue, destinationChannelId);
-		log.info("PLCnext variable [ name=" + varDefinition.getIdentifier() + ", value="+primitiveValue+"] mapped to " + mappedValue);
+		log.info("PLCnext variable [ name={}, value={}] mapped to {}",
+				varDefinition.getIdentifier(), primitiveValue, mappedValue);
 		
 		return List.of(mappedValue);
 	}
@@ -157,7 +160,8 @@ public abstract class AbstractPlcNextGdsDataToChannelMapper implements PlcNextGd
 
 			mappedValues.add(mapValue(arrayValue.get(k), destinationChannelId));
 		}
-		log.info("PLCnext variable [name=" + varDefinition.getIdentifier() + ", values=[" + arrayValue + "]] mapped to " + mappedValues);
+		log.info("PLCnext variable [name={}, values=[{}]] mapped to {}",
+				varDefinition.getIdentifier(), arrayValue, mappedValues);
 		return Collections.unmodifiableList(mappedValues);
 	}
 

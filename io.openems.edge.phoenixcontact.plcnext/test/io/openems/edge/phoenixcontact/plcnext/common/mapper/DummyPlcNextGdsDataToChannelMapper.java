@@ -5,7 +5,7 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataVariable
 public class DummyPlcNextGdsDataToChannelMapper extends AbstractPlcNextGdsDataToChannelMapper {
 
 	@Override
-	protected PlcNextGdsDataVariableDefinition[] getVariableDefinitions() {
+	public PlcNextGdsDataVariableDefinition[] getVariableDefinitions() {
 		// TODO Auto-generated method stub
 		return null;
 	}

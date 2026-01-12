@@ -48,7 +48,7 @@ public class PlcNextGdsDataProviderTest {
 	@Before
 	public void setupBefore() {
 		dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables",
-				"MeasurementDevice");
+				"MeasurementDevice", "meter0");
 		accessToken = "dummy_access_token";
 
 		mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);

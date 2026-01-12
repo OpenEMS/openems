@@ -1,4 +1,4 @@
-package io.openems.edge.phoenixcontact.plcnext.meter;
+package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -30,11 +30,11 @@ import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImp
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProviderImpl;
-import io.openems.edge.phoenixcontact.plcnext.meter.data.PlcNextGdsMeterDataToChannelMapper;
+import io.openems.edge.phoenixcontact.plcnext.loadcircuit.data.PlcNextGdsLoadCircuitDataToChannelMapper;
 
-public class PlcNextMeterImplTest {
+public class PlcNextLoadCircuitImplTest {
 
-	private static final String COMPONENT_ID = "meter0";
+	private static final String COMPONENT_ID = "loadCircuit0";
 
 	private TestConfig myConfig;
 
@@ -43,9 +43,9 @@ public class PlcNextMeterImplTest {
 
 	private PlcNextTokenManager tokenManager;
 	private PlcNextGdsDataProviderImpl dataProvider;
-	private PlcNextGdsMeterDataToChannelMapper meterDataToChannelMapper;
+	private PlcNextGdsLoadCircuitDataToChannelMapper loadCircuitDataToChannelMapper;
 
-	private PlcNextMeterImpl componentUnderTest;
+	private PlcNextLoadCircuitImpl componentUnderTest;
 
 	private String accessToken;
 
@@ -54,7 +54,7 @@ public class PlcNextMeterImplTest {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
 				.build();
-		this.componentUnderTest = new PlcNextMeterImpl();
+		this.componentUnderTest = new PlcNextLoadCircuitImpl();
 
 		this.accessToken = "dummy_access";
 
@@ -80,36 +80,26 @@ public class PlcNextMeterImplTest {
 
 		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
 
-		this.meterDataToChannelMapper = new PlcNextGdsMeterDataToChannelMapper();
+		this.loadCircuitDataToChannelMapper = new PlcNextGdsLoadCircuitDataToChannelMapper();
 		this.dataProvider = new PlcNextGdsDataProviderImpl(mockDummyDataBridgeHttp, this.tokenManager);
 
 		JsonObject responseBody = new JsonObject();
 		JsonArray variables = new JsonArray();
 
-		JsonObject varPhaseVoltageL1N = new JsonObject();
-		varPhaseVoltageL1N.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.voltageMeasurement.VoltagesL1N");
-		varPhaseVoltageL1N.addProperty("value", 110000);
-		variables.add(varPhaseVoltageL1N);
+		JsonObject varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.maxPower.MaxPowerExport");
+		varMaxPowerExport.addProperty("value", 110001);
+		variables.add(varMaxPowerExport);
 
-		JsonObject varPhaseVoltageL2N = new JsonObject();
-		varPhaseVoltageL2N.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.voltageMeasurement.VoltagesL2N");
-		varPhaseVoltageL2N.addProperty("value", 220000);
-		variables.add(varPhaseVoltageL2N);
-
-		JsonObject varPhaseVoltageL3N = new JsonObject();
-		varPhaseVoltageL3N.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.voltageMeasurement.VoltagesL3N");
-		varPhaseVoltageL3N.addProperty("value", 330000);
-		variables.add(varPhaseVoltageL3N);
-
-		JsonObject varNeutralCurrent = new JsonObject();
-		varNeutralCurrent.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.currentMeasurement.neutralCurrent");
-		varNeutralCurrent.addProperty("value", 550000);
-		variables.add(varNeutralCurrent);
-
-		JsonObject varEnergyImport = new JsonObject();
-		varEnergyImport.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.energyMeasurement.energyImport");
-		varEnergyImport.addProperty("value", 440000);
-		variables.add(varEnergyImport);
+		JsonObject varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.maxPower.varMaxPowerImport");
+		varMaxPowerImport.addProperty("value", 210001);
+		variables.add(varMaxPowerImport);
+		
+		JsonObject varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path", "OpenEMS_V1Component1/"+myConfig.dataInstanceName()+".udtIn.setPower.ReactivePower");
+		varSetReactivePower.addProperty("value", 320001);
+		variables.add(varSetReactivePower);
 
 		responseBody.add("variables", variables);
 
@@ -139,7 +129,7 @@ public class PlcNextMeterImplTest {
 	public void testRunModule() throws Exception {
 		ComponentTest test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
-				.addReference("gdsMeterDataToChannelMapper", this.meterDataToChannelMapper); //
+				.addReference("gdsLoadCircuitDataToChannelMapper", this.loadCircuitDataToChannelMapper); //
 
 		test.next(new TestCase()); //
 

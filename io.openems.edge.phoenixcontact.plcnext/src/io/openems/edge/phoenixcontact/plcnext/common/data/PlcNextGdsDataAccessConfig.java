@@ -2,7 +2,7 @@ package io.openems.edge.phoenixcontact.plcnext.common.data;
 
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
 
-public record PlcNextGdsDataAccessConfig(String baseUrl, String dataInstanceName) {
+public record PlcNextGdsDataAccessConfig(String baseUrl, String dataInstanceName, String stationId) {
 
 	public static final String PLC_NEXT_OPENEMS_COMPONENT_NAME = "OpenEMS_V1Component1";
 	

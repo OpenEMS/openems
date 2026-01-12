@@ -15,7 +15,6 @@ public interface PlcNextGdsDataProvider {
 	String PATH_VARIABLES = "/variables";
 	String PATH_SESSIONS = "/sessions";
 
-	String PLC_NEXT_DEFAULT_STATION_ID = "10";
 	String PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS = "50000";
 	String PLC_NEXT_VARIABLES = "variables";
 	String PLC_NEXT_INPUT_CHANNEL = "udtIn";
