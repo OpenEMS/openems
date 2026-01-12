@@ -362,7 +362,7 @@ public record GlobalOptimizationContext(//
 					// From Period.Hour
 					ImmutableList<Period.Quarter> quarterPeriods //
 			) {
-				if (consumption != null && price != null) {
+				if (consumption != null && price != null && production != null) {
 					return new Period.Hour.Complete(i, time, production, consumption, price, quarterPeriods);
 				} else if (price != null) {
 					return new Period.Hour.WithPrice(i, time, price, quarterPeriods);
