@@ -217,7 +217,10 @@
 	bnd.identity;id='io.openems.edge.controller.symmetric.thresholdpeakshaver',\
 	bnd.identity;id='io.openems.edge.meter.emh',\
 	bnd.identity;id='io.openems.edge.thermometer.esera.onewire',\
-	bnd.identity;id='io.openems.edge.predictor.pv.weather.forecast'
+	bnd.identity;id='io.openems.edge.predictor.pv.weather.forecast',\
+	bnd.identity;id='io.openems.edge.controller.chp.costoptimization',\
+	bnd.identity;id='io.openems.edge.chp.ecpower',\
+	bnd.identity;id='io.openems.edge.deye'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
@@ -491,11 +494,15 @@
 	io.openems.edge.meter.emh;version=snapshot,\
 	io.openems.edge.solaredge;version=snapshot,\
 	io.openems.edge.thermometer.esera.onewire;version=snapshot,\
-	io.openems.edge.application;version=snapshot;startlevel=16,\
-	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
-	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
-	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
-	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)';startlevel=14,\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)';startlevel=15,\
-	io.openems.edge.predictor.pv.weather.forecast;version=snapshot
+	io.openems.edge.predictor.pv.weather.forecast;version=snapshot,\
+	io.openems.edge.application;version=snapshot,\
+	io.openems.edge.chp.ecpower;version=snapshot,\
+	io.openems.edge.controller.chp.costoptimization;version=snapshot,\
+	io.openems.edge.deye;version=snapshot,\
+	io.openems.edge.generator.api;version=snapshot,\
+	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
+	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
+	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
+	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)'
