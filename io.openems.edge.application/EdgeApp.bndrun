@@ -216,7 +216,10 @@
 	bnd.identity;id='io.openems.edge.controller.pvinverter.reversepowerrelay',\
 	bnd.identity;id='io.openems.edge.controller.symmetric.thresholdpeakshaver',\
 	bnd.identity;id='io.openems.edge.meter.emh',\
-	bnd.identity;id='io.openems.edge.thermometer.esera.onewire'
+	bnd.identity;id='io.openems.edge.thermometer.esera.onewire',\
+	bnd.identity;id='io.openems.edge.deye',\
+	bnd.identity;id='io.openems.edge.chp.ecpower',\
+	bnd.identity;id='io.openems.edge.controller.chp.costoptimization'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
@@ -265,7 +268,6 @@
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
 	io.openems.edge.controller.channelthreshold;version=snapshot,\
-	io.openems.edge.controller.chp.soc;version=snapshot,\
 	io.openems.edge.controller.cleverpv;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
@@ -496,4 +498,9 @@
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
 	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)'
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)',\
+	io.openems.edge.chp.ecpower;version=snapshot,\
+	io.openems.edge.controller.chp.costoptimization;version=snapshot,\
+	io.openems.edge.controller.chp.soc;version=snapshot,\
+	io.openems.edge.deye;version=snapshot,\
+	io.openems.edge.generator.api;version=snapshot

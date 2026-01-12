@@ -166,6 +166,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(component.id, "StateMachine"),
                 new ChannelAddress(component.id, "BalancingRemainingSeconds"),
                 new ChannelAddress(component.id, "ChargedEnergy"),
+                new ChannelAddress(component.id, "_PropertyDebugMode"),
             );
         }
         //console.log("chargeDischargeLimiterComponents geladen:", this.chargeDischargeLimiterComponents);
@@ -242,14 +243,14 @@ export class StorageComponent extends AbstractFlatWidget {
         }
 
         for (const essId in this.chargeDischargeLimiterComponents) {
-            console.log("Current Data for chargeDischargeLimiter:", currentData);
+            //console.log("Current Data for chargeDischargeLimiter:", currentData);
             const controller = this.chargeDischargeLimiterComponents[essId];
             controller["debugMode"] = currentData.allComponents[controller.id + "/_PropertyDebugMode"];
             controller["minSoc"] = currentData.allComponents[controller.id + "/_PropertyMinSoc"];
             controller["maxSoc"] = currentData.allComponents[controller.id + "/_PropertyMaxSoc"];
             controller["forceSoc"] = currentData.allComponents[controller.id + "/_PropertyForceChargeSoc"];
             controller["state"] = currentData.allComponents[controller.id + "/StateMachine"]; // State 6 is Balancing active
-            controller["chargedEnergy"] = currentData.allComponents[controller.id + "/chargedEnergy"];
+            controller["chargedEnergy"] = currentData.allComponents[controller.id + "/ChargedEnergy"];
         }
     }
 

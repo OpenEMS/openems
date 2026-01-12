@@ -30,19 +30,19 @@
                   [style]="'x: calc(' + ((limiter['minSoc'] > 98 ? 98 : limiter['minSoc'])) + '% + 2px); fill:#3c383888;'" />
               }
 
-              <!-- Max SOC (bei state < 6) -->
-              @if (limiter['state'] < 6) {
-                @if (limiter['maxSoc'] !== undefined) {
-                  <rect y="2" rx="0" ry="0" width="1%" height="18"
-                    [style]="'x: calc(' + ((limiter['maxSoc'] > 98 ? 98 : limiter['maxSoc'])) + '% + 2px); fill:#3c383888;'" />
-                }
-              } @else {
-                <!-- Force SOC (bei state >= 6) -->
+              <!-- Force SOC nur bei ForceCharge/Balancing/PriceLimit (state 6..9), sonst Max SOC -->
+              @if (limiter['state'] >= 6 && limiter['state'] <= 9) {
                 @if (limiter['forceSoc'] !== undefined) {
                   <rect y="2" rx="0" ry="0" width="1%" height="18"
                     [style]="'x: calc(' + ((limiter['forceSoc'] > 98 ? 98 : limiter['forceSoc'])) + '% + 2px); fill:#88000088;'" />
                 }
+              } @else {
+                @if (limiter['maxSoc'] !== undefined) {
+                  <rect y="2" rx="0" ry="0" width="1%" height="18"
+                    [style]="'x: calc(' + ((limiter['maxSoc'] > 98 ? 98 : limiter['maxSoc'])) + '% + 2px); fill:#3c383888;'" />
+                }
               }
+
             }
           </svg>
         </oe-flat-widget-percentagebar>
