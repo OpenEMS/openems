@@ -1,6 +1,5 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
-import java.util.Enumeration;
 import java.util.List;
 
 /**

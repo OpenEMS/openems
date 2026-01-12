@@ -1,4 +1,4 @@
-package io.openems.edge.phoenixcontact.plcnext.meter;
+package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,33 +21,30 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappedValue;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappingException;
-import io.openems.edge.phoenixcontact.plcnext.meter.data.PlcNextGdsMeterDataToChannelMapper;
-import io.openems.edge.phoenixcontact.plcnext.meter.data.PlcNextGdsMeterDataVariableDefinition;
+import io.openems.edge.phoenixcontact.plcnext.loadcircuit.data.PlcNextGdsLoadCircuitDataToChannelMapper;
+import io.openems.edge.phoenixcontact.plcnext.loadcircuit.data.PlcNextGdsLoadCircuitDataVariableDefinition;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "PLCnext.Meter.Device", //
+		name = "PLCnext.LoadCircuit.Device", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-})
-public class PlcNextMeterImpl extends AbstractOpenemsComponent
-		implements PlcNextMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+})public class PlcNextLoadCircuitImpl  extends AbstractOpenemsComponent
+				implements PlcNextLoadCircuit, OpenemsComponent, EventHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(PlcNextMeterImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(PlcNextLoadCircuitImpl.class);
 
 	private static final JsonObject defaultResponse = JsonUtils.buildJsonObject()//
 			.add("variables", JsonUtils.buildJsonArray().build()).build();
@@ -55,17 +52,16 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private PlcNextGdsDataProvider gdsDataProvider;
 	@Reference
-	private PlcNextGdsMeterDataToChannelMapper gdsMeterDataToChannelMapper;
+	private PlcNextGdsLoadCircuitDataToChannelMapper gdsLoadCircuitDataToChannelMapper;
 
 	private Config config;
 	private PlcNextAuthConfig authConfig;
 	private PlcNextGdsDataAccessConfig gdsDataAccessConfig;
 
-	public PlcNextMeterImpl() {
+	public PlcNextLoadCircuitImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				ElectricityMeter.ChannelId.values(), //
-				PlcNextMeter.ChannelId.values() //
+				PlcNextLoadCircuit.ChannelId.values() //
 		);
 	}
 
@@ -87,7 +83,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), 
 				config.dataInstanceName(), config.id());		
 	}
-	
+
 	@Override
 	@Deactivate
 	protected void deactivate() {
@@ -98,19 +94,13 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().asString();
+		return "MAPEx:" + this.getMaxActivePowerExport().asString();
 	}
-
-	@Override
-	public MeterType getMeterType() {
-		return this.config.type();
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		logInfo(log, "Handling event '" + event.getTopic() + "'");
 		if (!this.isEnabled()) {
-			log.warn("StationID '{}': Module deactivated, skipping event processing of event", 
+			log.warn("StationID '{}': Module deactivated, skipping event processing of event",
 					this.gdsDataAccessConfig.stationId());
 			return;
 		}
@@ -123,22 +113,22 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 * Triggers fetching and mapping data and pushing to channels
 	 */
 	void processDataOnBeforeProcessImageEvent() {
-		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.dataUrl());
+		log.info("StationID '{}': Reading LOAD CIRCUIT data from URL '{}'", gdsDataAccessConfig.dataUrl());
 
-		List<String> variableIdentifiers = Stream.of(gdsMeterDataToChannelMapper.getVariableDefinitions())//
-				.map(PlcNextGdsMeterDataVariableDefinition::getIdentifier).toList();
+		List<String> variableIdentifiers = Stream.of(gdsLoadCircuitDataToChannelMapper.getVariableDefinitions())//
+				.map(PlcNextGdsLoadCircuitDataVariableDefinition::getIdentifier).toList();
 		JsonObject apiResponseBody = gdsDataProvider.readDataFromRestApi(variableIdentifiers, 
 					gdsDataAccessConfig, authConfig)
 				.orElse(defaultResponse);
 
 		try {
-			log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsMeterDataToChannelMapper.mapAllValuesToChannels(
+			log.info("StationID '{}': Mapping LOAD CIRCUIT data", this.gdsDataAccessConfig.stationId());
+			List<PlcNextGdsDataMappedValue> mappedValues = gdsLoadCircuitDataToChannelMapper.mapAllValuesToChannels(
 					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
 					config.dataInstanceName());
 
 			if (!mappedValues.isEmpty()) {
-				log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
+				log.info("StationID '{}': Pushing LOAD CIRCUIT data to channels", this.gdsDataAccessConfig.stationId());
 				for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
 					setNextValueToChannel(mappedValue);
 				}
@@ -156,7 +146,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 * @param device      represents the device holding the channels
 	 */
 	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue) {
-		log.info("StationID '{}': Providing value '{}' to channel named '{}'", 
+		log.info("StationID '{}': Providing value '{}' to channel named '{}'",
 				this.gdsDataAccessConfig.stationId(), mappedValue.getValue(), mappedValue.getChannelId());
 		channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 	}

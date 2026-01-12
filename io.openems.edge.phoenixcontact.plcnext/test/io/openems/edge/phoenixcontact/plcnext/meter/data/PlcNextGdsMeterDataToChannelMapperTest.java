@@ -1,4 +1,4 @@
-package io.openems.edge.phoenixcontact.plcnext.meter.mapper;
+package io.openems.edge.phoenixcontact.plcnext.meter.data;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappedValue;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeter;
 
-public class PlcNextGdsDataToChannelMapperTest {
+public class PlcNextGdsMeterDataToChannelMapperTest {
 
 	private PlcNextGdsMeterDataToChannelMapper dataMapper;
 	private String instanceName;
@@ -28,9 +28,11 @@ public class PlcNextGdsDataToChannelMapperTest {
 	@Test
 	public void testSinglePrimitiveVariableMapping_Successfully() {
 		// prep
+		Integer expectedValue = 12345;
+		
 		JsonObject primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.powerMeasurement.activePower");
-		primitiveVariable.addProperty("value", 1.2345);
+		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
 		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapSingleValueToChannel(primitiveVariable,
@@ -42,12 +44,14 @@ public class PlcNextGdsDataToChannelMapperTest {
 
 		PlcNextGdsDataMappedValue mappedValue = mappedValues.get(0);
 		Assert.assertEquals(ElectricityMeter.ChannelId.ACTIVE_POWER, mappedValue.getChannelId());
-		Assert.assertEquals(1, mappedValue.getValue());
+		Assert.assertEquals(expectedValue, mappedValue.getValue());
 	}
 
 	@Test
 	public void testAllPrimitiveVariableMapping_Successfully() {
 		// prep
+		Integer expectedValue = 12345;
+
 		JsonObject apiResponse = new JsonObject();
 		apiResponse.addProperty("apVersion", "1.13.0.0");
 		apiResponse.addProperty("projectCRC", 1410814331);
@@ -56,7 +60,7 @@ public class PlcNextGdsDataToChannelMapperTest {
 		JsonArray variables = new JsonArray();
 		JsonObject primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.powerMeasurement.activePower");
-		primitiveVariable.addProperty("value", 1.2345);
+		primitiveVariable.addProperty("value", expectedValue);
 		variables.add(primitiveVariable);
 		apiResponse.add("variables", variables);
 
@@ -69,27 +73,31 @@ public class PlcNextGdsDataToChannelMapperTest {
 
 		PlcNextGdsDataMappedValue mappedValue = mappedValues.get(0);
 		Assert.assertEquals(ElectricityMeter.ChannelId.ACTIVE_POWER, mappedValue.getChannelId());
-		Assert.assertEquals(1, mappedValue.getValue());
+		Assert.assertEquals(expectedValue, mappedValue.getValue());
 	}
 
 	@Test
 	public void testAllPlcNextVariablesAreMapped_Successfully() {
 		// prep
+		Integer expectedValueVoltagesL1N = 11000;
+		Integer expectedValueNeutralCurrent = 55000;
+		Long expectedValueEnergyImport = 44000L;
+
 		JsonArray variables = new JsonArray();
 
 		JsonObject varPhaseVoltages = new JsonObject();
 		varPhaseVoltages.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.voltageMeasurement.VoltagesL1N");
-		varPhaseVoltages.addProperty("value", 1.1);
+		varPhaseVoltages.addProperty("value", expectedValueVoltagesL1N);
 		variables.add(varPhaseVoltages);
 
 		JsonObject varNeutralCurrent = new JsonObject();
 		varNeutralCurrent.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.currentMeasurement.neutralCurrent");
-		varNeutralCurrent.addProperty("value", 5.5);
+		varNeutralCurrent.addProperty("value", expectedValueNeutralCurrent);
 		variables.add(varNeutralCurrent);
 
 		JsonObject varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.energyMeasurement.energyImport");
-		varEnergyImport.addProperty("value", 4.4);
+		varEnergyImport.addProperty("value", expectedValueEnergyImport);
 		variables.add(varEnergyImport);
 
 		int mappedVariableCount = 3;
@@ -105,18 +113,18 @@ public class PlcNextGdsDataToChannelMapperTest {
 				.filter(item -> ElectricityMeter.ChannelId.VOLTAGE_L1 == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(phaseVolatageL1);		
-		Assert.assertEquals((Object)1, phaseVolatageL1.getValue());
+		Assert.assertEquals((Object)expectedValueVoltagesL1N, phaseVolatageL1.getValue());
 				
 		PlcNextGdsDataMappedValue neutralCurrent = mappedValues.stream()//
 				.filter(item -> PlcNextMeter.ChannelId.CURRENT_NEUTRAL == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(neutralCurrent);		
-		Assert.assertEquals((Object)5, neutralCurrent.getValue());
+		Assert.assertEquals((Object)expectedValueNeutralCurrent, neutralCurrent.getValue());
 		
 		PlcNextGdsDataMappedValue energyImport = mappedValues.stream()//
 				.filter(item -> ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY == item.getChannelId())//
 				.findFirst().orElse(null);
 		Assert.assertNotNull(energyImport);		
-		Assert.assertEquals((Object)4l, energyImport.getValue());
+		Assert.assertEquals((Object)expectedValueEnergyImport, energyImport.getValue());
 	}
 }

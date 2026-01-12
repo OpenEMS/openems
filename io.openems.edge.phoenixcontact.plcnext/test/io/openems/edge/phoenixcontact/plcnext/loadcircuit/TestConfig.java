@@ -1,25 +1,18 @@
-package io.openems.edge.phoenixcontact.plcnext.meter;
+package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
-public class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.meter.Config {
-
+public class TestConfig  extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.loadcircuit.Config {
+	
 	protected static class Builder {
 		private String id;
-		private MeterType meterType;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
-			return this;
-		}
-
-		public Builder setType(MeterType meterType) {
-			this.meterType = meterType;
 			return this;
 		}
 
@@ -46,11 +39,6 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 	}
 
 	@Override
-	public MeterType type() {
-		return MeterType.PRODUCTION;
-	}
-
-	@Override
 	public String baseUrl() {
 		return "https://jUnit";
 	}
@@ -67,7 +55,8 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitMeter";
+		return "OpenEmsInstance4JUnitLoadCircuit";
 	}
+
 
 }
