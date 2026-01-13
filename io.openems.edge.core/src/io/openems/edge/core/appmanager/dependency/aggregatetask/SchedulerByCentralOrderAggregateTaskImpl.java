@@ -405,7 +405,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public void validate(//
 			final List<String> errors, //
 			final AppConfiguration appConfiguration, //
-			final SchedulerByCentralOrderConfiguration configuration //
+			final SchedulerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;

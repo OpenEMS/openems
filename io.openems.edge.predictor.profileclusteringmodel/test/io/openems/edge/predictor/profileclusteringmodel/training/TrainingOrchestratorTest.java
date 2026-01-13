@@ -3,6 +3,7 @@ package io.openems.edge.predictor.profileclusteringmodel.training;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -37,7 +38,6 @@ import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineer
 import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineeringService.FeatureEngineeringTrainingResult;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringTrainingService;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringTrainingService.ClusteringResult;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.predictor.profileclusteringmodel.services.TimeSeriesPreprocessingService;
 import io.openems.edge.predictor.profileclusteringmodel.services.TrainingDataService;
 import io.openems.edge.timedata.api.Timedata;
@@ -62,9 +62,10 @@ public class TrainingOrchestratorTest {
 				() -> clock, //
 				mock(Timedata.class), //
 				mock(ChannelAddress.class), //
-				new QueryWindow(30, 90), //
+				90, // trainingWindowInDays
 				8, // maxGapSizeInterpolation
-				25, // minTrainingSamplesRequired
+				30, // minTrainingSamples
+				60, // maxTrainingSamples
 				mock(ClustererFitter.class), //
 				mock(ClassifierFitter.class), //
 				() -> SubdivisionCode.DE_BY);
@@ -89,7 +90,7 @@ public class TrainingOrchestratorTest {
 				oneHotEncoder);
 
 		// Simulate services
-		when(rawTimeSeriesService.fetchSeriesForWindow(any()))//
+		when(rawTimeSeriesService.fetchSeriesForWindow(anyInt()))//
 				.thenReturn(rawTimeSeries.copy());
 		when(timeSeriesPreprocessingService.preprocessTimeSeriesForTraining(any()))//
 				.thenReturn(timeSeriesPerDay.copy());
@@ -120,7 +121,7 @@ public class TrainingOrchestratorTest {
 
 		// Verify that all services were called in the correct order with the expected
 		// (unchanged) arguments
-		inOrder.verify(rawTimeSeriesService).fetchSeriesForWindow(eq(trainingContext.trainingWindow()));
+		inOrder.verify(rawTimeSeriesService).fetchSeriesForWindow(eq(trainingContext.trainingWindowInDays()));
 		inOrder.verify(timeSeriesPreprocessingService).preprocessTimeSeriesForTraining(eq(rawTimeSeries));
 		inOrder.verify(profileClusteringTrainingService).clusterTimeSeries(eq(timeSeriesPerDay));
 		inOrder.verify(featureEngineeringService).transformForTraining(eq(clusteringResult));
@@ -156,9 +157,10 @@ public class TrainingOrchestratorTest {
 				() -> clock, //
 				timedata, //
 				DUMMY_CHANNEL_ADDRESS, //
-				new QueryWindow(5, 10), //
+				10, // trainingWindowInDays
 				8, // maxGapSizeInterpolation
-				8, // minTrainingSamplesRequired
+				4, // minTrainingSamplesRequired
+				6, // maxTrainingSamplesRequired
 				clustererFitter, //
 				classifierFitter, //
 				() -> SubdivisionCode.DE_BY);

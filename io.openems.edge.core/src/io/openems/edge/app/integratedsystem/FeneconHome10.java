@@ -6,6 +6,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
@@ -426,7 +427,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					predictionUnmanagedConsumption()//
 			);
 
 			if (hasAcMeter) {

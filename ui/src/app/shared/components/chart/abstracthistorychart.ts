@@ -591,7 +591,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             function showOrHideYAxis(datasets: Chart.ChartDataset[], chart: Chart.Chart) {
                 for (const key of Object.keys(ObjectUtils.excludeProperties(chart.options.scales, ["x"]))) {
                     const axisDatasets = datasets.filter(d => d["yAxisID"] === key);
-                    chart.options.scales[key].display = axisDatasets.some(d => !d.hidden);
+                    // It is important to update the options in the outer scope!
+                    options.scales[key].display = axisDatasets.some(d => !d.hidden);
                 }
             }
 
@@ -613,6 +614,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         options.scales.x.ticks.maxTicksLimit = 31;
         options.scales.x["bounds"] = "ticks";
         options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+        Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family");
+        console.log(getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"));
 
         return options;
     }
@@ -662,6 +665,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                         ...baseConfig.ticks,
                         padding: 5,
                         stepSize: 20,
+                        callback: function (value) {
+                            if (Number.isInteger(value)) {
+                                return value;
+                            }
+                            return "";
+                        },
                     },
                 };
                 break;

@@ -357,7 +357,12 @@
           "TOTAL_DISCHARGE": "Gesamte Entladung",
           "UNCONTROLLABLE": "Diese Ladesäule kann nicht gesteuert werden.",
           "UNKNOWN": "Unbekannt",
-          "UNPLUGGED": "Ausgesteckt"
+          "UNPLUGGED": "Ausgesteckt",
+          "ZERO": "Keine Beladung",
+          "MINIMUM": "Minimal Beladung mit PV-Überschuss",
+          "SURPLUS": "PV-Überschuss",
+          "FORCE_CHARGE": "Schnellladen",
+          "TASKS": "Tasks"
         },
         "FIX_DIGITAL_OUTPUT": "Digitale Ausgangscontroller",
         "GRID_OPTIMIZED_CHARGE": {
@@ -532,7 +537,14 @@
             "DELAY_DISCHARGE": "Entladung verzögert"
           }
         },
-        "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug"
+        "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
+        "EVSE": {
+          "SCHEDULE": {
+            "SCHEDULE": "Zeitplan",
+            "ADD_TASK": "Aufgabe hinzufügen"
+          },
+          "CHARGE_MODE": "Lademodus"
+        }
       }
     },
     "NETWORK": {
@@ -735,7 +747,11 @@
       "TUESDAY": "Dienstag",
       "WEDNESDAY": "Mittwoch"
     },
-    "YES": "Ja"
+    "YES": "Ja",
+    "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
+    "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
+    "LINK": "Details findest du unter folgendem Link:",
+    "HELP": "Hilfe"
   },
   "GRID_STATES": {
     "CONSUMPTION_LIMITATION": "Bezugslimitierung",
@@ -1333,6 +1349,11 @@
       "UPDATE_SEARCH": "Suche nach Updates...",
       "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
       "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
+    }
+  },
+  "EVSE_SINGLE": {
+    "SETTINGS": {
+      "CHARGE_MODE": "In welchen Modus soll beladen werden"
     }
   }
 }

@@ -14,7 +14,7 @@ public interface ChannelId {
 
 	/**
 	 * The preferred way to define {@link ChannelId}s in OpenEMS Edge is via an
-	 * {@code enum} that inherits {@code ChannelId}:
+	 * {@code enum} that inherits {@code ChannelId}:.
 	 * 
 	 * <pre>{@code
 	 * public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

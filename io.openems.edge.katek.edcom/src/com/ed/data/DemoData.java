@@ -33,34 +33,42 @@ public final class DemoData implements DataSet {
 	/**
 	 * AC voltage L1, basic data
 	 */
+	@Deprecated
 	public final DspFloat uL1;
 	/**
 	 * AC voltage L2, basic data
 	 */
+	@Deprecated
 	public final DspFloat uL2;
 	/**
 	 * AC voltage L3, basic data
 	 */
+	@Deprecated
 	public final DspFloat uL3;
 	/**
 	 * PV voltage 1, basic data
 	 */
+	@Deprecated
 	public final DspFloat uSg1;
 	/**
 	 * PV voltage 2, basic data
 	 */
+	@Deprecated
 	public final DspFloat uSg2;
 	/**
 	 * PV power, basic data
 	 */
+	@Deprecated
 	public final DspFloat pSg;
 	/**
 	 * VECTIS AC Voltage, basic data
 	 */
+	@Deprecated
 	public final DspFloat uExt;
 	/**
 	 * Battery voltage (BMS), basic data
 	 */
+	@Deprecated
 	public final DspFloat uBms;
 
 	/**
@@ -68,6 +76,7 @@ public final class DemoData implements DataSet {
 	 *
 	 * @throws java.lang.Exception wrong parameters
 	 */
+	@Deprecated
 	public DemoData() throws Exception {
 		uL1 = new DspFloat("g_sync.u_l_rms[0]", 1, null, 0);
 		uL2 = new DspFloat("g_sync.u_l_rms[1]", 1, null, 0);
@@ -85,6 +94,7 @@ public final class DemoData implements DataSet {
 	 * @param phaseIx Phase index 0 (Phase 1), 1 and 2.
 	 * @return AC RMS Voltage [V] (~ 20ms, grid synchronized measurement)
 	 */
+	@Deprecated
 	public float getAcVoltage(int phaseIx) throws RuntimeException {
 		return switch (phaseIx) {
 		default -> throw new RuntimeException("bad index");
@@ -100,6 +110,7 @@ public final class DemoData implements DataSet {
 	 * @param pvIx PV input number 0 and 1.
 	 * @return PV Voltage [V]
 	 */
+	@Deprecated
 	public float getPvVoltage(int pvIx) throws RuntimeException {
 		return switch (pvIx) {
 		default -> throw new RuntimeException("wrong index");
@@ -113,6 +124,7 @@ public final class DemoData implements DataSet {
 	 *
 	 * @return PV power [W] (~ 20ms)
 	 */
+	@Deprecated
 	public float getPvPower() {
 		return pSg.getFloat(0);
 	}
@@ -122,6 +134,7 @@ public final class DemoData implements DataSet {
 	 *
 	 * @return battery voltage [V]
 	 */
+	@Deprecated
 	public float getBmsVoltage() {
 		return uBms.getFloat(0);
 	}
@@ -132,10 +145,12 @@ public final class DemoData implements DataSet {
 	 * @param phaseIx Phase index 0 (Phase 1), 1 and 2.
 	 * @return AC voltage [V] (~ 20ms RMS, grid synchronized measurement)
 	 */
+	@Deprecated
 	public float getACVoltageOnGrid(int phaseIx) throws RuntimeException {
 		return uExt.getFloat(phaseIx);
 	}
 
+	@Deprecated
 	@Override
 	public void registerData(Client cl) {
 		cl.addDspVar(uL1);
@@ -149,6 +164,7 @@ public final class DemoData implements DataSet {
 		refresh();
 	}
 
+	@Deprecated
 	@Override
 	public void refresh() {
 		uL1.refresh();
@@ -161,6 +177,7 @@ public final class DemoData implements DataSet {
 		uExt.refresh();
 	}
 
+	@Deprecated
 	@Override
 	public boolean dataReady() {
 		return ((uL1.refreshTime() > 0) //
@@ -173,6 +190,7 @@ public final class DemoData implements DataSet {
 				&& (uExt.refreshTime() > 0));
 	}
 
+	@Deprecated
 	@Override
 	public String toString() {
 		String rs = "";

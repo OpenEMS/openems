@@ -73,7 +73,7 @@ public class UtilsTest {
 				ots.pollFirst().toString());
 		assertEquals("OneTask{start=2020-01-01T14:00Z, end=2020-01-02T00:00Z, duration=PT10H, payload=null}",
 				ots.pollFirst().toString());
-		assertEquals("OneTask{start=2020-01-04T08:00Z, end=2020-01-02T00:00Z, duration=PT-56H, payload=null}",
+		assertEquals("OneTask{start=2020-01-04T08:00Z, end=2020-01-05T00:00Z, duration=PT16H, payload=null}",
 				ots.pollFirst().toString());
 	}
 }

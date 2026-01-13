@@ -28,6 +28,9 @@ export class ObjectUtils {
     }
 
     public static getKeySafely<T extends Record<string, any>, K extends keyof T>(obj: T, key: K): T[K] | null {
+        if (obj === null || obj === undefined) {
+            return null;
+        }
         return key in obj ? obj[key] : null;
     }
 

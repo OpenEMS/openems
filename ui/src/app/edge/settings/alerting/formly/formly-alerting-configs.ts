@@ -56,7 +56,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     icon: {
                         color: "danger",
                         size: "large",
-                        name: "alert-circle-outline",
+                        name: "oe-error",
                         position: "end",
                     },
                     title: translate.instant("ALERTING.FAULT"),
@@ -102,7 +102,7 @@ export const otherUserRows = (otherUsers: AlertingSettingResponse[], defaultValu
             key: el.userLogin,
             fieldGroup: [
                 ...otherUserRow("offline", translate.instant("ALERTING.ONLINE_STATUS"), defaultValues[AlertingType.OFFLINE], { color: "danger", name: "cloud-offline-outline" }, translate),
-                ...otherUserRow("fault", translate.instant("ALERTING.FAULT"), defaultValues[AlertingType.FAULT], { color: "danger", name: "alert-circle-outline" }, translate),
+                ...otherUserRow("fault", translate.instant("ALERTING.FAULT"), defaultValues[AlertingType.FAULT], { color: "danger", name: "oe-error" }, translate),
             ],
         };
     };

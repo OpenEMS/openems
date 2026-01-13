@@ -62,7 +62,8 @@ public class FeneconCommercial92
 		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
-		GRID_CODE(AppDef.copyOfGeneric(gridCode())), //
+		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
+				.setDefaultValue(GridCode.VDE_4105))), //
 
 		LINK_FEED_IN(feedInLink()), //
 		// hidden until external limitation is implemented
@@ -175,7 +176,8 @@ public class FeneconCommercial92
 					FeneconHomeComponents.selfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
-					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId) //
+					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId), //
+					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
 
 			if (hasEssLimiter14a) {

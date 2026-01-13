@@ -15,6 +15,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private MeterType type = MeterType.CONSUMPTION_METERED;
 		private SinglePhase phase = SinglePhase.L1;
 		private boolean invert = false;
+		private boolean validateDevice = false;
 		private DebugMode debugMode = DebugMode.OFF;
 
 		private Builder() {
@@ -47,6 +48,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
+			return this;
+		}
+
+		public Builder setValidateDevice(boolean validateDevice) {
+			this.validateDevice = validateDevice;
 			return this;
 		}
 
@@ -99,6 +105,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean invert() {
 		return this.builder.invert;
+	}
+
+	@Override
+	public boolean validateDevice() {
+		return this.builder.validateDevice;
 	}
 
 	@Override

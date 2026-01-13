@@ -1744,7 +1744,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				// replace component with new id
 				final var component = orderedComponents.remove(i);
 				orderedComponents.add(i, new ComponentDef(id, component.alias(), component.factoryId(),
-						component.properties(), Configuration.create().build()));
+						component.properties(), Configuration.defaultConfig()));
 				newAppInstance.properties.addProperty(replacableId.key, id);
 			}
 		}
