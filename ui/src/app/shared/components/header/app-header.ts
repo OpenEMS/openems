@@ -46,7 +46,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
-
             const _currentUrl = routeService.currentUrl();
 
             if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
@@ -227,6 +226,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             case "/login":
             case "/index":
             case "/demo":
+            case "/oauthcallback":
                 return false;
             default:
                 return true;

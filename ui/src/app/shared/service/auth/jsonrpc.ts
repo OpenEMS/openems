@@ -33,13 +33,3 @@ export class AuthenticateWithOAuth2Response extends JsonrpcResponseSuccess {
         super(id, result);
     }
 }
-export class AuthenticateWithOAuthTokenRequest extends JsonrpcRequest {
-    public static METHOD: string = "authenticateWithOAuthToken";
-    public constructor(
-        public override readonly params: {
-            accessToken: string,
-        },
-    ) {
-        super(AuthenticateWithOAuthTokenRequest.METHOD, params);
-    }
-}

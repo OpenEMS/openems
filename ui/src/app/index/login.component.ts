@@ -14,7 +14,6 @@ import { AuthenticateWithPasswordRequest } from "../shared/jsonrpc/request/authe
 import { GetEdgesRequest } from "../shared/jsonrpc/request/getEdgesRequest";
 import { User, UserSettings } from "../shared/jsonrpc/shared";
 import { States } from "../shared/ngrx-store/states";
-import { OAuthService } from "../shared/service/oauth/oauth.service";
 import { UserService } from "../shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "../shared/shared";
 
@@ -46,7 +45,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
         private cdref: ChangeDetectorRef,
         protected modalCtrl: ModalController,
         private userService: UserService,
-        private oauthservice: OAuthService,
         private cookieService: CookieService,
     ) {
         effect(() => {

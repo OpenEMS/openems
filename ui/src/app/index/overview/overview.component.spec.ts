@@ -12,7 +12,7 @@ import { PlatFormService } from "src/app/platform.service";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { User } from "src/app/shared/jsonrpc/shared";
-import { OAuthService } from "src/app/shared/service/oauth/oauth.service";
+import { AuthService } from "src/app/shared/service/auth/auth.service";
 import { Pagination } from "src/app/shared/service/pagination";
 import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
@@ -62,7 +62,7 @@ describe("OverviewComponent", () => {
                     provide: ActivatedRoute,
                     useValue: {},
                 },
-                OAuthService,
+                AuthService,
                 PlatFormService,
                 RouteService,
             ],

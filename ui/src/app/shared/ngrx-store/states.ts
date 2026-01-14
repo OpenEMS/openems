@@ -69,7 +69,6 @@ export class AppStateTracker {
      * Handles navigation after authentication
      */
     public navigateAfterAuthentication() {
-
         this.router.navigate(["overview"]);
         return;
         // const segments = this.router.routerState.snapshot.url.split("/");
@@ -94,8 +93,8 @@ export class AppStateTracker {
         }
 
         switch (state) {
-            case States.NOT_AUTHENTICATED:
-                this.loadingState.set("not_authenticated");
+            case States.AUTHENTICATION_FAILED:
+                this.loadingState.set("failed");
                 break;
             case States.WEBSOCKET_CONNECTING:
                 this.lastTimeStamp = this.handleWebSocketConnecting(this.lastTimeStamp);
@@ -105,6 +104,7 @@ export class AppStateTracker {
                 break;
             case States.AUTHENTICATED:
                 this.loadingState.set("authenticated");
+                this.navigateAfterAuthentication();
                 break;
             default:
                 this.lastTimeStamp = null;

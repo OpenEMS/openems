@@ -33,8 +33,9 @@ import { Language } from "../type/language";
 import { TMutable } from "../type/utility";
 import { ArrayUtils } from "../utils/array/array.utils";
 import { PromiseUtils } from "../utils/promise/promise.utils";
-import { AuthenticateWithOAuth2Response, AuthenticateWithOAuthRequest } from "./oauth/jsonrpc";
-import { OAuthService } from "./oauth/oauth.service";
+import { AuthService } from "./auth/auth.service";
+import { AuthenticateWithOAuth2Response, AuthenticateWithOAuthRequest } from "./auth/jsonrpc";
+import { OAuthService } from "./auth/oauth.service";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
 import { UserService } from "./user.service";
@@ -68,7 +69,7 @@ export class Websocket implements WebsocketInterface {
         private router: Router,
         private userService: UserService,
         private pagination: Pagination,
-        private oauthService: OAuthService,
+        private authService: AuthService,
         private platFormService: PlatFormService,
     ) {
         service.websocket = this;
@@ -127,7 +128,7 @@ export class Websocket implements WebsocketInterface {
                 this.status = "online";
 
                 // received login token -> save in cookie
-                this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
+                this.cookieService.set(AuthService.TOKEN, authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
                 this.userService.currentUser.set(User.from(authenticateResponse.user));
                 // Metadata
                 this.service.metadata.next({
@@ -193,7 +194,7 @@ export class Websocket implements WebsocketInterface {
     public onLoggedOut(): void {
         this.status = "waiting for credentials";
         this.cookieService.delete("token", "/");
-        this.oauthService.logout();
+        this.authService.logout();
         this.service.onLogout();
     }
 
@@ -303,7 +304,7 @@ export class Websocket implements WebsocketInterface {
                     return;
                 }
 
-                await this.oauthService.onAuthenticationFailed();
+                await this.authService.handleAuthenticationFailed();
                 const newRequest: TMutable<JsonrpcRequest> = { ...request, id: uuidv4() };
                 const [err, response] = await JsonRpcUtils.handleResponse(this.wsdata.sendRequest(this.socket, newRequest));
                 if (err) {
