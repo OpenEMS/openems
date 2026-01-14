@@ -427,6 +427,12 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Parse a String containing a LongValue and convert from kWh to Wh
+	 *
+	 * @param text The LongValue to parse
+	 * @return Wh as Long, or null if text is invalid or empty
+	 */
 	private Long parseLongValueAsWatthours(String text) {
 		String cleaned = this.cleanTextForParsing(text);
 		if (cleaned == null) {
@@ -435,8 +441,8 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 		try {
 			// Parse as float and convert to watthours
-			float wh = Float.parseFloat(cleaned);
-			return (long) (wh * 1000);
+			float kwh = Float.parseFloat(cleaned);
+			return (long) (kwh * 1000);
 		} catch (NumberFormatException e) {
 			this.logDebug(this.log, "Failed to parse float value: " + text);
 			return null;
