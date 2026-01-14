@@ -178,6 +178,7 @@
       "DEC": "Dec",
       "END_DATE": "Select End Date",
       "EXPORT": "download as excel file",
+      "EXPORT_LOADING": "Report loading - thank you for your patience",
       "EXTERNAL_LIMITATION": "External Limitation",
       "FEB": "Feb",
       "FRI": "Fri",
