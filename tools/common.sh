@@ -181,7 +181,7 @@ common_build_android_app() {
 
     # Build App
     cd android
-    THEME=${THEME} ./gradlew buildThemeRelease
+    THEME=${THEME} bash ./gradlew buildThemeRelease
 
     cd ../..
 }
