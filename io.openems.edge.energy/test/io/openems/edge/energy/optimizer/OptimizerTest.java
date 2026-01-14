@@ -27,11 +27,11 @@ public class OptimizerTest {
 	public void testRunQuickOptimization() throws Exception {
 		var sut = EnergySchedulerImplTest.create(createDummyClock());
 		var optimizer = getOptimizer(sut);
-		assertEquals("No Schedule available|SimulationsPerQuarter:UNDEFINED", optimizer.debugLog());
+		assertEquals("No Schedule available|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED", optimizer.debugLog());
 
 		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
-		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationsPerQuarter:UNDEFINED|Current:"));
+		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED|Current:"));
 
 		var sr = optimizer.getSimulationResult();
 		assertTrue(sr.fitness().getGridBuyCost() < 1100000);
@@ -41,11 +41,13 @@ public class OptimizerTest {
 	@Test
 	public void test2() throws InterruptedException, ExecutionException {
 		var simulator = SimulatorTest.DUMMY_SIMULATOR;
-		var channel = DummyChannel.of("DummyChannel");
+		var channel1 = DummyChannel.of("DummyChannel1");
+		var channel2 = DummyChannel.of("DummyChannel2");
 		var optimizer = new Optimizer(//
 				() -> LogVerbosity.NONE, //
 				() -> simulator.goc, //
-				channel);
+				channel1, //
+				channel2);
 		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
 

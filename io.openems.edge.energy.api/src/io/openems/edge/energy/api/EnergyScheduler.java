@@ -16,7 +16,9 @@ public interface EnergyScheduler extends OpenemsComponent {
 	public static final String SINGLETON_COMPONENT_ID = "_energy";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SIMULATIONS_PER_QUARTER(Doc.of(OpenemsType.INTEGER));
+		SIMULATIONS_PER_QUARTER(Doc.of(OpenemsType.INTEGER)), //
+		GENERATIONS_PER_QUARTER(Doc.of(OpenemsType.INTEGER)), //
+		;
 
 		private final Doc doc;
 

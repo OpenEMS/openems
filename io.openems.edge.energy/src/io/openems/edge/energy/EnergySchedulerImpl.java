@@ -150,7 +150,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.setTimeOfUseTariff(this.timeOfUseTariff) //
 							.build();
 				}, //
-				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
 	}
 
 	@Activate

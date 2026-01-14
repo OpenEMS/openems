@@ -49,6 +49,7 @@ public class Optimizer {
 	private final Supplier<LogVerbosity> logVerbosity;
 	private final Supplier<GlobalOptimizationContext> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
+	private final Channel<Integer> generationsPerQuarterChannel;
 
 	private final AtomicReference<Simulator> simulator = new AtomicReference<>(null);
 	private final AtomicReference<SimulationResult> simulationResult = new AtomicReference<>(EMPTY_SIMULATION_RESULT);
@@ -60,10 +61,12 @@ public class Optimizer {
 	public Optimizer(//
 			Supplier<LogVerbosity> logVerbosity, //
 			Supplier<GlobalOptimizationContext> gocSupplier, //
-			Channel<Integer> simulationsPerQuarterChannel) {
+			Channel<Integer> simulationsPerQuarterChannel, //
+			Channel<Integer> generationsPerQuarterChannel) {
 		this.logVerbosity = logVerbosity;
 		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
+		this.generationsPerQuarterChannel = generationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 	}
 
@@ -238,6 +241,7 @@ public class Optimizer {
 		Optional.ofNullable(this.simulator.get()).ifPresent(s -> {
 			logSimulationResult(s, simulationResult);
 			this.simulationsPerQuarterChannel.setNextValue(s.getTotalNumberOfSimulations());
+			this.generationsPerQuarterChannel.setNextValue(s.getTotalNumberOfGenerations());
 		});
 
 		this.simulationResult.set(simulationResult);
@@ -292,6 +296,7 @@ public class Optimizer {
 			b.append("ScheduledPeriods:").append(currentResult.periods().size());
 		}
 		b.append("|SimulationsPerQuarter:").append(this.simulationsPerQuarterChannel.value());
+		b.append("|GenerationsPerQuarter:").append(this.generationsPerQuarterChannel.value());
 		Optional.ofNullable(this.simulator.get()).ifPresent(simulator -> {
 			b.append("|Current:").append(simulator.getTotalNumberOfSimulations());
 		});

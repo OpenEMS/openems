@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -50,6 +51,7 @@ public class Simulator {
 	public final ModeCombinations modeCombinations;
 
 	private final AtomicInteger simulationsCounter = new AtomicInteger(0);
+	private final AtomicLong generationsCounter = new AtomicLong(0);
 
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
@@ -63,6 +65,10 @@ public class Simulator {
 
 	protected int getTotalNumberOfSimulations() {
 		return this.simulationsCounter.get();
+	}
+
+	protected int getTotalNumberOfGenerations() {
+		return (int) this.generationsCounter.get();
 	}
 
 	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
@@ -268,11 +274,16 @@ public class Simulator {
 
 		// Start the evaluation
 		var bestGt = stream //
+				.peek(er -> this.generationsCounter.set(er.generation()))//
 				.collect(toBestResult(codec));
 		if (bestGt == null) {
 			return EMPTY_SIMULATION_RESULT;
 		}
-		return SimulationResult.fromQuarters(this.goc, bestGt, this.simulationsCounter.get());
+		return SimulationResult.fromQuarters(//
+				this.goc, //
+				bestGt, //
+				this.getTotalNumberOfSimulations(), //
+				this.getTotalNumberOfGenerations());
 	}
 
 	protected static record BestScheduleCollector(//
