@@ -117,6 +117,22 @@ public class IoShellyPlusPlugSImplTest {
 
 						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
 
+				.next(new TestCase("No update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
