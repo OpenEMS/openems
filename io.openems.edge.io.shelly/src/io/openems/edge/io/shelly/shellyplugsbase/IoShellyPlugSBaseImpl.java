@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellyplugsbase;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.io.shelly.common.Utils.executeWrite;
@@ -228,8 +229,9 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 			var response = getAsJsonObject(result.data());
 			var sysInfo = getAsJsonObject(response, "sys");
 			var update = getAsJsonObject(sysInfo, "available_updates");
-			updatesAvailable = !update.entrySet().isEmpty();
-
+			var stable = getAsOptionalJsonObject(update, "stable");
+			updatesAvailable = (stable.isPresent() && !stable.isEmpty());
+			
 			var relays = getAsJsonObject(response, "switch:0");
 			activePower = invert.apply(round(getAsFloat(relays, "apower")));
 			current = invert.apply(round(getAsFloat(relays, "current") * 1000));
