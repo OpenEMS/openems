@@ -45,7 +45,6 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionContext;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionOrchestrator;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.ProfileSwitcher;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.predictor.profileclusteringmodel.training.TrainingContext;
 import io.openems.edge.predictor.profileclusteringmodel.training.TrainingRunnable;
 import io.openems.edge.timedata.api.Timedata;
@@ -221,11 +220,10 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 				() -> this.componentManager.getClock(), //
 				this.timedata, //
 				SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER, //
-				new QueryWindow(//
-						this.predictorConfig.minTrainingWindowDays(), //
-						this.predictorConfig.maxTrainingWindowDays()), //
+				this.predictorConfig.trainingWindowInDays(), //
 				this.predictorConfig.maxGapSizeInterpolationInQuarters(), //
-				this.predictorConfig.minTrainingSamplesRequired(), //
+				this.predictorConfig.minTrainingSamples(), //
+				this.predictorConfig.maxTrainingSamples(), //
 				this.predictorConfig.clustererFitter(), //
 				this.predictorConfig.classifierFitter(), //
 				() -> this.meta.getSubdivisionCode());
@@ -268,12 +266,7 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	public static class DefaultPredictorConfig implements PredictorConfig {
 
 		@Override
-		public int minTrainingWindowDays() {
-			return 30;
-		}
-
-		@Override
-		public int maxTrainingWindowDays() {
+		public int trainingWindowInDays() {
 			return 90;
 		}
 
@@ -283,8 +276,13 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 		}
 
 		@Override
-		public int minTrainingSamplesRequired() {
-			return 28;
+		public int minTrainingSamples() {
+			return 30;
+		}
+
+		@Override
+		public int maxTrainingSamples() {
+			return 60;
 		}
 
 		@Override

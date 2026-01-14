@@ -24,11 +24,13 @@ public class InitialPopulationUtilsTest {
 		assertTrue(schedules.get(0).toString().startsWith("[[[0],[0],[0],[0],"));
 		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
 
-		assertTrue(schedules.get(2).toString().startsWith("[[[1],[0],[0],[3],"));
-		assertTrue(schedules.get(3).toString().startsWith("[[[1],[0],[0],[1],"));
+		assertTrue(schedules.get(2).toString()
+				.startsWith("[[[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[5],"));
+		assertTrue(schedules.get(3).toString()
+				.startsWith("[[[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[3],"));
 
 		assertTrue(schedules.get(4).toString().startsWith("[[[1],[0],[0],[5],"));
-		assertTrue(schedules.get(5).toString().startsWith("[[[1],[0],[0],[1],"));
+		assertTrue(schedules.get(5).toString().startsWith("[[[1],[0],[0],[3],"));
 	}
 
 	@Test
@@ -42,11 +44,13 @@ public class InitialPopulationUtilsTest {
 		assertTrue(schedules.get(0).toString().startsWith("[[[3],[0],[0],[0],"));
 		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
 
-		assertTrue(schedules.get(2).toString().startsWith("[[[3],[0],[0],[3],"));
-		assertTrue(schedules.get(3).toString().startsWith("[[[3],[0],[0],[1],"));
+		assertTrue(schedules.get(2).toString()
+				.startsWith("[[[3],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[5],"));
+		assertTrue(schedules.get(3).toString()
+				.startsWith("[[[3],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[3],"));
 
 		assertTrue(schedules.get(4).toString().startsWith("[[[3],[0],[0],[5],"));
-		assertTrue(schedules.get(5).toString().startsWith("[[[3],[0],[0],[1],"));
+		assertTrue(schedules.get(5).toString().startsWith("[[[3],[0],[0],[3],"));
 	}
 
 	protected static Transition mode(int mode) {

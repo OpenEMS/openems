@@ -97,7 +97,7 @@ public class TimeOfUseTariffControllerImplTest {
 				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
-						.setEnabled(false) //
+						.setEnabled(true) //
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //
 						.setControlMode(CHARGE_CONSUMPTION) //

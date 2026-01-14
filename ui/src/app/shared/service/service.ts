@@ -364,6 +364,7 @@ export class Service extends AbstractService {
                             edge.lastmessage,
                             edge.sumState,
                             DateUtils.stringToDate(edge.firstSetupProtocol?.toString()),
+                            edge.settings ?? null,
                         );
                         value.edges[edge.id] = mappedEdge;
                         mappedResult.push(mappedEdge);
@@ -403,7 +404,9 @@ export class Service extends AbstractService {
                     edgeData.isOnline,
                     edgeData.lastmessage,
                     edgeData.sumState,
-                    DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()));
+                    DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()),
+                    edgeData.settings ?? null,
+                );
                 this.currentEdge.set(currentEdge);
                 value.edges[edgeData.id] = currentEdge;
                 this.metadata.next(value);

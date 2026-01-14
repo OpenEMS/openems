@@ -22,6 +22,7 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
+        isCommonWidget: "true",
     });
 
 

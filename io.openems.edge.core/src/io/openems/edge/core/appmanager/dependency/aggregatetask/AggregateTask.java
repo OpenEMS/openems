@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import static java.util.Collections.emptySet;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.JsonElement;
@@ -11,6 +12,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 public interface AggregateTask<T> {
 
@@ -83,11 +85,13 @@ public interface AggregateTask<T> {
 	/**
 	 * Validates the expected configuration.
 	 * 
-	 * @param errors           the errors that occur during the validation
-	 * @param appConfiguration the whole configuration
-	 * @param config           the configuration to validate
+	 * @param errors            the errors that occur during the validation
+	 * @param appConfiguration  the whole configuration
+	 * @param config            the configuration to validate
+	 * @param allConfigurations all instance configurations
 	 */
-	public void validate(List<String> errors, AppConfiguration appConfiguration, T config);
+	public void validate(List<String> errors, AppConfiguration appConfiguration, T config,
+			Map<OpenemsAppInstance, AppConfiguration> allConfigurations);
 
 	/**
 	 * Gets a general message for the user if any operations fails.

@@ -60,7 +60,7 @@ public final class AppUtils {
 	}
 
 	/**
-	 * Returns a {@link JsonSerializer} for a {@link Ess}.
+	 * Returns a {@link JsonSerializer} for a {@link GlobalOptimizationContext}.
 	 * 
 	 * @return the created {@link JsonSerializer}
 	 */
@@ -82,7 +82,8 @@ public final class AppUtils {
 				var time = nextTime.get();
 				var index = (int) Duration.between(startTime, time).toMinutes() / 15;
 				nextTime.set(time.plusMinutes(15));
-				return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index, time, //
+				return (GlobalOptimizationContext.Period) GlobalOptimizationContext.Period.Quarter.from(//
+						index, time, //
 						j.getInt("production"), j.getInt("consumption"), j.getDouble("price"));
 			});
 

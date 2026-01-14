@@ -12,6 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.backend,\
+	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.evcs.api,\
 	io.openems.edge.evse.api,\

@@ -376,7 +376,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 				edge.isOnline(), //
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
-				Level.OK //
+				Level.OK, //
+                edge.getSettings() //
 		);
 	}
 

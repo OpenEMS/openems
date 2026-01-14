@@ -42,7 +42,7 @@ public abstract class AbstractEnumOpenemsApp<PROPERTY extends Enum<PROPERTY> & N
 	}
 
 	/**
-	 * Gets the id of the map with the given DefaultEnum
+	 * Gets the id of the map with the given DefaultEnum.
 	 *
 	 * <p>
 	 * e. g. defaultValue: "ess0" => the next available id with the base-name "ess"

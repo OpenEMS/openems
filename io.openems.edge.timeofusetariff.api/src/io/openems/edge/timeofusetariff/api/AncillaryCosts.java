@@ -19,8 +19,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
@@ -30,6 +32,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonObjectPathActual;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timeofusetariff.api.AncillaryCosts.GridFee.Tariff;
 
 public class AncillaryCosts {
@@ -39,47 +42,62 @@ public class AncillaryCosts {
 		public record DateRange(LocalDate start, LocalDate end, ImmutableList<TimeRange> timeRanges,
 				double standardTariff, double lowTariff, double highTariff) {
 
+			public static enum Quarter {
+				Q1(/* start */1, 1, /* end */3, 31), //
+				Q2(/* start */4, 1, /* end */6, 30), //
+				Q3(/* start */7, 1, /* end */9, 30), //
+				Q4(/* start */10, 1, /* end */12, 31), //
+				FULL_YEAR(/* start */1, 1, /* end */12, 31);
+
+				protected final int startMonth;
+				protected final int startDayOfMonth;
+				protected final int endMonth;
+				protected final int endDayOfMonth;
+
+				private Quarter(int startMonth, int startDayOfMonth, int endMonth, int endDayOfMonth) {
+					this.startMonth = startMonth;
+					this.startDayOfMonth = startDayOfMonth;
+					this.endMonth = endMonth;
+					this.endDayOfMonth = endDayOfMonth;
+				}
+
+				public static record WithYear(int year, Quarter quarter) {
+				}
+			}
+
 			protected static class Builder {
 				private final ImmutableList.Builder<TimeRange> timeRanges = ImmutableList.builder();
 
-				private LocalDate start;
-				private LocalDate end;
-				private double standardTariff;
-				private double lowTariff;
-				private double highTariff;
+				private ImmutableList<Quarter.WithYear> quarters = null;
+				private double standardTariff = Double.NaN;
+				private double lowTariff = Double.NaN;
+				private double highTariff = Double.NaN;
 
 				private Builder() {
 				}
 
-				public Builder setStart(LocalDate start) {
-					this.start = start;
+				public Builder setQuarters(int year, Quarter... quarters) {
+					asserNotNull("Quarters", this.quarters);
+					this.quarters = Arrays.stream(quarters) //
+							.map(q -> new Quarter.WithYear(year, q)) //
+							.collect(ImmutableList.toImmutableList());
 					return this;
-				}
-
-				public Builder setStart(int year, int month, int dayOfMonth) {
-					return this.setStart(LocalDate.of(year, month, dayOfMonth));
-				}
-
-				public Builder setEnd(LocalDate end) {
-					this.end = end;
-					return this;
-				}
-
-				public Builder setEnd(int year, int month, int dayOfMonth) {
-					return this.setEnd(LocalDate.of(year, month, dayOfMonth));
 				}
 
 				public Builder setStandardTariff(double standardTariff) {
+					asserNotNaN("StandardTariff", this.standardTariff);
 					this.standardTariff = standardTariff;
 					return this;
 				}
 
 				public Builder setLowTariff(double lowTariff) {
+					asserNotNaN("LowTariff", this.lowTariff);
 					this.lowTariff = lowTariff;
 					return this;
 				}
 
 				public Builder setHighTariff(double highTariff) {
+					asserNotNaN("HighTariff", this.highTariff);
 					this.highTariff = highTariff;
 					return this;
 				}
@@ -95,9 +113,26 @@ public class AncillaryCosts {
 					return this.addTimeRange(b.build());
 				}
 
-				public DateRange build() {
-					return new DateRange(this.start, this.end, this.timeRanges.build(), this.standardTariff,
-							this.lowTariff, this.highTariff);
+				public Stream<DateRange> build() {
+					TypeUtils.assertNull("Quarters", (Object) this.quarters);
+					return this.quarters.stream() //
+							.map(q -> new DateRange(//
+									LocalDate.of(q.year, q.quarter.startMonth, q.quarter.startDayOfMonth), //
+									LocalDate.of(q.year, q.quarter.endMonth, q.quarter.endDayOfMonth), //
+									this.timeRanges.build(), //
+									this.standardTariff, this.lowTariff, this.highTariff));
+				}
+
+				private static void asserNotNull(String description, Object value) {
+					if (value != null) {
+						throw new IllegalArgumentException(description + " had already been set to [" + value + "]");
+					}
+				}
+
+				private static void asserNotNaN(String description, double value) {
+					if (!Double.isNaN(value)) {
+						throw new IllegalArgumentException(description + " had already been set to [" + value + "]");
+					}
 				}
 			}
 		}
@@ -165,14 +200,18 @@ public class AncillaryCosts {
 			 * @return this builder instance for method chaining
 			 */
 			public Builder addDateRange(Consumer<DateRange.Builder> dateRange) {
-				var dr = new DateRange.Builder();
-				dateRange.accept(dr);
-				this.dateRanges.add(dr.build());
+				var drs = new DateRange.Builder();
+				dateRange.accept(drs);
+				drs.build() //
+						.forEach(this.dateRanges::add);
 				return this;
 			}
 
 			public GridFee build() {
-				return new GridFee(this.dateRanges.build());
+				// Sort by start to fulfill JUnit tests with no gaps
+				var drs = ImmutableList.sortedCopyOf((dr1, dr2) -> dr1.start().compareTo(dr2.start()),
+						this.dateRanges.build());
+				return new GridFee(drs);
 			}
 		}
 
@@ -293,6 +332,7 @@ public class AncillaryCosts {
 				return (!time.isBefore(start) || time.isBefore(end));
 			}
 		}
+
 	}
 
 	/**

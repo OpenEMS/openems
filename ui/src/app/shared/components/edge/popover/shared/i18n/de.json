@@ -1,19 +1,9 @@
 {
-    "POPOVER": {
-        "WEATHER_PROGNOSIS": {
-            "TITLE": "Neu: Prognose dank Wetterdaten jetzt 50% genauer",
-            "DESCRIPTION": "Durch Integration von lokalen Wetterdaten können wir die Genauigkeit deiner Verbrauchs- und Erzeugungsprognose verbessern – vollkommen <b>kostenlos!</b>",
-            "ADVANTAGES_HEADER": "Was bedeutet das für dich:",
-            "ADVANTAGE_1": "Mehr Kosteneinsparung",
-            "ADVANTAGE_2": "Mehr Effizienz",
-            "ADVANTAGE_3": "Inkl. Wettervorhersage im Monitoring",
-            "APP": "Jetzt im App Center verfügbar:",
-            "CHECKBOX_LABEL": "Ich habe zur Kenntnis genommen, dass für die Nutzung der App die Weitergabe meiner personenbezogenen Daten des Hauptnutzers an Dritte erforderlich ist. Hinweise zum Umgang mit Ihren personenbezogenen Daten finden Sie <a href={{link}} target='_blank'>hier</a>.",
-            "DECLINE": "Ablehnen",
-            "ACCEPT": "Akzeptieren & Installieren",
-            "SPINNER_TEXT_ACCEPTED": "Nur noch einen Moment – Die App wird installiert...",
-            "SPINNER_TEXT_DECLINED": "Die App kann jederzeit später im FEMS App Center installiert werden.",
-            "APP_WEATHER": "Wetter"
-        }
+  "POPOVER": {
+    "WEATHER_PROGNOSIS": {
+      "CHECKBOX_LABEL": "Ich habe zur Kenntnis genommen, dass für die Nutzung der App die Weitergabe meiner personenbezogenen Daten des Hauptnutzers an Dritte erforderlich ist. Hinweise zum Umgang mit Ihren personenbezogenen Daten finden Sie <a href={{link}} target='_blank'>hier</a>.",
+      "DECLINE": "Ablehnen",
+      "ACCEPT": "Akzeptieren & Installieren"
     }
+  }
 }
