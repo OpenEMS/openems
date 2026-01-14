@@ -9,6 +9,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { RouteService } from "./shared/service/route.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -45,6 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
         private title: Title,
         protected navigationService: NavigationService,
         protected navCtrl: NavController,
+        private translate: TranslateService,
+        private routeService: RouteService,
     ) {
         service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
 
@@ -63,6 +66,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.appService.listen();
         SplashScreen.hide();
+    }
+
+    public navigateToUser() {
+        const prev = this.routeService.getCurrentUrl();
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/user";
+
+        this.navCtrl.navigateRoot(userUrl);
+        this.menu.close();
     }
 
     ngOnDestroy() {

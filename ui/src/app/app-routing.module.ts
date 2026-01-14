@@ -35,6 +35,7 @@ import { OverViewComponent } from "./index/overview/overview.component";
 import { LoadingScreenComponent } from "./index/shared/loading-screen";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
 import { DataService } from "./shared/components/shared/dataservice";
+import { suffixMatcher } from "./shared/guards/url-matcher";
 import { UserComponent } from "./user/user.component";
 
 export const history: (/** Determines if titles in headers can be set */ customHeaders: boolean) => Routes = (customHeaders) => [{
@@ -88,9 +89,6 @@ export const routes: Routes = [
 
     { path: "overview", component: OverViewComponent },
 
-    { path: "user", component: UserComponent, data: { navbarTitleToBeTranslated: "MENU.USER" } },
-    { path: "changelog", loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" } },
-
     // Edge Pages
     {
         path: "device/:edgeId", component: EdgeComponent, children: [
@@ -107,6 +105,8 @@ export const routes: Routes = [
     },
 
     { path: "demo", component: LoginComponent },
+    { matcher: suffixMatcher("user"), component: UserComponent, data: { navbarTitleToBeTranslated: "MENU.USER" } },
+    { matcher: suffixMatcher("changelog"), loadChildren: () => import("./changelog/changelog.module").then(m => m.ChangelogModule), data: { navbarTitleToBeTranslated: "MENU.CHANGELOG" } },
     // Fallback
     { path: "**", pathMatch: "full", redirectTo: "index" },
 ];
