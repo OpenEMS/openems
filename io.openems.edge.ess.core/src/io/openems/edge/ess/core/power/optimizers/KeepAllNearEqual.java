@@ -46,24 +46,24 @@ public class KeepAllNearEqual {
 			return NO_RESULT;
 		}
 
-		var setActivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.ACTIVE);
-		var setReactivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.REACTIVE);
-
-		if (Double.isNaN(setActivePower) && Double.isNaN(setReactivePower)) {
-			return NO_RESULT;
-		}
-
-		var essList = getGenericEssList(esss);
-
-		var activePowerSolved = solvePowerIfNotNaN(setActivePower, essList, Pwr.ACTIVE, direction, debugMode);
-		var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction, debugMode);
-
-		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
-		if (mergedResult == null) {
-			return NO_RESULT;
-		}
-
 		try {
+			var setActivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.ACTIVE);
+			var setReactivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.REACTIVE);
+
+			if (Double.isNaN(setActivePower) && Double.isNaN(setReactivePower)) {
+				return NO_RESULT;
+			}
+
+			var essList = getGenericEssList(esss);
+
+			var activePowerSolved = solvePowerIfNotNaN(setActivePower, essList, Pwr.ACTIVE, direction, debugMode);
+			var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction, debugMode);
+
+			var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
+			if (mergedResult == null) {
+				return NO_RESULT;
+			}
+
 			var result = Arrays.stream(mergedResult)//
 					.map(d -> reverseAbsoluteData(d, direction))//
 					.toArray();
