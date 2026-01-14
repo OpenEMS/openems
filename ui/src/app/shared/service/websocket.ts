@@ -9,6 +9,7 @@ import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { v4 as uuidv4 } from "uuid";
 import { InitiateConnect } from "src/app/edge/settings/app/oauth/jsonrpc/initiateConnect";
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 
 import { AuthenticationFailedError, DuplicateAuthenticationFailureException } from "../errors.ts/errors";
@@ -68,6 +69,7 @@ export class Websocket implements WebsocketInterface {
         private userService: UserService,
         private pagination: Pagination,
         private oauthService: OAuthService,
+        private platFormService: PlatFormService,
     ) {
         service.websocket = this;
 
@@ -86,7 +88,7 @@ export class Websocket implements WebsocketInterface {
         return new Promise<AuthenticateWithOAuth2Response>((res, rej) => {
             this.state.set(States.NOT_AUTHENTICATED);
             return this.sendRequest<AuthenticateWithOAuth2Response>(new AuthenticateWithOAuthRequest({
-                payload: new JsonrpcRequest(InitiateConnect.METHOD, { ...OAuthService.getOem(), ...OAuthService.getRedirectUri() }),
+                payload: new JsonrpcRequest(InitiateConnect.METHOD, { ...OAuthService.getOem(), ...OAuthService.getRedirectUri(this.platFormService) }),
             })).then(async response => {
                 const result = response.result as { identifier: string, loginUrl: string, state: string };
                 window.open(result.loginUrl, "_self");

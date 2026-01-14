@@ -11,6 +11,7 @@ import { User } from "../../jsonrpc/shared";
 import { States } from "../../ngrx-store/states";
 import { Language } from "../../type/language";
 import { PromiseUtils } from "../../utils/promise/promise.utils";
+import { RouteService } from "../route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
 import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
@@ -29,6 +30,7 @@ export class OAuthService {
         private router: Router,
         private deviceService: DeviceDetectorService,
         private platformService: PlatFormService,
+        private routeService: RouteService,
     ) {
 
         const context = effect(() => {
@@ -80,7 +82,11 @@ export class OAuthService {
     }
 
 
-    public static getRedirectUri() {
+    public static getRedirectUri(plaformService: PlatFormService) {
+        if (plaformService.getIsApp()) {
+            return {};
+        }
+
         return { redirectUri: window.document.baseURI + "oauthcallback" };
     }
 
@@ -217,7 +223,20 @@ export class OAuthService {
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
         this.service.websocket.status = "online";
-        this.router.navigate(["./overview"]);
+
+        const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
+        if (initialUrl == null) {
+            this.router.navigate(["/overview"]);
+            return;
+        }
+
+        const isAuthenticatedNavi = initialUrl?.toString()?.split("/")?.length > 2;
+        if (isAuthenticatedNavi && initialUrl != null) {
+            this.router.navigate([initialUrl.toString().split("?")[0]], { queryParams: initialUrl.queryParams });
+            return;
+        }
+
+        this.router.navigate(["/overview"]);
     }
 
     /**
@@ -256,7 +275,6 @@ export class OAuthService {
         })));
 
         if (err || response == null) {
-            this.logout();
             this.service.websocket.onLoggedOut();
             throw err;
         }
@@ -271,7 +289,6 @@ export class OAuthService {
      * @param result the authentication response result
      */
     private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
-        this.cookieService.set("refresh_token", JSON.stringify(result.refreshToken));
-        this.cookieService.delete("oauthredirectstate");
+        this.cookieService.set("refresh_token", JSON.stringify(result.refreshToken), 14, "/");
     }
 }

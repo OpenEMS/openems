@@ -14,6 +14,7 @@ import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-w
 import { User } from "src/app/shared/jsonrpc/shared";
 import { OAuthService } from "src/app/shared/service/oauth/oauth.service";
 import { Pagination } from "src/app/shared/service/pagination";
+import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
@@ -63,6 +64,7 @@ describe("OverviewComponent", () => {
                 },
                 OAuthService,
                 PlatFormService,
+                RouteService,
             ],
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(OverViewComponent);
