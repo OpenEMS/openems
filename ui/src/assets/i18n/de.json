@@ -1201,7 +1201,8 @@
     "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
     "SIGN_IN": "Anmelden",
     "TITLE": "Login",
-    "USER": "Benutzer"
+    "USER": "Benutzer",
+    "EMPLOYEE_LOGIN": "Mitarbeiter Login"
   },
   "MENU": {
     "ACCESS_LEVEL": "Zugriffslevel",

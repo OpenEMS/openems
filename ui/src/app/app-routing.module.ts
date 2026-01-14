@@ -30,6 +30,7 @@ import { CommonGridOverviewComponent } from "./edge/live/common/grid/history/ove
 import { OverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/live/common/selfconsumption/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
+import { OAuthCallBackComponent } from "./index/oauthcallback.component";
 import { OverViewComponent } from "./index/overview/overview.component";
 import { LoadingScreenComponent } from "./index/shared/loading-screen";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
@@ -81,6 +82,7 @@ export const routes: Routes = [
 
     // TODO should be removed in the future
     { path: "", redirectTo: oauthRedirectFunction("index"), pathMatch: "full" },
+    { path: "oauthcallback", component: OAuthCallBackComponent },
     { path: "index", component: LoadingScreenComponent },
     { path: "login", component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
 

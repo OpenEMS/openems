@@ -1199,7 +1199,8 @@
     "REQUEST_TIMEOUT": "Your request has timed out. Please try again later.",
     "SIGN_IN": "Sign in",
     "TITLE": "Login",
-    "USER": "User"
+    "USER": "User",
+    "EMPLOYEE_LOGIN": "Employee Login"
   },
   "MENU": {
     "ACCESS_LEVEL": "Access Level",

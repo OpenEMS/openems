@@ -25,6 +25,7 @@ import { StatusSingleComponent } from "./shared/components/status/single/status.
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
+import { OAuthService } from "./shared/service/oauth/oauth.service";
 import { Pagination } from "./shared/service/pagination";
 import { UserService } from "./shared/service/user.service";
 import { SharedModule } from "./shared/shared.module";
@@ -68,6 +69,7 @@ provideTranslateLoader(MyTranslateLoader);
         AppStateTracker,
         UserService,
         NavigationService,
+        OAuthService,
         {
             provide: APP_INITIALIZER,
             useFactory: initializeService,

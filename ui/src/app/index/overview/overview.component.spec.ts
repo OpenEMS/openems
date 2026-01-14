@@ -8,9 +8,11 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { Theme } from "src/app/edge/history/shared";
+import { PlatFormService } from "src/app/platform.service";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { User } from "src/app/shared/jsonrpc/shared";
+import { OAuthService } from "src/app/shared/service/oauth/oauth.service";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
@@ -59,6 +61,8 @@ describe("OverviewComponent", () => {
                     provide: ActivatedRoute,
                     useValue: {},
                 },
+                OAuthService,
+                PlatFormService,
             ],
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(OverViewComponent);

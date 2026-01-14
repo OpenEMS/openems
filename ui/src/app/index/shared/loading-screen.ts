@@ -3,6 +3,7 @@ import { Component, effect } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { AppStateTracker } from "src/app/shared/ngrx-store/states";
+import { TSignalValue } from "src/app/shared/type/utility";
 import { Environment, environment } from "src/environments";
 import { Service, Websocket } from "../../shared/shared";
 
@@ -15,7 +16,7 @@ export class LoadingScreenComponent {
 
     protected readonly spinnerId: string = "IndexComponent";
     protected readonly environment: Environment = environment;
-    protected backendState: "loading" | "failed" | "authenticated" = "loading";
+    protected backendState: TSignalValue<AppStateTracker["loadingState"]>;
 
     constructor(
         public service: Service,
