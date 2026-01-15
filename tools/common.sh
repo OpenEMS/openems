@@ -2,6 +2,38 @@
 #
 # Provides commonly used functions and variables
 
+_get_version() {
+    SRC_OPENEMS_CONSTANTS="${SRC_OPENEMS_CONSTANTS:-io.openems.common/src/io/openems/common/OpenemsConstants.java}"
+    SRC_PACKAGE_JSON="${SRC_PACKAGE_JSON:-ui/package.json}"
+
+    if [ -f "${SRC_PACKAGE_JSON}" ]; then
+        UI_VERSION="$(grep '"version": '  ${SRC_PACKAGE_JSON} | head -n1 | sed 's/.*"version":[[:space:]]*"\([^"]*\)".*/\1/')"
+    fi;
+
+    if [ -f "${SRC_OPENEMS_CONSTANTS}" ]; then
+        JAVA_VERSION_MAJOR="$(grep 'VERSION_MAJOR =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_MAJOR[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_MINOR="$(grep 'VERSION_MINOR =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_MINOR[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_PATCH="$(grep 'VERSION_PATCH =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_PATCH[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_STRING="$(grep 'VERSION_STRING =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_STRING[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/')"
+        JAVA_VERSION="${JAVA_VERSION_MAJOR}.${JAVA_VERSION_MINOR}.${JAVA_VERSION_PATCH}"
+        if [ -n "$JAVA_VERSION_STRING" ]; then
+            JAVA_VERSION="${JAVA_VERSION}-${JAVA_VERSION_STRING}"
+        fi
+    fi;
+
+    if [ "$UI_VERSION" != "" ] && [ "$JAVA_VERSION" != "" ]; then
+        if [ "$UI_VERSION" != "$JAVA_VERSION" ]; then
+            echo "Error: Version mismatch between UI ($UI_VERSION) and Java ($JAVA_VERSION)!" >&2
+            exit 1
+        fi
+    elif [ "$UI_VERSION" == "" ] && [ "$JAVA_VERSION" == "" ]; then
+        echo "Error: Could not determine version from source files!" >&2
+        exit 1
+    fi;
+
+    echo "${JAVA_VERSION:-$UI_VERSION}"
+}
+
 common_initialize_environment() {
     # Code files relevant for version
     SRC_OPENEMS_CONSTANTS="io.openems.common/src/io/openems/common/OpenemsConstants.java"
@@ -14,7 +46,7 @@ common_initialize_environment() {
     PACKAGE_NAME="openems-edge"
 
     VERSION_STRING=""
-    VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
+    VERSION="$(_get_version)"
     local tmp_version=$(echo $VERSION | cut -d'-' -f1)
     VERSION_MAJOR=$(echo $tmp_version | cut -d'.' -f1)
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
