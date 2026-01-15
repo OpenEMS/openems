@@ -162,13 +162,7 @@ public class OdooHandler {
 	}
 
 	private void assignEdgeToUser(String externalUserId, int edgeId, OdooUserRole userRole) throws OpenemsException {
-		final var userIds = this.getUserIdsWithExternalId(externalUserId);
-		if (userIds.length != 1) {
-			throw new OpenemsException("User not found for login [" + externalUserId + "]");
-		}
-		final var userId = userIds[0];
-
-		this.assignEdgeToUser(userId, edgeId, userRole);
+		this.assignEdgeToUser(this.getUserIdByExternalIdOrThrow(externalUserId), edgeId, userRole);
 	}
 
 	/**
@@ -1131,11 +1125,8 @@ public class OdooHandler {
 	 */
 	public void updateUserLanguage(User user, Language language) throws OpenemsException {
 		try {
-			final var userIds = this.getUserIdsWithExternalId(user.getUserId());
-			if (userIds.length != 1) {
-				throw new OpenemsException("User not found for login [" + user.getUserId() + "]");
-			}
-			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, userIds, //
+			final var userId = this.getUserIdByExternalIdOrThrow(user.getUserId());
+			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { userId }, //
 					new FieldValue<>(Field.User.OPENEMS_LANGUAGE, language.name()));
 			user.setLanguage(language);
 		} catch (OpenemsNamedException ex) {
@@ -1143,9 +1134,17 @@ public class OdooHandler {
 		}
 	}
 
-	private Integer[] getUserIdsWithExternalId(String externalId) throws OpenemsException {
+	private Integer[] getUserIdsByExternalId(String externalId) throws OpenemsException {
 		return OdooUtils.search(this.credentials, Field.User.ODOO_MODEL,
 				new Domain(Field.User.OAUTH_UID, Operator.EQ, externalId));
+	}
+
+	private int getUserIdByExternalIdOrThrow(String externalId) throws OpenemsException {
+		final var userIds = this.getUserIdsByExternalId(externalId);
+		if (userIds.length != 1) {
+			throw new OpenemsException("User not found for external id [" + externalId + "]");
+		}
+		return userIds[0];
 	}
 
 	private Integer[] getUserIdsWithEmail(String email) throws OpenemsException {
@@ -1562,8 +1561,10 @@ public class OdooHandler {
 	 * @param userAlertingSettings list of users
 	 * @throws OpenemsException on error
 	 */
-	public void setUserAlertingSettings(MyUser user, String edgeId, List<UserAlertingSettings> userAlertingSettings)
+	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> userAlertingSettings)
 			throws OpenemsException {
+
+		final var userId = this.getUserIdByExternalIdOrThrow(user.getUserId());
 
 		// search edge by id
 		var edgeIds = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -1588,7 +1589,7 @@ public class OdooHandler {
 			} else {
 				OdooUtils.create(this.credentials, AlertingSetting.ODOO_MODEL, //
 						new FieldValue<>(AlertingSetting.DEVICE_ODOO_ID, deviceId), //
-						new FieldValue<>(AlertingSetting.USER_ODOO_ID, user.getOdooId()), //
+						new FieldValue<>(AlertingSetting.USER_ODOO_ID, userId), //
 						new FieldValue<>(AlertingSetting.OFFLINE_DELAY, setting.edgeOfflineDelay()), //
 						new FieldValue<>(AlertingSetting.FAULT_DELAY, setting.edgeFaultDelay()), //
 						new FieldValue<>(AlertingSetting.WARNING_DELAY, setting.edgeWarningDelay()), //

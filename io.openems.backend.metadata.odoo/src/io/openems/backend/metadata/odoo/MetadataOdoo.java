@@ -684,12 +684,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<UserAlertingSettings> settings)
 			throws OpenemsException {
-		switch (user) {
-		case MyUser odooUser //
-			-> this.odooHandler.setUserAlertingSettings(odooUser, edgeId, settings);
-		default //
-			-> throw new OpenemsException("User information is from foreign source!!");
-		}
+		this.odooHandler.setUserAlertingSettings(user, edgeId, settings);
 	}
 
 	@Override
