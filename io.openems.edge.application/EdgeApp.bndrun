@@ -215,7 +215,6 @@
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 
 -runbundles: \
-	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
 	bcprov;version='[1.83.0,1.83.1)',\
 	bcutil;version='[1.83.0,1.83.1)',\
@@ -427,6 +426,7 @@
 	io.openems.j2mod;version='[3.2.2,3.2.3)',\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.eu.chargetime.ocpp;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.gson;version=snapshot,\

@@ -726,7 +726,15 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Low min voltage fault - Battery stopped "
 						+ "| Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur")),
 
-		;
+        EMS_POWER_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //)
+                .unit(Unit.MILLIAMPERE)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Power consumption of HV BOX for EMS power supply")),
+
+        EMS_OFF_GRID(Doc.of(OpenemsType.BOOLEAN) //)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Indicates if the HV BOX is operating in off-grid mode"));
+
 
 		private final Doc doc;
 
