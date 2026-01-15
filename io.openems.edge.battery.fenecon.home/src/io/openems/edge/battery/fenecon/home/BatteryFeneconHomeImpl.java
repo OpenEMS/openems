@@ -65,6 +65,7 @@ import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -92,7 +93,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
 
 	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
-
+	private static final int FORCE_CHARGE_CURRENT_PER_TOWER = 2;
 	private static final String TOWER = "TOWER_";
 	private static final String MODULE = "_MODULE_";
 	private static final String VOLTAGE = "_VOLTAGE";
@@ -104,6 +105,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	private Instant timeCriticalMinVoltage;
 	private Integer lastKnownMinVoltage;
+	private BatteryFeneconHomeHardwareType hardwareType;
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -432,9 +434,21 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	private void updateHardwareType(BatteryFeneconHomeHardwareType hardwareType) {
 		this.getBatteryHardwareTypeChannel().setNextValue(hardwareType);
 
+		var numberOfTowers = this.getNumberOfTowersChannel().getNextValue().orElse(1);
+
+		this.hardwareType = hardwareType;
 		// Set Battery Protection depending on the hardware type
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(hardwareType.batteryProtection, this.componentManager) //
+				.applyBatteryProtectionDefinition(FeneconHomeBatteryProtection.createProtection(hardwareType,
+						() -> numberOfTowers * FORCE_CHARGE_CURRENT_PER_TOWER), this.componentManager) //
+				.build();
+	}
+
+	protected synchronized void updateBatteryProtection(Value<Integer> numberOfTowers) {
+
+		this.batteryProtection = BatteryProtection.create(this) //
+				.applyBatteryProtectionDefinition(FeneconHomeBatteryProtection.createProtection(this.hardwareType,
+						() -> numberOfTowers.orElse(1) * FORCE_CHARGE_CURRENT_PER_TOWER), this.componentManager) //
 				.build();
 	}
 
