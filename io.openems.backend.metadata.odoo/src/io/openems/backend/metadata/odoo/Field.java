@@ -444,7 +444,7 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		EDGE(ODOO_SETUP_PROTOCOL_EDGE_FIELD , true), //
+		EDGE(ODOO_SETUP_PROTOCOL_EDGE_FIELD, true), //
 		TYPE("type", true), //
 		CREATE_DATE("create_date", false);
 
