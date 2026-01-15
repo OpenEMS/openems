@@ -69,8 +69,21 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile TimeOfUseTariff timeOfUseTariff;
+
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
+	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		this.timeOfUseTariff = tariff;
+		this.triggerReschedule("EnergySchedulerImpl::bindTimeOfUseTariff()");
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		if (this.timeOfUseTariff == tariff) {
+			this.timeOfUseTariff = null;
+			this.triggerReschedule("EnergySchedulerImpl::unbindTimeOfUseTariff()");
+		}
+	}
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
