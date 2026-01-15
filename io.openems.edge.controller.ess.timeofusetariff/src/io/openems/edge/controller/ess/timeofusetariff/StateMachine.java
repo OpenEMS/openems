@@ -9,7 +9,11 @@ public enum StateMachine implements OptionsEnum {
 	BALANCING(1, "Self-consumption optimization"), //
 	DELAY_DISCHARGE(0, "Delay discharge"), //
 	CHARGE_GRID(3, "Charge from grid"), //
-	DISCHARGE_GRID(4, "Discharge to grid") //
+	DISCHARGE_GRID(4, "Discharge to grid"), //
+	/*
+	 * Peak-Shaving internally does the same as CHARGE_GRID.
+	 */
+	PEAK_SHAVING(5, "Grid Peak-Shaving") //
 	;
 
 	private final int value;

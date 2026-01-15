@@ -2,10 +2,11 @@ package io.openems.edge.controller.ess.timeofusetariff.v1;
 
 import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ESS_LIMIT_14A_ENWG;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargeGridPower;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateDelayDischargePower;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_CHARGE_C_RATE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.postprocessRunState;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.round;
 import static java.util.stream.IntStream.concat;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTota
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 /**
@@ -117,7 +119,7 @@ public final class UtilsV1 {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
-		case DISCHARGE_GRID -> null; // NOT IMPLEMENTED
+		case DISCHARGE_GRID, PEAK_SHAVING -> null; // NOT IMPLEMENTED
 		};
 
 		return new ApplyMode(actualState, setPoint);
@@ -156,5 +158,64 @@ public final class UtilsV1 {
 			return Integer.MIN_VALUE;
 		}
 		return ESS_LIMIT_14A_ENWG; // 4.2 kW
+	}
+
+	/**
+	 * Calculates the Max-ActivePower constraint for
+	 * {@link StateMachine#CHARGE_GRID}.
+	 * 
+	 * @param essChargePowerInChargeGrid ESS Charge Power in CHARGE_GRID State [W]
+	 * @param ess                        the {@link ManagedSymmetricEss}
+	 * @param essActivePower             the ESS ActivePower
+	 * @param gridActivePower            the Grid ActivePower
+	 * @param maxChargePowerFromGrid     the configured max charge from grid power
+	 * @return the negative set-point or null
+	 */
+	@Deprecated
+	public static int calculateChargeGridPower(Integer essChargePowerInChargeGrid, ManagedSymmetricEss ess,
+			int essActivePower, int gridActivePower, int maxChargePowerFromGrid) {
+		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
+		var targetChargePower = essPowerOrElse(essChargePowerInChargeGrid, ess) //
+				+ min(0, realGridPower) * -1; // add excess production
+		var effectiveGridBuyPower = max(0, realGridPower) + targetChargePower;
+		var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower - maxChargePowerFromGrid));
+
+		// Invert to negative for CHARGE
+		return chargePower * -1;
+	}
+
+	@Deprecated
+	protected static int essPowerOrElse(Integer power, ManagedSymmetricEss ess) {
+		if (power != null) {
+			return power;
+		}
+		var capacity = ess.getCapacity();
+		if (capacity.isDefined()) {
+			return round(capacity.get() * ESS_CHARGE_C_RATE);
+		}
+		var maxApparentPower = ess.getMaxApparentPower();
+		if (maxApparentPower.isDefined()) {
+			return maxApparentPower.get();
+		}
+		return 0;
+	}
+
+	/**
+	 * Calculates the ActivePower constraint for
+	 * {@link StateMachine#DELAY_DISCHARGE}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 * @return the set-point
+	 */
+	@Deprecated
+	public static int calculateDelayDischargePower(ManagedSymmetricEss ess) {
+		return switch (ess) {
+		case HybridEss e ->
+			// Limit discharge to DC-PV power
+			max(0, ess.getActivePower().orElse(0) - e.getDcDischargePower().orElse(0));
+		default ->
+			// Limit discharge to 0
+			0;
+		};
 	}
 }

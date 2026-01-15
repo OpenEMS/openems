@@ -34,7 +34,7 @@ import io.jenetics.engine.EvolutionResult;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 

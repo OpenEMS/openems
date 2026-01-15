@@ -1,7 +1,5 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-
 import java.time.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
@@ -66,90 +64,6 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	 * @return the Schedule
 	 */
 	public <OPTIMIZATION_CONTEXT> ImmutableSortedMap<ZonedDateTime, ? extends Period<OPTIMIZATION_CONTEXT>> getSchedule();
-
-	public static class Fitness implements Comparable<Fitness> {
-
-		private int hardConstraintViolations = 0;
-		private double gridBuyCost = 0.;
-		private double gridSellRevenue = 0.;
-
-		/**
-		 * Gets the number of Hard-Constraint-Violations.
-		 * 
-		 * @return Hard-Constraint-Violations
-		 */
-		public int getHardConstraintViolations() {
-			return this.hardConstraintViolations;
-		}
-
-		/**
-		 * Add a Hard-Constraint-Violation with degree=1.
-		 */
-		public void addHardConstraintViolation() {
-			this.hardConstraintViolations++;
-		}
-
-		/**
-		 * Add a Hard-Constraint-Violation.
-		 * 
-		 * @param degree degree of violation
-		 */
-		public void addHardConstraintViolation(int degree) {
-			this.hardConstraintViolations += degree;
-		}
-
-		/**
-		 * Gets the Grid-Buy cost.
-		 * 
-		 * @return Grid-Buy cost
-		 */
-		public double getGridBuyCost() {
-			return this.gridBuyCost;
-		}
-
-		/**
-		 * Add Grid-Buy cost.
-		 * 
-		 * @param cost the cost
-		 */
-		public void addGridBuyCost(double cost) {
-			this.gridBuyCost += cost;
-		}
-
-		/**
-		 * Add Grid-Sell revenue.
-		 * 
-		 * @param revenue the revenue
-		 */
-		public void addGridSellRevenue(double revenue) {
-			this.gridSellRevenue += revenue;
-		}
-
-		@Override
-		public int compareTo(Fitness o) {
-			// 1st priority: hard constraints (lower is better)
-			if (this.hardConstraintViolations != o.hardConstraintViolations) {
-				return Integer.compare(this.hardConstraintViolations, o.hardConstraintViolations);
-			}
-
-			// 2nd priority: grid buy cost (lower is better)
-			if (this.gridBuyCost != o.gridBuyCost) {
-				return Double.compare(this.gridBuyCost, o.gridBuyCost);
-			}
-
-			// 3nd priority: grid sell revenue (higher is better)
-			return Double.compare(o.gridSellRevenue, this.gridSellRevenue);
-		}
-
-		@Override
-		public String toString() {
-			return toStringHelper(Fitness.class) //
-					.add("hardConstraintViolations", this.hardConstraintViolations) //
-					.add("gridBuyCost", this.gridBuyCost) //
-					.add("gridSellRevenue", this.gridSellRevenue) //
-					.toString();
-		}
-	}
 
 	/**
 	 * A {@link EnergyScheduleHandler} for {@link EnergySchedulable} OpenEMS

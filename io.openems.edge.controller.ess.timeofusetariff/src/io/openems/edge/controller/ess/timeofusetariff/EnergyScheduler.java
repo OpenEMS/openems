@@ -121,7 +121,7 @@ public class EnergyScheduler {
 		switch (mode) {
 		case BALANCING -> applyBalancing(ef);
 		case DELAY_DISCHARGE -> applyDelayDischarge(ef);
-		case CHARGE_GRID -> {
+		case CHARGE_GRID, PEAK_SHAVING -> {
 			var chargeEnergy = min(//
 					period.duration().convertPowerToEnergy(coc.essChargePowerInChargeGrid),
 					coc.maxSocEnergyInChargeGrid - gsc.ess.getInitialEnergy());
@@ -218,6 +218,8 @@ public class EnergyScheduler {
 			var chargeGrid = simulateModeWithCopy(period, gsc, coc, ef, StateMachine.CHARGE_GRID);
 			if (chargeGrid.getEss() == balancing.getEss()) {
 				mode = StateMachine.BALANCING;
+			} else if (chargeGrid.getEss() > balancing.getEss()) {
+				mode = StateMachine.PEAK_SHAVING;
 			}
 		}
 		if (mode == StateMachine.DELAY_DISCHARGE && delayDischarge.getEss() == balancing.getEss()) {

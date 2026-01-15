@@ -134,7 +134,7 @@ public class Utils {
 
 		// Filter timePriceMap to include only entries from "now" onward.
 		// filteredMap will have 34 hour data maximum (when called during 14:00).
-		var filteredPrices = timePriceMap.tailMap(Instant.now(clock), true);
+		var filteredPrices = timePriceMap.tailMap(roundDownToQuarter(Instant.now(clock)), true);
 
 		if (filteredPrices.isEmpty()) {
 			return TimeOfUsePrices.EMPTY_PRICES; // or handle as appropriate

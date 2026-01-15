@@ -25,7 +25,7 @@ import io.jenetics.Genotype;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;

@@ -33,7 +33,7 @@ import io.jenetics.engine.EvolutionStream;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
@@ -88,6 +88,9 @@ public class Simulator {
 			var modeCombination = modeCombinations.get(schedule[periodIndex]);
 			simulatePeriod(gsc, cscs, periodIndex, modeCombination, fitness, bsc);
 		}
+
+		var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
+		fitness.addSoftConstraintViolation(runLengthCost);
 
 		return fitness;
 	}
@@ -156,11 +159,10 @@ public class Simulator {
 		final EnergyFlow energyFlow = ef.solve();
 
 		if (period instanceof Period.WithPrice periodWithPrice) {
+			final var price = periodWithPrice.price();
+
 			// Calculate Grid-Buy Cost
 			if (energyFlow.getGrid() > 0) {
-				// Filter negative prices
-				var price = max(0, periodWithPrice.price());
-
 				int buyFromGrid = max(0, energyFlow.getGrid());
 				int chargeEss = max(0, -energyFlow.getEss());
 				int gridToEss = Math.min(buyFromGrid, chargeEss);
@@ -174,9 +176,6 @@ public class Simulator {
 
 			// Calculate Grid-Sell Revenue
 			if (energyFlow.getGrid() < 0) {
-				// Filter negative prices
-				var price = max(0, periodWithPrice.price());
-
 				int sellToGrid = max(0, -energyFlow.getGrid());
 				int dischargeEnergy = max(0, energyFlow.getEss());
 				int essToGrid = Math.min(sellToGrid, dischargeEnergy);
@@ -276,6 +275,53 @@ public class Simulator {
 				bestGt, //
 				this.getTotalNumberOfSimulations(), //
 				this.getTotalNumberOfGenerations());
+	}
+
+	/**
+	 * Calculates the run-length based cost for a schedule of modes.
+	 * 
+	 * <p>
+	 * Schedules that frequently change modes incur a higher cost, whereas schedules
+	 * that maintain the same mode across multiple consecutive periods are rewarded
+	 * with a lower cost. The cost decreases non-linearly with the length of
+	 * consecutive identical modes, encouraging longer uninterrupted sequences.
+	 * 
+	 * <p>
+	 * Example:
+	 * 
+	 * <pre>
+	 * Modes: [A, A, A, B, B, C]
+	 * Runs:  AAA, BB, C
+	 * Cost:  1/3^2 + 1/2^2 + 1/1^2 = 1/9 + 1/4 + 1 = 1.3611
+	 * </pre>
+	 * </p>
+	 * 
+	 * @param goc              the {@link GlobalOptimizationContext}
+	 * @param modeCombinations the {@link ModeCombinations}
+	 * @param schedule         the Schedule
+	 * @return the run-length cost; smaller is better
+	 */
+	private static int calculateRunLengthCost(GlobalOptimizationContext goc, ModeCombinations modeCombinations,
+			int[] schedule) {
+		final var noOfPeriods = goc.periods().size();
+		float cost = 0.0F;
+		for (var eshIndex = 0; eshIndex < goc.eshsWithDifferentModes().size(); eshIndex++) {
+			int runLength = 1;
+			var lastMode = modeCombinations.get(schedule[0]).mode(eshIndex);
+			for (var periodIndex = 1; periodIndex < noOfPeriods; periodIndex++) {
+				var thisMode = modeCombinations.get(schedule[periodIndex]).mode(eshIndex);
+				if (thisMode.equals(lastMode)) {
+					runLength++;
+				} else {
+					cost += 1.0F / (runLength * runLength);
+					runLength = 1;
+				}
+				lastMode = thisMode;
+			}
+			cost += 1.0F / (runLength * runLength);
+		}
+
+		return Math.round(cost);
 	}
 
 	/**
