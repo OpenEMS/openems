@@ -97,7 +97,7 @@ public class PredictorProductionLinearModelImplTest {
 
 	@Test
 	public void testCreateNewPrediction_ShouldReturnLongtermPrediction_WhenNoSnow() {
-		var longtermPrediction = Prediction.from(this.now, 1, 2, 3);
+		var longtermPrediction = Prediction.from(this.now.toInstant(), 1, 2, 3);
 		when(this.sut.createLongTermPrediction(any())).thenReturn(longtermPrediction);
 		when(this.snowStateMachine.getCurrentState()).thenReturn(State.NORMAL);
 
@@ -110,7 +110,7 @@ public class PredictorProductionLinearModelImplTest {
 
 	@Test
 	public void testCreateNewPrediction_ShouldReturnPersistencePrediction_WhenSnow() {
-		var persistencePrediction = Prediction.from(this.now, 4, 5, 6);
+		var persistencePrediction = Prediction.from(this.now.toInstant(), 4, 5, 6);
 		when(this.predictorPersistenceModel.getPrediction(any())).thenReturn(persistencePrediction);
 		when(this.snowStateMachine.getCurrentState()).thenReturn(State.SNOW);
 		when(this.snowStateMachine.getSnowStart()).thenReturn(this.now.minusHours(24));
@@ -124,7 +124,7 @@ public class PredictorProductionLinearModelImplTest {
 
 	@Test
 	public void testCreateNewPrediction_ShouldReturnLongtermPrediction_WhenSnowStartWithinLast24h() {
-		var longtermPrediction = Prediction.from(this.now, 1, 2, 3);
+		var longtermPrediction = Prediction.from(this.now.toInstant(), 1, 2, 3);
 		when(this.sut.createLongTermPrediction(any())).thenReturn(longtermPrediction);
 		when(this.snowStateMachine.getCurrentState()).thenReturn(State.SNOW);
 		when(this.snowStateMachine.getSnowStart()).thenReturn(this.now.minusHours(23));
@@ -139,7 +139,7 @@ public class PredictorProductionLinearModelImplTest {
 	@Test
 	public void testCreateNewPrediction_ShouldReturnLongtermPrediction_WhenSnowButPersistenceModelNotAvailable()
 			throws Exception {
-		var longtermPrediction = Prediction.from(this.now, 1, 2, 3);
+		var longtermPrediction = Prediction.from(this.now.toInstant(), 1, 2, 3);
 		when(this.sut.createLongTermPrediction(any())).thenReturn(longtermPrediction);
 		when(this.snowStateMachine.getCurrentState()).thenReturn(State.SNOW);
 		when(this.snowStateMachine.getSnowStart()).thenReturn(this.now.minusHours(Integer.MAX_VALUE));
@@ -167,7 +167,7 @@ public class PredictorProductionLinearModelImplTest {
 		var result = this.sut.createLongTermPrediction(PRODUCTION_CHANNEL_ADDRESS);
 
 		assertArrayEquals(new Integer[] { 0, 200 }, result.asArray());
-		assertEquals(this.now, result.getFirstTime());
+		assertEquals(this.now.toInstant(), result.getFirstTime());
 	}
 
 	@Test

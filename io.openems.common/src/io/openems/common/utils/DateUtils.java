@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -39,12 +40,33 @@ public class DateUtils {
 	}
 
 	/**
+	 * Rounds a {@link Instant} down to given minutes.
+	 *
+	 * @param d       the {@link Instant}
+	 * @param minutes the minutes to round down to; max 59
+	 * @return the rounded result
+	 */
+	public static Instant roundDownToMinutes(Instant d, int minutes) {
+		return d.truncatedTo(DurationUnit.ofMinutes(minutes));
+	}
+
+	/**
 	 * Rounds a {@link ZonedDateTime} down to next quarter (15 minutes).
 	 *
 	 * @param d the {@link ZonedDateTime}
 	 * @return the rounded result
 	 */
 	public static ZonedDateTime roundDownToQuarter(ZonedDateTime d) {
+		return roundDownToMinutes(d, 15);
+	}
+
+	/**
+	 * Rounds a {@link Instant} down to next quarter (15 minutes).
+	 *
+	 * @param d the {@link Instant}
+	 * @return the rounded result
+	 */
+	public static Instant roundDownToQuarter(Instant d) {
 		return roundDownToMinutes(d, 15);
 	}
 
@@ -296,6 +318,26 @@ public class DateUtils {
 	 */
 	public static ZonedDateTime min(ZonedDateTime... values) {
 		ZonedDateTime result = null;
+		for (var value : values) {
+			if (result != null && value != null) {
+				if (value.isBefore(result)) {
+					result = value;
+				}
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the min value of all values.
+	 *
+	 * @param values the {@link Instant} values
+	 * @return the min value; or null if all values are null
+	 */
+	public static Instant min(Instant... values) {
+		Instant result = null;
 		for (var value : values) {
 			if (result != null && value != null) {
 				if (value.isBefore(result)) {

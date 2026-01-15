@@ -1,11 +1,13 @@
 package io.openems.edge.timeofusetariff.api;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSortedMap;
@@ -21,7 +23,8 @@ public class TouManualHelper {
 	private final Clock clock;
 	private final double standardPrice;
 	private final JSCalendar.Tasks<Double> schedule;
-	private ImmutableSortedMap<ZonedDateTime, Double> prices;
+
+	private TimeOfUsePrices prices = null;
 	private ZonedDateTime lastAccessTime = null;
 
 	public TouManualHelper(Clock clock, JSCalendar.Tasks<Double> schedule, double standardPrice) {
@@ -42,27 +45,28 @@ public class TouManualHelper {
 	 * @return an instance of {@link TimeOfUsePrices} representing the configured
 	 *         pricing details.
 	 */
-	public TimeOfUsePrices getPrices() {
+	public synchronized TimeOfUsePrices getPrices() {
 		final var now = roundDownToQuarter(ZonedDateTime.now(this.clock));
 
-		if (this.lastAccessTime != null && !now.isAfter(this.lastAccessTime)) {
+		if (this.lastAccessTime != null && this.prices != null && !now.isAfter(this.lastAccessTime)) {
 			// Avoids recalculation within 15 minutes.
-			return TimeOfUsePrices.from(this.prices);
+			return this.prices;
 		}
 
 		final var fromDate = now;
-		final var toDate = fromDate.plusDays(1).plusHours(12); // 36 hours
+		final var toDate = fromDate.plus(1, DAYS).plus(12, HOURS); // 36 hours
 
 		final var ots = this.schedule.getOneTasksBetween(fromDate, toDate);
-		this.prices = Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
+		var prices = Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
 				.takeWhile(d -> d.isBefore(toDate)) //
 				.collect(ImmutableSortedMap.toImmutableSortedMap(//
-						ZonedDateTime::compareTo, //
-						Function.identity(), //
+						Instant::compareTo, //
+						ZonedDateTime::toInstant, //
 						t -> Optional.ofNullable(ots.getPayloadAt(t)) //
 								// No active OneTask -> fallback
 								.orElse(this.standardPrice)));
 		this.lastAccessTime = now;
-		return TimeOfUsePrices.from(this.prices);
+		this.prices = TimeOfUsePrices.from(prices);
+		return this.prices;
 	}
 }

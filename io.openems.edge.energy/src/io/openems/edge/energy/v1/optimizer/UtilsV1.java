@@ -281,7 +281,7 @@ public final class UtilsV1 {
 		} else {
 			var lastTime = timeOfUseTariff.getPrices().getLastTime();
 			if (lastTime != null) {
-				toTime = lastTime;
+				toTime = lastTime.atZone(now.getZone());
 			} else {
 				toTime = fromTime;
 			}

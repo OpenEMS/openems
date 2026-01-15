@@ -2,6 +2,7 @@ package io.openems.edge.energy.api.simulation;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
@@ -13,6 +14,7 @@ import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.HOUR;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static java.lang.Math.abs;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.util.stream.Collectors.joining;
 
 import java.time.Clock;
@@ -33,7 +35,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
@@ -556,7 +557,7 @@ public record GlobalOptimizationContext(//
 			}
 
 			final var clock = this.componentManager.getClock();
-			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+			final var startTime = roundDownToQuarter(ZonedDateTime.now(clock));
 			final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
 
 			// Prediction values
@@ -592,17 +593,17 @@ public record GlobalOptimizationContext(//
 				final var rangeStart = startTime.plusMinutes(i * 15);
 				final var rangeEnd = rangeStart.plusMinutes(60);
 				final var production = productions //
-						.getBetween(rangeStart, rangeEnd) //
+						.getBetweenInclusive(rangeStart, rangeEnd) //
 						.reduce(Integer::sum) //
 						.map(HOUR::convertPowerToEnergy) //
 						.orElse(null);
 				final var consumption = consumptions //
-						.getBetween(rangeStart, rangeEnd) //
+						.getBetweenInclusive(rangeStart, rangeEnd) //
 						.reduce(Integer::sum) //
 						.map(HOUR::convertPowerToEnergy) //
 						.orElse(null);
 				final var priceOpt = prices //
-						.getBetween(rangeStart, rangeEnd) //
+						.getBetweenInclusive(rangeStart, rangeEnd) //
 						.mapToDouble(Double::doubleValue) //
 						.average();
 				final var price = priceOpt.isEmpty() //
@@ -712,7 +713,7 @@ public record GlobalOptimizationContext(//
 	// TODO this should be set depending on the actual calculation time and
 	// quality of the best schedule result
 	protected static int calculatePeriodDurationHourFromIndex(ZonedDateTime time) {
-		var minute = time.getMinute();
+		var minute = time.get(MINUTE_OF_HOUR);
 		if (minute == 0) {
 			minute = 60;
 		}

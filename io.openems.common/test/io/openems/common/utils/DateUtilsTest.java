@@ -19,13 +19,18 @@ public class DateUtilsTest {
 
 	@Test
 	public void testRoundDownToQuarter() throws Exception {
-		assertEquals(//
-				ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC")), //
-				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"))));
-
-		assertEquals(//
-				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
-				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
+		{
+			var expected = ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC"));
+			var source = ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"));
+			assertEquals(expected, roundDownToQuarter(source));
+			assertEquals(expected.toInstant(), roundDownToQuarter(source.toInstant()));
+		}
+		{
+			var expected = ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC"));
+			var source = ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"));
+			assertEquals(expected, roundDownToQuarter(source));
+			assertEquals(expected.toInstant(), roundDownToQuarter(source.toInstant()));
+		}
 	}
 
 	@Test

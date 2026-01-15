@@ -30,7 +30,7 @@ public class GlobalOptimizationContextTest {
 	@Test
 	public void testBuild() throws OpenemsNamedException {
 		final var cm = new DummyComponentManager(CLOCK);
-		final var now = ZonedDateTime.now(CLOCK);
+		final var now = Instant.now(CLOCK);
 		final var sum = new DummySum() //
 				.withEssCapacity(10000) //
 				.withEssSoc(50) //

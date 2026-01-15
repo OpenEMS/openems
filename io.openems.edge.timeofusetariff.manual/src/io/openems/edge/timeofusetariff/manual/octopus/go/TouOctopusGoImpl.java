@@ -112,6 +112,7 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 	@Override
 	public TimeOfUsePrices getPrices() {
 		return Utils.getPrices(//
+				this.componentManager.getClock(), //
 				this.octopusHelper, //
 				this.ancillaryCostsHelper, //
 				this.config.ancillaryCosts(), //

@@ -14,6 +14,7 @@ import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.time.Duration.ofSeconds;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.function.Function;
@@ -90,9 +91,9 @@ public final class AppUtils {
 			final TimeOfUseTariff timeOfUseTariff;
 			final PredictorManager predictorManager;
 			try {
-				final var prices = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
-				final var productions = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
-				final var consumptions = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
+				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
+				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
+				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 				final var timeParser = new TimeParser(startTime);
 				json.getJsonArray("periods").forEach(e -> {
 					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
@@ -189,7 +190,7 @@ public final class AppUtils {
 				.build();
 	}
 
-	private static class TimeParser implements Function<JsonObjectPath, ZonedDateTime> {
+	private static class TimeParser implements Function<JsonObjectPath, Instant> {
 
 		private final ZonedDateTime start;
 
@@ -200,7 +201,7 @@ public final class AppUtils {
 		}
 
 		@Override
-		public synchronized ZonedDateTime apply(JsonObjectPath p) {
+		public synchronized Instant apply(JsonObjectPath p) {
 			var time = p.getLocalTime("time");
 			var base = this.last == null //
 					? this.start //
@@ -210,7 +211,7 @@ public final class AppUtils {
 				result = result.plusDays(1);
 			}
 			this.last = result;
-			return result;
+			return result.toInstant();
 		}
 	}
 }

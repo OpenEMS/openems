@@ -3,11 +3,11 @@ package io.openems.edge.timeofusetariff.ancillarycosts;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.currency.Currency.EUR;
+import static io.openems.edge.timeofusetariff.api.GermanDSO.GERMAN_ZONE_ID;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class TouAncillaryCostsTest {
 	@Test
 	public void testBasicActivation() throws Exception {
 		var ac = new TouAncillaryCostsImpl();
-		var clock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var clock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:00:00.00Z"), GERMAN_ZONE_ID);
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta() //
@@ -50,45 +50,50 @@ public class TouAncillaryCostsTest {
 		final double fixedPrice = 1.0;
 		final var ac = new TouAncillaryCostsImpl();
 
-		var summerClock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
+		{
+			// Test Summer
+			var clock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:30:00.00Z"), GERMAN_ZONE_ID);
 
-		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta() //
-						.withCurrency(EUR)) //
-				.addReference("componentManager", new DummyComponentManager(summerClock)) //
-				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setFixedTariff(fixedPrice) //
-						.setAncillaryCosts(buildJsonObject() //
-								.addProperty("dso", "BAYERNWERK") //
-								.build() //
-								.toString()) //
-						.build());
+			new ComponentTest(ac) //
+					.addReference("meta", new DummyMeta() //
+							.withCurrency(EUR)) //
+					.addReference("componentManager", new DummyComponentManager(clock)) //
+					.activate(MyConfig.create() //
+							.setId(COMPONENT_ID) //
+							.setFixedTariff(fixedPrice) //
+							.setAncillaryCosts(buildJsonObject() //
+									.addProperty("dso", "BAYERNWERK") //
+									.build() //
+									.toString()) //
+							.build());
 
-		var summerAncillaryPrice = GermanDSO.BAYERNWERK.getPriceAt(ZonedDateTime.now(summerClock));
-		var summerPrices = ac.getPrices();
-		var expectedPrice = (summerAncillaryPrice + fixedPrice) * 10;
-		assertEquals(expectedPrice, summerPrices.getFirst(), 0.01);
+			var ancillaryPrice = GermanDSO.BAYERNWERK.getPriceAt(ZonedDateTime.now(clock));
+			var prices = ac.getPrices();
+			var expectedPrice = (ancillaryPrice + fixedPrice) * 10;
+			assertEquals(expectedPrice, prices.getFirst(), 0.01);
+		}
+		{
+			// Test Autumn
+			var clock = Clock.fixed(Instant.parse(YEAR + "-10-01T18:00:00.00Z"), GERMAN_ZONE_ID);
 
-		var autumnClock = Clock.fixed(Instant.parse(YEAR + "-10-01T18:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+			new ComponentTest(ac) //
+					.addReference("meta", new DummyMeta() //
+							.withCurrency(EUR)) //
+					.addReference("componentManager", new DummyComponentManager(clock)) //
+					.activate(MyConfig.create() //
+							.setId(COMPONENT_ID) //
+							.setFixedTariff(fixedPrice) //
+							.setAncillaryCosts(buildJsonObject() //
+									.addProperty("dso", "BAYERNWERK") //
+									.build() //
+									.toString()) //
+							.build());
 
-		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta() //
-						.withCurrency(EUR)) //
-				.addReference("componentManager", new DummyComponentManager(autumnClock)) //
-				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setFixedTariff(fixedPrice) //
-						.setAncillaryCosts(buildJsonObject() //
-								.addProperty("dso", "BAYERNWERK") //
-								.build() //
-								.toString()) //
-						.build());
-
-		var autumnAncillaryPrice = GermanDSO.BAYERNWERK.getPriceAt(ZonedDateTime.now(autumnClock));
-		var autumnPrices = ac.getPrices();
-		expectedPrice = (autumnAncillaryPrice + fixedPrice) * 10;
-		assertEquals(expectedPrice, autumnPrices.getFirst(), 0.01);
+			var ancillaryPrice = GermanDSO.BAYERNWERK.getPriceAt(ZonedDateTime.now(clock));
+			var prices = ac.getPrices();
+			var expectedPrice = (ancillaryPrice + fixedPrice) * 10;
+			assertEquals(expectedPrice, prices.getFirst(), 0.01);
+		}
 	}
 
 	@Test
@@ -116,7 +121,7 @@ public class TouAncillaryCostsTest {
 				""";
 
 		var ac = new TouAncillaryCostsImpl();
-		var clock = Clock.fixed(Instant.parse("2025-07-29T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
+		var clock = Clock.fixed(Instant.parse("2025-07-29T00:00:00.00Z"), GERMAN_ZONE_ID);
 
 		new ComponentTest(ac) //
 				.addReference("meta", new DummyMeta() //
