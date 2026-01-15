@@ -1,7 +1,8 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, effect, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
+import { IonCol } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyFormOptions, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -18,10 +19,10 @@ import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { CommonUiModule } from "../../../shared/common-ui.module";
-import { currentUserRows, otherUserRows } from "./formly/formly-alerting-configs";
-import de from "./i18n/de.json";
-import en from "./i18n/en.json";
+import { CommonUiModule } from "../../../../shared/common-ui.module";
+import { currentUserRows, otherUserRows } from "../formly/formly-alerting-configs";
+import de from "../i18n/de.json";
+import en from "../i18n/en.json";
 
 export enum AlertingType {
     OFFLINE,
@@ -33,7 +34,7 @@ export type DefaultValues = { [K in AlertingType]: Delay[]; };
 export type Delay = { value: number, label: string };
 
 type AlertingSetting = AlertingSettingResponse;
-type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isFaultActive: boolean, isWarningActive: boolean };
+export type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isFaultActive: boolean, isWarningActive: boolean };
 
 @Component({
     selector: AlertingComponent.SELECTOR,
@@ -46,10 +47,22 @@ type DetailedAlertingSetting = AlertingSetting & { isOfflineActive: boolean, isF
         NgxSpinnerModule,
         FormlyModule,
     ],
+    styles: `
+    ion-select {
+        max-width: 100% !important;
+        margin: auto;
+        padding: 0;
+        vertical-align: middle;
+    }
+    `,
 })
-export class AlertingComponent implements OnInit, OnDestroy {
+export class AlertingComponent implements OnDestroy {
+
     protected static readonly SELECTOR = "alerting";
     private static readonly NO_ALERTING: number = 0;
+
+    @Input() public css: Pick<IonCol, "sizeMd"> = { sizeMd: "8" };
+    @Output() public currentUserAlertingSettings: EventEmitter<null | DetailedAlertingSetting> = new EventEmitter<DetailedAlertingSetting | null>(null);
     public readonly spinnerId: string = AlertingComponent.SELECTOR;
     protected AlertingType = AlertingType;
 
@@ -63,9 +76,9 @@ export class AlertingComponent implements OnInit, OnDestroy {
     protected user: User;
     protected error: Error;
 
-    protected currentUserInformation: DetailedAlertingSetting;
     protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
     protected otherUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
+    protected currentUserInformation: DetailedAlertingSetting;
 
     protected otherUserInformation: AlertingSetting[];
 
@@ -82,6 +95,15 @@ export class AlertingComponent implements OnInit, OnDestroy {
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
+
+        effect(() => {
+            const edge = this.service.currentEdge();
+            this.edge = edge;
+
+            if (edge !== null) {
+                this.setup();
             }
         });
     }
@@ -110,26 +132,23 @@ export class AlertingComponent implements OnInit, OnDestroy {
         return !(faultInvalid || offlineInvalid);
     }
 
-    public ngOnInit(): void {
+    public setup(): void {
         this.service.startSpinner(this.spinnerId);
-        this.service.getCurrentEdge().then(edge => {
-            this.edge = edge;
 
-            this.service.metadata.subscribe(metadata => {
-                this.user = metadata.user;
-            });
+        this.service.metadata.subscribe(metadata => {
+            this.user = metadata.user;
+        });
 
-            const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
+        const request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
 
-            this.sendRequest(request).then(response => {
-                const result = response.result;
+        this.sendRequest(request).then(response => {
+            const result = response.result;
 
-                this.setupCurrentUser(result.currentUserSettings);
-                this.setupOtherUsers(result.otherUsersSettings);
-                this.service.stopSpinner(this.spinnerId);
-            }).catch(error => {
-                this.error = error.error;
-            });
+            this.setupCurrentUser(result.currentUserSettings);
+            this.setupOtherUsers(result.otherUsersSettings);
+            this.service.stopSpinner(this.spinnerId);
+        }).catch(error => {
+            this.error = error.error;
         });
     }
 
@@ -244,8 +263,10 @@ export class AlertingComponent implements OnInit, OnDestroy {
     }
 
     private setupCurrentUser(response: AlertingSettingResponse) {
+        const currentUser = this.asDetailedSettings(response);
         this.currentUserInformation = this.asDetailedSettings(response);
-        this.currentUserForm = this.generateForm(this.currentUserInformation, this.edge.role);
+        this.currentUserAlertingSettings.emit(currentUser);
+        this.currentUserForm = this.generateForm(currentUser, this.edge.role);
     }
 
     private generateForm(settings: DetailedAlertingSetting, edgeRole: Role): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any, } {
@@ -374,6 +395,10 @@ export class AlertingComponent implements OnInit, OnDestroy {
                 for (const group of formGroup.values()) {
                     group.markAsPristine();
                 }
+                if (request instanceof SetUserAlertingConfigsRequest) {
+                    const currentUserAlerting = ArrayUtils.getFirstElementWhereOrNull(request.params.userSettings, "userLogin", this.user.id);
+                    this.currentUserAlertingSettings.emit(this.asDetailedSettings(currentUserAlerting));
+                }
             })
             .catch((response) => {
                 const error = response.error;
@@ -389,7 +414,8 @@ export class AlertingComponent implements OnInit, OnDestroy {
     private sendRequest(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest): Promise<GetUserAlertingConfigsResponse> {
         return new Promise((resolve, reject) => {
             this.service.startSpinner(this.spinnerId);
-            this.websocket.sendRequest(request).then(response => {
+            this.websocket.sendRequest<GetUserAlertingConfigsResponse>(request).then(response => {
+                // this.currentUserInformationSome.emit(this.asDetailedSettings(response.result.currentUserSettings));
                 resolve(response as GetUserAlertingConfigsResponse);
             }).catch(reason => {
                 const error = reason.error;
