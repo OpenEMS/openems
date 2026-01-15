@@ -1,5 +1,6 @@
 package io.openems.common.bridge.http.api;
 
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
 import io.openems.common.bridge.http.time.DelayTimeProvider;
@@ -31,5 +32,12 @@ public interface BridgeHttpExecutor {
 	 * @return true if this executor is shutdown else false
 	 */
 	public boolean isShutdown();
+
+	/**
+	 * Returns key metrics of this executor.
+	 * 
+	 * @return a map with key metrics
+	 */
+	Map<String, Long> getMetrics();
 
 }

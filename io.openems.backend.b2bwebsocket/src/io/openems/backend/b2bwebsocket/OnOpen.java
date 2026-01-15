@@ -4,6 +4,9 @@ import static io.openems.common.websocket.WebsocketUtils.getAsString;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -12,21 +15,24 @@ import org.java_websocket.handshake.Handshakedata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationService;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-	private final Logger log = LoggerFactory.getLogger(OnClose.class);
+	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
 	private final Supplier<Metadata> metadata;
+	private final Supplier<AuthUserPasswordAuthenticationService> userAuthService;
 	private final BiConsumer<Logger, String> logInfo;
 
 	public OnOpen(//
 			Supplier<Metadata> metadata, //
+			Supplier<AuthUserPasswordAuthenticationService> userAuthService, //
 			BiConsumer<Logger, String> logInfo) {
 		this.metadata = metadata;
+		this.userAuthService = userAuthService;
 		this.logInfo = logInfo;
 	}
 
@@ -63,8 +69,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		}
 		User user;
 		try {
-			user = this.metadata.get().authenticate(username, password);
-		} catch (OpenemsNamedException e) {
+			final var authResult = this.userAuthService.get().authenticateWithPassword(username, password).get(30,
+					TimeUnit.SECONDS);
+			user = this.metadata.get().getUserByExternalId(authResult.userId()).get(30, TimeUnit.SECONDS);
+		} catch (ExecutionException | InterruptedException | TimeoutException e) {
 			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
 		}
 

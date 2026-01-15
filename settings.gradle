@@ -34,6 +34,6 @@ plugins {
 
 rootProject.name = 'openems'
 
-include ":io.openems.edge.application"
 include ":io.openems.backend.application"
+include ":io.openems.backend.edge.application"
 include ":doc"

@@ -168,8 +168,15 @@ update_bndrun() {
 		if [[ "$D" == *api ]]; then
 			continue # ignore api bundle
 		fi
+		if [[ "$1" == "BackendApp" && "$D" == "io.openems.backend.edge.application" ]]; then
+			continue # ignore Backend-Edge-App
+		fi
+		if [[ "$1" == "BackendEdgeApp" && "$D" == "io.openems.backend.edge.manager" ]]; then
+			continue # ignore Edge-Manager
+		fi
 		echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
 	done
+	echo "	bnd.identity;id='io.openems.backend.metrics.prometheus',\\" >> "$bndrun.new"
 	local runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 	tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
 	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
@@ -177,7 +184,7 @@ update_bndrun() {
 	./gradlew resolve.$1
 }
 
-update_bndrun EdgeApp 'io.openems.edge'
+update_bndrun BackendEdgeApp 'io.openems.backend.edge'
 update_bndrun BackendApp 'io.openems.backend'
 
 # Build + test UI

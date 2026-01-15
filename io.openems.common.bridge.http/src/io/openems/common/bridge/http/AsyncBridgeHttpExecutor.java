@@ -1,5 +1,6 @@
 package io.openems.common.bridge.http;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -16,7 +17,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @Component(scope = ServiceScope.PROTOTYPE)
 public class AsyncBridgeHttpExecutor implements BridgeHttpExecutor {
 
-	private final ScheduledExecutorService pool = Executors.newScheduledThreadPool(0, Thread.ofVirtual().factory());
+	private final ScheduledExecutorService pool = Executors.newScheduledThreadPool(50, Thread.ofVirtual().factory());
 
 	@Override
 	public ScheduledFuture<?> schedule(Runnable task, DelayTimeProvider.Delay.DurationDelay durationDelay) {
@@ -36,6 +37,11 @@ public class AsyncBridgeHttpExecutor implements BridgeHttpExecutor {
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.pool, 0);
+	}
+
+	@Override
+	public Map<String, Long> getMetrics() {
+		return ThreadPoolUtils.debugMetrics(this.pool);
 	}
 
 }

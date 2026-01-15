@@ -28,6 +28,10 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 	@Override
 	public HttpResponse<String> fetchEndpoint(final BridgeHttp.Endpoint endpoint, DebugMode mode) throws HttpError {
 		try {
+			if (mode == DebugMode.DETAILED) {
+				this.log.info("Fetching Endpoint for request endpoint: {}", endpoint);
+			}
+
 			var url = URI.create(endpoint.url()).toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod(endpoint.method().name());

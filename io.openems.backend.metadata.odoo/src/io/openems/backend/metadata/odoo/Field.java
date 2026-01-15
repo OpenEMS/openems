@@ -283,7 +283,11 @@ public interface Field {
 		PARTNER("partner_id", true), //
 		GLOBAL_ROLE("global_role", true), //
 		GROUPS("groups_id", true), //
-		OPENEMS_LANGUAGE("openems_language", true);
+		OPENEMS_LANGUAGE("openems_language", true), //
+
+		// when oauth is used
+		OAUTH_PROVIDER_ID("oauth_provider_id", false), //
+		OAUTH_UID("oauth_uid", false);
 
 		public static final String ODOO_MODEL = "res.users";
 		public static final String ODOO_TABLE = User.ODOO_MODEL.replace(".", "_");
@@ -679,6 +683,53 @@ public interface Field {
 		public boolean isQuery() {
 			return this.query;
 		}
+	}
+
+	public enum AuthOAuthProvider implements Field {
+		NAME("name", true), //
+		;
+
+		public static final String ODOO_MODEL = "auth.oauth.provider";
+		public static final String ODOO_TABLE = AuthOAuthProvider.ODOO_MODEL.replace(".", "_");
+
+		private static final class StaticFields {
+			private static int nextQueryIndex = 1;
+		}
+
+		private final int queryIndex;
+		private final String id;
+
+		/**
+		 * Holds information if this Field should be queried from and written to
+		 * Database.
+		 */
+		private final boolean query;
+
+		private AuthOAuthProvider(String id, boolean query) {
+			this.id = id;
+			this.query = query;
+			if (query) {
+				this.queryIndex = AuthOAuthProvider.StaticFields.nextQueryIndex++;
+			} else {
+				this.queryIndex = -1;
+			}
+		}
+
+		@Override
+		public String id() {
+			return this.id;
+		}
+
+		@Override
+		public int index() {
+			return this.queryIndex;
+		}
+
+		@Override
+		public boolean isQuery() {
+			return this.query;
+		}
+
 	}
 
 }

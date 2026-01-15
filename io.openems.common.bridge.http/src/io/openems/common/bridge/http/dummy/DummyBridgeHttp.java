@@ -1,5 +1,7 @@
 package io.openems.common.bridge.http.dummy;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
@@ -35,6 +37,11 @@ public class DummyBridgeHttp implements BridgeHttp {
 	@Override
 	public <T extends HttpBridgeService> T createService(HttpBridgeServiceDefinition<T> serviceDefinition) {
 		return null;
+	}
+
+	@Override
+	public Map<String, Long> getMetrics() {
+		return Collections.emptyMap();
 	}
 
 }

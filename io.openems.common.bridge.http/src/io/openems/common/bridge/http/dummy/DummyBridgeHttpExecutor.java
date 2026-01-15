@@ -6,7 +6,9 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Delayed;
@@ -148,6 +150,11 @@ public class DummyBridgeHttpExecutor implements BridgeHttpExecutor {
 	@Override
 	public boolean isShutdown() {
 		return this.shutdown;
+	}
+
+	@Override
+	public Map<String, Long> getMetrics() {
+		return Collections.emptyMap();
 	}
 
 	/**

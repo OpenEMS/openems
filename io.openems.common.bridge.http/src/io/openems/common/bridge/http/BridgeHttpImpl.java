@@ -98,4 +98,9 @@ public class BridgeHttpImpl implements BridgeHttp {
 		return future;
 	}
 
+	@Override
+	public Map<String, Long> getMetrics() {
+		return this.pool.getMetrics();
+	}
+
 }
