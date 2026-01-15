@@ -63,6 +63,10 @@ public class TestTranslations {
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial100(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
 			this.apps.add(
 					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
@@ -293,6 +297,10 @@ public class TestTranslations {
 
 		for (var entry : this.apps) {
 			final var app = entry.app();
+
+			app.getName(l);
+			app.getShortName(l);
+
 			if (entry.validateAppAssistant()) {
 				app.getAppAssistant(DUMMY_ADMIN);
 			}
