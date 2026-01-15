@@ -8,6 +8,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.function.BiFunction;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -348,6 +350,33 @@ public class DateUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Determines the ordinal position (1-based) of the given date's weekday within
+	 * its month.
+	 * 
+	 * <p>
+	 * For example:
+	 * <ul>
+	 * <li>If the date is the first Monday of the month, the method returns 1.</li>
+	 * <li>If the date is the third Friday of the month, the method returns 3.</li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * The calculation is based on the number of full weeks between the first
+	 * occurrence of the same weekday in the month and the given date.
+	 *
+	 * @param date the {@link ZonedDateTime} whose weekday position in the month is
+	 *             to be determined; must not be {@code null}
+	 * @return an integer representing the nth occurrence of the date's weekday in
+	 *         its month (starting at 1 for the first occurrence)
+	 */
+	public static int nthWeekdayOfMonth(ZonedDateTime date) {
+		var dow = date.getDayOfWeek();
+		var firstDowInMonth = date.with(TemporalAdjusters.firstInMonth(dow));
+		long weeksBetween = ChronoUnit.WEEKS.between(firstDowInMonth, date);
+		return (int) weeksBetween + 1;
 	}
 
 	private static final <T> T parseDateOrNull(//

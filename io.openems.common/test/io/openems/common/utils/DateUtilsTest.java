@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -196,5 +197,28 @@ public class DateUtilsTest {
 		final var now0 = ZonedDateTime.now(TestUtils.createDummyClock());
 		final var now1 = now0.plusDays(1);
 		assertEquals(now0, DateUtils.min(null, now1, null, now0));
+	}
+
+	@Test
+	public void testNthWeekdayOfMonth() {
+		var now = ZonedDateTime.now(TestUtils.createDummyClock());
+		assertEquals(DayOfWeek.WEDNESDAY, now.getDayOfWeek());
+		assertEquals("2020-01-01T00:00Z", now.toString());
+		assertEquals(1, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-08T00:00Z", now.toString());
+		assertEquals(2, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-15T00:00Z", now.toString());
+		assertEquals(3, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-22T00:00Z", now.toString());
+		assertEquals(4, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-29T00:00Z", now.toString());
+		assertEquals(5, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-02-05T00:00Z", now.toString());
+		assertEquals(1, DateUtils.nthWeekdayOfMonth(now));
 	}
 }

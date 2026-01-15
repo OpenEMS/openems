@@ -4,6 +4,8 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.utils.DateUtils.nthWeekdayOfMonth;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.time.DayOfWeek.FRIDAY;
@@ -1049,12 +1051,13 @@ public class JSCalendar<PAYLOAD> {
 
 				var byDay = this.byDay.build();
 				switch (this.frequency) {
-				case DAILY, MONTHLY, YEARLY -> {
+				case DAILY, YEARLY -> {
 					if (!byDay.isEmpty()) {
 						LOG.warn("WARNING: RecurrenceRule with Frequency " + this.frequency
 								+ " is incomaptible with byDay " + byDay);
 					}
 				}
+				case MONTHLY -> doNothing();
 				case WEEKLY -> {
 					if (byDay.isEmpty()) {
 						// If no DayOfWeek are given: add all by default
@@ -1129,15 +1132,31 @@ public class JSCalendar<PAYLOAD> {
 				}
 				from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
 
-				var nextByDay = this.byDay.ceiling(from.getDayOfWeek());
-				if (nextByDay != null) {
-					yield from.with(nextOrSame(nextByDay)); // next weekday in list
+				var nextDayOfWeek = this.getNextDayOfWeek(from);
+				yield from.with(nextOrSame(nextDayOfWeek));
+			}
+			case MONTHLY -> {
+				if (this.byDay.isEmpty()) {
+					// For now only byDay is implemented for MONTHLY
+					yield null;
 				}
 
-				nextByDay = this.byDay.first();
-				yield from.with(nextOrSame(nextByDay)); // first day in list
+				// Adjust 'from' if the time of day has already passed
+				if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
+					from = from.plusDays(1); // tomorrow
+				}
+				from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+
+				var nextDayOfWeek = this.getNextDayOfWeek(from);
+				var next = from.with(nextOrSame(nextDayOfWeek));
+				if (nthWeekdayOfMonth(next) > 1) {
+					// For now only first occurrence of month is supported
+					// TODO implement 'interval' from RFC8984
+					yield from.plusMonths(1).withDayOfMonth(1) // first day of next month
+							.with(nextOrSame(nextDayOfWeek));
+				}
+				yield next;
 			}
-			case MONTHLY -> null; // not implemented
 			case YEARLY -> null; // not implemented
 			};
 
@@ -1146,6 +1165,19 @@ public class JSCalendar<PAYLOAD> {
 				return null;
 			}
 			return result;
+		}
+
+		private DayOfWeek getNextDayOfWeek(ZonedDateTime from) {
+			if (this.byDay.isEmpty()) {
+				return null;
+			}
+			// next weekday in list
+			var result = this.byDay.ceiling(from.getDayOfWeek());
+			if (result != null) {
+				return result;
+			}
+			// first day in list
+			return this.byDay.first();
 		}
 	}
 }
