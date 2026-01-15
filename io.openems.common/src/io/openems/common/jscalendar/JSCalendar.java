@@ -122,7 +122,7 @@ public class JSCalendar<PAYLOAD> {
 		 */
 		public static <PAYLOAD> Tasks<PAYLOAD> fromStringOrEmpty(Clock clock, String string,
 				JsonSerializer<PAYLOAD> payloadSerializer) {
-			if (string == null || string.isBlank()) {
+			if (string == null || string.isBlank() || string.equals("[]")) {
 				return Tasks.empty();
 			}
 			try {
@@ -262,7 +262,18 @@ public class JSCalendar<PAYLOAD> {
 					// There are corner-cases (e.g. recurrence with until) where this code gets
 					// executed on every Cycle.
 					this.oneTasks.clear();
-					this.oneTasks.addAll(this._getOneTasksBetween(now, now.plusDays(1)));
+					var ots = this._getOneTasksBetween(now, now.plusDays(1));
+					this.oneTasks.addAll(ots);
+					if (ots.size() == 1) {
+						// If only one OneTask was added, try to add even more to avoid coming here
+						// every cycle
+						final var ot = ots.getLast();
+						final var start = ot.duration.isZero() //
+								? ot.end.plusNanos(1) //
+								: ot.end;
+						var moreOts = this._getOneTasksBetween(start, ot.end.plusDays(1));
+						this.oneTasks.addAll(moreOts);
+					}
 				}
 
 				if (this.oneTasks.isEmpty()) {

@@ -35,7 +35,7 @@ public class JSCalendarApi {
 
 	/**
 	 * Adds Request Handlers to {@link JsonApiBuilder} for {@link JSCalendar}
-	 * operations..
+	 * operations.
 	 * 
 	 * @param <PAYLOAD>         the type of the Payload
 	 * @param builder           the {@link JsonApiBuilder}

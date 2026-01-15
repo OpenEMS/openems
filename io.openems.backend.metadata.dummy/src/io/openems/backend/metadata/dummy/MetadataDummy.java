@@ -71,7 +71,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final EventAdmin eventAdmin;
-	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
 	private final Map<String, User> users = new HashMap<>();
