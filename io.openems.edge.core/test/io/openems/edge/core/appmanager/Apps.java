@@ -232,6 +232,12 @@ public final class Apps {
 		return app(t, FeneconCommercial92::new, "App.FENECON.Commercial.92");
 	}
 
+	/**
+	 * Test method for creating a {@link FeneconCommercial100}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
 	public static final FeneconCommercial100 feneconCommercial100(AppManagerTestBundle t) {
 		return app(t, FeneconCommercial100::new, "App.FENECON.Commercial.100");
 	}

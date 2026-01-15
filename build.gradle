@@ -147,6 +147,9 @@ task checkstyleEdge() {
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
 			dependsOn(proj.checkstyleMain)
 		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
+		}
 	}
 }
 
@@ -157,6 +160,9 @@ task checkstyleBackend() {
 	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
 			dependsOn(proj.checkstyleMain)
+		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
 		}
 	}
 }
