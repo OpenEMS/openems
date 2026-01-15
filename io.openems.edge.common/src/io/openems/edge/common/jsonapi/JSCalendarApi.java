@@ -103,7 +103,7 @@ public class JSCalendarApi {
 			var config = ur.cm.getConfiguration(ur.servicePid, "?");
 			var properties = config.getProperties();
 
-			properties.put(ur.propertyKey, tasks.toJson(payloadSerializer));
+			properties.put(ur.propertyKey, tasks.toJson(payloadSerializer).toString());
 
 			var lastChangeBy = (user != null) //
 					? user.getId() + ": " + user.getName() //
