@@ -211,7 +211,6 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 
 -runbundles: \
@@ -420,7 +419,6 @@
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
-	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.weather.openmeteo;version=snapshot,\
 	io.openems.j2mod;version='[3.2.2,3.2.3)',\
@@ -479,8 +477,6 @@
 	org.jetbrains.kotlin.osgi-bundle;version='[2.3.0,2.3.1)',\
 	org.jsoup;version='[1.22.1,1.22.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
-	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
-	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)';startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\

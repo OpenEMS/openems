@@ -147,9 +147,13 @@ echo "# building Java projects"
 ./gradlew build
 
 update_bndrun() {
+	# Updates the given .bndrun file to include all bundles in the respective project
+	# $1 = App name (EdgeApp, BackendEdgeApp, BackendApp)
+	# $2 = Directory prefix (io.openems.edge, io.openems.backend)
+	# $3 = Application bundle
 	echo "#"
 	echo "# updating $1"
-	local bndrun="${2}.application/${1}.bndrun"
+	local bndrun="${3}/${1}.bndrun"
 	head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
 	echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
 	echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
@@ -167,16 +171,11 @@ update_bndrun() {
 	for D in $2.*; do
 		if [[ "$D" == *api ]]; then
 			continue # ignore api bundle
-		fi
-		if [[ "$1" == "BackendApp" && "$D" == "io.openems.backend.edge.application" ]]; then
-			continue # ignore Backend-Edge-App
-		fi
-		if [[ "$1" == "BackendEdgeApp" && "$D" == "io.openems.backend.edge.manager" ]]; then
-			continue # ignore Edge-Manager
+		elif [[ "$D" == *application && "$D" != "$3" ]]; then
+			continue # ignore other application bundle
 		fi
 		echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
 	done
-	echo "	bnd.identity;id='io.openems.backend.metrics.prometheus',\\" >> "$bndrun.new"
 	local runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 	tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
 	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
@@ -184,8 +183,9 @@ update_bndrun() {
 	./gradlew resolve.$1
 }
 
-update_bndrun BackendEdgeApp 'io.openems.backend.edge'
-update_bndrun BackendApp 'io.openems.backend'
+update_bndrun EdgeApp 'io.openems.edge' 'io.openems.edge.application'
+update_bndrun BackendApp 'io.openems.backend' 'io.openems.backend.application'
+update_bndrun BackendEdgeApp 'io.openems.backend' 'io.openems.backend.edge.application'
 
 # Build + test UI
 echo "#"
