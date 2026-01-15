@@ -4,10 +4,8 @@ import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelpe
 
 public record PlcNextGdsDataAccessConfig(String baseUrl, String dataInstanceName, String stationId) {
 
-	public static final String PLC_NEXT_OPENEMS_COMPONENT_NAME = "OpenEMS_V1Component1";
-	
 	private static final String PLC_NEXT_DATA_API_PATH = "/api";
-	
+
 	/**
 	 * Assembles URL for data access endpoint
 	 * 

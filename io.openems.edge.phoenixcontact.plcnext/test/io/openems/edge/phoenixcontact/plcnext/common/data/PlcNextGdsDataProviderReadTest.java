@@ -1,5 +1,6 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,7 @@ import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProviderImpl.PlcNextCreateSessionResponse;
 
-public class PlcNextGdsDataProviderTest {
+public class PlcNextGdsDataProviderReadTest {
 
 	private PlcNextGdsDataAccessConfig dataProviderConfig;
 	private String sessionId = "1234567890";
@@ -47,8 +48,8 @@ public class PlcNextGdsDataProviderTest {
 
 	@Before
 	public void setupBefore() {
-		dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables",
-				"MeasurementDevice", "meter0");
+		dataProviderConfig = new PlcNextGdsDataAccessConfig("https://junit/_pxc_api/api/variables", "MeasurementDevice",
+				"meter0");
 		accessToken = "dummy_access_token";
 
 		mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
@@ -61,11 +62,11 @@ public class PlcNextGdsDataProviderTest {
 	}
 
 	@Test
-	public void testBuildGdsDataEndpoint_Successfully() {
+	public void testBuildGdsDataEndpointToReadVariables_Successfully() {
 		// prep
 		String expectedReqUrl = dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		String expectedReqBody = new StringBuilder("pathPrefix=")//
-				.append(PlcNextGdsDataAccessConfig.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
+				.append(PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
 				.append("/&paths=")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.phaseVoltages,")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.neutralCurrent,")//
@@ -81,7 +82,8 @@ public class PlcNextGdsDataProviderTest {
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
 
 		// test
-		Endpoint result = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId, variableIdentifiers,
+		String requestBody = dataProvider.buildPostBodyForRead(sessionId, variableIdentifiers, dataProviderConfig);
+		Endpoint result = dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.POST, requestBody,
 				dataProviderConfig);
 
 		// check
@@ -100,11 +102,11 @@ public class PlcNextGdsDataProviderTest {
 	}
 
 	@Test
-	public void testBuildGdsDataEndpoint_SuccessfullyWhileTokenIsNotPresent() {
+	public void testBuildGdsDataEndpointToReadVariables_SuccessfullyWhileTokenIsNotPresent() {
 		// prep
 		String expectedReqUrl = dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		String expectedReqBody = new StringBuilder("pathPrefix=")//
-				.append(PlcNextGdsDataAccessConfig.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
+				.append(PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
 				.append("/&paths=")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.phaseVoltages,")//
 				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.neutralCurrent,")//
@@ -120,7 +122,8 @@ public class PlcNextGdsDataProviderTest {
 		when(mockTokenManager.hasValidToken()).thenReturn(false);
 
 		// test
-		Endpoint result = dataProvider.buildDataEndpointRepresentation(null, sessionId, variableIdentifiers,
+		String requestBody = dataProvider.buildPostBodyForRead(sessionId, variableIdentifiers, dataProviderConfig);
+		Endpoint result = dataProvider.buildDataEndpointRepresentation(null, HttpMethod.POST, requestBody,
 				dataProviderConfig);
 
 		// check
@@ -139,7 +142,7 @@ public class PlcNextGdsDataProviderTest {
 	}
 
 	@Test
-	public void testBuildGdsDataEndpoint_SuccessfullyWhileVariableDefinitionsIsEmpty() {
+	public void testBuildGdsDataEndpointToReadVariables_SuccessfullyWhileVariableDefinitionsIsEmpty() {
 		// prep
 		String expectedReqUrl = dataProviderConfig.dataUrl() + PlcNextGdsDataProvider.PATH_VARIABLES;
 		String expectedReqBody = "";
@@ -152,7 +155,8 @@ public class PlcNextGdsDataProviderTest {
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
 
 		// test
-		Endpoint result = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId, null,
+		String requestBody = dataProvider.buildPostBodyForRead(sessionId, null, dataProviderConfig);
+		Endpoint result = dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.POST, requestBody,
 				dataProviderConfig);
 
 		// check
@@ -178,8 +182,9 @@ public class PlcNextGdsDataProviderTest {
 		when(mockTokenManager.getToken()).thenReturn(accessToken);
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
 
-		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId,
-				variableIdentifiers, dataProviderConfig);
+		String requestBody = dataProvider.buildPostBodyForRead(sessionId, variableIdentifiers, dataProviderConfig);
+		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.POST, requestBody,
+				dataProviderConfig);
 
 		JsonObject dataResponseBody = new JsonObject();
 		JsonArray variables = new JsonArray();
@@ -270,8 +275,9 @@ public class PlcNextGdsDataProviderTest {
 		when(mockDummyBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
-		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, sessionId,
-				variableIdentifiers, dataProviderConfig);
+		String requestBody = dataProvider.buildPostBodyForRead(sessionId, variableIdentifiers, dataProviderConfig);
+		Endpoint dataEndpoint = dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.POST, requestBody,
+				dataProviderConfig);
 
 		when(mockDummyBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenThrow(CompletionException.class);
@@ -293,12 +299,10 @@ public class PlcNextGdsDataProviderTest {
 		when(mockDummyBridgeHttp.requestJson(any(Endpoint.class)))//
 				.thenThrow(CompletionException.class);
 
-		// test
-		Optional<JsonObject> result = dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null);
-
-		// check
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		// test + check
+		assertThrows(CompletionException.class, () -> {
+			dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null);
+		});
 	}
 
 	@Test
@@ -338,13 +342,10 @@ public class PlcNextGdsDataProviderTest {
 				.thenReturn(CompletableFuture.supplyAsync(() -> new HttpResponse<JsonElement>(HttpStatus.UNAUTHORIZED,
 						Map.of(), createSessionResponseBody)));
 
-		// test
-		Optional<PlcNextCreateSessionResponse> createSessionResponse = dataProvider
-				.createSessionIfNecessary(dataProviderConfig);
-
-		// check
-		Assert.assertNotNull(createSessionResponse);
-		Assert.assertTrue(createSessionResponse.isEmpty());
+		// test + check
+		assertThrows(CompletionException.class, () -> {
+			dataProvider.createSessionIfNecessary(dataProviderConfig);
+		});
 	}
 
 	@Test
@@ -352,7 +353,7 @@ public class PlcNextGdsDataProviderTest {
 		// prep
 		when(mockTokenManager.getToken()).thenReturn(accessToken);
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
-		
+
 		dataProvider.sessionId = "1234567890";
 
 		// test register
@@ -374,7 +375,7 @@ public class PlcNextGdsDataProviderTest {
 	public void testMaintainSession_FailDueToExpiredToken() {
 		// prep
 		when(mockTokenManager.hasValidToken()).thenReturn(false);
-		
+
 		dataProvider.sessionId = "1234567890";
 
 		// test register
@@ -396,7 +397,7 @@ public class PlcNextGdsDataProviderTest {
 	public void testMaintainSession_FailDueToCommunicationError() {
 		// prep
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
-		
+
 		dataProvider.sessionId = "1234567890";
 
 		// test register

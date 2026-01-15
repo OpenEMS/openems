@@ -3,8 +3,9 @@ package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class TestConfig  extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.loadcircuit.Config {
-	
+public class TestConfig extends AbstractComponentConfig
+		implements io.openems.edge.phoenixcontact.plcnext.loadcircuit.Config {
+
 	protected static class Builder {
 		private String id;
 
@@ -57,6 +58,5 @@ public class TestConfig  extends AbstractComponentConfig implements io.openems.e
 	public String dataInstanceName() {
 		return "OpenEmsInstance4JUnitLoadCircuit";
 	}
-
 
 }

@@ -29,11 +29,12 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
+import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappedValue;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappingException;
-import io.openems.edge.phoenixcontact.plcnext.meter.data.PlcNextGdsMeterDataToChannelMapper;
-import io.openems.edge.phoenixcontact.plcnext.meter.data.PlcNextGdsMeterDataVariableDefinition;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
+import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextMappingDefinitionHelper;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,12 +55,14 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private PlcNextGdsDataProvider gdsDataProvider;
-	@Reference
-	private PlcNextGdsMeterDataToChannelMapper gdsMeterDataToChannelMapper;
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private PlcNextGdsDataToChannelMapper gdsDataToChannelMapper;
 
 	private Config config;
 	private PlcNextAuthConfig authConfig;
 	private PlcNextGdsDataAccessConfig gdsDataAccessConfig;
+
+	private PlcNextGdsDataMappingDefinition[] readDataMappingDefinition;
 
 	public PlcNextMeterImpl() {
 		super(//
@@ -71,26 +74,37 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		log.info("StationID '{}': Activating component", config.id());
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		applyConfig(config);
 	}
-	
+
 	@Modified
-    private void modified(ComponentContext context, Config config) throws OpenemsException {
+	private void modified(ComponentContext context, Config config) throws OpenemsException {
+		log.info("StationID '{}': Modifing component ", config.id());
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		applyConfig(config);
-    }
-	
+	}
+
 	private void applyConfig(Config config) {
+		log.info("StationID '{}': Applying config", config.id());
 		this.config = config;
 		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.username(), config.password());
-		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), 
-				config.dataInstanceName(), config.id());		
+		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), config.dataInstanceName(),
+				config.id());
+
+		if (!config.namespaceVariables().isBlank()) {
+			this.readDataMappingDefinition = PlcNextMappingDefinitionHelper.joinMappings(null,
+					PlcNextMeterGdsDataReadMappingDefinition.values(), config.namespaceVariables());
+		} else {
+			this.readDataMappingDefinition = PlcNextMeterGdsDataReadMappingDefinition.values();
+		}
 	}
-	
+
 	@Override
 	@Deactivate
 	protected void deactivate() {
+		log.info("StationID '{}': Deactivating component", config.id());
 		gdsDataProvider.deactivateSessionMaintenance();
 
 		super.deactivate();
@@ -108,9 +122,9 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		logInfo(log, "Handling event '" + event.getTopic() + "'");
+		log.debug("Handling event '" + event.getTopic() + "'");
 		if (!this.isEnabled()) {
-			log.warn("StationID '{}': Module deactivated, skipping event processing of event", 
+			log.warn("StationID '{}': Module deactivated, skipping event processing of event",
 					this.gdsDataAccessConfig.stationId());
 			return;
 		}
@@ -125,17 +139,16 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	void processDataOnBeforeProcessImageEvent() {
 		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.dataUrl());
 
-		List<String> variableIdentifiers = Stream.of(gdsMeterDataToChannelMapper.getVariableDefinitions())//
-				.map(PlcNextGdsMeterDataVariableDefinition::getIdentifier).toList();
-		JsonObject apiResponseBody = gdsDataProvider.readDataFromRestApi(variableIdentifiers, 
-					gdsDataAccessConfig, authConfig)
-				.orElse(defaultResponse);
+		List<String> variableIdentifiers = Stream.of(this.readDataMappingDefinition)//
+				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
+		JsonObject apiResponseBody = gdsDataProvider
+				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig).orElse(defaultResponse);
 
 		try {
 			log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsMeterDataToChannelMapper.mapAllValuesToChannels(
+			List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-					config.dataInstanceName());
+					config.dataInstanceName(), this.readDataMappingDefinition);
 
 			if (!mappedValues.isEmpty()) {
 				log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
@@ -156,8 +169,8 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 * @param device      represents the device holding the channels
 	 */
 	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue) {
-		log.info("StationID '{}': Providing value '{}' to channel named '{}'", 
-				this.gdsDataAccessConfig.stationId(), mappedValue.getValue(), mappedValue.getChannelId());
+		log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
+				mappedValue.getValue(), mappedValue.getChannelId());
 		channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 	}
 

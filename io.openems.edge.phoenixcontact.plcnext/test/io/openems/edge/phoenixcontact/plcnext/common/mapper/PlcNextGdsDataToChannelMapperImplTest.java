@@ -6,14 +6,14 @@ import org.junit.Test;
 
 import com.google.gson.JsonObject;
 
-public class DummyPlcNextGdsDataToChannelMapperTest {
+public class PlcNextGdsDataToChannelMapperImplTest {
 
-	private DummyPlcNextGdsDataToChannelMapper dataMapper;
+	private PlcNextGdsDataToChannelMapperImpl dataMapper;
 	private String instanceName;
 
 	@Before
 	public void setupBefore() {
-		dataMapper = new DummyPlcNextGdsDataToChannelMapper();
+		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
 		instanceName = "MeasurementDevice";
 	}
 
