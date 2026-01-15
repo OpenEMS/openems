@@ -66,7 +66,7 @@ export class UserService {
     }
 
     /**
-     * Updates the userSettings
+     * Updates the settings from User
      *
      * @param key the key to update
      * @param value the value for given key
@@ -164,7 +164,7 @@ export class UserService {
         if (environment.backend === "OpenEMS Edge") {
             return Promise.resolve([new UnimplementedInEdgeError(request), null]);
         }
-        return JsonRpcUtils.handle<JsonrpcResponseSuccess>(this.service.websocket.sendSafeRequest(request));
+        return JsonRpcUtils.handle(this.service.websocket.sendSafeRequest(request));
     }
 
     /**

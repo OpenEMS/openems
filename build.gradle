@@ -35,11 +35,11 @@ subprojects {
 		mavenCentral()
 	}
 	
-	if (name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/) {
+	if (name ==~ /io.openems.(common|core|edge|oem|shared|wrapper).*/) {
 		ext.isEdge = true
 	}
 	
-	if (name ==~ /io.openems.(backend|common|oem|shared|wrapper).*/) {
+	if (name ==~ /io.openems.(backend|common|core|oem|shared|wrapper).*/) {
 		ext.isBackend = true
 	}
 
@@ -147,6 +147,9 @@ task checkstyleEdge() {
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
 			dependsOn(proj.checkstyleMain)
 		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
+		}
 	}
 }
 
@@ -157,6 +160,9 @@ task checkstyleBackend() {
 	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
 		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
 			dependsOn(proj.checkstyleMain)
+		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
 		}
 	}
 }

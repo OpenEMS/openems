@@ -1,12 +1,22 @@
 package io.openems.common.bridge.http.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.net.URI;
 
 import org.junit.Test;
 
 public class UrlBuilderTest {
+
+	@Test
+	public void testInitialPort() {
+		final var urlWithPort = UrlBuilder.parse("https://openems.io:443");
+		assertEquals(443, urlWithPort.port().intValue());
+
+		final var urlWithoutPort = UrlBuilder.parse("https://openems.io");
+		assertNull(urlWithoutPort.port());
+	}
 
 	@Test
 	public void testParse() {

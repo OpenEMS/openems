@@ -7,6 +7,7 @@ import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -86,6 +87,12 @@ public final class OnMessageHandler implements Runnable {
 			return;
 		}
 
+		if (responseFuture == null) {
+			this.handleJsonrpcRequestException(ws, request,
+					new OpenemsNamedException(JSONRPC_UNHANDLED_METHOD, request.getMethod()));
+			return;
+		}
+
 		var timeout = request.getTimeout();
 		if (timeout.isPresent() && timeout.get() > 0) {
 			// Apply timeout to CompleteableFuture
@@ -95,7 +102,8 @@ public final class OnMessageHandler implements Runnable {
 		// ...without timeout
 		responseFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
-				this.handleJsonrpcRequestException(ws, request, ex);
+				this.handleJsonrpcRequestException(ws, request,
+						ex instanceof CompletionException e ? e.getCause() : ex);
 			} else if (r != null) {
 				this.handleJsonrpcRequestResponse(ws, r);
 			} else {

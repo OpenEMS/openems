@@ -13,7 +13,7 @@
 	felix.cm.dir=c:/openems-backend/config,\
 	openems.data.dir=c:/openems-backend/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
+	org.ops4j.pax.logging.DefaultServiceLog.level=WARN
 
 -runsystempackages: \
 	sun.misc
@@ -28,7 +28,8 @@
 	org.apache.felix.fileinstall;startlevel=13,\
 	org.ops4j.pax.logging.pax-logging-api;startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=15,\
-	io.openems.backend.application;startlevel=16,\
+	io.openems.core.logger;startlevel=16,\
+	io.openems.backend.application;startlevel=17,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -44,11 +45,12 @@
 	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
+	bnd.identity;id='io.openems.backend.authentication.oauth2',\
 	bnd.identity;id='io.openems.backend.b2brest',\
 	bnd.identity;id='io.openems.backend.b2bwebsocket',\
 	bnd.identity;id='io.openems.backend.common',\
 	bnd.identity;id='io.openems.backend.core',\
-	bnd.identity;id='io.openems.backend.edgewebsocket',\
+	bnd.identity;id='io.openems.backend.edge.manager',\
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
@@ -60,10 +62,13 @@
 	bnd.identity;id='io.openems.backend.timedata.influx',\
 	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
+	bnd.identity;id='io.openems.core.logger',\
 
 -runbundles: \
-	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
+	com.fasterxml.jackson.core.jackson-annotations;version='[2.19.2,2.19.3)',\
+	com.fasterxml.jackson.core.jackson-core;version='[2.17.2,2.17.3)',\
+	com.fasterxml.jackson.core.jackson-databind;version='[2.17.2,2.17.3)',\
 	com.google.gson;version='[2.13.2,2.13.3)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
@@ -73,12 +78,14 @@
 	com.squareup.okio;version='[3.16.4,3.16.5)',\
 	com.zaxxer.HikariCP;version='[7.0.2,7.0.3)',\
 	io.openems.backend.alerting;version=snapshot,\
-	io.openems.backend.application;version=snapshot;startlevel=16,\
+	io.openems.backend.application;version=snapshot;startlevel=17,\
+	io.openems.backend.authentication.api;version=snapshot,\
+	io.openems.backend.authentication.oauth2;version=snapshot,\
 	io.openems.backend.b2brest;version=snapshot,\
 	io.openems.backend.b2bwebsocket;version=snapshot,\
 	io.openems.backend.common;version=snapshot,\
 	io.openems.backend.core;version=snapshot,\
-	io.openems.backend.edgewebsocket;version=snapshot,\
+	io.openems.backend.edge.manager;version=snapshot,\
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
@@ -92,9 +99,13 @@
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
+	io.openems.core.logger;version=snapshot;startlevel=16,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.aXMLRPC;version=snapshot,\
+	io.openems.wrapper.auth0-java-jwt;version=snapshot,\
+	io.openems.wrapper.auth0-jwks-rsa;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.gson;version=snapshot,\
 	io.openems.wrapper.influxdb-client-core;version=snapshot,\

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import io.openems.backend.authentication.api.AuthUserRegistrationService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -15,6 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,6 +26,8 @@ import org.slf4j.Logger;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.authentication.api.AuthUserAuthorizationCodeFlowService;
+import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationService;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeCache;
@@ -73,6 +77,15 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile SimulationEngine simulation;
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AuthUserRegistrationService userRegistrationService;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AuthUserAuthorizationCodeFlowService userAuthenticationService;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
+	protected volatile AuthUserPasswordAuthenticationService userAuthPasswordService;
+
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");
 	}
@@ -98,7 +111,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	 */
 	private synchronized void startServer() {
 		if (this.server == null) {
-			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(), this.config.requestLimit());
+			this.server = new WebsocketServer(this, this.getName(), this.config.port(), this.config.poolSize(),
+					this.config.requestLimit());
 			this.server.start();
 		}
 	}
@@ -130,10 +144,8 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 
 	@Override
 	public boolean send(UUID websocketId, JsonrpcNotification notification) {
-		final WsData wsData;
-		try {
-			wsData = this.getWsDataForIdOrError(websocketId);
-		} catch (OpenemsNamedException e) {
+		final var wsData = this.getWsDataForIdOrNull(websocketId);
+		if (wsData == null) {
 			return false;
 		}
 		return wsData.send(notification);
@@ -157,9 +169,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 		}
 		var wsDatas = this.getWsDatasForEdgeId(edgeId);
 		for (WsData wsData : wsDatas) {
-			if (!wsData.isEdgeSubscribed(edgeId)) {
-				continue;
-			}
 			wsData.send(notification);
 		}
 	}
@@ -186,6 +195,26 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 	}
 
 	/**
+	 * Gets the WebSocket connection attachment for a UI token.
+	 *
+	 * @param websocketId the id of the websocket connection
+	 * @return the WsData or null if there is no connection with this token
+	 */
+	private WsData getWsDataForIdOrNull(UUID websocketId) {
+		if (this.server == null) {
+			return null;
+		}
+		var connections = this.server.getConnections();
+		for (var websocket : connections) {
+			WsData wsData = websocket.getAttachment();
+			if (wsData.getId().equals(websocketId)) {
+				return wsData;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Gets the WebSocket connection attachments of all connections accessing an
 	 * Edge-ID.
 	 *
@@ -200,21 +229,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent
 			if (wsData == null) {
 				continue;
 			}
-			// get attachment User-ID
-			var userIdOpt = wsData.getUserId();
-			if (userIdOpt.isPresent()) {
-				var userId = userIdOpt.get();
-				// get User for User-ID
-				var userOpt = this.metadata.getUser(userId);
-				if (userOpt.isPresent()) {
-					var user = userOpt.get();
-					var edgeRoleOpt = user.getRole(edgeId);
-					if (edgeRoleOpt.isPresent()) {
-						// User has access to this Edge-ID
-						result.add(wsData);
-					}
-				}
+			if (!wsData.isEdgeSubscribed(edgeId)) {
+				continue;
 			}
+			result.add(wsData);
 		}
 		return result;
 	}

@@ -128,8 +128,8 @@
                 <p class="ion-padding" translate>ABOUT.BUILD</p>
                 <ul>
                   <li>
-                    <a class="ion-link" routerLinkActive="active"
-                      routerLink="/changelog">{{ uiVersion | version:role }}</a>
+                    <a class="ion-link" routerLinkActive="active" href=""
+                      (click)="navigateToChangelog($event)">{{ uiVersion | version:role }}</a>
                   </li>
                 </ul>
               </div>

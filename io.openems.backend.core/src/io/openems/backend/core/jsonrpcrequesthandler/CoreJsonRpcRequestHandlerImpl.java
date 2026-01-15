@@ -128,12 +128,8 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (var edgeId : request.edgeIds) {
-			if (user.getRole(edgeId).isEmpty()) {
-				this.metadata.getEdgeMetadataForUser(user, edgeId);
-			}
-
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
+			this.metadata.assertUserRole(user, edgeId, Role.GUEST, GetEdgesStatusRequest.METHOD);
 
 			var edgeOpt = this.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
@@ -158,12 +154,8 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 			UUID messageId, GetEdgesChannelsValuesRequest request) throws OpenemsNamedException {
 		var response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
-			if (user.getRole(edgeId).isEmpty()) {
-				this.metadata.getEdgeMetadataForUser(user, edgeId);
-			}
-
 			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast(GetEdgesChannelsValuesRequest.METHOD, edgeId, Role.GUEST);
+			this.metadata.assertUserRole(user, edgeId, Role.GUEST, GetEdgesChannelsValuesRequest.METHOD);
 
 			var data = this.edgeManager.getChannelValues(edgeId, request.getChannels());
 			for (var entry : data.entrySet()) {
@@ -185,17 +177,14 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSetGridConnScheduleRequest(User user, UUID messageId,
 			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
 		var edgeId = setGridConnScheduleRequest.getEdgeId();
-		if (user.getRole(edgeId).isEmpty()) {
-			this.metadata.getEdgeMetadataForUser(user, edgeId);
-		}
 
-		user.assertEdgeRoleIsAtLeast(SetGridConnScheduleRequest.METHOD, edgeId, Role.ADMIN);
+		final var role = this.metadata.assertUserRole(user, edgeId, Role.ADMIN, SetGridConnScheduleRequest.METHOD);
 
 		// wrap original request inside ComponentJsonApiRequest
 		var componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController
 		var request = new ComponentJsonApiRequest(componentId, setGridConnScheduleRequest);
 
-		var resultFuture = this.edgeManager.send(edgeId, user, request);
+		var resultFuture = this.edgeManager.send(edgeId, user, role, request);
 
 		// Wrap reply in GenericJsonrpcResponseSuccess
 		var result = new CompletableFuture<GenericJsonrpcResponseSuccess>();

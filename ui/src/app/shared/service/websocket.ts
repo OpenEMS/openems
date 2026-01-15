@@ -7,10 +7,15 @@ import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
 import { delay, retryWhen } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { v4 as uuidv4 } from "uuid";
+import { InitiateConnect } from "src/app/edge/settings/app/oauth/jsonrpc/initiateConnect";
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 
+import { AuthenticationFailedError, DuplicateAuthenticationFailureException } from "../errors.ts/errors";
 import { WebsocketInterface } from "../interface/websocketInterface";
 import { JsonrpcMessage, JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
+import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { CurrentDataNotification } from "../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../jsonrpc/notification/edgeConfigNotification";
 import { EdgeRpcNotification } from "../jsonrpc/notification/edgeRpcNotification";
@@ -25,6 +30,12 @@ import { AuthenticateResponse } from "../jsonrpc/response/authenticateResponse";
 import { User } from "../jsonrpc/shared";
 import { States } from "../ngrx-store/states";
 import { Language } from "../type/language";
+import { TMutable } from "../type/utility";
+import { ArrayUtils } from "../utils/array/array.utils";
+import { PromiseUtils } from "../utils/promise/promise.utils";
+import { AuthService } from "./auth/auth.service";
+import { AuthenticateWithOAuth2Response, AuthenticateWithOAuthRequest } from "./auth/jsonrpc";
+import { OAuthService } from "./auth/oauth.service";
 import { Pagination } from "./pagination";
 import { Service } from "./service";
 import { UserService } from "./user.service";
@@ -49,6 +60,7 @@ export class Websocket implements WebsocketInterface {
     private readonly wsdata = new WsData();
 
     private socket: WebSocketSubject<any>;
+    private previousErrors: Map<string, Error> = new Map();
 
     constructor(
         private service: Service,
@@ -57,12 +69,35 @@ export class Websocket implements WebsocketInterface {
         private router: Router,
         private userService: UserService,
         private pagination: Pagination,
+        private authService: AuthService,
+        private platFormService: PlatFormService,
     ) {
         service.websocket = this;
 
         // try to auto connect using token or session_id
         setTimeout(() => {
             this.connect();
+        });
+    }
+
+    /**
+     * Initiates connection for oauth
+     *
+     * @returns a {@link AuthenticateWithOAuth2Response}
+     */
+    public initiateConnect() {
+        return new Promise<AuthenticateWithOAuth2Response>((res, rej) => {
+            this.state.set(States.NOT_AUTHENTICATED);
+            return this.sendRequest<AuthenticateWithOAuth2Response>(new AuthenticateWithOAuthRequest({
+                payload: new JsonrpcRequest(InitiateConnect.METHOD, { ...OAuthService.getOem(), ...OAuthService.getRedirectUri(this.platFormService) }),
+            })).then(async response => {
+                const result = response.result as { identifier: string, loginUrl: string, state: string };
+                window.open(result.loginUrl, "_self");
+                this.cookieService.set("oauthredirectstate", JSON.stringify({ ...result, href: "oauthcallback" }), 1, "/");
+                res(response);
+            }).catch((error) => {
+                rej(error);
+            });
         });
     }
 
@@ -93,7 +128,7 @@ export class Websocket implements WebsocketInterface {
                 this.status = "online";
 
                 // received login token -> save in cookie
-                this.cookieService.set("token", authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
+                this.cookieService.set(AuthService.TOKEN, authenticateResponse.token, { expires: 365, path: "/", sameSite: "Strict", secure: location.protocol === "https:" });
                 this.userService.currentUser.set(User.from(authenticateResponse.user));
                 // Metadata
                 this.service.metadata.next({
@@ -112,7 +147,7 @@ export class Websocket implements WebsocketInterface {
                     });
                 });
 
-                this.router.initialNavigation();
+                this.router.navigate(["./overview"]);
                 resolve();
             }).catch(reason => {
                 this.checkErrorCode(reason);
@@ -129,6 +164,7 @@ export class Websocket implements WebsocketInterface {
             this.onLoggedOut();
         }).catch(reason => {
             console.error(reason);
+            this.router.navigate(["/login"]);
         });
     }
 
@@ -137,47 +173,29 @@ export class Websocket implements WebsocketInterface {
      *
      * @param request the JSON-RPC Request
      */
-    public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    public sendRequest<T extends JsonrpcResponseSuccess = JsonrpcResponseSuccess>(request: JsonrpcRequest): Promise<T> {
         if (
             // logged in + normal operation
             this.status == "online"
             // otherwise only authentication request allowed
-            || (request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
+            || (request instanceof AuthenticateWithOAuthRequest || request instanceof AuthenticateWithPasswordRequest || request instanceof AuthenticateWithTokenRequest || request instanceof RegisterUserRequest)) {
 
             return new Promise((resolve, reject) => {
-                this.wsdata.sendRequest(this.socket, request).then(response => {
-                    if (environment.debugMode) {
-                        if (request instanceof EdgeRpcRequest) {
-                            console.info("Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result["payload"]["result"]);
-                        } else {
-                            console.info("Response     [" + request.method + "]", response.result);
-                        }
-                    }
-                    resolve(response);
-
-                }).catch(reason => {
-                    if (environment.debugMode) {
-                        if (reason instanceof JsonrpcResponseError) {
-                            console.warn("Request failed [" + request.method + "]", reason.error);
-
-                            if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
-                                const edges = this.service.metadata.value?.edges ?? {};
-                                if (request.params.edgeId in edges) {
-                                    edges[request.params.edgeId].isOnline = false;
-                                }
-                            }
-                        } else {
-                            console.warn("Request failed [" + request.method + "]", reason);
-                        }
-                    }
-                    reject(reason);
-
-                });
+                this.wsdata.sendRequest<T>(this.socket, request)
+                    .then(response => resolve(response))
+                    .catch(async reason => await this.handleJsonRpcError(reason, request, reject, resolve));
             });
 
         } else {
             return Promise.reject("Websocket is not connected or authenticated! Unable to send Request: " + JSON.stringify(request));
         }
+    }
+
+    public onLoggedOut(): void {
+        this.status = "waiting for credentials";
+        this.cookieService.delete("token", "/");
+        this.authService.logout();
+        this.service.onLogout();
     }
 
     /**
@@ -213,6 +231,107 @@ export class Websocket implements WebsocketInterface {
         this.wsdata.sendNotification(this.socket, notification);
     }
 
+    public initiateWebsocket() {
+        this.socket = webSocket({
+            url: environment.url,
+            openObserver: {
+                next: (value) => {
+                    this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
+                    // Websocket connection is open
+                    if (environment.debugMode) {
+                        console.info("Websocket connection opened");
+                    }
+
+                    const token = this.cookieService.get("token");
+                    const oAuthRedirectState = this.cookieService.get("oauthredirectstate");
+                    const refreshToken = this.cookieService.get("refresh_token");
+                    if (token) {
+                        this.state.set(States.AUTHENTICATING_WITH_TOKEN);
+
+                        // Login with Session Token
+                        this.login(new AuthenticateWithTokenRequest({ token: token }));
+                        this.status = "authenticating";
+                    }
+                    else {
+                        // No Token -> directly ask for Login credentials
+                        this.state.set(States.NOT_AUTHENTICATED);
+                        this.status = "waiting for credentials";
+
+                        // Needed for oauth authentication
+                        if (refreshToken == "" && oAuthRedirectState == "") {
+                            this.router.navigate(["login"]);
+                        }
+                    }
+                },
+            },
+            closeObserver: {
+                next: (value) => {
+                    // Websocket connection is closed. Auto-Reconnect starts.
+                    this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
+                    if (environment.debugMode) {
+                        console.info("Websocket connection closed");
+                    }
+                    // trying to connect
+                    this.state.set(States.WEBSOCKET_CONNECTING);
+                    this.status = "connecting";
+                },
+            },
+        });
+    }
+
+    private async handleJsonRpcError(reason: JsonrpcResponseError, request: JsonrpcRequest, reject: PromiseUtils.Types.Reject, resolve: PromiseUtils.Types.Resolve): Promise<void> {
+        if (environment.debugMode) {
+            if (reason instanceof JsonrpcResponseError) {
+                console.warn("Request failed [" + request.method + "]", reason.error);
+                if (request instanceof EdgeRpcRequest && reason.error?.code == 3000 /* Edge is not connected */) {
+                    const edges = this.service.metadata.value?.edges ?? {};
+                    if (request.params.edgeId in edges) {
+                        edges[request.params.edgeId].isOnline = false;
+                    }
+                }
+            } else {
+                console.warn("Request failed [" + request.method + "]", reason);
+            }
+        }
+        const errorCode = reason?.error?.code ?? null;
+        switch (errorCode) {
+            case AuthenticationFailedError.id: {
+                this.state.set(States.AUTHENTICATION_FAILED);
+
+                if (request instanceof AuthenticateWithOAuthRequest && (request.params["payload"].method === "getTokenByRefreshToken")) {
+                    this.onLoggedOut();
+                    reject(reason);
+                    return;
+                }
+
+                await this.authService.handleAuthenticationFailed();
+                const newRequest: TMutable<JsonrpcRequest> = { ...request, id: uuidv4() };
+                const [err, response] = await JsonRpcUtils.handleResponse(this.wsdata.sendRequest(this.socket, newRequest));
+                if (err) {
+                    if (ArrayUtils.containsStrings(Array.from(this.previousErrors.values()).map(el => el.name), [err.name])) {
+                        this.logout();
+                        reject(new DuplicateAuthenticationFailureException());
+                        return;
+                    }
+
+                    if (err != null) {
+                        this.previousErrors.set(request.id, err);
+                    }
+                    reject(err);
+                    return;
+                }
+
+                // Navigate to same page, avoiding hard refresh
+                this.router.navigate([this.router.url], { skipLocationChange: false, onSameUrlNavigation: "reload" as any, replaceUrl: true });
+                this.state.set(States.AUTHENTICATED);
+                resolve(response);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     /**
    * Opens a connection using a stored token. Called once by constructor
    */
@@ -232,45 +351,7 @@ export class Websocket implements WebsocketInterface {
         /*
         * Open Websocket connection + define onOpen/onClose callbacks.
         */
-        this.socket = webSocket({
-            url: environment.url,
-            openObserver: {
-                next: (value) => {
-                    this.state.set(States.WEBSOCKET_NOT_YET_CONNECTED);
-                    // Websocket connection is open
-                    if (environment.debugMode) {
-                        console.info("Websocket connection opened");
-                    }
-
-                    const token = this.cookieService.get("token");
-                    if (token) {
-                        this.state.set(States.AUTHENTICATING_WITH_TOKEN);
-
-                        // Login with Session Token
-                        this.login(new AuthenticateWithTokenRequest({ token: token }));
-                        this.status = "authenticating";
-
-                    } else {
-                        // No Token -> directly ask for Login credentials
-                        this.state.set(States.NOT_AUTHENTICATED);
-                        this.status = "waiting for credentials";
-                        this.router.navigate(["login"]);
-                    }
-                },
-            },
-            closeObserver: {
-                next: (value) => {
-                    // Websocket connection is closed. Auto-Reconnect starts.
-                    this.state.set(States.WEBSOCKET_CONNECTION_CLOSED);
-                    if (environment.debugMode) {
-                        console.info("Websocket connection closed");
-                    }
-                    // trying to connect
-                    this.state.set(States.WEBSOCKET_CONNECTING);
-                    this.status = "connecting";
-                },
-            },
-        });
+        this.initiateWebsocket();
 
         this.socket.pipe(
             // Websocket Auto-Reconnect
@@ -321,7 +402,7 @@ export class Websocket implements WebsocketInterface {
     private checkErrorCode(reason: JsonrpcResponseError) {
 
         // TODO create global Errorhandler for any type of error
-        switch (reason.error.code) {
+        switch (reason?.error?.code) {
             case 1003:
                 this.service.toast(this.translate.instant("LOGIN.AUTHENTICATION_FAILED"), "danger");
                 this.onLoggedOut();
@@ -334,12 +415,6 @@ export class Websocket implements WebsocketInterface {
             default:
                 this.onLoggedOut();
         }
-    }
-
-    private onLoggedOut(): void {
-        this.status = "waiting for credentials";
-        this.cookieService.delete("token", "/");
-        this.service.onLogout();
     }
 
     /**

@@ -42,7 +42,7 @@ public class GeocodingTest {
 
 	@Test
 	public void testGeocodeRequest_ShouldReturnCorrectResults() throws Exception {
-		final var meta = new DummyMeta("_meta");
+		final var meta = new DummyMeta();
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 

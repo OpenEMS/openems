@@ -1,7 +1,7 @@
 package io.openems.edge.timeofusetariff.test;
 
 import java.time.Clock;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.stream.Stream;
 
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
@@ -27,7 +27,7 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 	 * @return a {@link DummyTimeOfUseTariffProvider}.
 	 */
 	public static DummyTimeOfUseTariffProvider fromQuarterlyPrices(Clock clock, Double... quarterlyPrices) {
-		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(ZonedDateTime.now(clock), quarterlyPrices));
+		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(Instant.now(clock), quarterlyPrices));
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 		var quarterlyPrices = Stream.of(hourlyPrices) //
 				.flatMap(v -> Stream.of(v, v, v, v)) //
 				.toArray(Double[]::new);
-		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(ZonedDateTime.now(clock), quarterlyPrices));
+		return new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(Instant.now(clock), quarterlyPrices));
 	}
 
 	private final Clock clock;
@@ -58,7 +58,7 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.clock), this.prices);
+		return TimeOfUsePrices.from(Instant.now(this.clock), this.prices);
 	}
 
 }

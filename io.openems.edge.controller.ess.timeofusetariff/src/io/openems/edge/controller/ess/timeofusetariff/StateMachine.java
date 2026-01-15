@@ -3,10 +3,17 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import io.openems.common.types.OptionsEnum;
 
 public enum StateMachine implements OptionsEnum {
-	DELAY_DISCHARGE(0, "Delay discharge"), //
+	/*
+	 * BALANCING mode is first = default.
+	 */
 	BALANCING(1, "Self-consumption optimization"), //
+	DELAY_DISCHARGE(0, "Delay discharge"), //
 	CHARGE_GRID(3, "Charge from grid"), //
-	DISCHARGE_GRID(4, "Discharge to grid") //
+	DISCHARGE_GRID(4, "Discharge to grid"), //
+	/*
+	 * Peak-Shaving internally does the same as CHARGE_GRID.
+	 */
+	PEAK_SHAVING(5, "Grid Peak-Shaving") //
 	;
 
 	private final int value;

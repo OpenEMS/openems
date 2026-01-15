@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class PredictionPersistenceServiceTest {
 	@Test
 	public void testUpdatePredictionAheadChannels_ShouldSetPredictionAheadValues() {
 		var clock = new TimeLeapClock();
-		var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		var now = roundDownToQuarter(Instant.now(clock));
 
 		Integer[] values = new Integer[6 /* hours */ * 4 /* quarters */ + 1 /* buffer */];
 		for (int i = 0; i < values.length; i++) {

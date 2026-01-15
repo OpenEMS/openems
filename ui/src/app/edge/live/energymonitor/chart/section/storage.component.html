@@ -47,7 +47,7 @@
       [attr.text-anchor]="square.valueText.anchor" font-family="sans-serif" [attr.font-size]="socPercentageFontSize"
       font fill="var(--ion-text-color)">
       @if (socValue !== null) {
-        <ng-container>{{socValue}}%</ng-container>
+        <ng-container>{{socValue}} %</ng-container>
       } @else {
         <ng-template [ngTemplateOutlet]="no_text"></ng-template>
       }

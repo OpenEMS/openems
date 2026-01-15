@@ -1,10 +1,5 @@
 package io.openems.common.session;
 
-import java.util.Collections;
-import java.util.NavigableMap;
-import java.util.Optional;
-import java.util.TreeMap;
-
 import com.google.gson.JsonObject;
 
 /**
@@ -14,10 +9,13 @@ import com.google.gson.JsonObject;
  */
 public abstract class AbstractUser {
 
+	private final String userId;
 	/**
 	 * The unique User-ID.
 	 */
 	private final String id;
+
+	private final String email;
 
 	/**
 	 * A human readable name.
@@ -39,18 +37,23 @@ public abstract class AbstractUser {
 	 */
 	private final JsonObject settings;
 
-	/**
-	 * Roles per Edge-ID.
-	 */
-	private final NavigableMap<String, Role> roles = new TreeMap<>();
-
-	protected AbstractUser(String id, String name, Language language, Role globalRole, NavigableMap<String, Role> roles,
-			JsonObject settings) {
+	protected AbstractUser(String id, String name, Language language, Role globalRole, JsonObject settings) {
 		this.id = id;
+		this.userId = id;
+		this.email = id;
 		this.name = name;
 		this.language = language;
 		this.globalRole = globalRole;
-		this.roles.putAll(roles);
+		this.settings = settings == null ? new JsonObject() : settings;
+	}
+
+	protected AbstractUser(String userId, String email, String name, Language language, Role globalRole, JsonObject settings) {
+		this.id = email;
+		this.userId = userId;
+		this.email = email;
+		this.name = name;
+		this.language = language;
+		this.globalRole = globalRole;
 		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
@@ -81,15 +84,6 @@ public abstract class AbstractUser {
 	}
 
 	/**
-	 * Gets all Roles for Edge-IDs.
-	 *
-	 * @return the map of Roles
-	 */
-	public NavigableMap<String, Role> getEdgeRoles() {
-		return Collections.unmodifiableNavigableMap(this.roles);
-	}
-
-	/**
 	 * Gets the global Role.
 	 *
 	 * @return {@link Role}
@@ -99,32 +93,20 @@ public abstract class AbstractUser {
 	}
 
 	/**
-	 * Gets the Role for a given Edge-ID.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @return the Role
-	 */
-	public Optional<Role> getRole(String edgeId) {
-		return Optional.ofNullable(this.roles.get(edgeId));
-	}
-
-	/**
-	 * Sets the Role for a given Edge-ID.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @param role   the Role
-	 */
-	public void setRole(String edgeId, Role role) {
-		this.roles.put(edgeId, role);
-	}
-
-	/**
 	 * Gets the settings for this user.
 	 *
 	 * @return the Role
 	 */
 	public JsonObject getSettings() {
 		return this.settings;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public String getEmail() {
+		return this.email;
 	}
 
 	/**
