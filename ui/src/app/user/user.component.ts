@@ -62,6 +62,9 @@ export class UserComponent implements OnInit {
             label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
             disabled: true,
         },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
+        },
     },
     {
         key: "lastname",
@@ -69,6 +72,9 @@ export class UserComponent implements OnInit {
         props: {
             label: this.translate.instant("REGISTER.FORM.LASTNAME"),
             disabled: true,
+        },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
         },
     }];
     protected companyInformationFields: FormlyFieldConfig[] = [];
