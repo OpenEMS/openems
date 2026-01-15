@@ -32,6 +32,9 @@ public @interface OAuthUserAuthenticationServiceConfig {
 	@AttributeDefinition(name = "Rate Limiter refill rate per second")
 	int rateLimitedRefillRate() default 1;
 
+	@AttributeDefinition(name = "Max number of concurrent connections", description = "Maximum number of concurrent request to the OAuth2 server")
+	int maxConcurrentRequests() default 50;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	DebugMode debugMode() default DebugMode.OFF;
 

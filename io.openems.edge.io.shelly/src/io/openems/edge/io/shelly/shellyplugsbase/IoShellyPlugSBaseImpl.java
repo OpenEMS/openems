@@ -23,6 +23,8 @@ import com.google.gson.JsonElement;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.metric.HttpBridgeMetricService;
+import io.openems.common.bridge.http.metric.HttpBridgeMetricServiceDefinition;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.types.DebugMode;
@@ -68,6 +70,7 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	private BridgeHttp httpBridge;
 	private HttpBridgeCycleService cycleService;
 	private HttpBridgeTimeService timeService;
+	private HttpBridgeMetricService<String> metricService;
 
 	private AutoCloseable mdnsUnsubscribe;
 
@@ -97,6 +100,10 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 		this.invert = invert;
 		this.httpBridge = this.getBridgeHttpFactory().get();
 		this.httpBridge.setDebugMode(debugMode);
+		if (debugMode == DebugMode.DETAILED) {
+			this.metricService = this.httpBridge.createService(HttpBridgeMetricServiceDefinition.byUrl());
+		}
+
 		this.cycleService = this.httpBridge.createService(this.getHttpBridgeCycleServiceDefinition());
 		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		this.shellyValidation = shellyValidation;
@@ -177,6 +184,7 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 
 	private void unsubscribe() {
 		this.baseUrl = null;
+		this.timeService.removeAllTimeEndpoints();
 		this.cycleService.removeAllCycleEndpoints();
 	}
 
@@ -187,7 +195,8 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 
 	@Override
 	public String debugLog() {
-		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel());
+		return generateDebugLog(this.digitalOutputChannels, this.getActivePowerChannel()) //
+				+ (this.metricService != null ? ", " + this.metricService : "");
 	}
 
 	@Override

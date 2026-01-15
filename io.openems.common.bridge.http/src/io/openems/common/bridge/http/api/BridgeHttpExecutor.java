@@ -17,21 +17,21 @@ public interface BridgeHttpExecutor {
 	 * @param durationDelay the delay to schedule toe task
 	 * @return a {@link ScheduledFuture}
 	 */
-	public ScheduledFuture<?> schedule(Runnable task, DelayTimeProvider.Delay.DurationDelay durationDelay);
+	ScheduledFuture<?> schedule(Runnable task, DelayTimeProvider.Delay.DurationDelay durationDelay);
 
 	/**
 	 * Executes the given task.
 	 * 
 	 * @param task the task to execute
 	 */
-	public void execute(Runnable task);
+	void execute(Runnable task);
 
 	/**
 	 * Determines if this executor is shutdown.
 	 * 
 	 * @return true if this executor is shutdown else false
 	 */
-	public boolean isShutdown();
+	boolean isShutdown();
 
 	/**
 	 * Returns key metrics of this executor.
@@ -39,5 +39,12 @@ public interface BridgeHttpExecutor {
 	 * @return a map with key metrics
 	 */
 	Map<String, Long> getMetrics();
+
+	/**
+	 * Sets the maximum pool size of this executor.
+	 *
+	 * @param maximumPoolSize the maximum pool size
+	 */
+	void setMaximumPoolSize(int maximumPoolSize);
 
 }

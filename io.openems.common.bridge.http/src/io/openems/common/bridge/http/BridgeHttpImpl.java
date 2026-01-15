@@ -1,8 +1,10 @@
 package io.openems.common.bridge.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,24 +16,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpEventDefinition;
+import io.openems.common.bridge.http.api.BridgeHttpEventListener;
+import io.openems.common.bridge.http.api.BridgeHttpEventRaiser;
 import io.openems.common.bridge.http.api.BridgeHttpExecutor;
 import io.openems.common.bridge.http.api.EndpointFetcher;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.function.Disposable;
 import io.openems.common.types.DebugMode;
 
 @Component(//
 		scope = ServiceScope.PROTOTYPE //
 )
-public class BridgeHttpImpl implements BridgeHttp {
+public class BridgeHttpImpl implements BridgeHttp, BridgeHttpEventRaiser {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeHttpImpl.class);
 
 	private final EndpointFetcher urlFetcher;
 	private final BridgeHttpExecutor pool;
 	private final Map<HttpBridgeServiceDefinition<?>, HttpBridgeService> services = new ConcurrentHashMap<>();
+	private final Map<BridgeHttpEventDefinition<?>, List<BridgeHttpEventListener<?>>> listeners = new ConcurrentHashMap<>();
 
 	private DebugMode debugMode = DebugMode.OFF;
 
@@ -87,7 +94,7 @@ public class BridgeHttpImpl implements BridgeHttp {
 		final var future = new CompletableFuture<HttpResponse<String>>();
 		this.pool.execute(() -> {
 			try {
-				final var result = this.urlFetcher.fetchEndpoint(endpoint, this.debugMode);
+				final var result = this.urlFetcher.fetchEndpoint(endpoint, this.debugMode, this);
 				future.complete(result);
 			} catch (HttpError e) {
 				future.completeExceptionally(e);
@@ -101,6 +108,48 @@ public class BridgeHttpImpl implements BridgeHttp {
 	@Override
 	public Map<String, Long> getMetrics() {
 		return this.pool.getMetrics();
+	}
+
+	@Override
+	public void setMaximumPoolSize(int maximumPoolSize) {
+		this.pool.setMaximumPoolSize(maximumPoolSize);
+	}
+
+	@Override
+	public <T> Disposable subscribeEvent(//
+			BridgeHttpEventDefinition<T> eventDefinition, //
+			BridgeHttpEventListener<T> listener //
+	) {
+		final var list = this.listeners.computeIfAbsent(eventDefinition, eventDef -> new CopyOnWriteArrayList<>());
+
+		list.add(listener);
+
+		return () -> {
+			this.listeners.computeIfPresent(eventDefinition, (eventDef, eventListener) -> {
+				if (eventListener.remove(listener)) {
+					if (eventListener.isEmpty()) {
+						return null;
+					}
+				}
+				return eventListener;
+			});
+		};
+	}
+
+	@Override
+	public <T> void raiseEvent(//
+			BridgeHttpEventDefinition<T> eventDefinition, //
+			T data //
+	) {
+		final var listeners = this.listeners.get(eventDefinition);
+		if (listeners == null) {
+			return;
+		}
+		for (var listener : listeners) {
+			@SuppressWarnings("unchecked")
+			var typedListener = (BridgeHttpEventListener<Object>) listener;
+			typedListener.onEvent(data);
+		}
 	}
 
 }

@@ -127,6 +127,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 	) throws Exception {
 		this.bridgeHttpFactory = bridgeHttpFactory;
 		this.bridgeHttp = this.bridgeHttpFactory.get();
+		this.bridgeHttp.setMaximumPoolSize(config.maxConcurrentRequests());
 		this.bridgeHttp.setDebugMode(config.debugMode());
 
 		this.metadata = metadata;

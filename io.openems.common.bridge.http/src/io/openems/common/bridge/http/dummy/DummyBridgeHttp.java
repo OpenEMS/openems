@@ -5,9 +5,12 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpEventDefinition;
+import io.openems.common.bridge.http.api.BridgeHttpEventListener;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.function.Disposable;
 import io.openems.common.types.DebugMode;
 
 public class DummyBridgeHttp implements BridgeHttp {
@@ -44,4 +47,21 @@ public class DummyBridgeHttp implements BridgeHttp {
 		return Collections.emptyMap();
 	}
 
+	@Override
+	public void setMaximumPoolSize(int maximumPoolSize) {
+		// do nothing
+	}
+
+	@Override
+	public <T> Disposable subscribeEvent(BridgeHttpEventDefinition<T> eventDefinition,
+			BridgeHttpEventListener<T> listener) {
+		return () -> {
+			// empty for dummy implementation
+		};
+	}
+
+	@Override
+	public <T> void raiseEvent(BridgeHttpEventDefinition<T> eventDefinition, T eventData) {
+		// empty for dummy implementation
+	}
 }

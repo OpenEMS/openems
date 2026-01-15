@@ -107,6 +107,7 @@ public class DummyBridgeHttpExecutor implements BridgeHttpExecutor {
 	private final PriorityQueue<Task> timePriorityTasks = new PriorityQueue<Task>();
 	private final TaskExecutor taskExecutor;
 	private boolean shutdown = false;
+	private int maximumPoolSize = 10;
 
 	public DummyBridgeHttpExecutor(Clock clock, boolean handleTasksImmediately) {
 		super();
@@ -155,6 +156,15 @@ public class DummyBridgeHttpExecutor implements BridgeHttpExecutor {
 	@Override
 	public Map<String, Long> getMetrics() {
 		return Collections.emptyMap();
+	}
+
+	@Override
+	public void setMaximumPoolSize(int maximumPoolSize) {
+		this.maximumPoolSize = maximumPoolSize;
+	}
+
+	public int getMaximumPoolSize() {
+		return this.maximumPoolSize;
 	}
 
 	/**

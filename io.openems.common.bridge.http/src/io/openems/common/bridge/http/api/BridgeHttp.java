@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.Disposable;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.DebugMode;
 import io.openems.common.utils.JsonUtils;
@@ -45,7 +46,7 @@ import io.openems.common.utils.JsonUtils;
  * final var responseFuture = this.httpBridge.get("http://127.0.0.1/status");
  * </pre>
  */
-public interface BridgeHttp {
+public interface BridgeHttp extends BridgeHttpEventRaiser {
 
 	public static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
 	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
@@ -192,6 +193,27 @@ public interface BridgeHttp {
 		}
 
 	}
+
+	/**
+	 * Subscribes to the given event.
+	 *
+	 * @param <T>             the type of the event data
+	 * @param eventDefinition the {@link BridgeHttpEventDefinition} to subscribe to
+	 * @param listener        the {@link BridgeHttpEventListener} to notify when the
+	 *                        event occurs
+	 * @return a {@link Disposable} to unsubscribe from the event
+	 */
+	public <T> Disposable subscribeEvent(//
+			BridgeHttpEventDefinition<T> eventDefinition, //
+			BridgeHttpEventListener<T> listener //
+	);
+
+	/**
+	 * Sets the maximum pool size for this bridge.
+	 * 
+	 * @param maximumPoolSize the maximum pool size to set
+	 */
+	public void setMaximumPoolSize(int maximumPoolSize);
 
 	/**
 	 * Sets the {@link DebugMode} for this bridge.
