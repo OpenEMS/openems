@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo;
 
+import static io.openems.backend.metadata.odoo.MetadataOdoo.ODOO_MODULE_NAME;
+import static io.openems.backend.metadata.odoo.MetadataOdoo.ODOO_SETUP_PROTOCOL_EDGE_FIELD;
 import static java.util.stream.Collectors.joining;
 
 import java.util.stream.Stream;
@@ -132,7 +134,7 @@ public interface Field {
 		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false), //
 		;
 
-		public static final String ODOO_MODEL = "openems.device";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -181,7 +183,7 @@ public interface Field {
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
-		public static final String ODOO_MODEL = "openems.openemsconfigupdate";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".openemsconfigupdate";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -234,7 +236,7 @@ public interface Field {
 		LAST_NOTIFICATION("last_notification", true), //
 		; //
 
-		public static final String ODOO_MODEL = "openems.device_user_role";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -442,11 +444,11 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		EDGE("device_id", true),
-		TYPE("type", true),
+		EDGE(ODOO_SETUP_PROTOCOL_EDGE_FIELD , true), //
+		TYPE("type", true), //
 		CREATE_DATE("create_date", false);
 
-		public static final String ODOO_MODEL = "openems.setup_protocol";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -493,7 +495,7 @@ public interface Field {
 		SEQUENCE("sequence", true), //
 		LOT("lot_id", true);
 
-		public static final String ODOO_MODEL = "openems.setup_protocol_production_lot";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".setup_protocol_production_lot";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -545,7 +547,7 @@ public interface Field {
 		FIELD("field", false), //
 		;
 
-		public static final String ODOO_MODEL = "openems.setup_protocol_item";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".setup_protocol_item";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -643,7 +645,7 @@ public interface Field {
 		OFFLINE_LAST_NOTIFICATION("offline_last_notification", true), //
 		SUM_STATE_LAST_NOTIFICATION("sum_state_last_notification", true);
 
-		public static final String ODOO_MODEL = "openems.alerting";
+		public static final String ODOO_MODEL = ODOO_MODULE_NAME + ".alerting";
 		public static final String ODOO_TABLE = AlertingSetting.ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {

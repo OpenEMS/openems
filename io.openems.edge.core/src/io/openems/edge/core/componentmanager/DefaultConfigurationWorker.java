@@ -1,6 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
-import io.openems.common.utils.DictionaryUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -111,8 +111,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					new Property("noOfCycles", 60) //
 			));
 		}
-
-		this.migrateConfigurationsOnVersionUpgrade(existingConfigs, defaultConfigurationFailed);
 
 		return defaultConfigurationFailed.get();
 	}

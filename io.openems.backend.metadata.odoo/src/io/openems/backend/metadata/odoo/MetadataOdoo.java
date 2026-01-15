@@ -98,6 +98,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	public static final String ID = "metadata0";
 
+	public static final String ODOO_MODULE_NAME = "openems";
+	public static final String ODOO_EDGE_NAME = "edge";
+	public static final String ODOO_SETUP_PROTOCOL_EDGE_FIELD = "device_id";
+	public static final int EXPECTED_NUMBER_OF_EDGES = 1_000;
+	
 	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
 	private final EdgeCache edgeCache;
 	private final OdooEdgeHandler edgeHandler = new OdooEdgeHandler(this);

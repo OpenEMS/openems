@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import static io.openems.backend.metadata.odoo.MetadataOdoo.ODOO_EDGE_NAME;
+import static io.openems.backend.metadata.odoo.MetadataOdoo.ODOO_MODULE_NAME;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAs;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsEnum;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOptional;
@@ -422,8 +424,8 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, "openems.report_openems_setup_protocol_template",
-				setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials,
+				ODOO_MODULE_NAME + ".report_" + ODOO_MODULE_NAME + "_setup_protocol_template", setupProtocolId);
 	}
 
 	/**
@@ -499,9 +501,8 @@ public class OdooHandler {
 	 */
 	public int submitSetupProtocol(User user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		final var userJson = getAsJsonObject(setupProtocolJson, "customer");
-		final var edgeJson = getAsJsonObject(setupProtocolJson, "edge");
+		final var edgeJson = getAsJsonObject(setupProtocolJson, ODOO_EDGE_NAME);
 		final var installerJson = getAsJsonObject(setupProtocolJson, "installer");
-		final var oem = getAsString(setupProtocolJson, "oem").toUpperCase();
 
 		final var edgeId = getAsString(edgeJson, "id");
 		final var foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -614,74 +615,6 @@ public class OdooHandler {
 						.addProperty("edgeId", edgeId) //
 						.build()) //
 				.build());
-	}
-
-	/**
-	 * Create an Odoo user and return thats id. If user already exists the user will
-	 * be updated and return the user id.
-	 *
-	 * @param userJson the {@link Partner} to create user
-	 * @param password the password to set for the new user
-	 * @param oem      OEM name
-	 * @return the Odoo user id
-	 * @throws OpenemsNamedException on error
-	 */
-	private int createOdooUser(JsonObject userJson, String password, String oem) throws OpenemsNamedException {
-		var customerFields = new HashMap<>(this.updateAddress(userJson));
-		customerFields.putAll(this.updateCompany(userJson));
-
-		getAsOptionalString(userJson, "firstname") //
-				.ifPresent(firstname -> customerFields.put(Field.Partner.FIRSTNAME.id(), firstname));
-		getAsOptionalString(userJson, "lastname") //
-				.ifPresent(lastname -> customerFields.put(Field.Partner.LASTNAME.id(), lastname));
-
-		var email = getAsString(userJson, "email").toLowerCase();
-		customerFields.put(Field.Partner.EMAIL.id(), email);
-
-		getAsOptionalString(userJson, "phone") //
-				.ifPresent(phone -> customerFields.put(Field.Partner.PHONE.id(), phone));
-
-		var userFound = OdooUtils.search(this.credentials, Field.User.ODOO_MODEL,
-				new Domain(Field.User.LOGIN, Operator.EQ, email));
-
-		if (userFound.length == 1) {
-			// update existing user
-			var userId = userFound[0];
-			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { userId }, customerFields);
-			return userId;
-		}
-
-		customerFields.put(Field.User.LOGIN.id(), email);
-		customerFields.put(Field.User.PASSWORD.id(), password);
-		customerFields.put(Field.User.GLOBAL_ROLE.id(), OdooUserRole.OWNER.getOdooRole());
-		customerFields.put(Field.User.GROUPS.id(), OdooUserRole.OWNER.toOdooIds());
-		var createdUserId = OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, customerFields);
-
-		try {
-			this.addTagToPartner(createdUserId);
-		} catch (OpenemsException e) {
-			this.log.warn("Unable to add tag for Odoo user id [" + createdUserId + "]", e);
-		}
-
-		this.sendRegistrationMail(createdUserId, password, oem);
-		return createdUserId;
-	}
-
-	/**
-	 * Add tags to the referenced partner for given user id.
-	 *
-	 * @param userId to get Odoo partner
-	 * @throws OpenemsException on error
-	 */
-	private void addTagToPartner(int userId) throws OpenemsException {
-		var createdViaIbnTag = OdooUtils.getObjectReference(this.credentials, "openems",
-				"res_partner_category_created_via_ibn");
-		var customerTag = OdooUtils.getObjectReference(this.credentials, "openems", "res_partner_category_customer");
-
-		var partnerId = this.getOdooPartnerId(userId);
-
-		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
-				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { createdViaIbnTag, customerTag }));
 	}
 
 	/**

@@ -15,11 +15,9 @@ import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { Environment, environment } from "src/environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Websocket } from "../../../shared/shared";
-import { EdgeComponent } from "../../edge.component";
 import { ExecuteSystemUpdate } from "../system/executeSystemUpdate";
 import { InstallAppComponent } from "./install.component";
 import { Flags } from "./jsonrpc/flag/flags";
-import { GetApp } from "./jsonrpc/getApp";
 import { GetApps } from "./jsonrpc/getApps";
 import { App } from "./keypopup/app";
 import { AppCenter } from "./keypopup/appCenter";
@@ -131,27 +129,6 @@ export class IndexComponent implements OnInit, OnDestroy {
             if (!(node instanceof HTMLElement && node.classList.contains("open-modal-thirdpartyaccess"))) {
                 return;
             }
-            node.addEventListener("click", async () => {
-                const popoverEvent = await EdgeComponent.showPrivacyPolicyPopover(this.modalController);
-                const acceptance = popoverEvent.data?.thirdPartyUsageAcceptance;
-                if (acceptance != null) {
-
-                    // update app status
-                    this.edge.sendRequest(this.websocket,
-                        new ComponentJsonApiRequest({
-                            componentId: "_appManager",
-                            payload: new GetApp.Request({ appId: appId }),
-                        })).then(response => {
-                        const app = (response as GetApp.Response).result.app;
-                        app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.currentLang, app.appId);
-
-                        this.apps.splice(this.apps.findIndex(a => a.appId === app.appId), 1, app);
-                        this.updateSelection();
-                    }).catch(reason => {
-                        this.service.toast("Error while receiving App[" + appId + "]: " + reason.error.message, "danger");
-                    });
-                }
-            });
         });
     }
 
@@ -417,36 +394,36 @@ export class IndexComponent implements OnInit, OnDestroy {
                     payload: new GetApps.Request(),
                 })).then(response => {
 
-                this.service.stopSpinner(this.spinnerId);
+                    this.service.stopSpinner(this.spinnerId);
 
-                this.apps = (response as GetApps.Response).result.apps.map(app => {
-                    app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
-                    return app;
-                });
-
-                // init categories
-                const statusFilter = this.statusFilter();
-                this.apps.forEach(a => {
-                    a.categorys.forEach(category => {
-                        const isCategoryAlreadyExisting = this.categories.filter(c => c.val.name === category.name)?.length > 0;
-                        const isCategoryAllowed = StringUtils.isInArr(a.status.name, statusFilter.options.map(el => el.option.value));
-                        if (!isCategoryAlreadyExisting && isCategoryAllowed) {
-                            this.categories.push({ val: category, isChecked: true });
-                        }
+                    this.apps = (response as GetApps.Response).result.apps.map(app => {
+                        app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
+                        return app;
                     });
-                });
 
-                this.filters = [this.categoryFilter(), this.statusFilter()];
-                this.updateSelection();
+                    // init categories
+                    const statusFilter = this.statusFilter();
+                    this.apps.forEach(a => {
+                        a.categorys.forEach(category => {
+                            const isCategoryAlreadyExisting = this.categories.filter(c => c.val.name === category.name)?.length > 0;
+                            const isCategoryAllowed = StringUtils.isInArr(a.status.name, statusFilter.options.map(el => el.option.value));
+                            if (!isCategoryAlreadyExisting && isCategoryAllowed) {
+                                this.categories.push({ val: category, isChecked: true });
+                            }
+                        });
+                    });
 
-                edge.sendRequest(this.websocket, new AppCenter.Request({
-                    payload: new AppCenterGetRegisteredKeys.Request({}),
-                })).then(response => {
-                    const result = (response as AppCenterGetRegisteredKeys.Response).result;
-                    this.numberOfUnusedRegisteredKeys = result.keys.length;
-                    this.updateHasUnusedKeysPopover();
-                }).catch(this.service.handleError);
-            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving available apps: " + error));
+                    this.filters = [this.categoryFilter(), this.statusFilter()];
+                    this.updateSelection();
+
+                    edge.sendRequest(this.websocket, new AppCenter.Request({
+                        payload: new AppCenterGetRegisteredKeys.Request({}),
+                    })).then(response => {
+                        const result = (response as AppCenterGetRegisteredKeys.Response).result;
+                        this.numberOfUnusedRegisteredKeys = result.keys.length;
+                        this.updateHasUnusedKeysPopover();
+                    }).catch(this.service.handleError);
+                }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving available apps: " + error));
 
             const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
             systemUpdate.systemUpdateStateChange = (updateState) => {
