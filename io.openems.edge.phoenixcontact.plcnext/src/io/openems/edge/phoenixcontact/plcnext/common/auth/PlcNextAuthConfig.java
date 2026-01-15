@@ -3,9 +3,9 @@ package io.openems.edge.phoenixcontact.plcnext.common.auth;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
 
 public record PlcNextAuthConfig(String baseUrl, String username, String password) {
-	
+
 	private static final String PLC_NEXT_AUTH_API_PATH = "/v1.3/auth";
-	
+
 	/**
 	 * Assembles URL of authentication endpoint
 	 * 

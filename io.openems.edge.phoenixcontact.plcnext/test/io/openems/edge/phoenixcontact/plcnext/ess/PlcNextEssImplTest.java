@@ -1,4 +1,4 @@
-package io.openems.edge.phoenixcontact.plcnext.meter;
+package io.openems.edge.phoenixcontact.plcnext.ess;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,21 +31,28 @@ import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProviderImpl;
+import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataWriteValueType;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapper;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapperImpl;
+import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 
-public class PlcNextMeterImplTest {
+public class PlcNextEssImplTest {
 
-	private static final String COMPONENT_ID = "meter0";
+	private static final String COMPONENT_ID = "ess0";
 	private static final String SESSION_ID = "1234567890";
 
-	private static ThrowingRunnable<Exception> assertChannelValue(PlcNextMeterImpl sut, ChannelId channelId,
+	private static ThrowingRunnable<Exception> assertChannelValue(PlcNextEssImpl sut, ChannelId channelId,
 			Object expectedValue) {
 		return () -> assertEquals(expectedValue, sut.channel(channelId).value().get());
 	}
@@ -57,12 +64,15 @@ public class PlcNextMeterImplTest {
 
 	private PlcNextTokenManager tokenManager;
 
-	private PlcNextGdsDataProviderImpl dataProvider;
 	private PlcNextGdsDataAccessConfig dataProviderConfig;
+	private PlcNextGdsDataProviderImpl dataProvider;
 
-	private PlcNextGdsDataToChannelMapperImpl dataToChannelMapper;
+	private PlcNextGdsDataToChannelMapper dataToChannelMapper;
+	private PlcNextChannelToGdsDataMapper channelToDataMapper;
 
-	private PlcNextMeterImpl componentUnderTest;
+	private Power dummyPower;
+
+	private PlcNextEssImpl componentUnderTest;
 	private ComponentTest test;
 
 	private String accessToken;
@@ -72,7 +82,7 @@ public class PlcNextMeterImplTest {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
 				.build();
-		this.componentUnderTest = new PlcNextMeterImpl();
+		this.componentUnderTest = new PlcNextEssImpl();
 
 		this.accessToken = "dummy_access";
 
@@ -97,9 +107,10 @@ public class PlcNextMeterImplTest {
 						new DummyBridgeHttpExecutor(), new DummyEndpointFetcher()));
 
 		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
-
-		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
 		this.dataProvider = new PlcNextGdsDataProviderImpl(mockDummyDataBridgeHttp, this.tokenManager);
+
+		this.channelToDataMapper = new PlcNextChannelToGdsDataMapperImpl();
+		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
 
 		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(myConfig.baseUrl(), myConfig.dataInstanceName(),
 				COMPONENT_ID);
@@ -119,80 +130,95 @@ public class PlcNextMeterImplTest {
 		when(mockDummyDataBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
+		this.dummyPower = new DummyPower();
+
 		this.test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
-				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper); //
-
+				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper)
+				.addReference("gdsChannelToGdsDataMapper", this.channelToDataMapper).addReference("power", dummyPower);
 	}
 
 	@Test
 	public void testRunModule() throws Exception {
 		// prep
-		int expectedPhases2Neutral1Value = 110000;
-		int expectedPhases2Neutral2Value = 220000;
-		int expectedPhases2Neutral3Value = 330000;
-		int expectedPhasesNeutralValue = 550000;
-		int expectedEnergyImportValue = 440000;
+		int expectedSocValue = 110001;
+		int expectedCapacityValue = 210001;
+		int expectedGridModeValue = 320001;
+		int setActivePowerEqualsValue = 140002;
 
-		JsonObject responseBody = new JsonObject();
+		//// Read
+		JsonObject readDataResponseBody = new JsonObject();
 		JsonArray variables = new JsonArray();
 
-		JsonObject varPhaseVoltageL1N = new JsonObject();
-		varPhaseVoltageL1N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L1N");
-		varPhaseVoltageL1N.addProperty("value", expectedPhases2Neutral1Value);
-		variables.add(varPhaseVoltageL1N);
+		JsonObject varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Soc");
+		varMaxPowerExport.addProperty("value", expectedSocValue);
+		variables.add(varMaxPowerExport);
 
-		JsonObject varPhaseVoltageL2N = new JsonObject();
-		varPhaseVoltageL2N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L2N");
-		varPhaseVoltageL2N.addProperty("value", expectedPhases2Neutral2Value);
-		variables.add(varPhaseVoltageL2N);
+		JsonObject varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Capacity");
+		varMaxPowerImport.addProperty("value", expectedCapacityValue);
+		variables.add(varMaxPowerImport);
 
-		JsonObject varPhaseVoltageL3N = new JsonObject();
-		varPhaseVoltageL3N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L3N");
-		varPhaseVoltageL3N.addProperty("value", expectedPhases2Neutral3Value);
-		variables.add(varPhaseVoltageL3N);
+		JsonObject varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.GridMode");
+		varSetReactivePower.addProperty("value", expectedGridModeValue);
+		variables.add(varSetReactivePower);
 
-		JsonObject varNeutralCurrent = new JsonObject();
-		varNeutralCurrent.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.currentMeasurement.phases.Neutral");
-		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
-		variables.add(varNeutralCurrent);
+		readDataResponseBody.add("variables", variables);
 
-		JsonObject varEnergyImport = new JsonObject();
-		varEnergyImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.energyMeasurement.EnergyImport");
-		varEnergyImport.addProperty("value", expectedEnergyImportValue);
-		variables.add(varEnergyImport);
-
-		responseBody.add("variables", variables);
-
-		List<String> readVariableIdentifiers = Stream.of(PlcNextMeterGdsDataReadMappingDefinition.values())//
+		List<String> readVariableIdentifiers = Stream.of(PlcNextEssGdsDataReadMappingDefinition.values())//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
 		String readDataRequestBody = this.dataProvider.buildPostBodyForRead(SESSION_ID, readVariableIdentifiers,
 				dataProviderConfig);
 		Endpoint readDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
 				readDataRequestBody, this.dataProviderConfig);
 		when(mockDummyDataBridgeHttp.requestJson(readDataEndpoint)) //
-				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
+				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
+
+		//// Write
+		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
+				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
+						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
+						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
+				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
+				setActivePowerEqualsValue);
+
+		JsonObject writeDataResponseBody = new JsonObject();
+		writeDataResponseBody.addProperty("apiVersion", "n/a");
+		writeDataResponseBody.addProperty("projectCRC", "1234567890");
+		writeDataResponseBody.addProperty("userAuthenticationRequired", "true");
+
+		JsonArray writeVariables = new JsonArray();
+		writeVariables.add(requestBodyVarSetActivePowerEquals);
+
+		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
+
+		String writeDataRequestBody = this.dataProvider.buildPutBodyForWrite(SESSION_ID,
+				List.of(requestBodyVarSetActivePowerEquals));
+		Endpoint writeDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.PUT,
+				writeDataRequestBody, dataProviderConfig);
+		when(mockDummyDataBridgeHttp.requestJson(writeDataEndpoint)) //
+				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
 
 		// test + check
 		this.test.activate(myConfig); //
 
 		this.test.next(new TestCase() //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
-						expectedPhases2Neutral1Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
-						expectedPhases2Neutral2Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
-						expectedPhases2Neutral3Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
-						expectedPhasesNeutralValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
-						expectedPhasesNeutralValue))); //
+				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
+				.onAfterProcessImage(
+						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
+				.onAfterProcessImage(
+						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY, expectedCapacityValue)) //
+				.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+						expectedGridModeValue))); //
 
-		test.deactivate();
+		this.test.deactivate();
 	}
 }

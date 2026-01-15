@@ -1,31 +1,17 @@
-package io.openems.edge.phoenixcontact.plcnext.meter;
+package io.openems.edge.phoenixcontact.plcnext.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
-public class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.meter.Config {
-
+class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoenixcontact.plcnext.ess.Config {
 	protected static class Builder {
 		private String id;
-		private MeterType meterType;
-		private String namespaceVariables;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
-			return this;
-		}
-
-		public Builder setType(MeterType meterType) {
-			this.meterType = meterType;
-			return this;
-		}
-		
-		public Builder setNamespaceVariables(String namespace) {
-			this.namespaceVariables = namespace;
 			return this;
 		}
 
@@ -45,16 +31,10 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 	}
 
 	private final Builder builder;
-	
 
 	private TestConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
-	}
-
-	@Override
-	public MeterType type() {
-		return this.builder.meterType;
 	}
 
 	@Override
@@ -74,12 +54,7 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitMeter";
-	}
-
-	@Override
-	public String namespaceVariables() {
-		return this.builder.namespaceVariables;
+		return "OpenEmsInstance4JUnitEss";
 	}
 
 }
