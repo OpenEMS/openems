@@ -142,6 +142,7 @@ EOT
 done
 
 # Build
+
 echo "#"
 echo "# building Java projects"
 ./gradlew build
@@ -168,14 +169,26 @@ update_bndrun() {
 	echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 	echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 	echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
+
+	entries=()
 	for D in $2.*; do
 		if [[ "$D" == *api ]]; then
 			continue # ignore api bundle
 		elif [[ "$D" == *application && "$D" != "$3" ]]; then
 			continue # ignore other application bundle
 		fi
-		echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
+		entries+=("$D")
 	done
+	case "$1" in
+		"EdgeApp" | "BackendApp")
+		for D in io.openems.core.*; do
+			entries+=("$D")
+		done
+	esac
+	printf "%s\n" "${entries[@]}" | LC_ALL=C sort -u | while IFS= read -r D; do
+		echo -e "\tbnd.identity;id='$D',\\" >> "$bndrun.new"
+	done
+
 	local runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
 	tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
 	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"

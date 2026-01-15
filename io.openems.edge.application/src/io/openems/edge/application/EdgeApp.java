@@ -26,11 +26,13 @@ public class EdgeApp {
 
 		// Announce Operating System that OpenEMS Edge started
 		var socketName = System.getenv().get("NOTIFY_SOCKET");
-		if (socketName != null && socketName.length() != 0) {
+		if (socketName != null && !socketName.isEmpty()) {
 			if (SDNotify.isAvailable()) {
 				SDNotify.sendNotify();
 			}
 		}
+
+		this.log.debug("Activate EdgeApp");
 	}
 
 	@Deactivate
