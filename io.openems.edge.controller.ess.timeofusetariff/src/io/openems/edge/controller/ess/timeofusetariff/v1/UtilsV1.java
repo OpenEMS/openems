@@ -2,8 +2,9 @@ package io.openems.edge.controller.ess.timeofusetariff.v1;
 
 import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.ESS_LIMIT_14A_ENWG;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_CHARGE_C_RATE;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.postprocessRunState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
@@ -36,6 +38,10 @@ public final class UtilsV1 {
 
 	@Deprecated
 	public static final int PERIODS_PER_HOUR = 4;
+
+	/** Keep some buffer to avoid scheduling errors because of bad predictions. */
+	@Deprecated
+	public static final float ESS_MAX_SOC = 94F;
 
 	/**
 	 * Returns the configured minimum SoC, or zero.
@@ -217,5 +223,49 @@ public final class UtilsV1 {
 			// Limit discharge to 0
 			0;
 		};
+	}
+
+	/**
+	 * Post-Process a state during {@link Controller#run()}, i.e. replace with
+	 * 'better' state if appropriate.
+	 * 
+	 * <p>
+	 * NOTE: this can be useful, if live operation deviates from predicted
+	 * operation, e.g. because predictions were wrong.
+	 * 
+	 * @param ess               the {@link ManagedSymmetricEss}
+	 * @param state             the initial state
+	 * @param pwrBalancing      the power set-point as it would be in
+	 *                          {@link StateMachine#BALANCING}
+	 * @param pwrDelayDischarge the power set-point as it would be in
+	 *                          {@link StateMachine#DELAY_DISCHARGE}
+	 * @param pwrChargeGrid     the power set-point as it would be in
+	 *                          {@link StateMachine#CHARGE_GRID}
+	 * @return the new state
+	 */
+	@Deprecated
+	public static StateMachine postprocessRunState(ManagedSymmetricEss ess, StateMachine state, int pwrBalancing,
+			int pwrDelayDischarge, int pwrChargeGrid) {
+		if (state == CHARGE_GRID) {
+			// CHARGE_GRID,...
+			if (pwrChargeGrid >= pwrDelayDischarge) {
+				// but battery charge/discharge is the same as DELAY_DISCHARGE
+				state = DELAY_DISCHARGE;
+			}
+			var soc = ess.getSoc();
+			if (soc.isDefined() && soc.get() >= ESS_MAX_SOC) {
+				state = DELAY_DISCHARGE;
+			}
+		}
+
+		if (state == DELAY_DISCHARGE) {
+			// CHARGE_GRID,...
+			if (pwrDelayDischarge >= pwrBalancing) {
+				// but battery charge/discharge is the same as DELAY_DISCHARGE
+				state = BALANCING;
+			}
+		}
+
+		return state;
 	}
 }

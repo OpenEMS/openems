@@ -57,7 +57,8 @@ public class Simulator {
 
 		// Initialize the EnergyScheduleHandlers.
 		for (var esh : goc.eshs()) {
-			((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
+			var coc = ((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
+			LOG.info("OPTIMIZER ControllerOptimizationContext '" + esh.getParentId() + "': " + coc);
 		}
 		this.modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
 	}

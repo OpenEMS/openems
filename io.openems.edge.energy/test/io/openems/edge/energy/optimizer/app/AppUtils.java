@@ -36,6 +36,7 @@ import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -79,13 +80,16 @@ public final class AppUtils {
 	 */
 	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
-			final var startTime = json.getZonedDateTime("startTime");
-			final var clock = new TimeLeapClock(startTime.toInstant(), ZoneId.of("UTC"));
+			final var zone = ZoneId.of(json.getString("zone"));
+			final var startTime = json.getZonedDateTime("startTime").withZoneSameInstant(zone);
+			final var clock = new TimeLeapClock(startTime.toInstant(), zone);
 			final var componentManager = new DummyComponentManager(clock);
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //
 					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
-					.withEssCapacity(ess.totalEnergy());
+					.withEssCapacity(ess.totalEnergy()) //
+					.withEssMaxDischargePower(ess.maxDischargePower()) //
+					.withEssMinDischargePower(-ess.maxChargePower());
 
 			// Periods: Predictions and Prices
 			final TimeOfUseTariff timeOfUseTariff;
@@ -101,9 +105,11 @@ public final class AppUtils {
 					p.getNullableNumberPath("price").getAsOptionalDouble() //
 							.ifPresent(price -> prices.put(time, price));
 					p.getNullableNumberPath("production").getAsOptionalInt() //
-							.ifPresent(production -> productions.put(time, production));
+							.ifPresent(production -> productions.put(time,
+									PeriodDuration.QUARTER.convertEnergyToPower(production)));
 					p.getNullableNumberPath("consumption").getAsOptionalInt() //
-							.ifPresent(consumption -> consumptions.put(time, consumption));
+							.ifPresent(consumption -> consumptions.put(time,
+									PeriodDuration.QUARTER.convertEnergyToPower(consumption)));
 				});
 				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
 				predictorManager = new DummyPredictorManager(//

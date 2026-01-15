@@ -18,7 +18,7 @@ import static io.openems.edge.energy.optimizer.app.AppUtils.simulateFromLog;
  */
 public class RunOptimizerFromLogApp {
 
-	private static final long EXECUTION_LIMIT_SECONDS = 5;
+	private static final long EXECUTION_LIMIT_SECONDS = 20;
 
 	/** Insert the full log lines including GlobalOptimizationContext header. */
 	private static final String LOG = """

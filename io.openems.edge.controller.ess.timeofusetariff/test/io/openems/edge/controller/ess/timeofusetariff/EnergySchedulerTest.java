@@ -44,7 +44,7 @@ public class EnergySchedulerTest {
 
 		assertEquals(106, t.simulatePeriod(0 /* BALANCING */).ef().solve().getEss());
 		assertEquals(0, t.simulatePeriod(1 /* DELAY_DISCHARGE */).ef().solve().getEss());
-		assertEquals(-982, t.simulatePeriod(2 /* CHARGE_GRID */).ef().solve().getEss());
+		assertEquals(-1381, t.simulatePeriod(2 /* CHARGE_GRID */).ef().solve().getEss());
 	}
 
 	@Test

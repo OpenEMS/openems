@@ -6,7 +6,7 @@ import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssMinSocPercentage;
 import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;

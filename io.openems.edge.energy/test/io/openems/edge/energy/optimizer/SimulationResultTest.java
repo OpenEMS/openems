@@ -38,6 +38,6 @@ public class SimulationResultTest {
 				m00, m11, m20 //
 		}, 0, 0);
 
-		assertEquals(1165082.15, result.fitness().getGridBuyCost(), 0.1);
+		assertEquals(1596526.4, result.fitness().getGridBuyCost(), 0.1);
 	}
 }

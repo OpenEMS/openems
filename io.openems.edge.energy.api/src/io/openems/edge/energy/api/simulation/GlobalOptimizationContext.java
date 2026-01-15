@@ -35,6 +35,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
@@ -109,6 +110,7 @@ public record GlobalOptimizationContext(//
 	 */
 	public static JsonElement toJson(GlobalOptimizationContext goc) {
 		return buildJsonObject() //
+				.addProperty("zone", goc.clock.getZone().getId()) //
 				.addProperty("riskLevel", goc.riskLevel) //
 				.addProperty("startTime", goc.startTime) //
 				.add("grid", goc.grid, Grid.serializer()) //
@@ -134,7 +136,7 @@ public record GlobalOptimizationContext(//
 			return jsonObjectSerializer(Grid.class, json -> {
 				return new Grid(//
 						json.getInt("maxBuyPower"), //
-						json.getInt("maxSellPower")); //
+						json.getInt("maxSellPower"));
 			}, obj -> {
 				return buildJsonObject() //
 						.addProperty("maxBuyPower", obj.maxBuyPower) //
@@ -316,7 +318,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrediction(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption //
 			) implements Quarter, Period.WithPrediction {
@@ -324,7 +326,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrice(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrice
 					double price //
 			) implements Quarter, Period.WithPrice {
@@ -332,7 +334,7 @@ public record GlobalOptimizationContext(//
 
 			public static record Complete(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.WithPrice
@@ -357,7 +359,7 @@ public record GlobalOptimizationContext(//
 			 */
 			public static Hour from(
 					// From Period
-					int i, ZonedDateTime time,
+					int i, ZonedDateTime time, //
 					// From Period.WithPrediction
 					Integer production, Integer consumption, //
 					// From Period.WithPrice
@@ -400,7 +402,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrediction(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.Hour
@@ -410,7 +412,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrice(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrice
 					double price, //
 					// From Period.Hour
@@ -420,7 +422,7 @@ public record GlobalOptimizationContext(//
 
 			public static record Complete(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.WithPrice
@@ -574,6 +576,14 @@ public record GlobalOptimizationContext(//
 			this.log.info("OPTIMIZER GlobalOptimizationContext PRICES: " + prices.toString());
 			final boolean hasPrices = !prices.isEmpty();
 
+			final var endTime = Optional //
+					.ofNullable(DateUtils.min(//
+							consumptions.getLastTime(), //
+							productions.getLastTime(), //
+							prices.getLastTime())) //
+					.map(i -> i.atZone(clock.getZone())) //
+					.orElse(startTime.plusMinutes(SCHEDULE_PERIODS_ON_EMPTY * 15));
+
 			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
 			// Helpers
@@ -590,35 +600,40 @@ public record GlobalOptimizationContext(//
 
 			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
 				final var i = periodLengthHourFromIndex + j * 4;
-				final var rangeStart = startTime.plusMinutes(i * 15);
-				final var rangeEnd = rangeStart.plusMinutes(60);
-				final var production = productions //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(HOUR::convertPowerToEnergy) //
-						.orElse(null);
-				final var consumption = consumptions //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(HOUR::convertPowerToEnergy) //
-						.orElse(null);
-				final var priceOpt = prices //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.mapToDouble(Double::doubleValue) //
-						.average();
-				final var price = priceOpt.isEmpty() //
-						? null //
-						: priceOpt.getAsDouble();
 				final var quarterPeriods = IntStream.range(i, i + 4) //
 						.mapToObj(toQuarterPeriod) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				return Period.Hour.from(periodLengthHourFromIndex + j, rangeStart, //
+				final var time = quarterPeriods.getFirst().time();
+				if (time.isAfter(endTime)) {
+					return null;
+				}
+				final var production = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::production) //
+						.reduce(Integer::sum).orElse(null);
+				final var consumption = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::consumption) //
+						.reduce(Integer::sum).orElse(null);
+				final var priceOpt = quarterPeriods.stream() //
+						.filter(Period.WithPrice.class::isInstance) //
+						.map(Period.WithPrice.class::cast) //
+						.mapToDouble(Period.WithPrice::price) //
+						.average();
+				final var price = priceOpt.isEmpty() //
+						? null //
+						: priceOpt.getAsDouble();
+
+				return Period.Hour.from(periodLengthHourFromIndex + j, time, //
 						production, consumption, price, quarterPeriods);
 			};
 
 			Predicate<? super Period> takeWhile = p -> {
 				return switch (p) {
+				case null -> false;
 				case Period.Complete c -> true;
 				case Period.WithPrediction wp -> !hasPrices;
 				case Period.WithPrice wp -> !hasPredictions;
@@ -634,7 +649,6 @@ public record GlobalOptimizationContext(//
 					IntStream.iterate(0, i -> i + 1) //
 							.<Period>mapToObj(toHourPeriod) //
 							.takeWhile(takeWhile)) //
-					.filter(Objects::nonNull) //
 					.collect(toImmutableList());
 
 			if (periods.isEmpty()) {

@@ -4,6 +4,7 @@ import static io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a.
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateAutomaticMode;
 import static org.junit.Assert.assertEquals;
 
@@ -95,7 +96,7 @@ public class UtilsV1Test {
 								.withGridActivePower(100), //
 						new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(500) //
-								.withSoc(94), //
+								.withSoc(Math.round(ESS_MAX_SOC)), //
 						/* essChargeInChargeGrid */ 1000, //
 						/* maxChargePowerFromGrid */ 1000, //
 						/* limitChargePowerFor14aEnWG */ ESS_LIMIT_14A_ENWG, //

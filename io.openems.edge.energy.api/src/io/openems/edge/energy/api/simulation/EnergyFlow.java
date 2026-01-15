@@ -455,6 +455,16 @@ public class EnergyFlow {
 		}
 
 		/**
+		 * Returns the managed consumption for a given ID.
+		 * 
+		 * @param id an identifier, e.g., the component ID
+		 * @return the managed consumption value, or 0 if not present
+		 */
+		public int getManagedConsumption(String id) {
+			return this.managedConsumptions.getOrDefault(id, 0);
+		}
+
+		/**
 		 * Returns the surplus (production - consumption).
 		 * 
 		 * @return the surplus value
