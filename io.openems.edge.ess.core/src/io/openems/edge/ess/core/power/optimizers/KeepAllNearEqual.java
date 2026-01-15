@@ -46,16 +46,16 @@ public class KeepAllNearEqual {
 			return NO_RESULT;
 		}
 
+		var setActivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.ACTIVE);
+		var setReactivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.REACTIVE);
+
+		if (Double.isNaN(setActivePower) && Double.isNaN(setReactivePower)) {
+			return NO_RESULT;
+		}
+
+		var essList = getGenericEssList(esss);
+
 		try {
-			var setActivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.ACTIVE);
-			var setReactivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.REACTIVE);
-
-			if (Double.isNaN(setActivePower) && Double.isNaN(setReactivePower)) {
-				return NO_RESULT;
-			}
-
-			var essList = getGenericEssList(esss);
-
 			var activePowerSolved = solvePowerIfNotNaN(setActivePower, essList, Pwr.ACTIVE, direction, debugMode);
 			var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction, debugMode);
 
