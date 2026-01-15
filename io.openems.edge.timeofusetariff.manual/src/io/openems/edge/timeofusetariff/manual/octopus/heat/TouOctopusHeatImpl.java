@@ -4,7 +4,7 @@ import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.timeofusetariff.api.TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
-import static  io.openems.edge.timeofusetariff.manual.octopus.Utils.CENT_PER_KWH_TO_CURRENCY_PER_MWH;
+import static io.openems.edge.timeofusetariff.manual.octopus.Utils.CENT_PER_KWH_TO_CURRENCY_PER_MWH;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -82,20 +82,17 @@ public class TouOctopusHeatImpl extends AbstractOpenemsComponent
 						.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4))//
 						.addRecurrenceRule(b -> b.setFrequency(DAILY))//
-						.setPayload(lowPrice) //
-						.build()) //
+						.setPayload(lowPrice)) //
 				.add(t -> t // Lower price from 12:00 to 16:00
 						.setStart(LocalTime.of(12, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
-						.setPayload(lowPrice) //
-						.build())
+						.setPayload(lowPrice)) //
 				.add(t -> t // Higher price from 18:00 to 21:00
 						.setStart(LocalTime.of(18, 0)) //
 						.setDuration(Duration.ofHours(3)) //
 						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
-						.setPayload(highPrice) //
-						.build()) //
+						.setPayload(highPrice)) //
 				.build();
 
 		this.octopusHelper = new TouManualHelper(clock, heatSchedule, standardPrice);

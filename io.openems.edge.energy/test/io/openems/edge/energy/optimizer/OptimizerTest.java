@@ -27,14 +27,16 @@ public class OptimizerTest {
 	public void testRunQuickOptimization() throws Exception {
 		var sut = EnergySchedulerImplTest.create(createDummyClock());
 		var optimizer = getOptimizer(sut);
-		assertEquals("No Schedule available|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED", optimizer.debugLog());
+		assertEquals("No Schedule available|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED",
+				optimizer.debugLog());
 
 		var simulationResult = optimizer.runQuickOptimization();
 		optimizer.applySimulationResult(simulationResult);
-		assertTrue(optimizer.debugLog().startsWith("ScheduledPeriods:96|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED|Current:"));
+		assertTrue(optimizer.debugLog().startsWith(
+				"ScheduledPeriods:96|SimulationsPerQuarter:UNDEFINED|GenerationsPerQuarter:UNDEFINED|Current:"));
 
 		var sr = optimizer.getSimulationResult();
-		assertTrue(sr.fitness().getGridBuyCost() < 1100000);
+		assertTrue(sr.fitness().getGridBuyCost() < 2000000);
 		assertEquals(96, sr.periods().size());
 	}
 

@@ -99,7 +99,7 @@ public class EnergyScheduleTester {
 						? -1 // none available
 						: modes[eshIndex++];
 				final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
-				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
+				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
 			}
 			case EnergyScheduleHandler.WithOnlyOneMode e //
 				-> e.simulate(period, gsc, csc, ef, fitness);

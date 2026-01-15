@@ -63,7 +63,7 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
-	private static final DummyMeta META = new DummyMeta("_meta");
+	private static final DummyMeta META = new DummyMeta();
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0");
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss("ess0");

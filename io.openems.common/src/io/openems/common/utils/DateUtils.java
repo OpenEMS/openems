@@ -288,6 +288,26 @@ public class DateUtils {
 		return parseDateOrError(LocalTime.class, LocalTime::parse, time, formatter);
 	}
 
+	/**
+	 * Safely finds the min value of all values.
+	 *
+	 * @param values the {@link ZonedDateTime} values
+	 * @return the min value; or null if all values are null
+	 */
+	public static ZonedDateTime min(ZonedDateTime... values) {
+		ZonedDateTime result = null;
+		for (var value : values) {
+			if (result != null && value != null) {
+				if (value.isBefore(result)) {
+					result = value;
+				}
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
 	private static final <T> T parseDateOrNull(//
 			BiFunction<String, DateTimeFormatter, T> parser, //
 			String value, //

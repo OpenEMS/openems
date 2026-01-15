@@ -141,7 +141,7 @@ public class RunOptimizerApp {
 																	.build()) //
 															.add("phaseSwitch", JsonNull.INSTANCE) //
 															.build()) //
-													.add("smartConfig", buildJsonArray() //
+													.add("tasks", buildJsonArray() //
 															.build()) //
 													.build()) //
 											.add(buildJsonObject() //
@@ -191,7 +191,7 @@ public class RunOptimizerApp {
 																	.build()) //
 															.add("phaseSwitch", JsonNull.INSTANCE) //
 															.build()) //
-													.add("smartConfig", buildJsonArray() //
+													.add("tasks", buildJsonArray() //
 															.add(buildJsonObject() //
 																	.addProperty("@type", "Task") //
 																	.addProperty("start", "13:00:00") //

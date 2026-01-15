@@ -38,7 +38,6 @@ public class DifferentModes {
 				.empty();
 		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = Simulator.doNothing();
 		private PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor = PreProcessor.doNothing();
-		private PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor = PostProcessor.doNothing();
 
 		/**
 		 * Sets the parent Factory-PID and Component-ID as unique ID for easier
@@ -133,18 +132,6 @@ public class DifferentModes {
 		}
 
 		/**
-		 * Sets a {@link PostProcessor}.
-		 * 
-		 * @param postProcessor a {@link PostProcessor}
-		 * @return myself
-		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setPostProcessor(
-				PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
-			this.postProcessor = postProcessor;
-			return this;
-		}
-
-		/**
 		 * Builds an instance of {@link EnergyScheduleHandler.EshWithDifferentModes}.
 		 *
 		 * @return a {@link EnergyScheduleHandler.EshWithDifferentModes}
@@ -157,8 +144,7 @@ public class DifferentModes {
 					this.cscFunction, //
 					this.initialPopulationsProvider, //
 					this.preProcessor, //
-					this.simulator, //
-					this.postProcessor);
+					this.simulator);
 		}
 	}
 
@@ -485,7 +471,7 @@ public class DifferentModes {
 		 * @return zero cost
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
-			return (id, period, gsc, coc, csc, ef, mode, fitness) -> doNothing();
+			return (id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> mode;
 		}
 
 		/**
@@ -499,43 +485,12 @@ public class DifferentModes {
 		 * @param ef                the {@link EnergyFlow.Model}
 		 * @param mode              the simulated Mode
 		 * @param fitness           the {@link Fitness} result
+		 * @param isFinalRun        is this the final simulation run?
+		 * @return the post-processed Mode
 		 */
-		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
+		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
-				MODE mode, Fitness fitness);
-	}
-
-	public static interface PostProcessor<MODE, OPTIMIZATION_CONTEXT> {
-
-		/**
-		 * A 'do-nothing' {@link PostProcessor}.
-		 * 
-		 * @param <MODE>                 the type of the Mode
-		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
-		 * @return the same Mode
-		 */
-		public static <MODE, OPTIMIZATION_CONTEXT> PostProcessor<MODE, OPTIMIZATION_CONTEXT> doNothing() {
-			return (id, period, osc, energyFlow, context, state) -> state;
-		}
-
-		/**
-		 * Post-Process a Mode of a Period during Simulation, i.e. replace with 'better'
-		 * Mode with the equivalent behaviour.
-		 * 
-		 * <p>
-		 * NOTE: heavy computation is ok here, because this method is called only at the
-		 * end with the best Schedule.
-		 * 
-		 * @param parentComponentId the parent Component-ID
-		 * @param period            the {@link GlobalOptimizationContext.Period}
-		 * @param gsc               the {@link GlobalScheduleContext}
-		 * @param ef                the {@link EnergyFlow}
-		 * @param coc               the ControllerOptimizationContext
-		 * @param mode              the initial Mode
-		 * @return the new Mode
-		 */
-		public MODE postProcess(String parentComponentId, GlobalOptimizationContext.Period period,
-				GlobalScheduleContext gsc, EnergyFlow ef, OPTIMIZATION_CONTEXT coc, MODE mode);
+				MODE mode, Fitness fitness, boolean isFinalRun);
 	}
 
 	private DifferentModes() {

@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
@@ -25,11 +26,13 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.Mode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public class EnergyScheduler {
 
@@ -55,9 +58,10 @@ public class EnergyScheduler {
 
 				.setModes(() -> {
 					var config = configSupplier.get();
-					return config != null //
-							? Modes.of(config.controlMode.modes) //
-							: Modes.empty();
+					return Modes.of(Arrays.stream(StateMachine.values()) //
+							.map(m -> new Mode<StateMachine>(m, //
+									config != null && config.controlMode.modes.contains(m))) //
+							.collect(toImmutableList()));
 				})
 
 				.setInitialPopulationsProvider((goc, coc, modes) -> {
@@ -95,33 +99,42 @@ public class EnergyScheduler {
 							minSocEnergyInDischargeGrid, doNotDischargeToGridAfterPeriod);
 				})
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
 					if (mode == null) {
 						mode = StateMachine.BALANCING;
 					}
-					switch (mode) {
-					case BALANCING -> applyBalancing(ef); // TODO Move to CtrlBalancing
-					case DELAY_DISCHARGE -> applyDelayDischarge(ef);
-					case CHARGE_GRID -> {
-						var chargeEnergy = max(0, //
-								min(//
-										period.duration().convertPowerToEnergy(coc.essChargePowerInChargeGrid),
-										coc.maxSocEnergyInChargeGrid - gsc.ess.getInitialEnergy()));
-						applyChargeGrid(ef, chargeEnergy);
+
+					if (isFinalRun) {
+						// This is the final run -> post-process mode
+						mode = postProcessMode(period, gsc, coc, ef, mode);
 					}
-					case DISCHARGE_GRID -> {
-						var dischargeEnergy = max(0, //
-								min(//
-										period.duration().convertPowerToEnergy(ESS_DISCHARGE_TO_GRID_POWER),
-										gsc.ess.getInitialEnergy() - coc.minSocEnergyInDischargeGrid()));
-						applyDischargeGrid(ef, dischargeEnergy);
-					}
-					}
+
+					simulateMode(period, gsc, coc, ef, mode);
+					return mode;
 				})
 
-				.setPostProcessor(Utils::postprocessSimulatorState)
-
 				.build();
+	}
+
+	private static void simulateMode(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
+			EnergyFlow.Model ef, StateMachine mode) {
+		switch (mode) {
+		case BALANCING -> applyBalancing(ef);
+		case DELAY_DISCHARGE -> applyDelayDischarge(ef);
+		case CHARGE_GRID -> {
+			var chargeEnergy = min(//
+					period.duration().convertPowerToEnergy(coc.essChargePowerInChargeGrid),
+					coc.maxSocEnergyInChargeGrid - gsc.ess.getInitialEnergy());
+			applyChargeGrid(ef, chargeEnergy);
+		}
+		case DISCHARGE_GRID -> {
+			var dischargeEnergy = max(0, //
+					min(//
+							period.duration().convertPowerToEnergy(ESS_DISCHARGE_TO_GRID_POWER),
+							gsc.ess.getInitialEnergy() - coc.minSocEnergyInDischargeGrid()));
+			applyDischargeGrid(ef, dischargeEnergy);
+		}
+		}
 	}
 
 	/**
@@ -193,6 +206,36 @@ public class EnergyScheduler {
 
 	private static int calculateDoNotDischargeToGridAfterPeriod(GlobalOptimizationContext goc, double[] prices) {
 		return findFirstPeakIndex(findFirstValleyIndex(1, prices), prices);
+	}
+
+	private static StateMachine postProcessMode(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
+			EnergyFlow.Model ef, StateMachine mode) {
+		final var initialMode = mode;
+		var balancing = simulateModeWithCopy(period, gsc, coc, ef, StateMachine.BALANCING);
+		var delayDischarge = simulateModeWithCopy(period, gsc, coc, ef, StateMachine.DELAY_DISCHARGE);
+
+		if (mode == StateMachine.CHARGE_GRID) {
+			var chargeGrid = simulateModeWithCopy(period, gsc, coc, ef, StateMachine.CHARGE_GRID);
+			if (chargeGrid.getEss() == balancing.getEss()) {
+				mode = StateMachine.BALANCING;
+			}
+		}
+		if (mode == StateMachine.DELAY_DISCHARGE && delayDischarge.getEss() == balancing.getEss()) {
+			mode = StateMachine.BALANCING;
+		}
+
+		if (initialMode != mode) {
+			System.out.println("OPTIMIZER PostProcess " + period.time() + " from " + initialMode + " to " + mode);
+		}
+
+		return mode;
+	}
+
+	private static EnergyFlow simulateModeWithCopy(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
+			EnergyFlow.Model ef, StateMachine mode) {
+		var efCopy = EnergyFlow.Model.copyOf(ef);
+		simulateMode(period, gsc, coc, efCopy, mode);
+		return efCopy.solve();
 	}
 
 	// TODO maxChargePowerFromGrid is not used!

@@ -1,7 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
 import static io.jenetics.engine.EvolutionResult.toBestResult;
-import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
@@ -13,7 +12,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -42,6 +40,7 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
+import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 
 public class Simulator {
 
@@ -72,7 +71,7 @@ public class Simulator {
 	}
 
 	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
-			BestScheduleCollector bestScheduleCollector) {
+			BestScheduleCollector bsc) {
 		final var gsc = GlobalScheduleContext.from(goc);
 		final var cscsBuilder = ImmutableMap.<EnergyScheduleHandler, Object>builder();
 		for (var esh : goc.eshs()) {
@@ -87,7 +86,7 @@ public class Simulator {
 
 		for (var periodIndex = 0; periodIndex < noOfPeriods; periodIndex++) {
 			var modeCombination = modeCombinations.get(schedule[periodIndex]);
-			simulatePeriod(gsc, cscs, periodIndex, modeCombination, fitness, bestScheduleCollector);
+			simulatePeriod(gsc, cscs, periodIndex, modeCombination, fitness, bsc);
 		}
 
 		return fitness;
@@ -96,13 +95,12 @@ public class Simulator {
 	/**
 	 * Calculates the cost of one Period under the given Schedule.
 	 * 
-	 * @param gsc                   the {@link GlobalScheduleContext}
-	 * @param cscs                  the ControllerScheduleContexts
-	 * @param periodIndex           the index of the simulated period
-	 * @param modeCombination       the {@link ModeCombination} of the simulated
-	 *                              period
-	 * @param bestScheduleCollector the {@link BestScheduleCollector}; or null
-	 * @param fitness               the {@link Fitness} result
+	 * @param gsc             the {@link GlobalScheduleContext}
+	 * @param cscs            the ControllerScheduleContexts
+	 * @param periodIndex     the index of the simulated period
+	 * @param modeCombination the {@link ModeCombination} of the simulated period
+	 * @param fitness         the {@link Fitness} result
+	 * @param bsc             the {@link BestScheduleCollector}; or null
 	 */
 	public static void simulatePeriod(//
 			GlobalScheduleContext gsc, //
@@ -110,7 +108,7 @@ public class Simulator {
 			int periodIndex, //
 			ModeCombination modeCombination, //
 			Fitness fitness, //
-			BestScheduleCollector bestScheduleCollector) {
+			BestScheduleCollector bsc) {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
 
@@ -122,8 +120,6 @@ public class Simulator {
 			fitness.addHardConstraintViolation();
 			return;
 		}
-
-		final var eshModes = ImmutableMap.<EnergyScheduleHandler.WithDifferentModes, Integer>builder();
 
 		var eshsWithDifferentModesIndex = 0;
 		for (var esh : eshs) {
@@ -137,8 +133,15 @@ public class Simulator {
 									.map(Mode::index) //
 									.orElse(-1); // none available
 					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
-					eshModes.put(e, preProcessedMode);
-					e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
+
+					if (bsc == null) {
+						e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
+
+					} else {
+						// Final run, collecting BestSchedule
+						final var postProcessedMode = e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, true);
+						bsc.addMode(period.time(), e, postProcessedMode);
+					}
 				}
 				case EnergyScheduleHandler.WithOnlyOneMode e //
 					-> e.simulate(period, gsc, csc, ef, fitness);
@@ -183,20 +186,9 @@ public class Simulator {
 			}
 		}
 
-		if (bestScheduleCollector != null) {
-			final var srp = SimulationResult.Period.from(period, modeCombination, energyFlow,
-					gsc.ess.getInitialEnergy());
-			bestScheduleCollector.allPeriods.accept(srp);
-			final var eshModesMap = eshModes.build();
-			for (var esh : eshs) {
-				switch (esh) {
-				case EnergyScheduleHandler.WithDifferentModes e //
-					-> bestScheduleCollector.eshModes.accept(new EshToMode(e, srp, //
-							e.postProcessPeriod(period, gsc, energyFlow, eshModesMap.get(e))));
-				case EnergyScheduleHandler.WithOnlyOneMode e //
-					-> doNothing();
-				}
-			}
+		if (bsc != null) {
+			bsc.addPeriod(period.time(),
+					SimulationResult.Period.from(period, modeCombination, energyFlow, gsc.ess.getInitialEnergy()));
 		}
 
 		// Prepare for next period
@@ -284,17 +276,6 @@ public class Simulator {
 				bestGt, //
 				this.getTotalNumberOfSimulations(), //
 				this.getTotalNumberOfGenerations());
-	}
-
-	protected static record BestScheduleCollector(//
-			Consumer<SimulationResult.Period> allPeriods, //
-			Consumer<EshToMode> eshModes) {
-	}
-
-	protected static record EshToMode(//
-			EnergyScheduleHandler.WithDifferentModes esh, //
-			SimulationResult.Period period, //
-			int postProcessedModeIndex) {
 	}
 
 	/**

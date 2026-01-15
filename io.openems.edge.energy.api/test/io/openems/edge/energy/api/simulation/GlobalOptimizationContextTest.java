@@ -23,7 +23,7 @@ import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
-public class GlobalSimulationsContextTest {
+public class GlobalOptimizationContextTest {
 
 	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
 

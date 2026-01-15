@@ -120,7 +120,7 @@ public final class UtilsV1 {
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
 				.setPrices(interpolateDoubleArray(prices.asArray())) //
-				.setStates(context.controlMode().modes) //
+				.setStates(context.controlMode().modesArray) //
 				.setExistingSchedule(existingSchedule) //
 				.build();
 	}

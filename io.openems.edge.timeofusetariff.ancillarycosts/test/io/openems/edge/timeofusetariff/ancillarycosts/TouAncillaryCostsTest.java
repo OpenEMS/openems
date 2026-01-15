@@ -28,7 +28,8 @@ public class TouAncillaryCostsTest {
 		var clock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta("foo").withCurrency(EUR)) //
+				.addReference("meta", new DummyMeta() //
+						.withCurrency(EUR)) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
@@ -52,7 +53,7 @@ public class TouAncillaryCostsTest {
 		var summerClock = Clock.fixed(Instant.parse(YEAR + "-01-01T10:30:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta("foo") //
+				.addReference("meta", new DummyMeta() //
 						.withCurrency(EUR)) //
 				.addReference("componentManager", new DummyComponentManager(summerClock)) //
 				.activate(MyConfig.create() //
@@ -72,7 +73,7 @@ public class TouAncillaryCostsTest {
 		var autumnClock = Clock.fixed(Instant.parse(YEAR + "-10-01T18:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta("foo") //
+				.addReference("meta", new DummyMeta() //
 						.withCurrency(EUR)) //
 				.addReference("componentManager", new DummyComponentManager(autumnClock)) //
 				.activate(MyConfig.create() //
@@ -118,7 +119,7 @@ public class TouAncillaryCostsTest {
 		var clock = Clock.fixed(Instant.parse("2025-07-29T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 
 		new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta("foo") //
+				.addReference("meta", new DummyMeta() //
 						.withCurrency(EUR)) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
@@ -149,7 +150,7 @@ public class TouAncillaryCostsTest {
 	public void testWithInvalidAncillaryCosts() throws Exception {
 		var ac = new TouAncillaryCostsImpl();
 		var test = new ComponentTest(ac) //
-				.addReference("meta", new DummyMeta("foo") //
+				.addReference("meta", new DummyMeta() //
 						.withCurrency(EUR))
 				.addReference("componentManager", new DummyComponentManager(createDummyClock())); //
 

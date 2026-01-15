@@ -4,6 +4,8 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSortedMap;
@@ -51,32 +53,15 @@ public class TouManualHelper {
 		final var fromDate = now;
 		final var toDate = fromDate.plusDays(1).plusHours(12); // 36 hours
 
-		var tasks = this.schedule.getOneTasksBetween(fromDate, toDate);
-		var prices = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
-		Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
+		final var ots = this.schedule.getOneTasksBetween(fromDate, toDate);
+		this.prices = Stream.iterate(fromDate, d -> d.plusMinutes(15)) //
 				.takeWhile(d -> d.isBefore(toDate)) //
-				.forEach(t -> {
-					var ot = tasks.isEmpty() //
-							? null //
-							: tasks.first();
-					if (ot != null && !ot.end().isAfter(t)) {
-						// First OneTask has ended (end time is before or equal to current time) -> take
-						// next
-						tasks.removeFirst();
-						ot = tasks.isEmpty() //
-								? null //
-								: tasks.first();
-					}
-					if (ot == null || ot.start().isAfter(t)) {
-						// No active OneTask -> fallback
-						prices.put(t, this.standardPrice);
-
-					} else {
-						// Active OneTask -> use given price
-						prices.put(t, ot.payload());
-					}
-				});
-		this.prices = prices.build();
+				.collect(ImmutableSortedMap.toImmutableSortedMap(//
+						ZonedDateTime::compareTo, //
+						Function.identity(), //
+						t -> Optional.ofNullable(ots.getPayloadAt(t)) //
+								// No active OneTask -> fallback
+								.orElse(this.standardPrice)));
 		this.lastAccessTime = now;
 		return TimeOfUsePrices.from(this.prices);
 	}

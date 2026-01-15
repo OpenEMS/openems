@@ -242,8 +242,7 @@ public final class Utils {
 	public static int calculateDischargeGridPower(ManagedSymmetricEss ess, int essActivePower, int gridActivePower) {
 		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
 		var essDischargeInDischargeGrid = ESS_DISCHARGE_TO_GRID_POWER; // [W]
-		var targetDischargePower = essPowerOrElse(essDischargeInDischargeGrid, ess) //
-				+ max(0, realGridPower);
+		var targetDischargePower = essDischargeInDischargeGrid + max(0, realGridPower);
 		// TODO limit grid-sell power
 		// var effectiveGridSellPower = min(0, realGridPower) + targetDischargePower;
 		// var chargePower = max(0, targetChargePower - max(0, effectiveGridBuyPower -

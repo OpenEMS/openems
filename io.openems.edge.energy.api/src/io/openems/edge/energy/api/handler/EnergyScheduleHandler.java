@@ -203,31 +203,17 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		/**
 		 * Simulates a Mode for one Period of a Schedule.
 		 *
-		 * @param period    the {@link GlobalOptimizationContext.Period}
-		 * @param gsc       the {@link GlobalScheduleContext}
-		 * @param csc       the ControllerScheduleContext
-		 * @param ef        the {@link EnergyFlow.Model}
-		 * @param modeIndex the index of the simulated Mode; -1 if no Mode is available
-		 * @param fitness   the {@link Fitness} result
-		 */
-		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-				EnergyFlow.Model ef, int modeIndex, Fitness fitness);
-
-		/**
-		 * Post-processes a Period of the best Schedule.
-		 * 
-		 * <p>
-		 * This method is called internally after the Simulations are executed with the
-		 * found best Schedule.
-		 * 
 		 * @param period     the {@link GlobalOptimizationContext.Period}
 		 * @param gsc        the {@link GlobalScheduleContext}
-		 * @param energyFlow the {@link EnergyFlow}
-		 * @param modeIndex  the index of the simulated Mode
-		 * @return the post-processed Mode index
+		 * @param csc        the ControllerScheduleContext
+		 * @param ef         the {@link EnergyFlow.Model}
+		 * @param modeIndex  the index of the simulated Mode; -1 if no Mode is available
+		 * @param fitness    the {@link Fitness} result
+		 * @param isFinalRun is this the final simulation run?
+		 * @return the index of the post-processed Mode
 		 */
-		public int postProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				EnergyFlow energyFlow, int modeIndex);
+		public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+				EnergyFlow.Model ef, int modeIndex, Fitness fitness, boolean isFinalRun);
 
 		/**
 		 * Applies a new Schedule.

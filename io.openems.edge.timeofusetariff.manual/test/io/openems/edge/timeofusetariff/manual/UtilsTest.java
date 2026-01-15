@@ -166,8 +166,7 @@ public class UtilsTest {
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b.setFrequency(//
 								JSCalendar.RecurrenceFrequency.DAILY)) //
-						.setPayload(12.3) // Low price
-						.build())
+						.setPayload(12.3)) // Low price
 				.build();
 		return new TouManualHelper(//
 				createDummyClock(), //

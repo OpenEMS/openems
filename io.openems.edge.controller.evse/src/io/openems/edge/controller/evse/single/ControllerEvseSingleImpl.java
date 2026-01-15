@@ -29,8 +29,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.AddTask;
@@ -316,8 +314,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		builder.handleRequest(new GetOneTasks<Payload>(Payload.serializer()), call -> {
 			var from = call.getRequest().from();
 			var to = call.getRequest().to();
-			var oneTasksSet = this.tasks.getOneTasksBetween(from, to);
-			return new GetOneTasks.Response<Payload>(ImmutableList.copyOf(oneTasksSet));
+			var oneTasks = this.tasks.getOneTasksBetween(from, to);
+			return new GetOneTasks.Response<Payload>(oneTasks);
 		});
 	}
 

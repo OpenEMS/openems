@@ -73,7 +73,7 @@ public class Optimizer {
 	/**
 	 * Activate and start the {@link Optimizer}.
 	 */
-	public void activate() {
+	public synchronized void activate() {
 		this.traceLog(() -> "Activate");
 		if (this.executor == null || this.executor.isShutdown() || this.executor.isTerminated()) {
 			this.executor = Executors.newSingleThreadScheduledExecutor();
@@ -84,7 +84,7 @@ public class Optimizer {
 	/**
 	 * Deactivate the {@link Optimizer}.
 	 */
-	public void deactivate() {
+	public synchronized void deactivate() {
 		this.traceLog(() -> "Deactivate optimizer");
 		this.interruptTask();
 		if (this.executor != null) {

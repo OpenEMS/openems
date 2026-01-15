@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TestUtils;
 
 public class DateUtilsTest {
 
@@ -185,4 +186,10 @@ public class DateUtilsTest {
 		DateUtils.parseLocalTimeOrError("0:13");
 	}
 
+	@Test
+	public void testMin() {
+		final var now0 = ZonedDateTime.now(TestUtils.createDummyClock());
+		final var now1 = now0.plusDays(1);
+		assertEquals(now0, DateUtils.min(null, now1, null, now0));
+	}
 }

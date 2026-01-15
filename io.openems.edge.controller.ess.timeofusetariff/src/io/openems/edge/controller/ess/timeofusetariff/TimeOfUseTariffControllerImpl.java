@@ -12,6 +12,7 @@ import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -118,7 +120,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		);
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
-				() -> this.config.controlMode().modes, //
+				() -> this.config.controlMode().modesArray, //
 				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
