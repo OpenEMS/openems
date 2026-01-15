@@ -218,7 +218,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
 
-        if (url.includes("/history/") && this.navigationService.position() === "disabled") {
+        if (url.includes("/history/") && !url.includes("/history/user") && this.navigationService.position() === "disabled") {
             return false;
         }
 

@@ -48,11 +48,6 @@ export class AuthService {
                 this.router.navigate(["/oauthcallback"], { queryParams: { code: this.redirectURI() } });
             }
         });
-
-
-        if (!this.deviceService.isMobile()) {
-            return;
-        }
     }
 
     /**

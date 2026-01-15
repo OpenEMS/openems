@@ -213,7 +213,6 @@ export class UserComponent implements OnInit {
         const prev = this.routeService.getCurrentUrl();
         const base = prev.replace(/^\//, "");
         const userUrl = base + "/changelog";
-
         this.navCtrl.navigateRoot(userUrl);
     }
 

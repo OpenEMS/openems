@@ -69,7 +69,7 @@ export class AppStateTracker {
      * Handles navigation after authentication
      */
     public navigateAfterAuthentication() {
-        this.router.navigate(["overview"]);
+        // this.router.navigate(["overview"]);
         return;
         // const segments = this.router.routerState.snapshot.url.split("/");
         // const previousUrl: string = this.routeService.getPreviousUrl();
