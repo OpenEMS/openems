@@ -160,13 +160,28 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
+		 * charging and in {@link Mode.Actual#SURPLUS} or {@link Mode.Actual#MINIMUM}
+		 * mode.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamSurplusOrMinimum() {
+			return this.streamActives() //
+					.filter(e -> switch (e.mode) {
+					case FORCE, ZERO -> false;
+					case SURPLUS, MINIMUM -> true;
+					});
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
 		 * charging and in {@link Mode.Actual#SURPLUS} mode and have a temporary
 		 * Set-Point > 0.
 		 * 
 		 * @return {@link Stream}
 		 */
 		public final Stream<Entry> streamSurplusGreaterZero() {
-			return this.streamSurplus()
+			return this.streamSurplusOrMinimum()
 					// Only the ones that are at least min() after distributeSurplusMinPower()
 					.filter(e -> e.setPointInWatt > 0);
 		}
