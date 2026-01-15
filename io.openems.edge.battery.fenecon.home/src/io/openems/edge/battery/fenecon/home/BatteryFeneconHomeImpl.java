@@ -814,10 +814,10 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 								new DummyRegisterElement(towerOffset + 44), //
 								new DummyRegisterElement(towerOffset + 45), //
 								new DummyRegisterElement(towerOffset + 46), //
-								m(this.generateTowerChannel(tower, "ACC_CHARGE_ENERGY", OpenemsType.INTEGER,
+								m(this.generateTowerChannel(tower, "ACC_CHARGE_ENERGY", OpenemsType.LONG,
 										doc -> doc.unit(Unit.WATT_HOURS)),
 										new UnsignedDoublewordElement(towerOffset + 47), SCALE_FACTOR_2),
-								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER,
+								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.LONG,
 										doc -> doc.unit(Unit.WATT_HOURS)),
 										new UnsignedDoublewordElement(towerOffset + 49), SCALE_FACTOR_2),
 								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING,

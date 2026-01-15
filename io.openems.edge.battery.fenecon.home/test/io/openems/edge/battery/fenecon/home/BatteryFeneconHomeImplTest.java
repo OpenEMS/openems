@@ -1003,9 +1003,9 @@ public class BatteryFeneconHomeImplTest {
 				// Verify the new register values
 				.next(new TestCase("Verify new Tower 0 registers")
 						// ACC_CHARGE_ENERGY: 363 * 100 = 36300 Wh
-						.output("battery0", "Tower0AccChargeEnergy", 36300) //
+						.output("battery0", "Tower0AccChargeEnergy", 36300L) //
 						// ACC_DISCHARGE_ENERGY: 302 * 100 = 30200 Wh
-						.output("battery0", "Tower0AccDischargeEnergy", 30200) //
+						.output("battery0", "Tower0AccDischargeEnergy", 30200L) //
 						// BATTERY_SELF_DISCHARGING_RATE: 50
 						.output("battery0", "Tower0BatterySelfDischargingRate", 50) //
 						// EFFICIENCY: 940 / 10 = 94
