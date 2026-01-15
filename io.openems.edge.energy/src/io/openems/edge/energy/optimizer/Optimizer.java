@@ -12,11 +12,13 @@ import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryFor
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.time.Duration.ofSeconds;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.EvolutionResult;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -56,6 +59,7 @@ public class Optimizer {
 
 	private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private CompletableFuture<SimulationResult> quickOptimizationFuture;
+	private Future<?> regularOptimizationImmediateFuture;
 	private ScheduledFuture<?> regularOptimizationFuture;
 
 	public Optimizer(//
@@ -101,6 +105,9 @@ public class Optimizer {
 		if (this.quickOptimizationFuture != null) {
 			this.quickOptimizationFuture.cancel(true);
 		}
+		if (this.regularOptimizationImmediateFuture != null) {
+			this.regularOptimizationImmediateFuture.cancel(true);
+		}
 		if (this.regularOptimizationFuture != null) {
 			this.regularOptimizationFuture.cancel(true);
 		}
@@ -134,19 +141,24 @@ public class Optimizer {
 						() -> this.triggerReschedule("Previous simulation result is empty"), //
 						1, //
 						TimeUnit.SECONDS);
-			} else {
-				this.scheduleRegularOptimization();
+				return;
 			}
+
+			this.scheduleRegularOptimization();
 		});
 	}
 
 	private void scheduleRegularOptimization() {
-		// Schedule every 15 minutes after the previous completes
-		this.regularOptimizationFuture = this.executor.scheduleWithFixedDelay(//
+		// Run immediately
+		this.regularOptimizationImmediateFuture = this.executor.submit(this::runRegularOptimization);
+
+		// Schedule to run repeatedly every 15 minutes on quarter hour + 5s buffer
+		var initialDelay = DateUtils.durationUntilNextQuarter(Clock.systemDefaultZone()).plusSeconds(5);
+		this.regularOptimizationFuture = this.executor.scheduleAtFixedRate(//
 				this::runRegularOptimization, //
-				0, // Initial delay
-				15, // Delay
-				TimeUnit.MINUTES);
+				initialDelay.toSeconds(), //
+				15 * 60, // 15 minutes period
+				TimeUnit.SECONDS);
 	}
 
 	@VisibleForTesting

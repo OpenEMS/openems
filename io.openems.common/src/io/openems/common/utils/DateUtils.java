@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -350,6 +352,18 @@ public class DateUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Calculates the duration from the current time until the next quarter hour.
+	 *
+	 * @param clock the Clock to use for the current time
+	 * @return a Duration representing the time until the next quarter hour
+	 */
+	public static Duration durationUntilNextQuarter(Clock clock) {
+		var now = ZonedDateTime.now(clock);
+		var nextQuarter = roundDownToQuarter(now).plusMinutes(15);
+		return Duration.between(now, nextQuarter);
 	}
 
 	/**

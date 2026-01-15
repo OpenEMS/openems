@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -197,6 +199,18 @@ public class DateUtilsTest {
 		final var now0 = ZonedDateTime.now(TestUtils.createDummyClock());
 		final var now1 = now0.plusDays(1);
 		assertEquals(now0, DateUtils.min(null, now1, null, now0));
+	}
+
+	@Test
+	public void testDurationUntilNextQuarter() {
+		// 10:07:30
+		var fixedTime = ZonedDateTime.of(2026, 1, 2, 10, 7, 30, 0, ZoneId.of("UTC"));
+		var clock = Clock.fixed(fixedTime.toInstant(), fixedTime.getZone());
+
+		var duration = DateUtils.durationUntilNextQuarter(clock);
+
+		var expected = Duration.ofMinutes(7).plusSeconds(30);
+		assertEquals(expected, duration);
 	}
 
 	@Test
