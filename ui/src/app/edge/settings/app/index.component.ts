@@ -394,36 +394,36 @@ export class IndexComponent implements OnInit, OnDestroy {
                     payload: new GetApps.Request(),
                 })).then(response => {
 
-                    this.service.stopSpinner(this.spinnerId);
+                this.service.stopSpinner(this.spinnerId);
 
-                    this.apps = (response as GetApps.Response).result.apps.map(app => {
-                        app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
-                        return app;
+                this.apps = (response as GetApps.Response).result.apps.map(app => {
+                    app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(this.translate.getCurrentLang(), app.appId);
+                    return app;
+                });
+
+                // init categories
+                const statusFilter = this.statusFilter();
+                this.apps.forEach(a => {
+                    a.categorys.forEach(category => {
+                        const isCategoryAlreadyExisting = this.categories.filter(c => c.val.name === category.name)?.length > 0;
+                        const isCategoryAllowed = StringUtils.isInArr(a.status.name, statusFilter.options.map(el => el.option.value));
+                        if (!isCategoryAlreadyExisting && isCategoryAllowed) {
+                            this.categories.push({ val: category, isChecked: true });
+                        }
                     });
+                });
 
-                    // init categories
-                    const statusFilter = this.statusFilter();
-                    this.apps.forEach(a => {
-                        a.categorys.forEach(category => {
-                            const isCategoryAlreadyExisting = this.categories.filter(c => c.val.name === category.name)?.length > 0;
-                            const isCategoryAllowed = StringUtils.isInArr(a.status.name, statusFilter.options.map(el => el.option.value));
-                            if (!isCategoryAlreadyExisting && isCategoryAllowed) {
-                                this.categories.push({ val: category, isChecked: true });
-                            }
-                        });
-                    });
+                this.filters = [this.categoryFilter(), this.statusFilter()];
+                this.updateSelection();
 
-                    this.filters = [this.categoryFilter(), this.statusFilter()];
-                    this.updateSelection();
-
-                    edge.sendRequest(this.websocket, new AppCenter.Request({
-                        payload: new AppCenterGetRegisteredKeys.Request({}),
-                    })).then(response => {
-                        const result = (response as AppCenterGetRegisteredKeys.Response).result;
-                        this.numberOfUnusedRegisteredKeys = result.keys.length;
-                        this.updateHasUnusedKeysPopover();
-                    }).catch(this.service.handleError);
-                }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving available apps: " + error));
+                edge.sendRequest(this.websocket, new AppCenter.Request({
+                    payload: new AppCenterGetRegisteredKeys.Request({}),
+                })).then(response => {
+                    const result = (response as AppCenterGetRegisteredKeys.Response).result;
+                    this.numberOfUnusedRegisteredKeys = result.keys.length;
+                    this.updateHasUnusedKeysPopover();
+                }).catch(this.service.handleError);
+            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving available apps: " + error));
 
             const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
             systemUpdate.systemUpdateStateChange = (updateState) => {
