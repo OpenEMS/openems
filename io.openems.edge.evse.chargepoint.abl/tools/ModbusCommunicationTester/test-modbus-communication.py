@@ -577,7 +577,7 @@ def build_messages(device_id):
         3: {
             'name': 'Read system flags',
             'register': '0x0006-0x0007',
-            'request': f':{device_id:02X}030006000{2:01X}F5\r\n',
+            'request': f':{device_id:02X}030006000{2:01X}F4\r\n',
             'response': f'>{device_id:02X}03040600....\r\n',
             'description': 'Returns system status flags and state machine pointer',
             'interpreter': parse_system_flags
@@ -601,7 +601,7 @@ def build_messages(device_id):
         6: {
             'name': 'Set Icmax to 6A (minimum)',
             'register': '0x0014',
-            'request': f':{device_id:02X}1000140001020050DA\r\n',
+            'request': f':{device_id:02X}100014000102005088\r\n',
             'response': f'>{device_id:02X}1000140001DA\r\n (OK) or >{device_id:02X}90046B\r\n (FAIL)',
             'description': 'Sets maximum charge current to 6A (duty cycle 10.0% = 0x0050)',
             'interpreter': parse_write_response
@@ -617,7 +617,7 @@ def build_messages(device_id):
         8: {
             'name': 'Set Icmax to 16A',
             'register': '0x0014',
-            'request': f':{device_id:02X}1000140001020{0x010B:04X}CD\r\n',
+            'request': f':{device_id:02X}1000140001020{0x010B:04X}3D\r\n',
             'response': f'>{device_id:02X}1000140001DA\r\n (OK)',
             'description': 'Sets maximum charge current to 16A (duty cycle 27.1% = 0x010B)',
             'interpreter': parse_write_response
