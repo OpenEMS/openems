@@ -18,18 +18,19 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 public final class FeneconIndustrialLComponents {
 
 	/**
-	 * Creates a default battery for FENECON Industrial L.
+	 * Creates a default battery for FENECON Industrial L. Method to be removed when
+	 * every BMS is updated to new Würth BMS.
 	 * 
 	 * @param bundle                 the translation bundle
 	 * @param batteryId              the id of the battery
 	 * @param offset                 the alias offset of the id
 	 * @param batteryModbusId        the Modbus id of the battery
 	 * @param batteryFirmwareVersion the firmware version of the battery
-	 * @param version                the version of the battery (Enfas/Wuerth). Can
-	 *                               be removed in future
+	 * @param version                the version of the battery Enfas.
 	 * @return the {@link Component}
 	 */
-	public static Component battery(//
+	@Deprecated
+	public static Component batteryOld(//
 			final ResourceBundle bundle, //
 			final String batteryId, //
 			final int offset, //
@@ -44,6 +45,32 @@ public final class FeneconIndustrialLComponents {
 						.addProperty("modbusUnitId", 1) //
 						.addProperty("startStop", "AUTO") //
 						.addProperty("version", batteryFirmwareVersion) //
+						.build());
+	}
+
+	/**
+	 * Creates a default battery for FENECON Industrial L.
+	 *
+	 * @param bundle          the translation bundle
+	 * @param batteryId       the id of the battery
+	 * @param offset          the alias offset of the id
+	 * @param batteryModbusId the Modbus id of the battery
+	 * @param factoryId       the factory id of the battery
+	 * @return the {@link Component}
+	 */
+	public static Component battery(//
+			final ResourceBundle bundle, //
+			final String batteryId, //
+			final int offset, //
+			final String batteryModbusId, //
+			final String factoryId //
+	) {
+		return new Component(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", offset), factoryId,
+				JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("modbus.id", batteryModbusId) //
+						.addProperty("modbusUnitId", 1) //
+						.addProperty("startStop", "AUTO") //
 						.build());
 	}
 

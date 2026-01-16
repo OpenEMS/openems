@@ -1,14 +1,11 @@
 package io.openems.edge.battery.fenecon.home;
 
 import io.openems.common.types.OptionsEnum;
-import io.openems.edge.battery.protection.BatteryProtectionDefinition;
 
 public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 
-	BATTERY_52(52, "Fenecon Home Battery 52Ah", 2200, 42, 49, 14, 3, new FeneconHomeBatteryProtection52(),
-			"519100001009", "519110001210"), //
-	BATTERY_64(64, "Fenecon Home Battery 64,4Ah", 2800, 40.6f, 49.7f, 14, 5, new FeneconHomeBatteryProtection64(),
-			"519100001254", "519110001918"); //
+	BATTERY_52(52, "Fenecon Home Battery 52Ah", 2200, 42, 49, 14, 3, "519100001009", "519110001210"), //
+	BATTERY_64(64, "Fenecon Home Battery 64,4Ah", 2800, 40.6f, 49.7f, 14, 5, "519100001254", "519110001918"); //
 
 	/**
 	 * Defaults to {@link #BATTERY_52} to avoid detection failure with old firmware
@@ -21,7 +18,6 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 	public final float moduleMaxVoltage; // [V]; e.g. 3.5 V x 14 Cells per Module
 	public final int cellsPerModule;
 	public final int tempSensorsPerModule;
-	public final BatteryProtectionDefinition batteryProtection;
 	public final String serialNrPrefixBms;
 	public final String serialNrPrefixModule;
 
@@ -29,8 +25,8 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 	private final String type;
 
 	private BatteryFeneconHomeHardwareType(int value, String type, int capacityPerModule, float moduleMinVoltage,
-			float moduleMaxVoltage, int cellsPerModule, int tempSensorsPerModule,
-			BatteryProtectionDefinition batteryProtection, String serialNrPrefixBms, String serialNrPrefixModule) {
+			float moduleMaxVoltage, int cellsPerModule, int tempSensorsPerModule, String serialNrPrefixBms,
+			String serialNrPrefixModule) {
 		this.value = value;
 		this.type = type;
 		this.capacityPerModule = capacityPerModule;
@@ -38,7 +34,6 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 		this.moduleMaxVoltage = moduleMaxVoltage;
 		this.cellsPerModule = cellsPerModule;
 		this.tempSensorsPerModule = tempSensorsPerModule;
-		this.batteryProtection = batteryProtection;
 		this.serialNrPrefixBms = serialNrPrefixBms;
 		this.serialNrPrefixModule = serialNrPrefixModule;
 	}

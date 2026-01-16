@@ -1,11 +1,11 @@
 package io.openems.edge.predictor.production.linearmodel;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.Executors;
@@ -280,7 +280,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 
 		var predictedValues = new Integer[this.predictorConfig.forecastQuarters()];
 		for (int i = 0; i < this.predictorConfig.forecastQuarters(); i++) {
-			var expectedTime = now.plus(i * MINUTES_PER_QUARTER, ChronoUnit.MINUTES);
+			var expectedTime = now.plus(i * MINUTES_PER_QUARTER, MINUTES);
 			Double value = timestampValueMap.get(expectedTime);
 
 			if (value == null || Double.isNaN(value)) {
@@ -290,7 +290,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 			}
 		}
 
-		return Prediction.from(this.sum, channelAddress, now, predictedValues);
+		return Prediction.from(this.sum, channelAddress, now.toInstant(), predictedValues);
 	}
 
 	private TrainingContext createTrainingContext() {
@@ -347,7 +347,7 @@ public class PredictorProductionLinearModelImpl extends AbstractPredictor
 					now.minusDays(90), //
 					now, //
 					Set.of(this.productionChannelAddress), //
-					new Resolution(MINUTES_PER_QUARTER, ChronoUnit.MINUTES));
+					new Resolution(MINUTES_PER_QUARTER, MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.maxProduction = Integer.MAX_VALUE;
 			return;

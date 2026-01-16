@@ -46,7 +46,6 @@ import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -124,24 +123,6 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.user = this.generateUser();
-	}
-
-	@Override
-	public User authenticate(String token) throws OpenemsNamedException {
-		if (this.user.getToken().equals(token)) {
-			return this.user;
-		}
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-	}
-
-	@Override
-	public void logout(User user) {
-		this.user = this.generateUser();
-	}
-
-	@Override
 	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
 		for (Entry<String, MyEdge> entry : this.edges.entrySet()) {
@@ -169,6 +150,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 		this.refreshData();
 		Edge edge = this.edges.get(edgeId);
 		return Optional.ofNullable(edge);
+	}
+
+	@Override
+	public CompletableFuture<User> getUserByExternalId(String login) {
+		return CompletableFuture.completedFuture(this.user);
 	}
 
 	@Override
@@ -230,8 +216,8 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			final var hasMultipleEdges = edges.size() > 1;
 			if (previousUser.hasMultipleEdges() != hasMultipleEdges) {
 				this.user = new User(previousUser.getId(), previousUser.getName(), previousUser.getToken(),
-						previousUser.getLanguage(), previousUser.getGlobalRole(), previousUser.getEdgeRoles(),
-						hasMultipleEdges, previousUser.getSettings());
+						previousUser.getLanguage(), previousUser.getGlobalRole(), hasMultipleEdges,
+						previousUser.getSettings());
 			}
 		}
 		this.setInitialized();
@@ -361,9 +347,14 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
-		return MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions);
+	public CompletableFuture<List<EdgeMetadata>> getPageDevice(User user, PaginationOptions paginationOptions) {
+		return CompletableFuture
+				.completedFuture(MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions));
+	}
+
+	@Override
+	public Role getUserRole(User user, String edgeId) {
+		return Role.ADMIN;
 	}
 
 	@Override
@@ -372,7 +363,6 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 		if (edge == null) {
 			return null;
 		}
-		user.setRole(edgeId, Role.ADMIN);
 
 		return new EdgeMetadata(//
 				edge.getId(), //
@@ -384,7 +374,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
 				Level.OK, //
-                edge.getSettings() //
+				edge.getSettings() //
 		);
 	}
 

@@ -2,7 +2,6 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkRelayCount;
 
 import java.util.List;
 import java.util.Map;
@@ -44,8 +43,6 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.validator.ValidatorConfig;
-import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCountFilters;
 
 /**
  * Describes a App for the State-LED on a home system.
@@ -193,14 +190,6 @@ public class SystemFeneconHome extends
 	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
-	}
-
-	@Override
-	public ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(3, //
-						CheckRelayCountFilters.feneconHome(true), //
-						CheckRelayCountFilters.deviceHardware()));
 	}
 
 	@Override

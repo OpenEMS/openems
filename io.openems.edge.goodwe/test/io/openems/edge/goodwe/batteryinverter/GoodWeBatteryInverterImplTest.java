@@ -78,7 +78,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 @SuppressWarnings("deprecation")
 public class GoodWeBatteryInverterImplTest {
 
-	private static final DummyMeta META = new DummyMeta("meta0");
+	private static final DummyMeta META = new DummyMeta();
 
 	@Test
 	public void testEt() throws Exception {

@@ -4,7 +4,7 @@ import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.gen
 import static io.openems.edge.timeofusetariff.tibber.Utils.calculateDelay;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -170,7 +170,7 @@ public class TimeOfUseTariffTibberImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	@Override

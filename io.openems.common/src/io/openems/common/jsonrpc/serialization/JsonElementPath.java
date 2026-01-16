@@ -2,6 +2,7 @@ package io.openems.common.jsonrpc.serialization;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -176,6 +177,16 @@ public interface JsonElementPath extends JsonPath {
 	 */
 	public default StringPath<LocalTime> getAsStringPathLocalTime() {
 		return this.getAsJsonPrimitivePath().getAsStringPathLocalTime();
+	}
+
+	/**
+	 * Gets the current {@link JsonElementPath} as a {@link StringPath} containing a
+	 * {@link Duration}.
+	 * 
+	 * @return the current element as a {@link StringPath}
+	 */
+	public default StringPath<Duration> getAsStringPathDuration() {
+		return this.getAsJsonPrimitivePath().getAsStringPathDuration();
 	}
 
 	/**

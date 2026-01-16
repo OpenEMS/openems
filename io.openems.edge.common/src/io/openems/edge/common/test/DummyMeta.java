@@ -25,11 +25,10 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	private ZoneId timezone;
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
 
-	public DummyMeta(String id) {
-		super(id, //
+	public DummyMeta() {
+		super(Meta.SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, //
 				OpenemsComponent.ChannelId.values(), //
-				Meta.ChannelId.values() //
-		);
+				Meta.ChannelId.values());
 	}
 
 	@Override

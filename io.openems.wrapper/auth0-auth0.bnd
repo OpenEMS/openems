@@ -1,0 +1,63 @@
+Bundle-Name: auth0 auth0
+Bundle-Description: 
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 2.22.0
+
+Include-Resource: \
+	@auth0-2.22.0.jar,\
+
+Export-Package: \
+	com.auth0.client,\
+	com.auth0.client.auth,\
+	com.auth0.client.mgmt,\
+	com.auth0.client.mgmt.filter,\
+	com.auth0.exception,\
+	com.auth0.json,\
+	com.auth0.json.auth,\
+	com.auth0.json.mgmt,\
+	com.auth0.json.mgmt.actions,\
+	com.auth0.json.mgmt.attackprotection,\
+	com.auth0.json.mgmt.blacklists,\
+	com.auth0.json.mgmt.branding,\
+	com.auth0.json.mgmt.client,\
+	com.auth0.json.mgmt.clientgrants,\
+	com.auth0.json.mgmt.connections,\
+	com.auth0.json.mgmt.devicecredentials,\
+	com.auth0.json.mgmt.emailproviders,\
+	com.auth0.json.mgmt.emailtemplates,\
+	com.auth0.json.mgmt.grants,\
+	com.auth0.json.mgmt.guardian,\
+	com.auth0.json.mgmt.jobs,\
+	com.auth0.json.mgmt.keys,\
+	com.auth0.json.mgmt.logevents,\
+	com.auth0.json.mgmt.logstreams,\
+	com.auth0.json.mgmt.organizations,\
+	com.auth0.json.mgmt.permissions,\
+	com.auth0.json.mgmt.prompts,\
+	com.auth0.json.mgmt.refreshtokens,\
+	com.auth0.json.mgmt.resourceserver,\
+	com.auth0.json.mgmt.roles,\
+	com.auth0.json.mgmt.rules,\
+	com.auth0.json.mgmt.selfserviceprofiles,\
+	com.auth0.json.mgmt.sessions,\
+	com.auth0.json.mgmt.stats,\
+	com.auth0.json.mgmt.tenants,\
+	com.auth0.json.mgmt.tickets,\
+	com.auth0.json.mgmt.tokenquota,\
+	com.auth0.json.mgmt.userblocks,\
+	com.auth0.json.mgmt.users,\
+	com.auth0.json.mgmt.users.authenticationmethods,\
+	com.auth0.net,\
+	com.auth0.net.client,\
+	com.auth0.utils,\
+	com.auth0.utils.tokens,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

@@ -9,8 +9,8 @@ import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -404,7 +404,7 @@ public class TimeOfUseTariffGroupeImplTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		var groupe = new TimeOfUseTariffGroupeImpl();
-		var dummyMeta = new DummyMeta("foo0") //
+		var dummyMeta = new DummyMeta() //
 				.withCurrency(CHF);
 		new ComponentTest(groupe) //
 				.addReference("httpBridgeFactory",
