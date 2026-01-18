@@ -30,38 +30,44 @@ public class AbstractEdge2EdgeTest {
 	public void testGetConverterForType() {
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.FLOAT32);
+			assertNull(converter.elementToChannel(null));
 			assertNull(converter.elementToChannel(Float.NaN));
 			assertNull(converter.elementToChannel(ModbusRecordFloat32.UNDEFINED_VALUE));
 			assertEquals(123.456F, (float) converter.elementToChannel(123.456), 0.001);
 		}
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.FLOAT64);
+			assertNull(converter.elementToChannel(null));
 			assertNull(converter.elementToChannel(Double.NaN));
 			assertNull(converter.elementToChannel(ModbusRecordFloat64.UNDEFINED_VALUE));
 			assertEquals(123.456, (double) converter.elementToChannel(123.456), 0.001);
 		}
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.STRING16);
+			assertNull(converter.elementToChannel(null));
 			assertEquals(16, ((String) converter.elementToChannel(ModbusRecordString16.UNDEFINED_VALUE)).length());
 			assertEquals("OpenEMS", converter.elementToChannel("OpenEMS"));
 		}
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.UINT16);
-			assertNull(converter.elementToChannel((short) 0xFFFF));
+			assertNull(converter.elementToChannel(null));
+			assertNull(converter.elementToChannel(0xFFFF));
 			assertNull(converter.elementToChannel(ModbusRecordUint16.UNDEFINED_VALUE));
 			assertEquals(0, converter.elementToChannel(0x0000));
 		}
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.UINT32);
-			assertNull(converter.elementToChannel(0xFFFFFFFF));
+			assertNull(converter.elementToChannel(null));
+			assertNull(converter.elementToChannel(0xFFFFFFFFL));
 			assertNull(converter.elementToChannel(ModbusRecordUint32.UNDEFINED_VALUE));
-			assertEquals(0, (int) converter.elementToChannel(0x00000000));
+			assertEquals(0L, converter.elementToChannel(0x00000000));
 		}
 		{
 			final var converter = AbstractEdge2Edge.getConverterForType(ModbusType.UINT64);
+			assertNull(converter.elementToChannel(null));
 			assertNull(converter.elementToChannel(0xFFFFFFFFFFFFFFFFL));
 			assertNull(converter.elementToChannel(ModbusRecordUint64.UNDEFINED_VALUE));
-			assertEquals(0, (long) converter.elementToChannel(0x0000000000000000));
+			assertEquals(0L, converter.elementToChannel(0x0000000000000000));
 		}
 	}
 }
