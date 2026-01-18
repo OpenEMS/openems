@@ -28,7 +28,7 @@ public class ModbusRecordUint16Test {
 
 	@Test
 	public void testValue() {
-		var sut = new ModbusRecordUint16(0, "foo", (short) 12345);
+		var sut = new ModbusRecordUint16(0, "foo", 12345);
 		assertEquals("ModbusRecordUInt16 [value=12345/0x3039, type=uint16]", sut.toString());
 		assertEquals("\"12345\"", sut.getValueDescription());
 	}
