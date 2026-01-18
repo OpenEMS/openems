@@ -583,7 +583,7 @@
 			<!-- used by io.openems.backend.authentication.oauth -->
   			<groupId>com.auth0</groupId>
   			<artifactId>jwks-rsa</artifactId>
-  			<version>0.22.2</version>
+  			<version>0.23.0</version>
 		</dependency>
 		<dependency>
 			<!-- used by io.openems.backend.authentication.oauth -->
