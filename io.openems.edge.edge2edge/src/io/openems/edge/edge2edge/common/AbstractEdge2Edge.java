@@ -149,7 +149,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		if (value == null) {
 			return false;
 		}
-		return (short) (int) value == ModbusSlaveNatureTable.generateHash(text);
+		return value.intValue() == ModbusSlaveNatureTable.generateHash(text);
 	}
 
 	@Override
@@ -395,14 +395,14 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsException on error
 	 */
 	private void addReadTask(Deque<ModbusElement> elements) throws OpenemsException {
-		if (elements.isEmpty()) {
-			return;
-		}
-		while (elements.peekFirst() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekFirst() instanceof DummyRegisterElement) {
 			elements.removeFirst();
 		}
-		while (elements.peekLast() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekLast() instanceof DummyRegisterElement) {
 			elements.removeLast();
+		}
+		if (elements.isEmpty()) {
+			return;
 		}
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
