@@ -46,7 +46,14 @@ import java.util.stream.Stream;
  * scheme://host:port/path?queryParams#fragment
  * </code>
  */
-public final class UrlBuilder {
+public record UrlBuilder(//
+		String scheme, //
+		String host, //
+		Integer port, //
+		String path, //
+		Map<String, String> queryParams, //
+		String fragment //
+) {
 
 	/**
 	 * Parses a raw uri string to the url parts.
@@ -65,7 +72,7 @@ public final class UrlBuilder {
 		return new UrlBuilder(//
 				uri.getScheme(), //
 				uri.getHost(), //
-				uri.getPort(), //
+				uri.getPort() == -1 ? null : uri.getPort(), //
 				uri.getPath(), //
 				queryParams, //
 				uri.getFragment() //
@@ -79,29 +86,6 @@ public final class UrlBuilder {
 	 */
 	public static UrlBuilder create() {
 		return new UrlBuilder(null, null, null, null, Collections.emptyMap(), null);
-	}
-
-	private final String scheme;
-	private final String host;
-	private final Integer port;
-	private final String path;
-	private final Map<String, String> queryParams;
-	private final String fragment;
-
-	private UrlBuilder(//
-			String scheme, //
-			String host, //
-			Integer port, //
-			String path, //
-			Map<String, String> queryParams, //
-			String fragment //
-	) {
-		this.scheme = scheme;
-		this.host = host;
-		this.port = port;
-		this.path = path;
-		this.queryParams = queryParams;
-		this.fragment = fragment;
 	}
 
 	/**

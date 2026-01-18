@@ -304,7 +304,7 @@ export abstract class AbstractSection {
             length,
             new SvgTextPosition(xText, yText, "middle", textSize),
             new SvgTextPosition(xText, yNumber, "middle", numberSize),
-            new SvgImagePosition("assets/img/" + this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
+            new SvgImagePosition(this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
         );
     }
 

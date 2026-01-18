@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulationsProvider;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes;
-import io.openems.edge.energy.api.handler.DifferentModes.PostProcessor;
 import io.openems.edge.energy.api.handler.DifferentModes.PreProcessor;
 import io.openems.edge.energy.api.handler.DifferentModes.Simulator;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -31,7 +30,6 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
-	private final PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor;
 	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	private Modes<MODE> modes = Modes.empty();
@@ -44,14 +42,12 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider, //
 			PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor, //
-			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
-			PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
+			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
 		this.modesFunction = modesFunction;
 		this.initialPopulationsProvider = initialPopulationsProvider;
 		this.preProcessor = preProcessor;
 		this.simulator = simulator;
-		this.postProcessor = postProcessor;
 	}
 
 	@Override
@@ -88,18 +84,11 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-			EnergyFlow.Model ef, int modeIndex, Fitness fitness) {
-		this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
-				this.modes.get(modeIndex), fitness);
-	}
-
-	@Override
-	public int postProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, EnergyFlow ef,
-			int modeIndex) {
-		var oldMode = this.modes.get(modeIndex);
-		var newMode = this.postProcessor.postProcess(this.parentId, period, gsc, ef, this.coc, oldMode);
-		return this.modes.getIndex(newMode);
+	public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+			EnergyFlow.Model ef, int modeIndex, Fitness fitness, boolean isFinalRun) {
+		var postProcessedMode = this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc,
+				ef, this.modes.get(modeIndex), fitness, isFinalRun);
+		return this.modes.getIndex(postProcessedMode);
 	}
 
 	@Override

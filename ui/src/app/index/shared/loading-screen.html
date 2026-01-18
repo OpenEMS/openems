@@ -1,96 +1,121 @@
-<ion-content>
-  @switch (backendState) {
-  @case ('loading') {
-  <ngx-spinner [name]="spinnerId">
-    <p style="color: white" translate><span translate>
-        LOADING_SCREEN.LOADING
-      </span>
-      ...
-    </p>
-  </ngx-spinner>
-  }
-  @case ('failed') {
-  <ion-grid style="align-content: center; height: 100%; vertical-align: middle;">
-    <ion-row class="ion-justify-content-center">
-      <ion-col size="12" size-md="6" size-lg="4">
-        <ion-card>
-          <ion-card-content>
-            @if (environment.backend === 'OpenEMS Backend') {
-            <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
-            }@else {
-            <ng-container *ngTemplateOutlet="connectionToEdgeFailed"></ng-container>
-            }
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  }
-  }
+<ion-content class="background">
+    <ngx-spinner [name]="spinnerId">
+        <p style="color: white" translate><span translate>
+                LOADING_SCREEN.LOADING
+            </span>
+            ...
+        </p>
+    </ngx-spinner>
+    @switch (backendState) {
+
+    @case ('failed') {
+    <ion-grid style="align-content: center; height: 100%;vertical-align: middle;">
+        <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
+            <ion-col size-lg="4" size-sm="10" size-md="8">
+                <ion-card>
+                    <ion-item lines="none" class="ion-text-center">
+                        <ion-grid class="ion-justify-content-center">
+                            <ion-row class="ion-justify-content-center ion-no-padding">
+                                <ion-img style="height: 10vh;" src="assets/img/fenecon-logo.png" />
+                            </ion-row>
+                        </ion-grid>
+                    </ion-item>
+                    <ion-card-content class="ion-justify-content-center ion-text-center">
+                        @if (environment.backend === 'OpenEMS Backend') {
+                        <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
+                        }@else {
+                        <ng-container *ngTemplateOutlet="connectionToEdgeFailed"></ng-container>
+                        }
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    }
+    }
 </ion-content>
 
 
 <ng-template #connectionToBackendFailed>
-  <ion-row class="ion-justify-content-center ion-align-items-center ion-no-padding">
-    <ion-col
-      style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
-      <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
-      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
-        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center ion-no-padding">
+        <ion-col
+            style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
+            <ion-icon name="cloud-offline-outline" color="danger" size="large" style="padding-right: 5%;"></ion-icon>
+            <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
+                {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE" | translate}}</ion-label>
+        </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center ion-align-items-center">
-    <ion-col size="12">
-      <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap">
-          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION" | translate}}
-        </ion-label>
-      </ion-item>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col size="12">
+            <ion-item lines="none" class="ion-text-center">
+                <ion-label class="ion-text-wrap">
+                    {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION" | translate}}
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
-    <ion-col size="12">
-      <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap" style="font-weight: bolder;">
-          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
-        </ion-label>
-      </ion-item>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
+        <ion-col size="12">
+            <ion-item lines="none" class="ion-text-center">
+                <ion-label class="ion-text-wrap" style="font-weight: bolder;">
+                    {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+
+    @if (environment.theme !== 'OpenEMS') {
+    <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col size="12" class="ion-text-center">
+            @switch (environment.theme) {
+            @case ('Heckert') {
+            <ion-button size="small" fill="outline"
+                href="https://symphon-e.heckert-solar.com/docs/de/fems/ui/introduction.html#_offlinelokal"
+                target="_blank" translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
+            }
+            @default {
+            <ion-button size="small" fill="outline"
+                href="https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
+                translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
+            }
+            }
+        </ion-col>
+    </ion-row>
+    }
 
 </ng-template>
 
 <ng-template #connectionToEdgeFailed>
-  <ion-row class="ion-justify-content-center ion-align-items-center">
-    <ion-col
-      style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
-      <ion-icon name="file-tray-full-outline" color="primary" size="large" style="padding-right: 5%;"></ion-icon>
-      <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
-        {{"OFFLINE.EDGE.LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE" | translate}}
-      </ion-label>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col
+            style="display: flex; align-items: center; justify-content: center;border: 2px solid var(--ion-color-primary)">
+            <ion-icon name="file-tray-full-outline" color="primary" size="large" style="padding-right: 5%;"></ion-icon>
+            <ion-label color="primary" class="ion-text-wrap" style="font-size: larger;">
+                {{"OFFLINE.EDGE.LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE" | translate}}
+            </ion-label>
+        </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
-    <ion-col size="12">
-      <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap ion-font-size-smaller"
-          [translateParams]="{edgeShortName: environment.edgeShortName}">
-          {{"OFFLINE.EDGE.DESCRIPTION" | translate}}
-        </ion-label>
-      </ion-item>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
+        <ion-col size="12">
+            <ion-item lines="none" class="ion-text-center">
+                <ion-label class="ion-text-wrap ion-font-size-smaller"
+                    [translateParams]="{edgeShortName: environment.edgeShortName}">
+                    {{"OFFLINE.EDGE.DESCRIPTION" | translate}}
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center ion-align-items-center">
-    <ion-col size="12">
-      <ion-item lines="none" class="ion-text-center">
-        <ion-label class="ion-text-wrap" style="font-weight: bolder;">
-          {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
-        </ion-label>
-      </ion-item>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col size="12">
+            <ion-item lines="none" class="ion-text-center">
+                <ion-label class="ion-text-wrap" style="font-weight: bolder;">
+                    {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
+                </ion-label>
+            </ion-item>
+        </ion-col>
+    </ion-row>
 </ng-template>

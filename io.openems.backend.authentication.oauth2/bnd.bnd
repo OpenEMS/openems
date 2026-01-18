@@ -1,0 +1,17 @@
+Bundle-Name: OpenEMS Backend Authentication OAuth2 Api
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.authentication.api,\
+	io.openems.backend.common,\
+	io.openems.common,\
+	io.openems.common.bridge.http,\
+	io.openems.wrapper.auth0-auth0,\
+	io.openems.wrapper.auth0-java-jwt,\
+	io.openems.wrapper.auth0-jwks-rsa,\
+
+-testpath: \
+	${testpath}

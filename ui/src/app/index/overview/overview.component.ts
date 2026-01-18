@@ -2,9 +2,9 @@
 import { Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
 import { Pagination } from "src/app/shared/service/pagination";
@@ -51,6 +51,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     private limitReached: boolean = false;
 
     private lastReqId: string | null = null;
+    private sub: Subscription = new Subscription();
 
     constructor(
         public service: Service,
@@ -61,6 +62,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         protected route: ActivatedRoute,
         private router: Router,
         private userService: UserService,
+        private platform: Platform,
     ) {
 
         effect(() => {
@@ -79,6 +81,16 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
             this.init();
         });
+    }
+
+    ionViewDidEnter() {
+        // TODO implement gestures
+        // prevent url segment pop by back navigation gesture
+        this.sub = this.platform.backButton.subscribeWithPriority(1, () => { });
+    }
+
+    ionViewWillLeave() {
+        this.sub?.unsubscribe();
     }
 
     /**

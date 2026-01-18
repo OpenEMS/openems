@@ -6,7 +6,7 @@ import static io.openems.edge.common.type.TypeUtils.orElse;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_MAX_SOC;
+import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.ESS_MAX_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.calculateLimitChargePowerFor14aEnWG;
 import static io.openems.edge.controller.ess.timeofusetariff.v1.UtilsV1.getEssMinSocPercentage;
 import static io.openems.edge.energy.api.EnergyConstants.PERIODS_PER_HOUR;
@@ -120,7 +120,7 @@ public final class UtilsV1 {
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
 				.setPrices(interpolateDoubleArray(prices.asArray())) //
-				.setStates(context.controlMode().modes) //
+				.setStates(context.controlMode().modesArray) //
 				.setExistingSchedule(existingSchedule) //
 				.build();
 	}
@@ -281,7 +281,7 @@ public final class UtilsV1 {
 		} else {
 			var lastTime = timeOfUseTariff.getPrices().getLastTime();
 			if (lastTime != null) {
-				toTime = lastTime;
+				toTime = lastTime.atZone(now.getZone());
 			} else {
 				toTime = fromTime;
 			}

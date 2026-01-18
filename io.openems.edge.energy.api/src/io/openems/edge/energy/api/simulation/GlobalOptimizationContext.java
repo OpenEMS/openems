@@ -2,6 +2,7 @@ package io.openems.edge.energy.api.simulation;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
@@ -13,6 +14,7 @@ import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.HOUR;
 import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
 import static java.lang.Math.abs;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.util.stream.Collectors.joining;
 
 import java.time.Clock;
@@ -21,6 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -68,7 +71,7 @@ public record GlobalOptimizationContext(//
 		ImmutableList<Period> periods) {
 
 	/**
-	 * Streams the {@link Period.WithPrice}.
+	 * Streams the {@link GlobalOptimizationContext.Period.WithPrice}.
 	 * 
 	 * @return a {@link Stream}
 	 */
@@ -79,7 +82,7 @@ public record GlobalOptimizationContext(//
 	}
 
 	/**
-	 * Streams the {@link Period.WithPrediction}.
+	 * Streams the {@link GlobalOptimizationContext.Period.WithPrediction}.
 	 * 
 	 * @return a {@link Stream}
 	 */
@@ -90,7 +93,7 @@ public record GlobalOptimizationContext(//
 	}
 
 	/**
-	 * Streams the {@link Period.Complete}.
+	 * Streams the {@link GlobalOptimizationContext.Period.Complete}.
 	 * 
 	 * @return a {@link Stream}
 	 */
@@ -107,14 +110,40 @@ public record GlobalOptimizationContext(//
 	 */
 	public static JsonElement toJson(GlobalOptimizationContext goc) {
 		return buildJsonObject() //
+				.addProperty("zone", goc.clock.getZone().getId()) //
 				.addProperty("riskLevel", goc.riskLevel) //
 				.addProperty("startTime", goc.startTime) //
-				.add("grid", Grid.serializer().serialize(goc.grid)) //
-				.add("ess", Ess.serializer().serialize(goc.ess)) //
+				.add("grid", goc.grid, Grid.serializer()) //
+				.add("ess", goc.ess, Ess.serializer()) //
 				.add("eshs", goc.eshs.stream() //
 						.map(EnergyScheduleHandler::toJson) //
 						.collect(toJsonArray())) //
 				.build();
+	}
+
+	public static record Grid(//
+			/** Max Buy-From-Grid Power [W] */
+			int maxBuyPower, //
+			/** Max Sell-To-Grid Power [W] */
+			int maxSellPower) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Grid}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Grid> serializer() {
+			return jsonObjectSerializer(Grid.class, json -> {
+				return new Grid(//
+						json.getInt("maxBuyPower"), //
+						json.getInt("maxSellPower"));
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("maxBuyPower", obj.maxBuyPower) //
+						.addProperty("maxSellPower", obj.maxSellPower) //
+						.build();
+			});
+		}
 	}
 
 	public static record Ess(//
@@ -145,31 +174,6 @@ public record GlobalOptimizationContext(//
 						.addProperty("totalEnergy", obj.totalEnergy) //
 						.addProperty("maxChargePower", obj.maxChargePower) //
 						.addProperty("maxDischargePower", obj.maxDischargePower) //
-						.build();
-			});
-		}
-	}
-
-	public static record Grid(//
-			/** Max Buy-From-Grid Power [W] */
-			int maxBuyPower, //
-			/** Max Sell-To-Grid Power [W] */
-			int maxSellPower) {
-
-		/**
-		 * Returns a {@link JsonSerializer} for a {@link Grid}.
-		 * 
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static JsonSerializer<Grid> serializer() {
-			return jsonObjectSerializer(Grid.class, json -> {
-				return new Grid(//
-						json.getInt("maxBuyPower"), //
-						json.getInt("maxSellPower"));
-			}, obj -> {
-				return buildJsonObject() //
-						.addProperty("maxBuyPower", obj.maxBuyPower) //
-						.addProperty("maxSellPower", obj.maxSellPower) //
 						.build();
 			});
 		}
@@ -271,14 +275,14 @@ public record GlobalOptimizationContext(//
 		public static sealed interface Quarter extends Period {
 
 			/**
-			 * Creates an instance of {@link Period.Quarter}.
+			 * Creates an instance of {@link GlobalOptimizationContext.Period.Quarter}.
 			 * 
 			 * @param i           the index
 			 * @param time        the {@link ZonedDateTime}
 			 * @param production  the production prediction
 			 * @param consumption the consumption prediction
 			 * @param price       the price
-			 * @return {@link Period.Quarter}
+			 * @return {@link GlobalOptimizationContext.Period.Quarter}
 			 */
 			public static Period.Quarter from(
 					// From Period
@@ -314,7 +318,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrediction(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption //
 			) implements Quarter, Period.WithPrediction {
@@ -322,7 +326,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrice(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrice
 					double price //
 			) implements Quarter, Period.WithPrice {
@@ -330,7 +334,7 @@ public record GlobalOptimizationContext(//
 
 			public static record Complete(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.WithPrice
@@ -342,19 +346,20 @@ public record GlobalOptimizationContext(//
 		public static sealed interface Hour extends Period {
 
 			/**
-			 * Creates an instance of {@link Period.Hour}.
+			 * Creates an instance of {@link GlobalOptimizationContext.Period.Hour}.
 			 * 
 			 * @param i              the index
 			 * @param time           the {@link ZonedDateTime}
-			 * @param production     the production prediction
-			 * @param consumption    the consumption prediction
+			 * @param production     the production prediction in [Wh]
+			 * @param consumption    the consumption prediction in [Wh]
 			 * @param price          the price
-			 * @param quarterPeriods the list of {@link Period.Quarter}
-			 * @return {@link Period.Quarter}
+			 * @param quarterPeriods the list of
+			 *                       {@link GlobalOptimizationContext.Period.Quarter}
+			 * @return {@link GlobalOptimizationContext.Period.Quarter}
 			 */
 			public static Hour from(
 					// From Period
-					int i, ZonedDateTime time,
+					int i, ZonedDateTime time, //
 					// From Period.WithPrediction
 					Integer production, Integer consumption, //
 					// From Period.WithPrice
@@ -397,7 +402,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrediction(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.Hour
@@ -407,7 +412,7 @@ public record GlobalOptimizationContext(//
 
 			public static record WithPrice(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrice
 					double price, //
 					// From Period.Hour
@@ -417,7 +422,7 @@ public record GlobalOptimizationContext(//
 
 			public static record Complete(
 					// From Period
-					int index, ZonedDateTime time,
+					int index, ZonedDateTime time, //
 					// From Period.WithPrediction
 					int production, int consumption, //
 					// From Period.WithPrice
@@ -554,19 +559,32 @@ public record GlobalOptimizationContext(//
 			}
 
 			final var clock = this.componentManager.getClock();
-			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+			final var startTime = roundDownToQuarter(ZonedDateTime.now(clock));
 			final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
 
 			// Prediction values
 			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
+			this.log.info("OPTIMIZER GlobalOptimizationContext CONSUMPTIONS: " + consumptions.toString());
 			final var hasPredictions = !consumptions.isEmpty();
 			final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
+			this.log.info("OPTIMIZER GlobalOptimizationContext PRODUCTIONS: " + productions.toString());
 
 			// Prices contains the price values and the time it is retrieved.
 			final var prices = this.timeOfUseTariff == null //
 					? TimeOfUsePrices.EMPTY_PRICES //
 					: this.timeOfUseTariff.getPrices();
+			this.log.info("OPTIMIZER GlobalOptimizationContext PRICES: " + prices.toString());
 			final boolean hasPrices = !prices.isEmpty();
+
+			final var endTime = Optional //
+					.ofNullable(DateUtils.min(//
+							consumptions.getLastTime(), //
+							productions.getLastTime(), //
+							prices.getLastTime())) //
+					.map(i -> i.atZone(clock.getZone())) //
+					.orElse(startTime.plusMinutes(SCHEDULE_PERIODS_ON_EMPTY * 15));
+
+			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
 			// Helpers
 			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
@@ -582,48 +600,55 @@ public record GlobalOptimizationContext(//
 
 			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
 				final var i = periodLengthHourFromIndex + j * 4;
-				final var rangeStart = startTime.plusMinutes(i * 15);
-				final var rangeEnd = rangeStart.plusMinutes(60);
-				final var production = productions //
-						.getBetween(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(QUARTER::convertPowerToEnergy) //
-						.orElse(null);
-				final var consumption = consumptions //
-						.getBetween(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(QUARTER::convertPowerToEnergy) //
-						.orElse(null);
-				final var priceOpt = prices //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToDouble(Double::doubleValue) //
-						.average();
-				final var price = priceOpt.isEmpty() //
-						? null //
-						: priceOpt.getAsDouble();
 				final var quarterPeriods = IntStream.range(i, i + 4) //
 						.mapToObj(toQuarterPeriod) //
 						.filter(Objects::nonNull) //
 						.collect(toImmutableList());
-				return Period.Hour.from(periodLengthHourFromIndex + j, rangeStart, //
+				final var time = quarterPeriods.getFirst().time();
+				if (time.isAfter(endTime)) {
+					return null;
+				}
+				final var production = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::production) //
+						.reduce(Integer::sum).orElse(null);
+				final var consumption = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::consumption) //
+						.reduce(Integer::sum).orElse(null);
+				final var priceOpt = quarterPeriods.stream() //
+						.filter(Period.WithPrice.class::isInstance) //
+						.map(Period.WithPrice.class::cast) //
+						.mapToDouble(Period.WithPrice::price) //
+						.average();
+				final var price = priceOpt.isEmpty() //
+						? null //
+						: priceOpt.getAsDouble();
+
+				return Period.Hour.from(periodLengthHourFromIndex + j, time, //
 						production, consumption, price, quarterPeriods);
+			};
+
+			Predicate<? super Period> takeWhile = p -> {
+				return switch (p) {
+				case null -> false;
+				case Period.Complete c -> true;
+				case Period.WithPrediction wp -> !hasPrices;
+				case Period.WithPrice wp -> !hasPredictions;
+				case Period.Empty e -> !hasPrices && !hasPredictions //
+						&& p.index() > SCHEDULE_PERIODS_ON_EMPTY;
+				};
 			};
 
 			var periods = Stream.concat(//
 					IntStream.range(0, periodLengthHourFromIndex) //
-							.<Period>mapToObj(toQuarterPeriod), //
+							.<Period>mapToObj(toQuarterPeriod) //
+							.takeWhile(takeWhile), //
 					IntStream.iterate(0, i -> i + 1) //
 							.<Period>mapToObj(toHourPeriod) //
-							.takeWhile(p -> {
-								return switch (p) {
-								case Period.Complete c -> true;
-								case Period.WithPrediction wp -> !hasPrices;
-								case Period.WithPrice wp -> !hasPredictions;
-								case Period.Empty e -> !hasPrices && !hasPredictions //
-										&& p.index() > SCHEDULE_PERIODS_ON_EMPTY;
-								};
-							})) //
-					.filter(Objects::nonNull) //
+							.takeWhile(takeWhile)) //
 					.collect(toImmutableList());
 
 			if (periods.isEmpty()) {
@@ -646,7 +671,6 @@ public record GlobalOptimizationContext(//
 
 				ess = new Ess(essInitialEnergy, essCapacity, abs(maxChargePower), maxDischargePower);
 			}
-			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
 			final var eshsWithDifferentModes = filterEshsWithDifferentModes(this.eshs) //
 					.collect(toImmutableList());
@@ -703,7 +727,7 @@ public record GlobalOptimizationContext(//
 	// TODO this should be set depending on the actual calculation time and
 	// quality of the best schedule result
 	protected static int calculatePeriodDurationHourFromIndex(ZonedDateTime time) {
-		var minute = time.getMinute();
+		var minute = time.get(MINUTE_OF_HOUR);
 		if (minute == 0) {
 			minute = 60;
 		}

@@ -9,7 +9,6 @@ import static java.time.DayOfWeek.SUNDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -45,24 +44,21 @@ public class SchedulerJSCalendarImplTest {
 						.setDuration(Duration.ofHours(1)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(new Payload(new String[] { "dailyAt11" })) //
-						.build()) //
+						.setPayload(new Payload(new String[] { "dailyAt11" }))) //
 				.add(t -> t //
 						.setStart(LocalTime.of(8, 30)) //
 						.setDuration(Duration.ofHours(10)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) //
-						.setPayload(new Payload(new String[] { "weekdaysAt8_30#1", "weekdaysAt8_30#2" })) //
-						.build()) //
+						.setPayload(new Payload(new String[] { "weekdaysAt8_30#1", "weekdaysAt8_30#2" }))) //
 				.add(t -> t //
 						.setStart(LocalTime.of(7, 30)) //
 						.setDuration(Duration.ofHours(14)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(WEEKLY) //
 								.addByDay(SATURDAY, SUNDAY)) //
-						.setPayload(new Payload(new String[] { "weekendsAt7_30" })) //
-						.build()) //
+						.setPayload(new Payload(new String[] { "weekendsAt7_30" }))) //
 				.build();
 
 		final SchedulerJSCalendarImpl sut = new SchedulerJSCalendarImpl();
@@ -81,90 +77,128 @@ public class SchedulerJSCalendarImplTest {
 						.setJSCalendar(JSCalendar.Tasks.serializer(clock, Payload.serializer()) //
 								.serialize(tasks) //
 								.toString()) //
-						.setAlwaysRunAfterControllerIds("alwaysAfter#1", "alwaysAfter#2") //
+						.setAlwaysRunAfterControllerIds(//
+								"alwaysAfter#1", "alwaysAfter#2") //
 						.build()) //
 				.next(new TestCase() // No active task
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 00:00")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() // No active task
 						.timeleap(clock, 8 * 60 + 29, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 08:29")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 08:30")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
-								"alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 2 * 60 + 29, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 10:59")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
-								"alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 11:00")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"dailyAt11", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 59, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 11:59")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"dailyAt11", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 12:00")) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", "weekdaysAt8_30#1",
-								"weekdaysAt8_30#2", "alwaysAfter#1", "alwaysAfter#2"))) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 6 * 60 + 29, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 18:29")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "weekdaysAt8_30#1", "weekdaysAt8_30#2", "alwaysAfter#1",
-								"alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Wed 2020-01-01 18:30")) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
 								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 5 * 60 + 30, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Thu 2020-01-02 00:00")) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
 								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
-						.timeleap(clock, 2, DAYS) //
-						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 00:00")) //
-						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, "alwaysBefore", //
+						.timeleap(clock, 8 * 60 + 30, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Thu 2020-01-02 08:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
 								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
-						.timeleap(clock, 7 * 60 + 29, MINUTES) //
+						.timeleap(clock, 4 * 60 + 30, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Thu 2020-01-02 13:00")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
+								"dailyAt11", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 19 * 60 + 30, MINUTES) //
+						.onBeforeProcessImage(() -> assertTime(clock, "Fri 2020-01-03 08:30")) //
+						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
+								"alwaysBefore", //
+								"weekdaysAt8_30#1", "weekdaysAt8_30#2", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
+				.next(new TestCase() //
+						.timeleap(clock, 23 * 60 - 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 07:29")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 07:30")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "weekendsAt7_30", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"weekendsAt7_30", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 3 * 60 + 30, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 11:00")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "dailyAt11", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"dailyAt11", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 10 * 60 + 29, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 21:29")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "weekendsAt7_30", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"weekendsAt7_30", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, MINUTES) //
 						.onBeforeProcessImage(() -> assertTime(clock, "Sat 2020-01-04 21:30")) //
 						.onBeforeControllersCallbacks(() -> assertControllerIds(sut, //
-								"alwaysBefore", "alwaysAfter#1", "alwaysAfter#2"))) //
+								"alwaysBefore", //
+								"alwaysAfter#1", "alwaysAfter#2"))) //
 				.deactivate();
 	}
 

@@ -204,7 +204,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
     }
 
     protected isTimeRangeInvalid(schedule: DailySchedule): boolean {
-    // Ensuring direct value check as pipe converts it to HH:mm string
+        // Ensuring direct value check as pipe converts it to HH:mm string
         const fromTime = schedule.from.includes("T") ? schedule.from.substring(11, 16) : schedule.from;
         const toTime = schedule.to.includes("T") ? schedule.to.substring(11, 16) : schedule.to;
 
@@ -411,7 +411,7 @@ export class FormlyTariffTableTypeComponent extends FieldType implements OnInit,
    * @param quarter The quarter object whose schedules need to be updated.
    */
     private updateFilteredSchedules(quarter: Quarter) {
-    // Ensure dailySchedule is an array before filtering
+        // Ensure dailySchedule is an array before filtering
         const schedulesToFilter = quarter.dailySchedule || [];
         quarter.lowSchedules = schedulesToFilter.filter(s => s.tariff === "low");
         quarter.highSchedules = schedulesToFilter.filter(s => s.tariff === "high");

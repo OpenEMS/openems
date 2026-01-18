@@ -15,7 +15,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.junit.Test;
@@ -59,7 +58,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		var componentManager = new DummyComponentManager(clock);
 		var sum = new DummySum();

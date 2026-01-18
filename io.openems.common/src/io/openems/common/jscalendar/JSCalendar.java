@@ -1,8 +1,11 @@
 package io.openems.common.jscalendar;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.utils.DateUtils.nthWeekdayOfMonth;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.time.DayOfWeek.FRIDAY;
@@ -13,8 +16,8 @@ import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static java.time.LocalDate.EPOCH;
-import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.util.Arrays.stream;
@@ -27,13 +30,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -44,6 +52,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsRuntimeException;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.serialization.StringParser;
@@ -60,6 +69,7 @@ import io.openems.common.jsonrpc.serialization.StringParser;
 public class JSCalendar<PAYLOAD> {
 	// CHECKSTYLE:ON
 
+	private static final Logger LOG = LoggerFactory.getLogger(JSCalendar.class);
 	private static final String PROPERTY_PAYLOAD = "openems.io:payload";
 
 	public static final JsonSerializer<Void> VOID_SERIALIZER = jsonObjectSerializer(//
@@ -112,14 +122,14 @@ public class JSCalendar<PAYLOAD> {
 		 */
 		public static <PAYLOAD> Tasks<PAYLOAD> fromStringOrEmpty(Clock clock, String string,
 				JsonSerializer<PAYLOAD> payloadSerializer) {
-			if (string == null || string.isBlank()) {
+			if (string == null || string.isBlank() || string.equals("[]")) {
 				return Tasks.empty();
 			}
 			try {
 				return Tasks.serializer(clock, payloadSerializer) //
 						.deserialize(string);
 			} catch (IllegalStateException | OpenemsNamedException e) {
-				e.printStackTrace();
+				LOG.error("Unable to parse Tasks from " + string + ": " + e.getMessage());
 				return Tasks.empty();
 			}
 		}
@@ -186,13 +196,12 @@ public class JSCalendar<PAYLOAD> {
 			/**
 			 * Adds a {@link JSCalendar.Task}.
 			 * 
-			 * @param task a Consumer for {@link JSCalendar.Task.Builder}
+			 * @param task a Function for {@link JSCalendar.Task.Builder}
 			 * @return myself
 			 */
-			public Builder<PAYLOAD> add(Consumer<Task.Builder<PAYLOAD>> task) {
+			public Builder<PAYLOAD> add(Function<Task.Builder<PAYLOAD>, Task.Builder<PAYLOAD>> task) {
 				var t = Task.<PAYLOAD>create();
-				task.accept(t);
-				this.tasks.add(t.build());
+				this.tasks.add(task.apply(t).build());
 				return this;
 			}
 
@@ -245,7 +254,6 @@ public class JSCalendar<PAYLOAD> {
 				result = null; // will never have any OneTasks
 
 			} else {
-				final var wasEmpty = this.oneTasks.isEmpty();
 				final var now = ZonedDateTime.now(this.clock);
 
 				if (this.oneTasks.size() <= 1) {
@@ -254,7 +262,18 @@ public class JSCalendar<PAYLOAD> {
 					// There are corner-cases (e.g. recurrence with until) where this code gets
 					// executed on every Cycle.
 					this.oneTasks.clear();
-					this.oneTasks.addAll(this._getOneTasksBetween(now, now.plusDays(1)));
+					var ots = this._getOneTasksBetween(now, now.plusDays(1));
+					this.oneTasks.addAll(ots);
+					if (ots.size() == 1) {
+						// If only one OneTask was added, try to add even more to avoid coming here
+						// every cycle
+						final var ot = ots.getLast();
+						final var start = ot.duration.isZero() //
+								? ot.end.plusNanos(1) //
+								: ot.end;
+						var moreOts = this._getOneTasksBetween(start, ot.end.plusDays(1));
+						this.oneTasks.addAll(moreOts);
+					}
 				}
 
 				if (this.oneTasks.isEmpty()) {
@@ -262,19 +281,19 @@ public class JSCalendar<PAYLOAD> {
 
 				} else {
 					var first = this.oneTasks.getFirst();
-					if (!first.end.isAfter(now)) { // END is exclusive
-						this.oneTasks.removeFirst(); // Remove outdated OneTasks
-						if (wasEmpty) {
-							result = first; // make sure every OneTask is returned at least once
-						} else {
-							result = this.getActiveOneTask(); // get next OneTask
-						}
-
-					} else if (first.start.isAfter(now)) { // START is inclusive
+					if (now.isBefore(first.start)) { // START is inclusive
 						result = null; // not active yet
 
-					} else {
+					} else if (first != this.lastActiveOneTask) {
+						// make sure every OneTask is returned at least once
+						result = first;
+
+					} else if (now.isBefore(first.end)) {
 						result = first; // currently active
+
+					} else { // END is exclusive
+						this.oneTasks.removeFirst(); // Remove outdated OneTasks
+						result = this.getActiveOneTask();
 					}
 				}
 			}
@@ -300,8 +319,8 @@ public class JSCalendar<PAYLOAD> {
 		 * @param to   the to timestamp
 		 * @return a list of {@link OneTask}s
 		 */
-		public TreeSet<OneTask<PAYLOAD>> getOneTasksBetween(ZonedDateTime from, ZonedDateTime to) {
-			return this._getOneTasksBetween(from, to);
+		public OneTasks<PAYLOAD> getOneTasksBetween(ZonedDateTime from, ZonedDateTime to) {
+			return OneTasks.from(this._getOneTasksBetween(from, to));
 		}
 
 		/**
@@ -343,7 +362,7 @@ public class JSCalendar<PAYLOAD> {
 					.map(task -> task.uid().equals(updatedTask.uid()) //
 							? updatedTask.withUpdatedNow(this.clock) //
 							: task)//
-					.collect(ImmutableList.toImmutableList());
+					.collect(toImmutableList());
 
 			return new Tasks<>(this.clock, updatedTasks);
 		}
@@ -362,7 +381,7 @@ public class JSCalendar<PAYLOAD> {
 
 			var updatedTasks = this.tasks.stream()//
 					.filter(task -> !task.uid().equals(uid))//
-					.collect(ImmutableList.toImmutableList());
+					.collect(toImmutableList());
 
 			if (updatedTasks.size() == this.tasks.size()) {
 				return this;
@@ -371,8 +390,17 @@ public class JSCalendar<PAYLOAD> {
 			return new Tasks<>(this.clock, updatedTasks);
 		}
 
-		protected boolean tasksIsEmpty() {
-			return this.tasks.isEmpty();
+		/**
+		 * Gets these {@link Tasks} as {@link JsonArray}.
+		 * 
+		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+		 * @return {@link JsonArray}
+		 */
+		public JsonArray toJson(JsonSerializer<PAYLOAD> payloadSerializer) {
+			if (this.tasks.isEmpty()) {
+				return new JsonArray();
+			}
+			return (JsonArray) JSCalendar.Tasks.serializer(payloadSerializer).serialize(this);
 		}
 
 		private TreeSet<OneTask<PAYLOAD>> _getOneTasksBetween(ZonedDateTime from, ZonedDateTime to) {
@@ -382,7 +410,7 @@ public class JSCalendar<PAYLOAD> {
 					final var occurenceStart = occurence.isBefore(from) //
 							? from //
 							: occurence;
-					var occurenceEnd = task.duration == null //
+					var occurenceEnd = task.duration == Duration.ZERO //
 							? occurenceStart //
 							: occurence.plus(task.duration);
 					if (occurenceEnd.isAfter(to) && occurenceStart.isBefore(to)) {
@@ -405,6 +433,17 @@ public class JSCalendar<PAYLOAD> {
 		public static record OneTask<PAYLOAD>(Task<PAYLOAD> parentTask, ZonedDateTime start, Duration duration,
 				ZonedDateTime end) implements Comparable<OneTask<PAYLOAD>> {
 
+			public OneTask {
+				Objects.requireNonNull(parentTask, "parentTask cannot be null");
+				Objects.requireNonNull(start, "start cannot be null");
+				Objects.requireNonNull(duration, "duration cannot be null");
+				Objects.requireNonNull(end, "end cannot be null");
+				if (!start.plus(duration).isEqual(end)) {
+					throw new IllegalArgumentException(
+							"Start, Duration and End are not matching: " + start + ", " + duration + ", " + end);
+				}
+			}
+
 			/**
 			 * Builds a {@link OneTask}.
 			 * 
@@ -416,8 +455,8 @@ public class JSCalendar<PAYLOAD> {
 			 */
 			public static <PAYLOAD> OneTask<PAYLOAD> from(Task<PAYLOAD> parentTask, ZonedDateTime start,
 					Duration duration) {
-				return new OneTask<PAYLOAD>(parentTask, start, duration,
-						duration == null ? null : start.plus(duration));
+				Objects.requireNonNull(start, "duration cannot be null");
+				return new OneTask<PAYLOAD>(parentTask, start, duration, start.plus(duration));
 			}
 
 			/**
@@ -432,7 +471,10 @@ public class JSCalendar<PAYLOAD> {
 			public static <PAYLOAD> OneTask<PAYLOAD> from(Task<PAYLOAD> parentTask, ZonedDateTime start,
 					ZonedDateTime end) {
 				return new OneTask<PAYLOAD>(parentTask, start, //
-						start.isEqual(end) ? null : Duration.between(start, end), end);
+						start.isEqual(end) //
+								? Duration.ZERO //
+								: Duration.between(start, end),
+						end);
 			}
 
 			/**
@@ -456,8 +498,10 @@ public class JSCalendar<PAYLOAD> {
 				return JsonSerializerUtil.<OneTask<PAYLOAD>>jsonObjectSerializer(json -> {
 					var uid = json.getUuidOrNull("uid");
 					var start = json.getZonedDateTime("start");
-					var end = json.getZonedDateTime("end");
-					var duration = Duration.parse(json.getString("duration"));
+					var end = json.getOptionalZonedDateTime("end") //
+							.orElse(start);
+					var duration = json.getOptionalDuration("duration") //
+							.orElse(Duration.ZERO);
 					var payload = json.getObjectOrNull("payload", payloadSerializer);
 					var task = new Task<PAYLOAD>(uid, null, start.toLocalDateTime(), duration, ImmutableList.of(),
 							payload);
@@ -466,36 +510,11 @@ public class JSCalendar<PAYLOAD> {
 					return buildJsonObject() //
 							.addProperty("uid", obj.parentTask.uid) //
 							.addProperty("start", obj.start) //
+							.addProperty("duration", obj.duration) //
 							.addProperty("end", obj.end) //
-							.addProperty("duration", obj.duration.toString()) //
 							.onlyIf(obj.payload() != null, //
 									j -> j.add("payload", payloadSerializer.serialize(obj.payload()))) //
 							.build();
-				});
-			}
-
-			/**
-			 * Returns a {@link JsonSerializer} for {@link OneTask}s without payload.
-			 * 
-			 * @return the created {@link JsonSerializer}
-			 */
-			public static JsonSerializer<ImmutableList<OneTask<Void>>> listSerializer() {
-				return listSerializer(VOID_SERIALIZER);
-			}
-
-			/**
-			 * Returns a {@link JsonSerializer} for {@link OneTask}s.
-			 * 
-			 * @param <PAYLOAD>         the type of the Payload
-			 * @param payloadSerializer a {@link JsonSerializer} for the Payload
-			 * @return the created {@link JsonSerializer}
-			 */
-			public static <PAYLOAD> JsonSerializer<ImmutableList<OneTask<PAYLOAD>>> listSerializer(
-					JsonSerializer<PAYLOAD> payloadSerializer) {
-				return JsonSerializerUtil.<ImmutableList<OneTask<PAYLOAD>>>jsonArraySerializer(json -> {
-					return json.getAsImmutableList(OneTask.serializer(payloadSerializer));
-				}, list -> {
-					return OneTask.serializer(payloadSerializer).toImmutableListSerializer().serialize(list);
 				});
 			}
 
@@ -543,9 +562,9 @@ public class JSCalendar<PAYLOAD> {
 
 			// First OneTask in results after this occurence
 			var firstAfter = result.stream() //
-					.filter(ot -> ot.duration != null //
-							? !start.isAfter(ot.start) //
-							: start.isBefore(ot.start)) //
+					.filter(ot -> ot.duration == Duration.ZERO //
+							? start.isBefore(ot.start) //
+							: !start.isAfter(ot.start)) //
 					.findFirst();
 			final ZonedDateTime end = firstAfter //
 					.map(ot -> ot.start.isBefore(occurenceEnd) //
@@ -553,7 +572,7 @@ public class JSCalendar<PAYLOAD> {
 							: occurenceEnd) //
 					.orElse(occurenceEnd);
 
-			if (task.duration != null && start.isEqual(end)) {
+			if (task.duration != Duration.ZERO && start.isEqual(end)) {
 				// This is a Task with Duration, but during creation of OneTasks for the last
 				// one start would be same as end -> do not add to result
 			} else {
@@ -598,8 +617,122 @@ public class JSCalendar<PAYLOAD> {
 		}
 	}
 
+	/**
+	 * Helper utilities to handle lists of {@link OneTask}s.
+	 */
+	public static class OneTasks<PAYLOAD> implements Iterable<OneTask<PAYLOAD>> {
+
+		/**
+		 * Returns a {@link JsonSerializer} for {@link OneTasks}.
+		 * 
+		 * @param <PAYLOAD>         the type of the Payload
+		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static <PAYLOAD> JsonSerializer<OneTasks<PAYLOAD>> serializer(
+				JsonSerializer<PAYLOAD> payloadSerializer) {
+			return serializer(Clock.systemDefaultZone(), payloadSerializer);
+		}
+
+		/**
+		 * Returns a {@link JsonSerializer} for {@link OneTasks}.
+		 * 
+		 * @param <PAYLOAD>         the type of the Payload
+		 * @param clock             the {@link Clock}
+		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static <PAYLOAD> JsonSerializer<OneTasks<PAYLOAD>> serializer(Clock clock,
+				JsonSerializer<PAYLOAD> payloadSerializer) {
+			return JsonSerializerUtil.<OneTasks<PAYLOAD>>jsonArraySerializer(json -> {
+				return new OneTasks<PAYLOAD>(
+						json.getAsImmutableSortedSet(OneTask.serializer(payloadSerializer), Ordering.natural()));
+			}, obj -> {
+				var s = OneTask.serializer(payloadSerializer);
+				return obj.oneTasks.stream() //
+						.map(s::serialize) //
+						.collect(toJsonArray());
+			});
+		}
+
+		private static <PAYLOAD> OneTasks<PAYLOAD> from(TreeSet<OneTask<PAYLOAD>> oneTasks) {
+			return new OneTasks<>(ImmutableSortedSet.copyOf(oneTasks));
+		}
+
+		private final ImmutableSortedSet<OneTask<PAYLOAD>> oneTasks;
+
+		private OneTasks(ImmutableSortedSet<OneTask<PAYLOAD>> oneTasks) {
+			this.oneTasks = oneTasks;
+		}
+
+		/**
+		 * Gets the Payload for the given time.
+		 * 
+		 * @param time the {@link ZonedDateTime}
+		 * @return the Payload; null if no {@link OneTask} is existing at the given time
+		 */
+		public PAYLOAD getPayloadAt(ZonedDateTime time) {
+			return this.oneTasks.stream() //
+					.filter(ot -> {
+						boolean startsBeforeOrAtTime = !ot.start.isAfter(time);
+						boolean strictlyBeforeEnd = time.isBefore(ot.end);
+						return startsBeforeOrAtTime && strictlyBeforeEnd;
+					}) //
+					.findFirst() //
+					.map(OneTask::payload) //
+					.orElse(null);
+		}
+
+		/**
+		 * Gets a {@link Stream} of {@link OneTasks} between from (inclusive) and to
+		 * (exclusive).
+		 * 
+		 * @param from the from {@link ZonedDateTime}
+		 * @param to   the to {@link ZonedDateTime}
+		 * @return a Stream of values; possibly empty
+		 */
+		public final Stream<OneTask<PAYLOAD>> getBetween(ZonedDateTime from, ZonedDateTime to) {
+			return this.oneTasks.stream() //
+					.filter(ot -> {
+						boolean endsAfterFrom = ot.end.isAfter(from);
+						boolean startsAtOrBeforeTo = ot.start.isBefore(to);
+						return endsAfterFrom && startsAtOrBeforeTo;
+					});
+		}
+
+		@Override
+		public Iterator<OneTask<PAYLOAD>> iterator() {
+			return this.oneTasks.iterator();
+		}
+
+		/**
+		 * {@link ImmutableSortedSet#size()}.
+		 * 
+		 * @return the number of elements in this collection
+		 */
+		public int size() {
+			return this.oneTasks.size();
+		}
+
+		/**
+		 * {@link ImmutableSortedSet#isEmpty()}.
+		 * 
+		 * @return {@code true} if this collection contains no elements
+		 */
+		public boolean isEmpty() {
+			return this.oneTasks.isEmpty();
+		}
+	}
+
 	public static record Task<PAYLOAD>(UUID uid, ZonedDateTime updated, LocalDateTime start, Duration duration,
 			ImmutableList<RecurrenceRule> recurrenceRules, PAYLOAD payload) {
+
+		public Task {
+			Objects.requireNonNull(uid, "uid cannot be null");
+			Objects.requireNonNull(start, "start cannot be null");
+			Objects.requireNonNull(duration, "duration cannot be null");
+			Objects.requireNonNull(recurrenceRules, "recurrenceRules cannot be null");
+		}
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Task} without payload.
@@ -627,32 +760,25 @@ public class JSCalendar<PAYLOAD> {
 				var b = Task.<PAYLOAD>create() //
 						.setUid(json.getUuidOrNull("uid")) //
 						.setUpdated(json.getZonedDateTimeOrNull("updated")) //
-						.setStart(json.getString("start")) //
-						.setDuration(json.getStringOrNull("duration")); //
+						.setStart(json.getStringOrNull("start")) //
+						.setDuration(json.getDurationOrNull("duration")) //
+						.setPayload(json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer));
 
 				json.getOptionalList("recurrenceRules", RecurrenceRule.serializer()) //
 						.orElse(emptyList()) //
 						.forEach(rr -> b.addRecurrenceRule(rr));
 
-				var payload = json.getObjectOrNull(PROPERTY_PAYLOAD, payloadSerializer);
-				if (payload != null) {
-					b.setPayload(payload);
-				}
-
 				return b.build();
 			}, obj -> {
 				return buildJsonObject() //
 						.addProperty("@type", "Task") //
-						.onlyIf(obj.uid != null, //
-								j -> j.addProperty("uid", obj.uid.toString())) //
+						.addProperty("uid", obj.uid) //
 						.onlyIf(obj.updated != null, //
-								j -> j.addProperty("updated", obj.updated.format(ISO_INSTANT))) //
-						.onlyIf(obj.start != null, //
-								j -> j.addProperty("start", LocalDate.from(obj.start).equals(EPOCH) //
-										? obj.start.format(DateTimeFormatter.ISO_LOCAL_TIME) //
-										: obj.start.format(ISO_LOCAL_DATE_TIME))) //
-						.onlyIf(obj.duration != null, //
-								j -> j.addProperty("duration", obj.duration.toString())) //
+								j -> j.addProperty("updated", obj.updated)) //
+						.addProperty("start", LocalDate.from(obj.start).equals(EPOCH) //
+								? obj.start.format(ISO_LOCAL_TIME) //
+								: obj.start.format(ISO_LOCAL_DATE_TIME)) //
+						.addProperty("duration", obj.duration) //
 						.onlyIf(!obj.recurrenceRules.isEmpty(), //
 								j -> j.add("recurrenceRules", obj.recurrenceRules.stream() //
 										.map(RecurrenceRule.serializer()::serialize) //
@@ -694,7 +820,10 @@ public class JSCalendar<PAYLOAD> {
 				return this.setStart(LocalDateTime.of(EPOCH, start));
 			}
 
-			protected Builder<PAYLOAD> setStart(String start) throws DateTimeParseException {
+			public Builder<PAYLOAD> setStart(String start) throws DateTimeParseException {
+				if (start == null) {
+					return this.setStart((LocalDateTime) null);
+				}
 				try {
 					return this.setStart(LocalDateTime.parse(start));
 				} catch (DateTimeParseException e) {
@@ -708,7 +837,9 @@ public class JSCalendar<PAYLOAD> {
 			}
 
 			protected Builder<PAYLOAD> setDuration(String duration) {
-				return this.setDuration(duration == null ? null : Duration.parse(duration));
+				return this.setDuration(duration == null //
+						? null //
+						: Duration.parse(duration));
 			}
 
 			/**
@@ -741,11 +872,25 @@ public class JSCalendar<PAYLOAD> {
 			}
 
 			public Task<PAYLOAD> build() {
-				var uid = this.uid == null //
+				final var uid = this.uid == null //
 						? UUID.randomUUID() //
 						: this.uid;
-				return new Task<PAYLOAD>(uid, this.updated, this.start, this.duration, this.recurrenceRules.build(),
-						this.payload);
+				var recurrenceRules = this.recurrenceRules.build();
+				var duration = this.duration == null //
+						? Duration.ZERO //
+						: this.duration;
+
+				if (this.start == null && duration == Duration.ZERO && recurrenceRules.isEmpty()
+						&& this.payload != null) {
+					// Consider this is a default/fallback task that is always active
+					this.start = LocalDateTime.of(LocalDate.EPOCH, LocalTime.MIN);
+					duration = Duration.ofDays(1);
+					recurrenceRules = ImmutableList.of(RecurrenceRule.create() //
+							.setFrequency(RecurrenceFrequency.DAILY) //
+							.build());
+				}
+
+				return new Task<PAYLOAD>(uid, this.updated, this.start, duration, recurrenceRules, this.payload);
 			}
 		}
 
@@ -777,7 +922,7 @@ public class JSCalendar<PAYLOAD> {
 		public ImmutableList<ZonedDateTime> getOccurencesBetween(ZonedDateTime from, ZonedDateTime to) {
 			var result = new ArrayList<ZonedDateTime>();
 			for (var rr : this.recurrenceRules) {
-				var nextFrom = this.duration == null //
+				var nextFrom = this.duration == Duration.ZERO //
 						? from //
 						: from.minus(this.duration); // query active tasks;
 				while (true) {
@@ -917,12 +1062,13 @@ public class JSCalendar<PAYLOAD> {
 
 				var byDay = this.byDay.build();
 				switch (this.frequency) {
-				case DAILY, MONTHLY, YEARLY -> {
+				case DAILY, YEARLY -> {
 					if (!byDay.isEmpty()) {
-						System.err.println("WARNING: RecurrenceRule with Frequency " + this.frequency
+						LOG.warn("WARNING: RecurrenceRule with Frequency " + this.frequency
 								+ " is incomaptible with byDay " + byDay);
 					}
 				}
+				case MONTHLY -> doNothing();
 				case WEEKLY -> {
 					if (byDay.isEmpty()) {
 						// If no DayOfWeek are given: add all by default
@@ -997,15 +1143,31 @@ public class JSCalendar<PAYLOAD> {
 				}
 				from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
 
-				var nextByDay = this.byDay.ceiling(from.getDayOfWeek());
-				if (nextByDay != null) {
-					yield from.with(nextOrSame(nextByDay)); // next weekday in list
+				var nextDayOfWeek = this.getNextDayOfWeek(from);
+				yield from.with(nextOrSame(nextDayOfWeek));
+			}
+			case MONTHLY -> {
+				if (this.byDay.isEmpty()) {
+					// For now only byDay is implemented for MONTHLY
+					yield null;
 				}
 
-				nextByDay = this.byDay.first();
-				yield from.with(nextOrSame(nextByDay)); // first day in list
+				// Adjust 'from' if the time of day has already passed
+				if (from.toLocalTime().isAfter(taskStart.toLocalTime())) {
+					from = from.plusDays(1); // tomorrow
+				}
+				from = from.with(NANO_OF_DAY, taskStart.toLocalTime().toNanoOfDay());
+
+				var nextDayOfWeek = this.getNextDayOfWeek(from);
+				var next = from.with(nextOrSame(nextDayOfWeek));
+				if (nthWeekdayOfMonth(next) > 1) {
+					// For now only first occurrence of month is supported
+					// TODO implement 'interval' from RFC8984
+					yield from.plusMonths(1).withDayOfMonth(1) // first day of next month
+							.with(nextOrSame(nextDayOfWeek));
+				}
+				yield next;
 			}
-			case MONTHLY -> null; // not implemented
 			case YEARLY -> null; // not implemented
 			};
 
@@ -1014,6 +1176,19 @@ public class JSCalendar<PAYLOAD> {
 				return null;
 			}
 			return result;
+		}
+
+		private DayOfWeek getNextDayOfWeek(ZonedDateTime from) {
+			if (this.byDay.isEmpty()) {
+				return null;
+			}
+			// next weekday in list
+			var result = this.byDay.ceiling(from.getDayOfWeek());
+			if (result != null) {
+				return result;
+			}
+			// first day in list
+			return this.byDay.first();
 		}
 	}
 }

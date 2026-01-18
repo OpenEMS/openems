@@ -11,6 +11,7 @@
   </oe-flat-widget>
 } @else {
   @if (isInitialized) {
+    <ngx-spinner [name]="spinnerId">{{ 'EDGE.HISTORY.EXPORT_LOADING' | translate }}</ngx-spinner>
     <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
       [icon]="{name: 'laptop-outline', color: 'normal'}" [style.height.px]="getChartHeight()"
       class="no-all-edges-shadow">

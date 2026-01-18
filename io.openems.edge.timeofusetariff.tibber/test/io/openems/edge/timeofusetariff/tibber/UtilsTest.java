@@ -6,6 +6,7 @@ import static io.openems.edge.timeofusetariff.tibber.TimeOfUseTariffTibberImpl.T
 import static io.openems.edge.timeofusetariff.tibber.Utils.calculateDelay;
 import static io.openems.edge.timeofusetariff.tibber.Utils.generateGraphQl;
 import static io.openems.edge.timeofusetariff.tibber.Utils.parsePrices;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -33,7 +34,7 @@ public class UtilsTest {
 
 		// To check 15 minutes values are taken instead of one hour values.
 		var firstHour = prices.getFirstTime();
-		assertNotNull(prices.getAt(firstHour.plusMinutes(15)));
+		assertNotNull(prices.getAt(firstHour.plus(15, MINUTES)));
 	}
 
 	@Test(expected = OpenemsNamedException.class)

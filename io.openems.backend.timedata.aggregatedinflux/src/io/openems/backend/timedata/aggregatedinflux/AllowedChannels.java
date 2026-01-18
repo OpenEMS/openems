@@ -35,7 +35,7 @@ public final class AllowedChannels {
 				ctrlIoChannelSingleThreshold.from(), ctrlIoChannelSingleThreshold.to());
 		final var ctrlEssRippleControlReceiver = new Namespace("ctrlEssRippleControlReceiver", 0, 3);
 		final var heat = new Namespace("heat", 0, 5);
-		final var enerix = new Namespace("enerixControl", 0, 1);
+		final var enerix = new Namespace("ctrlEnerixControl", 0, 1);
 
 		ALLOWED_AVERAGE_CHANNELS = ImmutableMap.<String, DataType>builder() //
 				.put("_sum/EssSoc", DataType.LONG) //
@@ -72,6 +72,7 @@ public final class AllowedChannels {
 				.putAll(multiChannels(charger, "Voltage", DataType.LONG)) //
 				.put("ctrlEmergencyCapacityReserve0/ActualReserveSoc", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/_PropertyMaximumSellToGridPower", DataType.LONG) //
+				.put("_meta/_PropertyMaximumGridFeedInLimit", DataType.LONG) //
 				.putAll(multiChannels(meter, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels(meter, "ActivePowerL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(meter, "Current", DataType.LONG)) //

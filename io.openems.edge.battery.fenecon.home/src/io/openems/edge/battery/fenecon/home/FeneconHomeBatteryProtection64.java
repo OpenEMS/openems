@@ -1,11 +1,16 @@
 package io.openems.edge.battery.fenecon.home;
 
-import io.openems.edge.battery.protection.BatteryProtectionDefinition;
+import java.util.function.IntSupplier;
+
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
-public class FeneconHomeBatteryProtection64 implements BatteryProtectionDefinition {
+public class FeneconHomeBatteryProtection64 extends FeneconHomeBatteryProtection {
+
+	public FeneconHomeBatteryProtection64(IntSupplier forceChargeDischargeCurrent) {
+		super(forceChargeDischargeCurrent);
+	}
 
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {

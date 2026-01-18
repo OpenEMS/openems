@@ -26,7 +26,7 @@ public class ControllerApiModbusRtuReadOnlyImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusRtuReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta("_meta")) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyRtuConfig.create(io.openems.edge.controller.api.modbus.readonly.rtu.Config.class) //
 						.setId(CTRL_ID) //
