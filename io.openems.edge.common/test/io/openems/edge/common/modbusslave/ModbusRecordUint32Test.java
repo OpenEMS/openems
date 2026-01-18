@@ -16,13 +16,13 @@ public class ModbusRecordUint32Test {
 	public void testUndefined() {
 		assertEquals(//
 				ModbusRecordUint32.UNDEFINED_VALUE, //
-				ByteBuffer.wrap(ModbusRecordUint32.UNDEFINED_BYTE_ARRAY).getInt());
+				ByteBuffer.wrap(ModbusRecordUint32.UNDEFINED_BYTE_ARRAY).getInt(0) & 0xffffffffL);
 		assertArrayEquals(//
 				ModbusRecordUint32.UNDEFINED_BYTE_ARRAY, //
 				ModbusRecordUint32.toByteArray(ModbusRecordUint32.UNDEFINED_VALUE));
 		assertEquals(//
-				"0xFFFFFFFFFFFFFFFF", //
-				"0x" + Long.toHexString(ModbusRecordUint32.UNDEFINED_VALUE).toUpperCase());
+				"0xFFFFFFFF", //
+				"0x" + Long.toHexString(ModbusRecordUint32.UNDEFINED_VALUE & 0xffffffffL).toUpperCase());
 		assertEquals(ModbusRecordUint32.UNDEFINED_BYTE_ARRAY.length, ModbusRecordUint32.BYTE_LENGTH);
 	}
 

@@ -16,7 +16,7 @@ public class ModbusRecordUint16Test {
 	public void testUndefined() {
 		assertEquals(//
 				ModbusRecordUint16.UNDEFINED_VALUE, //
-				ByteBuffer.wrap(ModbusRecordUint16.UNDEFINED_BYTE_ARRAY).getShort(0));
+				ByteBuffer.wrap(ModbusRecordUint16.UNDEFINED_BYTE_ARRAY).getShort(0) & 0xffff);
 		assertArrayEquals(//
 				ModbusRecordUint16.UNDEFINED_BYTE_ARRAY, //
 				ModbusRecordUint16.toByteArray(ModbusRecordUint16.UNDEFINED_VALUE));
@@ -62,7 +62,7 @@ public class ModbusRecordUint16Test {
 	@Test
 	public void testHash() {
 		var sut = new ModbusRecordUint16Hash(0, "hash");
-		assertEquals("ModbusRecordUint16Hash [text=hash, value=-16114/0xc10e, type=uint16]", sut.toString());
+		assertEquals("ModbusRecordUint16Hash [text=hash, value=49422/0xc10e, type=uint16]", sut.toString());
 		assertEquals("\"0xc10e\"", sut.getValueDescription());
 	}
 }

@@ -6,7 +6,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint16 extends ModbusRecordConstant {
 
-	public static final int UNDEFINED_VALUE = 65565;
+	public static final int UNDEFINED_VALUE = 65535;
 	public static final byte[] UNDEFINED_BYTE_ARRAY = toByteArray(UNDEFINED_VALUE);
 	public static final int BYTE_LENGTH = 2;
 
