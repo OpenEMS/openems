@@ -1,27 +1,25 @@
 package io.openems.edge.common.modbusslave;
 
-import java.nio.ByteBuffer;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint32 extends ModbusRecordConstant {
 
-	public static final int UNDEFINED_VALUE = 0xFFFFFFFF;
+	public static final long UNDEFINED_VALUE = 4294967295L;
 	public static final byte[] UNDEFINED_BYTE_ARRAY = toByteArray(UNDEFINED_VALUE);
 	public static final int BYTE_LENGTH = 4;
 
-	protected final Integer value;
+	protected final Long value;
 
-	public ModbusRecordUint32(int offset, String name, Integer value) {
+	public ModbusRecordUint32(int offset, String name, Long value) {
 		super(offset, name, ModbusType.UINT32, toByteArray(value));
 		this.value = value;
 	}
 
 	@Override
 	public String toString() {
-		return generateToString("ModbusRecordUInt32", this.value, Integer::toHexString);
+		return generateToString("ModbusRecordUInt32", this.value, Long::toHexString);
 	}
 
 	/**
@@ -30,8 +28,13 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 	 * @param value the value
 	 * @return the byte array
 	 */
-	public static byte[] toByteArray(int value) {
-		return ByteBuffer.allocate(BYTE_LENGTH).putInt(value).array();
+	public static byte[] toByteArray(long value) {
+		return new byte[] { //
+				(byte) (value >>> 24), //
+				(byte) (value >>> 16), //
+				(byte) (value >>> 8), //
+				(byte) (value) //
+		};
 	}
 
 	/**
@@ -44,12 +47,12 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 		if (value == null || (value instanceof OptionsEnum oe && oe.isUndefined())) {
 			return UNDEFINED_BYTE_ARRAY;
 		}
-		return toByteArray((int) TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		return toByteArray((long) TypeUtils.getAsType(OpenemsType.LONG, value));
 	}
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? "\"" + Integer.toString(this.value) + "\"" : "";
+		return this.value != null ? "\"" + Long.toString(this.value) + "\"" : "";
 	}
 
 }
