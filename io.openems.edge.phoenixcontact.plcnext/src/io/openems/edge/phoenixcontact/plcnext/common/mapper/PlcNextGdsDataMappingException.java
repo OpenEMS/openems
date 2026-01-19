@@ -8,4 +8,8 @@ public class PlcNextGdsDataMappingException extends RuntimeException {
 		super(message);
 	}
 
+	public PlcNextGdsDataMappingException(String message, Throwable t) {
+		super(message, t);
+	}
+
 }

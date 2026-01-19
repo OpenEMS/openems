@@ -8,8 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.channel.ChannelCategory;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataWriteValueType;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappingException;
@@ -26,6 +30,8 @@ public final class PlcNextChannelValueTypeHelper {
 
 		if (Objects.isNull(jsonElement)) {
 			log.warn("JSON element is NULL! Skipping.");
+		} else if (isOpenEmsEnumType(openEmsChannelDoc)) {
+			mappedValue = mapToEnum(jsonElement, openEmsChannelDoc);
 		} else if (isOpenEmsTypeFloat(openEmsChannelDoc)) {
 			mappedValue = jsonElement.getAsFloat();
 		} else if (isOpenEmsTypeDouble(openEmsChannelDoc)) {
@@ -47,6 +53,23 @@ public final class PlcNextChannelValueTypeHelper {
 		return mappedValue;
 	}
 
+	private static Object mapToEnum(JsonElement jsonElement, Doc openEmsChannelDoc) {
+		Object mappedValue = null;
+		String sourceValue = jsonElement.getAsString();
+		
+		try {
+			mappedValue = ((EnumDoc)openEmsChannelDoc).getOptionFromString(sourceValue);
+		} catch (OpenemsNamedException e) {
+			log.warn("Cannot map '{}' to ENUM {}! Trying using value.", sourceValue, ((EnumDoc)openEmsChannelDoc).getOptions());
+		}
+		if (Objects.isNull(mappedValue)) {
+			int sourceValueInt = jsonElement.getAsInt();
+			
+			mappedValue = ((EnumDoc)openEmsChannelDoc).getOption(sourceValueInt);
+		}
+		return mappedValue;
+	}
+
 	public static JsonElement buildVariableToWrite(String variablePath, Object variableValue, Doc openEmsChannelDoc) {
 		JsonObject mappedValue = null;
 
@@ -58,7 +81,9 @@ public final class PlcNextChannelValueTypeHelper {
 			mappedValue.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 					PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 
-			if (isOpenEmsTypeFloat(openEmsChannelDoc)) {
+			if (isOpenEmsEnumType(openEmsChannelDoc)) {
+				mappedValue.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE, ((OptionsEnum)variableValue).getName());
+			} else 	if (isOpenEmsTypeFloat(openEmsChannelDoc)) {
 				mappedValue.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE, (Float) variableValue);
 			} else if (isOpenEmsTypeDouble(openEmsChannelDoc)) {
 				mappedValue.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE, (Double) variableValue);
@@ -79,32 +104,43 @@ public final class PlcNextChannelValueTypeHelper {
 		}
 		return mappedValue;
 	}
+	
+	private static boolean isOpenEmsEnumType(Doc openEmsChannelDoc) {
+		return ChannelCategory.ENUM == openEmsChannelDoc.getChannelCategory();
+	}
 
 	private static boolean isOpenEmsTypeLong(Doc openEmsChannelDoc) {
-		return OpenemsType.LONG == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.LONG == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeInteger(Doc openEmsChannelDoc) {
-		return OpenemsType.INTEGER == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.INTEGER == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeShort(Doc openEmsChannelDoc) {
-		return OpenemsType.SHORT == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.SHORT == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeDouble(Doc openEmsChannelDoc) {
-		return OpenemsType.DOUBLE == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.DOUBLE == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeFloat(Doc openEmsChannelDoc) {
-		return OpenemsType.FLOAT == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.FLOAT == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeBoolean(Doc openEmsChannelDoc) {
-		return OpenemsType.BOOLEAN == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.BOOLEAN == openEmsChannelDoc.getType();
 	}
 
 	private static boolean isOpenEmsTypeString(Doc openEmsChannelDoc) {
-		return OpenemsType.STRING == openEmsChannelDoc.getType();
+		return ChannelCategory.ENUM != openEmsChannelDoc.getChannelCategory() &&
+				OpenemsType.STRING == openEmsChannelDoc.getType();
 	}
 }

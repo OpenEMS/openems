@@ -54,7 +54,7 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public MeterType type() {
-		return this.builder.meterType;
+		return this.builder.meterType == null ? MeterType.PRODUCTION : this.builder.meterType;
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public String namespaceVariables() {
-		return this.builder.namespaceVariables;
+		return this.builder.namespaceVariables == null ? "" : this.builder.namespaceVariables;
 	}
 
 }
