@@ -20,6 +20,7 @@ export interface Environment {
     readonly production: boolean;
     debugMode: boolean;
 
+
     readonly docsUrlPrefix: string;
     readonly icons: {
         readonly "COMMON": {

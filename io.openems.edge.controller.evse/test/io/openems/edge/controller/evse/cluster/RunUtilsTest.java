@@ -213,6 +213,34 @@ public class RunUtilsTest {
 
 		assertArrayEquals(new int[] { 16000, 6000, 6000, 6000, 16000 }, sut.getApplySetPoints());
 	}
+	
+	@Test
+	public void testMinimumWithSurplus() {
+		var sut = CalculateTester.generateControllers(3) //
+				.set(0, c -> c //
+						.setMode(FORCE)) //
+				.set(1, 2, c -> 
+						c.setMode(MINIMUM)) //
+				.sum(s -> s //
+						.withGridActivePower(-27000)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertArrayEquals(new int[] { 16000, 11565, 11565 }, sut.getApplySetPoints());
+	}
+	
+	@Test
+	public void testMinimumWithoutSurplus() {
+		var sut = CalculateTester.generateControllers(4) //
+				.set(0, 3, c -> c //
+						.setMode(FORCE)) //
+				.set(1, 2, c -> 
+						c.setMode(MINIMUM)) //
+				.sum(s -> s //
+						.withGridActivePower(0)) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertArrayEquals(new int[] { 16000, 6000, 6000, 16000 }, sut.getApplySetPoints());
+	}
 
 	@Test
 	public void test3() {

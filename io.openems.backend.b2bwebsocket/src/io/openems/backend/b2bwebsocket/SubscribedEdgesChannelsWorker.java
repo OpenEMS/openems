@@ -13,7 +13,6 @@ import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNoti
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
 public class SubscribedEdgesChannelsWorker {
@@ -126,12 +125,8 @@ public class SubscribedEdgesChannelsWorker {
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
 		var result = new EdgesCurrentDataNotification();
-		var user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		for (String edgeId : this.edgeIds) {
-			// assure read permissions of this User for this Edge.
-			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
-
 			var data = this.parent.edgeManager.getChannelValues(edgeId, this.channels);
 			for (var entry : data.entrySet()) {
 				result.addValue(edgeId, entry.getKey(), entry.getValue());

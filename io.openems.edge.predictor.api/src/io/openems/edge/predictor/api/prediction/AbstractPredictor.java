@@ -3,7 +3,7 @@ package io.openems.edge.predictor.api.prediction;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -82,7 +82,7 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 
 	@Override
 	public Prediction getPrediction(ChannelAddress channelAddress) {
-		var now = roundDownToQuarter(ZonedDateTime.now(this.getClockProvider().getClock()));
+		var now = roundDownToQuarter(Instant.now(this.getClockProvider().getClock()));
 		var prediction = this.predictions.get(channelAddress);
 		if (Optional.ofNullable(prediction) // handle first-request or unsupported channelAddress
 				.map(p -> p.getFirstTime()) // handle prediction is EMPTY_PREDICTION

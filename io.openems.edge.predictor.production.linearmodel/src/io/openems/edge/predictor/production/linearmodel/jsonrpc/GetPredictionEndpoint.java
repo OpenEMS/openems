@@ -58,7 +58,7 @@ public class GetPredictionEndpoint implements EndpointRequestType<EmptyObject, R
 						var predictionResult = json.getJsonObjectPath("predictionResult") //
 								.collect(new StringPathParser.StringParserZonedDateTime(), //
 										toSortedMap(//
-												t -> t.getKey().get(), //
+												t -> t.getKey().get().toInstant(), //
 												t -> t.getValue().getAsInt()));
 						return new Response(Prediction.from(ImmutableSortedMap.copyOfSorted(predictionResult)));
 					}, obj -> {

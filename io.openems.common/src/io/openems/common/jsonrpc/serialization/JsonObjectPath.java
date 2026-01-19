@@ -3,6 +3,7 @@ package io.openems.common.jsonrpc.serialization;
 import static java.util.stream.Collectors.mapping;
 
 import java.lang.reflect.Array;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -289,6 +290,17 @@ public interface JsonObjectPath extends JsonPath {
 	 * @param member the name of the member
 	 * @return the {@link StringPathNullable} of the member value
 	 */
+	public default StringPathNullable<Duration> getNullableStringPathDuration(String member) {
+		return this.getNullableJsonElementPath(member).getAsStringPathNullableDuration();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPathNullable}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link StringPathNullable} of the member value
+	 */
 	public default StringPathNullable<SemanticVersion> getNullableStringPathSemanticVersion(String member) {
 		return this.getNullableJsonElementPath(member).getAsStringPathNullableSemanticVersion();
 	}
@@ -446,6 +458,17 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default StringPath<LocalTime> getStringPathLocalTime(String member) {
 		return this.getJsonElementPath(member).getAsStringPathLocalTime();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPath} of type {@link Duration}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link StringPath} of type {@link Duration} of the member value
+	 */
+	public default StringPath<Duration> getStringPathDuration(String member) {
+		return this.getJsonElementPath(member).getAsStringPathDuration();
 	}
 
 	/**
@@ -815,6 +838,39 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default Optional<LocalTime> getOptionalLocalTime(String member, DateTimeFormatter formatter) {
 		return this.getNullableStringPathLocalTime(member, formatter).getOptional();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Duration}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link Duration} of the member value
+	 */
+	public default Duration getDuration(String member) {
+		return this.getStringPathDuration(member).get();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Duration} or null if not present.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link Duration} of the member value or null if not present
+	 */
+	public default Duration getDurationOrNull(String member) {
+		return this.getNullableStringPathDuration(member).getOrNull();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of type {@link Duration}.
+	 * 
+	 * @param member the name of the member
+	 * @return the {@link Optional} of type {@link Duration} of the member value
+	 */
+	public default Optional<Duration> getOptionalDuration(String member) {
+		return this.getNullableStringPathDuration(member).getOptional();
 	}
 
 	/**

@@ -5,10 +5,10 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 -buildpath: \
 	com.github.rzymek:opczip;version='1.2.0',\
 	com.google.gson;version='2.13.2',\
-	com.influxdb:flux-dsl;version='7.4.0',\
-	com.influxdb:influxdb-client-core;version='7.4.0',\
-	com.influxdb:influxdb-client-java;version='7.4.0',\
-	com.influxdb:influxdb-client-utils;version='7.4.0',\
+	com.influxdb:flux-dsl;version='7.5.0',\
+	com.influxdb:influxdb-client-core;version='7.5.0',\
+	com.influxdb:influxdb-client-java;version='7.5.0',\
+	com.influxdb:influxdb-client-utils;version='7.5.0',\
 	com.oracle.labs.olcut:olcut-config-protobuf;version='5.3',\
 	com.oracle.labs.olcut:olcut-core;version='5.3',\
 	com.squareup.okhttp3;version='5.3',\
@@ -34,6 +34,9 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	org.dhatim:fastexcel;version='0.18.4',\
 	org.eclipse.paho.mqttv5.client;version='1.2.5',\
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.9.0',\
+	com.auth0:auth0;version='3.0.0',\
+	com.auth0:java-jwt;version='4.5.0',\
+	com.auth0:jwks-rsa;version='0.23.0',\
 	org.tribuo:tribuo-common-tree;version='4.3.2',\
 	org.tribuo:tribuo-core;version='4.3.2',\
 	org.tribuo:tribuo-data;version='4.3.2',\

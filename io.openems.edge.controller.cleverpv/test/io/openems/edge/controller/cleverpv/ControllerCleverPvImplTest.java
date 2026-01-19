@@ -48,7 +48,7 @@ public class ControllerCleverPvImplTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("host", host) //
 				.addReference("sum", sum) //
-				.addReference("meta", new DummyMeta("meta0")) //
+				.addReference("meta", new DummyMeta()) //
 				.addComponent(sum) //
 				.activate(MyConfig.create() //
 						.setId("ctrlCleverPv0") //
@@ -157,7 +157,7 @@ public class ControllerCleverPvImplTest {
 						() -> executor))
 				.addReference("host", host) //
 				.addReference("sum", sum) //
-				.addReference("meta", new DummyMeta("meta0")) //
+				.addReference("meta", new DummyMeta()) //
 				.addComponent(sum) //
 				.activate(MyConfig.create() //
 						.setId("ctrlCleverPv0") //
@@ -230,7 +230,7 @@ public class ControllerCleverPvImplTest {
 						() -> executor))
 				.addReference("host", host) //
 				.addReference("sum", sum) //
-				.addReference("meta", new DummyMeta("meta0")) //
+				.addReference("meta", new DummyMeta()) //
 				.addComponent(sum) //
 				.activate(MyConfig.create() //
 						.setId("ctrlCleverPv0") //

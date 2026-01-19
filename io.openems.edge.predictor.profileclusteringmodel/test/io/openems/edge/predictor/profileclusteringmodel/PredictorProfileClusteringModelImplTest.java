@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
@@ -74,7 +73,7 @@ public class PredictorProfileClusteringModelImplTest {
 						todaysProfile, //
 						tomorrowsProfile));
 
-		var now = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+		var now = DateUtils.roundDownToQuarter(Instant.now(clock));
 		var baseTime = now.truncatedTo(ChronoUnit.DAYS);
 		int quarterIndex = (int) ChronoUnit.MINUTES.between(baseTime, now) / 15;
 

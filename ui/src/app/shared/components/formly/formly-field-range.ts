@@ -1,5 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
+import { AssertionUtils } from "../../utils/assertions/assertions.utils";
+import { ObjectUtils } from "../../utils/object/object.utils";
 
 @Component({
     selector: "formly-range-type",
@@ -43,13 +45,23 @@ import { FieldType } from "@ngx-formly/core";
     `,
     standalone: false,
 })
-export class FormlyRangeTypeComponent extends FieldType {
+export class FormlyRangeTypeComponent extends FieldType implements OnInit {
     protected boundPinFormatter = this.pinFormatter.bind(this);
 
     public onChange(event: any): void {
         if (this.props.change) {
             this.props.change(this.field);
         }
+    }
+
+    ngOnInit(): void {
+        AssertionUtils.assertIsDefined(this.field);
+        AssertionUtils.assertIsDefined(this.field.formControl);
+
+        if (ObjectUtils.isObjectNullOrEmpty(this.field)) {
+            return;
+        }
+        this.field.formControl.setValue(this.field.defaultValue ?? this.field.formControl.value);
     }
 
     protected pinFormatter(value: number): string {

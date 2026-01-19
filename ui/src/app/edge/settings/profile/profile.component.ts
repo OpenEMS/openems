@@ -1,6 +1,6 @@
-import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core";
+import { Component, effect, inject, OnInit, signal, WritableSignal } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { PopoverController } from "@ionic/angular";
+import { NavController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
@@ -14,6 +14,7 @@ import { getFileName, GetLatestSetupProtocolCoreInfoResponse, GetSetupProtocolCo
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
+import { RouteService } from "src/app/shared/service/route.service";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { environment } from "../../../../environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
@@ -51,6 +52,8 @@ export class ProfileComponent implements OnInit {
     protected spinnerId: string = ProfileComponent.SELECTOR;
     protected isLoading: WritableSignal<boolean> = signal(true);
     protected isAtLeastOwner: boolean = false;
+    private routeService: RouteService = inject(RouteService);
+    private navCtrl: NavController = inject(NavController);
 
     constructor(
         private service: Service,
@@ -68,6 +71,18 @@ export class ProfileComponent implements OnInit {
                 this.service.stopSpinner(this.spinnerId);
             }
         });
+    }
+
+    public navigateToChangelog(event: Event) {
+        event.preventDefault();
+        const prev = this.routeService.getCurrentUrl();
+
+        if (prev === null) {
+            return;
+        }
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/changelog";
+        this.navCtrl.navigateRoot(userUrl);
     }
 
     public ngOnInit() {

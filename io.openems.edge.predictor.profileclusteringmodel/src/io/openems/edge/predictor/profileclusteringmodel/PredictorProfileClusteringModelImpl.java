@@ -1,11 +1,13 @@
 package io.openems.edge.predictor.profileclusteringmodel;
 
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -26,7 +28,6 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -195,8 +196,8 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 	private Prediction createNewPredictionFromProfiles(List<Profile> profiles) {
 		var clock = this.componentManager.getClock();
-		var baseTime = ZonedDateTime.now(clock).truncatedTo(ChronoUnit.DAYS);
-		var now = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+		var baseTime = Instant.now(clock).truncatedTo(DAYS);
+		var now = roundDownToQuarter(Instant.now(clock));
 
 		int quarterHourIndex = (int) ChronoUnit.MINUTES.between(baseTime, now) / MINUTES_PER_QUARTER;
 
