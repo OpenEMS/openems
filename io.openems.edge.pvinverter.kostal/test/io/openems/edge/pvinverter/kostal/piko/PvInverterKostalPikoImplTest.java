@@ -124,7 +124,7 @@ public class PvInverterKostalPikoImplTest {
 							dummyCycleSubscriber.triggerNextCycle();
 						})) //
 				.next(new TestCase() //
-						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42.24) //
+						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42240L) //
 						.output(PvInverterKostalPiko.ChannelId.STATUS, "Einspeisen MPP") //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_VOLTAGE, 400) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_CURRENT, 2500) // 2.5A -> 2500mA
