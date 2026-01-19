@@ -1,6 +1,6 @@
 @if (isInitialized) {
   <oe-flat-widget [class]="storageIconStyle" [icon]="{name: 'oe-storage', color: 'success'}"
-    [title]="'General.storageSystem'| translate" [modalComponent]="modalComponent">
+    [title]="'GENERAL.STORAGE_SYSTEM'| translate" [modalComponent]="modalComponent">
     @for (component of essComponents; track component; let i = $index) {
       <!-- Show Alias if there are more than one ESS -->
       @if (essComponents.length > 1) {
@@ -26,18 +26,18 @@
       }
       @if (!isHybridEss[component.id]) {
         <!-- For AC system: show ActivePower channel -->
-        <oe-flat-widget-line [name]="'General.CHARGE' | translate" [channelAddress]="component.id + '/ActivePower'"
+        <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate" [channelAddress]="component.id + '/ActivePower'"
           [converter]="convertChargePower">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.DISCHARGE' | translate"
+        <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
           [channelAddress]="component.id + '/ActivePower'" [converter]="convertDischargePower">
         </oe-flat-widget-line>
       } @else {
         <!-- For DC/hybrid system: show DcDischargePower channel -->
-        <oe-flat-widget-line [name]="'General.CHARGE' | translate"
+        <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate"
           [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertChargePower">
         </oe-flat-widget-line>
-        <oe-flat-widget-line [name]="'General.DISCHARGE' | translate"
+        <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate"
           [channelAddress]="component.id + '/DcDischargePower'" [converter]="convertDischargePower">
         </oe-flat-widget-line>
       }

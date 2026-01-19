@@ -1,5 +1,7 @@
 package io.openems.edge.battery.protection.currenthandler;
 
+import java.util.function.IntSupplier;
+
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.protection.BatteryProtection.ChannelId;
 import io.openems.edge.battery.protection.force.ForceDischarge;
@@ -66,7 +68,8 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 		 */
 		public ChargeMaxCurrentHandler build() {
 			return new ChargeMaxCurrentHandler(this.clockProvider, this.initialBmsMaxEverCurrent, this.voltageToPercent,
-					this.temperatureToPercent, this.socToPercent, this.maxIncreasePerSecond, this.forceDischargeParams);
+					this.temperatureToPercent, this.socToPercent, this.maxIncreasePerSecond, this.forceDischargeParams,
+					this.forceChargeDischargeCurrent);
 		}
 
 		@Override
@@ -93,9 +96,11 @@ public class ChargeMaxCurrentHandler extends AbstractMaxCurrentHandler {
 
 	protected ChargeMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverAllowedChargeCurrent,
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
-			Double maxIncreasePerSecond, ForceDischarge.Params forceDischargeParams) {
+			Double maxIncreasePerSecond, ForceDischarge.Params forceDischargeParams,
+			IntSupplier forceChargeDischargeCurrent) {
 		super(clockProvider, initialBmsMaxEverAllowedChargeCurrent, voltageToPercent, temperatureToPercent,
-				socToPercent, maxIncreasePerSecond, ForceDischarge.from(forceDischargeParams));
+				socToPercent, maxIncreasePerSecond, ForceDischarge.from(forceDischargeParams),
+				forceChargeDischargeCurrent);
 	}
 
 	@Override

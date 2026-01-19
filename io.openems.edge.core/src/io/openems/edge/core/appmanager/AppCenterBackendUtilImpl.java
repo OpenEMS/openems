@@ -31,6 +31,7 @@ import io.openems.common.jsonrpc.response.AppCenterGetInstalledAppsResponse.Inst
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse;
 import io.openems.common.jsonrpc.response.AppCenterGetPossibleAppsResponse.Bundle;
 import io.openems.common.jsonrpc.response.AppCenterIsKeyApplicableResponse;
+import io.openems.common.session.AbstractUser;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
@@ -38,7 +39,12 @@ import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 @Component
 public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
+	public record Timeout(long amount, TimeUnit unit) {
+
+	}
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private static final Timeout DEFAULT_TIMEOUT = new Timeout(30, TimeUnit.SECONDS);
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
@@ -59,7 +65,7 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	@Override
 	public boolean isKeyApplicable(User user, String key, String appId) throws OpenemsNamedException {
-		var response = this.handleRequest(user, new AppCenterIsKeyApplicableRequest(key, appId));
+		var response = this.handleRequest(user, new AppCenterIsKeyApplicableRequest(key, appId), DEFAULT_TIMEOUT);
 		return AppCenterIsKeyApplicableResponse.from(response).isKeyApplicable;
 	}
 
@@ -67,20 +73,23 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 	public void addInstallAppInstanceHistory(User user, String key, String appId, UUID instanceId)
 			throws OpenemsNamedException {
 		this.handleRequest(user, new AppCenterAddInstallInstanceHistoryRequest(key, //
-				appId, instanceId, Optional.ofNullable(user).map(u -> u.getId()).orElse(null)));
+				appId, instanceId, Optional.ofNullable(user).map(AbstractUser::getId).orElse(null)),
+				new Timeout(120, TimeUnit.SECONDS));
 	}
 
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> addDeinstallAppInstanceHistory(User user, String appId,
 			UUID instanceId) throws OpenemsNamedException {
 		return this.handleRequestAsync(user, new AppCenterAddDeinstallInstanceHistoryRequest(appId, //
-				instanceId, Optional.ofNullable(user).map(u -> u.getId()).orElse(null)));
+				instanceId, Optional.ofNullable(user).map(AbstractUser::getId).orElse(null)),
+				new Timeout(5, TimeUnit.MINUTES));
 	}
 
 	@Override
 	public List<Bundle> getPossibleApps(String key) {
 		try {
-			var response = this.handleRequest(null, new AppCenterGetPossibleAppsRequest(key));
+			var response = this.handleRequest(null, new AppCenterGetPossibleAppsRequest(key),
+					new Timeout(5, TimeUnit.MINUTES));
 			return AppCenterGetPossibleAppsResponse.from(response).possibleApps;
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
@@ -90,7 +99,8 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 
 	@Override
 	public List<Instance> getInstalledApps() throws OpenemsNamedException {
-		var response = this.handleRequest(null, new AppCenterGetInstalledAppsRequest());
+		var response = this.handleRequest(null, new AppCenterGetInstalledAppsRequest(),
+				new Timeout(5, TimeUnit.MINUTES));
 		return AppCenterGetInstalledAppsResponse.from(response).installedApps;
 	}
 
@@ -104,14 +114,15 @@ public class AppCenterBackendUtilImpl implements AppCenterBackendUtil {
 	}
 
 	private final CompletableFuture<? extends JsonrpcResponseSuccess> handleRequestAsync(User user,
-			JsonrpcRequest request) throws OpenemsNamedException {
+			JsonrpcRequest request, Timeout timeout) throws OpenemsNamedException {
 		return this.getBackendOrError().sendRequest(user, new AppCenterRequest(request)) //
-				.orTimeout(30L, TimeUnit.SECONDS);
+				.orTimeout(timeout.amount(), timeout.unit());
 	}
 
-	private final JsonrpcResponseSuccess handleRequest(User user, JsonrpcRequest request) throws OpenemsNamedException {
+	private final JsonrpcResponseSuccess handleRequest(User user, JsonrpcRequest request, Timeout timeout)
+			throws OpenemsNamedException {
 		try {
-			return this.handleRequestAsync(user, request).get();
+			return this.handleRequestAsync(user, request, timeout).get();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 			throw getOpenemsException(e);

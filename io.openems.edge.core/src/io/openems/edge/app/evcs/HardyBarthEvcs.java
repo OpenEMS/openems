@@ -109,26 +109,26 @@ public class HardyBarthEvcs
 		WRAPPER_FIRST_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 1)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(PANEL) //
-							.setFieldGroup(SubPropertyFirstChargepoint.fields(app, l, parameter)) //
+					field.addWrapper(PANEL)//
+							.setFieldGroup(SubPropertyFirstChargepoint.fields(app, l, parameter))//
 							.setLabelExpression(Exp.ifElse(
 									Exp.currentModelValue(Property.NUMBER_OF_CHARGING_STATIONS)
 											.equal(Exp.staticValue(1)),
 									StringExpression.of(""), //
 									StringExpression.of(TranslationUtil.getTranslation(parameter.bundle,
 											"App.Evcs.chargingStation.label", 1))))
-							.hideKey(); //
+							.hideKey();//
 				})), //
 		WRAPPER_SECOND_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 2)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
-					field.addWrapper(PANEL) //
-							.setFieldGroup(SubPropertySecondChargepoint.fields(app, l, parameter)) //
-							.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+					field.addWrapper(PANEL)//
+							.setFieldGroup(SubPropertySecondChargepoint.fields(app, l, parameter))//
+							.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
 									.equal(Exp.staticValue(2)))
 							.hideKey();
 				})), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY),
 				def -> def //
@@ -137,15 +137,15 @@ public class HardyBarthEvcs
 							final var existingEvcs = EvcsProps.getEvcsComponents(app.componentUtil);
 
 							if (existingEvcs.isEmpty()) {
-								field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
+								field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
 										.equal(Exp.staticValue(2)));
 								return;
 							}
-							field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS) //
-									.equal(Exp.staticValue(2)) //
-									.or(existingEvcs.stream().map(OpenemsComponent::id) //
-											.map(Exp::staticValue) //
-											.collect(Exp.toArrayExpression()) //
+							field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CHARGING_STATIONS)//
+									.equal(Exp.staticValue(2))//
+									.or(existingEvcs.stream().map(OpenemsComponent::id)//
+											.map(Exp::staticValue)//
+											.collect(Exp.toArrayExpression())//
 											.every(i -> Exp.currentModelValue(EVCS_ID).notEqual(i))));
 						}))), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
@@ -187,9 +187,9 @@ public class HardyBarthEvcs
 								new Case(2, TranslationUtil.getTranslation(parameter.bundle(), //
 										"App.Evcs.HardyBarth.alias.value", //
 										TranslationUtil.getTranslation(parameter.bundle(), "right"))))))), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.30") //
-				.setAutoGenerateField(false) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.30")//
+				.setAutoGenerateField(false)//
 				.setRequired(true)), //
 		;
 
@@ -241,11 +241,11 @@ public class HardyBarthEvcs
 				.setAutoGenerateField(false) //
 				.setDefaultValue((app, property, l, parameter) -> //
 				new JsonPrimitive(TranslationUtil.getTranslation(parameter.bundle(), "App.Evcs.HardyBarth.alias.value", //
-						TranslationUtil.getTranslation(parameter.bundle(), "left")))) //
+						TranslationUtil.getTranslation(parameter.bundle(), "left"))))//
 				.setRequired(true)), //
-		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.31") //
-				.setAutoGenerateField(false) //
+		IP_CP_2(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.31")//
+				.setAutoGenerateField(false)//
 				.setRequired(true)), //
 		;
 

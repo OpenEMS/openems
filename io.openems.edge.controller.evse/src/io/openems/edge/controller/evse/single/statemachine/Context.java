@@ -1,7 +1,9 @@
 package io.openems.edge.controller.evse.single.statemachine;
 
+import java.time.Clock;
 import java.util.function.Consumer;
 
+import io.openems.common.function.BooleanConsumer;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.controller.evse.single.ControllerEvseSingleImpl;
 import io.openems.edge.controller.evse.single.Types.History;
@@ -11,18 +13,23 @@ import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 public class Context extends AbstractContext<ControllerEvseSingleImpl> {
 
+	protected final Clock clock;
 	protected final ChargePointActions actions;
 	protected final EvseChargePoint chargePoint;
 	protected final History history;
 	protected final Consumer<ChargePointActions> callback;
+	protected final BooleanConsumer setPhaseSwitchFailed;
 
-	public Context(ControllerEvseSingleImpl parent, ChargePointActions actions, EvseChargePoint chargePoint,
-			History history, Consumer<ChargePointActions> callback) {
+	public Context(ControllerEvseSingleImpl parent, Clock clock, ChargePointActions actions,
+			EvseChargePoint chargePoint, History history, Consumer<ChargePointActions> callback,
+			BooleanConsumer setPhaseSwitchFailed) {
 		super(parent);
+		this.clock = clock;
 		this.actions = actions;
 		this.chargePoint = chargePoint;
 		this.history = history;
 		this.callback = callback;
+		this.setPhaseSwitchFailed = setPhaseSwitchFailed;
 	}
 
 	private void applyActions(ChargePointActions actions) {

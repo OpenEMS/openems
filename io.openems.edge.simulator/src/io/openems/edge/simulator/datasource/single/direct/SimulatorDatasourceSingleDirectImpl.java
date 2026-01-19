@@ -16,7 +16,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.simulator.DataContainer;
-import io.openems.edge.simulator.datasource.api.AbstractCsvDatasource;
+import io.openems.edge.simulator.datasource.api.AbstractDatasource;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)
@@ -28,7 +28,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class SimulatorDatasourceSingleDirectImpl extends AbstractCsvDatasource
+public class SimulatorDatasourceSingleDirectImpl extends AbstractDatasource
 		implements SimulatorDatasourceSingleDirect, SimulatorDatasource, OpenemsComponent, EventHandler {
 
 	@Reference
@@ -46,7 +46,7 @@ public class SimulatorDatasourceSingleDirectImpl extends AbstractCsvDatasource
 	@Activate
 	private void activate(ComponentContext context, Config config) throws NumberFormatException, IOException {
 		this.config = config;
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.timeDelta());
+		super.activate(context, config.id(), config.alias(), config.enabled(), -1);
 	}
 
 	@Override

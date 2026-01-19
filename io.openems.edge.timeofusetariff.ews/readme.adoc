@@ -1,0 +1,7 @@
+= Time-Of-Use Tariff Ews by EWS Schönau
+
+Retrieves the quarterly prices from the EWS API. Prices for the next day are updated every day between 15:00 to 17:00 and stored locally.
+
+To request a (free) authentication token, please contact api@ews-schoenau.de
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.ews[Source Code icon:github[]]

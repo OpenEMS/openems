@@ -12,6 +12,8 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.controller.api.modbus.LogVerbosity;
+import io.openems.edge.controller.api.modbus.MyRtuConfig;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusRtuReadOnlyImplTest {
@@ -24,9 +26,9 @@ public class ControllerApiModbusRtuReadOnlyImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusRtuReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta("_meta")) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.activate(MyConfig.create() //
+				.activate(MyRtuConfig.create(io.openems.edge.controller.api.modbus.readonly.rtu.Config.class) //
 						.setId(CTRL_ID) //
 						.setEnabled(false) // do not actually start server
 						.setParity(Parity.NONE) //
@@ -35,6 +37,7 @@ public class ControllerApiModbusRtuReadOnlyImplTest {
 						.setComponentIds() //
 						.setMaxConcurrentConnections(5) //
 						.setPortName("/dev/ttyUSB0") //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase()) //
 		;

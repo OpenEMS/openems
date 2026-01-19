@@ -275,7 +275,7 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Does this OpenEMS Component report any Faults?
+	 * Does this OpenEMS Component report any Faults?.
 	 *
 	 * <p>
 	 * Evaluates all {@link StateChannel}s and returns true if any Channel with

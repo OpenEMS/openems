@@ -1,6 +1,8 @@
 package io.openems.edge.ess.core.power;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -181,12 +183,67 @@ public class SolverBySocOptimizationTest {
 		assertEquals(-30000.0, Arrays.stream(solution).sum(), 1e-6);
 	}
 
-	private static String formatArray(String label, double[] array) {
+	@Test
+	public void solverTest1() {
+		double[] upperBound = { 67260, 92000 };
+		double[] lowerBound = { -70800, -10590 };
+		double[] socDistribution = { 76, 64 };
+		double powerSetValue = -40000;
+		double[] solution = SolverBySocOptimization.solveDistribution(upperBound, lowerBound, socDistribution,
+				powerSetValue, getDirection(powerSetValue));
+
+		// Print this if test fails
+		printing(socDistribution, upperBound, solution, lowerBound, powerSetValue);
+
+		assertEquals(-40000.0, Arrays.stream(solution).sum(), 1e-6);
+	}
+
+	@Test
+	public void testHardwareScenarioBugReplication() {
+		// Replicating the hardware scenario from logs:
+		// ess1[SoC:98%|Allowed:-28920;68685] ess2[SoC:99%|Allowed:-21180;92000]
+		// powerSetValue = 50000 (charge) but hardware shows exceeding limits
+
+		double[] upperBound = { 68685.0, 100605.0 }; // Discharge limits
+		double[] lowerBound = { -28920.0, -21180.0 }; // Charge limits
+		double[] socDistribution = { 98.0, 99.0 }; // High SOC
+		double powerSetValue = -50000.0; // 50kW charge request (absolute value)
+
+		double[] solution = SolverBySocOptimization.solveDistribution(upperBound, lowerBound, socDistribution,
+				powerSetValue, getDirection(powerSetValue)); // Direction = CHARGE
+
+		// Print this if test fails
+		printing(socDistribution, upperBound, solution, lowerBound, powerSetValue);
+
+		// Assertions
+		double totalPower = Arrays.stream(solution).sum();
+
+		// 1. Total power should not exceed available charge capacity
+		double maxAvailableChargePower = Math.abs(lowerBound[0]) + Math.abs(lowerBound[1]); // 28920 + 21180 = 50100
+		assertTrue(Math.abs(totalPower) <= maxAvailableChargePower,
+				"Total power " + Math.abs(totalPower) + " should not exceed available " + maxAvailableChargePower);
+
+		// 2. Individual ESS should not exceed their charge limits
+		for (int i = 0; i < solution.length; i++) {
+			assertTrue("ESS" + (i + 1) + " should not exceed charge limit",
+					solution[i] <= Math.abs(lowerBound[i]) + 1e-6);
+		}
+
+		// 3. Power should be distributed roughly proportional to remaining capacity
+		// (inverse SOC)
+		// At 98-99% SOC, both should get similar but limited charge power
+
+		// Expected: ess1 gets remaining power after ess2 maxed out
+		assertEquals("ESS1 should get remaining power", -28920.0, solution[0], 1e-6);
+		assertEquals("ESS2 should be at its charge limit", -21080.0, solution[1], 1e-6);
+	}
+
+	private static String formatArray(double[] array) {
 		StringJoiner joiner = new StringJoiner(", ");
 		for (double v : array) {
 			joiner.add(String.format("%,.2f", v));
 		}
-		return label + joiner.toString();
+		return joiner.toString();
 	}
 
 	/**
@@ -204,16 +261,37 @@ public class SolverBySocOptimizationTest {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("---------------------------\n");
-		sb.append(formatArray("SOC Distribution   : ", socDistribution)).append("\n");
-		sb.append(formatArray("Upper Bound        : ", upperBound)).append("\n");
-		sb.append(formatArray("Solution           : ", solution)).append("\n");
 
+		// 1. SOC Distribution
+		sb.append(String.format("%-20s %s%n", "SOC Distribution:", formatArray(socDistribution)));
+
+		// 2. Power set vs calculated
 		double totalSolution = Arrays.stream(solution).sum();
-		sb.append(String.format("Set power           : %,.2f\n", totalSolution));
-		sb.append(String.format("Actual power        : %,.2f\n", powerSetValue));
-		sb.append(formatArray("Lower Bound         : ", lowerBound)).append("\n");
-		sb.append("---------------------------");
+		double difference = totalSolution - powerSetValue;
 
+		sb.append(String.format("%-20s %,.2f%n", "Power (Set):", powerSetValue));
+		sb.append(String.format("%-20s %,.2f%n", "Power (Calculated):", totalSolution));
+
+		if (Math.abs(difference) < 0.001) {
+			sb.append(String.format("%-20s %,.2f %n", "Difference:", difference));
+		} else {
+			sb.append(String.format("%-20s %,.2f %n", "Difference:", difference));
+		}
+
+		sb.append("\n");
+
+		sb.append("Solution range check:\n");
+		for (int i = 0; i < solution.length; i++) {
+			sb.append(String.format("%,.2f  <  %,.2f  <  %,.2f%n", lowerBound[i], solution[i], upperBound[i]));
+		}
+
+		sb.append("\n");
+
+		// 4. Lower and upper bounds (optional for reference)
+		sb.append(String.format("%-20s %s%n", "Lower Bound:", formatArray(lowerBound)));
+		sb.append(String.format("%-20s %s%n", "Upper Bound:", formatArray(upperBound)));
+
+		sb.append("---------------------------");
 		return sb.toString();
 	}
 

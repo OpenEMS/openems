@@ -4,7 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -17,7 +17,7 @@ public class PredictionTest {
 
 	@Test
 	public void testOf() {
-		var now = ZonedDateTime.now();
+		var now = Instant.now();
 		var sum = new DummySum();
 
 		assertArrayEquals(new Integer[] { 1, 5, 7, 0 /* ValueRange positive */, 9, null, null }, //

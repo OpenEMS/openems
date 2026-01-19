@@ -327,4 +327,12 @@ public interface Meta extends ModbusSlave {
 	 * @return the time zone, or null if not set
 	 */
 	public ZoneId getTimezone();
+
+	/**
+	 * Returns whether the user has accepted, declined, or not yet decided on
+	 * third-party usage.
+	 *
+	 * @return the third party usage acceptance status
+	 */
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
 }

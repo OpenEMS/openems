@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +45,6 @@ import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -72,7 +71,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final EventAdmin eventAdmin;
-	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
 	private final Map<String, User> users = new HashMap<>();
@@ -110,19 +108,14 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		var name = "User #" + this.nextUserId.incrementAndGet();
-		var token = UUID.randomUUID().toString();
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, this.hasMultipleEdges(),
-				this.settings);
-		this.users.put(user.getId(), user);
-		return user;
+	public Optional<User> getUser(String userId) {
+		return Optional.ofNullable(this.users.get(userId));
 	}
 
 	@Override
-	public User authenticate(String token) throws OpenemsNamedException {
+	public CompletableFuture<User> getUserByExternalId(String login) {
 		for (var user : this.users.values()) {
-			if (!user.getToken().equals(token)) {
+			if (!user.getName().equals(login)) {
 				continue;
 			}
 			final var hasMultipleEdges = this.hasMultipleEdges();
@@ -130,14 +123,18 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 			if (user.hasMultipleEdges() != hasMultipleEdges //
 					|| !user.getSettings().equals(this.settings)) {
 				returnUser = this.createUser(user.getId(), user.getName(), user.getToken(), hasMultipleEdges);
-				this.users.put(token, returnUser);
+				this.users.put(login, returnUser);
 			} else {
 				returnUser = user;
 			}
 
-			return returnUser;
+			return CompletableFuture.completedFuture(returnUser);
 		}
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+
+		// TODO create separate dummy implementation for user auth
+		final var returnUser = this.createUser(login, login, login, true);
+		this.users.put(login, returnUser);
+		return CompletableFuture.completedFuture(returnUser);
 	}
 
 	private User createUser(String username, String name, String token, boolean hasMultipleEdges) {
@@ -147,11 +144,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 
 	private boolean hasMultipleEdges() {
 		return this.edges.size() > 1;
-	}
-
-	@Override
-	public void logout(User user) {
-		this.users.remove(user.getId(), user);
 	}
 
 	@Override
@@ -210,11 +202,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	public Optional<Edge> getEdge(String edgeId) {
 		Edge edge = this.edges.get(edgeId);
 		return Optional.ofNullable(edge);
-	}
-
-	@Override
-	public Optional<User> getUser(String userId) {
-		return Optional.ofNullable(this.users.get(userId));
 	}
 
 	@Override
@@ -354,9 +341,14 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
-		return MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions);
+	public CompletableFuture<List<EdgeMetadata>> getPageDevice(User user, PaginationOptions paginationOptions) {
+		return CompletableFuture
+				.completedFuture(MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions));
+	}
+
+	@Override
+	public Role getUserRole(User user, String edgeId) {
+		return Role.ADMIN;
 	}
 
 	@Override
@@ -365,7 +357,6 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 		if (edge == null) {
 			return null;
 		}
-		user.setRole(edgeId, Role.ADMIN);
 
 		return new EdgeMetadata(//
 				edge.getId(), //
@@ -376,7 +367,8 @@ public class MetadataDummy extends AbstractMetadata implements Metadata, EventHa
 				edge.isOnline(), //
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
-				Level.OK //
+				Level.OK, //
+				edge.getSettings() //
 		);
 	}
 

@@ -16,37 +16,37 @@
       <ion-card-content>
         <ion-row>
           <ion-col>
-            <ion-label>{{"Edge.History.mon" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.MON" | translate}}</ion-label>
             <ion-checkbox formControlName="monday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.tue" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.TUE" | translate}}</ion-label>
             <ion-checkbox formControlName="tuesday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.wed" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.WED" | translate}}</ion-label>
             <ion-checkbox formControlName="wednesday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.thu" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.THU" | translate}}</ion-label>
             <ion-checkbox formControlName="thursday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.fri" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.FRI" | translate}}</ion-label>
             <ion-checkbox formControlName="friday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.sat" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.SAT" | translate}}</ion-label>
             <ion-checkbox formControlName="saturday">
             </ion-checkbox>
           </ion-col>
           <ion-col>
-            <ion-label>{{"Edge.History.sun" | translate}}</ion-label>
+            <ion-label>{{"EDGE.HISTORY.SUN" | translate}}</ion-label>
             <ion-checkbox formControlName="sunday">
             </ion-checkbox>
           </ion-col>
@@ -58,7 +58,7 @@
             <table class="full_width">
               <tr>
                 <td style="width: 65%" translate>
-                  General.measuredValue
+                  GENERAL.MEASURED_VALUE
                 </td>
                 <td style="width: 35%" class="align_right">
                   @if ((currentData[meterId + '/ActivePower'] || true); as value) {
@@ -74,12 +74,12 @@
         <table class="full_width">
           <tr>
             <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.peakshavingPower
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER
             </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="number" formControlName="peakShavingPower"
-                  style="text-align: end;" label="&nbsp;W">
+                <ion-input class="regularFont" type="number" formControlName="peakShavingPower" style="text-align: end;"
+                  label="&nbsp;W">
                 </ion-input>
               </ion-item>
             </td>
@@ -88,12 +88,12 @@
         <table class="full_width">
           <tr>
             <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.rechargePower
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER
             </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="number" formControlName="rechargePower"
-                  style="text-align: end;" label="&nbsp;W">
+                <ion-input class="regularFont" type="number" formControlName="rechargePower" style="text-align: end;"
+                  label="&nbsp;W">
                 </ion-input>
               </ion-item>
             </td>
@@ -102,40 +102,12 @@
         <table class="full_width">
           <tr>
             <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.hysteresisSoC
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.HYSTERESIS_SO_C
             </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="number" formControlName="hysteresisSoc"
-                  style="text-align: end;" label="&nbsp;%">
-                </ion-input>
-              </ion-item>
-            </td>
-          </tr>
-        </table>
-      </ion-card-content>
-      <ion-card-content class="underline">
-        <table class="full_width">
-          <tr>
-            <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.startDate
-            </td>
-            <td style="width: 35%" class="align_right">
-              <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="text" formControlName="startDate"
-                  style="text-align: end;">
-                </ion-input>
-              </ion-item>
-            </td>
-          </tr>
-          <tr>
-            <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.endDate
-            </td>
-            <td style="width: 35%" class="align_right">
-              <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="text" formControlName="endDate"
-                  style="text-align: end;">
+                <ion-input class="regularFont" type="number" formControlName="hysteresisSoc" style="text-align: end;"
+                  label="&nbsp;%">
                 </ion-input>
               </ion-item>
             </td>
@@ -146,22 +118,22 @@
         <table class="full_width">
           <tr>
             <td style="width: 65%" translate>
-            Edge.Index.Widgets.Peakshaving.startTime</td>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.START_DATE
+            </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="text" formControlName="startTime"
-                  style="text-align: end;">
+                <ion-input class="regularFont" type="text" formControlName="startDate" style="text-align: end;">
                 </ion-input>
               </ion-item>
             </td>
           </tr>
           <tr>
             <td style="width: 65%" translate>
-            Edge.Index.Widgets.Peakshaving.endTime</td>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.END_DATE
+            </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="text" formControlName="endTime"
-                  style="text-align: end;">
+                <ion-input class="regularFont" type="text" formControlName="endDate" style="text-align: end;">
                 </ion-input>
               </ion-item>
             </td>
@@ -172,19 +144,43 @@
         <table class="full_width">
           <tr>
             <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.recharge
-            </td>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME</td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
-                <ion-input class="regularFont" type="number" formControlName="slowChargePower"
-                  style="text-align: end;" label="&nbsp;W">
+                <ion-input class="regularFont" type="text" formControlName="startTime" style="text-align: end;">
                 </ion-input>
               </ion-item>
             </td>
           </tr>
           <tr>
             <td style="width: 65%" translate>
-              Edge.Index.Widgets.Peakshaving.startTimeCharge
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.END_TIME</td>
+            <td style="width: 35%" class="align_right">
+              <ion-item lines="inset" class="noPadding">
+                <ion-input class="regularFont" type="text" formControlName="endTime" style="text-align: end;">
+                </ion-input>
+              </ion-item>
+            </td>
+          </tr>
+        </table>
+      </ion-card-content>
+      <ion-card-content class="underline">
+        <table class="full_width">
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE
+            </td>
+            <td style="width: 35%" class="align_right">
+              <ion-item lines="inset" class="noPadding">
+                <ion-input class="regularFont" type="number" formControlName="slowChargePower" style="text-align: end;"
+                  label="&nbsp;W">
+                </ion-input>
+              </ion-item>
+            </td>
+          </tr>
+          <tr>
+            <td style="width: 65%" translate>
+              EDGE.INDEX.WIDGETS.PEAKSHAVING.START_TIME_CHARGE
             </td>
             <td style="width: 35%" class="align_right">
               <ion-item lines="inset" class="noPadding">
@@ -201,7 +197,7 @@
   @if (formGroup.dirty) {
     <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="checkmark-circle-outline">
+        <ion-icon size="large" name="oe-checkmark">
         </ion-icon>
       </ion-fab-button>
     </ion-fab>

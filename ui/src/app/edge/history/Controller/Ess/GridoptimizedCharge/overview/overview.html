@@ -1,6 +1,6 @@
 @if (isInitialized) {
   <oe-chart [period]="service.historyPeriod" [title]="component.alias">
-    <gridOptimizedChargeChart [chartTitle]="'General.CHARGE'| translate" [component]="component">
+    <gridOptimizedChargeChart [chartTitle]="'GENERAL.CHARGE'| translate" [component]="component">
     </gridOptimizedChargeChart>
     <ion-card-content class="underline">
       <ion-row class="ion-justify-content-center">
@@ -8,13 +8,13 @@
           <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
           <ion-label class="ion-text-wrap">
             <small translate>
-              Edge.Index.Widgets.GridOptimizedCharge.History.priorityDescription
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HISTORY.PRIORITY_DESCRIPTION
             </small>
           </ion-label>
         </ion-item>
       </ion-row>
     </ion-card-content>
-    <sellToGridLimitChart [chartTitle]="'General.gridSell'| translate" [component]="component">
+    <sellToGridLimitChart [chartTitle]="'GENERAL.GRID_SELL'| translate" [component]="component">
     </sellToGridLimitChart>
     <ion-card-content class="underline">
       <ion-row class="ion-justify-content-center">
@@ -22,7 +22,7 @@
           <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
           <ion-label class="ion-text-wrap">
             <small translate>
-              Edge.Index.Widgets.GridOptimizedCharge.History.batteryChargeGridLimitDescription
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HISTORY.BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION
             </small>
           </ion-label>
         </ion-item>

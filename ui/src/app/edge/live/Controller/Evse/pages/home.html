@@ -1,6 +1,5 @@
 @if (isInitialized) {
-  <oe-navigation-view [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
-    >
+  <oe-navigation-view [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
     <ion-grid class="ion-no-padding">
       <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
         <ion-col size-md="4" size-xs="9">
@@ -11,12 +10,15 @@
             <oe-modal-line [name]="'EVSE_SINGLE.HOME.MODE.LABEL' | translate" [converter]="CONVERT_TO_MODE_LABEL"
               [channelAddress]="component.id + '/_PropertyMode'">
             </oe-modal-line>
+            <oe-modal-line [name]="'EVSE_SINGLE.HOME.ACTUAL_MODE.LABEL' | translate"
+              [converter]="CONVERT_TO_ACTUAL_MODE_LABEL" [channelAddress]="component.id + '/ActualMode'">
+            </oe-modal-line>
             <oe-modal-line [name]="'EVSE_SINGLE.HOME.STATE_MACHINE.LABEL' | translate"
               [converter]="CONVERT_TO_STATE_MACHINE_LABEL" [channelAddress]="component.id + '/StateMachine'">
             </oe-modal-line>
             @if (chargePoint) {
-              <oe-modal-line [name]="'EVSE_SINGLE.HOME.POWER' | translate"
-                [converter]="Converter.POWER_IN_WATT" [channelAddress]="chargePoint.id + '/ActivePower'">
+              <oe-modal-line [name]="'EVSE_SINGLE.HOME.POWER' | translate" [converter]="Converter.POWER_IN_WATT"
+                [channelAddress]="chargePoint.id + '/ActivePower'">
               </oe-modal-line>
             }
             <oe-modal-line [name]="'EVSE_SINGLE.HOME.ENERGY_SINCE_START' | translate"
@@ -25,17 +27,23 @@
           </ion-col>
         }
       </ion-row>
-      <ion-row class="ion-justify-content-center ion-no-padding">
-        <ion-col size-md="6" size-xs="12" class="ion-no-padding">
-          <oe-modal-buttons class="oe-modal-buttons-text-size" [formGroup]="formGroup" controlName="mode"
-            [component]="component"
-                    [buttons]="[
-                { name: 'EVSE_SINGLE.HOME.MODE.ZERO' | translate, value: 'ZERO', icon: {color:'primary', name: 'close-circle-outline'}},
-                { name: 'EVSE_SINGLE.HOME.MODE.SURPLUS' | translate, value: 'SURPLUS', icon: {color:'primary', name: 'sunny-outline'}},
-                { name: 'EVSE_SINGLE.HOME.MODE.FORCE' | translate, value: 'FORCE', icon: {color:'primary', name: 'rocket-outline'}}]">
-          </oe-modal-buttons>
-        </ion-col>
-      </ion-row>
     </ion-grid>
+    <ion-list>
+      <ion-label>
+        {{"EVSE_SINGLE.SCHEDULE.NEXT_TASKS" | translate}}
+      </ion-label>
+      @for (item of oneTasks; track item) {
+        <ion-item>
+          <ion-label>
+            {{ item.start | date:'EEE MMM d HH:mm' }}
+            -
+            {{ item.end | date:'EEE MMM d HH:mm' }}
+          </ion-label>
+          <ion-label slot="end">
+            {{ item.mode }}
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
   </oe-navigation-view>
 }

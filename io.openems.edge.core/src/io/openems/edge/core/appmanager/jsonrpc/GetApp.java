@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -20,6 +21,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.flag.Flag;
+import io.openems.edge.core.appmanager.flag.Flags;
 import io.openems.edge.core.appmanager.jsonrpc.GetApp.Request;
 import io.openems.edge.core.appmanager.jsonrpc.GetApp.Response;
 import io.openems.edge.core.appmanager.validator.OpenemsAppStatus;
@@ -116,12 +118,13 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 		 * @param instantiatedApps all created {@link OpenemsAppInstance}
 		 * @param language         the current language
 		 * @param validator        the {@link Validator}
+		 * @param freeApps         a list of free apps
 		 * @return the created Response
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Response newInstance(OpenemsApp app, List<OpenemsAppInstance> instantiatedApps, Language language,
-				Validator validator) throws OpenemsNamedException {
-			return new Response(createJsonObjectOf(app, validator, instantiatedApps, language));
+				Validator validator, List<String> freeApps) throws OpenemsNamedException {
+			return new Response(createJsonObjectOf(app, validator, instantiatedApps, language, freeApps));
 		}
 
 		/**
@@ -152,6 +155,7 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 	 *                         {@link OpenemsAppStatus}
 	 * @param instantiatedApps all instances
 	 * @param language         the {@link Language}
+	 * @param freeApps         a list of free apps
 	 * @return the created {@link JsonObject}
 	 * @throws OpenemsNamedException on error
 	 */
@@ -159,7 +163,8 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 			final OpenemsApp app, //
 			final Validator validator, //
 			final List<OpenemsAppInstance> instantiatedApps, //
-			final Language language //
+			final Language language, //
+			final List<String> freeApps //
 	) throws OpenemsNamedException {
 
 		final var imageFuture = CompletableFuture.supplyAsync(app::getImage);
@@ -183,7 +188,7 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 					.addProperty("shortName", app.getShortName(language)) //
 					.addPropertyIfNotNull("image", image) //
 					.add("permissions", permissionJson)//
-					.add("flags", Arrays.stream(app.flags()) //
+					.add("flags", Stream.concat(Arrays.stream(app.flags()), createAdditionalFlags(app, freeApps)) //
 							.map(Flag::toJson) //
 							.collect(JsonUtils.toJsonArray()))
 					.add("status", status) //
@@ -198,6 +203,16 @@ public class GetApp implements EndpointRequestType<Request, Response> {
 			e.getCause().printStackTrace();
 			throw new OpenemsException(e.getCause());
 		}
+	}
+
+	private static Stream<Flag> createAdditionalFlags(OpenemsApp app, List<String> freeApps) {
+		final var stream = Stream.<Flag>builder();
+
+		if (freeApps.contains(app.getAppId())) {
+			stream.add(Flags.FREE_FROM_DEPENDENCY);
+		}
+
+		return stream.build();
 	}
 
 }

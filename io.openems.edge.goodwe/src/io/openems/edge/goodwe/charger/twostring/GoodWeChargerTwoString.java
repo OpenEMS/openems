@@ -11,6 +11,7 @@ import io.openems.edge.goodwe.charger.GoodWeCharger;
 @Deprecated
 public interface GoodWeChargerTwoString extends OpenemsComponent, EssDcCharger, GoodWeCharger {
 
+	@Deprecated
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
 
@@ -20,6 +21,7 @@ public interface GoodWeChargerTwoString extends OpenemsComponent, EssDcCharger, 
 			this.doc = doc;
 		}
 
+		@Deprecated
 		@Override
 		public Doc doc() {
 			return this.doc;
@@ -31,6 +33,7 @@ public interface GoodWeChargerTwoString extends OpenemsComponent, EssDcCharger, 
 	 * 
 	 * @return Used PV port
 	 */
+	@Deprecated
 	public PvPort pvPort();
 
 	/**
@@ -48,9 +51,9 @@ public interface GoodWeChargerTwoString extends OpenemsComponent, EssDcCharger, 
 	 * @return the calculated result. Return null for empty parameters or zero
 	 *         divisor
 	 */
+	@Deprecated
 	public static Optional<Integer> calculateByRuleOfThree(Optional<Integer> total, Optional<Integer> divisor,
 			Optional<Integer> related) {
-
 		var result = new AtomicReference<Integer>(null);
 		total.ifPresent(totalValue -> {
 			divisor.ifPresent(divisorValue -> {

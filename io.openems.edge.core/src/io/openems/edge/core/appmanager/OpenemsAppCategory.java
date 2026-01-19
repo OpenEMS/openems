@@ -85,9 +85,19 @@ public enum OpenemsAppCategory {
 	METER("meter"),
 
 	/**
+	 * Grid meter.
+	 */
+	GRID_METER("gridMeter"),
+
+	/**
 	 * Apis.
 	 */
 	API("api"),
+
+	/**
+	 * Prediction.
+	 */
+	PREDICTION("prediction"),
 
 	/**
 	 * Timedata..

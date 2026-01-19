@@ -6,13 +6,14 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
 	io.openems.edge.bridge.http,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
+	io.openems.j2mod,\
 	org.jsoup:jsoup,\
 
 -testpath: \
 	${testpath},\
-	io.openems.j2mod

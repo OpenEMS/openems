@@ -35,6 +35,7 @@ public class MyProcessImage implements ProcessImage {
 	public synchronized InputRegister[] getInputRegisterRange(int offset, int count) throws MyIllegalAddressException {
 		try {
 			this.parent.logDebug(this.log, "Reading Input Registers. Address [" + offset + "] Count [" + count + "].");
+			this.parent.incrementAccessCounter();
 			var registers = this.getRegisterRange(offset, count);
 			var result = new Register[registers.length];
 			for (var i = 0; i < registers.length; i++) {
@@ -52,6 +53,7 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized Register[] getRegisterRange(int offset, int count) throws MyIllegalAddressException {
 		this.parent.logDebug(this.log, "Reading Registers. Address [" + offset + "] Count [" + count + "].");
+		this.parent.incrementAccessCounter();
 
 		try {
 			/*
@@ -104,6 +106,7 @@ public class MyProcessImage implements ProcessImage {
 	@Override
 	public synchronized Register getRegister(int ref) throws MyIllegalAddressException {
 		this.parent.logDebug(this.log, "Get Register. Address [" + ref + "].");
+		this.parent.incrementAccessCounter();
 
 		try {
 			var record = this.parent.records.get(ref);
@@ -160,6 +163,7 @@ public class MyProcessImage implements ProcessImage {
 					 * On Set-Value event:
 					 */
 					register -> {
+						this.parent.incrementWriteCounter();
 						record.writeValue(register.getIndex(), register.getByte1(), register.getByte2());
 					});
 		}

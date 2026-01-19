@@ -28,9 +28,12 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -154,17 +157,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
 								new ElementToChannelConverter(value -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-									if (intValue != null) {
-										switch (intValue) {
-										case 0:
-											return GridMode.UNDEFINED;
-										case 1:
-											return GridMode.ON_GRID;
-										case 2:
-											return GridMode.OFF_GRID;
-										}
-									}
-									return GridMode.UNDEFINED;
+									final var goodWeType = this.getGoodweType();
+
+									return mapGridMode(goodWeType, intValue);
 								}))), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
@@ -2324,12 +2319,37 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * </p>
 	 *
 	 * @param maxApparentPower the max apparent power
+	 * @param battery          the battery used to get charge/discharge current and
+	 *                         voltage
 	 */
-	protected void handleMaxAcPower(int maxApparentPower) {
+	protected void handleMaxAcPower(int maxApparentPower, Battery battery) {
+		this.handleMaxAcPower(maxApparentPower, battery.getChargeMaxCurrent().get(),
+				battery.getDischargeMaxCurrent().get(), battery.getVoltage().get());
+	}
 
-		final var result = calculateMaxAcPower(maxApparentPower, this.getWbmsChargeMaxCurrent().get(),
-				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().asOptional(),
-				this.getGoodweType().maxBatChargeP, this.getGoodweType().maxBatDischargeP,
+	/**
+	 * Calculate and store Max-AC-Export and -Import channels.
+	 *
+	 * <p>
+	 * Calculate and store Max-AC-Export and -Import for use in
+	 * getStaticConstraints()
+	 * </p>
+	 * 
+	 * @param maxApparentPower       the max apparent power
+	 * @param batChargeMaxCurrent    the charge max current of the battery
+	 * @param batDischargeMaxCurrent the discharge max current of the battery
+	 * @param batVoltage             the voltage of the battery
+	 */
+	protected void handleMaxAcPower(int maxApparentPower, Integer batChargeMaxCurrent, Integer batDischargeMaxCurrent,
+			Integer batVoltage) {
+
+		final var result = calculateMaxAcPower(//
+				maxApparentPower, //
+				batChargeMaxCurrent, //
+				batDischargeMaxCurrent, //
+				batVoltage, //
+				this.getGoodweType().maxBatChargeP, //
+				this.getGoodweType().maxBatDischargeP, //
 				this.calculatePvProduction());
 
 		// Set Channels
@@ -2340,24 +2360,24 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	/**
 	 * Calculate Max-AC-Export and -Import power.
 	 *
-	 * @param maxApparentPower        the max apparent power
-	 * @param wbmsChargeMaxCurrent    the WBMS charge max current
-	 * @param wbmsDischargeMaxCurrent the WBMS discharge max current
-	 * @param wbmsVoltage             the WBMS voltage
-	 * @param maxInvDcChargeP         the maximum inverter DC charge power
-	 * @param maxInvDcDischargeP      the maximum inverter DC discharge power
-	 * @param pvProduction            the DC production power
+	 * @param maxApparentPower       the max apparent power
+	 * @param batChargeMaxCurrent    the charge max current of the battery
+	 * @param batDischargeMaxCurrent the discharge max current of the battery
+	 * @param batVoltage             the voltage of the battery
+	 * @param maxInvDcChargeP        the maximum inverter DC charge power
+	 * @param maxInvDcDischargeP     the maximum inverter DC discharge power
+	 * @param pvProduction           the DC production power
 	 * @return MaxAcPower with maxAcImport and maxAcExport
 	 */
-	protected static MaxAcPower calculateMaxAcPower(int maxApparentPower, Integer wbmsChargeMaxCurrent,
-			Integer wbmsDischargeMaxCurrent, Optional<Integer> wbmsVoltage, int maxInvDcChargeP, int maxInvDcDischargeP,
+	protected static MaxAcPower calculateMaxAcPower(int maxApparentPower, Integer batChargeMaxCurrent,
+			Integer batDischargeMaxCurrent, Integer batVoltage, Integer maxInvDcChargeP, Integer maxInvDcDischargeP,
 			Integer pvProduction) {
 		pvProduction = TypeUtils.max(0, pvProduction);
 
 		/*
 		 * Calculate Max-Ac-Import
 		 */
-		final var maxDcChargePower = calculateDcLimitation(wbmsChargeMaxCurrent, wbmsVoltage, maxInvDcChargeP);
+		final var maxDcChargePower = calculateDcLimitation(batChargeMaxCurrent, batVoltage, maxInvDcChargeP);
 
 		var maxAcImport = TypeUtils.subtract(maxDcChargePower, TypeUtils
 				.min(TypeUtils.max(0, maxDcChargePower) /* avoid negative number for `subtract` */, pvProduction));
@@ -2365,7 +2385,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Calculate Max-Ac-Export
 		 */
-		final var maxDcDischargePower = calculateDcLimitation(wbmsDischargeMaxCurrent, wbmsVoltage, maxInvDcDischargeP);
+		final var maxDcDischargePower = calculateDcLimitation(batDischargeMaxCurrent, batVoltage, maxInvDcDischargeP);
 		var maxAcExport = TypeUtils.sum(maxDcDischargePower, pvProduction);
 
 		// Limit Max-AC-Power to inverter specific limit
@@ -2384,17 +2404,17 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * fixed inverter limit.
 	 * </p>
 	 *
-	 * @param bmsMaxCurrent BMS maximum current in A
+	 * @param bmsMaxCurrent BMS maximum current in A. Can be negative for
+	 *                      force-discharge
 	 * @param voltage       voltage in V
 	 * @param inverterLimit hard limit for DC power in W
 	 * @return the maximum DC power in W
 	 */
-	protected static Integer calculateDcLimitation(Integer bmsMaxCurrent, Optional<Integer> voltage,
-			int inverterLimit) {
-		var maxDcPower = /* can be negative for force-discharge */
-				TypeUtils.multiply(bmsMaxCurrent, voltage.orElse(0));
-
-		return TypeUtils.min(maxDcPower, inverterLimit);
+	protected static Integer calculateDcLimitation(Integer bmsMaxCurrent, Integer voltage, Integer inverterLimit) {
+		return TypeUtils.min(//
+				bmsMaxCurrent == null || voltage == null ? 0 : bmsMaxCurrent * voltage, //
+				inverterLimit //
+		);
 	}
 
 	/**
@@ -2470,4 +2490,35 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		}
 		return bitsElement;
 	}
+
+	@VisibleForTesting
+	static GridMode mapGridMode(GoodWeType goodWeType, Integer value) {
+		if (value == null) {
+			return GridMode.UNDEFINED;
+		}
+		return switch (goodWeType) {
+		case UNDEFINED, GOODWE_10K_BT, GOODWE_8K_BT, GOODWE_5K_BT, GOODWE_10K_ET, GOODWE_8K_ET, GOODWE_5K_ET,
+				FENECON_FHI_10_DAH, FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH, FENECON_GEN2_6K, FENECON_GEN2_10K,
+				FENECON_GEN2_15K -> {
+			yield defaultMapGridMode(value);
+		}
+		case FENECON_50K -> {
+			yield switch (value) {
+			case 0 -> GridMode.OFF_GRID;
+			case 1 -> GridMode.ON_GRID;
+			default -> GridMode.UNDEFINED;
+			};
+		}
+		case null -> defaultMapGridMode(value);
+		};
+	}
+
+	private static GridMode defaultMapGridMode(int value) {
+		return switch (value) {
+		case 1 -> GridMode.ON_GRID;
+		case 2 -> GridMode.OFF_GRID;
+		default -> GridMode.UNDEFINED;
+		};
+	}
+
 }

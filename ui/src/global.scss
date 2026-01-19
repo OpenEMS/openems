@@ -124,6 +124,11 @@ formly-field-ion-radio {
     text-shadow: var(--ion-text-shadow);
 }
 
+.percentage-style-dark {
+    fill: var(--ion-text-color-dark);
+    text-shadow: var(--ion-text-shadow);
+}
+
 .ion-card-style {
     ion-item {
         --background: var(--ion-color-primary);
@@ -132,6 +137,10 @@ formly-field-ion-radio {
             color: var(--ion-color-primary-contrast);
         }
     }
+}
+
+.ion-custom-padding {
+    padding: 0.325rem;
 }
 
 .custom-channels-text {
@@ -220,7 +229,7 @@ ion-select::part(icon) {
 }
 
 .command-textbox {
-    font-family: monospace;
+    font-family: var(--ion-font-family);
     color: var(--ion-color-text);
 }
 
@@ -291,7 +300,7 @@ ion-range {
 }
 
 ion-label {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--ion-font-family);
 }
 
 ion-item.noPadding {
@@ -354,6 +363,11 @@ ion-checkbox {
     .checkbox-icon {
         display: none;
     }
+}
+
+ion-skeleton-text {
+    --background: var(--ion-skeleton-gradient);
+    --background-rgb: var(--ion-color-light-contrast-rgb);
 }
 
 #toast-container {

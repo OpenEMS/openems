@@ -64,7 +64,7 @@ public class AppEvseCluster extends
 							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
 							.isMulti(true);
 				}) //
-				.setDefaultValue((app, property, l, parameter) -> new JsonArray()) //
+				.setDefaultValue((app, property, l, parameter) -> new JsonArray())//
 				.bidirectional(EVSE_CLUSTER_ID, "ctrl.ids", ComponentManagerSupplier::getComponentManager))), //
 		;
 

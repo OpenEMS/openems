@@ -17,6 +17,7 @@
 *** xref:edge/deploy/docker.adoc[Deploy to Docker]
 
 * OpenEMS UI
+** xref:ui/deploy.adoc[Deploy UI to Docker]
 ** xref:ui/setup-ide.adoc[Setup IDE]
 ** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]
@@ -36,12 +37,17 @@
 *** xref:backend/deploy/docker.adoc[Deploy to Docker]
 
 * xref:component-communication/index.adoc[Component Communication]
-* xref:logging/log4j2.adoc[Logging]
 * Simulation
 ** xref:simulation/gitpod.adoc[Live-Demo on Gitpod]
 ** xref:simulation/realtime.adoc[Real-Time Simulation]
 ** xref:simulation/ui-history.adoc[UI History Simulation]
-* Contribute
-** xref:contribute/coding-guidelines.adoc[Coding Guidelines]
-** xref:contribute/documentation.adoc[Documentation]
+
+* Developer Guide
+** xref:development/overview.adoc[Overview]
+** IDE Setup
+*** xref:development/ide/eclipse.adoc[Eclipse]
+*** xref:development/ide/intellij.adoc[IntelliJ]
+** xref:development/coding-guidelines.adoc[Coding Guidelines]
+** xref:development/documentation.adoc[Documentation]
+
 * https://openems.github.io/openems.io/javadoc/[Javadoc]

@@ -2,6 +2,7 @@ package io.openems.edge.pvinverter.kostal.piko;
 
 import java.util.Base64;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,13 +19,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,8 +53,11 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
-
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
+	private HttpBridgeCycleService cycleService;
+
 	private String baseUrl;
 	private Map<String, String> headers;
 
@@ -83,8 +89,10 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		if (this.isEnabled()) {
 			this.logInfo(this.log, "Subscribing to KOSTAL PIKO at " + this.baseUrl);
 
+			this.httpBridge = this.httpBridgeFactory.get();
+			this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 			// Subscribe for updates every cycle
-			this.httpBridge.subscribeCycle(1,
+			this.cycleService.subscribeCycle(1, //
 					() -> new BridgeHttp.Endpoint(this.baseUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
 							BridgeHttp.DEFAULT_READ_TIMEOUT, null, this.headers),
 					this::handleSuccessfulResult, this::handleError);
@@ -145,30 +153,41 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 		// This is more robust than relying on bgcolor="#FFFFFF" styling
 		var allRows = doc.select("table tr");
 		var valueCells = new Elements();
+		
+		final Pattern numericValue = Pattern.compile("\\s*+[\\d\\.\\,]++\\s*+"); // " 123 "
+		final Pattern noData = Pattern.compile("x(\\s*+x){0,2}"); // "x", "x x", "x x x"
+		final Pattern unitLabel = Pattern.compile("[a-zA-ZäöüÄÖÜß]+"); // Any text with letters (including German characters)
+		final Pattern unitPattern = Pattern.compile("[kMGmµ]?[WhVA]+"); // Units like W, kWh, V, A, etc.
 
 		for (Element row : allRows) {
 			Elements cells = row.select("td");
 
 			// Look for data pattern: [Label] [Value] [Unit]
 			for (int i = 1; i < cells.size() - 1; i++) {
-				Element valueCell = cells.get(i);
-				Element prevCell = cells.get(i - 1);
-				Element nextCell = cells.get(i + 1);
-
-				String valueText = valueCell.text().trim();
-				String prevText = prevCell.text().trim();
-				String nextText = nextCell.text().trim();
-
 				// Check if this matches the pattern: previous cell is a label (text),
 				// current cell has numeric value or "x x x", next cell is a unit (text)
-				boolean hasNumericOrNoData = valueText.matches(".*\\d+.*") || valueText.matches("x\\s*x\\s*x")
-						|| valueText.equals("x");
-				boolean prevIsLabel = prevText.matches(".*[a-zA-ZäöüÄÖÜß].*") && !prevText.matches("^[LMVWA]+\\d*$"); // Exclude pure unit labels
-				boolean nextIsUnit = nextText.matches("\\s*[kMGmµ]?[WhVA]+\\s*"); // Match units like W, kWh, V, A, etc.
-
-				if (hasNumericOrNoData && prevIsLabel && nextIsUnit) {
-					valueCells.add(valueCell);
+				
+				final Element valueCell = cells.get(i);
+				final String valueText = valueCell.text().trim();
+				final boolean hasNumericOrNoData = numericValue.matcher(valueText).matches() || noData.matcher(valueText).matches();
+				if (!hasNumericOrNoData) {
+					continue;
 				}
+				
+				final String prevText = cells.get(i - 1).text().trim();
+				final boolean prevIsLabel = unitLabel.matcher(prevText).find() //
+						&& !unitPattern.matcher(prevText).find(); // Exclude pure unit labels
+				if (!prevIsLabel) {
+					continue;
+				}
+				
+				final String nextText = cells.get(i + 1).text().trim();
+				boolean nextIsUnit = unitPattern.matcher(nextText).find(); // Match units like W, kWh, V, A, etc.
+				if (!nextIsUnit) {
+					continue;
+				}
+
+				valueCells.add(valueCell);
 			}
 		}
 
@@ -185,10 +204,13 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 			acPower = value != null ? value : 0;
 		}
 
-		// Total Energy - second value
+		// Total Energy - second value (HTML provides kWh, need to convert to Wh)
 		Long totalYield = null;
 		if (index < valueCells.size()) {
 			totalYield = this.parseLongValue(valueCells.get(index++).text());
+			if (totalYield != null) {
+          		totalYield = totalYield * 1000; // Convert kWh to Wh
+      		}
 		}
 
 		// Day Energy - third value

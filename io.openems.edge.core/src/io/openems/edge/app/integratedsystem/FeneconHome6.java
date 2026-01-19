@@ -8,10 +8,14 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamic
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -64,7 +68,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 	public static enum Property implements Type<Property, FeneconHome6, BundleParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //
@@ -214,8 +218,13 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					predictionUnmanagedConsumption()//
 			);
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed());
+			}
 
 			final var gpioId = FunctionUtils
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
@@ -239,6 +248,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
+					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

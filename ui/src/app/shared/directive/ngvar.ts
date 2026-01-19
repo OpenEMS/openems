@@ -9,9 +9,9 @@ export class VarDirective {
         $implicit: unknown;
         ngVar: unknown;
     } = {
-            $implicit: null,
-            ngVar: null,
-        };
+        $implicit: null,
+        ngVar: null,
+    };
 
     private hasView: boolean = false;
 

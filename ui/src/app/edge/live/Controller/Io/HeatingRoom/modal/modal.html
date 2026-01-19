@@ -1,34 +1,38 @@
 @if (isInitialized) {
   <oe-navigation-view [title]="component.alias" [component]="component" [formGroup]="formGroup">
     <oe-modal-buttons [formGroup]="formGroup" controlName="mode" [component]="component" [buttons]="[
-    { name: ('General.off' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
+    { name: ('GENERAL.OFF' | translate), value: 'OFF', icon: {color:'primary', name: 'power-outline'}},
     { name: 'Low', value: 'MANUAL_LOW', icon: {color:'primary', name: 'caret-down-circle-outline'}},
     { name: 'High', value: 'MANUAL_HIGH', icon: {color:'primary', name: 'caret-up-circle-outline'}},
-    { name: ('General.automatic' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'timer-outline'}}]">
+    { name: ('GENERAL.AUTOMATIC' | translate), value: 'AUTOMATIC', icon: {color:'primary', name: 'timer-outline'}}]">
     </oe-modal-buttons>
     @if (formGroup.value.mode !== 'OFF') {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       <oe-modal-line name="Power Consumption" [converter]="Utils.CONVERT_WATT_TO_KILOWATT"
-      [channelAddress]="component.id + '/ActivePower'"></oe-modal-line>
+        [channelAddress]="component.id + '/ActivePower'"></oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <oe-modal-line name="Floor Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
-    [channelAddress]="component.id + '/FloorActual'"></oe-modal-line>
+      [channelAddress]="component.id + '/FloorActual'"></oe-modal-line>
     @if (formGroup.value.mode !== 'OFF') {
       <oe-modal-line name="Floor Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
-      [channelAddress]="component.id + '/FloorTarget'"></oe-modal-line>
+        [channelAddress]="component.id + '/FloorTarget'"></oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <oe-modal-line name="Ambient Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
-    [channelAddress]="component.id + '/AmbientActual'"></oe-modal-line>
+      [channelAddress]="component.id + '/AmbientActual'"></oe-modal-line>
     @if (formGroup.value.mode !== 'OFF') {
       <oe-modal-line name="Ambient Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
-      [channelAddress]="component.id + '/AmbientTarget'"></oe-modal-line>
+        [channelAddress]="component.id + '/AmbientTarget'"></oe-modal-line>
     }
-    @if (formGroup.value.mode === 'AUTOMATIC') {
+    @if (formGroup.value.mode === 'AUTOMATIC' && oneTasks.length > 0) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      <oe-modal-line [channelAddress]="component.id + '/_PropertySchedule'">
-      </oe-modal-line>
+      <oe-modal-info-line info="Upcoming Events"></oe-modal-info-line>
+      <div>
+        @for (ot of oneTasks; track ot) {
+          <p>{{ ot.start + ' - ' + ot.end + ' (' + ot.duration + ')' }}</p>
+        }
+      </div>
     }
   </oe-navigation-view>
 }

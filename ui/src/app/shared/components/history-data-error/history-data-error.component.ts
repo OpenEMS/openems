@@ -7,14 +7,14 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     template: `
     @if (type !== null) {
       <ion-item lines="full" color="warning">
-        <ion-icon size="large" slot="start" name="warning-outline"></ion-icon>
+        <ion-icon size="large" slot="start" name="oe-warning"></ion-icon>
         <ion-label class="ion-text-wrap" style="text-align: center">
           @switch (type) {
             @case ('TOO_LONG') {
-              <span [innerHTML]="'Edge.Index.Energymonitor.ERROR_TOO_LONG' | translate"></span>
+              <span [innerHTML]="'EDGE.INDEX.ENERGYMONITOR.ERROR_TOO_LONG' | translate"></span>
             }
             @case ('TEMPORARY') {
-              <span translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
+              <span translate>EDGE.INDEX.ENERGYMONITOR.ERROR_TEMPORARY</span>
             }
           }
         </ion-label>

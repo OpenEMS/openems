@@ -1,4 +1,5 @@
 import { AbstractControl } from "@angular/forms";
+import { FormlyFieldConfig } from "@ngx-formly/core";
 
 export namespace FormlyUtils {
 
@@ -26,5 +27,25 @@ export namespace FormlyUtils {
         return {
             "border-bottom-color": borderBottomColor,
         };
+    }
+
+    /**
+     * Gets the formly field props safely.
+     *
+     * @param key the key
+     * @param fields the formly fields
+     * @returns formly field props if existing, else null
+     */
+    export function changeFormlyFieldProps(
+        key: FormlyFieldConfig["key"],
+        fields: FormlyFieldConfig[],
+        callback: (props: FormlyFieldConfig["props"]) => FormlyFieldConfig["props"]
+    ): FormlyFieldConfig[] {
+        const field = fields.find(el => el.key === key) ?? null;
+        if (field == null || field.props == null) {
+            return fields;
+        }
+        field.props = callback(field.props);
+        return fields;
     }
 }

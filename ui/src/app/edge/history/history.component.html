@@ -10,125 +10,124 @@
   </ion-refresher>
   <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 
-  <ion-content>
+  <!-- Only displayed when history allowed to be seen -->
+  <ion-grid *ngIf="isTimedataAvailable && widgets">
+    <ion-row>
+      <!-- Energymonitor Chart -->
+      <ion-col size="12">
+        <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
+      </ion-col>
 
-    <!-- Only displayed when history allowed to be seen -->
-    <ion-grid *ngIf="isTimedataAvailable && widgets">
-      <ion-row>
-        <!-- Energymonitor Chart -->
-        <ion-col size="12">
-          <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
+      <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
+        <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <common-storage-widget></common-storage-widget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <productionWidget></productionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <gridWidget></gridWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <consumptionWidget></consumptionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <selfconsumptionWidget></selfconsumptionWidget>
+        </ion-col>
+        <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <autarchyWidget></autarchyWidget>
         </ion-col>
 
-        <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
-          <ion-col *ngSwitchCase="'Storage'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <common-storage-widget></common-storage-widget>
-          </ion-col>
-          <ion-col *ngSwitchCase="'Common_Production'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <productionWidget></productionWidget>
-          </ion-col>
-          <ion-col *ngSwitchCase="'Grid'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <gridWidget></gridWidget>
-          </ion-col>
-          <ion-col *ngSwitchCase="'Consumption'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <consumptionWidget></consumptionWidget>
-          </ion-col>
-          <ion-col *ngSwitchCase="'Common_Selfconsumption'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <selfconsumptionWidget></selfconsumptionWidget>
-          </ion-col>
-          <ion-col *ngSwitchCase="'Common_Autarchy'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <autarchyWidget></autarchyWidget>
-          </ion-col>
+        <!-- Non-Common but showing only one widget for all components -->
+        <ion-col *ngSwitchCase="'Controller_ChannelThreshold'" size="12" size-md="6" size-lg="4" size-xl="3">
+          <channelthresholdWidget>
+          </channelthresholdWidget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller_Io_Digital_Outputs'">
+          <DigitalOutputWidget>
+          </DigitalOutputWidget>
+        </ion-col>
+      </ng-container>
 
-          <!-- Non-Common but showing only one widget for all components -->
-          <ion-col *ngSwitchCase="'Controller_ChannelThreshold'" size="12" size-md="6" size-lg="4" size-xl="3">
-            <channelthresholdWidget>
-            </channelthresholdWidget>
-          </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller_Io_Digital_Outputs'">
-            <DigitalOutputWidget>
-            </DigitalOutputWidget>
+      <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
+          <oe-controller-peakshaving-symmetric [componentId]="widget.componentId">
+          </oe-controller-peakshaving-symmetric>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
+          <oe-controller-peakshaving-asymmetric
+            [componentId]="widget.componentId"></oe-controller-peakshaving-asymmetric>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
+          <oe-controller-peakshaving-timeslot [componentId]="widget.componentId">
+          </oe-controller-peakshaving-timeslot>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
+          <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
+          <gridOptimizedChargeWidget [componentId]="widget.componentId">
+          </gridOptimizedChargeWidget>
+        </ion-col>
+
+        <ng-container *ngIf="isModbusTcpWidgetAllowed">
+          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
+            <modbusTcpApiWidget [componentId]="widget.componentId">
+            </modbusTcpApiWidget>
           </ion-col>
         </ng-container>
 
-        <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Symmetric.PeakShaving'">
-            <oe-controller-peakshaving-symmetric [componentId]="widget.componentId">
-            </oe-controller-peakshaving-symmetric>
-          </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Asymmetric.PeakShaving'">
-            <oe-controller-peakshaving-asymmetric
-              [componentId]="widget.componentId"></oe-controller-peakshaving-asymmetric>
-          </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.TimeslotPeakshaving'">
-            <oe-controller-peakshaving-timeslot [componentId]="widget.componentId">
-            </oe-controller-peakshaving-timeslot>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'">
-            <delayedSellToGridWidget [componentId]="widget.componentId"></delayedSellToGridWidget>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'">
-            <gridOptimizedChargeWidget [componentId]="widget.componentId">
-            </gridOptimizedChargeWidget>
-          </ion-col>
-
-          <ng-container *ngIf="isModbusTcpWidgetAllowed">
-            <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'">
-              <modbusTcpApiWidget [componentId]="widget.componentId">
-              </modbusTcpApiWidget>
-            </ion-col>
-          </ng-container>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'">
-            <timeOfUseTariffWidget [componentId]="widget.componentId">
-            </timeOfUseTariffWidget>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Clever-PV'">
-            <enerixControlWidget [componentId]="widget.componentId">
-            </enerixControlWidget>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
-            <controller-io-heatingelement-widget [componentId]="widget.componentId">
-            </controller-io-heatingelement-widget>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
-            *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
-            <controller-heat-widget [componentId]="widget.componentId">
-            </controller-heat-widget>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
-            <controller-io-heatpump-widget [componentId]="widget.componentId">
-            </controller-io-heatpump-widget>
-          </ion-col>
-          <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
-            <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
-            </chpsocWidget>
-          </ion-col>
-        </ng-container>
-      </ion-row>
-    </ion-grid>
-
-    <ion-grid *ngIf="!isTimedataAvailable">
-      <ion-row class="ion-justify-content-center">
-        <ion-col size="12" size-md="8">
-          <ion-card>
-            <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-              <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
-            </ion-item>
-            <ion-card-content>
-              <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>
-            </ion-card-content>
-          </ion-card>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff'">
+          <timeOfUseTariffWidget [componentId]="widget.componentId">
+          </timeOfUseTariffWidget>
         </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ion-content>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Clever-PV'">
+          <enerixControlWidget [componentId]="widget.componentId">
+          </enerixControlWidget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.IO.HeatingElement'">
+          <controller-io-heatingelement-widget [componentId]="widget.componentId">
+          </controller-io-heatingelement-widget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
+          *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
+          <controller-heat-widget [componentId]="widget.componentId">
+          </controller-heat-widget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.Io.HeatPump.SgReady'">
+          <controller-io-heatpump-widget [componentId]="widget.componentId">
+          </controller-io-heatpump-widget>
+        </ion-col>
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3" *ngSwitchCase="'Controller.CHP.SoC'">
+          <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value">
+          </chpsocWidget>
+        </ion-col>
+      </ng-container>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid *ngIf="!isTimedataAvailable">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="warning" name="oe-info"></ion-icon>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <p>Bitte verwenden Sie das FENECON Online-Monitoring auf <a class="ion-link" href="http://www.fenecon.de"
+                target="_blank">www.fenecon.de</a>.
+            </p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </oe-navigation-view>

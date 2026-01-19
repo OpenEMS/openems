@@ -35,8 +35,8 @@ import io.openems.edge.predictor.profileclusteringmodel.CurrentProfile;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorProfileClusteringModelImpl;
 import io.openems.edge.predictor.profileclusteringmodel.Profile;
 import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineeringService;
+import io.openems.edge.predictor.profileclusteringmodel.services.PredictionDataService;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringPredictionService;
-import io.openems.edge.predictor.profileclusteringmodel.services.RawTimeSeriesService;
 import io.openems.edge.predictor.profileclusteringmodel.services.TimeSeriesPreprocessingService;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -56,7 +56,7 @@ public class PredictionOrchestratorTest {
 	private Classifier classifier;
 
 	@Mock
-	private RawTimeSeriesService rawTimeSeriesService;
+	private PredictionDataService rawTimeSeriesService;
 
 	@Mock
 	private TimeSeriesPreprocessingService timeSeriesPreprocessingService;

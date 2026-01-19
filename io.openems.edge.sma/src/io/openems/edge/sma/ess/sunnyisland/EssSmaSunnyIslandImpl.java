@@ -46,8 +46,8 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.sma.ess.sunnyisland.enums.PowerSupplyStatus;
-import io.openems.edge.sma.ess.sunnyisland.enums.SetControlMode;
+import io.openems.edge.sma.ess.enums.PowerSupplyStatus;
+import io.openems.edge.sma.ess.enums.SetControlMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

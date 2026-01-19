@@ -251,7 +251,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 3, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled,
 										new int[] { 1, 2, 3 }), //
 										PreferredRelay.of(4, new int[] { 1, 2, 3 }), //
@@ -423,7 +423,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition, Nameable.of("OUTPUT_CHANNEL_PHASE_L1"), //
 				Nameable.of("OUTPUT_CHANNEL_PHASE_L2"), Nameable.of("OUTPUT_CHANNEL_PHASE_L3")),
 				b -> b //
@@ -474,7 +474,8 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 		var isChargingOrHeating = natureIds != null && Arrays.stream(natureIds.getNatureIds())
 				.anyMatch(natureId -> natureId.equals("io.openems.edge.evcs.api.Evcs")
 						|| natureId.equals("io.openems.edge.heat.api.Heat")
-						|| natureId.equals("io.openems.edge.evse.api.Chargepoint"));
+						|| natureId.equals("io.openems.edge.evse.api.Chargepoint")
+						|| natureId.equals("io.openems.edge.meter.api.SinglePhaseMeter"));
 
 		var toIgnore = meterIdsToNotInclude.stream().anyMatch(m -> meter.id().equals(m));
 		return meter.getMeterType() == MeterType.CONSUMPTION_METERED && !isChargingOrHeating && !toIgnore;

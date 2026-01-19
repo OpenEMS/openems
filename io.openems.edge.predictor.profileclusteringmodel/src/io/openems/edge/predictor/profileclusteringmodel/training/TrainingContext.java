@@ -8,17 +8,17 @@ import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorConfig.ClassifierFitter;
 import io.openems.edge.predictor.profileclusteringmodel.PredictorConfig.ClustererFitter;
 import io.openems.edge.predictor.profileclusteringmodel.TrainingCallback;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.timedata.api.Timedata;
 
 public record TrainingContext(//
-		TrainingCallback trainingCallback, //
+		TrainingCallback callback, //
 		Supplier<Clock> clockSupplier, //
 		Timedata timedata, //
 		ChannelAddress channelAddress, //
-		QueryWindow trainingWindow, //
+		int trainingWindowInDays, //
 		int maxGapSizeInterpolation, //
-		int minTrainingSamplesRequired, //
+		int minTrainingSamples, //
+		int maxTrainingSamples, //
 		ClustererFitter clustererFitter, //
 		ClassifierFitter classifierFitter, //
 		Supplier<SubdivisionCode> subdivisionCodeSupplier) {

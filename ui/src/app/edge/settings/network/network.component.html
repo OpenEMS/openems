@@ -7,7 +7,7 @@
             <ion-item lines="full" color="light">
               <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
               <ion-label> {{ form.name === 'eth0' ? 'LAN' : form.name + ' (INTERNAL)' }}</ion-label>
-              <ion-text translate>Edge.Network.advancedMode</ion-text>
+              <ion-text translate>EDGE.NETWORK.ADVANCED_MODE</ion-text>
               <ion-toggle button tabindex="0" mode="md" slot="end"
                 (keydown.enter)="form.model.advancedMode = !form.model.advancedMode;hideOrShowFields(form)" (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
               hideOrShowFields(form)" [checked]="form.model.advancedMode">
@@ -20,7 +20,7 @@
                 </formly-form>
                 <ion-item>
                   <ion-button [disabled]="form.formGroup.pristine" type="submit" color="primary">
-                    {{ 'Edge.Network.submit' | translate}}
+                    {{ 'EDGE.NETWORK.SUBMIT' | translate}}
                   </ion-button>
                 </ion-item>
               </form>

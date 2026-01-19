@@ -10,6 +10,26 @@ import io.openems.edge.core.appmanager.validator.relaycount.InjectableComponentC
 public final class Checkables {
 
 	/**
+	 * Creates a {@link CheckableConfig} which checks if the user has accepted the
+	 * 3rd party access.
+	 * 
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig check3rdPartyAccessAccepted() {
+		return empty(Check3rdPartyAccessAccepted.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the system coordinates have
+	 * been set.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCoordinatesSet() {
+		return empty(CheckCoordinatesSet.COMPONENT_NAME);
+	}
+
+	/**
 	 * Creates a {@link CheckableConfig} which checks if the installed system is a
 	 * Home.
 	 *
@@ -17,6 +37,26 @@ public final class Checkables {
 	 */
 	public static CheckableConfig checkHome() {
 		return empty(CheckHome.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is an
+	 * Industrial L.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkIndustrialL() {
+		return empty(CheckIndustrialL.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is an
+	 * Industrial Xl.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkIndustrialXl() {
+		return empty(CheckIndustrialXl.COMPONENT_NAME);
 	}
 
 	/**
@@ -47,6 +87,16 @@ public final class Checkables {
 	 */
 	public static CheckableConfig checkCommercial92() {
 		return empty(CheckCommercial92.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is a
+	 * Commercial 92.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCommercial92Master() {
+		return empty(CheckCommercial92Master.COMPONENT_NAME);
 	}
 
 	/**
