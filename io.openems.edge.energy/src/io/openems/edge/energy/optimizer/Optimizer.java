@@ -12,11 +12,13 @@ import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryFor
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.time.Duration.ofSeconds;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -31,10 +33,11 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.jenetics.IntegerGene;
 import io.jenetics.engine.EvolutionResult;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
@@ -49,28 +52,32 @@ public class Optimizer {
 	private final Supplier<LogVerbosity> logVerbosity;
 	private final Supplier<GlobalOptimizationContext> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
+	private final Channel<Integer> generationsPerQuarterChannel;
 
 	private final AtomicReference<Simulator> simulator = new AtomicReference<>(null);
 	private final AtomicReference<SimulationResult> simulationResult = new AtomicReference<>(EMPTY_SIMULATION_RESULT);
 
 	private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private CompletableFuture<SimulationResult> quickOptimizationFuture;
+	private Future<?> regularOptimizationImmediateFuture;
 	private ScheduledFuture<?> regularOptimizationFuture;
 
 	public Optimizer(//
 			Supplier<LogVerbosity> logVerbosity, //
 			Supplier<GlobalOptimizationContext> gocSupplier, //
-			Channel<Integer> simulationsPerQuarterChannel) {
+			Channel<Integer> simulationsPerQuarterChannel, //
+			Channel<Integer> generationsPerQuarterChannel) {
 		this.logVerbosity = logVerbosity;
 		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
+		this.generationsPerQuarterChannel = generationsPerQuarterChannel;
 		initializeRandomRegistryForProduction();
 	}
 
 	/**
 	 * Activate and start the {@link Optimizer}.
 	 */
-	public void activate() {
+	public synchronized void activate() {
 		this.traceLog(() -> "Activate");
 		if (this.executor == null || this.executor.isShutdown() || this.executor.isTerminated()) {
 			this.executor = Executors.newSingleThreadScheduledExecutor();
@@ -81,7 +88,7 @@ public class Optimizer {
 	/**
 	 * Deactivate the {@link Optimizer}.
 	 */
-	public void deactivate() {
+	public synchronized void deactivate() {
 		this.traceLog(() -> "Deactivate optimizer");
 		this.interruptTask();
 		if (this.executor != null) {
@@ -97,6 +104,9 @@ public class Optimizer {
 		this.traceLog(() -> "Interrupt optimization task");
 		if (this.quickOptimizationFuture != null) {
 			this.quickOptimizationFuture.cancel(true);
+		}
+		if (this.regularOptimizationImmediateFuture != null) {
+			this.regularOptimizationImmediateFuture.cancel(true);
 		}
 		if (this.regularOptimizationFuture != null) {
 			this.regularOptimizationFuture.cancel(true);
@@ -131,19 +141,24 @@ public class Optimizer {
 						() -> this.triggerReschedule("Previous simulation result is empty"), //
 						1, //
 						TimeUnit.SECONDS);
-			} else {
-				this.scheduleRegularOptimization();
+				return;
 			}
+
+			this.scheduleRegularOptimization();
 		});
 	}
 
 	private void scheduleRegularOptimization() {
-		// Schedule every 15 minutes after the previous completes
-		this.regularOptimizationFuture = this.executor.scheduleWithFixedDelay(//
+		// Run immediately
+		this.regularOptimizationImmediateFuture = this.executor.submit(this::runRegularOptimization);
+
+		// Schedule to run repeatedly every 15 minutes on quarter hour + 5s buffer
+		var initialDelay = DateUtils.durationUntilNextQuarter(Clock.systemDefaultZone()).plusSeconds(5);
+		this.regularOptimizationFuture = this.executor.scheduleAtFixedRate(//
 				this::runRegularOptimization, //
-				0, // Initial delay
-				15, // Delay
-				TimeUnit.MINUTES);
+				initialDelay.toSeconds(), //
+				15 * 60, // 15 minutes period
+				TimeUnit.SECONDS);
 	}
 
 	@VisibleForTesting
@@ -238,6 +253,7 @@ public class Optimizer {
 		Optional.ofNullable(this.simulator.get()).ifPresent(s -> {
 			logSimulationResult(s, simulationResult);
 			this.simulationsPerQuarterChannel.setNextValue(s.getTotalNumberOfSimulations());
+			this.generationsPerQuarterChannel.setNextValue(s.getTotalNumberOfGenerations());
 		});
 
 		this.simulationResult.set(simulationResult);
@@ -292,6 +308,7 @@ public class Optimizer {
 			b.append("ScheduledPeriods:").append(currentResult.periods().size());
 		}
 		b.append("|SimulationsPerQuarter:").append(this.simulationsPerQuarterChannel.value());
+		b.append("|GenerationsPerQuarter:").append(this.generationsPerQuarterChannel.value());
 		Optional.ofNullable(this.simulator.get()).ifPresent(simulator -> {
 			b.append("|Current:").append(simulator.getTotalNumberOfSimulations());
 		});

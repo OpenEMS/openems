@@ -73,6 +73,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial100;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial50Gen3;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
@@ -229,6 +230,16 @@ public final class Apps {
 	 */
 	public static final FeneconCommercial92 feneconCommercial92(AppManagerTestBundle t) {
 		return app(t, FeneconCommercial92::new, "App.FENECON.Commercial.92");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconCommercial100}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial100 feneconCommercial100(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial100::new, "App.FENECON.Commercial.100");
 	}
 
 	/**

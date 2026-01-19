@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
+
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 

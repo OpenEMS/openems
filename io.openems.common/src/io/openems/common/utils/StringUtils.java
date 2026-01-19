@@ -109,7 +109,7 @@ public class StringUtils {
 		}
 	}
 
-	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("\\D++(\\d++)$");
 
 	/**
 	 * Causes this character sequence to be replaced by the reverse of the sequence.

@@ -7,8 +7,8 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordString16 extends ModbusRecordConstant {
 
-	public static final byte[] UNDEFINED_VALUE = new byte[32];
-
+	public static final String UNDEFINED_VALUE = "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000";
+	public static final byte[] UNDEFINED_BYTE_ARRAY = toByteArray(UNDEFINED_VALUE);
 	public static final int BYTE_LENGTH = 32;
 
 	private final String value;
@@ -31,7 +31,7 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 	 */
 	public static byte[] toByteArray(String value) {
 		if (value == null) {
-			return UNDEFINED_VALUE;
+			return UNDEFINED_BYTE_ARRAY;
 		}
 		var result = new byte[BYTE_LENGTH];
 		var converted = value.getBytes(StandardCharsets.US_ASCII);
@@ -47,7 +47,7 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null) {
-			return UNDEFINED_VALUE;
+			return UNDEFINED_BYTE_ARRAY;
 		}
 		return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 	}

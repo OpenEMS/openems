@@ -20,8 +20,8 @@ import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		final var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		final var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum() //

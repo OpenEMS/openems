@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -13,18 +16,24 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TestUtils;
 
 public class DateUtilsTest {
 
 	@Test
 	public void testRoundDownToQuarter() throws Exception {
-		assertEquals(//
-				ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC")), //
-				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"))));
-
-		assertEquals(//
-				ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC")), //
-				roundDownToQuarter(ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"))));
+		{
+			var expected = ZonedDateTime.of(2023, 1, 2, 3, 0, 0, 0, ZoneId.of("UTC"));
+			var source = ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"));
+			assertEquals(expected, roundDownToQuarter(source));
+			assertEquals(expected.toInstant(), roundDownToQuarter(source.toInstant()));
+		}
+		{
+			var expected = ZonedDateTime.of(2023, 1, 2, 3, 15, 0, 0, ZoneId.of("UTC"));
+			var source = ZonedDateTime.of(2023, 1, 2, 3, 16, 17, 18, ZoneId.of("UTC"));
+			assertEquals(expected, roundDownToQuarter(source));
+			assertEquals(expected.toInstant(), roundDownToQuarter(source.toInstant()));
+		}
 	}
 
 	@Test
@@ -185,4 +194,45 @@ public class DateUtilsTest {
 		DateUtils.parseLocalTimeOrError("0:13");
 	}
 
+	@Test
+	public void testMin() {
+		final var now0 = ZonedDateTime.now(TestUtils.createDummyClock());
+		final var now1 = now0.plusDays(1);
+		assertEquals(now0, DateUtils.min(null, now1, null, now0));
+	}
+
+	@Test
+	public void testDurationUntilNextQuarter() {
+		// 10:07:30
+		var fixedTime = ZonedDateTime.of(2026, 1, 2, 10, 7, 30, 0, ZoneId.of("UTC"));
+		var clock = Clock.fixed(fixedTime.toInstant(), fixedTime.getZone());
+
+		var duration = DateUtils.durationUntilNextQuarter(clock);
+
+		var expected = Duration.ofMinutes(7).plusSeconds(30);
+		assertEquals(expected, duration);
+	}
+
+	@Test
+	public void testNthWeekdayOfMonth() {
+		var now = ZonedDateTime.now(TestUtils.createDummyClock());
+		assertEquals(DayOfWeek.WEDNESDAY, now.getDayOfWeek());
+		assertEquals("2020-01-01T00:00Z", now.toString());
+		assertEquals(1, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-08T00:00Z", now.toString());
+		assertEquals(2, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-15T00:00Z", now.toString());
+		assertEquals(3, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-22T00:00Z", now.toString());
+		assertEquals(4, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-01-29T00:00Z", now.toString());
+		assertEquals(5, DateUtils.nthWeekdayOfMonth(now));
+		now = now.plusWeeks(1);
+		assertEquals("2020-02-05T00:00Z", now.toString());
+		assertEquals(1, DateUtils.nthWeekdayOfMonth(now));
+	}
 }

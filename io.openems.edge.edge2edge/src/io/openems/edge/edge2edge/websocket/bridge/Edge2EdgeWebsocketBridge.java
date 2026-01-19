@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.function.Disposable;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.types.ChannelAddress;

@@ -91,7 +91,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -158,6 +160,8 @@ public class JsonUtilsTest {
 			.addProperty("UUID", UUID.fromString("c48e2e28-09be-41d5-8e58-260d162991cc")) //
 			.addProperty("ZonedDateTime", ZonedDateTime.of(1900, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))) //
 			.addProperty("LocalDateTime", LocalDateTime.of(1900, 1, 1, 0, 0, 0, 0)) //
+			.addProperty("LocalDate", LocalDate.of(1900, 1, 1)) //
+			.addProperty("Duration", Duration.ZERO) //
 			.addPropertyIfNotNull("Boolean1", (Boolean) null) //
 			.addPropertyIfNotNull("Boolean2", Boolean.FALSE) //
 			.addPropertyIfNotNull("Double1", (Double) null) //
@@ -718,6 +722,18 @@ public class JsonUtilsTest {
 		assertEquals("1900-01-01T00:00", getAsOptionalLocalDateTime(JSON_OBJECT, "LocalDateTime").get().toString());
 
 		assertTrue(getAsOptionalLocalDateTime(JSON_OBJECT, "foo").isEmpty());
+	}
+
+	@Test
+	public void testGetAsLocalDate() throws OpenemsNamedException {
+		// TODO Implement getAsLocalDate and getAsOptionalLocalDate
+		assertEquals("1900-01-01", getAsString(JSON_OBJECT, "LocalDate").toString());
+	}
+
+	@Test
+	public void testGetDuration() throws OpenemsNamedException {
+		// TODO Implement getAsDuration
+		assertEquals("PT0S", getAsString(JSON_OBJECT, "Duration").toString());
 	}
 
 	@Test
