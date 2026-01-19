@@ -610,6 +610,52 @@ public class KeepAllNearEqualTest {
 		componentTest.next(new TestCase("#1"));
 
 	}
+	
+
+	@Test
+	public void testUndefinedSoc() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+
+		// Test extreme asymmetric limits
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-70800) //
+				.withAllowedDischargePower(67260) //
+				.withMaxApparentPower(92000) //
+				.withSoc(null);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-10590) //
+				.withAllowedDischargePower(92000) //
+				.withMaxApparentPower(92000) //
+				.withSoc(64);
+
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// undefined SOC -> Fall back to keeping all equal
+		expect("#1.1", ess1, -7500, 0); //
+		expect("#1.2", ess2, -7500, 0); //
+
+		ess0.setActivePowerEquals(-15000); //
+		componentTest.next(new TestCase("#1"));
+
+	}
 
 	@Test
 	public void testExtremeCasesOfEssLimits() throws Exception {
