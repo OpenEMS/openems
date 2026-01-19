@@ -21,3 +21,13 @@ export class EdgeNotSetError extends Error {
         super("edge not set");
     }
 }
+
+export class AuthenticationFailedError extends Error {
+    public static id: number = 1003;
+}
+
+export class DuplicateAuthenticationFailureException extends Error {
+    constructor() {
+        super("Duplicate Authentication Failure");
+    }
+}

@@ -1,5 +1,7 @@
 package io.openems.edge.edge2edge.common;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
@@ -39,6 +42,11 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint32;
+import io.openems.edge.common.modbusslave.ModbusRecordUint64;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.taskmanager.Priority;
@@ -141,7 +149,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		if (value == null) {
 			return false;
 		}
-		return (short) (int) value == ModbusSlaveNatureTable.generateHash(text);
+		return value.intValue() == ModbusSlaveNatureTable.generateHash(text);
 	}
 
 	@Override
@@ -246,7 +254,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					}
 
 					if (record instanceof ModbusRecordChannel r) {
-						m(r.getChannelId(), element);
+						m(r.getChannelId(), element, getConverterForType(record.getType()));
 
 					} else {
 						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
@@ -358,6 +366,23 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	/**
+	 * Selects the appropriate converter for a given ModbusType.
+	 * 
+	 * @param type the type of the Modbus element
+	 * @return the converter
+	 */
+	protected static ElementToChannelConverter getConverterForType(ModbusType type) {
+		return switch (type) {
+		case FLOAT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat32.UNDEFINED_VALUE);
+		case FLOAT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat64.UNDEFINED_VALUE);
+		case STRING16 -> DIRECT_1_TO_1; // TODO
+		case ENUM16, UINT16 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint16.UNDEFINED_VALUE);
+		case UINT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint32.UNDEFINED_VALUE);
+		case UINT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint64.UNDEFINED_VALUE);
+		};
+	}
+
+	/**
 	 * Adds a Reak-Task with ModbusElements.
 	 * 
 	 * <ul>
@@ -370,14 +395,14 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsException on error
 	 */
 	private void addReadTask(Deque<ModbusElement> elements) throws OpenemsException {
-		if (elements.isEmpty()) {
-			return;
-		}
-		while (elements.peekFirst() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekFirst() instanceof DummyRegisterElement) {
 			elements.removeFirst();
 		}
-		while (elements.peekLast() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekLast() instanceof DummyRegisterElement) {
 			elements.removeLast();
+		}
+		if (elements.isEmpty()) {
+			return;
 		}
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//

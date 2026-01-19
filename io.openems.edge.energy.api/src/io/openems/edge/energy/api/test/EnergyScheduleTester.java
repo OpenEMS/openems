@@ -12,8 +12,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.handler.AbstractEnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation.Transition;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
@@ -99,7 +99,7 @@ public class EnergyScheduleTester {
 						? -1 // none available
 						: modes[eshIndex++];
 				final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
-				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness);
+				e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
 			}
 			case EnergyScheduleHandler.WithOnlyOneMode e //
 				-> e.simulate(period, gsc, csc, ef, fitness);

@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
@@ -73,7 +74,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "icon/consumption.svg";
+        return environment.icons.COMMON.CONSUMPTION;
     }
 
     protected getValueText(value: number): string {

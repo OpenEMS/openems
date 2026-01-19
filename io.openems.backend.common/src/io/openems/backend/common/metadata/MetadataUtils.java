@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
@@ -28,10 +27,9 @@ public class MetadataUtils {
 	 * @param edges             a Collection of {@link Edge}s
 	 * @param paginationOptions the {@link PaginationOptions}
 	 * @return the result, a list of {@link EdgeMetadata}
-	 * @throws OpenemsNamedException on error
 	 */
 	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(User user, Collection<EDGE> edges,
-			PaginationOptions paginationOptions) throws OpenemsNamedException {
+			PaginationOptions paginationOptions) {
 		var pagesStream = edges.stream();
 		final var query = paginationOptions.getQuery();
 		if (query != null) {
@@ -79,7 +77,6 @@ public class MetadataUtils {
 				.sorted(comparator) //
 				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
 				.limit(paginationOptions.getLimit()) //
-				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
 				.map(myEdge -> {
 					return new EdgeMetadata(//
 							myEdge.getId(), //
@@ -91,7 +88,7 @@ public class MetadataUtils {
 							myEdge.getLastmessage(), //
 							null, // firstSetupProtocol
 							Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
-                            myEdge.getSettings());
+							myEdge.getSettings());
 				}).toList();
 	}
 

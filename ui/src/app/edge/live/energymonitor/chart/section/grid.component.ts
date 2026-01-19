@@ -5,6 +5,7 @@ import { Subscription } from "rxjs";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
+import { environment } from "src/environments";
 import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
@@ -127,7 +128,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         // set grid mode
         this.gridMode = sum.grid.gridMode;
         if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath();
+            this.square.image.image = this.getImagePath();
         }
     }
 
@@ -151,11 +152,11 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getImagePath(): string {
         if (this.gridMode === GridMode.OFF_GRID) {
-            return "icon/offgrid.svg";
+            return environment.icons.COMMON.OFFGRID;
         } else if (this.restrictionMode === 1) {
-            return "icon/gridRestriction.svg";
+            return environment.icons.COMMON.GRID_RESTRICTION;
         }
-        return "icon/grid.svg";
+        return environment.icons.COMMON.GRID;
     }
 
     protected getValueText(value: number): string {

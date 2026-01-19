@@ -1,5 +1,6 @@
 package io.openems.common.jscalendar;
 
+import static io.openems.common.jscalendar.JSCalendar.VOID_SERIALIZER;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.MONTHLY;
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.WEEKLY;
@@ -17,8 +18,12 @@ import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -30,13 +35,16 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar.OneTasks;
 import io.openems.common.jscalendar.JSCalendar.RecurrenceRule;
 import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.utils.JsonUtils;
 
 //CHECKSTYLE:OFF
 public class JSCalendarTest {
@@ -65,12 +73,20 @@ public class JSCalendarTest {
 		assertEquals(expectedPayloadString, oneTask.payload().toString());
 	}
 
+	private static void assertOneTask(OneTask<?> oneTask, DayOfWeek expectedDayOfWeek, String expectedStartAndEndString,
+			String expectedPayloadString) {
+		assertOneTask(oneTask, expectedStartAndEndString, expectedStartAndEndString, expectedPayloadString);
+		assertDayOfWeek(oneTask.start(), expectedStartAndEndString, expectedDayOfWeek);
+	}
+
 	@Test
 	public void testTasks_fromStringOrEmpty() throws OpenemsNamedException {
 		assertEquals(0, Tasks.fromStringOrEmpty(null).numberOfTasks());
 		assertEquals(0, Tasks.fromStringOrEmpty("").numberOfTasks());
 		assertEquals(0, Tasks.fromStringOrEmpty("  ").numberOfTasks());
 		assertEquals(0, Tasks.fromStringOrEmpty("foo").numberOfTasks());
+
+		assertEquals(new JsonArray(), Tasks.fromStringOrEmpty(null).toJson(VOID_SERIALIZER));
 	}
 
 	@Test
@@ -119,12 +135,6 @@ public class JSCalendarTest {
 					"2020-01-02T00:00Z", THURSDAY);
 			assertDayOfWeek(weekly.getNextOccurence(EPOCH, NOW_2000.plusDays(1).plusNanos(1)), //
 					"2020-01-08T00:00Z", WEDNESDAY);
-		}
-		{
-			final var monthly = RecurrenceRule.create() //
-					.setFrequency(MONTHLY) //
-					.build();
-			assertNull(monthly.getNextOccurence(EPOCH, NOW_2000)); // not implemented
 		}
 		{
 			final var yearly = RecurrenceRule.create() //
@@ -225,6 +235,12 @@ public class JSCalendarTest {
 	}
 
 	@Test
+	public void testTasks_getActiveOneTask() throws OpenemsNamedException {
+		var tasks = JSCalendar.Tasks.empty();
+		assertNull(tasks.getActiveOneTask());
+	}
+
+	@Test
 	public void testTasks_getOneTasksBetween() throws OpenemsNamedException {
 		{
 			var clock = createDummyClock();
@@ -234,49 +250,91 @@ public class JSCalendarTest {
 							.setStart("12:15") //
 							.addRecurrenceRule(b -> b //
 									.setFrequency(DAILY)) //
-							.setPayload(new StringPayload("ONE")) //
-							.build()) //
+							.setPayload(new StringPayload("ONE"))) //
 					.add(t -> t //
 							.setStart("12:00") //
 							.setDuration(Duration.ofMinutes(30)) //
 							.addRecurrenceRule(b -> b //
 									.setFrequency(DAILY)) //
-							.setPayload(new StringPayload("TWO")) //
-							.build()) //
+							.setPayload(new StringPayload("TWO"))) //
 					.add(t -> t //
 							.setStart("07:00") //
 							.setDuration(Duration.ofHours(8)) //
 							.addRecurrenceRule(b -> b //
 									.setFrequency(WEEKLY) //
 									.addByDay(TUESDAY, THURSDAY)) //
-							.setPayload(new StringPayload("THREE")) //
-							.build()) //
+							.setPayload(new StringPayload("THREE"))) //
 					.add(t -> t //
 							.setStart("00:15") //
 							.setDuration(Duration.ofMinutes(15)) //
 							.addRecurrenceRule(b -> b //
 									.setFrequency(DAILY)) //
-							.setPayload(new StringPayload("FOUR")) //
-							.build()) //
+							.setPayload(new StringPayload("FOUR"))) //
 					.build();
 
 			assertNull(tasks.getActiveOneTask());
-			clock.leap(15, MINUTES);
+			clock.leap(15, MINUTES); // 2020-01-01T00:15
 			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T00:15Z", "2020-01-01T00:30Z", "FOUR");
 			assertOneTask(tasks.getLastActiveOneTask(), "2020-01-01T00:15Z", "2020-01-01T00:30Z", "FOUR");
+			clock.leap(14, MINUTES); // "2020-01-01T00:29Z
+			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T00:15Z", "2020-01-01T00:30Z", "FOUR");
+			clock.leap(1, MINUTES); // 2020-01-01T00:30Z
+			assertNull(tasks.getActiveOneTask());
+			clock.leap(11 * 60 + 29, MINUTES); // 2020-01-01T11:59Z
+			assertNull(tasks.getActiveOneTask());
+			clock.leap(1, MINUTES); // 2020-01-01T12:00Z
+			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T12:00Z", "2020-01-01T12:15Z", "TWO");
+			clock.leap(14, MINUTES); // 2020-01-01T12:14Z
+			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T12:00Z", "2020-01-01T12:15Z", "TWO");
+			clock.leap(1, MINUTES); // 2020-01-01T12:15Z
+			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T12:15Z", "2020-01-01T12:15Z", "ONE");
+			assertOneTask(tasks.getActiveOneTask(), "2020-01-01T12:15Z", "2020-01-01T12:30Z", "TWO");
 
 			var ots = tasks.getOneTasksBetween(NOW_2000, NOW_2000.plusDays(2));
+			assertFalse(ots.isEmpty());
 			assertEquals(10, ots.size());
-			assertOneTask(ots.pollFirst(), "2020-01-01T00:15Z", "2020-01-01T00:30Z", "FOUR");
-			assertOneTask(ots.pollFirst(), "2020-01-01T12:00Z", "2020-01-01T12:15Z", "TWO");
-			assertOneTask(ots.pollFirst(), "2020-01-01T12:15Z", "2020-01-01T12:15Z", "ONE");
-			assertOneTask(ots.pollFirst(), "2020-01-01T12:15Z", "2020-01-01T12:30Z", "TWO");
-			assertOneTask(ots.pollFirst(), "2020-01-02T00:15Z", "2020-01-02T00:30Z", "FOUR");
-			assertOneTask(ots.pollFirst(), "2020-01-02T07:00Z", "2020-01-02T12:00Z", "THREE");
-			assertOneTask(ots.pollFirst(), "2020-01-02T12:00Z", "2020-01-02T12:15Z", "TWO");
-			assertOneTask(ots.pollFirst(), "2020-01-02T12:15Z", "2020-01-02T12:15Z", "ONE");
-			assertOneTask(ots.pollFirst(), "2020-01-02T12:15Z", "2020-01-02T12:30Z", "TWO");
-			assertOneTask(ots.pollFirst(), "2020-01-02T12:30Z", "2020-01-02T15:00Z", "THREE");
+			var iterator = ots.iterator();
+			assertOneTask(iterator.next(), "2020-01-01T00:15Z", "2020-01-01T00:30Z", "FOUR");
+			assertOneTask(iterator.next(), "2020-01-01T12:00Z", "2020-01-01T12:15Z", "TWO");
+			assertOneTask(iterator.next(), "2020-01-01T12:15Z", "2020-01-01T12:15Z", "ONE");
+			assertOneTask(iterator.next(), "2020-01-01T12:15Z", "2020-01-01T12:30Z", "TWO");
+			assertOneTask(iterator.next(), "2020-01-02T00:15Z", "2020-01-02T00:30Z", "FOUR");
+			assertOneTask(iterator.next(), "2020-01-02T07:00Z", "2020-01-02T12:00Z", "THREE");
+			assertOneTask(iterator.next(), "2020-01-02T12:00Z", "2020-01-02T12:15Z", "TWO");
+			assertOneTask(iterator.next(), "2020-01-02T12:15Z", "2020-01-02T12:15Z", "ONE");
+			assertOneTask(iterator.next(), "2020-01-02T12:15Z", "2020-01-02T12:30Z", "TWO");
+			assertOneTask(iterator.next(), "2020-01-02T12:30Z", "2020-01-02T15:00Z", "THREE");
+
+			// Test getPayloadAt()
+			assertNull(ots.getPayloadAt(ZonedDateTime.parse("2020-01-02T00:14:59Z")));
+			assertEquals("FOUR", ots.getPayloadAt(ZonedDateTime.parse("2020-01-02T00:15Z")).toString());
+			assertEquals("FOUR", ots.getPayloadAt(ZonedDateTime.parse("2020-01-02T00:29:59Z")).toString());
+			assertNull(ots.getPayloadAt(ZonedDateTime.parse("2020-01-02T00:30Z")));
+
+			// Test getPayloadsBetween()
+			assertEquals(0L, ots.getBetween(//
+					ZonedDateTime.parse("2020-01-02T00:14Z"), //
+					ZonedDateTime.parse("2020-01-02T00:14:59Z")).count());
+			{
+				var ps = ots.getBetween(//
+						ZonedDateTime.parse("2020-01-02T00:15Z"), //
+						ZonedDateTime.parse("2020-01-02T07:00:00Z")).toList();
+				assertEquals(1, ps.size());
+				assertOneTask(ps.get(0), "2020-01-02T00:15Z", "2020-01-02T00:30Z", "FOUR");
+			}
+			{
+				var ps = ots.getBetween(//
+						ZonedDateTime.parse("2020-01-02T00:15Z"), //
+						ZonedDateTime.parse("2020-01-02T07:00:01Z")).toList();
+				assertEquals(2, ps.size());
+				assertOneTask(ps.get(0), "2020-01-02T00:15Z", "2020-01-02T00:30Z", "FOUR");
+				assertOneTask(ps.get(1), "2020-01-02T07:00Z", "2020-01-02T12:00Z", "THREE");
+			}
+
+			// Serializer
+			var serializer = OneTasks.serializer(StringPayload.serializer());
+			var json = serializer.serialize(ots);
+			assertEquals(json, serializer.serialize(serializer.deserialize(json)));
 		}
 		{
 			var clock = createDummyClock();
@@ -288,22 +346,21 @@ public class JSCalendarTest {
 							.addRecurrenceRule(b -> b //
 									.setFrequency(WEEKLY) //
 									.addByDay(WEDNESDAY)) //
-							.setPayload(new StringPayload("ONE")) //
-							.build()) //
+							.setPayload(new StringPayload("ONE"))) //
 					.add(t -> t //
 							.setStart("12:00") //
 							.setDuration(Duration.ofHours(30)) //
 							.addRecurrenceRule(b -> b //
 									.setFrequency(DAILY)) //
-							.setPayload(new StringPayload("TWO")) //
-							.build()) //
+							.setPayload(new StringPayload("TWO"))) //
 					.build();
 
 			var ots = tasks.getOneTasksBetween(NOW_2000, NOW_2000.plusDays(2));
 			assertEquals(3, ots.size());
-			assertOneTask(ots.pollFirst(), "2020-01-01T00:00Z", "2020-01-01T11:00Z", "TWO");
-			assertOneTask(ots.pollFirst(), "2020-01-01T11:00Z", "2020-01-01T13:00Z", "ONE");
-			assertOneTask(ots.pollFirst(), "2020-01-01T13:00Z", "2020-01-03T00:00Z", "TWO");
+			var iterator = ots.iterator();
+			assertOneTask(iterator.next(), "2020-01-01T00:00Z", "2020-01-01T11:00Z", "TWO");
+			assertOneTask(iterator.next(), "2020-01-01T11:00Z", "2020-01-01T13:00Z", "ONE");
+			assertOneTask(iterator.next(), "2020-01-01T13:00Z", "2020-01-03T00:00Z", "TWO");
 		}
 		{
 			var clock = createDummyClock();
@@ -315,12 +372,10 @@ public class JSCalendarTest {
 							.addRecurrenceRule(b -> b //
 									.setFrequency(DAILY) //
 									.setUntil(LocalDate.of(2020, 1, 2))) //
-							.setPayload(new StringPayload("ONE")) //
-							.build()) //
+							.setPayload(new StringPayload("ONE"))) //
 					.add(t -> t //
 							.setStart(LocalDateTime.of(2020, 1, 2, 4, 0)) //
-							.setPayload(new StringPayload("TWO")) //
-							.build()) //
+							.setPayload(new StringPayload("TWO"))) //
 					.build();
 
 			// 00:00
@@ -351,6 +406,81 @@ public class JSCalendarTest {
 	}
 
 	@Test
+	public void testTasks_getOneTasksBetween_Monthly() throws OpenemsNamedException {
+		var clock = createDummyClock();
+		{
+			var tasks = JSCalendar.Tasks.<Void>create() //
+					.setClock(clock) //
+					.add(t -> t //
+							.setStart("20:00") //
+							.addRecurrenceRule(b -> b //
+									.setFrequency(MONTHLY))) //
+					.build();
+
+			var ots = tasks.getOneTasksBetween(NOW_2000, NOW_2000.plusMonths(13));
+			assertTrue(ots.isEmpty());
+		}
+		{
+			// Every first Sunday of the month at 8pm
+			var tasks = JSCalendar.Tasks.<StringPayload>create() //
+					.setClock(clock) //
+					.add(t -> t //
+							.setStart("20:00") //
+							.addRecurrenceRule(b -> b //
+									.setFrequency(MONTHLY) //
+									.addByDay(SUNDAY)) //
+							.setPayload(new StringPayload("ONE"))) //
+					.build();
+
+			var ots = tasks.getOneTasksBetween(NOW_2000, NOW_2000.plusMonths(13));
+			assertEquals(13, ots.size());
+			var iterator = ots.iterator();
+			assertOneTask(iterator.next(), SUNDAY, "2020-01-05T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-02-02T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-03-01T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-04-05T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-05-03T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-06-07T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-07-05T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-08-02T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-09-06T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-10-04T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-11-01T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-12-06T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2021-01-03T20:00Z", "ONE");
+		}
+		{
+			// ONE on every first Sunday and Tuesday of the month
+			// TWO on every first Thursday
+			var tasks = JSCalendar.Tasks.<StringPayload>create() //
+					.setClock(clock) //
+					.add(t -> t //
+							.setStart("20:00") //
+							.addRecurrenceRule(b -> b //
+									.setFrequency(MONTHLY) //
+									.addByDay(SUNDAY, TUESDAY)) //
+							.setPayload(new StringPayload("ONE"))) //
+					.add(t -> t //
+							.setStart("20:00") //
+							.addRecurrenceRule(b -> b //
+									.setFrequency(MONTHLY) //
+									.addByDay(THURSDAY)) //
+							.setPayload(new StringPayload("TWO"))) //
+					.build();
+
+			var ots = tasks.getOneTasksBetween(NOW_2000, NOW_2000.plusMonths(2));
+			assertEquals(6, ots.size());
+			var iterator = ots.iterator();
+			assertOneTask(iterator.next(), THURSDAY, "2020-01-02T20:00Z", "TWO");
+			assertOneTask(iterator.next(), SUNDAY, "2020-01-05T20:00Z", "ONE");
+			assertOneTask(iterator.next(), TUESDAY, "2020-01-07T20:00Z", "ONE");
+			assertOneTask(iterator.next(), SUNDAY, "2020-02-02T20:00Z", "ONE");
+			assertOneTask(iterator.next(), TUESDAY, "2020-02-04T20:00Z", "ONE");
+			assertOneTask(iterator.next(), THURSDAY, "2020-02-06T20:00Z", "TWO");
+		}
+	}
+
+	@Test
 	public void testParseSingleTask() throws OpenemsNamedException {
 		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
 				[
@@ -361,6 +491,8 @@ public class JSCalendarTest {
 				   }
 				]""");
 		assertEquals(1, sut.numberOfTasks());
+
+		assertEquals("PT12H", JsonUtils.getAsString(sut.toJson(VOID_SERIALIZER).get(0), "duration"));
 	}
 
 	@Test
@@ -382,6 +514,57 @@ public class JSCalendarTest {
 	}
 
 	@Test
+	public void testMonthlyParse() throws OpenemsNamedException {
+		// Every first sunday of the month at 8pm
+		// TODO Implement "interval" to support "every third month" etc.
+		// TODO Implement "nthOfPeriod" to also support "second sunday" etc.
+		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+				[
+				   {
+				      "@type":"Task",
+				      "start":"2026-01-01T20:00:00",
+				      "recurrenceRules":[
+				         {
+				            "frequency":"monthly",
+				            "interval": 1,
+				            "byDay": [
+				    			"su"
+				  			]
+				         }
+				      ]
+				   }
+				]""");
+		assertEquals(1, sut.numberOfTasks());
+	}
+
+	@Test
+	public void testFallbackParse() throws OpenemsNamedException {
+		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+				[
+				   {
+				      "@type":"Task",
+				      "start":"08:00:00",
+				      "duration":"PT12H",
+				      "recurrenceRules":[
+				         {
+				            "frequency":"daily"
+				         }
+				      ],
+				      "openems.io:payload":{
+				         "value": "BAR"
+				      }
+				   },
+				   {
+				      "@type":"Task",
+				      "openems.io:payload":{
+				         "value": "FOO"
+				      }
+				   }
+				]""", StringPayload.serializer());
+		assertEquals(2, sut.numberOfTasks());
+	}
+
+	@Test
 	public void testSingle() throws OpenemsNamedException {
 		var sut = JSCalendar.Task.<StringPayload>create() //
 				.setUid(getNilUuid()) //
@@ -394,6 +577,7 @@ public class JSCalendarTest {
 				  "@type": "Task",
 				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "2024-06-17T00:00:00",
+				  "duration": "PT0S",
 				  "openems.io:payload": {
 				    "value": "Hello World"
 				  }
@@ -418,6 +602,7 @@ public class JSCalendarTest {
 				  "@type": "Task",
 				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "07:00:00",
+				  "duration": "PT0S",
 				  "recurrenceRules": [
 				    {
 				      "frequency": "weekly",
@@ -467,6 +652,7 @@ public class JSCalendarTest {
 				  "@type": "Task",
 				  "uid": "00000000-0000-0000-0000-000000000000",
 				  "start": "2020-01-02T00:00:00",
+				  "duration": "PT0S",
 				  "recurrenceRules": [
 				    {
 				      "frequency": "weekly",
@@ -501,7 +687,7 @@ public class JSCalendarTest {
 
 	@Test
 	public void testTasks_getOneTasksBetween2() throws OpenemsNamedException {
-		var smartConfig = JSCalendar.Tasks.<JsonObject>create() //
+		var tasks = JSCalendar.Tasks.<JsonObject>create() //
 				.add(t -> t //
 						.setStart("1970-01-01T07:30:00") //
 						.addRecurrenceRule(b -> b //
@@ -509,8 +695,7 @@ public class JSCalendarTest {
 								.addByDay(TUESDAY, WEDNESDAY, THURSDAY, FRIDAY)) //
 						.setPayload(buildJsonObject() //
 								.addProperty("sessionEnergyMinimum", 10000) //
-								.build()) //
-						.build()) //
+								.build())) //
 				.add(t -> t //
 						.setStart("1970-01-01T07:30:00") //
 						.addRecurrenceRule(b -> b //
@@ -518,41 +703,86 @@ public class JSCalendarTest {
 								.addByDay(MONDAY)) //
 						.setPayload(buildJsonObject() //
 								.addProperty("sessionEnergyMinimum", 60000) //
-								.build()) //
-						.build()) //
+								.build())) //
 				.build();
 
 		var firstTime = ZonedDateTime.parse("2025-03-23T22:45+01:00[Europe/Berlin]");
 		var lastTime = ZonedDateTime.parse("2025-04-01T23:00+01:00[Europe/Berlin]");
-		var ots = smartConfig.getOneTasksBetween(firstTime, lastTime);
+		var ots = tasks.getOneTasksBetween(firstTime, lastTime);
 
 		assertEquals(7, ots.size());
-		var first = ots.pollFirst();
-		assertOneTask(first, //
+		var iterator = ots.iterator();
+		var firstOt = iterator.next();
+		assertOneTask(firstOt, //
 				"2025-03-24T07:30+01:00[Europe/Berlin]", "2025-03-24T07:30+01:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":60000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-03-25T07:30+01:00[Europe/Berlin]", "2025-03-25T07:30+01:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":10000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-03-26T07:30+01:00[Europe/Berlin]", "2025-03-26T07:30+01:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":10000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-03-27T07:30+01:00[Europe/Berlin]", "2025-03-27T07:30+01:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":10000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-03-28T07:30+01:00[Europe/Berlin]", "2025-03-28T07:30+01:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":10000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-03-31T07:30+02:00[Europe/Berlin]", "2025-03-31T07:30+02:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":60000}");
-		assertOneTask(ots.pollFirst(), //
+		assertOneTask(iterator.next(), //
 				"2025-04-01T07:30+02:00[Europe/Berlin]", "2025-04-01T07:30+02:00[Europe/Berlin]",
 				"{\"sessionEnergyMinimum\":10000}");
 
 		assertEquals(
-				"OneTask{start=2025-03-24T07:30+01:00[Europe/Berlin], end=2025-03-24T07:30+01:00[Europe/Berlin], duration=null, payload={\"sessionEnergyMinimum\":60000}}",
-				first.toString());
+				"OneTask{start=2025-03-24T07:30+01:00[Europe/Berlin], end=2025-03-24T07:30+01:00[Europe/Berlin], duration=PT0S, payload={\"sessionEnergyMinimum\":60000}}",
+				firstOt.toString());
+	}
+
+	@Test
+	public void testTasks_withXTask() throws OpenemsNamedException {
+		final var clock = createDummyClock();
+		final var uid0 = randomUUID();
+		final var tasks0 = JSCalendar.Tasks.<StringPayload>create() //
+				.setClock(clock) //
+				.add(t -> t //
+						.setUid(uid0) //
+						.setPayload(new StringPayload("FOO"))) //
+				.build();
+		assertEquals(1, tasks0.tasks.size());
+
+		// Add
+		clock.leap(1, MINUTES);
+		final var tasks1 = tasks0.withAddedTask(JSCalendar.Task.<StringPayload>create()//
+				.setPayload(new StringPayload("BAR")) //
+				.build());
+		assertEquals(2, tasks1.tasks.size());
+		assertEquals("FOO", tasks1.tasks.get(0).payload().value);
+		final var addedTask = tasks1.tasks.get(1);
+		assertEquals("BAR", addedTask.payload().value);
+		assertEquals("2020-01-01T00:01Z", addedTask.updated().toString());
+
+		// Update
+		assertThrowsExactly(IllegalArgumentException.class,
+				() -> tasks1.withUpdatedTask(JSCalendar.Task.<StringPayload>create()//
+						.setUid(randomUUID()) // New UID
+						.setPayload(new StringPayload("BAR")) //
+						.build()));
+		final var tasks2 = tasks1.withUpdatedTask(JSCalendar.Task.<StringPayload>create()//
+				.setUid(uid0) // New UID
+				.setPayload(new StringPayload("FOO2")) //
+				.build());
+		assertEquals(2, tasks2.tasks.size());
+		assertEquals("FOO", tasks1.tasks.get(0).payload().value);
+		assertEquals("FOO2", tasks2.tasks.get(0).payload().value);
+
+		// Remove
+		assertThrowsExactly(IllegalArgumentException.class, //
+				() -> tasks1.withRemovedTask(randomUUID())); // New UID
+		final var tasks3 = tasks2.withRemovedTask(uid0);
+		assertEquals(1, tasks3.tasks.size());
+		assertEquals("BAR", tasks3.tasks.get(0).payload().value);
 	}
 
 	@Test

@@ -1,9 +1,10 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy, OnInit } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
 import { ModalController, ViewWillEnter } from "@ionic/angular";
+import { CookieService } from "ngx-cookie-service";
 import { Subject } from "rxjs";
 import { environment } from "src/environments";
 
@@ -22,7 +23,7 @@ import { Edge, Service, Utils, Websocket } from "../shared/shared";
     templateUrl: "./login.component.html",
     standalone: false,
 })
-export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy, OnInit {
+export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
     public currentThemeMode: UserTheme;
     public environment = environment;
@@ -44,6 +45,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
         private cdref: ChangeDetectorRef,
         protected modalCtrl: ModalController,
         private userService: UserService,
+        private cookieService: CookieService,
     ) {
         effect(() => {
             const user = this.userService.currentUser();
@@ -54,6 +56,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     public static getCurrentTheme(user: User): UserTheme {
         return (user?.settings[UserSettings.THEME] ?? localStorage.getItem("THEME") ?? this.DEFAULT_THEME) as UserTheme;
     }
+
     /**
    * Preprocesses the credentials
    *
@@ -71,16 +74,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     ngAfterContentChecked() {
         this.cdref.detectChanges();
     }
-
-    ngOnInit() {
-        const interval = setInterval(() => {
-            if (this.websocket.status === "online" && !this.router.url.split("/").includes("live")) {
-                this.router.navigate(["/overview"]);
-                clearInterval(interval);
-            }
-        }, 1000);
-    }
-
 
     async ionViewWillEnter() {
     }
@@ -152,4 +145,7 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
         }
     }
 
+    protected navigateOAuth() {
+        this.websocket.initiateConnect();
+    }
 }

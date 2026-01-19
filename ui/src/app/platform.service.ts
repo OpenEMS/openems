@@ -21,7 +21,7 @@ export class PlatFormService {
     public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
     public static deviceInfo: DeviceInfo;
     public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
-    private static isMobile: boolean = false;
+    public static isMobile: boolean = false;
 
     public isActiveAgain: WritableSignal<boolean> = signal(false);
 
@@ -56,7 +56,7 @@ export class PlatFormService {
     }
 
     public listen() {
-    // Don't use in web
+        // Don't use in web
         if (PlatFormService.platform === "web") {
             return;
         }
@@ -186,7 +186,7 @@ export class PlatFormService {
     private setIsActiveAgain(isAppCurrentlyActive: boolean) {
 
         if (isAppCurrentlyActive === true
-      && PlatFormService.isActive?.getValue() === false) {
+            && PlatFormService.isActive?.getValue() === false) {
             this.isActiveAgain.set(true);
             return;
         }

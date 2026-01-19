@@ -1,6 +1,5 @@
 package io.openems.edge.controller.cleverpv;
 
-import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
@@ -29,7 +28,6 @@ import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -264,11 +262,13 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	}
 
 	private boolean isNoDischargeAllowed() {
-		return Optional.ofNullable(this.timeOfUseTariffController).map(TimeOfUseTariffController::getStateMachine)
+		return Optional.ofNullable(this.timeOfUseTariffController) //
+				.map(TimeOfUseTariffController::getStateMachine) //
 				.map(s -> switch (s) {
 				case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
-				case CHARGE_GRID, DISCHARGE_GRID -> false; // no available modes in these cases
-				}).orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
+				case CHARGE_GRID, DISCHARGE_GRID, PEAK_SHAVING -> false; // no available modes in these cases
+				}) //
+				.orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
 	}
 
 	private boolean isEssChargeFromGridAllowed() {
@@ -294,10 +294,6 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 		if (mode == RemoteControlMode.NO_DISCHARGE) {
 			this.limit = 0;
 		}
-
-		JsonUtils.JsonObjectBuilder builder = buildJsonObject().add("mode", JsonUtils.toJson(mode.toString()));
-
-		builder.add("power", JsonUtils.toJson(this.limit));
 	}
 
 	private void resetControlMode() {

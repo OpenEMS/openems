@@ -148,12 +148,12 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 		var nextRow = 2;
 		for (ModbusType modbusType : ModbusType.values()) {
 			byte[] value = switch (modbusType) {
-			case FLOAT32 -> ModbusRecordFloat32.UNDEFINED_VALUE;
-			case FLOAT64 -> ModbusRecordFloat64.UNDEFINED_VALUE;
-			case STRING16 -> ModbusRecordString16.UNDEFINED_VALUE;
-			case ENUM16, UINT16 -> ModbusRecordUint16.UNDEFINED_VALUE;
-			case UINT32 -> ModbusRecordUint32.UNDEFINED_VALUE;
-			case UINT64 -> ModbusRecordUint64.UNDEFINED_VALUE;
+			case FLOAT32 -> ModbusRecordFloat32.UNDEFINED_BYTE_ARRAY;
+			case FLOAT64 -> ModbusRecordFloat64.UNDEFINED_BYTE_ARRAY;
+			case STRING16 -> ModbusRecordString16.UNDEFINED_BYTE_ARRAY;
+			case ENUM16, UINT16 -> ModbusRecordUint16.UNDEFINED_BYTE_ARRAY;
+			case UINT32 -> ModbusRecordUint32.UNDEFINED_BYTE_ARRAY;
+			case UINT64 -> ModbusRecordUint64.UNDEFINED_BYTE_ARRAY;
 			};
 			nextRow++;
 			ws.value(nextRow, 0, modbusType.toString());

@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.Hashtable;
-import java.util.Random;
 
 import com.dalsemi.onewire.OneWireAccessProvider;
 import com.dalsemi.onewire.OneWireException;
@@ -90,7 +90,7 @@ import com.dalsemi.onewire.utils.Convert;
  */
 public class NetAdapterHost implements Runnable, NetAdapterConstants {
 	/** random number generator, used to issue challenges to client */
-	protected static final Random rand = new Random();
+	protected static final SecureRandom rand = new SecureRandom();
 
 	/** The adapter this NetAdapter will proxy too */
 	protected DSPortAdapter adapter = null;

@@ -30,13 +30,11 @@ import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { ObjectUtils } from "../../utils/object/object.utils";
-import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
-import { ThirdPartyUsageAcceptance } from "./popover/shared/third-party-usage-acceptance";
 
 export enum EdgeSettings {
     ANNUAL_REVIEW_2025 = "annual_review_2025",
@@ -554,27 +552,7 @@ export class Edge {
      * @returns
      */
     public async shouldShowPrivacyPolicyPopover(websocket: Websocket): Promise<boolean> {
-        const [_err, config] = await PromiseUtils.Functions.handle(this.getFirstValidConfig(websocket));
-
-        if (_err) {
-            return false;
-        }
-
-        if (this.isOnline === false) {
-            return false;
-        }
-
-        const isUndecided = config
-            .getComponent("_meta")
-            .hasPropertyValue<ThirdPartyUsageAcceptance>("thirdPartyUsageAcceptance", ThirdPartyUsageAcceptance.UNDECIDED);
-        const latitude = config.getComponent("_meta").getPropertyFromComponent<number>("latitude");
-        const longitude = config.getComponent("_meta").getPropertyFromComponent<number>("longitude");
-        const hasValidCoordinates =
-            latitude != null && longitude != null &&
-            latitude >= -90 && latitude <= 90 &&
-            longitude >= -180 && longitude <= 180;
-        const isOwner = this.role === Role.OWNER;
-        return isUndecided && isOwner && hasValidCoordinates;
+        return false;
     }
 
     private addCommonWidgetNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {

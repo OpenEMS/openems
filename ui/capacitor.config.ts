@@ -4,30 +4,31 @@ import { Theme } from 'src/environments';
 let config: CapacitorConfig;
 
 const baseConfig: CapacitorConfig = {
-  webDir: 'target',
-  server: {
-    androidScheme: 'https',
-    iosScheme: 'https',
-  },
-  android: {
-    adjustMarginsForEdgeToEdge: 'auto'
-  },
-  plugins: {
-    SplashScreen: {
-      launchShowDuration: 1000,
-      launchAutoHide: false,
-      launchFadeOutDuration: 1000,
-      backgroundColor: "#ffffffff",
-      androidSplashResourceName: "splash",
-      androidScaleType: "CENTER_INSIDE",
-      splashFullScreen: false,
-      splashImmersive: true,
-      useDialog: true,
+    webDir: 'target',
+    server: {
+        androidScheme: 'https',
+        iosScheme: 'https',
     },
-    CapacitorCookies: {
-      enabled: true,
+    android: {
+        adjustMarginsForEdgeToEdge: 'auto',
     },
-  },
+    // loggingBehavior: "production",
+    plugins: {
+        SplashScreen: {
+            launchShowDuration: 1000,
+            launchAutoHide: false,
+            launchFadeOutDuration: 1000,
+            backgroundColor: "#ffffffff",
+            androidSplashResourceName: "splash",
+            androidScaleType: "CENTER_INSIDE",
+            splashFullScreen: false,
+            splashImmersive: true,
+            useDialog: true,
+        },
+        CapacitorCookies: {
+            enabled: true,
+        },
+    },
 };
 
 switch (process.env.NODE_ENV as Theme) {
