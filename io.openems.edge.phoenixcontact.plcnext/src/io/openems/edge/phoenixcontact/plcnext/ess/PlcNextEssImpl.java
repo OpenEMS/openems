@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -224,7 +225,13 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		throw new OpenemsException("PlcNextEssImpl.applyPower() should never be called.");
+		log.info("StationID '{}': applyPower({}, {}) called.", this.config.id(), activePower, reactivePower);
+
+		IntegerWriteChannel setActivePowerChannel = this.channel(PlcNextEss.ChannelId.SET_ACTIVE_POWER);
+		IntegerWriteChannel setReactivePowerChannel = this.channel(PlcNextEss.ChannelId.SET_REACTIVE_POWER);
+
+		setActivePowerChannel.setNextWriteValue(activePower);
+		setReactivePowerChannel.setNextWriteValue(reactivePower);
 	}
 
 	@Override
