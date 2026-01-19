@@ -35,8 +35,8 @@ public class EnergyScheduler {
 						var energy = period.duration().convertPowerToEnergy(coc.power);
 						switch (coc.relationship) {
 						case EQUALS -> ef.setEss(energy);
-						case GREATER_OR_EQUALS -> ef.setEssMaxCharge(-energy);
-						case LESS_OR_EQUALS -> ef.setEssMaxDischarge(energy);
+						// Relationships not supported by energy flow
+						case GREATER_OR_EQUALS, LESS_OR_EQUALS -> ef.setEss(energy);
 						}
 					}
 				}) //

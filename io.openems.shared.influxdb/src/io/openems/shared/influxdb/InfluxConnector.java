@@ -42,7 +42,7 @@ import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
-	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("\\D++(\\d++)$");
 
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 300; // [s]

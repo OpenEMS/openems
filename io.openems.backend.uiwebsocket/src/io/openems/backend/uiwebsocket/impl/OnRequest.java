@@ -1,12 +1,11 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
-import static io.openems.common.utils.StringUtils.toShortString;
-
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.AuthenticateWithOAuthRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
@@ -57,10 +57,12 @@ import io.openems.common.jsonrpc.response.GetEdgeResponse;
 import io.openems.common.jsonrpc.response.GetEdgesResponse;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.PasswordUtils;
 
 public class OnRequest implements io.openems.common.websocket.OnRequest {
 
-	private static final OpenemsNamedException RATE_LIMIT_EXCEPTION = OpenemsError.JSONRPC_TOO_MANY_REQUESTS.exception();
+	private static final OpenemsNamedException RATE_LIMIT_EXCEPTION = OpenemsError.JSONRPC_TOO_MANY_REQUESTS
+			.exception();
 
 	private final Logger log = LoggerFactory.getLogger(OnRequest.class);
 
@@ -74,14 +76,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		if (!wsData.checkLimiter(request.getMethod())) {
-			wsData.debugLog(this.log, () -> "Rate limit hit for user=%s, method=%s" //
-					.formatted(wsData.getUserId().orElse("UNKNOWN"), request.getMethod()));
-			return CompletableFuture.failedFuture(RATE_LIMIT_EXCEPTION);
-		}
 
 		// Start with authentication requests
-		CompletableFuture<? extends JsonrpcResponseSuccess> result = null;
 		switch (request.getMethod()) {
 		case AuthenticateWithTokenRequest.METHOD:
 			return this.handleAuthenticateWithTokenRequest(wsData, AuthenticateWithTokenRequest.from(request));
@@ -89,18 +85,39 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case AuthenticateWithPasswordRequest.METHOD:
 			return this.handleAuthenticateWithPasswordRequest(wsData, AuthenticateWithPasswordRequest.from(request));
 
-		case RegisterUserRequest.METHOD:
-			return this.handleRegisterUserReuqest(wsData, RegisterUserRequest.from(request));
+		case io.openems.backend.common.jsonrpc.request.RegisterUserRequest.METHOD:
+			return this.handleRegisterUserRequest(wsData,
+					io.openems.backend.common.jsonrpc.request.RegisterUserRequest.from(request));
+
+		case AuthenticateWithOAuthRequest.METHOD:
+			return this.handleAuthenticateWithOAuthTokenRequest(wsData, AuthenticateWithOAuthRequest.from(request));
+
+		case LogoutRequest.METHOD: //
+			return this.handleLogoutRequest(wsData, LogoutRequest.from(request));
 		}
 
-		// should be authenticated
-		var user = this.parent.assertUser(wsData, request);
-		wsData.debugLog(this.log, () -> "REQUEST %s: %s" //
-				.formatted(user.getId(), toShortString(simplifyJsonrpcMessage(request), 200)));
+		if (!wsData.checkLimiter(request.getMethod())) {
+			wsData.debugLog(this.log, () -> "Rate limit hit for user=%s, method=%s" //
+					.formatted(wsData.getUserId().orElse("UNKNOWN"), request.getMethod()));
+			return CompletableFuture.failedFuture(RATE_LIMIT_EXCEPTION);
+		}
 
-		result = switch (request.getMethod()) {
-		case LogoutRequest.METHOD -> //
-			this.handleLogoutRequest(wsData, user, LogoutRequest.from(request));
+		return this.assertUserToken(wsData).thenCompose(user -> {
+			try {
+				var response = this.handleAuthenticatedRequest(user, wsData, request);
+				if (response != null) {
+					return response;
+				}
+				throw new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, request.getMethod());
+			} catch (OpenemsNamedException e) {
+				throw new CompletionException(e);
+			}
+		});
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleAuthenticatedRequest(User user, WsData wsData,
+			JsonrpcRequest request) throws OpenemsNamedException {
+		var result = switch (request.getMethod()) {
 		case EdgeRpcRequest.METHOD -> //
 			this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
 		case AddEdgeToUserRequest.METHOD -> //
@@ -128,7 +145,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case GetProtocolsCoreInfoRequest.METHOD ->
 			this.handleProtocolsCoreInfoRequest(user, GetProtocolsCoreInfoRequest.from(request));
 		case SubscribeEdgesRequest.METHOD -> //
-			this.handleSubscribeEdgesRequest(wsData, SubscribeEdgesRequest.from(request));
+			this.handleSubscribeEdgesRequest(wsData, user, SubscribeEdgesRequest.from(request));
 		case GetEdgesRequest.METHOD -> //
 			this.handleGetEdgesRequest(user, GetEdgesRequest.from(request));
 		case GetEdgeRequest.METHOD -> //
@@ -137,13 +154,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.handleUpdateUserSettingsRequest(user, UpdateUserSettingsRequest.from(request));
 		default -> null;
 		};
-
 		if (result != null) {
-			// was able to handle request directly
 			return result;
 		}
-
-		// forward to generic request handler
 		return this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
 	}
 
@@ -156,9 +169,47 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithTokenRequest(WsData wsData,
-			AuthenticateWithTokenRequest request) throws OpenemsNamedException {
-		return this.handleAuthentication(wsData, request.getId(),
-				this.parent.metadata.authenticate(request.getToken()));
+			AuthenticateWithTokenRequest request) {
+		return this.parent.userAuthPasswordService.authenticateWithToken(request.getToken()).thenCompose(result -> {
+			return this.parent.metadata.getUserByExternalId(result.userId()).thenApply(user -> {
+				return user.withToken(result.token());
+			});
+		}).thenCompose(user -> {
+			return this.handleAuthentication(wsData, request.getId(), user);
+		});
+	}
+
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithOAuthTokenRequest(//
+			WsData wsData, //
+			AuthenticateWithOAuthRequest request //
+	) throws OpenemsNamedException {
+		final var authService = this.parent.userAuthenticationService;
+		if (authService == null) {
+			throw new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+					"OAuth authentication is not supported by this OpenEMS instance");
+		}
+		return OAuthAuthenticationHandler.handleRequest(this.parent.metadata, authService, request, wsData);
+	}
+
+	private CompletableFuture<User> assertUserToken(WsData wsData) throws OpenemsNamedException {
+
+		final var authService = this.parent.userAuthenticationService;
+		if (authService == null) {
+			throw new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD,
+					"OAuth authentication is not supported by this OpenEMS instance");
+		}
+
+		final var token = wsData.getToken().orElse(null);
+		if (token == null) {
+			throw new OpenemsNamedException(OpenemsError.COMMON_USER_NOT_AUTHENTICATED, "[user]");
+		}
+
+		final var user = wsData.getUser();
+		if (user == null) {
+			throw new OpenemsNamedException(OpenemsError.COMMON_USER_NOT_AUTHENTICATED, "[user]");
+		}
+
+		return CompletableFuture.completedFuture(user);
 	}
 
 	/**
@@ -170,12 +221,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
-			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		if (request.usernameOpt.isPresent()) {
-			return this.handleAuthentication(wsData, request.getId(),
-					this.parent.metadata.authenticate(request.usernameOpt.get(), request.password));
-		}
-		return this.handleAuthentication(wsData, request.getId(), this.parent.metadata.authenticate(request.password));
+			AuthenticateWithPasswordRequest request) {
+		return this.parent.userAuthPasswordService.authenticateWithPassword(request.usernameOpt.get(), request.password)
+				.thenCompose(result -> {
+					return this.parent.metadata.getUserByExternalId(result.userId()).thenApply(user -> {
+						return user.withToken(result.token());
+					});
+				}).thenCompose(user -> {
+					return this.handleAuthentication(wsData, request.getId(), user);
+				}).exceptionallyCompose(throwable -> {
+					this.log.info("Authentication failed for username={}", request.usernameOpt.get());
+					return CompletableFuture.failedFuture(OpenemsError.COMMON_AUTHENTICATION_FAILED.exception());
+				});
 	}
 
 	/**
@@ -188,10 +245,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId, User user)
-			throws OpenemsNamedException {
-		wsData.setUserId(user.getId());
+	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId, User user) {
 		wsData.setToken(user.getToken());
+		wsData.setUser(user);
 		return CompletableFuture
 				.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user, user.getLanguage()));
 	}
@@ -204,27 +260,35 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserReuqest(WsData wsData,
-			RegisterUserRequest request) throws OpenemsNamedException {
-		this.parent.metadata.registerUser(request.getUser(), request.getOem());
+	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserRequest(WsData wsData,
+			RegisterUserRequest request) {
+		final var userObj = request.getUser();
+		final var user = io.openems.backend.authentication.api.model.request.RegisterUserRequest.serializer()
+				.deserialize(userObj);
+		this.log.info("Register User: json={}, obj={}", userObj.toString(), user);
 
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		return this.parent.userRegistrationService.registerUser(user).thenApply(unused -> {
+			return new GenericJsonrpcResponseSuccess(request.getId());
+		});
 	}
 
 	/**
 	 * Handles a {@link LogoutRequest}.
 	 *
 	 * @param wsData  the WebSocket attachment
-	 * @param user    the authenticated {@link User}
 	 * @param request the {@link LogoutRequest}
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, User user,
-			LogoutRequest request) throws OpenemsNamedException {
+	private CompletableFuture<JsonrpcResponseSuccess> handleLogoutRequest(WsData wsData, LogoutRequest request) {
 		wsData.logout();
-		this.parent.metadata.logout(user);
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		final var token = wsData.getToken().orElse(null);
+		if (token == null) {
+			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		}
+		return this.parent.userAuthPasswordService.logout(token).thenApply(unused -> {
+			return new GenericJsonrpcResponseSuccess(request.getId());
+		});
 	}
 
 	/**
@@ -241,12 +305,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
 
-		// TODO still not the best to check the access => should be separate service
-		if (user.getRole(edgeId).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
-			this.parent.logInfo(this.log, "Role was not defined for user=" + user.getId() + ", edge=" + edgeId);
-		}
-		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeId, Role.GUEST);
+		this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, EdgeRpcRequest.METHOD);
 
 		CompletableFuture<JsonrpcResponseSuccess> resultFuture = switch (request.getMethod()) {
 		case SubscribeChannelsRequest.METHOD ->
@@ -282,7 +341,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link SimulationRequest}.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the {@link User} - no specific level required
 	 * @param request the {@link SimulationRequest}
@@ -329,12 +388,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * Handles a {@link SubscribeEdgesRequest}.
 	 *
 	 * @param wsData  the WebSocket attachment
+	 * @param user    the {@link User} - requires guest access on every edge
 	 * @param request the SubscribeChannelsRequest
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesRequest(WsData wsData,
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesRequest(WsData wsData, User user,
 			SubscribeEdgesRequest request) throws OpenemsNamedException {
+
+		for (var edgeId : request.getEdges()) {
+			this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, SubscribeEdgesRequest.METHOD);
+		}
 		// Register subscription in WsData
 		wsData.handleSubscribeEdgesRequest(request.getEdges());
 
@@ -354,10 +418,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(WsData wsData, String edgeId,
 			User user, SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		user.assertEdgeRoleIsAtLeast(SubscribeSystemLogRequest.METHOD, edgeId, Role.OWNER);
+		final var role = this.parent.metadata.assertUserRole(user, edgeId, Role.OWNER,
+				SubscribeSystemLogRequest.METHOD);
 
 		// Forward to Edge
-		return this.parent.edgeManager.handleSubscribeSystemLogRequest(edgeId, user, wsData.getId(), request);
+		return this.parent.edgeManager.handleSubscribeSystemLogRequest(edgeId, user, role, wsData.getId(), request);
 	}
 
 	/**
@@ -387,10 +452,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<GetEmsTypeResponse> handleGetEmsTypeRequest(User user, GetEmsTypeRequest request)
 			throws OpenemsNamedException {
-		if (user.getRole(request.getEdgeId()).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, request.getEdgeId());
-		}
-		user.assertEdgeRoleIsAtLeast(GetEmsTypeRequest.METHOD, request.getEdgeId(), Role.GUEST);
+		this.parent.metadata.assertUserRole(user, request.getEdgeId(), Role.GUEST, GetEmsTypeRequest.METHOD);
 		final var emsType = this.parent.metadata.getEmsTypeForEdge(request.getEdgeId());
 
 		return CompletableFuture.completedFuture(new GetEmsTypeResponse(request.getId(), emsType.orElse(null)));
@@ -435,14 +497,31 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubmitSetupProtocolRequest(User user,
-			SubmitSetupProtocolRequest request) throws OpenemsNamedException {
-		var protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
+			SubmitSetupProtocolRequest request) {
 
-		var response = JsonUtils.buildJsonObject() //
-				.addProperty("setupProtocolId", protocolId) //
-				.build();
+		// TODO add oem
+		final var customer = request.getJsonObject().get("customer").getAsJsonObject();
+		final var password = PasswordUtils.generateRandomPassword(8);
+		customer.addProperty("role", Role.OWNER.name());
+		customer.addProperty("password", password);
+		final var registrationRequest = io.openems.backend.authentication.api.model.request.RegisterUserRequest
+				.serializer().deserialize(customer) //
+				.withIncludePasswordInRegistrationEmail(true);
 
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), response));
+		return this.parent.userRegistrationService.registerUserIfNotExist(registrationRequest) //
+				.thenApply(unused -> {
+
+					try {
+						final var protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
+						var response = JsonUtils.buildJsonObject() //
+								.addProperty("setupProtocolId", protocolId) //
+								.build();
+						return new GenericJsonrpcResponseSuccess(request.getId(), response);
+					} catch (OpenemsNamedException e) {
+						throw new CompletionException(e);
+					}
+
+				});
 	}
 
 	/**
@@ -462,7 +541,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link GetLatestSetupProtocolCoreInfoRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link GetLatestSetupProtocolCoreInfoRequest}
 	 * @return the JSON-RPC Success Response Future
@@ -471,11 +550,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetLatestSetupProtocolCoreInfoRequest(User user,
 			GetLatestSetupProtocolCoreInfoRequest request) throws OpenemsNamedException {
 		final var edgeId = request.getEdgeId();
-		if (user.getRole(edgeId).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
-			this.parent.logInfo(this.log, "Role was not defined for user=" + user.getId() + ", edge=" + edgeId);
-		}
-		user.assertEdgeRoleIsAtLeast(GetLatestSetupProtocolCoreInfoRequest.METHOD, edgeId, Role.OWNER);
+		this.parent.metadata.assertUserRole(user, edgeId, Role.OWNER, GetLatestSetupProtocolCoreInfoRequest.METHOD);
 
 		var latestSetupProtocol = this.parent.metadata.getLatestSetupProtocolCoreInfo(edgeId);
 		return CompletableFuture
@@ -484,7 +559,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link GetLatestSetupProtocolCoreInfoRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link GetLatestSetupProtocolCoreInfoRequest}
 	 * @return the JSON-RPC Success Response Future
@@ -493,11 +568,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleProtocolsCoreInfoRequest(User user,
 			GetProtocolsCoreInfoRequest request) throws OpenemsNamedException {
 		final var edgeId = request.getEdgeId();
-		if (user.getRole(edgeId).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
-			this.parent.logInfo(this.log, "Role was not defined for user=" + user.getId() + ", edge=" + edgeId);
-		}
-		user.assertEdgeRoleIsAtLeast(GetProtocolsCoreInfoRequest.METHOD, edgeId, Role.OWNER);
+		this.parent.metadata.assertUserRole(user, edgeId, Role.OWNER, GetProtocolsCoreInfoRequest.METHOD);
 
 		var setupProtocols = this.parent.metadata.getProtocolsCoreInfo(edgeId);
 		return CompletableFuture.completedFuture(new GetProtocolsCoreInfoResponse(request.getId(), setupProtocols));
@@ -543,13 +614,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetUserAlertingConfigsRequest(User user,
-			GetUserAlertingConfigsRequest request) throws OpenemsException {
+			GetUserAlertingConfigsRequest request) throws OpenemsNamedException {
 		var edgeId = request.getEdgeId();
 
 		UserAlertingSettings currentUser = null;
 		List<UserAlertingSettings> otherUser = List.of();
 
-		if (userIsAdmin(user, edgeId)) {
+		if (this.userIsAdmin(user, edgeId)) {
 			var allSettings = this.parent.metadata.getUserAlertingSettings(edgeId);
 
 			var userOpt = allSettings.stream() //
@@ -582,7 +653,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetUserAlertingConfigsRequest(User user,
-			SetUserAlertingConfigsRequest request) throws OpenemsException {
+			SetUserAlertingConfigsRequest request) throws OpenemsNamedException {
 		var edgeId = request.getEdgeId();
 		var userId = user.getId();
 		var userSettings = request.getUserSettings();
@@ -590,7 +661,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		var containsOtherUsersSettings = userSettings.stream() //
 				.anyMatch(u -> !Objects.equals(u.userLogin(), userId));
 
-		if (containsOtherUsersSettings && !userIsAdmin(user, edgeId)) {
+		if (containsOtherUsersSettings && !this.userIsAdmin(user, edgeId)) {
 			throw new OpenemsException(
 					"Not allowed to update/set alerting information for other users as user [" + userId + "]");
 		}
@@ -600,8 +671,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
-	private static boolean userIsAdmin(User user, String edgeId) {
-		return user.getRole(edgeId).map(role -> role.isAtLeast(Role.ADMIN)).orElse(false);
+	private boolean userIsAdmin(User user, String edgeId) throws OpenemsNamedException {
+		return Optional.ofNullable(this.parent.metadata.getUserRole(user, edgeId)) //
+				.map(r -> r.isAtLeast(Role.ADMIN)) //
+				.orElse(false);
 	}
 
 	/**
@@ -616,8 +689,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			final User user, //
 			final GetEdgesRequest request //
 	) throws OpenemsNamedException {
-		final var edgeMetadata = this.parent.metadata.getPageDevice(user, request.getPaginationOptions());
-		return CompletableFuture.completedFuture(new GetEdgesResponse(request.getId(), edgeMetadata));
+		return this.parent.metadata.getPageDevice(user, request.getPaginationOptions()).thenApply(edgeMetadata -> {
+			return new GetEdgesResponse(request.getId(), edgeMetadata);
+		});
 	}
 
 	/**

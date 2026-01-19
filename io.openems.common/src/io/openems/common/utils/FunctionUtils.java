@@ -10,6 +10,7 @@ import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.function.ThrowingSupplier;
 
 public final class FunctionUtils {
 
@@ -195,6 +196,76 @@ public final class FunctionUtils {
 				if (!this.isInitialized) {
 					this.value = supplier.get();
 					this.isInitialized = true;
+				}
+				return this.value;
+			}
+		};
+	}
+
+	/**
+	 * Returns a {@link ThrowingSupplier} that lazily initializes and caches the
+	 * value from the provided supplier. The value is computed and retrieved only
+	 * once. Subsequent calls to {@link ThrowingSupplier#get()} will return the
+	 * cached value, avoiding recomputation.
+	 *
+	 * <p>
+	 * This implementation is not thread-safe. If multiple threads invoke
+	 * {@link ThrowingSupplier#get()} concurrently, it may lead to inconsistent
+	 * behavior, such as multiple invocations of the supplier or the value being
+	 * computed multiple times.
+	 * </p>
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 *
+	 * <pre>
+	 * var lazyStringSupplier = lazySingletonThrowing(() -> {
+	 * 	System.out.println("Computing the value...");
+	 * 	return "Hello, World!";
+	 * });
+	 *
+	 * System.out.println(lazyStringSupplier.get()); // Computes and prints the value
+	 * System.out.println(lazyStringSupplier.get()); // Prints the cached value, no recomputation
+	 * </pre>
+	 *
+	 * @param supplier The original supplier that provides the value to be lazily
+	 *                 computed.
+	 * @param <T>      The type of the value that the supplier produces.
+	 * @param <E>      The type of exception that the supplier may throw.
+	 * @return A {@link ThrowingSupplier} that returns the cached value after the
+	 *         first computation.
+	 * @throws NullPointerException if the provided supplier is {@code null}.
+	 *
+	 * @see Supplier
+	 * @see #lazySingleton
+	 */
+	public static <T, E extends Exception> ThrowingSupplier<T, E> lazySingletonThrowing(
+			ThrowingSupplier<T, E> supplier) {
+		Objects.requireNonNull(supplier);
+		return new ThrowingSupplier<>() {
+
+			private boolean isInitialized = false;
+			private T value;
+			private Exception exception;
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public T get() throws E {
+				if (!this.isInitialized) {
+					try {
+						this.value = supplier.get();
+					} catch (Exception e) {
+						this.exception = e;
+					} finally {
+						this.isInitialized = true;
+					}
+				}
+				if (this.exception != null) {
+					switch (this.exception) {
+					case RuntimeException runtime -> throw runtime;
+					default -> throw (E) this.exception;
+					}
 				}
 				return this.value;
 			}

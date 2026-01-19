@@ -34,7 +34,8 @@ public final class ApplyPowerHandler {
 	 */
 	public static synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
-			Value<Integer> maxAcExport, boolean isPidEnabled) throws OpenemsNamedException {
+			Value<Integer> maxAcExport, boolean isPidEnabled)
+			throws OpenemsNamedException {
 		// Evaluate MeterCommunicateStatus
 		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
@@ -58,7 +59,7 @@ public final class ApplyPowerHandler {
 	protected static synchronized void apply(int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
 			Value<Integer> maxAcExport, boolean isPidEnabled, MeterCommunicateStatus meterCommunicateStatus,
-			int pvProduction, int surplusPower, //
+			int pvProduction, int surplusPower,
 			BooleanConsumer setSmartModeNotWorkingWithPidFilter, BooleanConsumer setNoSmartMeterDetected, //
 			ThrowingConsumer<Integer, OpenemsNamedException> writeEmsPowerSet, //
 			ThrowingConsumer<EmsPowerMode, OpenemsNamedException> writeEmsPowerMode) throws OpenemsNamedException {
@@ -73,6 +74,7 @@ public final class ApplyPowerHandler {
 		// Set Channels
 		final ApplyPowerHandler.Result apply = calculate(setActivePower, pvProduction, controlMode,
 				gridActivePower.get(), essActivePower.get(), maxAcImport.get(), maxAcExport.get(), surplusPower);
+
 		writeEmsPowerSet.accept(apply.emsPowerSet);
 		writeEmsPowerMode.accept(apply.emsPowerMode);
 	}

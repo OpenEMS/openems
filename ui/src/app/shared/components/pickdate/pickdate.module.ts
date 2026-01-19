@@ -9,31 +9,31 @@ import { PickDateComponent } from "./pickdate.component";
 import { PickDatePopoverComponent } from "./popover/popover.component";
 
 @NgModule({
-  imports: [
-    AngularMyDatePickerModule,
-    CommonModule,
-    IonicModule,
-    TranslateModule,
-  ],
-  declarations: [
-    PickDateComponent,
-    PickDatePopoverComponent,
-  ],
-  exports: [
-    PickDateComponent,
-  ],
+    imports: [
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+        AngularMyDatePickerModule,
+        ReactiveFormsModule,
+    ],
+    declarations: [
+        PickDateComponent,
+        PickDatePopoverComponent,
+    ],
+    exports: [
+        PickDateComponent,
+    ],
 })
 export class PickdateComponentModule { }
 @NgModule({
-  imports: [
-    BrowserModule,
-    IonicModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    PickdateComponentModule,
-  ],
-  exports: [
-    PickdateComponentModule,
-  ],
+    imports: [
+        BrowserModule,
+        IonicModule,
+        TranslateModule,
+        PickdateComponentModule,
+    ],
+    exports: [
+        PickdateComponentModule,
+    ],
 })
 export class PickdateModule { }

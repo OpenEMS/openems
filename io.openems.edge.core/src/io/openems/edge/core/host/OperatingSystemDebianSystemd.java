@@ -637,7 +637,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	protected static List<JsonObject> parseIpJson(String json) throws OpenemsNamedException {
 		final var stdout = JsonUtils.getAsJsonArray(JsonUtils.getAsJsonObject(JsonUtils.parse(json)), "stdout");
-		final var networkData = stdout.get(0).getAsString();
+		if (stdout.isEmpty()) {
+			return Collections.emptyList();
+		}
+		final var networkData = JsonUtils.getAsString(stdout.get(0));
 		final var networkDataJson = JsonUtils.parseOptional(networkData);
 		if (networkDataJson.isPresent() && networkDataJson.get().isJsonArray()) {
 			final var networkInterfaces = JsonUtils.getAsJsonArray(JsonUtils.parse(networkData));

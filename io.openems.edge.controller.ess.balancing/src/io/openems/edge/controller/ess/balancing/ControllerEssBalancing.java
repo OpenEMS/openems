@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.balancing;
 
+import java.util.Optional;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -8,8 +10,6 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-
-import java.util.Optional;
 
 public interface ControllerEssBalancing extends Controller, OpenemsComponent {
 

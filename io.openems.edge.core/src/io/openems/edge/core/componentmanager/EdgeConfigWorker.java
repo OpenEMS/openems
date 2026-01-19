@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -529,6 +530,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 				var componentUrl = bundle.getResource(serviceComponent);
 				var dbFactory = DocumentBuilderFactory.newInstance();
+				dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 				var dBuilder = dbFactory.newDocumentBuilder();
 				var doc = dBuilder.parse(componentUrl.openStream());
 				doc.getDocumentElement().normalize();

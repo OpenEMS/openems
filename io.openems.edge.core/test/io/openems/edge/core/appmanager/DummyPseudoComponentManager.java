@@ -42,6 +42,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 public class DummyPseudoComponentManager implements ComponentManager {
 
@@ -231,6 +232,15 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	 */
 	public void addComponent(OpenemsComponent component) {
 		this.components.add(component);
+	}
+
+	/**
+	 * Adds a {@link EdgeConfig.Component} from a {@link ComponentDef}.
+	 * 
+	 * @param component the component to add
+	 */
+	public void addComponentFromComponentConfig(ComponentDef component) {
+		this.addComponent(component.toEdgeConfigComponent());
 	}
 
 	private static OpenemsComponent componentOf(//

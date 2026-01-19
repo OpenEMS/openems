@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnInit } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from "@nodro7/angular-mydatepicker";
@@ -111,6 +111,7 @@ export class PickDatePopoverComponent implements OnInit {
         public service: Service,
         public popoverCtrl: PopoverController,
         public translate: TranslateService,
+        private cdr: ChangeDetectorRef,
     ) { }
 
     public onDateChanged(event: IMyDateRangeModel) {

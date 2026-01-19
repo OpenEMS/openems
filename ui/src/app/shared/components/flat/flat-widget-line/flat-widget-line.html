@@ -1,21 +1,27 @@
-<table class="full_width" *ngIf="show" style="color: var(--ion-card-content) !important">
+@if (show) {
+  <table class="full_width" style="color: var(--ion-card-content) !important">
     <tr>
-        <!-- Name of Parameter on the left side -->
-        <td [style.width]="(leftColumnWidth ?? 65)  + '%'">
-            <ng-container *ngIf="displayName">{{ displayName }}</ng-container>
+      <!-- Name of Parameter on the left side -->
+      <td [style.width]="(leftColumnWidth ?? 65)  + '%'">
+        @if (displayName) {
+          {{ displayName }}
+        }
+      </td>
+      <!-- Value of Parameter on the right side -->
+      @if (displayValue) {
+        <td [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
+          <ng-container>{{ displayValue }}</ng-container>
         </td>
-        <!-- Value of Parameter on the right side -->
-        <td *ngIf="displayValue" [style.width]="(leftColumnWidth ?? 35) +  '%'" class="align_right">
-            <ng-container>{{ displayValue }}</ng-container>
-        </td>
-
-        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
-
-        <ng-template #contentTpl>
-            <td *ngIf="!displayValue" [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
-                <!-- 'Normal' line, name and value  -->
-                <ng-content></ng-content>
-            </td>
-        </ng-template>
+      }
+      <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+      <ng-template #contentTpl>
+        @if (!displayValue) {
+          <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
+            <!-- 'Normal' line, name and value  -->
+            <ng-content></ng-content>
+          </td>
+        }
+      </ng-template>
     </tr>
-</table>
+  </table>
+}

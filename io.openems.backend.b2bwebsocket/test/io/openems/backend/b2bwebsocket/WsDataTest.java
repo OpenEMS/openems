@@ -3,6 +3,7 @@ package io.openems.backend.b2bwebsocket;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import java.util.Optional;
@@ -20,7 +21,7 @@ public class WsDataTest {
 		assertEquals("B2bWebsocket.WsData [user=UNDEFINED]", sut.toLogString());
 		assertEquals(Optional.empty(), sut.getUserOpt());
 		assertThrows(OpenemsNamedException.class, () -> sut.getUserWithTimeout(1, MILLISECONDS));
-		assertEquals(null, sut.getUser().getNow(null));
+		assertNull(sut.getUser().getNow(null));
 
 		var user = new User("foo", null, null, null, null, false, null);
 		sut.setUser(user);

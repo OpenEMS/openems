@@ -1,10 +1,14 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
+import { AssertionUtils } from "../../utils/assertions/assertions.utils";
+import { ObjectUtils } from "../../utils/object/object.utils";
 
 @Component({
-  selector: "formly-range-type",
-  template: `
-    <p *ngIf="props.note" class="ion-padding-top"> {{ props.note }} </p>
+    selector: "formly-range-type",
+    template: `
+    @if (props.note) {
+      <p class="ion-padding-top"> {{ props.note }} </p>
+    }
     <ion-range
       class="ion-padding-top"
       [min]="props.min"
@@ -22,30 +26,46 @@ import { FieldType } from "@ngx-formly/core";
       <ion-label slot="end">{{ props.max }}</ion-label>
     </ion-range>
 
-    <p *ngIf="to.description" class="description-text">
-      {{ to.description }}
-    </p>
+    @if (to.description) {
+      <p class="description-text">
+        {{ to.description }}
+      </p>
+    }
 
     <!-- Validation errors -->
-    <ion-text color="danger" *ngIf="showError">
-      <p *ngIf="formControl.errors?.required">
-        {{ props.required ? (props.label + ' ' + ('GENERAL.FORMLY.REQUIRED' | translate)) : '' }}
-      </p>
-    </ion-text>
-  `,
-  standalone: false,
-})
-export class FormlyRangeTypeComponent extends FieldType {
-  protected boundPinFormatter = this.pinFormatter.bind(this);
-
-  public onChange(event: any): void {
-    if (this.props.change) {
-      this.props.change(this.field);
+    @if (showError) {
+      <ion-text color="danger">
+        @if (formControl.errors?.required) {
+          <p>
+            {{ props.required ? (props.label + ' ' + ('GENERAL.FORMLY.REQUIRED' | translate)) : '' }}
+          </p>
+        }
+      </ion-text>
     }
-  }
+    `,
+    standalone: false,
+})
+export class FormlyRangeTypeComponent extends FieldType implements OnInit {
+    protected boundPinFormatter = this.pinFormatter.bind(this);
 
-  protected pinFormatter(value: number): string {
-    const unit = this.props?.unit || "";
-    return `${value}${unit}`;
-  }
+    public onChange(event: any): void {
+        if (this.props.change) {
+            this.props.change(this.field);
+        }
+    }
+
+    ngOnInit(): void {
+        AssertionUtils.assertIsDefined(this.field);
+        AssertionUtils.assertIsDefined(this.field.formControl);
+
+        if (ObjectUtils.isObjectNullOrEmpty(this.field)) {
+            return;
+        }
+        this.field.formControl.setValue(this.field.defaultValue ?? this.field.formControl.value);
+    }
+
+    protected pinFormatter(value: number): string {
+        const unit = this.props?.unit || "";
+        return `${value}${unit}`;
+    }
 }

@@ -6,19 +6,19 @@ import { FlatComponent } from "./flat/flat";
 import { OverviewComponent } from "./overview/overview";
 
 @NgModule({
-  imports: [
-    BrowserModule,
-    SharedModule,
-  ],
-  declarations: [
-    FlatComponent,
-    TotalChartComponent,
-    OverviewComponent,
-  ],
-  exports: [
-    FlatComponent,
-    TotalChartComponent,
-    OverviewComponent,
-  ],
+    imports: [
+        BrowserModule,
+        SharedModule,
+    ],
+    declarations: [
+        FlatComponent,
+        TotalChartComponent,
+        OverviewComponent,
+    ],
+    exports: [
+        FlatComponent,
+        TotalChartComponent,
+        OverviewComponent,
+    ],
 })
 export class ChannelThreshold { }

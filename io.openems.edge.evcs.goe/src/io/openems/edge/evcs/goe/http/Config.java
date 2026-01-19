@@ -3,7 +3,7 @@ package io.openems.edge.evcs.goe.http;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evcs.api.PhaseRotation;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(//
 		name = "EVCS go-e Gemini Http", //
@@ -29,7 +29,7 @@ import io.openems.edge.evcs.api.PhaseRotation;
 	int maxHwCurrent() default 32_000;
 
 	@AttributeDefinition(name = "Phase rotation", description = "The way in which the phases are physically rotated.")
-	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
+    PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
 	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
 	boolean readOnly() default true;

@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, Currency, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 import { ModalComponent } from "../modal/modal";
@@ -16,16 +17,20 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
 
     protected priceWithCurrency: string = "-";
+    protected modalComponent: Modal | null = null;
 
-    async presentModal() {
-        const modal = await this.modalController.create({
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
             component: ModalComponent,
             componentProps: {
                 component: this.component,
             },
-        });
-        return await modal.present();
-    }
+        };
+    };
 
     protected override getChannelAddresses(): ChannelAddress[] {
         return [

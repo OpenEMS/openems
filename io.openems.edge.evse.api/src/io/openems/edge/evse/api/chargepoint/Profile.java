@@ -18,12 +18,13 @@ public final class Profile {
 	 * Declares the Abilities of an {@link EvseChargePoint}.
 	 */
 	public static record ChargePointAbilities(ApplySetPoint.Ability applySetPoint, PhaseSwitch phaseSwitch,
-			boolean isReadyForCharging) {
+			boolean isEvConnected, boolean isReadyForCharging) {
 
 		public static final class Builder {
 
 			private ApplySetPoint.Ability applySetPoint = EMPTY_APPLY_SET_POINT_ABILITY;
 			private PhaseSwitch phaseSwitch = null;
+			private boolean isEvConnected = false;
 			private boolean isReadyForCharging = false;
 
 			/**
@@ -37,6 +38,17 @@ public final class Profile {
 					ability = EMPTY_APPLY_SET_POINT_ABILITY;
 				}
 				this.applySetPoint = ability;
+				return this;
+			}
+
+			/**
+			 * Defines the EV-Connected state.
+			 * 
+			 * @param isEvConnected the state
+			 * @return the {@link Builder}
+			 */
+			public Builder setIsEvConnected(boolean isEvConnected) {
+				this.isEvConnected = isEvConnected;
 				return this;
 			}
 
@@ -63,7 +75,8 @@ public final class Profile {
 			}
 
 			public ChargePointAbilities build() {
-				return new ChargePointAbilities(this.applySetPoint, this.phaseSwitch, this.isReadyForCharging);
+				return new ChargePointAbilities(this.applySetPoint, this.phaseSwitch, this.isEvConnected,
+						this.isReadyForCharging);
 			}
 		}
 
@@ -77,6 +90,7 @@ public final class Profile {
 				return new ChargePointAbilities(//
 						json.getObject("applySetPoint", ApplySetPoint.Ability.serializer()), //
 						json.getEnumOrNull("phaseSwitch", PhaseSwitch.class), //
+						json.getBoolean("isEvConnected"), //
 						json.getBoolean("isReadyForCharging"));
 			}, obj -> {
 				return obj == null //
@@ -84,6 +98,7 @@ public final class Profile {
 						: buildJsonObject() //
 								.add("applySetPoint", ApplySetPoint.Ability.serializer().serialize(obj.applySetPoint)) //
 								.addProperty("phaseSwitch", obj.phaseSwitch) //
+								.addProperty("isEvConnected", obj.isEvConnected) //
 								.addProperty("isReadyForCharging", obj.isReadyForCharging) //
 								.build();
 			});
@@ -180,6 +195,15 @@ public final class Profile {
 				});
 			}
 
+			public Builder setApplyMinSetPoint() throws IllegalArgumentException {
+				final var min = this.abilities.applySetPoint.min();
+				return this.setApplySetPoint(switch (this.abilities.applySetPoint) {
+				case ApplySetPoint.Ability.MilliAmpere ma -> new ApplySetPoint.Action.MilliAmpere(min);
+				case ApplySetPoint.Ability.Ampere a -> new ApplySetPoint.Action.Ampere(min);
+				case ApplySetPoint.Ability.Watt w -> new ApplySetPoint.Action.Watt(min);
+				});
+			}
+
 			public Builder setApplySetPoint(ApplySetPoint.Action applySetPoint) throws IllegalArgumentException {
 				this.applySetPoint = switch (applySetPoint) {
 				case ApplySetPoint.Action.MilliAmpere ma when this.abilities.applySetPoint instanceof ApplySetPoint.Ability.MilliAmpere //
@@ -200,8 +224,11 @@ public final class Profile {
 
 			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
 				if (phaseSwitch != null && phaseSwitch != this.abilities.phaseSwitch) {
+					var ability = this.abilities.phaseSwitch == null //
+							? "UNDEFINED" //
+							: this.abilities.phaseSwitch.name();
 					throw new IllegalArgumentException("PhaseSwitch not possible. " //
-							+ "Ability [" + this.abilities.phaseSwitch.name() + "] " //
+							+ "Ability [" + ability + "] " //
 							+ "Actual [" + phaseSwitch + "]");
 				}
 				this.phaseSwitch = phaseSwitch;
@@ -240,7 +267,7 @@ public final class Profile {
 	/**
 	 * Different types of applying a phase-switch.
 	 */
-	public static enum PhaseSwitch { // TODO NOT_AVAILABLE instead of null
+	public static enum PhaseSwitch { // TODO evaluate NOT_AVAILABLE instead of null
 		TO_SINGLE_PHASE, //
 		TO_THREE_PHASE;
 	}

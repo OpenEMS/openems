@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { TranslateService } from "@ngx-translate/core";
 import * as d3 from "d3";
+import { v4 as uuidv4 } from "uuid";
 import { GridMode, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 
@@ -146,7 +147,7 @@ export abstract class AbstractSection {
         protected service: Service,
         widgetClass: string,
     ) {
-        this.sectionId = translateName;
+        this.sectionId = translateName + "-" + uuidv4();
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
         service.getConfig().then(config => {
@@ -303,7 +304,7 @@ export abstract class AbstractSection {
             length,
             new SvgTextPosition(xText, yText, "middle", textSize),
             new SvgTextPosition(xText, yNumber, "middle", numberSize),
-            new SvgImagePosition("assets/img/" + this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
+            new SvgImagePosition(this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
         );
     }
 

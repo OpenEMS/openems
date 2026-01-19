@@ -5,16 +5,16 @@ import { ThemePopoverComponent } from "./theme-selection-popup/theme-selection-p
 import { UserComponent } from "./user.component";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    IonicModule,
-  ],
-  declarations: [
-    UserComponent,
-    ThemePopoverComponent,
-  ],
-  exports: [
-    ThemePopoverComponent,
-  ],
+    imports: [
+        SharedModule,
+        IonicModule,
+    ],
+    declarations: [
+        UserComponent,
+        ThemePopoverComponent,
+    ],
+    exports: [
+        ThemePopoverComponent,
+    ],
 })
 export class UserModule { }

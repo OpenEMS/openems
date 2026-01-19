@@ -53,14 +53,14 @@ public class PhoenixContactMeter extends
 		MODBUS_ID(AppDef.componentId("modbus2")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		IP(MeterProps.ip() //
+		IP(MeterProps.ip()//
 				.setRequired(true)), //
-		PORT(MeterProps.port() //
+		PORT(MeterProps.port()//
 				.setRequired(true)), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
 				.setDefaultValue(1))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		;

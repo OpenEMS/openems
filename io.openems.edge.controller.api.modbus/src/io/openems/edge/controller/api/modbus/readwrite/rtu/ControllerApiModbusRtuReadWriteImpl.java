@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.modbus.readwrite.rtu;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -8,9 +12,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
@@ -29,7 +30,8 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.modbus.AbstractModbusRtuApi;
+import io.openems.edge.controller.api.modbus.AbstractModbusApi;
+import io.openems.edge.controller.api.modbus.CommonConfig;
 import io.openems.edge.controller.api.modbus.ModbusApi;
 
 @Designate(ocd = Config.class, factory = true)
@@ -38,9 +40,8 @@ import io.openems.edge.controller.api.modbus.ModbusApi;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
-		implements ControllerApiModbusRtuReadWrite, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi,
-		io.openems.edge.common.modbusslave.ModbusSlave {
+public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusApi implements ControllerApiModbusRtuReadWrite,
+		ModbusApi, Controller, OpenemsComponent, ComponentJsonApi, io.openems.edge.common.modbusslave.ModbusSlave {
 
 	@Reference
 	private Meta metaComponent;
@@ -48,13 +49,13 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 	@Reference
 	private ConfigurationAdmin cm;
 
-	private RtuConfig config;
+	private CommonConfig.Rtu config;
 
 	@Reference
 	private ComponentManager componentManager;
 
 	public ControllerApiModbusRtuReadWriteImpl() {
-		super("Modbus/RTU-Api Read-Write", //
+		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ModbusApi.ChannelId.values(), //
@@ -64,7 +65,7 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 	}
 
 	@Override
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
 	protected void addComponent(OpenemsComponent component) {
 		super.addComponent(component);
 	}
@@ -76,17 +77,13 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusRtuApi
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), config.apiTimeout(), config.portName(), config.baudRate(), config.databits(),
-				config.stopbits(), config.parity(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
 		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsException {
-		this.config = new RtuConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), config.apiTimeout(), config.portName(), config.baudRate(), config.databits(),
-				config.stopbits(), config.parity(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
 		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 	}
 

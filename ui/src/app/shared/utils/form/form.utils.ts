@@ -13,7 +13,11 @@ export namespace FormUtils {
      * @param formControlName the control to search for
      * @returns the formControl if found, else null
      */
-    export function findFormControlSafely(f: FormGroup, formControlName: string): AbstractControl | null {
+    export function findFormControlSafely(f: FormGroup | null, formControlName: string): AbstractControl | null {
+
+        if (f == null) {
+            return null;
+        }
 
         let result: AbstractControl | null = null;
         const controls = f.controls;

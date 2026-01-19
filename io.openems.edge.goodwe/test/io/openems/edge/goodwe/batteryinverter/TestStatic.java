@@ -14,8 +14,13 @@ public class TestStatic {
 
 	@Test
 	public void testCalculateSurplusPower() throws Exception {
-		// Battery Current is unknown -> null
-		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(null, null), 5000, MAX_DC_CURRENT));
+		// Invalid values for Battery Charge Max Current, Voltage or Production Power
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(null, 400), 5000, MAX_DC_CURRENT));
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(10, null), 5000, MAX_DC_CURRENT));
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(10, null), null, MAX_DC_CURRENT));
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(10, -100), null, MAX_DC_CURRENT));
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(10, 400), null, MAX_DC_CURRENT));
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(10, 400), -1000, MAX_DC_CURRENT));
 
 		// Battery Current is > Max BatteryInverter DC Current -> null
 		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(MAX_DC_CURRENT + 1, null), 5000,
@@ -31,6 +36,9 @@ public class TestStatic {
 		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(20, 466) /* 9320 */, 5000,
 				MAX_DC_CURRENT));
 
+		// Force-Discharge is active
+		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(-2, 466), 5000, MAX_DC_CURRENT));
+		
 		// Surplus Power is Production Power minus Max Charge Power
 		assertEquals(5680, (int) GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(20, 466) /* 9320 */,
 				15000, MAX_DC_CURRENT));

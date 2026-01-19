@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
@@ -44,6 +45,8 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
     public svgStyle: string;
+    protected socPercentageFontSize: number | null = null;
+    protected socPercentageYPosition: number | null = null;
     private socValue: number;
     private unitpipe: UnitvaluePipe;
     // animation variable to stop animation on destroy
@@ -56,7 +59,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         protected override service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("Edge.Index.Energymonitor.storage", "down", "#009846", translate, service, "Storage");
+        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "#009846", translate, service, "Storage");
         this.unitpipe = unitpipe;
     }
 
@@ -93,6 +96,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
+        if (this.square !== undefined && this.square.valueText !== undefined && this.square.valueText !== null) {
+            const maxFontSize = 14;
+            const minFontSize = 12;
+            const idealFontDistance = this.square.valueText.fontsize * 1.8;
+            this.socPercentageFontSize = Math.min(maxFontSize, Math.max(minFontSize, this.square.valueText.fontsize));
+            this.socPercentageYPosition = this.square.valueText.y + (idealFontDistance >= maxFontSize ? maxFontSize : idealFontDistance);
+        }
 
         this.service.getCurrentEdge()
             .then(async edge => {
@@ -118,7 +128,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                             arrowIndicate = 0;
                         }
 
-                        this.name = this.translate.instant("Edge.Index.Energymonitor.storageCharge");
+                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_CHARGE");
                         super.updateSectionData(
                             sum.storage.effectiveChargePower,
                             sum.storage.powerRatio,
@@ -134,19 +144,19 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                         } else {
                             arrowIndicate = 0;
                         }
-                        this.name = this.translate.instant("Edge.Index.Energymonitor.storageDischarge");
+                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_DISCHARGE");
                         super.updateSectionData(
                             sum.storage.effectiveDischargePower,
                             sum.storage.powerRatio,
                             arrowIndicate);
                     } else {
-                        this.name = this.translate.instant("Edge.Index.Energymonitor.storage");
+                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE");
                         super.updateSectionData(null, null, null);
                     }
 
                     this.socValue = sum.storage.soc;
                     if (this.square) {
-                        this.square.image.image = "assets/img/" + this.getImagePath();
+                        this.square.image.image = this.getImagePath();
                         this.svgStyle = "storage-" + Utils.getStorageSocSegment(this.socValue);
                     }
                 });
@@ -172,7 +182,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getImagePath(): string {
-        return "icon/storage.svg";
+        return environment.icons.COMMON.STORAGE;
     }
 
     protected getValueText(value: number): string {

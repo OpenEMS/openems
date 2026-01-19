@@ -10,13 +10,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.meter.test.InvertTest;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -105,6 +106,7 @@ public class MeterEastronSdm630ImplTest {
 				.setModbusId("modbus0") //
 				.setInvert(false)//
 				.setType(GRID) //
+				.setPhaseRotation(PhaseRotation.L1_L2_L3) //
 				.build());
 		test.next(InvertTest.testInvert(false));
 		test.next(new TestCase().timeleap(this.clock, 60, ChronoUnit.MINUTES));
@@ -118,6 +120,7 @@ public class MeterEastronSdm630ImplTest {
 				.setModbusId("modbus0") //
 				.setInvert(true)//
 				.setType(GRID) //
+				.setPhaseRotation(PhaseRotation.L1_L2_L3) //
 				.build());
 		test.next(InvertTest.testInvert(true));
 		test.next(new TestCase().timeleap(this.clock, 60, ChronoUnit.MINUTES));

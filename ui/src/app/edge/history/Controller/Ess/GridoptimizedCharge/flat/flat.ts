@@ -10,6 +10,6 @@ import { Filter } from "src/app/shared/components/shared/filter";
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.currentLang);
+    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
     protected filter: Filter = (value: number): boolean => value > 59;
 }

@@ -5,6 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
+import { environment } from "src/environments";
 import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
@@ -55,7 +56,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         service: Service,
         unitpipe: UnitvaluePipe,
     ) {
-        super("General.grid", "left", "var(--ion-color-dark)", translate, service, "Grid");
+        super("GENERAL.GRID", "left", "var(--ion-color-dark)", translate, service, "Grid");
         this.unitpipe = unitpipe;
     }
 
@@ -132,7 +133,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant("General.gridBuy");
+            this.name = this.translate.instant("GENERAL.GRID_BUY");
             super.updateSectionData(
                 sum.grid.buyActivePower,
                 sum.grid.powerRatio,
@@ -148,20 +149,20 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             } else {
                 arrowIndicate = 0;
             }
-            this.name = this.translate.instant("General.gridSell");
+            this.name = this.translate.instant("GENERAL.GRID_SELL");
             super.updateSectionData(
                 sum.grid.sellActivePower,
                 sum.grid.powerRatio,
                 arrowIndicate);
         } else {
-            this.name = this.translate.instant("General.grid");
+            this.name = this.translate.instant("GENERAL.GRID");
             super.updateSectionData(0, null, null);
         }
 
         // set grid mode
         this.gridMode = sum.grid.gridMode;
         if (this.square) {
-            this.square.image.image = "assets/img/" + this.getImagePath();
+            this.square.image.image = this.getImagePath();
         }
     }
 
@@ -185,11 +186,11 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getImagePath(): string {
         if (this.gridMode === GridMode.OFF_GRID) {
-            return "icon/offgrid.svg";
+            return environment.icons.COMMON.OFFGRID;
         } else if (this.restrictionMode === 1) {
-            return "icon/gridRestriction.svg";
+            return environment.icons.COMMON.GRID_RESTRICTION;
         }
-        return "icon/grid.svg";
+        return environment.icons.COMMON.GRID;
     }
 
     protected getValueText(value: number): string {

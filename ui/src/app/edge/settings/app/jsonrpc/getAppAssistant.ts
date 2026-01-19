@@ -59,10 +59,30 @@ export namespace GetAppAssistant {
     }
 
     export interface AppAssistant {
-        name: string,
+        name: string | "configuration" | "oauth",
         alias: string,
         fields: FormlyFieldConfig[],
+        steps?: AppConfigurationStep[],
     }
+
+    export enum AppConfigurationStepType {
+        CONFIGURATION = "configuration",
+        OAUTH = "oauth",
+    }
+
+    export type AppConfigurationStep = {
+        type: string,
+        params: object,
+    } | {
+        type: AppConfigurationStepType.CONFIGURATION,
+    } | {
+        type: AppConfigurationStepType.OAUTH,
+        params: {
+            oauthName: string,
+            componentIdPropertyPath?: string,
+            helperText?: string,
+        },
+    };
 
     export function postprocess(appAssistant: AppAssistant): AppAssistant {
         const fields = appAssistant.fields;
@@ -81,13 +101,16 @@ export namespace GetAppAssistant {
         return appAssistant;
     }
 
-    export function setInitialModel(fields: FormlyFieldConfig[], model: {}): FormlyFieldConfig[] {
+    export function setInitialModel(fields: FormlyFieldConfig[], model: {}, instanceId?: string): FormlyFieldConfig[] {
         return fields.map(f => {
             function recursivIterate(field: FormlyFieldConfig) {
                 if (!field) {
                     return;
                 }
                 field["initialModel"] = structuredClone(model);
+                if (instanceId) {
+                    field["instanceId"] = instanceId;
+                }
                 [field.fieldGroup, field.templateOptions?.fields ?? field.props?.fields].forEach(fieldGroup => {
                     if (!fieldGroup) {
                         return;
@@ -343,4 +366,4 @@ function convertFormlyReorderArray(rootFields: FormlyFieldConfig[], field: Forml
 }
 
 
-type FormlyFieldConfigWithInitialModel = FormlyFieldConfig & { initialModel: {} };
+export type FormlyFieldConfigWithInitialModel<PROPS = FormlyFieldConfig["props"]> = FormlyFieldConfig<PROPS> & { initialModel: {}, instanceId?: string };

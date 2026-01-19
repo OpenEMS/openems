@@ -42,25 +42,6 @@ public class TestConfigs {
 									.build()) //
 							.build())
 					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.EVSE_SINGLE.factoryPid) //
-							.addProperty("id", "ctrlEvseSingle0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "ManualOptimizationContext") //
-									.addProperty("isReadyForCharging", true) //
-									.add("chargeParams", buildJsonObject() //
-											.add("limit", buildJsonObject() //
-													.addProperty("phase", "SINGLE_PHASE") //
-													.addProperty("minCurrent", 6000) //
-													.addProperty("maxCurrent", 32000) //
-													.build()) //
-											.add("profiles", buildJsonArray().build()) //
-											.build()) //
-									.addProperty("mode", "MINIMUM") //
-									.addProperty("sessionEnergy", 0) //
-									.addProperty("sessionEnergyLimit", 15000) //
-									.build()) //
-							.build())
-					.add(buildJsonObject() //
 							.addProperty("factoryPid", Controller.ESS_TIME_OF_USE_TARIFF.factoryPid) //
 							.addProperty("id", "ctrlEssTimeOfUseTariff0") //
 							.add("source", buildJsonObject() //

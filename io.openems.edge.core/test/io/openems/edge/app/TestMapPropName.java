@@ -49,9 +49,9 @@ public class TestMapPropName extends AbstractOpenemsAppWithProps<TestMapPropName
 	public static enum Property implements Type<Property, TestMapPropName, TestPermissionsParameter> {
 		ID(AppDef.componentId("id0")), //
 		NOT_BIDIRECTIONAL(AppDef.copyOfGeneric(CommonProps.defaultDef())),
-		BIDIRECTIONAL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		BIDIRECTIONAL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.bidirectional("test", "testProperty", ComponentManagerSupplier::getComponentManager))),
-		BIDIRECTIONAL_SAME_NAME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		BIDIRECTIONAL_SAME_NAME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.bidirectional("test", "bidirectionalSameName", ComponentManagerSupplier::getComponentManager))), //
 		;//
 

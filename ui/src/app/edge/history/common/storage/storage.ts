@@ -12,30 +12,30 @@ import { DetailsOverviewComponent } from "./details/details.overview";
 import { OverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
-  {
-    path: "",
-    component: OverviewComponent,
-  },
-  { path: ":componentId", component: DetailsOverviewComponent },
+    {
+        path: "",
+        component: OverviewComponent,
+    },
+    { path: ":componentId", component: DetailsOverviewComponent },
 ];
 
 @NgModule({
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    IonicModule,
-    TranslateModule,
-    PickdateComponentModule,
-    RouterModule.forChild(routes),
-    HistoryDataErrorModule,
-    NgxSpinnerModule,
-    OverviewComponent,
-  ],
-  exports: [
-    RouterModule,
-  ],
-  schemas: [
-    CUSTOM_ELEMENTS_SCHEMA,
-  ],
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+        PickdateComponentModule,
+        RouterModule.forChild(routes),
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+        OverviewComponent,
+    ],
+    exports: [
+        RouterModule,
+    ],
+    schemas: [
+        CUSTOM_ELEMENTS_SCHEMA,
+    ],
 })
 export class CommonStorage { }

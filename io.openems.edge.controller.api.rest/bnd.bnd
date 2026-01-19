@@ -15,4 +15,4 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -testpath: \
 	${testpath},\
-	io.openems.edge.bridge.http,\
+	io.openems.common.bridge.http,\

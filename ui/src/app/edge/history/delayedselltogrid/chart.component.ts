@@ -75,7 +75,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.gridSell"),
+                        label: this.translate.instant("GENERAL.GRID_SELL"),
                         data: data,
                         hidden: false,
                     });
@@ -95,7 +95,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.DelayedSellToGrid.sellToGridPowerLimit"),
+                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.SELL_TO_GRID_POWER_LIMIT"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -116,7 +116,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("Edge.Index.Widgets.DelayedSellToGrid.continuousSellToGridPower"),
+                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.CONTINUOUS_SELL_TO_GRID_POWER"),
                         data: data,
                         hidden: false,
                         borderDash: [3, 3],
@@ -148,7 +148,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.CHARGE"),
+                        label: this.translate.instant("GENERAL.CHARGE"),
                         data: chargeData,
                         borderDash: [10, 10],
                     });
@@ -169,7 +169,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                         }
                     });
                     datasets.push({
-                        label: this.translate.instant("General.DISCHARGE"),
+                        label: this.translate.instant("GENERAL.DISCHARGE"),
                         data: dischargeData,
                         borderDash: [10, 10],
                     });

@@ -193,8 +193,8 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 							.addProperty("price", p.price()) //
 							.addProperty("state", p.mode().getValue()) //
 							.addProperty("grid", convertEnergyToPower.applyAsInt(p.energyFlow().getGrid())) //
-							.addProperty("production", convertEnergyToPower.applyAsInt(p.energyFlow().getProd())) //
-							.addProperty("consumption", convertEnergyToPower.applyAsInt(p.energyFlow().getCons())) //
+							.addProperty("production", convertEnergyToPower.applyAsInt(p.energyFlow().getProduction())) //
+							.addProperty("consumption", convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption())) //
 							.addProperty("ess", convertEnergyToPower.applyAsInt(p.energyFlow().getEss())) //
 							.addProperty("soc", round(fitWithin(0F, 100F, //
 									p.essInitialEnergy() * 100F / essTotalEnergy))) //

@@ -6,6 +6,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { OeImageComponent } from "../oe-img/oe-img";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
@@ -22,6 +23,7 @@ export namespace DummyConfig {
         lastmessage?: Date,
         sumState?: SumState,
         firstSetupProtocol?: Date,
+        settings?: Edge["settings"]
     }): Edge {
         return new Edge(
             values.edgeId ?? "edge0",
@@ -33,10 +35,11 @@ export namespace DummyConfig {
             values.lastmessage ?? new Date(),
             values.sumState ?? SumState.OK,
             values.firstSetupProtocol ?? new Date(0),
+            values.settings ?? null
         );
     }
 
-    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0));
+    const DUMMY_EDGE: Edge = new Edge("edge0", "", "", "2023.3.5", Role.ADMIN, true, new Date(), SumState.OK, new Date(0), null);
     export function from(...components: Component[]): EdgeConfig {
 
         return new EdgeConfig(DUMMY_EDGE, <EdgeConfig>{
@@ -160,11 +163,34 @@ export namespace DummyConfig {
                 "io.openems.edge.timedata.api.TimedataProvider",
             ],
         };
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = {
+            id: "Edge2Edge.Websocket.Ess",
+            natureIds: [
+                "io.openems.edge.edge2edge.websocket.Edge2EdgeWebsocket",
+                "io.openems.edge.ess.api.SymmetricEss",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.ess.api.ManagedSymmetricEss",
+                "io.openems.edge.ess.api.AsymmetricEss",
+                "io.openems.edge.edge2edge.websocket.ess.Edge2EdgeEss",
+            ],
+        };
 
         export const ESS_LIMITER_14A = {
             id: "Controller.Ess.Limiter14a",
             natureIds: [
                 "io.openems.edge.controller.ess.limiter14a",
+                "io.openems.edge.common.component.OpenemsComponent",
+                "io.openems.edge.timedata.api.TimedataProvider",
+
+            ],
+        };
+
+        export const ESS_RCR = {
+            id: "Controller.Ess.RippleControlReceiver",
+            natureIds: [
+                "io.openems.edge.common.meta.Meta",
+                "io.openems.edge.controller.api.Controller",
+                "io.openems.edge.controller.ess.ripplecontrolreceiver",
                 "io.openems.edge.common.component.OpenemsComponent",
                 "io.openems.edge.timedata.api.TimedataProvider",
 
@@ -390,10 +416,33 @@ export namespace DummyConfig {
             channels: {},
         });
 
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factoryId: Factory.EDGE_2_EDGE_WEBSOCKET_ESS.id,
+            factory: Factory.EDGE_2_EDGE_WEBSOCKET_ESS,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+            },
+            channels: {},
+        });
+
         export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.ESS_LIMITER_14A,
+            properties: {
+                enabled: "true",
+                ["ess.id"]: "ess0",
+            },
+            channels: {},
+        });
+
+        export const ESS_RCR = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.ESS_RCR,
             properties: {
                 enabled: "true",
                 ["ess.id"]: "ess0",
@@ -581,11 +630,13 @@ export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
 export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
     type: "info-line",
     name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
+    style: "",
 };
 
-export const LINE_INFO = (text: string): OeFormlyViewTester.Field => ({
+export const LINE_INFO = (text: string, style: string = ""): OeFormlyViewTester.Field => ({
     type: "info-line",
     name: text,
+    style: style,
 });
 export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
     type: "buttons-from-form-control-line",
@@ -598,6 +649,16 @@ export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(controlName: string, exp
     controlName,
     expectedValue,
     properties,
+});
+export const LINE_RADIO_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
+    type: "radio-buttons-from-form-control-line",
+    name: text,
+    buttons: buttons,
+    controlName: controlName,
+});
+export const SVG_LINE = (img: OeImageComponent["img"]): OeFormlyViewTester.Field => ({
+    type: "image-line",
+    img: img,
 });
 
 export namespace ChartConfig {

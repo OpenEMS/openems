@@ -1,7 +1,5 @@
 package io.openems.common.jsonrpc.request;
 
-import java.util.Optional;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -60,29 +58,30 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	public static <USER extends AbstractUser> AuthenticatedRpcRequest<USER> from(JsonrpcRequest r,
 			ThrowingFunction<JsonObject, USER, OpenemsNamedException> userFactory) throws OpenemsNamedException {
 		var p = r.getParams();
-		var user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
+		final var userObj = JsonUtils.getAsJsonObject(p, "user");
+		var user = userFactory.apply(userObj);
+		final var role = Role.getRole(JsonUtils.getAsString(userObj, "role"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
-		return new AuthenticatedRpcRequest<>(r, Optional.empty(), user, payload);
+		return new AuthenticatedRpcRequest<>(r, user, role, payload);
 	}
 
 	public static final String METHOD = "authenticatedRpc";
 
-	private final Optional<String> edgeId;
 	private final USER user;
+	private final Role role;
 	private final JsonrpcRequest payload;
 
-	public AuthenticatedRpcRequest(String edgeId, USER user, JsonrpcRequest payload) {
+	public AuthenticatedRpcRequest(USER user, Role role, JsonrpcRequest payload) {
 		super(AuthenticatedRpcRequest.METHOD);
-		this.edgeId = Optional.ofNullable(edgeId);
 		this.user = user;
+		this.role = role;
 		this.payload = payload;
 	}
 
-	private AuthenticatedRpcRequest(JsonrpcRequest request, Optional<String> edgeId, USER user,
-			JsonrpcRequest payload) {
+	private AuthenticatedRpcRequest(JsonrpcRequest request, USER user, Role role, JsonrpcRequest payload) {
 		super(request, AuthenticatedRpcRequest.METHOD);
-		this.edgeId = edgeId;
 		this.user = user;
+		this.role = role;
 		this.payload = payload;
 	}
 
@@ -112,18 +111,12 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 */
 	@Override
 	public JsonObject getParams() {
-		final Role role;
-		if (this.edgeId.isPresent()) {
-			role = this.user.getRole(this.edgeId.get()).orElse(this.user.getGlobalRole());
-		} else {
-			role = this.user.getGlobalRole();
-		}
 		return JsonUtils.buildJsonObject() //
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
 						.addPropertyIfNotNull("language", this.user.getLanguage()) //
-						.add("role", role.asJson()) //
+						.add("role", this.role.asJson()) //
 						.build()) //
 				.add("payload", this.payload.toJsonObject()) //
 				.build();

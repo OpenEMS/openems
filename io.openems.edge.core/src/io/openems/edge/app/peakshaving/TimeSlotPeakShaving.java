@@ -7,7 +7,6 @@ import static io.openems.edge.core.appmanager.validator.Checkables.checkIndustri
 import java.util.Map;
 import java.util.function.Function;
 
-import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -43,6 +42,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -76,12 +76,12 @@ public class TimeSlotPeakShaving extends
 		CTRL_PEAK_SHAVING_ID(AppDef.componentId("ctrlTimeSlotPeakShaving0")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def //
-				.setRequired(true) //
+		ESS_ID(AppDef.copyOfGeneric(ComponentProps.pickManagedSymmetricEssId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "ess", //
 						ComponentManagerSupplier::getComponentManager))), //
-		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def //
-				.setRequired(true) //
+		METER_ID(AppDef.copyOfGeneric(ComponentProps.pickElectricityGridMeterId(), def -> def//
+				.setRequired(true)//
 				.bidirectional(CTRL_PEAK_SHAVING_ID, "meter.id", //
 						ComponentManagerSupplier::getComponentManager))), //
 		;

@@ -13,8 +13,4 @@ public enum PhaseSwitching {
 	 * Phase-Switching force to THREE_PHASE.
 	 */
 	FORCE_THREE_PHASE, //
-	/**
-	 * Phase-Switching in AUTOMATIC mode. (not implemented!).
-	 */
-	AUTOMATIC_SWITCHING;
 }

@@ -1,6 +1,10 @@
 package io.openems.backend.b2bwebsocket;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.java_websocket.WebSocket;
@@ -15,7 +19,7 @@ import io.openems.common.websocket.OnOpen;
 import io.openems.common.websocket.OnRequest;
 import io.openems.common.websocket.WsData;
 
-public class TestClient extends AbstractWebsocketClient<WsData> {
+public class TestClient extends AbstractWebsocketClient<WsData> implements AutoCloseable {
 
 	private final Logger log = LoggerFactory.getLogger(TestClient.class);
 
@@ -24,6 +28,28 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	private OnNotification onNotification;
 	private OnError onError;
 	private OnClose onClose;
+
+	/**
+	 * Prepares and starts a TestClient with the given URI, username, and password.
+	 * 
+	 * @param uri      the URI of the WebSocket server
+	 * @param username the username for authentication
+	 * @param password the password for authentication
+	 * @return a TestClient instance that is started and ready to use
+	 * @throws URISyntaxException   if the URI is malformed
+	 * @throws InterruptedException if the thread is interrupted while starting the
+	 *                              client
+	 */
+	public static TestClient prepareAndStart(String uri, String username, String password)
+			throws URISyntaxException, InterruptedException {
+		Map<String, String> httpHeaders = new HashMap<>();
+		var auth = new String(Base64.getEncoder().encode((username + ":" + password).getBytes()),
+				StandardCharsets.UTF_8);
+		httpHeaders.put("Authorization", "Basic " + auth);
+		var client = new TestClient(new URI(uri), httpHeaders);
+		client.startBlocking();
+		return client;
+	}
 
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
@@ -44,6 +70,11 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 		this.onClose = (ws, code, reason, remote) -> {
 			this.log.info("onClose: " + reason);
 		};
+	}
+
+	@Override
+	public void close() {
+		this.stop();
 	}
 
 	@Override
