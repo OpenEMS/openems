@@ -29,7 +29,7 @@ public class PvInverterKostalPikoImplTest {
 			</tr>
 			<tr>
 			<td width="100">Tagesenergie</td>
-			<td width="70" align="left">42</td>
+			<td width="70" align="left">42.24</td>
 			<td>&nbsp; kWh</td>
 			</tr>
 			<tr>
@@ -124,7 +124,7 @@ public class PvInverterKostalPikoImplTest {
 							dummyCycleSubscriber.triggerNextCycle();
 						})) //
 				.next(new TestCase() //
-						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42L) //
+						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42.24) //
 						.output(PvInverterKostalPiko.ChannelId.STATUS, "Einspeisen MPP") //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_VOLTAGE, 400) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_CURRENT, 2500) // 2.5A -> 2500mA
