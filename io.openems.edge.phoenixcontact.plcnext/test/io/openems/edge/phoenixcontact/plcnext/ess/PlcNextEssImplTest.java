@@ -226,6 +226,91 @@ public class PlcNextEssImplTest {
 
 
 	@Test
+	public void testRunModuleGridModeWrongEnum() throws Exception {
+		// prep
+		int expectedSocValue = 110001;
+		int expectedCapacityValue = 210001;
+		int setActivePowerEqualsValue = 140002;
+		String gridModeValue = "OffGrid";
+		int expectedGridModeValue = GridMode.UNDEFINED.getValue();
+
+		//// Read
+		JsonObject readDataResponseBody = new JsonObject();
+		JsonArray variables = new JsonArray();
+
+		JsonObject varMaxPowerExport = new JsonObject();
+		varMaxPowerExport.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Soc");
+		varMaxPowerExport.addProperty("value", expectedSocValue);
+		variables.add(varMaxPowerExport);
+
+		JsonObject varMaxPowerImport = new JsonObject();
+		varMaxPowerImport.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Capacity");
+		varMaxPowerImport.addProperty("value", expectedCapacityValue);
+		variables.add(varMaxPowerImport);
+
+		JsonObject varSetReactivePower = new JsonObject();
+		varSetReactivePower.addProperty("path",
+				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.GridMode");
+		varSetReactivePower.addProperty("value", gridModeValue);
+		variables.add(varSetReactivePower);
+
+		readDataResponseBody.add("variables", variables);
+
+		List<String> readVariableIdentifiers = Stream.of(PlcNextEssGdsDataReadMappingDefinition.values())//
+				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
+		String readDataRequestBody = this.dataProvider.buildPostBodyForRead(SESSION_ID, readVariableIdentifiers,
+				dataProviderConfig);
+		Endpoint readDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
+				readDataRequestBody, this.dataProviderConfig);
+		when(mockDummyDataBridgeHttp.requestJson(readDataEndpoint)) //
+				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
+
+		//// Write
+		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
+				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
+						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
+						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
+				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
+		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
+				setActivePowerEqualsValue);
+
+		JsonObject writeDataResponseBody = new JsonObject();
+		writeDataResponseBody.addProperty("apiVersion", "n/a");
+		writeDataResponseBody.addProperty("projectCRC", "1234567890");
+		writeDataResponseBody.addProperty("userAuthenticationRequired", "true");
+
+		JsonArray writeVariables = new JsonArray();
+		writeVariables.add(requestBodyVarSetActivePowerEquals);
+
+		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
+
+		String writeDataRequestBody = this.dataProvider.buildPutBodyForWrite(SESSION_ID,
+				List.of(requestBodyVarSetActivePowerEquals));
+		Endpoint writeDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.PUT,
+				writeDataRequestBody, dataProviderConfig);
+		when(mockDummyDataBridgeHttp.requestJson(writeDataEndpoint)) //
+				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
+
+		// test + check
+		this.test.activate(myConfig); //
+
+		this.test.next(new TestCase() //
+				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
+				.onAfterProcessImage(
+						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
+				.onAfterProcessImage(
+						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY, expectedCapacityValue)) //
+				.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+						expectedGridModeValue))); //
+
+		this.test.deactivate();
+	}
+
+	@Test
 	public void testRunModuleGridModeWrongInt() throws Exception {
 		// prep
 		int expectedSocValue = 110001;

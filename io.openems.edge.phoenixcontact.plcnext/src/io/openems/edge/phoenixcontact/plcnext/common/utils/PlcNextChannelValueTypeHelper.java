@@ -14,6 +14,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumDoc;
+import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataWriteValueType;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappingException;
@@ -63,9 +64,14 @@ public final class PlcNextChannelValueTypeHelper {
 			log.warn("Cannot map '{}' to ENUM {}! Trying using value.", sourceValue, ((EnumDoc)openEmsChannelDoc).getOptions());
 		}
 		if (Objects.isNull(mappedValue)) {
-			int sourceValueInt = jsonElement.getAsInt();
-			
-			mappedValue = ((EnumDoc)openEmsChannelDoc).getOption(sourceValueInt);
+			try {
+				int sourceValueInt = jsonElement.getAsInt();
+				
+				mappedValue = ((EnumDoc)openEmsChannelDoc).getOption(sourceValueInt);
+			} catch (Exception e) {
+				log.error("Cannot read ENUM value, because it's not an INT!");
+				mappedValue = GridMode.UNDEFINED;
+			}
 		}
 		return mappedValue;
 	}
