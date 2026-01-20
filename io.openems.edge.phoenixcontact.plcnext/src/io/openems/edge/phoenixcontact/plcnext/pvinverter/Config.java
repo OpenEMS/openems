@@ -1,16 +1,16 @@
-package io.openems.edge.phoenixcontact.plcnext.ess;
+package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Phoenix Contact PLCnext compatible ESS", //
-		description = "Provides a compatible ESS component for Phoenix Contact PLCnext platform. Take care of corresponding PLCnext component library." //
+		name = "Phoenix Contact PLCnext compatible PV-Inverter", //
+		description = "Provides a compatible PV-Inverter component for Phoenix Contact PLCnext platform. Take care of corresponding PLCnext component library." //
 )
 public @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "ess0";
+	String id() default "pvinverter0";
 
 	@AttributeDefinition(name = "Alias", description = "Readable name of PLCnext device")
 	String alias() default "";
@@ -28,7 +28,7 @@ public @interface Config {
 	String password() default "admin";
 
 	@AttributeDefinition(name = "Data instance name", description = "Instance name of OpenEMS spaces in GDS")
-	String dataInstanceName() default "PLCnextEss";
+	String dataInstanceName() default "PLCnextPvInverter";
 
-	String webconsole_configurationFactory_nameHint() default "Phoenix Contact PLCnext ESS [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Phoenix Contact PLCnext PV-Inverter [{id}]";
 }
