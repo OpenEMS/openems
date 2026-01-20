@@ -135,8 +135,9 @@ public class PlcNextEssImplTest {
 
 		this.test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
-				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper)
-				.addReference("gdsChannelToGdsDataMapper", this.channelToDataMapper).addReference("power", dummyPower);
+				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper) //
+				.addReference("gdsChannelToGdsDataMapper", this.channelToDataMapper) //
+				.addReference("power", dummyPower);
 	}
 
 	@Test
