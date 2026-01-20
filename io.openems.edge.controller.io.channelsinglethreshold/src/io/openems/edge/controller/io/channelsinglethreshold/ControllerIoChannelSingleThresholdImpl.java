@@ -180,7 +180,7 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 				.mapToDouble(Double::doubleValue) //
 				.average();
 
-		Double inputValue;
+		double inputValue;
 		if (inputValueOpt.isPresent()) {
 			inputValue = inputValueOpt.getAsDouble();
 
