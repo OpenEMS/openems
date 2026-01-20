@@ -31,7 +31,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	private final BridgeHttp http;
 
 	private String token;
-	private ZonedDateTime tokenExpirery;
+	private ZonedDateTime tokenExpiery;
 
 	@Activate
 	public PlcNextTokenManagerImpl(@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED) BridgeHttp http) {
@@ -62,17 +62,31 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 				PlcNextAuthAndAccessTokenDTO combinedToken = authTokenFuture.join();
 
 				if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
+					log.debug("Fetching access token has been successful.");
 					token = combinedToken.getAccessToken();
-					tokenExpirery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+					tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
 							.plusSeconds(combinedToken.getExpiresIn());
+				} else if (Objects.isNull(combinedToken)) {
+					log.error("No token information returned!");
+					resetTokenAndExpiery();
+				} else {
+					log.error("No access token or expiery information returned!");
+					resetTokenAndExpiery();
 				}
 			} catch (CompletionException e) {
 				log.error("Error while fetching access token!", e);
+				resetTokenAndExpiery();
 			}
 			log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
 		} else {
 			log.info("Token still valid, skipping token refresh.");
 		}
+	}
+	
+	private void resetTokenAndExpiery() {
+		log.info("Resetting token and token expiery");
+		token = null;
+		tokenExpiery = null;		
 	}
 
 	/**
@@ -83,7 +97,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	@Override
 	public synchronized boolean hasValidToken() {
 		return Objects.nonNull(this.token) && //
-				Objects.nonNull(tokenExpirery) && !tokenExpirery.isBefore(ZonedDateTime.now());
+				Objects.nonNull(tokenExpiery) && !tokenExpiery.isBefore(ZonedDateTime.now());
 	}
 
 	Endpoint buildAuthTokenEndpointRepresentation(PlcNextAuthConfig config) {

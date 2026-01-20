@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.types.HttpStatus;
@@ -93,6 +94,32 @@ public class PlcNextTokenManagerTest {
 				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
 					return CompletableFuture
 							.supplyAsync(() -> new HttpResponse<String>(HttpStatus.UNAUTHORIZED, Map.of(), "{}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
+			}
+		};
+
+		// test
+		PlcNextTokenManager tokenManagerFailing = new PlcNextTokenManagerImpl(dummyAuthBridgeHttpFailing);
+
+		tokenManagerFailing.fetchToken(authClientConfig);
+		String accessToken = tokenManagerFailing.getToken();
+
+		// check
+		Assert.assertNull(accessToken);
+	}
+
+	@Test
+	public void testFetchAccessToken_AuthTokenCallFailedDueToException() {
+		// prep
+		DummyBridgeHttp dummyAuthBridgeHttpFailing = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.failedFuture(new IllegalStateException());
+				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture.failedFuture(new HttpError.ResponseError(HttpStatus.UNAUTHORIZED, null));
 				} else {
 					throw new IllegalStateException("Use not suitable!");
 				}
