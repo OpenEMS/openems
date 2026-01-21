@@ -152,9 +152,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 			if (!mappedValues.isEmpty()) {
 				log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
-				for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-					setNextValueToChannel(mappedValue);
-				}
+				setNextValuesToChannels(mappedValues);
 			}
 		} catch (PlcNextGdsDataMappingException e) {
 			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
@@ -164,14 +162,16 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	/**
 	 * Writes value fetched from PLCnext GDS to device channel
 	 * 
-	 * @param mappedValue represents a value object containing channel ID and value
-	 *                    to set to channel
+	 * @param mappedValues represent value objects containing the channel ID and 
+	 * 						the value to set to channel
 	 * @param device      represents the device holding the channels
 	 */
-	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue) {
-		log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
-				mappedValue.getValue(), mappedValue.getChannelId());
-		channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
+	void setNextValuesToChannels(List<PlcNextGdsDataMappedValue> mappedValues) {
+		for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
+			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
+					mappedValue.getValue(), mappedValue.getChannelId());
+			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
+		}
 	}
 
 }

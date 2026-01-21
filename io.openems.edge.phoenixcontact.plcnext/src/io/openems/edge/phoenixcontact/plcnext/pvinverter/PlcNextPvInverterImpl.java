@@ -154,9 +154,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 
 			if (!mappedValues.isEmpty()) {
 				log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
-				for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-					setNextValueToChannel(mappedValue);
-				}
+				setNextValuesToChannels(mappedValues);
 			}
 		} catch (PlcNextGdsDataMappingException e) {
 			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
@@ -169,10 +167,12 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	 * @param mappedValue represents a value object containing channel ID and value
 	 *                    to set to channel
 	 */
-	void setNextValueToChannel(PlcNextGdsDataMappedValue mappedValue) {
-		log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
-				mappedValue.getValue(), mappedValue.getChannelId());
-		channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
+	void setNextValuesToChannels(List<PlcNextGdsDataMappedValue> mappedValues) {
+		for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
+			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
+					mappedValue.getValue(), mappedValue.getChannelId());
+			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
+		}
 	}
 
 	/**
@@ -199,9 +199,11 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	}
 
 	/**
+	 * Fetches next value from given channel ID to prepare it to be written to PLCnext device.
+	 * The 'next value' needs to be taken to reflect changes of the business logic.
 	 * 
-	 * @param channelId
-	 * @return
+	 * @param channelId	represents the channel ID of channel to be read
+	 * @return	mapping object containing the channel ID and the next value
 	 */
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),

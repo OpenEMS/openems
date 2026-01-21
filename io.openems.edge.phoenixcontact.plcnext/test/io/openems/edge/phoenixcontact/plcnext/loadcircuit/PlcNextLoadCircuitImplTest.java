@@ -27,7 +27,9 @@ import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.HttpStatus;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -43,6 +45,7 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChan
 public class PlcNextLoadCircuitImplTest {
 
 	private static final String COMPONENT_ID = "loadCircuit0";
+	private static final String MODBUS_ID = "modbus0";
 	private static final String SESSION_ID = "1234567890";
 
 	private static ThrowingRunnable<Exception> assertChannelValue(PlcNextLoadCircuitImpl sut, ChannelId channelId,
@@ -51,7 +54,7 @@ public class PlcNextLoadCircuitImplTest {
 	}
 
 	private TestConfig myConfig;
-
+	
 	private BridgeHttp dummyAuthBridgeHttp;
 	private BridgeHttp mockDummyDataBridgeHttp;
 
@@ -71,6 +74,9 @@ public class PlcNextLoadCircuitImplTest {
 	public void setupBefore() throws Exception {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
+				.setModbusId(MODBUS_ID) //
+				.setModbusTarget(MODBUS_ID) //
+				.setModbusUnitId(0)
 				.build();
 		this.componentUnderTest = new PlcNextLoadCircuitImpl();
 
@@ -121,7 +127,9 @@ public class PlcNextLoadCircuitImplTest {
 
 		this.test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
-				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper); //
+				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper)
+				.addReference("configAdmin", new DummyConfigurationAdmin())
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)); //
 
 	}
 
