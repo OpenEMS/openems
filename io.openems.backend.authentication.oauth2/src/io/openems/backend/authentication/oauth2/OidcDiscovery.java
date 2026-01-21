@@ -117,6 +117,9 @@ public final class OidcDiscovery {
 
 	/**
 	 * Normalizes the issuer URL by removing trailing slashes.
+	 *
+	 * @param issuerUrl the issuer URL to normalize
+	 * @return the normalized issuer URL
 	 */
 	private static String normalizeIssuerUrl(String issuerUrl) {
 		if (issuerUrl == null) {
@@ -127,6 +130,9 @@ public final class OidcDiscovery {
 
 	/**
 	 * Converts a JsonArray to a List of Strings.
+	 *
+	 * @param array the JsonArray to convert
+	 * @return the list of strings
 	 */
 	private static List<String> jsonArrayToList(JsonArray array) {
 		if (array == null) {

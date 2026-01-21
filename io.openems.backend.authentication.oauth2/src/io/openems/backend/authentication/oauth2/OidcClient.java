@@ -130,6 +130,9 @@ public final class OidcClient {
 
 	/**
 	 * Internal method to request tokens from the token endpoint.
+	 *
+	 * @param params the request parameters
+	 * @return a future with the token response
 	 */
 	private CompletableFuture<TokenResponse> requestToken(Map<String, String> params) {
 		final var tokenEndpoint = this.discovery.getTokenEndpoint();
@@ -178,6 +181,12 @@ public final class OidcClient {
 
 	/**
 	 * Logout using the OIDC end_session_endpoint.
+	 *
+	 * @param endpoint     the end_session_endpoint URL
+	 * @param clientId     the client ID
+	 * @param clientSecret the client secret
+	 * @param refreshToken the refresh token
+	 * @return a future that completes when logout is done
 	 */
 	private CompletableFuture<Void> logoutWithEndSession(String endpoint, String clientId, String clientSecret,
 			String refreshToken) {
@@ -192,6 +201,12 @@ public final class OidcClient {
 
 	/**
 	 * Revoke a token using the OAuth2 revocation_endpoint (RFC 7009).
+	 *
+	 * @param endpoint     the revocation_endpoint URL
+	 * @param clientId     the client ID
+	 * @param clientSecret the client secret
+	 * @param refreshToken the refresh token to revoke
+	 * @return a future that completes when revocation is done
 	 */
 	private CompletableFuture<Void> revokeToken(String endpoint, String clientId, String clientSecret,
 			String refreshToken) {
@@ -221,6 +236,9 @@ public final class OidcClient {
 
 		/**
 		 * Parses a token response from JSON.
+		 *
+		 * @param json the JSON object to parse
+		 * @return the parsed token response
 		 */
 		public static TokenResponse fromJson(JsonObject json) {
 			return new TokenResponse(//
