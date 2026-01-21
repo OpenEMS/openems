@@ -166,30 +166,85 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 			// deactivate old session
 			deactivateSessionMaintenanceIfNecessary();
 
-			// create session
-			Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
-			log.info("StationID '{}': Create session using endpoint: {}", config.stationId(), createSessionEndpoint);
-			JsonObject createSessionBody = http.requestJson(createSessionEndpoint).thenApply(response -> {
-				if (HttpStatus.CREATED == response.status()) {
-					return response.data().getAsJsonObject();
-				} else {
-					throw new IllegalStateException("Create session endpoint responds with status: '"
-							+ response.status() + "' and body: '" + response.data() + "'");
-				}
-			}).join();
-			log.debug("StationID '{}': Create session body: {}", config.stationId(), createSessionBody);
-
-			if (Objects.nonNull(createSessionBody)) {
-				String newSessionId = createSessionBody.get("sessionID").getAsString();
-				Duration timeoutDuration = Duration.ofMillis(createSessionBody.get("timeout").getAsLong())
-						.minusSeconds(1L);
-
-				createSessionResponse = Optional.of(new PlcNextCreateSessionResponse(newSessionId, timeoutDuration));
+			try {
+				createSessionResponse = createSession(config);
+			} catch (CompletionException ce) {
+				log.error("Create session failed! Trying to fetch session ID.", ce);
+				createSessionResponse = fetchSession(config);
 			}
 		}
 		return createSessionResponse;
 	}
 
+	private Optional<PlcNextCreateSessionResponse> createSession(PlcNextGdsDataAccessConfig config) {
+		Optional<PlcNextCreateSessionResponse> createSessionResponse = Optional.empty();
+
+		// create session
+		Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
+		log.info("StationID '{}': Create session using endpoint: {}", config.stationId(), createSessionEndpoint);
+		JsonObject createSessionBody = http.requestJson(createSessionEndpoint).thenApply(response -> {
+			if (HttpStatus.CREATED == response.status()) {
+				return response.data().getAsJsonObject();
+			} else {
+				throw new IllegalStateException("Create session endpoint responds with status: '"
+						+ response.status() + "' and body: '" + response.data() + "'");
+			}
+		}).join();
+		log.debug("StationID '{}': Create session body: {}", config.stationId(), createSessionBody);
+
+		if (Objects.nonNull(createSessionBody)) {
+			String newSessionId = createSessionBody.get("sessionID").getAsString();
+			Duration timeoutDuration = Duration.ofMillis(createSessionBody.get("timeout").getAsLong())
+					.minusSeconds(1L);
+
+			createSessionResponse = Optional.of(new PlcNextCreateSessionResponse(newSessionId, timeoutDuration));
+		}
+		return createSessionResponse;
+	}
+
+	private Optional<PlcNextCreateSessionResponse> fetchSession(PlcNextGdsDataAccessConfig config) {
+		Optional<PlcNextCreateSessionResponse> fetchSessionResponse = Optional.empty();
+
+		// create session
+		Endpoint fetchSessionsEndpoint = buildFetchSessionsEndpoint(tokenManager.getToken(), config);
+		log.info("StationID '{}': Fetch sessions using endpoint: {}", config.stationId(), fetchSessionsEndpoint);
+		JsonObject fetchSessionsResponseBody = http.requestJson(fetchSessionsEndpoint).thenApply(response -> {
+			if (HttpStatus.OK == response.status()) {
+				return response.data().getAsJsonObject();
+			} else {
+				throw new IllegalStateException("Create session endpoint responds with status: '"
+						+ response.status() + "' and body: '" + response.data() + "'");
+			}
+		}).join();
+		log.debug("StationID '{}': Fetch sessions response body: {}", config.stationId(), fetchSessionsResponseBody);
+
+		if (Objects.nonNull(fetchSessionsResponseBody)) {
+			JsonElement sessions = fetchSessionsResponseBody.get("sessions");
+			
+			if (Objects.nonNull(sessions) && !sessions.isJsonNull() && sessions.isJsonArray()) {
+				Optional<JsonObject> sessionJsonObject = sessions.getAsJsonArray().asList().stream() //
+						.filter(item -> item.isJsonObject() && //
+									item.getAsJsonObject().has("stationID") && //
+									config.stationId().equalsIgnoreCase(item.getAsJsonObject().get("stationID").getAsString())) //
+						.map(JsonElement::getAsJsonObject) //
+						.findFirst();
+				
+				if (sessionJsonObject.isEmpty()) {
+					log.info("StationID '{}': Cannot find session of this station!", config.stationId());
+				} else {
+					String sessionId = sessionJsonObject.get().get("id").getAsString();
+					Duration timeoutDuration = Duration.ofMillis(fetchSessionsResponseBody.get("timeout").getAsLong())
+							.minusSeconds(1L);
+					
+					fetchSessionResponse = Optional.of(new PlcNextCreateSessionResponse(sessionId, timeoutDuration));					
+					log.debug("StationID '{}': Session of this station found {}.", config.stationId(), fetchSessionResponse.get());
+				}
+			}
+		}
+		return fetchSessionResponse;
+	}
+
+	
 	private boolean canCreateSession(PlcNextGdsDataAccessConfig config) {
 		return Objects.isNull(this.sessionId) || Objects.isNull(config);
 	}
@@ -280,6 +335,22 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 
 		return new Endpoint(createSessionEndpointUrl, HttpMethod.POST, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
 				BridgeHttp.DEFAULT_READ_TIMEOUT, postRequestBody, headers);
+	}
+
+	/**
+	 * Build endpoint to be used to fetch a sessions
+	 * 
+	 * @param authToken the auth token of PLCnext REST-API
+	 * @param config    config of base URL and instance name
+	 * @return @link{Endpoint} object
+	 */
+	public Endpoint buildFetchSessionsEndpoint(String authToken, PlcNextGdsDataAccessConfig config) {
+		String fetchSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_SESSIONS);
+		Map<String, String> headers = Map.of("Accept", "application/json", //
+				"Authorization", "Bearer " + authToken);
+
+		return new Endpoint(fetchSessionEndpointUrl, HttpMethod.GET, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
+				BridgeHttp.DEFAULT_READ_TIMEOUT, null, headers);
 	}
 
 	/**

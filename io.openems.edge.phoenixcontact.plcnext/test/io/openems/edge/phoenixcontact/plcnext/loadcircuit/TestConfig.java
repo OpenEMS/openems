@@ -8,12 +8,30 @@ public class TestConfig extends AbstractComponentConfig
 
 	protected static class Builder {
 		private String id;
+		private String modbusId;
+		private int modbusUnitId;
+		private String modbusTarget;
 
 		private Builder() {
 		}
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+		
+		public Builder setModbusId(String modbusId) {
+			this.modbusId = modbusId;
+			return this;
+		}
+
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setModbusTarget(String modbusTarget) {
+			this.modbusTarget = modbusTarget;
 			return this;
 		}
 
@@ -57,6 +75,21 @@ public class TestConfig extends AbstractComponentConfig
 	@Override
 	public String dataInstanceName() {
 		return "OpenEmsInstance4JUnitLoadCircuit";
+	}
+
+	@Override
+	public String modbus_id() {
+		return this.builder.modbusId == null ? "modbus0" : this.builder.modbusId;
+	}
+
+	@Override
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public String Modbus_target() {
+		return this.builder.modbusTarget == null ? "(enabled=true)" : this.builder.modbusTarget;
 	}
 
 }
