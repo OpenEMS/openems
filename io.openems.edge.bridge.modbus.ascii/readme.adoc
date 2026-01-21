@@ -1,0 +1,39 @@
+= Modbus/ASCII Serial Bridge
+
+This bundle provides a Modbus/ASCII bridge for serial communication using the Modbus/ASCII protocol. It extends the OpenEMS Modbus bundle that already provides Modbus/RTU support over a serial connection.
+
+== Overview
+
+Modbus ASCII is an alternative encoding to Modbus RTU for serial communication. While functionally equivalent, ASCII mode differs in frame format:
+
+[cols="1,1,1"]
+|===
+| Aspect | RTU | ASCII
+
+| Start delimiter | 3.5 char silence | `:` (colon)
+| End delimiter | 3.5 char silence | CR/LF
+| Data encoding | Binary | ASCII hex (2 chars per byte)
+| Error check | CRC-16 (2 bytes) | LRC (1 byte)
+|===
+
+ASCII mode is more tolerant of timing delays, making it suitable for connections with variable latency.
+
+== Usage
+
+Configure `Bridge.Modbus.Serial.Ascii` with default 8E1 parameters (8 data bits, Even parity, 1 stop bit). All existing Modbus components work transparently with this bridge.
+
+For implementation details, task execution, priority handling, and logging options, see the link:../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge documentation].
+
+== Additional Features
+
+=== Connection Health Monitoring
+
+This bridge provides additional channels for monitoring communication health:
+
+- `BytesSent` / `BytesReceived`: Total byte counters
+- `LastSuccessfulCommunication`: Timestamp of last successful transaction
+- `CommunicationErrors` / `SuccessfulTransactions`: Transaction counters
+
+=== Raw Frame Logging
+
+Set `LogVerbosity` to `READS_AND_WRITES_DURATION_TRACE_EVENTS` to enable raw frame logging for protocol debugging.
