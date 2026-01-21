@@ -1,6 +1,7 @@
 package io.openems.backend.authentication.oauth2;
 
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.JwkProviderBuilder;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -73,15 +75,16 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	private final Logger log = LoggerFactory.getLogger(OAuthUserAuthenticationServiceImpl.class);
 
-	private final URI baseKeycloakUrl;
+	private final String issuerUrl;
 	private final String realm;
-	private final URI issuerUrl;
-	private final URI loginUrl;
-	private final URI tokenUrl;
-	private final URI certsUrl;
 	private final String scopes = "openid";
 
-	private final JWTVerifier verifier;
+	private final int rateLimitedBucketSize;
+	private final int rateLimitedRefillRate;
+
+	private volatile JWTVerifier verifier;
+	private volatile JwkProvider jwkProvider;
+	private final Object verifierLock = new Object();
 
 	private record ConnectState(String codeVerifier, String redirectUri, String oem) {
 
@@ -95,6 +98,9 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 	private final Metadata metadata;
 
 	private final Map<String, OAuthOemConfig> oemsConfigs = new ConcurrentHashMap<>();
+
+	private volatile OidcDiscovery oidcDiscovery;
+	private volatile OidcClient oidcClient;
 
 	private final Executor executor = Executors.newScheduledThreadPool(100, Thread.ofVirtual().name("Auth").factory());
 
@@ -133,40 +139,19 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		this.metadata = metadata;
 
 		this.realm = config.realm();
-		this.baseKeycloakUrl = URI.create(config.baseKeycloakUrl());
-		this.issuerUrl = URI.create(config.issuerUrl());
-		this.loginUrl = URI.create(config.loginUrl());
-		this.tokenUrl = URI.create(config.tokenUrl());
-		this.certsUrl = URI.create(config.certsUrl());
+		this.issuerUrl = normalizeIssuerUrl(config.issuerUrl());
+		this.rateLimitedBucketSize = config.rateLimitedBucketSize();
+		this.rateLimitedRefillRate = config.rateLimitedRefillRate();
 
-		final var provider = new JwkProviderBuilder(this.certsUrl.toURL()) //
-				.rateLimited(config.rateLimitedBucketSize(), config.rateLimitedRefillRate(), TimeUnit.SECONDS) //
-				.build();
+		this.log.info("OAuth Authentication Service initialized with issuer: {}", this.issuerUrl);
+		this.log.info("OIDC Discovery will be fetched lazily on first authentication request");
+	}
 
-		final var keyProvider = new RSAKeyProvider() {
-			@Override
-			public RSAPublicKey getPublicKeyById(String kid) {
-				try {
-					return (RSAPublicKey) provider.get(kid).getPublicKey();
-				} catch (JwkException e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-			@Override
-			public RSAPrivateKey getPrivateKey() {
-				return null;
-			}
-
-			@Override
-			public String getPrivateKeyId() {
-				return null;
-			}
-		};
-
-		this.verifier = JWT.require(Algorithm.RSA256(keyProvider)) //
-				.withIssuer(this.issuerUrl.toString()) //
-				.build();
+	private static String normalizeIssuerUrl(String issuerUrl) {
+		if (issuerUrl == null) {
+			return "";
+		}
+		return issuerUrl.endsWith("/") ? issuerUrl.substring(0, issuerUrl.length() - 1) : issuerUrl;
 	}
 
 	/**
@@ -180,13 +165,15 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 	@Override
 	public CompletableFuture<PasswordAuthenticationResult> authenticateWithPassword(String username, String password) {
 		final var config = this.getServiceAccountOemConfig();
-		return KeycloakApi.getToken(this.bridgeHttp, this.issuerUrl.toString(), config.clientId(),
-				config.clientSecret(), username, password).thenApply(token -> {
-					final var jwtToken = JWT.decode(token);
+		return this.getOidcClient() //
+				.thenCompose(client -> client.getTokenWithPassword(config.clientId(), config.clientSecret(), username,
+						password)) //
+				.thenApply(tokenResponse -> {
+					final var jwtToken = JWT.decode(tokenResponse.accessToken());
 					final var email = jwtToken.getClaim("email").asString();
 
 					// email is currently treated as login (originally from odoo)
-					return new PasswordAuthenticationResult(jwtToken.getSubject(), email, token);
+					return new PasswordAuthenticationResult(jwtToken.getSubject(), email, tokenResponse.accessToken());
 				});
 	}
 
@@ -203,43 +190,139 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	@Override
 	public CompletableFuture<Void> logout(String token) {
-		// empty: Keycloak does not support access token revocation
-		// (refresh tokens can be revoked but are not used here)
+		// Access tokens cannot be revoked - they expire naturally.
+		// For proper logout with session termination, use logout(oem, refreshToken).
 		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override
+	public CompletableFuture<Void> logout(String oem, String refreshToken) {
+		if (refreshToken == null || refreshToken.isBlank()) {
+			this.log.debug("Logout called without refresh token - skipping OAuth provider logout");
+			return CompletableFuture.completedFuture(null);
+		}
+
+		final var oemConfig = this.getOemConfig(oem);
+
+		// Use OidcClient for provider-agnostic logout
+		return this.getOidcClient() //
+				.thenCompose(
+						client -> client.logout(oemConfig.clientId(), oemConfig.clientSecret(), refreshToken)) //
+				.handle((result, throwable) -> {
+					if (throwable != null) {
+						// Log but don't fail - user should still be logged out locally
+						this.log.warn("Failed to logout at OAuth provider for OEM {}: {}", oem, throwable.getMessage());
+					} else {
+						this.log.debug("Successfully logged out at OAuth provider for OEM {}", oem);
+					}
+					return null;
+				});
+	}
+
+	private CompletableFuture<OidcDiscovery> getOidcDiscovery() {
+		if (this.oidcDiscovery != null) {
+			return CompletableFuture.completedFuture(this.oidcDiscovery);
+		}
+
+		return OidcDiscovery.fetch(this.bridgeHttp, this.issuerUrl) //
+				.thenApply(discovery -> {
+					this.oidcDiscovery = discovery;
+					this.oidcClient = new OidcClient(this.bridgeHttp, discovery);
+					this.initializeJwtVerifier(discovery);
+					return discovery;
+				});
+	}
+
+	private CompletableFuture<OidcClient> getOidcClient() {
+		if (this.oidcClient != null) {
+			return CompletableFuture.completedFuture(this.oidcClient);
+		}
+		return this.getOidcDiscovery().thenApply(d -> this.oidcClient);
+	}
+
+	private void initializeJwtVerifier(OidcDiscovery discovery) {
+		synchronized (this.verifierLock) {
+			if (this.verifier != null) {
+				return;
+			}
+
+			try {
+				final var jwksUri = new URL(discovery.getJwksUri());
+				this.jwkProvider = new JwkProviderBuilder(jwksUri) //
+						.rateLimited(this.rateLimitedBucketSize, this.rateLimitedRefillRate, TimeUnit.SECONDS) //
+						.build();
+
+				final var keyProvider = new RSAKeyProvider() {
+					@Override
+					public RSAPublicKey getPublicKeyById(String kid) {
+						try {
+							return (RSAPublicKey) OAuthUserAuthenticationServiceImpl.this.jwkProvider.get(kid)
+									.getPublicKey();
+						} catch (JwkException e) {
+							throw new RuntimeException(e);
+						}
+					}
+
+					@Override
+					public RSAPrivateKey getPrivateKey() {
+						return null;
+					}
+
+					@Override
+					public String getPrivateKeyId() {
+						return null;
+					}
+				};
+
+				this.verifier = JWT.require(Algorithm.RSA256(keyProvider)) //
+						.withIssuer(discovery.getIssuer()) //
+						.build();
+
+				this.log.info("JWT Verifier initialized with jwks_uri: {}", jwksUri);
+			} catch (MalformedURLException e) {
+				throw new RuntimeException("Invalid JWKS URI from OIDC Discovery", e);
+			}
+		}
+	}
+
+	private CompletableFuture<JWTVerifier> getJwtVerifier() {
+		if (this.verifier != null) {
+			return CompletableFuture.completedFuture(this.verifier);
+		}
+		return this.getOidcDiscovery().thenApply(d -> this.verifier);
+	}
+
+	@Override
 	public CompletableFuture<InitiateConnectResponse> initiateConnect(String oem, String redirectUri) {
-		return CompletableFuture.supplyAsync(() -> {
+		final var oemConfig = this.getOemConfig(oem);
+		final var codeVerifier = generateCodeVerifier();
+		final var codeChallenge = generateCodeChallenge(codeVerifier);
+		final var identifier = UUID.randomUUID().toString();
+		final var rUri = redirectUri != null ? redirectUri : oemConfig.redirectUri();
 
-			final var oemConfig = this.getOemConfig(oem);
+		this.codeVerifiers.put(identifier, new ConnectState(codeVerifier, rUri, oem));
+		this.log.info("Initiate Connect oem={}, redirectUri={}, identifier={}", oem, rUri, identifier);
 
-			final var codeVerifier = generateCodeVerifier();
-			final var codeChallenge = generateCodeChallenge(codeVerifier);
+		return this.getOidcDiscovery() //
+				.thenApply(discovery -> {
+					final var authorizationEndpoint = discovery.getAuthorizationEndpoint();
 
-			final var identifier = UUID.randomUUID().toString();
+					final var url = UrlBuilder.parse(authorizationEndpoint) //
+							.withQueryParam("client_id", oemConfig.clientId()) //
+							.withQueryParam("state", identifier) //
+							.withQueryParam("code_challenge", codeChallenge) //
+							.withQueryParam("code_challenge_method", "S256") //
+							.withQueryParam("scope", this.scopes) //
+							.withQueryParam("redirect_uri", rUri) //
+							.withQueryParam("response_type", "code") //
+							.toEncodedString();
 
-			final var rUri = redirectUri != null ? redirectUri : oemConfig.redirectUri();
-
-			this.codeVerifiers.put(identifier, new ConnectState(codeVerifier, rUri, oem));
-
-			this.log.info("Initiate Connect oem={}, redirectUri={}, identifier={}", oem, rUri, identifier);
-
-			final var url = UrlBuilder.parse(this.loginUrl.toString()) //
-					.withQueryParam("client_id", oemConfig.clientId()) //
-					.withQueryParam("state", identifier) //
-					.withQueryParam("code_challenge", codeChallenge) //
-					.withQueryParam("code_challenge_method", "S256") //
-					.withQueryParam("scope", this.scopes) //
-					.withQueryParam("redirect_uri", rUri) //
-					.withQueryParam("response_type", "code") //
-					.toEncodedString();
-
-			return new InitiateConnectResponse(identifier, identifier, url);
-		}, this.executor).exceptionally(t -> {
-			this.log.warn("Unable to initiate connection with oem={}, redirectUri={}", oem, redirectUri);
-			throw new RuntimeException("Unable to initiate connection", t);
-		});
+					return new InitiateConnectResponse(identifier, identifier, url);
+				}) //
+				.exceptionally(t -> {
+					this.log.warn("Unable to initiate connection with oem={}, redirectUri={}", oem, redirectUri);
+					throw new RuntimeException("Unable to initiate connection", t);
+				});
 	}
 
 	@Override
@@ -282,11 +365,13 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 	public CompletableFuture<Void> registerUser(RegisterUserRequest user) {
 		return CompletableFuture.supplyAsync(this::getServiceAccountOemConfig, this.executor).thenCompose(oemConfig -> {
 
-			return KeycloakApi
-					.getToken(this.bridgeHttp, this.issuerUrl.toString(), oemConfig.clientId(),
-							oemConfig.clientSecret())
-					.thenCompose(token -> KeycloakApi
-							.createUser(this.bridgeHttp, this.baseKeycloakUrl.toString(), this.realm, token,
+			final var keycloakBaseUrl = this.getKeycloakAdminBaseUrl();
+
+			return this.getOidcClient() //
+					.thenCompose(client -> client.getTokenWithClientCredentials(oemConfig.clientId(),
+							oemConfig.clientSecret())) //
+					.thenCompose(tokenResponse -> KeycloakApi
+							.createUser(this.bridgeHttp, keycloakBaseUrl, this.realm, tokenResponse.accessToken(),
 									user.email(), user.email(), user.firstname(), user.lastname(), true) //
 							.thenCompose(userId -> {
 								final var futures = new ArrayList<CompletableFuture<?>>();
@@ -306,9 +391,8 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 								}, this.executor));
 
 								if (user.password() != null) {
-									futures.add(
-											KeycloakApi.resetPassword(this.bridgeHttp, this.baseKeycloakUrl.toString(),
-													this.realm, token, userId, false, user.password()));
+									futures.add(KeycloakApi.resetPassword(this.bridgeHttp, keycloakBaseUrl, this.realm,
+											tokenResponse.accessToken(), userId, false, user.password()));
 								}
 
 								return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
@@ -319,6 +403,15 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 						}
 					});
 		});
+	}
+
+	private String getKeycloakAdminBaseUrl() {
+		final var realmPath = "/realms/";
+		final var idx = this.issuerUrl.indexOf(realmPath);
+		if (idx > 0) {
+			return this.issuerUrl.substring(0, idx);
+		}
+		return this.issuerUrl;
 	}
 
 	@Override
@@ -336,10 +429,14 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	private CompletableFuture<OAuthToken> fetchTokensHttpBridge(OAuthOemConfig config, String redirectUri,
 			Grant grant) {
-		return this.bridgeHttp.requestJson(BridgeHttp.Endpoint.create(this.tokenUrl.toString()) //
-				.setHeader("Accept", "application/json") //
-				.setBodyFormEncoded(this.getQueryParams(config, redirectUri, grant)) //
-				.build()) //
+		return this.getOidcDiscovery() //
+				.thenCompose(discovery -> {
+					final var tokenEndpoint = discovery.getTokenEndpoint();
+					return this.bridgeHttp.requestJson(BridgeHttp.Endpoint.create(tokenEndpoint) //
+							.setHeader("Accept", "application/json") //
+							.setBodyFormEncoded(this.getQueryParams(config, redirectUri, grant)) //
+							.build());
+				}) //
 				.thenApply(response -> {
 					final var obj = response.data().getAsJsonObject();
 
@@ -387,15 +484,17 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	@Override
 	public CompletableFuture<Void> validate(String accessToken) {
-		return CompletableFuture.runAsync(() -> {
-			this.processAccessToken(accessToken);
-		}, this.executor).handle((ignore, throwable) -> {
-			if (throwable != null) {
-				this.log.error("Error validating access token: {}", accessToken, throwable);
-				throw new CompletionException(OpenemsError.COMMON_AUTHENTICATION_FAILED.exception());
-			}
-			return ignore;
-		});
+		return this.getJwtVerifier() //
+				.thenRunAsync(() -> {
+					this.processAccessToken(accessToken);
+				}, this.executor) //
+				.handle((ignore, throwable) -> {
+					if (throwable != null) {
+						this.log.error("Error validating access token", throwable);
+						throw new CompletionException(OpenemsError.COMMON_AUTHENTICATION_FAILED.exception());
+					}
+					return ignore;
+				});
 	}
 
 	@Override

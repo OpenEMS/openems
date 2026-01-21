@@ -71,6 +71,7 @@ export class Websocket implements WebsocketInterface {
         private pagination: Pagination,
         private authService: AuthService,
         private platFormService: PlatFormService,
+        private oAuthService: OAuthService,
     ) {
         service.websocket = this;
 
@@ -157,15 +158,24 @@ export class Websocket implements WebsocketInterface {
     }
 
     /**
-     * Logs out by sending a logout JSON-RPC Request.
+     * Logs out by first revoking the refresh token at the OAuth provider,
+     * then sending a logout JSON-RPC Request to the backend.
      */
-    public logout() {
-        this.sendRequest(new LogoutRequest()).then(response => {
+    public async logout() {
+        try {
+            // First, logout at OAuth provider to revoke the refresh token
+            if (OAuthService.isOAuth(this.cookieService)) {
+                await this.oAuthService.logout();
+            }
+
+            // Then send the normal logout request to backend
+            await this.sendRequest(new LogoutRequest());
             this.onLoggedOut();
-        }).catch(reason => {
-            console.error(reason);
-            this.router.navigate(["/login"]);
-        });
+        } catch (reason) {
+            console.error("Logout error:", reason);
+            // Even if logout fails, clean up locally
+            this.onLoggedOut();
+        }
     }
 
     /**

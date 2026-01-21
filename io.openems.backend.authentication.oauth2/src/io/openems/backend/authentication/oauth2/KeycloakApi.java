@@ -1,7 +1,6 @@
 package io.openems.backend.authentication.oauth2;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
@@ -12,74 +11,26 @@ import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Keycloak Admin API client.
+ *
+ * <p>
+ * This class provides methods for Keycloak-specific admin operations like
+ * creating users, managing roles, and resetting passwords.
+ * </p>
+ *
+ * <p>
+ * For standard OIDC operations (token requests, logout, etc.), use
+ * {@link OidcClient} instead.
+ * </p>
+ */
 public final class KeycloakApi {
 
 	/**
-	 * Gets a token from Keycloak using the client credentials grant type.
-	 * 
-	 * <p>
-	 * To use this method, the client must be configured in Keycloak to allow
-	 * "Service accounts roles".
-	 * </p>
-	 * 
-	 * @param bridgeHttp   the {@link BridgeHttp} instance to use for the HTTP
-	 *                     request
-	 * @param issuerUrl    the issuer URL of the Keycloak server
-	 * @param clientId     the client ID registered in Keycloak
-	 * @param clientSecret the client secret registered in Keycloak
-	 * @return a {@link CompletableFuture} that completes with the access token as a
-	 *         String
-	 */
-	public static CompletableFuture<String> getToken(BridgeHttp bridgeHttp, String issuerUrl, String clientId,
-			String clientSecret) {
-		return bridgeHttp.requestJson(BridgeHttp.Endpoint.create(issuerUrl + "/protocol/openid-connect/token") //
-				.setBodyFormEncoded(Map.of(//
-						"grant_type", "client_credentials", //
-						"client_id", clientId, //
-						"client_secret", clientSecret))
-				.build()) //
-				.thenApply(response -> {
-					final var obj = response.data().getAsJsonObject();
-					return obj.get("access_token").getAsString();
-				});
-	}
-
-	/**
-	 * Gets a token from Keycloak using the password grant type.
-	 * 
-	 * @param bridgeHttp   the {@link BridgeHttp} instance to use for the HTTP
-	 * @param issuerUrl    the issuer URL of the Keycloak server
-	 * @param clientId     the client ID registered in Keycloak
-	 * @param clientSecret the client secret registered in Keycloak
-	 * @param username     the username of the user
-	 * @param password     the password of the user
-	 * @return a {@link CompletableFuture} that completes with the access token as a
-	 *         String
-	 */
-	public static CompletableFuture<String> getToken(//
-			BridgeHttp bridgeHttp, String issuerUrl, //
-			String clientId, String clientSecret, //
-			String username, String password //
-	) {
-		return bridgeHttp.requestJson(BridgeHttp.Endpoint.create(issuerUrl + "/protocol/openid-connect/token") //
-				.setBodyFormEncoded(Map.of(//
-						"grant_type", "password", //
-						"client_id", clientId, //
-						"client_secret", clientSecret, //
-						"username", username, //
-						"password", password))
-				.build()) //
-				.thenApply(response -> {
-					final var obj = response.data().getAsJsonObject();
-					return obj.get("access_token").getAsString();
-				});
-	}
-
-	/**
 	 * Creates a new user in Keycloak.
-	 * 
+	 *
 	 * @param bridgeHttp the {@link BridgeHttp} instance to use for the HTTP
-	 * @param issuerUrl  the issuer URL of the Keycloak server
+	 * @param baseUrl    the base URL of the Keycloak server (without realm path)
 	 * @param realm      the realm in which to create the user
 	 * @param token      the access token for authentication
 	 * @param username   the username of the new user
@@ -87,11 +38,11 @@ public final class KeycloakApi {
 	 * @param firstName  the firstname of the new user
 	 * @param lastName   the lastname of the new user
 	 * @param enabled    whether the user should be enabled
-	 * @return a {@link CompletableFuture} that completes when the user is created
+	 * @return a {@link CompletableFuture} that completes with the user ID
 	 */
-	public static CompletableFuture<String> createUser(BridgeHttp bridgeHttp, String issuerUrl, String realm,
+	public static CompletableFuture<String> createUser(BridgeHttp bridgeHttp, String baseUrl, String realm,
 			String token, String username, String email, String firstName, String lastName, boolean enabled) {
-		return bridgeHttp.request(BridgeHttp.Endpoint.create(issuerUrl + "/admin/realms/" + realm + "/users") //
+		return bridgeHttp.request(BridgeHttp.Endpoint.create(baseUrl + "/admin/realms/" + realm + "/users") //
 				.setHeader("Authorization", "Bearer " + token) //
 				.setBodyJson(JsonUtils.buildJsonObject() //
 						.addProperty("username", username) //
@@ -99,20 +50,15 @@ public final class KeycloakApi {
 						.addProperty("firstName", firstName) //
 						.addProperty("lastName", lastName) //
 						.addProperty("enabled", enabled) //
-						// roles not applied here, they can be added with #createRealmRoleMapping
-						// .add("realmRoles", realmRoles.stream() //
-						// .map(JsonPrimitive::new) //
-						// .collect(toJsonArray())) //
 						.build()) //
 				.build()) //
 				.thenApply(response -> {
 					final var location = response.header().get("Location");
 					if (location != null && !location.isEmpty()) {
-						// Extract the user ID from the Location header
 						var locationHeader = location.getFirst();
 						var parts = locationHeader.split("/");
 						if (parts.length > 0) {
-							return parts[parts.length - 1]; // Return the last part as user ID
+							return parts[parts.length - 1];
 						}
 					}
 					throw new RuntimeException("Failed to create user: No Location header found in response");
@@ -121,19 +67,19 @@ public final class KeycloakApi {
 
 	/**
 	 * Fetches the realm roles from Keycloak.
-	 * 
+	 *
 	 * @param bridgeHttp the {@link BridgeHttp} instance to use for the HTTP
-	 * @param issuerUrl  the issuer URL of the Keycloak server
+	 * @param baseUrl    the base URL of the Keycloak server (without realm path)
 	 * @param realm      the realm from which to fetch the roles
 	 * @param token      the access token for authentication
 	 * @param search     an optional search term to filter roles by name
-	 * @return a {@link CompletableFuture} that completes with a list of
+	 * @return a {@link CompletableFuture} that completes with a list of roles
 	 */
-	public static CompletableFuture<List<RealmRole>> getRealmRoles(BridgeHttp bridgeHttp, String issuerUrl,
+	public static CompletableFuture<List<RealmRole>> getRealmRoles(BridgeHttp bridgeHttp, String baseUrl,
 			String realm, String token, String search) {
 		return bridgeHttp
 				.requestJson(BridgeHttp.Endpoint
-						.create(UrlBuilder.parse(issuerUrl + "/admin/realms/" + realm + "/roles") //
+						.create(UrlBuilder.parse(baseUrl + "/admin/realms/" + realm + "/roles") //
 								.withQueryParam("search", search) //
 								.toEncodedString()) //
 						.setHeader("Authorization", "Bearer " + token) //
@@ -177,9 +123,9 @@ public final class KeycloakApi {
 
 	/**
 	 * Creates a realm role mapping for a user in Keycloak.
-	 * 
+	 *
 	 * @param bridgeHttp the {@link BridgeHttp} instance to use for the HTTP
-	 * @param issuerUrl  the issuer URL of the Keycloak server
+	 * @param baseUrl    the base URL of the Keycloak server (without realm path)
 	 * @param realm      the realm in which the user exists
 	 * @param token      the access token for authentication
 	 * @param userId     the ID of the user to map roles to
@@ -187,11 +133,11 @@ public final class KeycloakApi {
 	 * @return a {@link CompletableFuture} that completes when the mapping is
 	 *         created
 	 */
-	public static CompletableFuture<Void> createRealmRoleMapping(BridgeHttp bridgeHttp, String issuerUrl, String realm,
+	public static CompletableFuture<Void> createRealmRoleMapping(BridgeHttp bridgeHttp, String baseUrl, String realm,
 			String token, String userId, List<RealmRole> roles) {
 		return bridgeHttp
 				.request(BridgeHttp.Endpoint
-						.create(issuerUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm") //
+						.create(baseUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm") //
 						.setHeader("Authorization", "Bearer " + token) //
 						.setBodyJson(RealmRole.serializer().toListSerializer().serialize(roles)) //
 						.build()) //
@@ -200,9 +146,9 @@ public final class KeycloakApi {
 
 	/**
 	 * Resets the password of a user in Keycloak.
-	 * 
+	 *
 	 * @param bridgeHttp the {@link BridgeHttp} instance to use for the HTTP
-	 * @param issuerUrl  the issuer URL of the Keycloak server
+	 * @param baseUrl    the base URL of the Keycloak server (without realm path)
 	 * @param realm      the realm in which the user exists
 	 * @param token      the access token for authentication
 	 * @param userId     the ID of the user whose password is to be reset
@@ -210,11 +156,11 @@ public final class KeycloakApi {
 	 * @param password   the new password to set for the user
 	 * @return a {@link CompletableFuture} that completes when the password is reset
 	 */
-	public static CompletableFuture<Void> resetPassword(BridgeHttp bridgeHttp, String issuerUrl, String realm,
+	public static CompletableFuture<Void> resetPassword(BridgeHttp bridgeHttp, String baseUrl, String realm,
 			String token, String userId, boolean temporary, String password) {
 		return bridgeHttp
 				.request(BridgeHttp.Endpoint
-						.create(issuerUrl + "/admin/realms/" + realm + "/users/" + userId + "/reset-password") //
+						.create(baseUrl + "/admin/realms/" + realm + "/users/" + userId + "/reset-password") //
 						.setHeader("Authorization", "Bearer " + token) //
 						.setBodyJson(JsonUtils.buildJsonObject() //
 								.addProperty("type", "password") //

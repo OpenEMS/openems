@@ -12,7 +12,7 @@ import { Language } from "../../type/language";
 import { StringUtils } from "../../utils/string/string.utils";
 import { Service } from "../service";
 import { UserService } from "../user.service";
-import { AuthenticateWithOAuthResponse, AuthenticateWithOAuthRequest } from "./jsonrpc";
+import { AuthenticateWithOAuthResponse, AuthenticateWithOAuthRequest, OAuthLogoutRequest, OAuthLogoutResponse } from "./jsonrpc";
 
 @Injectable({ providedIn: "root" })
 export class OAuthService {
@@ -199,5 +199,32 @@ export class OAuthService {
      */
     private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
         this.cookieService.set(OAuthService.REFRESH_TOKEN, JSON.stringify(result.refreshToken), 14, "/");
+    }
+
+    /**
+     * Logs out at the OAuth provider by revoking the refresh token.
+     * This ensures the user's session is properly terminated at the OAuth provider.
+     *
+     * @returns a promise that resolves when logout is complete
+     */
+    public async logout(): Promise<void> {
+        const refreshToken = this.getRefreshToken();
+
+        if (refreshToken == null) {
+            // No refresh token, nothing to revoke at OAuth provider
+            return;
+        }
+
+        try {
+            await this.service.websocket.sendRequest<OAuthLogoutResponse>(new AuthenticateWithOAuthRequest({
+                payload: new OAuthLogoutRequest(
+                    OAuthService.getOem().oem,
+                    refreshToken,
+                ),
+            }));
+        } catch (error) {
+            // Log but don't fail - local logout should still proceed
+            console.warn("Failed to logout at OAuth provider:", error);
+        }
     }
 }

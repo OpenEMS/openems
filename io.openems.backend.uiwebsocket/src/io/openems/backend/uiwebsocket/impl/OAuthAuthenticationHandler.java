@@ -19,7 +19,7 @@ public final class OAuthAuthenticationHandler {
 
 	/**
 	 * Handles the OAuth authentication requests.
-	 * 
+	 *
 	 * @param metadata    the {@link Metadata} to use for user lookup
 	 * @param authService the {@link AuthUserAuthorizationCodeFlowService} to use
 	 *                    for
@@ -66,6 +66,13 @@ public final class OAuthAuthenticationHandler {
 					wsData.setUser(user);
 					return new TokenResponse(re.getId(), token.accessToken(), token.refreshToken(), user);
 				});
+			});
+		}
+		case LogoutRequest.METHOD -> {
+			final var r = LogoutRequest.from(request);
+			yield authService.logout(r.getOem(), r.getRefreshToken()).thenApply(ignored -> {
+				wsData.logout();
+				return new LogoutResponse(re.getId());
 			});
 		}
 
@@ -169,6 +176,58 @@ public final class OAuthAuthenticationHandler {
 					.addProperty("oem", this.oem) //
 					.addProperty("identifier", this.identifier) //
 					.addProperty("code", this.code) //
+					.build();
+		}
+	}
+
+	private static class LogoutRequest extends JsonrpcRequest {
+
+		public static final String METHOD = "logout";
+
+		public static LogoutRequest from(JsonrpcRequest request) throws OpenemsError.OpenemsNamedException {
+			final var p = request.getParams();
+			return new LogoutRequest(//
+					JsonUtils.getAsString(p, "oem"), //
+					JsonUtils.getAsStringOrElse(p, "refreshToken", null) //
+			);
+		}
+
+		private final String oem;
+		private final String refreshToken;
+
+		public LogoutRequest(String oem, String refreshToken) {
+			super(LogoutRequest.METHOD);
+			this.oem = oem;
+			this.refreshToken = refreshToken;
+		}
+
+		public String getOem() {
+			return this.oem;
+		}
+
+		public String getRefreshToken() {
+			return this.refreshToken;
+		}
+
+		@Override
+		public JsonObject getParams() {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("oem", this.oem) //
+					.addPropertyIfNotNull("refreshToken", this.refreshToken) //
+					.build();
+		}
+	}
+
+	private static class LogoutResponse extends JsonrpcResponseSuccess {
+
+		public LogoutResponse(UUID id) {
+			super(id);
+		}
+
+		@Override
+		public JsonObject getResult() {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("success", true) //
 					.build();
 		}
 	}
