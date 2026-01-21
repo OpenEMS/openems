@@ -48,18 +48,18 @@ export class OAuthService {
 
     /**
      * Gets the OEM to use.
-    *
-    * @returns the oem
-    */
+     *
+     * @returns the oem
+     */
     public static getOem() {
         return { oem: environment.theme.toLowerCase() };
     }
 
     /**
-        * Executes when websocket is 'online'
-        *
-        * @returns
-        */
+     * Executes when websocket is 'online'
+     *
+     * @returns
+     */
     public async startOAuth(): Promise<void> {
 
         const tokenResponse = await this.getTokenByRefreshToken();
@@ -110,7 +110,7 @@ export class OAuthService {
      * Executes after successfull authentication.
      *
      * @param tokenResponse the token response from authentication
-    */
+     */
     public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse) {
         const user = User.from(tokenResponse.result.user);
         if (user == null) {
@@ -152,7 +152,7 @@ export class OAuthService {
      * Gets the refresh token.
      *
      * @returns the refresh token if existing, else null
-    */
+     */
     public getRefreshToken(): string | null {
 
         if (this.cookieService.check("refresh_token") == false) {
@@ -167,7 +167,7 @@ export class OAuthService {
      *
      * @param refreshToken the refresh token
      * @returns a authentication response if valid session, else null
-    */
+     */
     public async getTokenByRefreshToken(): Promise<AuthenticateWithOAuthResponse | null> {
         const refreshToken = this.getRefreshToken();
 
@@ -190,15 +190,6 @@ export class OAuthService {
 
         this.setTokens(response.result);
         return response;
-    }
-
-    /**
-     * Sets the tokens in the cookie service.
-     *
-     * @param result the authentication response result
-     */
-    private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
-        this.cookieService.set(OAuthService.REFRESH_TOKEN, JSON.stringify(result.refreshToken), 14, "/");
     }
 
     /**
@@ -226,5 +217,14 @@ export class OAuthService {
             // Log but don't fail - local logout should still proceed
             console.warn("Failed to logout at OAuth provider:", error);
         }
+    }
+
+    /**
+     * Sets the tokens in the cookie service.
+     *
+     * @param result the authentication response result
+     */
+    private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
+        this.cookieService.set(OAuthService.REFRESH_TOKEN, JSON.stringify(result.refreshToken), 14, "/");
     }
 }
