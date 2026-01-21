@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenEMS Edge
+After=network.target
+
+[Service]
+User=root
+Group=root
+Type=notify
+WorkingDirectory=/opt/plcnext/apps/openems/data
+ExecStart=/opt/plcnext/apps/openems/bin/PLCnext-Start-OpenEMS-Edge.sh
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+WatchdogSec=60
+
+[Install]
+WantedBy=multi-user.target
