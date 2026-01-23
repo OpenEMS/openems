@@ -45,7 +45,7 @@ public final class ApplyPowerHandler {
 		var surplusPower = TypeUtils.max(0, goodWe.getSurplusPower());
 
 		// Write-Channels
-		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
+		final var emsPowerSetChannel = goodWe.getEmsPowerSetChannel();
 		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 
 		apply(setActivePower, controlMode, gridActivePower, essActivePower, maxAcImport, maxAcExport, isPidEnabled,
@@ -61,7 +61,7 @@ public final class ApplyPowerHandler {
 			Value<Integer> maxAcExport, boolean isPidEnabled, MeterCommunicateStatus meterCommunicateStatus,
 			int pvProduction, int surplusPower,
 			BooleanConsumer setSmartModeNotWorkingWithPidFilter, BooleanConsumer setNoSmartMeterDetected, //
-			ThrowingConsumer<Integer, OpenemsNamedException> writeEmsPowerSet, //
+			ThrowingConsumer<Long, OpenemsNamedException> writeEmsPowerSet, //
 			ThrowingConsumer<EmsPowerMode, OpenemsNamedException> writeEmsPowerMode) throws OpenemsNamedException {
 
 		// Update Warn Channels
@@ -79,7 +79,7 @@ public final class ApplyPowerHandler {
 		writeEmsPowerMode.accept(apply.emsPowerMode);
 	}
 
-	protected static record Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
+	protected static record Result(EmsPowerMode emsPowerMode, long emsPowerSet) {
 	}
 
 	protected static ApplyPowerHandler.Result calculate(int activePowerSetPoint, int pvProduction,

@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
@@ -24,13 +25,13 @@ public class ApplyPowerHandlerTest {
 	public void testApply() throws OpenemsNamedException {
 		final var smartModeNotWorkingWithPidFilter = new AtomicBoolean();
 		final var noSmartMeterDetected = new AtomicBoolean();
-		final var emsPowerSet = new AtomicInteger();
+		final var emsPowerSet = new AtomicLong();
 		final var emsPowerMode = new AtomicReference<EmsPowerMode>();
 
 		ApplyPowerHandler.apply(//
 				/* setActivePower */ 1000, //
 				ControlMode.SMART, //
-				/* gridActivePower */ new Value<Integer>(null, 250), //
+				/* gridActivePower */ new Value<>(null, 250), //
 				/* essActivePower */ new Value<>(null, 420), //
 				/* maxAcImport */ new Value<>(null, 5000), //
 				/* maxAcExport */ new Value<>(null, 5000), //
@@ -166,7 +167,7 @@ public class ApplyPowerHandlerTest {
 	public void testApplyWithEmsPowerSet() throws OpenemsNamedException {
 		final var smartModeNotWorkingWithPidFilter = new AtomicBoolean();
 		final var noSmartMeterDetected = new AtomicBoolean();
-		final var emsPowerSet = new AtomicInteger();
+		final var emsPowerSet = new AtomicLong();
 		final var emsPowerMode = new AtomicReference<EmsPowerMode>();
 
 		ApplyPowerHandler.apply(//
