@@ -72,9 +72,9 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsAppWithProps<ModbusTcp
 		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusTcp0")), //
 		// Properties
 		ALIAS(alias()), //
-		API_TIMEOUT(ModbusApiProps.apiTimeout() //
+		API_TIMEOUT(ModbusApiProps.apiTimeout()//
 				.setRequired(true)), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, true) //
 				.setRequired(true)) //
 		;
 

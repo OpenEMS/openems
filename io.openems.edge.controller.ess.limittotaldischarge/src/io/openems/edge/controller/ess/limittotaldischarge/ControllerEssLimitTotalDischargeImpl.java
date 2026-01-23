@@ -1,6 +1,9 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,7 +12,6 @@ import java.util.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -24,14 +26,12 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.LimitTotalDischarge", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsComponent
 		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
@@ -170,7 +170,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				if (this.forceChargePower.isPresent()) {
 					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
 				} else {
-					var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 					calculatedPower = maxCharge / 5;
 				}
 
@@ -185,8 +185,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, ACTIVE, calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set

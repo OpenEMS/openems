@@ -12,6 +12,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public class DummyEvseChargePoint extends AbstractDummyEvseChargePoint<DummyEvseChargePoint>
 		implements EvseChargePoint, OpenemsComponent {
 
+	private ChargePointActions lastChargePointActions;
+
 	public DummyEvseChargePoint(String id) {
 		super(id, //
 				OpenemsComponent.ChannelId.values(), //
@@ -26,6 +28,15 @@ public class DummyEvseChargePoint extends AbstractDummyEvseChargePoint<DummyEvse
 
 	@Override
 	public void apply(ChargePointActions actions) {
-		// TODO Auto-generated method stub
+		this.lastChargePointActions = actions;
+	}
+
+	/**
+	 * Gets the last {@link ChargePointActions}.
+	 * 
+	 * @return value
+	 */
+	public ChargePointActions getLastChargePointActions() {
+		return this.lastChargePointActions;
 	}
 }

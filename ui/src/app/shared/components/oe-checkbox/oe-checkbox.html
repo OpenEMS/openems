@@ -1,0 +1,37 @@
+<ion-row class="ion-align-items-center ion-padding-top">
+  @if (attributes.labelPlacement === 'start') {
+    <ng-container *ngTemplateOutlet="label">
+    </ng-container>
+    <ng-container *ngTemplateOutlet="checkbox">
+    </ng-container>
+  }
+  @if (attributes.labelPlacement !== 'start') {
+    <ng-container *ngTemplateOutlet="checkbox">
+    </ng-container>
+    <ng-container *ngTemplateOutlet="label">
+    </ng-container>
+  }
+</ion-row>
+
+
+<ng-template #label>
+  <ion-col>
+    <ion-label class="ion-text-wrap">
+      <span [innerHTML]="attributes.text"></span>
+    </ion-label>
+  </ion-col>
+</ng-template>
+<ng-template #checkbox>
+  <ion-col size="auto">
+    <ion-item lines="none">
+      @if (form) {
+        <form [formGroup]="form.formGroup">
+          <ion-checkbox #htmlRef [slot]="attributes?.slot ?? 'start'"
+            [labelPlacement]="attributes?.labelPlacement ?? end" class="ion-white-space-pre-wrap"
+            [formControlName]="form.controlName" (ionChange)="onChange()">
+          </ion-checkbox>
+        </form>
+      }
+    </ion-item>
+  </ion-col>
+</ng-template>

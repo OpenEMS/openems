@@ -16,9 +16,9 @@ import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.PhaseRotation;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 
 // TODO should extend AbstractDummyElectricityMeter<DummyManagedEvcs>
 public class DummyManagedEvcs extends AbstractManagedEvcsComponent
@@ -93,6 +93,17 @@ public class DummyManagedEvcs extends AbstractManagedEvcsComponent
 	 */
 	public DummyManagedEvcs withActivePower(Integer value) {
 		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_POWER, value);
+		return this;
+	}
+
+	/**
+	 * Set {@link ElectricityMeter.ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyManagedEvcs withActiveProductionEnergy(Integer value) {
+		TestUtils.withValue(this, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, value);
 		return this;
 	}
 

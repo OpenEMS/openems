@@ -1,0 +1,5 @@
+= Weather API
+
+Provides a clean and unified interface for accessing historical and forecast weather data from various API providers.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.weather.api[Source Code icon:github[]]

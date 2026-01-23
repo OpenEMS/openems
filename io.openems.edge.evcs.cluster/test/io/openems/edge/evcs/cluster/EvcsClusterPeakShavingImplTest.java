@@ -18,11 +18,11 @@ import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER_
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Status;

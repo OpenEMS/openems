@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Streams;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.data.WeightsUtil;
@@ -21,7 +22,6 @@ import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.EssType;
 import io.openems.edge.ess.power.api.Inverter;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -135,17 +135,17 @@ public class Data {
 	 *
 	 * @param description  a description for the Constraint
 	 * @param essId        the component Id of a {@link ManagedSymmetricEss}
-	 * @param phase        the {@link Phase}
+	 * @param phase        the {@link SingleOrAllPhase}
 	 * @param pwr          the {@link Pwr}
 	 * @param relationship the {@link Relationship}
 	 * @param value        the value
 	 * @throws OpenemsException on error
 	 */
-	public void addSimpleConstraint(String description, String essId, Phase phase, Pwr pwr, Relationship relationship,
-			double value) throws OpenemsException {
-		if (this.symmetricMode && phase != Phase.ALL) {
+	public void addSimpleConstraint(String description, String essId, SingleOrAllPhase phase, Pwr pwr,
+			Relationship relationship, double value) throws OpenemsException {
+		if (this.symmetricMode && phase != SingleOrAllPhase.ALL) {
 			// Symmetric Mode is activated; but asymmetric Constraints is added
-			phase = Phase.ALL;
+			phase = SingleOrAllPhase.ALL;
 			value *= 3;
 		}
 		this.constraints.add(ConstraintUtil.createSimpleConstraint(this.coefficients, //
@@ -165,11 +165,11 @@ public class Data {
 	 * Get the Coefficient of the linear solver for the given parameters.
 	 *
 	 * @param essId the Component-ID of a {@link ManagedSymmetricEss}
-	 * @param phase the {@link Phase}
+	 * @param phase the {@link SingleOrAllPhase}
 	 * @param pwr   the {@link Pwr}
 	 * @return the {@link Coefficients}
 	 */
-	public Coefficient getCoefficient(String essId, Phase phase, Pwr pwr) throws OpenemsException {
+	public Coefficient getCoefficient(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
 		return this.coefficients.of(essId, phase, pwr);
 	}
 

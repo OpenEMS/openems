@@ -9,7 +9,7 @@ if [ ! -d "$CONF_DIR" ] || [ -z "$(ls -A "$CONF_DIR" 2>/dev/null)" ]; then
 
     if [ -d "$CONF_DIR_DEFAULT" ]; then
         mkdir -p "$CONF_DIR"
-        rsync -av "${CONF_DIR_DEFAULT}/" "${CONF_DIR}/"
+        rsync -av --chown=abc:abc "${CONF_DIR_DEFAULT}/" "${CONF_DIR}/"
     else
         echo "No default configuration files found in $CONF_DIR_DEFAULT"
     fi

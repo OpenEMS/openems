@@ -71,8 +71,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(),
-				this.config.channelAddresses(), config.logVerbosity());
+		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled(), config.logVerbosity(),
+				this.config.channelAddresses());
 	}
 
 	@Override
@@ -122,7 +122,8 @@ public class PredictorSimilardayModelImpl extends AbstractPredictor implements P
 		var mainData = this.getSlicedArrayList(result, NUM_OF_DATA_PER_DAY);
 		var lastSimilarDays = this.getLastSimilarDays(mainData);
 		var nextOneDayPredictions = this.getAveragePrediction(lastSimilarDays);
-		return Prediction.from(this.sum, channelAddress, now, nextOneDayPredictions.stream().toArray(Integer[]::new));
+		return Prediction.from(this.sum, channelAddress, now.toInstant(),
+				nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
 
 	/**

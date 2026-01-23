@@ -176,10 +176,10 @@ public class Dummy {
 	}
 
 	public static class EventAdminImpl implements EventAdmin {
-		private List<Event> lastEvents = new ArrayList<>();
+		private final List<Event> lastEvents;
 
 		public EventAdminImpl() {
-
+			this.lastEvents = new ArrayList<>();
 		}
 
 		@Override

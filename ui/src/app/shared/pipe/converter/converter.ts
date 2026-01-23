@@ -18,6 +18,11 @@ export class ConverterPipe implements PipeTransform {
      * @returns the result of the converter as a string
      */
     transform(value: number, converter: Converter): string {
+
+        // Converter not provided, returns prev value
+        if (!converter) {
+            return value.toString();
+        }
         return converter(value);
     }
 }

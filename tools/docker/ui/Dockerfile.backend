@@ -1,0 +1,52 @@
+ARG NODE=22
+ARG NPM=10
+ARG VERSION="openems,openems-backend-docker"
+
+### Build ui files
+FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui
+
+ARG VERSION
+ARG NPM
+
+RUN apk add --update --no-cache dos2unix
+
+COPY ui/ /src/
+
+COPY tools/docker/ui/root/ /opt/root/
+COPY tools/docker/ui/root-backend/ /opt/root/
+
+RUN find /opt/root/ -type f -name 'run' -exec chmod +x {} \;
+RUN find /opt -type f -print0 | xargs -0 dos2unix
+
+WORKDIR /src
+
+RUN npm install -g "npm@${NPM}" && \
+    npm ci && \
+    node_modules/.bin/ng build -c "$VERSION";
+
+### Build ui base
+FROM ghcr.io/linuxserver/baseimage-alpine:edge AS ui_base
+
+RUN apk add --update --no-cache \
+    nginx openssl bash dos2unix rsync gettext
+
+### Build ui container
+FROM ui_base
+
+COPY --from=build_ui /opt/root/ /
+COPY --from=build_ui /src/target/ /var/www/html/openems/
+
+RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /etc/nginx -type f -print0 | xargs -0 dos2unix
+
+VOLUME /etc/nginx
+VOLUME /var/log/nginx
+
+ENV WEBSOCKET_HOST="<hostname>"
+ENV WEBSOCKET_PORT="8082"
+ENV REST_PORT="8084"
+ENV ENABLE_HTTPS=false
+
+EXPOSE 80 443

@@ -1,123 +1,127 @@
 <ion-header>
-    <ion-toolbar class="ion-justify-content-center"
-        style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-        <ion-title>{{ component.alias }}</ion-title>
-        <ion-buttons slot="end">
-            <ion-button (click)="modalCtrl.dismiss()">
-                <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
+  <ion-toolbar class="ion-justify-content-center"
+    style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
+    <ion-title>{{ component.alias }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ng-container *ngIf="!loading">
-        <ion-card-content class="underline" *ngIf="(edge.currentData | async)['channel'] as currentData">
-            <ng-container *ngIf="component.properties['meter.id'] as meterId">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            General.measuredValue
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ng-container *ngIf="(currentData[meterId + '/ActivePower'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 2%"></td>
-                        <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L1</span>
-                        </td>
-                        <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L1'">
-                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL1'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 2%"></td>
-                        <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L2</span>
-                        </td>
-                        <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L2'">
-                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL2'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="width: 2%"></td>
-                        <td style="width: 63%" translate>
-                            General.measuredValue<span>&nbsp;L3</span>
-                        </td>
-                        <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name === 'L3'">
-                            <ng-container *ngIf="(currentData[meterId + '/ActivePowerL3'] || true) as value">
-                                {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
-                            </ng-container>
-                        </td>
-                    </tr>
-                </table>
-            </ng-container>
-        </ion-card-content>
-        <ion-card-content *ngIf="edge.roleIsAtLeast('owner')">
-            <form [formGroup]="formGroup">
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.peakshavingPower
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" formControlName="peakShavingPower"
-                                    style="text-align: end;" type="number" label="&nbsp;W">
-                                </ion-input>
-                            </ion-item>
-                        </td>
-                    </tr>
-                </table>
-                <table class="full_width">
-                    <tr>
-                        <td style="width: 65%" translate>
-                            Edge.Index.Widgets.Peakshaving.rechargePower
-                        </td>
-                        <td style="width: 35%" class="align_right">
-                            <ion-item lines="inset" class="noPadding">
-                                <ion-input class="regularFont" formControlName="rechargePower" style="text-align: end;"
-                                    type="number" label="&nbsp;W">
-                                </ion-input>
-                            </ion-item>
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        </ion-card-content>
-        <ion-grid class="ion-padding-top">
-            <ion-row class="ion-justify-content-center ion-align-items-center">
-                <ion-col size="2" class="ion-text-center">
-                    <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
-                </ion-col>
-                <ion-col size="10">
-                    <ion-note class="ion-text-wrap"><small
-                            translate>Edge.Index.Widgets.Peakshaving.asymmetricInfo</small>
-                    </ion-note>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </ng-container>
-    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button (click)="applyChanges()">
-            <ion-icon size="large" name="checkmark-circle-outline">
-            </ion-icon>
-        </ion-fab-button>
-    </ion-fab>
-    <ion-grid *ngIf="loading === true">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+  @if (!loading) {
+    @if ((edge.currentData | async)['channel']; as currentData) {
+      <ion-card-content class="underline">
+        @if (component.properties['meter.id']; as meterId) {
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                GENERAL.MEASURED_VALUE
+              </td>
+              <td style="width: 35%" class="align_right">
+                @if ((currentData[meterId + '/ActivePower'] || true); as value) {
+                  {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                }
+              </td>
+            </tr>
+          </table>
+          <table class="full_width">
+            <tr>
+              <td style="width: 2%"></td>
+              <td style="width: 63%" translate>
+                GENERAL.MEASURED_VALUE<span>&nbsp;L1</span>
+              </td>
+              <td style="width: 35%" class="align_right" [class.bold]="(mostStressedPhase | async)?.name === 'L1'">
+                @if ((currentData[meterId + '/ActivePowerL1'] || true); as value) {
+                  {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                }
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 2%"></td>
+              <td style="width: 63%" translate>
+                GENERAL.MEASURED_VALUE<span>&nbsp;L2</span>
+              </td>
+              <td style="width: 35%" class="align_right" [class.bold]="(mostStressedPhase | async)?.name === 'L2'">
+                @if ((currentData[meterId + '/ActivePowerL2'] || true); as value) {
+                  {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                }
+              </td>
+            </tr>
+            <tr>
+              <td style="width: 2%"></td>
+              <td style="width: 63%" translate>
+                GENERAL.MEASURED_VALUE<span>&nbsp;L3</span>
+              </td>
+              <td style="width: 35%" class="align_right" [class.bold]="(mostStressedPhase | async)?.name === 'L3'">
+                @if ((currentData[meterId + '/ActivePowerL3'] || true); as value) {
+                  {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
+                }
+              </td>
+            </tr>
+          </table>
+        }
+      </ion-card-content>
+    }
+    @if (edge.roleIsAtLeast('owner')) {
+      <ion-card-content>
+        <form [formGroup]="formGroup">
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER
+              </td>
+              <td style="width: 35%" class="align_right">
+                <ion-item lines="inset" class="noPadding">
+                  <ion-input class="regularFont" formControlName="peakShavingPower" style="text-align: end;"
+                    type="number" label="&nbsp;W">
+                  </ion-input>
+                </ion-item>
+              </td>
+            </tr>
+          </table>
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER
+              </td>
+              <td style="width: 35%" class="align_right">
+                <ion-item lines="inset" class="noPadding">
+                  <ion-input class="regularFont" formControlName="rechargePower" style="text-align: end;" type="number"
+                    label="&nbsp;W">
+                  </ion-input>
+                </ion-item>
+              </td>
+            </tr>
+          </table>
+        </form>
+      </ion-card-content>
+    }
+    <ion-grid class="ion-padding-top">
+      <ion-row class="ion-justify-content-center ion-align-items-center">
+        <ion-col size="2" class="ion-text-center">
+          <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
+        </ion-col>
+        <ion-col size="10">
+          <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.ASYMMETRIC_INFO</small>
+          </ion-note>
+        </ion-col>
+      </ion-row>
     </ion-grid>
+  }
+  @if (formGroup.dirty) {
+    <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button (click)="applyChanges()">
+        <ion-icon size="large" name="oe-checkmark">
+        </ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
+  @if (loading === true) {
+    <ion-grid>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+  }
 </ion-content>

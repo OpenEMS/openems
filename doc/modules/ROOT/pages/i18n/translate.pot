@@ -1081,7 +1081,7 @@ msgstr ""
 msgid ""
 "OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and "
 "https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] "
-"are seperated on two different repositories."
+"are separated on two different repositories."
 msgstr ""
 
 #. type: Plain text

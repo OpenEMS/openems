@@ -1,5 +1,6 @@
-import { Component, effect, ViewChild } from "@angular/core";
+import { Component, effect, signal, ViewChild, WritableSignal } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
+import { ModalBreakpointChangeEventDetail } from "@ionic/core";
 import { NavigationService } from "./service/navigation.service";
 import { NavigationTree } from "./shared";
 
@@ -9,26 +10,22 @@ import { NavigationTree } from "./shared";
     standalone: false,
 })
 export class NavigationComponent {
-    public static INITIAL_BREAKPOINT: number = 0.2;
+    public static INITIAL_BREAKPOINT: number = 0.15;
+    public static breakPoint: WritableSignal<number> = signal(NavigationComponent.INITIAL_BREAKPOINT);
 
     @ViewChild("modal") private modal: IonModal | null = null;
 
     protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
-    protected children: (NavigationTree | null)[] = [];
-    protected parents: (NavigationTree | null)[] = [];
     protected isVisible: boolean = true;
 
     constructor(
         public navigationService: NavigationService,
     ) {
         effect(() => {
-            const currentNode = navigationService.currentNode();
-
-            if (!currentNode) {
-                this.navigationService.position = null;
-            }
-
-            this.isVisible = this.navigationService.position === "bottom";
+            const currentNode = this.navigationService.currentNode();
+            this.isVisible = this.navigationService.position() === "bottom"
+                && ((currentNode?.children?.length && currentNode.children.length > 0)
+                    || currentNode?.parent != null);
         });
     }
 
@@ -48,5 +45,9 @@ export class NavigationComponent {
             this.modal.setCurrentBreakpoint(this.initialBreakPoint);
         }
         this.navigationService.navigateTo(node);
+    }
+
+    protected onBreakpointDidChange(event: CustomEvent<ModalBreakpointChangeEventDetail>) {
+        NavigationComponent.breakPoint.set(event.detail.breakpoint);
     }
 }

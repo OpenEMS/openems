@@ -8,14 +8,16 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String chargePointId;
 		private Mode mode;
 		private String electricVehicleId;
-		private String smartConfig;
+		private PhaseSwitching phaseSwitching;
+		private String oneShot;
+		private String jsCalendar;
 		private int manualEnergySessionLimit;
-		private boolean debugMode;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -35,13 +37,23 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setPhaseSwitching(PhaseSwitching phaseSwitching) {
+			this.phaseSwitching = phaseSwitching;
+			return this;
+		}
+
 		public Builder setElectricVehicleId(String electricVehicleId) {
 			this.electricVehicleId = electricVehicleId;
 			return this;
 		}
 
-		public Builder setSmartConfig(String smartConfig) {
-			this.smartConfig = smartConfig;
+		public Builder setOneShot(String oneShot) {
+			this.oneShot = oneShot;
+			return this;
+		}
+		
+		public Builder setJsCalendar(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 
@@ -50,8 +62,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -92,8 +104,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String smartConfig() {
-		return this.builder.smartConfig;
+	public PhaseSwitching phaseSwitching() {
+		return this.builder.phaseSwitching;
+	}
+
+	@Override
+	public String oneShot() {
+		return this.builder.oneShot;
+	}
+
+	@Override
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 
 	@Override
@@ -102,8 +124,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 
 	@Override

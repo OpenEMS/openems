@@ -3,7 +3,7 @@
 This bundle implements Shelly WiFi Relay Switches and Meters.
 
 Compatible with
-
+- https://www.shelly.com/de/products/shelly-1-gen4[Shelly 1]
 - https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5]
 - https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
 - https://www.shelly.com/de/products/shelly-plug-s-gen3[Shelly Plug S]
@@ -11,6 +11,8 @@ Compatible with
 - https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM 3-Phase Meter]
 - https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM]
 - https://www.shelly.com/de/products/shop/shelly-pro-3-1[Shelly Pro 3]
+- https://www.shelly.com/de/products/shelly-plus-pm-mini[Shelly Plus PM Mini Gen2]
+- https://www.shelly.com/de/products/shelly-pm-mini-gen3[Shelly Plus PM Mini Gen3]
 
 _Hint:_ Connecting to devices having a password set in their UI is currently not supported.
 

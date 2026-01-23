@@ -6,7 +6,11 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
@@ -67,9 +71,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -355,10 +356,8 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.REACTIVE, //
-						Relationship.EQUALS, 0d), //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.ACTIVE, //
-						Relationship.EQUALS, 0d) //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
 		};
 	}
 
@@ -527,7 +526,7 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 								chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
 								SCALE_FACTOR_1), //
-						m(BatteryInverterSinexcel.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.COS_PHI, new SignedWordElement(125), SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(126, 131), //
 						m(BatteryInverterSinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //

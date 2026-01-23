@@ -21,6 +21,7 @@ import com.sun.net.httpserver.HttpPrincipal;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.MetricsConsumer;
+import io.openems.common.OpenemsConstants;
 import io.openems.common.types.ChannelAddress;
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
@@ -49,6 +50,7 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 		this.logInfo(this.log, "Activate");
 
 		JvmMetrics.builder().register(this.prometheusRegistry);
+		this.prometheusRegistry.register(PrometheusMetrics.OPENEMS_VERSION);
 		this.prometheusRegistry.register(PrometheusMetrics.WEBSOCKET_CONNECTION);
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_QUEUE);
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_ACTIVE_COUNT);
@@ -57,6 +59,7 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_MAX_SIZE);
 		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_QUEUE);
 		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_SENT);
+		this.prometheusRegistry.register(PrometheusMetrics.WEBSOCKET_REQUEST);
 
 		this.startServer(config.port(), config.bearerToken());
 	}
@@ -88,6 +91,8 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 			}
 			this.server = httpServerBuilder.buildAndStart();
 			this.log.info("Started /metrics endpoint on port %s".formatted(this.server.getPort()));
+
+			PrometheusMetrics.OPENEMS_VERSION.setLabelValues(OpenemsConstants.VERSION.toString());
 		} catch (IOException e) {
 			this.log.error(e.getMessage());
 		}

@@ -1,5 +1,10 @@
 package io.openems.edge.controller.asymmetric.phaserectification;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,8 +23,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -95,12 +98,12 @@ public class ControllerAsymmetricPhaseRectificationImpl extends AbstractOpenemsC
 
 		var power = ess.getPower();
 		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //
+				new LinearCoefficient(power.getCoefficient(ess, L1, ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, L2, ACTIVE), -1) //
 		}, Relationship.EQUALS, activePowerL1 - activePowerL2));
 		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L3, Pwr.ACTIVE), -1) //
+				new LinearCoefficient(power.getCoefficient(ess, L1, ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, L3, ACTIVE), -1) //
 		}, Relationship.EQUALS, activePowerL1 - activePowerL3));
 	}
 

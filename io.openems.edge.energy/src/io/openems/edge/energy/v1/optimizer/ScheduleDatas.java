@@ -6,6 +6,7 @@ import static io.openems.common.types.OptionsEnum.getOption;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsInt;
+import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
 import static io.openems.common.utils.JsonUtils.toJson;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.SUM_PRODUCTION;
 import static io.openems.edge.energy.optimizer.Utils.SUM_ESS_DISCHARGE_POWER;
@@ -61,6 +62,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * @return a {@link ScheduleDatas}a
 	 * @throws OpenemsException on error
 	 */
+	@Deprecated
 	public static ScheduleDatas fromSchedule(OptimizerV1 optimizer) throws OpenemsException {
 		final var schedule = optimizer.getSchedule();
 		if (schedule == null) {
@@ -80,6 +82,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * @param schedule       the {@link Period}s
 	 * @return a list of {@link ScheduleData}
 	 */
+	@Deprecated
 	public static ScheduleDatas fromSchedule(int essTotalEnergy, ImmutableSortedMap<ZonedDateTime, Period> schedule) {
 		return new ScheduleDatas(//
 				essTotalEnergy, //
@@ -95,6 +98,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * @param log            the log output of {@link #toLogString()}
 	 * @return a list of {@link ScheduleData}
 	 */
+	@Deprecated
 	public static ScheduleDatas fromLogString(int essTotalEnergy, String log) throws IllegalArgumentException {
 		return new ScheduleDatas(//
 				essTotalEnergy, //
@@ -142,6 +146,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * 
 	 * @return log string
 	 */
+	@Deprecated
 	public String toLogString(String prefix) {
 		var b = new StringBuilder(prefix) //
 				.append("Time  OptimizeBy EssMaxChargeEnergy EssMaxDischargeEnergy MaxBuyFromGrid EssInitial Production Consumption  Price State           EssChargeDischarge  Grid\n");
@@ -168,6 +173,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * 
 	 * @return a Map
 	 */
+	@Deprecated
 	public ImmutableSortedMap<ZonedDateTime, JsonObject> toJsonObjects() {
 		return this.entries().stream() //
 				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, //
@@ -176,6 +182,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 						(a, b) -> b));
 	}
 
+	@Deprecated
 	public record ScheduleData(//
 			/** Timestamp of the record */
 			ZonedDateTime time,
@@ -211,6 +218,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		 * @param period         the {@link Period}
 		 * @return a Stream of {@link ScheduleData}
 		 */
+		@Deprecated
 		public static Stream<ScheduleData> fromHistoricDataQuery(int essTotalEnergy,
 				ChannelAddress channelQuarterlyPrices, ChannelAddress channelStateMachine,
 				SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult)
@@ -233,7 +241,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 									0 /* ignore */, //
 									0 /* ignore */, //
 									round(getAsInt(getter.apply(SUM_ESS_SOC)) / 100F * essTotalEnergy), //
-									toEnergy(getAsInt(getter.apply(SUM_PRODUCTION))), //
+									toEnergy(getAsOptionalInt(getter.apply(SUM_PRODUCTION)).orElse(0)), //
 									toEnergy(getAsInt(getter.apply(SUM_CONSUMPTION))), //
 									getAsDouble(getter.apply(channelQuarterlyPrices)), //
 									ofNullable(getOption(StateMachine.class, //
@@ -255,6 +263,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		 * @param essTotalEnergy ESS Total Energy (Capacity) [Wh]
 		 * @return a JsonObject
 		 */
+		@Deprecated
 		public JsonObject toJsonObject(int essTotalEnergy) {
 			return buildJsonObject() //
 					.addProperty("timestamp", this.time()) //
@@ -274,6 +283,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		 * @param essTotalEnergy ESS Total Energy (Capacity) [Wh]
 		 * @return a JsonObject
 		 */
+		@Deprecated
 		public static JsonObject emptyJsonObject(ZonedDateTime timestamp) {
 			return buildJsonObject() //
 					.addProperty("timestamp", timestamp) //
@@ -293,6 +303,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 		 * @param period the {@link Period}
 		 * @return a Stream of {@link ScheduleData}
 		 */
+		@Deprecated
 		public static Stream<ScheduleData> fromPeriod(Period period) {
 			var op = period.op();
 			var qps = op.quarterPeriods();
@@ -321,6 +332,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * 
 	 * @return isEmpty
 	 */
+	@Deprecated
 	public boolean isEmpty() {
 		return this.entries().isEmpty();
 	}
@@ -330,6 +342,7 @@ public record ScheduleDatas(int essTotalEnergy, ImmutableList<ScheduleData> entr
 	 * 
 	 * @return stream
 	 */
+	@Deprecated
 	public Stream<ScheduleData> stream() {
 		return this.entries().stream();
 	}

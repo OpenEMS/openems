@@ -1,13 +1,13 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
-import { MenuController, ModalController } from "@ionic/angular";
+import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
-import { RouteService } from "../../service/previousRouteService";
-import { Edge, Service, Websocket } from "../../shared";
+import { RouteService } from "../../service/route.service";
+import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
@@ -28,6 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = true;
+    protected showBackButton: boolean = false;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -41,7 +42,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public service: Service,
         public websocket: Websocket,
         protected navigationService: NavigationService,
-    ) { }
+        protected navCtrl: NavController,
+        private menuCtrl: MenuController,
+    ) {
+
+        effect(() => {
+            this.showBackButton = this.navigationService.headerOptions().showBackButton;
+        });
+    }
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
@@ -99,26 +107,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // disable backUrl & Segment Navigation on initial 'login' page
         if (url === "/login" || url === "/overview" || url === "/index") {
             this.backUrl = false;
-            return;
-        }
-
-
-        // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
-        if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
-            return;
-        }
-
-        // set backUrl for user if no edge had been selected
-        if (url === "/user") {
-            this.backUrl = "/overview";
-            return;
-        }
-
-        if (url === "/changelog" && currentEdge != null) {
-            // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
             return;
         }
 
@@ -181,14 +169,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
 
             /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
             // this.router.navigate(["../history"], { relativeTo: this.route });
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
+            this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
     }
@@ -203,5 +191,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
     }
 }

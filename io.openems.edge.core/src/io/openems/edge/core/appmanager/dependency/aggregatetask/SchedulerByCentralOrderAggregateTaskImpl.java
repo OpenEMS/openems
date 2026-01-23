@@ -1,6 +1,5 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
-import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -14,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.osgi.service.component.annotations.Activate;
@@ -97,6 +95,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		public ProductionSchedulerOrderDefinition() {
 			this//
 					.thenByFactoryId("Controller.Ess.Limiter14a") //
+					.thenByFactoryId("Controller.Ess.RippleControlReceiver") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
 					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
@@ -112,6 +111,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
+					.thenByFactoryId("Controller.TimeslotPeakshaving") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}
@@ -135,41 +136,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 	public static class SchedulerOrderDefinition implements Comparator<SchedulerComponent> {
 
-		private static final int[] EMPTY_INT_ARRAY = new int[0];
-
-		private abstract static sealed class PositionReturnType {
-
-			public static final PositionReturnType right(int... index) {
-				return new Right(index);
-			}
-
-			public static final PositionReturnType remove() {
-				return Remove.INSTANCE;
-			}
-
-			public static final PositionReturnType next() {
-				return Next.INSTANCE;
-			}
-
-			public static final class Right extends PositionReturnType {
-				public final int[] index;
-
-				public Right(int[] index) {
-					this.index = index;
-				}
-			}
-
-			private static final class Remove extends PositionReturnType {
-				public static final Remove INSTANCE = new Remove();
-			}
-
-			private static final class Next extends PositionReturnType {
-				public static final Next INSTANCE = new Next();
-			}
-
-		}
-
-		private final List<Function<SchedulerComponent, PositionReturnType>> predicates = new LinkedList<>();
+		private final PredefinedOrder<SchedulerComponent> predefinedOrder = new PredefinedOrder<>();
 
 		/**
 		 * Adds a filter to the order queue which sorts out every
@@ -182,7 +149,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition filterBy(Predicate<SchedulerComponent> matcher) {
-			return this.thenByFunction(t -> matcher.test(t) ? PositionReturnType.next() : PositionReturnType.remove());
+			this.predefinedOrder.filterBy(matcher);
+			return this;
 		}
 
 		/**
@@ -199,11 +167,6 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			return this.filterBy(t -> factoryId.equals(t.factoryId()));
 		}
 
-		private SchedulerOrderDefinition thenByFunction(Function<SchedulerComponent, PositionReturnType> matcher) {
-			this.predicates.add(t -> matcher.apply(t));
-			return this;
-		}
-
 		/**
 		 * Adds a matching function if the current {@link SchedulerComponent} is at the
 		 * right position.
@@ -215,7 +178,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition thenBy(Predicate<SchedulerComponent> matcher) {
-			return this.thenByFunction(t -> matcher.test(t) ? PositionReturnType.right(1) : PositionReturnType.next());
+			this.predefinedOrder.thenBy(matcher);
+			return this;
 		}
 
 		/**
@@ -225,13 +189,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition thenBy(SchedulerOrderDefinition order) {
-			return this.thenByFunction(t -> {
-				final var result = order.indexOfMatch(t);
-				if (result.length == 0) {
-					return PositionReturnType.next();
-				}
-				return PositionReturnType.right(result);
-			});
+			this.predefinedOrder.thenBy(order.predefinedOrder);
+			return this;
 		}
 
 		/**
@@ -274,26 +233,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 		@Override
 		public int compare(SchedulerComponent o1, SchedulerComponent o2) {
-			final var index1 = this.indexOfMatch(o1);
-			final var index2 = this.indexOfMatch(o2);
-
-			for (int i = 0; i < Math.max(index1.length, index2.length); i++) {
-				if (i >= index1.length) {
-					return 1;
-				}
-				if (i >= index2.length) {
-					return -1;
-				}
-				final var i1Value = index1[i];
-				final var i2Value = index2[i];
-				if (i1Value < i2Value) {
-					return -1;
-				}
-				if (i1Value > i2Value) {
-					return 1;
-				}
-			}
-			return 0;
+			return this.predefinedOrder.compare(o1, o2);
 		}
 
 		/**
@@ -304,31 +244,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return true if the {@link SchedulerComponent} is handled by this order
 		 */
 		public boolean contains(SchedulerComponent o) {
-			return this.indexOfMatch(o).length != 0;
-		}
-
-		private final int[] indexOfMatch(SchedulerComponent o) {
-			final var iterator = this.predicates.listIterator();
-			while (iterator.hasNext()) {
-				final var index = iterator.nextIndex();
-				final var predicate = iterator.next();
-				final PositionReturnType result = predicate.apply(o);
-
-				switch (result) {
-				case PositionReturnType.Next next -> doNothing();
-
-				case PositionReturnType.Remove remove -> {
-					return EMPTY_INT_ARRAY;
-				}
-				case PositionReturnType.Right right -> {
-					final var array = new int[right.index.length + 1];
-					array[0] = index;
-					System.arraycopy(right.index, 0, array, 1, right.index.length);
-					return array;
-				}
-				}
-			}
-			return EMPTY_INT_ARRAY;
+			return this.predefinedOrder.contains(o);
 		}
 
 	}
@@ -385,7 +301,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var existingIds = this.componentUtil.removeIdsWhichNotExist(
+		final var existingIds = this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
 				handledIds.stream().map(SchedulerComponent::id).toList(), this.aggregateTask.getCreatedComponents());
 		handledIds.removeIf(t -> !existingIds.contains(t.id()));
 
@@ -489,7 +405,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public void validate(//
 			final List<String> errors, //
 			final AppConfiguration appConfiguration, //
-			final SchedulerByCentralOrderConfiguration configuration //
+			final SchedulerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;

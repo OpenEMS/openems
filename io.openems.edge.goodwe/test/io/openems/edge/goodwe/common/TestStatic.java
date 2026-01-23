@@ -2,6 +2,21 @@ package io.openems.edge.goodwe.common;
 
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType.BATTERY_52;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType.BATTERY_64;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_50K;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_FHI_10_DAH;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_FHI_20_DAH;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_FHI_29_9_DAH;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_GEN2_10K;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_GEN2_15K;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.FENECON_GEN2_6K;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_10K_BT;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_10K_ET;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_5K_BT;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_5K_ET;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_8K_BT;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.GOODWE_8K_ET;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.UNDEFINED;
+import static io.openems.edge.goodwe.common.enums.GoodWeType.authorisedLimit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -13,72 +28,76 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
+import io.openems.edge.goodwe.common.AbstractGoodWe.MaxAcPower;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
-import io.openems.edge.goodwe.common.enums.GoodWeType;
 
 public class TestStatic {
 
 	@Test
 	public void testGetHardwareTypeFromSerialNr() {
-		assertEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("7010KETU22AW0901"));
-		assertNotEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("70000KETU22AW090"));
+		assertEquals(FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("7010KETU22AW0901"));
+		assertNotEquals(FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("70000KETU22AW090"));
 
-		assertEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT22AW0004"));
-		assertNotEquals(GoodWeType.FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KETT22AW0004"));
+		assertEquals(FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT22AW0004"));
+		assertNotEquals(FENECON_FHI_20_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KETT22AW0004"));
 
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9030KETT228W0004"));
-		assertEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("129K9ETT231W0159"));
-		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT228W0004"));
-		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929KETT231W0159"));
-		assertNotEquals(GoodWeType.FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("928K9ETT231W0159"));
+		assertEquals(FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9030KETT228W0004"));
+		assertEquals(FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("129K9ETT231W0159"));
+		assertNotEquals(FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("9020KETT228W0004"));
+		assertNotEquals(FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("929KETT231W0159"));
+		assertNotEquals(FENECON_FHI_29_9_DAH, AbstractGoodWe.getGoodWeTypeFromSerialNr("928K9ETT231W0159"));
 
-		assertEquals(GoodWeType.FENECON_GEN2_6K, AbstractGoodWe.getGoodWeTypeFromSerialNr("96000EUB246L0002"));
-		assertEquals(GoodWeType.FENECON_GEN2_10K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KEUB246L0001"));
-		assertEquals(GoodWeType.FENECON_GEN2_15K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9015KEUB246L0003"));
+		assertEquals(FENECON_GEN2_6K, AbstractGoodWe.getGoodWeTypeFromSerialNr("96000EUB246L0002"));
+		assertEquals(FENECON_GEN2_10K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9010KEUB246L0001"));
+		assertEquals(FENECON_GEN2_15K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9015KEUB246L0003"));
 
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(""));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(null));
+		assertEquals(FENECON_50K, AbstractGoodWe.getGoodWeTypeFromSerialNr("9050KETF241W8012"));
+
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9050KETT241W8012"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9055KETF241W8012"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9040KETT228W0004"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("9000KETT228W0004"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr("ET2"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(""));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromSerialNr(null));
 	}
 
 	@Test
 	public void testAuthorisedLimit() {
-		assertEquals(25, GoodWeType.authorisedLimit(40, 25, 40).apply(BATTERY_52).intValue());
-		assertEquals(40, GoodWeType.authorisedLimit(40, 25, 40).apply(BATTERY_64).intValue());
-		assertEquals(40, GoodWeType.authorisedLimit(40, 25, 40).apply(null).intValue());
+		assertEquals(25, authorisedLimit(40, 25, 40).apply(BATTERY_52).intValue());
+		assertEquals(40, authorisedLimit(40, 25, 40).apply(BATTERY_64).intValue());
+		assertEquals(40, authorisedLimit(40, 25, 40).apply(null).intValue());
 
-		assertEquals(25, GoodWeType.FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(40, GoodWeType.FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(25, GoodWeType.FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(40, GoodWeType.FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(25, GoodWeType.FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(40, GoodWeType.FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(25, GoodWeType.FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(0, GoodWeType.FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(0, GoodWeType.FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(50, GoodWeType.FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(0, GoodWeType.FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(50, GoodWeType.FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_52).intValue());
-		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_64).intValue());
-		assertEquals(25, GoodWeType.GOODWE_8K_ET.maxDcCurrent.apply(null).intValue());
+		assertEquals(25, FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, FENECON_GEN2_6K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, FENECON_GEN2_10K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(40, FENECON_GEN2_15K.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(0, FENECON_FHI_10_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(0, FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(50, FENECON_FHI_20_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(0, FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(50, FENECON_FHI_29_9_DAH.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_52).intValue());
+		assertEquals(25, GOODWE_8K_ET.maxDcCurrent.apply(BATTERY_64).intValue());
+		assertEquals(25, GOODWE_8K_ET.maxDcCurrent.apply(null).intValue());
 
 	}
 
 	@Test
 	public void testGetHardwareTypeFromGoodWeString() {
-		assertEquals(GoodWeType.GOODWE_10K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-BT"));
-		assertEquals(GoodWeType.GOODWE_10K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-ET"));
-		assertEquals(GoodWeType.GOODWE_5K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-BT"));
-		assertEquals(GoodWeType.GOODWE_5K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-ET"));
-		assertEquals(GoodWeType.GOODWE_8K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-BT"));
-		assertEquals(GoodWeType.GOODWE_8K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-ET"));
-		assertEquals(GoodWeType.FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromStringValue("FHI-10-DAH"));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue("ET2"));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(""));
-		assertEquals(GoodWeType.UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(null));
+		assertEquals(GOODWE_10K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-BT"));
+		assertEquals(GOODWE_10K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW10K-ET"));
+		assertEquals(GOODWE_5K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-BT"));
+		assertEquals(GOODWE_5K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW5K-ET"));
+		assertEquals(GOODWE_8K_BT, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-BT"));
+		assertEquals(GOODWE_8K_ET, AbstractGoodWe.getGoodWeTypeFromStringValue("GW8K-ET"));
+		assertEquals(FENECON_FHI_10_DAH, AbstractGoodWe.getGoodWeTypeFromStringValue("FHI-10-DAH"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue("ET2"));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(""));
+		assertEquals(UNDEFINED, AbstractGoodWe.getGoodWeTypeFromStringValue(null));
 	}
 
 	@Test
@@ -223,7 +242,7 @@ public class TestStatic {
 	}
 
 	@Test
-	public void testignoreImpossibleMinimumPower() {
+	public void testIgnoreImpossibleMinimumPower() {
 
 		var dcPower = 200_000; // W
 		var powerMode = EmsPowerMode.AUTO;
@@ -256,5 +275,57 @@ public class TestStatic {
 				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, powerSet));
 		assertEquals(0,
 				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.DISCHARGE_BAT, powerSet));
+	}
+
+	@Test
+	public void testCalculateDcLimitation() {
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(0, 230, 30_000));
+		assertEquals(11500, (int) AbstractGoodWe.calculateDcLimitation(50, 230, 30_000));
+		assertEquals(9000,
+				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatChargeP));
+		assertEquals(6600,
+				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatDischargeP));
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(50, null, 30_000));
+		assertEquals(20000, (int) AbstractGoodWe.calculateDcLimitation(50, 400, 30_000));
+		assertEquals(-800, (int) AbstractGoodWe.calculateDcLimitation(-2, 400, 30_000));
+		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(null, 400, 30_000));
+	}
+
+	@Test
+	public void testCalculateMaxAcPower() {
+		final var volt = 400; // V
+
+		// Limited by ApparentPower
+		assertEquals(new MaxAcPower(-10_000, 10_000),
+				AbstractGoodWe.calculateMaxAcPower(10_000, 50, 50, volt, 10_000, 10_000, 0));
+
+		// Limited by inverter DC maximum
+		assertEquals(new MaxAcPower(-9_000, 6_600), AbstractGoodWe.calculateMaxAcPower(10_000, 50, 50, volt,
+				FENECON_GEN2_6K.maxBatChargeP, FENECON_GEN2_6K.maxBatDischargeP, 0));
+		// -- No Limit for old GoodWe Inverter Type
+		assertEquals(new MaxAcPower(-10000, 10000), AbstractGoodWe.calculateMaxAcPower(10_000, 50, 50, volt,
+				GOODWE_8K_BT.maxBatDischargeP, GOODWE_8K_BT.maxBatDischargeP, 0));
+
+		// Limited by BMS
+		assertEquals(new MaxAcPower(-20_000, 20_000),
+				AbstractGoodWe.calculateMaxAcPower(30_000, 50, 50, volt, 30_000, 30_000, 0));
+		assertEquals(new MaxAcPower(-20_000, 10_000),
+				AbstractGoodWe.calculateMaxAcPower(30_000, 50, 25, volt, 30_000, 30_000, 0));
+		assertEquals(new MaxAcPower(-10_000, 20_000),
+				AbstractGoodWe.calculateMaxAcPower(30_000, 25, 50, volt, 30_000, 30_000, 0));
+		assertEquals(new MaxAcPower(800, 25_000),
+				AbstractGoodWe.calculateMaxAcPower(30_000, -2 /* Force Discharge */, 50, volt, 30_000, 30_000, 5000));
+		assertEquals(new MaxAcPower(-20_000, -800),
+				AbstractGoodWe.calculateMaxAcPower(30_000, 50, -2 /* Force Charge */, volt, 30_000, 30_000, 0));
+
+		// Limited by PV
+		assertEquals(new MaxAcPower(0, 20_000 /* 10 kW battery + 10kW pv */),
+				AbstractGoodWe.calculateMaxAcPower(30000, 50, 50, volt, 10_000, 10_000, 10_000 /* 10kW PV */));
+		assertEquals(new MaxAcPower(-2000 /* 5kW - 3kW */, 8000 /* 5kW + 3kW */),
+				AbstractGoodWe.calculateMaxAcPower(30000, 10, 10, 500, 10_000, 10_000, 3000 /* 3kW PV */));
+
+		assertEquals(new MaxAcPower(1000, 5000), // Positive MaxAcImport was not allowed before refactoring
+				AbstractGoodWe.calculateMaxAcPower(5_000, -2 /* Force Discharge */, 50, 500, 30_000, 30_000, 3000));
+
 	}
 }

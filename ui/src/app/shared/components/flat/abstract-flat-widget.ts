@@ -1,15 +1,14 @@
 // @ts-strict-ignore
-import { Directive, Inject, Input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { filter, take, takeUntil } from "rxjs/operators";
-import { v4 as uuidv4 } from "uuid";
 
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Service } from "../../service/service";
+import { UserService } from "../../service/user.service";
 import { Websocket } from "../../service/websocket";
 import { Converter } from "../shared/converter";
 import { DataService } from "../shared/dataservice";
@@ -33,7 +32,14 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
-    private selector: string = uuidv4();
+    /** @deprecated used for new navigation migration purposes */
+    public isNewNavigation = false;
+    /** @deprecated */
+    public newNavigationUrlSegment: string;
+
+    private injector = inject(Injector);
+    private subscription: EffectRef[] = [];
+
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -44,16 +50,23 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
         protected dataService: DataService,
         protected formBuilder: FormBuilder,
         protected router: Router,
+        protected userService: UserService,
     ) {
+
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
     }
 
     public ngOnInit() {
+
         this.service.getCurrentEdge().then(edge => {
             this.service.getConfig().then(config => {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-                this.component = config.components[this.componentId];
+                this.component = EdgeConfig.Component.of(config.components[this.componentId]);
 
                 // announce initialized
                 this.isInitialized = true;
@@ -65,10 +78,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                     channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
                 this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
-                this.dataService.currentValue.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
+                this.subscription.push(effect(() => {
+                    const value = this.dataService.currentValue();
                     this.onCurrentData(value);
                     this.afterOnCurrentData();
-                });
+                }, { injector: this.injector }));
 
                 this.formGroup = this.getFormGroup();
             });
@@ -77,10 +91,9 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     public ngOnDestroy() {
         this.dataService.unsubscribeFromChannels(this.getChannelAddresses());
-
-        // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
+        this.subscription.every(el => el.destroy());
     }
 
     /**
@@ -91,9 +104,12 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      */
     protected async getFirstValidValueForChannel<T = any>(channelAddress: ChannelAddress): Promise<T> {
         return new Promise<any>((res) => {
-            this.dataService.currentValue.pipe(filter(el => el.allComponents[channelAddress.toString()] != null), take(1)).subscribe((val) => {
+            const subscription = effect(() => {
+                const val = this.dataService.currentValue();
                 res(val.allComponents[channelAddress.toString()]);
-            });
+            }, { injector: this.injector });
+
+            subscription.destroy();
         });
     }
 
@@ -106,10 +122,11 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
     protected async subscribeAndGetFirstValidValueForChannel(channelAddress: ChannelAddress): Promise<any> {
         this.dataService.getValues([channelAddress], this.edge, this.componentId);
         return new Promise<any>((res) => {
-            this.dataService.currentValue.pipe(filter(el => el.allComponents[channelAddress.toString()] != null), take(1)).subscribe((val) => {
-                this.dataService.unsubscribeFromChannels([channelAddress]);
+            const subscription = effect(() => {
+                const val = this.dataService.currentValue();
                 res(val.allComponents[channelAddress.toString()]);
-            });
+            }, { injector: this.injector });
+            subscription.destroy();
         });
     }
 

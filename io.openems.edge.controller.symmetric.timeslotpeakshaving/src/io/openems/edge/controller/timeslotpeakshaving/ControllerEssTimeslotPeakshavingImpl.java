@@ -1,5 +1,11 @@
 package io.openems.edge.controller.timeslotpeakshaving;
 
+import static io.openems.edge.controller.timeslotpeakshaving.ChargeState.HIGHTHRESHOLD_TIMESLOT;
+import static io.openems.edge.controller.timeslotpeakshaving.ChargeState.HYSTERESIS;
+import static io.openems.edge.controller.timeslotpeakshaving.ChargeState.NORMAL;
+import static io.openems.edge.controller.timeslotpeakshaving.ChargeState.SLOWCHARGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -10,7 +16,6 @@ import java.util.Calendar;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -27,15 +32,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.TimeslotPeakshaving", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE//
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsComponent
 		implements ControllerEssTimeslotPeakshaving, Controller, OpenemsComponent {
@@ -114,8 +117,8 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
 			ess.setActivePowerEqualsWithPid(activePower);
-			this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 		}
+		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 	}
 
 	/**
@@ -130,73 +133,57 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	private Integer getPower(ManagedSymmetricEss ess, ElectricityMeter meter)
 			throws OpenemsException, IllegalArgumentException {
 
-		var now = LocalDateTime.now(this.componentManager.getClock());
-
-		boolean stateChanged;
-		Integer power = null;
-
-		do {
-			stateChanged = false;
-			switch (this.chargeState) {
-			case NORMAL:
-				if (this.isHighLoadTimeslot(now.plusMinutes(this.slowforceChargeMinutes))) {
-					stateChanged = this.changeState(ChargeState.SLOWCHARGE);
-				}
-				if (this.isHighLoadTimeslot(now)) {
-					stateChanged = this.changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
-				}
-
-				power = null;
-				break;
-			case SLOWCHARGE:
-				if (this.isHighLoadTimeslot(now)) {
-					stateChanged = this.changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
-				}
-
-				var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-				if (ess.getSoc().orElse(0) == 100 || minPower >= 0) {
-					// no need to charge anymore, the soc would be 100 %
-					stateChanged = this.changeState(ChargeState.HYSTERESIS);
-				}
-				power = this.config.slowChargePower();
-				break;
-			case HYSTERESIS:
-				if (ess.getSoc().orElse(0) <= this.config.hysteresisSoc()) {
-					stateChanged = this.changeState(ChargeState.SLOWCHARGE);
-				}
-				if (this.isHighLoadTimeslot(now)) {
-					stateChanged = this.changeState(ChargeState.HIGHTHRESHOLD_TIMESLOT);
-				}
-				power = null;
-				break;
-			case HIGHTHRESHOLD_TIMESLOT:
-				if (!this.isHighLoadTimeslot(now)) {
-					stateChanged = this.changeState(ChargeState.NORMAL);
-				}
-
-				power = this.calculatePeakShavePower(ess, meter);
-				break;
-			}
-		} while (stateChanged); // execute again if the state changed
-
-		// store current state in StateMachine channel
-		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.STATE_MACHINE).setNextValue(this.chargeState);
-		return power;
+		this.adaptChargeState(ess);
+		return this.calculatePower(ess, meter);
 
 	}
 
-	/**
-	 * A flag to maintain change in the state.
-	 *
-	 * @param nextState the target state
-	 * @return Flag that the state is changed or not.
-	 */
-	private boolean changeState(ChargeState nextState) {
-		if (this.chargeState != nextState) {
-			this.chargeState = nextState;
-			return true;
+	private void adaptChargeState(ManagedSymmetricEss ess) throws OpenemsException {
+		var now = LocalDateTime.now(this.componentManager.getClock());
+		switch (this.chargeState) {
+		case NORMAL -> {
+			if (this.isHighLoadTimeslot(now.plusMinutes(this.slowforceChargeMinutes))) {
+				this.chargeState = SLOWCHARGE;
+			}
+			if (this.isHighLoadTimeslot(now)) {
+				this.chargeState = HIGHTHRESHOLD_TIMESLOT;
+			}
 		}
-		return false;
+		case SLOWCHARGE -> {
+			if (this.isHighLoadTimeslot(now)) {
+				this.chargeState = HIGHTHRESHOLD_TIMESLOT;
+			}
+
+			if (ess.getSoc().orElse(0) == 100) {
+				// no need to charge anymore, the soc would be 100 %
+				this.chargeState = HYSTERESIS;
+			}
+		}
+		case HYSTERESIS -> {
+			if (ess.getSoc().orElse(0) <= this.config.hysteresisSoc()) {
+				this.chargeState = SLOWCHARGE;
+			}
+			if (this.isHighLoadTimeslot(now)) {
+				this.chargeState = HIGHTHRESHOLD_TIMESLOT;
+			}
+		}
+		case HIGHTHRESHOLD_TIMESLOT -> {
+			if (!this.isHighLoadTimeslot(now)) {
+				this.chargeState = NORMAL;
+			}
+		}
+		};
+
+		// store current state in StateMachine channel
+		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.STATE_MACHINE).setNextValue(this.chargeState);
+	}
+
+	private Integer calculatePower(ManagedSymmetricEss ess, ElectricityMeter meter) throws InvalidValueException {
+		return switch (this.chargeState) {
+		case NORMAL, HYSTERESIS -> null;
+		case SLOWCHARGE -> this.config.slowChargePower();
+		case HIGHTHRESHOLD_TIMESLOT -> this.calculatePeakShavePower(ess, meter);
+		};
 	}
 
 	/**

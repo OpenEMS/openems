@@ -25,6 +25,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Activate watchdog", description = "Activate watchdog or not?")
 	boolean activateWatchdog() default true;
 
+	@AttributeDefinition(name = "GridCode Setting", description = "GridCode Setting e.g. VDE-AR-N 4105 for germany.")
+	GridCode gridCode() default GridCode.VDE_4105;
+	
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 

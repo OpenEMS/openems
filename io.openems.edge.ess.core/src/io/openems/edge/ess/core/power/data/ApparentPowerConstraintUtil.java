@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.DoubleUtils;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -39,15 +40,14 @@ public class ApparentPowerConstraintUtil {
 	 *
 	 * @param coefficients  the {@link Coefficients}
 	 * @param essId         the Id of the {@link ManagedSymmetricEss}
-	 * @param phase         the {@link Phase}
+	 * @param phase         the {@link SingleOrAllPhase}
 	 * @param apparentPower the apparent power in [VA]
 	 * @return a list of {@link Constraint}s
 	 * @throws OpenemsException on error
 	 */
-	public static List<Constraint> generateConstraints(Coefficients coefficients, String essId, Phase phase,
+	public static List<Constraint> generateConstraints(Coefficients coefficients, String essId, SingleOrAllPhase phase,
 			double apparentPower) throws OpenemsException {
-		List<Constraint> result = new ArrayList<>();
-
+		var result = new ArrayList<Constraint>();
 		if (apparentPower > 0) {
 			// Calculate 'Apparent-Power Circle'
 			var degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
@@ -56,12 +56,9 @@ public class ApparentPowerConstraintUtil {
 			for (var degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
 				var p2 = getPointOnCircle(apparentPower, degree);
 
-				Relationship relationship;
-				if (Math.floor(degree) <= 180) {
-					relationship = Relationship.GREATER_OR_EQUALS;
-				} else {
-					relationship = Relationship.LESS_OR_EQUALS;
-				}
+				final var relationship = Math.floor(degree) <= 180 //
+						? Relationship.GREATER_OR_EQUALS //
+						: Relationship.LESS_OR_EQUALS;
 
 				var constraint = getConstraintThroughPoints(coefficients, essId, phase, p1, p2, relationship);
 				result.add(constraint);
@@ -85,8 +82,8 @@ public class ApparentPowerConstraintUtil {
 		return new Point(Math.cos(Math.toRadians(degree)) * radius, Math.sin(Math.toRadians(degree)) * radius);
 	}
 
-	private static Constraint getConstraintThroughPoints(Coefficients coefficients, String essId, Phase phase, Point p1,
-			Point p2, Relationship relationship) throws OpenemsException {
+	private static Constraint getConstraintThroughPoints(Coefficients coefficients, String essId,
+			SingleOrAllPhase phase, Point p1, Point p2, Relationship relationship) throws OpenemsException {
 		/**
 		 * Build the LinearConstraint.
 		 *
@@ -95,8 +92,20 @@ public class ApparentPowerConstraintUtil {
 		 *  y = ((y2-y1)/(x2-x1)) * x + ((x2*y1-x1*y2)/(x2-x1))
 		 * </pre>
 		 */
-		var constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / (p2.x - p1.x);
-		var coefficient1 = (p2.y - p1.y) / (p2.x - p1.x);
+		var deltaX = p2.x - p1.x;
+
+		// Check for division by zero - if points have same x-coordinate, create
+		// vertical constraint
+		if (DoubleUtils.isCloseToZero(deltaX)) {
+			// Vertical line: x = constant, so we constrain active power directly
+			var constraintValue = p1.x;
+			return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //
+					new LinearCoefficient(coefficients.of(essId, phase, Pwr.ACTIVE), 1.0) //
+			}, relationship, constraintValue);
+		}
+
+		var constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / deltaX;
+		var coefficient1 = (p2.y - p1.y) / deltaX;
 		double coefficient2 = -1;
 
 		return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //

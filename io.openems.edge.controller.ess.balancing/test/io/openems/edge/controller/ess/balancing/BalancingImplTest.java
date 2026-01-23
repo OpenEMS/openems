@@ -4,9 +4,10 @@ import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_P
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
@@ -84,6 +85,40 @@ public class BalancingImplTest {
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 20377) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 20377) //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19767)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testSetGridPower() throws Exception {
+		new ControllerTest(new ControllerEssBalancingImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", new DummyManagedSymmetricEss("ess0") //
+						.setPower(new DummyPower(0.3, 0.3, 0.1))) //
+				.addReference("meter", new DummyElectricityMeter("meter0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setEssId("ess0") //
+						.setMeterId("meter0") //
+						.setTargetGridSetpoint(0) //
+						.build())
+				.next(new TestCase() //
+						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
+						.input("ctrl0", ControllerEssBalancing.ChannelId.SET_GRID_ACTIVE_POWER, 5000) //
+						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000) //
+						.output("ess0", ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID, 15000) //
+				) //
+				.next(new TestCase() //
+						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 0) //
+						.input("ctrl0", ControllerEssBalancing.ChannelId.SET_GRID_ACTIVE_POWER, 5000) //
+						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000) //
+						.output("ess0", ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID, 15000) //
+				) //
+				.next(new TestCase() //
+						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 10000) //
+						.input("ctrl0", ControllerEssBalancing.ChannelId.SET_GRID_ACTIVE_POWER, 5000) //
+						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000) //
+						.output("ess0", ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID, 25000) //
+				) //
 				.deactivate();
 	}
 

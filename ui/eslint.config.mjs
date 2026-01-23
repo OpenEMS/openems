@@ -7,6 +7,8 @@ import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
 import importPlugin from "eslint-plugin-import";
 import checkFile from "eslint-plugin-check-file";
+import angularTemplate from "@angular-eslint/eslint-plugin-template";
+import angularTemplateParser from "@angular-eslint/template-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,20 +18,13 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 });
 
-export default [{
-    "ignores": ["projects/**/*"],
-}, ...compat.extends(
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@angular-eslint/recommended",
-    "plugin:@angular-eslint/template/process-inline-templates",
-    "plugin:import/recommended"
-).map(config => ({
+const recommendedHTMLChecks = compat.extends("plugin:@angular-eslint/template/recommended").map(config => ({
     ...config,
-    "files": ["**/*.ts"],
-})), {
-    "files": ["**/*.ts"],
+    "files": ["**/*.html"],
+}))
 
+const allTsFiles = {
+    "files": ["**/*.ts"],
     "plugins": {
         "unused-imports": unusedImports,
         "@stylistic": stylistic,
@@ -43,88 +38,88 @@ export default [{
             ...globals.node,
             ...globals.jest,
         },
-
         "ecmaVersion": 5,
         "sourceType": "commonjs",
-
         "parserOptions": {
             "project": ["tsconfig.json"],
             "createDefaultProgram": true,
         },
     },
-
     "rules": {
         "check-file/filename-naming-convention": [
-          "off",
-          {
-            "**/*.{ts}": "KEBAB_CASE"
-          }
+            "off",
+            {
+                "**/*.{ts}": "KEBAB_CASE"
+            }
         ],
         "curly": "error",
         "unused-imports/no-unused-imports": "error",
         "import/order": [
-          "error",
-          {
-            "groups": [
-              "builtin",
-              "external",
-              "internal",
-              "parent",
-              "sibling",
-              "index"
-            ],
-            "alphabetize": {
-              "order": "asc",
-              "caseInsensitive": true
+            "error",
+            {
+                "groups": [
+                    "builtin",
+                    "external",
+                    "internal",
+                    "parent",
+                    "sibling",
+                    "index"
+                ],
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
             }
-          }
         ],
         "@typescript-eslint/explicit-member-accessibility": [
-          "error",
-          {
-            "accessibility": "explicit",
-            "overrides": {
-              "accessors": "off",
-              "constructors": "off",
-              "methods": "off",
-              "properties": "explicit",
-              "parameterProperties": "off"
+            "error",
+            {
+                "accessibility": "explicit",
+                "overrides": {
+                    "accessors": "off",
+                    "constructors": "off",
+                    "methods": "off",
+                    "properties": "explicit",
+                    "parameterProperties": "off"
+                }
             }
-          }
         ],
         "@angular-eslint/use-lifecycle-interface": [
-          "error"
+            "error"
         ],
         "@angular-eslint/prefer-standalone": "off",
         "@angular-eslint/directive-selector": [
-          "error",
-          {
-            "type": "attribute",
-            "prefix": [
-              "app",
-              "oe",
-              "ngVar"
-            ],
-            "style": "camelCase"
-          }
+            "error",
+            {
+                "type": "attribute",
+                "prefix": [
+                    "app",
+                    "oe",
+                    "ngVar",
+                    "ngDomChange"
+                ],
+                "style": "camelCase"
+            }
         ],
         "@stylistic/semi": "error",
         "@stylistic/quote-props": [
-          "warn",
-          "consistent"
+            "warn",
+            "consistent"
         ],
         "@stylistic/comma-dangle": [
-          "error",
-          "always-multiline"
+            "error",
+            "always-multiline"
         ],
         "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
+        "@stylistic/indent": ["error", 4],
         "@typescript-eslint/no-unused-vars": [
-          "error",
-          {
-            "args": "none",
-            "ignoreRestSiblings": true
-          }
+            "error",
+            {
+                "args": "none",
+                "ignoreRestSiblings": true,
+                "varsIgnorePattern": "^_"
+            }
         ],
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-namespace": 0,
@@ -132,29 +127,50 @@ export default [{
         "@typescript-eslint/member-ordering": "error",
         "@typescript-eslint/no-unused-expressions": "off",
         "@typescript-eslint/no-empty-object-type": "off",
-        "@stylistic/no-multiple-empty-lines": "error",
+        "@stylistic/no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1, "maxBOF": 0 }],
         "@stylistic/quotes": [
-          "error",
-          "double"
+            "error",
+            "double"
         ],
         "no-restricted-syntax": [
-          "error",
-          {
-            "selector": "CallExpression[callee.name='fdescribe']",
-            "message": "Using 'fdescribe' is not allowed."
-          },
-          {
-            "selector": "CallExpression[callee.name='xdescribe']",
-            "message": "Using 'xdescribe' is not allowed."
-          }
-        ]
+            "error",
+            {
+                "selector": "CallExpression[callee.name='fdescribe']",
+                "message": "Using 'fdescribe' is not allowed."
+            },
+            {
+                "selector": "CallExpression[callee.name='xdescribe']",
+                "message": "Using 'xdescribe' is not allowed."
+            }
+        ],
+        // TODO reapply this rule
+        // "@angular-eslint/template/accessibility-interactive-supports-focus": "error"
+        "@angular-eslint/prefer-inject": "off"
     },
     "settings": {
-      "import/resolver": {
-        "typescript": {}
-      }
+        "import/resolver": {
+            "typescript": {}
+        }
     }
-}, {
+};
+
+const allHTMLFiles = {
+    "files": ["**/*.html"],
+    languageOptions: {
+        parser: angularTemplateParser
+    },
+    plugins: {
+        "@angular-eslint/template": angularTemplate,
+    },
+    rules: {
+        "@angular-eslint/template/no-positive-tabindex": "error",
+        "@angular-eslint/template/no-autofocus": "error",
+        "@angular-eslint/template/mouse-events-have-key-events": "error",
+        "@angular-eslint/template/click-events-have-key-events": "error",
+    },
+};
+
+const tsFileWithSpecificEndings = {
     "files": ["*.component.ts", "*.service.ts", "*.module.ts"],
     "plugins": {
         "check-file": checkFile,
@@ -162,10 +178,23 @@ export default [{
     "rules": {
         "check-file/filename-naming-convention": "off",
     },
-}, ...compat.extends("plugin:@angular-eslint/template/recommended").map(config => ({
+}
+
+export default [{
+    "ignores": ["projects/**/*"],
+},
+...compat.extends(
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@angular-eslint/recommended",
+    "plugin:@angular-eslint/template/process-inline-templates",
+    "plugin:import/recommended"
+).map(config => ({
     ...config,
-    "files": ["**/*.html"],
-})), {
-    "files": ["**/*.html"],
-    "rules": {},
-}];
+    "files": ["**/*.ts"],
+})),
+    allTsFiles,
+    tsFileWithSpecificEndings,
+...recommendedHTMLChecks,
+    allHTMLFiles,
+];

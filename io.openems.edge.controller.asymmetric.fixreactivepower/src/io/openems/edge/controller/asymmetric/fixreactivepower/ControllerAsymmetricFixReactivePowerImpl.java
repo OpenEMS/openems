@@ -1,5 +1,9 @@
 package io.openems.edge.controller.asymmetric.fixreactivepower;
 
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -13,9 +17,9 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
@@ -57,19 +61,20 @@ public class ControllerAsymmetricFixReactivePowerImpl extends AbstractOpenemsCom
 	public void run() throws OpenemsNamedException {
 		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
-		this.addConstraint(ess, Phase.L1, this.config.powerL1());
-		this.addConstraint(ess, Phase.L2, this.config.powerL2());
-		this.addConstraint(ess, Phase.L3, this.config.powerL3());
+		this.addConstraint(ess, L1, this.config.powerL1());
+		this.addConstraint(ess, L2, this.config.powerL2());
+		this.addConstraint(ess, L3, this.config.powerL3());
 	}
 
-	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, int power) throws OpenemsException {
+	private void addConstraint(ManagedAsymmetricEss ess, SinglePhase phase, int power) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, phase, Pwr.REACTIVE, power);
+		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, phase.toSingleOrAllPhase,
+				Pwr.REACTIVE, power);
 
 		/*
 		 * set result
 		 */
-		ess.addPowerConstraintAndValidate("AymmetricFixReactivePower " + phase, phase, Pwr.REACTIVE,
+		ess.addPowerConstraintAndValidate("AymmetricFixReactivePower " + phase, phase.toSingleOrAllPhase, Pwr.REACTIVE,
 				Relationship.EQUALS, calculatedPower);
 	}
 }

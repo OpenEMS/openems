@@ -25,6 +25,7 @@
 @use "node_modules/@ionic/angular/css/text-alignment.css" as *;
 @use "node_modules/@ionic/angular/css/text-transformation.css" as *;
 @use "node_modules/@ionic/angular/css/typography.css" as *;
+
 /* ngx-spinner */
 @use "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css" as *;
 @use "./environments/index.scss" as *;
@@ -123,6 +124,11 @@ formly-field-ion-radio {
     text-shadow: var(--ion-text-shadow);
 }
 
+.percentage-style-dark {
+    fill: var(--ion-text-color-dark);
+    text-shadow: var(--ion-text-shadow);
+}
+
 .ion-card-style {
     ion-item {
         --background: var(--ion-color-primary);
@@ -131,6 +137,10 @@ formly-field-ion-radio {
             color: var(--ion-color-primary-contrast);
         }
     }
+}
+
+.ion-custom-padding {
+    padding: 0.325rem;
 }
 
 .custom-channels-text {
@@ -219,7 +229,7 @@ ion-select::part(icon) {
 }
 
 .command-textbox {
-    font-family: monospace;
+    font-family: var(--ion-font-family);
     color: var(--ion-color-text);
 }
 
@@ -279,8 +289,18 @@ html.md {
     white-space: initial !important;
 }
 
+formly-range-type {
+    display: block;
+    width: 100%;
+}
+
+ion-range {
+    --bar-background: var(--ion-color-background-pull-to-refresh);
+    --bar-background-active: var(--ion-color-primary);
+}
+
 ion-label {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--ion-font-family);
 }
 
 ion-item.noPadding {
@@ -302,6 +322,10 @@ mat-card.single_top {
 
 table.full_width {
     width: 100%;
+}
+
+.full_height {
+    height: 100%;
 }
 
 .bold {
@@ -341,14 +365,14 @@ ion-checkbox {
     }
 }
 
-#toast-container {
-    font-family: $font-family;
+ion-skeleton-text {
+    --background: var(--ion-skeleton-gradient);
+    --background-rgb: var(--ion-color-light-contrast-rgb);
 }
 
-// 360px is approximate min. width of mobile devices
-ion-toast.container {
+#toast-container {
+    font-family: $font-family;
     text-align: center;
-    --min-width: 360px;
 }
 
 .no-scroll {
@@ -481,19 +505,27 @@ formly-input-section {
     }
 
     ion-toggle {
-        --track-background: var(--ion-color-toggle-background);
-        --handle-background: var(--ion-color-toggle-unchecked-handle);
-        --handle-background-checked: white;
-        --track-background-checked: var(--ion-color-primary);
-        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
         padding: 0.8em;
         padding-right: 0.2em;
         padding-left: 0.2em;
         overflow: visible;
-        scale: 0.95;
+
+        --track-background: var(--ion-color-toggle-background);
+        --track-background-checked: var(--ion-color-primary);
+
+        --handle-width: 1.5rem;
+        --handle-height: 1.5rem;
+        --handle-max-width: 1.5rem;
+        --handle-max-height: 1.5rem;
+        --handle-min-width: 1.5rem;
+        --handle-min-height: 1.5rem;
+        --handle-background: var(--ion-color-toggle-unchecked-handle);
+        --handle-background-checked: white;
+        --handle-box-shadow: 0em 0.2em 0.25em rgba(0, 0, 0, 0.3);
     }
 
     ion-toggle::part(handle) {
+        box-sizing: border-box !important;
         border: 0.15em solid var(--ion-color-toggle-unchecked-track) !important;
     }
 
@@ -518,6 +550,23 @@ formly-input-section {
 
     ion-buttons {
         color: var(--ion-color-toggle-background) !important;
+    }
+
+    // Accessibility 2.1.2
+    .oe-focused {
+        border: 0.1em solid var(--ion-color-dark);
+        outline: var(--ion-focus-outline-width) solid var(--ion-focus-outline-color);
+        outline-offset: var(--ion-focus-outline-offset);
+    }
+
+    ion-button.ion-focused,
+    ion-segment-button.ion-focused,
+    ion-toggle.ion-focused,
+    ion-item.ion-focused,
+    ion-input.ion-focused,
+    ion-chip:focus-within,
+    ion-toggle:focus-within {
+        @extend .oe-focused;
     }
 }
 

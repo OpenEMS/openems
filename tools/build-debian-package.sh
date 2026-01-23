@@ -16,20 +16,24 @@ main() {
     common_update_version_in_code
     prepare_deb_template
     build_deb
-    create_version_file
+    common_create_version_file "${OUTPUT}/${VERSION_FILE}"
     clean_deb_template
     echo "# FINISHED"
 }
 
 initialize_environment() {
+    PACKAGE_NAME="${PACKAGE_NAME:-fems}"
+
     # Set working directory
     SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
     cd ${SCRIPT_DIR}/..
 
     # Include commons
     source $SCRIPT_DIR/common.sh
-    common_initialize_environment
-    common_build_snapshot_version
+    if [[ "${SKIP_DEB_INITIALIZE^^}" != "TRUE" ]]; then
+        common_initialize_environment
+        common_build_snapshot_version
+    fi
 
     DEB_FILE="${PACKAGE_NAME}.deb"
     VERSION_FILE="${PACKAGE_NAME}.version"
@@ -61,6 +65,8 @@ prepare_deb_template() {
         [ -f $script ] && chmod 755 $script
     done
 
+    find tools/debian/ -name "*.conf" -exec chmod -x {} \;
+
     echo "## Add OpenEMS Edge"
     if [ -f "$DEBIAN_EDGE_LOCATION/openems.jar" ]; then
         echo "openems.jar exists. Skipping common_build_edge."
@@ -87,10 +93,6 @@ build_deb() {
     dpkg-deb -Zxz --build "debian" "${OUTPUT}/${DEB_FILE}"
     echo "## Built ${DEB_FILE}"
     cd ..
-}
-
-create_version_file() {
-    echo $VERSION > "${OUTPUT}/${VERSION_FILE}"
 }
 
 clean_deb_template() {

@@ -43,7 +43,8 @@ public class GetLatestSetupProtocolCoreInfoResponse extends JsonrpcResponseSucce
 		return buildJsonObject() //
 				.onlyIf(this.setupProtocolData != null, t -> {
 					t.addProperty("setupProtocolId", this.setupProtocolData.setupProtocolId()) //
-							.addProperty("createDate", this.setupProtocolData.createDate()); //
+							.addProperty("createDate", this.setupProtocolData.createDate()) //
+							.addProperty("setupProtocolType", this.setupProtocolData.type()); //
 				}) //
 				.build();
 	}

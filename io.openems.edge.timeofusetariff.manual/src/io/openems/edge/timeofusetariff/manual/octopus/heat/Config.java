@@ -17,14 +17,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "High Price", description = "The High price [Cent/kWh]")
+	@AttributeDefinition(name = "High Price", description = "The high price, active from 06 to 09 pm [Cent/kWh]")
 	double highPrice();
 
 	@AttributeDefinition(name = "Standard Price", description = "The standard price [Cent/kWh]")
 	double standardPrice();
 
-	@AttributeDefinition(name = "Low Price", description = "The low price, active between 00 and 05 am [Cent/kWh]")
+	@AttributeDefinition(name = "Low Price", description = "The low price, active from 02 to 06 am and 12 am to 04 pm [Cent/kWh]")
 	double lowPrice();
+	
+	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
+	String ancillaryCosts();
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Octopus Heat [{id}]";
 

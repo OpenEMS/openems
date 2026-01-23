@@ -10,6 +10,7 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -29,6 +30,7 @@ public class ControllerIoHeatingElementImplTest3 {
 								Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
 								ZoneOffset.UTC))) //
 				.addReference("sum", new DummySum()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
@@ -42,6 +44,10 @@ public class ControllerIoHeatingElementImplTest3 {
 						.setWorkMode(WorkMode.TIME) //
 						.setMinTime(1) //
 						.setMinimumSwitchingTime(60) //
+						.setMinEnergylimit(5000) //
+						.setEndTimeWithMeter("00:00") //
+						.setMeterid("dummyMeter") //
+						.setScheduler("") // 
 						.build()); //
 	}
 

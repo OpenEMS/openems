@@ -1,5 +1,8 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -39,8 +42,6 @@ import io.openems.edge.controller.ess.fixstateofcharge.statemachine.Context;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.timedata.api.Timedata;
 
 public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
@@ -222,17 +223,12 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		activePower = this.calculateAcLimit(activePower);
 
 		// Fit into min/max "EssPower"
-		var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-		var maxDischarge = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+		var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
+		var maxDischarge = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
 		activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
 
-		if (activePower > 0) {
-			ess.setActivePowerEquals(activePower);
-		} else if (activePower < 0) {
-			ess.setActivePowerEquals(activePower);
-		} else {
-			ess.setActivePowerEquals(activePower);
-		}
+		// Apply Power
+		ess.setActivePowerEquals(activePower);
 
 		// Set debug channels
 		this._setDebugSetActivePower(activePower);

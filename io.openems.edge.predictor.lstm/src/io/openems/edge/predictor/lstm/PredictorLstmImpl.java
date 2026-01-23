@@ -99,10 +99,9 @@ public class PredictorLstmImpl extends AbstractPredictor
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), //
-				new String[] { config.channelAddress() }, config.logVerbosity());
-
 		var channelAddress = ChannelAddress.fromString(config.channelAddress());
+		super.activate(context, config.id(), config.alias(), config.enabled(), //
+				config.logVerbosity(), channelAddress);
 		this.channelForPrediction = channelAddress;
 
 		/*
@@ -143,7 +142,8 @@ public class PredictorLstmImpl extends AbstractPredictor
 			var currentDayPredicted = combine(trendFuture.join(), seasonalityFuture.join());
 			var plus1DaySeasonalityPrediction = dayPlus1SeasonalityFuture.join();
 			var actualPredicted = concatenateList(currentDayPredicted, plus1DaySeasonalityPrediction);
-			var baseTimeOfPrediction = now.withMinute(getMinute(now, hyperParameters)).withSecond(0).withNano(0);
+			var baseTimeOfPrediction = now.withMinute(getMinute(now, hyperParameters)).withSecond(0).withNano(0)
+					.toInstant();
 			return Prediction.from(this.sum, channelAddress, baseTimeOfPrediction, averageInChunks(actualPredicted));
 
 		} catch (Exception e) {

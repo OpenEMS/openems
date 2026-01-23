@@ -3,9 +3,12 @@ package io.openems.edge.controller.io.heatingelement;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.OptionalDouble;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.controller.io.heatingelement.enums.Phase;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 /**
  * PhaseDef represents one Phase of the Heating Element.
@@ -18,7 +21,8 @@ import io.openems.edge.controller.io.heatingelement.enums.Phase;
 public class PhaseDef {
 
 	private final ControllerIoHeatingElementImpl parent;
-	private final Phase phase;
+	private final SinglePhase phase;
+	private final ArrayList<Integer> lastPowerValues = new ArrayList<Integer>();
 
 	/**
 	 * keeps the total summed up Duration of the current day; it is updated on
@@ -36,7 +40,7 @@ public class PhaseDef {
 	 */
 	private LocalTime lastSwitchOn = null;
 
-	public PhaseDef(ControllerIoHeatingElementImpl parent, Phase phase) {
+	public PhaseDef(ControllerIoHeatingElementImpl parent, SinglePhase phase) {
 		this.parent = parent;
 		this.phase = phase;
 	}
@@ -94,5 +98,57 @@ public class PhaseDef {
 			return this.dailyDuration.plus(Duration.between(this.lastSwitchOn, now));
 		}
 		return this.dailyDuration;
+	}
+
+	/**
+	 * Calculates the average power of a phase for the last 20 times there will be
+	 * a power on that phase.
+	 *
+	 * @param activePower the current active power of this phase
+	 */
+	public void calculateAvgPower(int activePower) {
+
+		// Sets the avg power to 0, if there wasn't a calculation before and the
+		// power is below 100 W.
+		if (this.lastPowerValues.isEmpty() && activePower < 100) {
+			this.setChannel(0);
+			return;
+		}
+
+		if (activePower >= 100) {
+			this.lastPowerValues.add(activePower);
+
+			// Only the last 20 values are used
+			if (this.lastPowerValues.size() > 20) {
+				this.lastPowerValues.removeFirst();
+			}
+
+			OptionalDouble avgPower = this.lastPowerValues.stream().mapToInt(i -> i).average();
+
+			if (avgPower.isPresent()) {
+				this.setChannel((int) Math.round(avgPower.getAsDouble()));
+			}
+		}
+	}
+
+	/**
+	 * Gets the average power of the phase from the Channel.
+	 *
+	 * @return avgPower
+	 */
+	public int getAvgPower() {
+		return this.getAvgChannel().value().orElse(0);
+	}
+
+	private void setChannel(int power) {
+		this.getAvgChannel().setNextValue(power);
+	}
+
+	private IntegerReadChannel getAvgChannel() {
+		return switch (this.phase) {
+		case SinglePhase.L1 -> this.parent.channel(ControllerIoHeatingElement.ChannelId.PHASE1_AVG_POWER);
+		case SinglePhase.L2 -> this.parent.channel(ControllerIoHeatingElement.ChannelId.PHASE2_AVG_POWER);
+		case SinglePhase.L3 -> this.parent.channel(ControllerIoHeatingElement.ChannelId.PHASE3_AVG_POWER);
+		};
 	}
 }

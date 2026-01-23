@@ -1,0 +1,9 @@
+= OpenWB Series2 Charging Station
+
+This bundle implements requesting power, voltage, current, plug state, charge state and energy from one internal charge point of an OpenWB Series2.
+
+More documentation about the API:
+- https://wiki.openwb.de/doku.php?id=openwb:api
+- https://openwb.de/main/wp-content/uploads/2025/06/HTTP-API-V1-fuer-openWB-series1-und-series2.pdf
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.openwb[Source Code icon:github[]]

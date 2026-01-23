@@ -47,6 +47,13 @@ public abstract class AbstractReadTask<//
 			var response = this.executeRequest(bridge, this.createModbusRequest());
 			// On error a log message has already been logged
 
+			if (response == null) {
+				// Bridge is stopped -> invalidate Elements
+				this.invalidateElements(bridge);
+				this.onExecute.accept(ExecuteState.NO_OP);
+				return ExecuteState.NO_OP;
+			}
+
 			try {
 				var result = this.parseResponse(response);
 				validateResponse(result, this.length);
@@ -58,7 +65,7 @@ public abstract class AbstractReadTask<//
 
 				return ExecuteState.OK;
 
-			} catch (OpenemsException e1) {
+			} catch (Exception e1) {
 				logError(this.log, e1, "Parsing Response failed.");
 				throw e1;
 			}
@@ -67,10 +74,18 @@ public abstract class AbstractReadTask<//
 			var executeState = new ExecuteState.Error(e);
 			this.onExecute.accept(executeState);
 
-			// Invalidate Elements
-			Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
+			this.invalidateElements(bridge);
 			return executeState;
 		}
+	}
+
+	/**
+	 * Invalidate all Elements.
+	 * 
+	 * @param bridge the {@link AbstractModbusBridge}
+	 */
+	private void invalidateElements(AbstractModbusBridge bridge) {
+		Stream.of(this.elements).forEach(el -> el.invalidate(bridge));
 	}
 
 	/**
@@ -117,7 +132,7 @@ public abstract class AbstractReadTask<//
 				if (this.elementClazz.isInstance(element)) {
 					try {
 						this.handleResponse((ELEMENT) element, position, response);
-					} catch (OpenemsException e) {
+					} catch (OpenemsException | IllegalArgumentException e) {
 						errors.add("Unable to fill Modbus Element. " //
 								+ element.toString() + " Error: " + e.getMessage());
 					}

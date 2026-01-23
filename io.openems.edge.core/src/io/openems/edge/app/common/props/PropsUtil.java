@@ -34,6 +34,21 @@ public final class PropsUtil {
 	}
 
 	/**
+	 * Checks if any type of industrial is installed.
+	 *
+	 * @param util the {@link AppManagerUtil} to get the installed instances
+	 * @return true if an Industrial is installed otherwise false
+	 */
+	public static boolean isIndustrialInstalled(AppManagerUtil util) {
+		return !util.getInstantiatedAppsOf(//
+				"App.FENECON.Industrial.S.ISK010", //
+				"App.FENECON.Industrial.S.ISK011", //
+				"App.FENECON.Industrial.S.ISK110", //
+				"App.FENECON.Industrial.L.ILK710" //
+		).isEmpty();
+	}
+
+	/**
 	 * Checks if a {@link FeneconHome10} is installed.
 	 * 
 	 * @param util the {@link AppManagerUtil} to get the installed instances

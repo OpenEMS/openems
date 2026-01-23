@@ -1,34 +1,31 @@
-import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { IonicModule } from "@ionic/angular";
-import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { DefaultTypes } from "src/app/shared/service/defaulttypes";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/service/utils";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-io-heatpump-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
+        CommonUiModule,
+        NgxSpinnerModule,
         BaseChartDirective,
         ReactiveFormsModule,
-        CommonModule,
-        IonicModule,
-        TranslateModule,
         ChartComponentsModule,
         HistoryDataErrorModule,
-        NgxSpinnerModule,
     ],
 })
 export class ChartComponent extends AbstractHistoryChart {
@@ -48,7 +45,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 let data = rawData;
                 if (chartType === "line") {
                     return [{
-                        name: translate.instant("General.state"),
+                        name: translate.instant("GENERAL.STATE"),
                         converter: () => data["Status"]?.map(val => {
                             const value = Utils.multiplySafely(val, 1000);
                             return value != null ? Utils.addSafely(value, 1) : null;
@@ -61,26 +58,26 @@ export class ChartComponent extends AbstractHistoryChart {
                 data = ChartComponent.sanitizeData(rawData, periodString);
                 return [
                     {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.lock"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/LockStateTime"],
                         converter: () => data["LockStateTime"],
                         color: ChartConstants.Colors.DARK_GREY,
                         stack: 0,
                     },
                     {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.normalOperation"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RegularStateTime"],
                         converter: () => data["RegularStateTime"],
                         color: ChartConstants.Colors.YELLOW,
                         stack: 0,
                     }, {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RecommendationStateTime"],
                         converter: () => data["RecommendationStateTime"],
                         color: ChartConstants.Colors.ORANGE,
                         stack: 0,
                     }, {
-                        name: translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom"),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
                         nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                             return energyValues?.result.data[component.id + "/ForceOnStateTime"];
                         },

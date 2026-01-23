@@ -2,8 +2,6 @@ package io.openems.common.websocket;
 
 import java.lang.reflect.Field;
 import java.net.Socket;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -33,13 +31,14 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	private final AbstractWebsocketClient<?> parent;
 	private final Config config;
 	private final long minWaitSecondsBetweenRetries;
-	private Instant lastTry = Instant.MIN;
+	private long lastTry;
 	private String debugLog = null;
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent, Config config) {
 		this.parent = parent;
 		this.config = config;
 		this.minWaitSecondsBetweenRetries = new Random().nextInt(config.maxWaitSeconds()) + config.minWaitSeconds();
+		this.lastTry = 0;
 	}
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent) {
@@ -53,8 +52,8 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			return;
 		}
 
-		var start = Instant.now();
-		var waitedSeconds = Duration.between(this.lastTry, start).getSeconds();
+		var start = System.nanoTime();
+		var waitedSeconds = TimeUnit.NANOSECONDS.toSeconds(start - this.lastTry);
 		if (waitedSeconds < this.minWaitSecondsBetweenRetries) {
 			this.debugLog = "Waiting till next WebSocket reconnect ["
 					+ (this.minWaitSecondsBetweenRetries - waitedSeconds) + "s]";
@@ -84,10 +83,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
-		var end = Instant.now();
+		var end = System.nanoTime();
 		if (success) {
 			this.debugLog = null;
-			this.parent.logInfo(this.log, "Connected successfully [" + Duration.between(start, end).toSeconds() + "s]");
+			this.parent.logInfo(this.log,
+					"Connected successfully [" + TimeUnit.NANOSECONDS.toSeconds(end - start) + "s]");
 		} else {
 			this.debugLog = "Connection failed";
 			this.log.info("Connection failed");

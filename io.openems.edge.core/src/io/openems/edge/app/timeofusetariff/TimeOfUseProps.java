@@ -15,14 +15,18 @@ import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.timeofusetariff.EntsoE.BiddingZone;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.validator.Checkables;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public final class TimeOfUseProps {
 
@@ -55,6 +59,36 @@ public final class TimeOfUseProps {
 					field.setInputType(NUMBER); //
 					field.setUnit(CurrencyConfig.EUR.getUnderPart() + "/kWh");
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the §14a check property.
+	 * 
+	 * @param biddingZoneProperty the property holding the {@link BiddingZone}. Can
+	 *                            be null.
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> paragraph14aCheck(Nameable biddingZoneProperty) {
+
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.TimeOfUseTariff.ENTSO-E.14aCheck.label")//
+				.setDefaultValue(false)//
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					if (biddingZoneProperty != null) {
+						final var isInBiddingZone = Exp.staticValue(BiddingZone.GERMANY)
+								.equal(Exp.currentModelValue(biddingZoneProperty));
+						field.onlyShowIf(isInBiddingZone);
+					}
+				}));
+	}
+
+	/**
+	 * Creates a basic §14a check property without customizations.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> paragraph14aCheck() {
+		return paragraph14aCheck(null);
 	}
 
 	/**
@@ -116,6 +150,19 @@ public final class TimeOfUseProps {
 				new EdgeConfig.Component(timeOfUseTariffProviderId, providerAlias, providerFactoryId,
 						providerProperties.build())//
 		);
+	}
+
+	/**
+	 * Gets all possible systems for {@link ValidatorConfig}.
+	 * 
+	 * @return a {@link ValidatorConfig.CheckableConfig} of all possible systems.
+	 */
+	public static ValidatorConfig.CheckableConfig getAllCheckableSystems() {
+		return Checkables.checkHome() //
+				.or(Checkables.checkCommercial92()) //
+				.or(Checkables.checkIndustrial()) //
+				.or(Checkables.checkCommercial50Gen3())//
+				.or(Checkables.checkCommercial92Master());
 	}
 
 }

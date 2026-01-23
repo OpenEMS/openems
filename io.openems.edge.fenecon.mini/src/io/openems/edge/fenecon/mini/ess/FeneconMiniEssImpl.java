@@ -2,6 +2,16 @@ package io.openems.edge.fenecon.mini.ess;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.function.Consumer;
 
@@ -9,12 +19,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -47,19 +53,16 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.api.SinglePhase;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
-import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.fenecon.mini.FeneconMiniConstants;
 import io.openems.edge.fenecon.mini.ess.statemachine.Context;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine;
@@ -72,7 +75,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Fenecon.Mini.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
@@ -95,11 +98,11 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -579,20 +582,20 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 		if (this.config.readonly()) {
 			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("Read-Only-Mode", ALL, ACTIVE, EQUALS, 0), //
+					this.createPowerConstraint("Read-Only-Mode", ALL, REACTIVE, EQUALS, 0) //
 			};
 
 		}
 		if (this.stateMachine.getCurrentState() == State.WRITE_MODE) {
 			return new Constraint[] { //
-					this.createPowerConstraint("No reactive power", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("No reactive power", ALL, REACTIVE, EQUALS, 0) //
 			};
 
 		} else {
 			return new Constraint[] { //
-					this.createPowerConstraint("Not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Not ready", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
+					this.createPowerConstraint("Not ready", ALL, ACTIVE, EQUALS, 0), //
+					this.createPowerConstraint("Not ready", ALL, REACTIVE, EQUALS, 0) //
 			};
 		}
 	}

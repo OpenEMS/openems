@@ -1,10 +1,8 @@
 package io.openems.edge.evse.api.electricvehicle;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.evse.api.Limit;
+import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 
 public interface EvseElectricVehicle extends OpenemsComponent {
 
@@ -23,13 +21,10 @@ public interface EvseElectricVehicle extends OpenemsComponent {
 		}
 	}
 
-	public static record ChargeParams(ImmutableList<Limit> limits, ImmutableList<Profile> profiles) {
-	}
-
 	/**
-	 * Gets the {@link ChargeParams}s.
+	 * Gets the {@link ElectricVehicleAbilities}.
 	 * 
-	 * @return list of {@link ChargeParams}s
+	 * @return {@link ElectricVehicleAbilities}
 	 */
-	public ChargeParams getChargeParams();
+	public ElectricVehicleAbilities getElectricVehicleAbilities();
 }

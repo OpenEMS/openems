@@ -1,6 +1,7 @@
 package io.openems.edge.core.sum;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
 
@@ -32,17 +33,16 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateGridMode;
 import io.openems.edge.ess.api.CalculateSoc;
 import io.openems.edge.ess.api.HybridEss;
-import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
@@ -220,15 +220,15 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var managedConsumptionActivePower = new CalculateIntegerSum();
 
 		for (var component : this.componentManager.getEnabledComponents()) {
+			if (component instanceof SumOptions sumOption && !sumOption.addToSum()) {
+				continue;
+			}
+
 			switch (component) {
 			/*
 			 * Ess
 			 */
 			case SymmetricEss ess -> {
-				if (ess instanceof MetaEss) {
-					// ignore this Ess
-					continue;
-				}
 				essSoc.add(ess);
 				essActivePower.addValue(ess.getActivePowerChannel());
 				essReactivePower.addValue(ess.getReactivePowerChannel());
@@ -269,11 +269,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 			 * Meter
 			 */
 			case ElectricityMeter meter -> {
-				if (component instanceof VirtualMeter vm && !vm.addToSum()) {
-					// Ignore VirtualMeter if "addToSum" is not activated (default)
-					continue;
-				}
-
 				switch (meter.getMeterType()) {
 				case PRODUCTION_AND_CONSUMPTION -> // TODO
 					// Production Power is positive, Consumption is negative
@@ -405,7 +400,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		var productionDcActualPowerSum = productionDcActualPower.calculate();
 		this._setProductionDcActualPower(productionDcActualPowerSum);
 		var productionActivePower = TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum);
-		this._setProductionActivePower(productionActivePower);
+		setValue(this, Sum.ChannelId.PRODUCTION_ACTIVE_POWER, productionActivePower);
+		// TODO calculate actual "Unmanaged"-ProductionActivePower
+		setValue(this, Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER, productionActivePower);
 
 		var productionAcActiveEnergySum = productionAcActiveEnergy.calculate();
 		productionAcActiveEnergySum = this.energyValuesHandler.setValue(Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY,

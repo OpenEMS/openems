@@ -4,7 +4,7 @@ import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.con
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
-import { ChartAxis } from "src/app/shared/service/utils";
+import { ChartAxis } from "src/app/shared/utils/utils";
 import { History, expectView } from "./chart.constants.spec";
 
 describe("History Heatpump", () => {
@@ -31,7 +31,7 @@ describe("History Heatpump", () => {
                         ],
                         labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
                         options: OeTester.ChartOptions.LINE_CHART_OPTIONS("hour", "line", {
-                            [ChartAxis.LEFT]: { scale: { beginAtZero: true, title: "Zustand" } },
+                            [ChartAxis.LEFT]: { scale: { beginAtZero: true }, title: "Zustand" },
                         }),
                     },
                 });

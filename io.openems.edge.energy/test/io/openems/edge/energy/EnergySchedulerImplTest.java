@@ -20,20 +20,18 @@ import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.energy.optimizer.Optimizer;
-import io.openems.edge.evse.api.Limit;
-import io.openems.edge.evse.api.SingleThreePhase;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -56,7 +54,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		final var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		final var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum() //
@@ -84,10 +82,6 @@ public class EnergySchedulerImplTest {
 						dummyEssGridOptimizedCharge("ctrlGridOptimizedCharge0", LocalTime.of(10, 00))) //
 				.addReference("addSchedulable",
 						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION)) //
-				.addReference("addSchedulable",
-						EnergySchedulerTestUtils.dummyEvseSingle("ctrlEvseSingle0",
-								io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE,
-								new Limit(SingleThreePhase.THREE_PHASE, 6000, 32000), 10_000)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

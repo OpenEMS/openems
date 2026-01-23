@@ -3,8 +3,9 @@ import { animate, state, style, transition, trigger } from "@angular/animations"
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
-import { DefaultTypes } from "../../../../../shared/service/defaulttypes";
+import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
+import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 
 @Component({
@@ -39,7 +40,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         translate: TranslateService,
         service: Service,
     ) {
-        super("General.consumption", "right", "#FDC507", translate, service, "Consumption");
+        super("GENERAL.CONSUMPTION", "right", "#FDC507", translate, service, "Consumption");
         this.unitpipe = unitpipe;
     }
 
@@ -97,7 +98,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         return new SvgSquarePosition(x, y);
     }
     protected getImagePath(): string {
-        return "icon/consumption.svg";
+        return environment.icons.COMMON.CONSUMPTION;
     }
 
     protected getValueText(value: number): string {

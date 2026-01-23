@@ -5,6 +5,10 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,9 +57,6 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -174,8 +175,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", Phase.ALL, Pwr.REACTIVE,
-				Relationship.EQUALS, 0d);
+		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", ALL, REACTIVE, EQUALS, 0d);
 
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
 			return new BatteryInverterConstraint[] { noReactivePower };
@@ -184,7 +184,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
 				noReactivePower, //
-				new BatteryInverterConstraint("Refu inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0d) //
+				new BatteryInverterConstraint("Refu inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
 		};
 	}
 
@@ -264,7 +264,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 						m(BatteryInverterRefuStore88k.ChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
 								SCALE_FACTOR_MINUS_2),
 						m(BatteryInverterRefuStore88k.ChannelId.HZ_SF, new SignedWordElement(SUNSPEC_103 + 17)), // 40087
-						m(BatteryInverterRefuStore88k.ChannelId.VA, new SignedWordElement(SUNSPEC_103 + 18), // 40088
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(SUNSPEC_103 + 18), // 40088
 								SCALE_FACTOR_1),
 						m(BatteryInverterRefuStore88k.ChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090

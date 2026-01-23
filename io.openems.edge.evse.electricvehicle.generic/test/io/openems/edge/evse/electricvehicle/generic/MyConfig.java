@@ -7,8 +7,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private int maxCurrentSinglePhase;
-		private int maxCurrentThreePhase;
+		private int minPowerSinglePhase;
+		private int minPowerThreePhase;
+		private int maxPowerSinglePhase;
+		private int maxPowerThreePhase;
 		private boolean canInterrupt;
 
 		private Builder() {
@@ -19,13 +21,23 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMaxCurrentSinglePhase(int maxCurrentSinglePhase) {
-			this.maxCurrentSinglePhase = maxCurrentSinglePhase;
+		public Builder setMaxPowerSinglePhase(int maxPowerSinglePhase) {
+			this.maxPowerSinglePhase = maxPowerSinglePhase;
 			return this;
 		}
 
-		public Builder setMaxCurrentThreePhase(int maxCurrentThreePhase) {
-			this.maxCurrentThreePhase = maxCurrentThreePhase;
+		public Builder setMaxPowerThreePhase(int maxPowerThreePhase) {
+			this.maxPowerThreePhase = maxPowerThreePhase;
+			return this;
+		}
+
+		public Builder setMinPowerSinglePhase(int minPowerSinglePhase) {
+			this.minPowerSinglePhase = minPowerSinglePhase;
+			return this;
+		}
+
+		public Builder setMinPowerThreePhase(int minPowerThreePhase) {
+			this.minPowerThreePhase = minPowerThreePhase;
 			return this;
 		}
 
@@ -56,17 +68,27 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public int maxCurrentSinglePhase() {
-		return this.builder.maxCurrentSinglePhase;
+	public int maxPowerSinglePhase() {
+		return this.builder.maxPowerSinglePhase;
 	}
 
 	@Override
-	public int maxCurrentThreePhase() {
-		return this.builder.maxCurrentThreePhase;
+	public int maxPowerThreePhase() {
+		return this.builder.maxPowerThreePhase;
 	}
 
 	@Override
 	public boolean canInterrupt() {
 		return this.builder.canInterrupt;
+	}
+
+	@Override
+	public int minPowerSinglePhase() {
+		return this.builder.minPowerSinglePhase;
+	}
+
+	@Override
+	public int minPowerThreePhase() {
+		return this.builder.minPowerThreePhase;
 	}
 }

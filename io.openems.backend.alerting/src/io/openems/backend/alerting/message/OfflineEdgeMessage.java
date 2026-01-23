@@ -3,6 +3,7 @@ package io.openems.backend.alerting.message;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -90,5 +91,18 @@ public class OfflineEdgeMessage extends Message {
 				.collect(Collectors.joining(","));
 		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
 				+ this.getNotifyStamp() + "}";
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof OfflineEdgeMessage other //
+				&& this.getEdgeId().equals(other.getEdgeId()) //
+				&& this.offlineAt.equals(other.offlineAt) //
+				&& this.recipients.equals(other.recipients);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.getEdgeId(), this.offlineAt, this.recipients);
 	}
 }

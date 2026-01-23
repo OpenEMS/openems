@@ -75,7 +75,13 @@ public abstract class AbstractWriteTask<//
 			}
 
 			try {
-				this.executeRequest(bridge, request);
+				var response = this.executeRequest(bridge, request);
+
+				if (response == null) {
+					// Bridge is stopped
+					return ExecuteState.NO_OP;
+				}
+
 				return ExecuteState.OK;
 
 			} catch (Exception e) {
@@ -86,7 +92,7 @@ public abstract class AbstractWriteTask<//
 
 		/**
 		 * Factory for a {@link ModbusRequest}.
-		 * 
+		 *
 		 * @return a new {@link ModbusRequest}
 		 * @throws OpenemsException on error
 		 */

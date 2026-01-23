@@ -1,14 +1,11 @@
-<oe-flat-widget button (click)="presentModal()" *ngIf="isInitialized"
-    [icon]="{color: 'normal', name: 'flame', size: 'medium'}" [title]="component.alias">
-
-    <oe-flat-widget-line *ngIf="isConnectionSuccessful, else noConnection" [name]="'General.state'|translate"
-        [value]="statusValue">
+@if (isInitialized) {
+  <oe-flat-widget button [modalComponent]="modalComponent" [icon]="{color: 'normal', name: 'oe-heatpump'}"
+    [title]="component.alias">
+    @if (isConnectionSuccessful) {
+      <oe-flat-widget-line [name]="'GENERAL.STATE'|translate" [value]="statusValue">
+      </oe-flat-widget-line>
+    }
+    <oe-flat-widget-line [name]="'GENERAL.MODE'| translate" [value]="mode | translate">
     </oe-flat-widget-line>
-
-    <ng-template #noConnection>
-        <oe-flat-widget-line [name]="'General.state'| translate" [icon]="{name: 'help-outline'}"></oe-flat-widget-line>
-    </ng-template>
-
-    <oe-flat-widget-line [name]="'General.mode'| translate" [value]="mode | translate">
-    </oe-flat-widget-line>
-</oe-flat-widget>
+  </oe-flat-widget>
+}

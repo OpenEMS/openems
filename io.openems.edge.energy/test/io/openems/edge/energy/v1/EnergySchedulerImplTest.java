@@ -15,13 +15,13 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.common.utils.ReflectionUtils.ReflectionException;
@@ -29,7 +29,6 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.EnergySchedulerImpl;
 import io.openems.edge.energy.MyConfig;
@@ -59,7 +58,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		var componentManager = new DummyComponentManager(clock);
 		var sum = new DummySum();

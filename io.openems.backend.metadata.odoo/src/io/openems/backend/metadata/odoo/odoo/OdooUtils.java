@@ -769,7 +769,7 @@ public class OdooUtils {
 
 				return ZonedDateTime.parse(dateTimeString, DATETIME_FORMATTER);
 			} catch (DateTimeParseException e) {
-				log.warn("'" + dateTimeString + "' is not of format " + SERVER_DATETIME_FORMAT, e);
+				log.warn("OdooUtils.DateTime: '{}' is not of format {}", dateTimeString, SERVER_DATETIME_FORMAT);
 				return null;
 			}
 		}

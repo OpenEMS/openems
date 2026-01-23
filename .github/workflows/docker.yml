@@ -19,23 +19,19 @@ jobs:
         include:
           - image: edge
             dockerfile: tools/docker/edge/Dockerfile
-            args: ""
           - image: ui-edge
-            dockerfile: tools/docker/ui/Dockerfile
-            args: "VERSION=openems,openems-edge-docker"
+            dockerfile: tools/docker/ui/Dockerfile.edge
           - image: backend
             dockerfile: tools/docker/backend/Dockerfile
-            args: ""
           - image: ui-backend
-            dockerfile: tools/docker/ui/Dockerfile
-            args: "VERSION=openems,openems-backend-docker"
+            dockerfile: tools/docker/ui/Dockerfile.backend
     permissions:
         packages: write
         contents: read
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -86,4 +82,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: ${{ matrix.args }}          

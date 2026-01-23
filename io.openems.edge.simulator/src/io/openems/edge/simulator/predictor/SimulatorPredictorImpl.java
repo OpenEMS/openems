@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.predictor;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 
@@ -60,8 +60,8 @@ public class SimulatorPredictorImpl extends AbstractPredictor
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses(),
-				config.logVerbosity());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
+				config.channelAddresses());
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
@@ -96,7 +96,7 @@ public class SimulatorPredictorImpl extends AbstractPredictor
 			}
 			values[i] = TypeUtils.averageInt(cache.poll(), cache.poll(), cache.poll());
 		}
-		var today = ZonedDateTime.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.DAYS);
+		var today = Instant.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.DAYS);
 		return Prediction.from(today, values);
 	}
 }

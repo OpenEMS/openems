@@ -1,0 +1,74 @@
+{
+  "EVSE_SINGLE": {
+    "SETTINGS": {
+      "ENERGY_LIMIT": "Energy limit"
+    },
+    "HOME": {
+      "MODE": {
+        "LABEL": "Base Mode",
+        "ZERO": "Off",
+        "MINIMUM": "Minimal",
+        "SURPLUS": "PV",
+        "FORCE": "Fast"
+      },
+      "STATE_MACHINE": {
+        "LABEL": "State",
+        "EV_NOT_CONNECTED": "EV not connected",
+        "EV_CONNECTED": "EV connected",
+        "CHARGING": "Charging",
+        "FINISHED_EV_STOP": "Charging finished by EV",
+        "FINISHED_ENERGY_SESSION_LIMIT": "Charging finished by energy limit",
+        "PHASE_SWITCH_TO_THREE_PHASE": "Switch to 3-phase",
+        "PHASE_SWITCH_TO_SINGLE_PHASE": "Switch to 1-phase",
+        "PHASE_SWITCH": "Manual Phaseswitch"
+      },
+      "POWER": "Power",
+      "ENERGY_SINCE_START": "Energy since the last charge start",
+      "VEHICLES": "App Center Vehicles",
+      "ACTUAL_MODE": {
+        "LABEL": "Actual Mode"
+      }
+    },
+    "SCHEDULE": {
+      "NEXT_TASKS": "Next tasks",
+      "EDIT": "Edit",
+      "ACCEPT": "Accept",
+      "DELETE": "Delete",
+      "EDIT_TASK": "Edit task",
+      "START": "Start",
+      "END": "End",
+      "DURATION": "Duration",
+      "MODE": "Charging mode",
+      "FREQUENCY": "Repeat",
+      "ADD": "Add",
+      "DAY": {
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
+      },
+      "FREQ": {
+        "DAILY": "Daily",
+        "WEEKLY": "Weekly",
+        "MONTHLY": "Monthly",
+        "YEARLY": "Yearly"
+      },
+      "MODE_SELECTION_PLACEHOLDER": "Select charging mode",
+      "VALIDATION_ERROR_1": "Please specify start time",
+      "VALIDATION_ERROR_2": "Please specify end time",
+      "VALIDATION_ERROR_3": "Please select charging mode",
+      "VALIDATION_ERROR_4": "Please specify the start time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
+      "VALIDATION_ERROR_5": "Please specify the end time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
+      "VALIDATION_ERROR_6": "End time must be after start time",
+      "ADD_SUCCESS": "Task successfully added",
+      "ADD_ERROR": "Task could not be added",
+      "EDIT_SUCCESS": "Task successfully adjusted",
+      "EDIT_ERROR": "Task could not be customized",
+      "DELETE_SUCCESS": "Task successfully deleted",
+      "DELETE_ERROR": "Task could not be deleted"
+    }
+  }
+}

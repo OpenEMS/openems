@@ -80,7 +80,7 @@ public class SystemUpdateHandler {
 						}
 						var stdout = response.scr.stdout();
 						if (stdout.length < 1) {
-							result.completeExceptionally(ex /* todo */);
+							result.completeExceptionally(new IOException("Could not read dpkg-query result."));
 							return;
 						}
 						var currentVersion = stdout[0];
@@ -145,7 +145,7 @@ public class SystemUpdateHandler {
 		this.executor.execute(() -> {
 			var response = GetSystemUpdateStateResponse.isRunning(request.getId(), this.updateState);
 			try {
-				this.executeUpdate(result);
+				this.executeUpdate();
 				this.updateState.setPercentCompleted(100);
 				this.updateState.addLog("# Finished successfully");
 				result.complete(response);
@@ -161,7 +161,7 @@ public class SystemUpdateHandler {
 		return result;
 	}
 
-	private void executeUpdate(CompletableFuture<JsonrpcResponseSuccess> result) throws Exception {
+	private void executeUpdate() throws Exception {
 		final var params = this.parent.oem.getSystemUpdateParams();
 		Path logFile = null;
 		Path scriptFile = null;

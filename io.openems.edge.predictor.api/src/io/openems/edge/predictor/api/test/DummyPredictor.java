@@ -1,6 +1,6 @@
 package io.openems.edge.predictor.api.test;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.stream.Stream;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -33,7 +33,7 @@ public class DummyPredictor extends AbstractPredictor implements Predictor {
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		super.activate(null, id, "", true, channelAddresses, LogVerbosity.NONE);
+		super.activate(null, id, "", true, LogVerbosity.NONE, channelAddresses);
 		this.clockProvider = clockProvider;
 		this.prediction = prediction;
 	}
@@ -48,6 +48,6 @@ public class DummyPredictor extends AbstractPredictor implements Predictor {
 	}
 
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
-		return Prediction.from(ZonedDateTime.now(this.clockProvider.getClock()), this.prediction);
+		return Prediction.from(Instant.now(this.clockProvider.getClock()), this.prediction);
 	}
 }

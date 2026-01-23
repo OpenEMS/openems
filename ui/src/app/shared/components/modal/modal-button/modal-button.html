@@ -1,13 +1,42 @@
-<div [formGroup]="formGroup" style="padding-top: 2%;">
-    <ion-segment [formControlName]="controlName">
-        <ng-container *ngFor="let button of buttons">
-            <ion-segment-button [value]="button.value" (click)="button.callback" [ngStyle]="button.style">
-                <ion-label style="color: var(--ion-color-text)">{{ button.name }}</ion-label>
-                <ion-icon style="width:40px;" *ngIf="button.icon" [name]="button.icon.name || 'power-outline'"
-                    [color]="formGroup.controls[controlName].value === button.value ? button.icon.color : 'normal'"
-                    [size]="button.icon.size || 'medium'">
-                </ion-icon>
-            </ion-segment-button>
-        </ng-container>
-    </ion-segment>
-</div>
+<form [formGroup]="formGroup" style="padding-top: 2%;">
+  @switch(control.type){
+    @case("SELECT"){
+      <ion-segment [formControlName]="controlName">
+        @for (button of buttons; track button) {
+          <ion-segment-button [value]="button.value" (click)="button.callback($event)" [ngStyle]="button.style">
+            <ion-label>
+              <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
+            </ion-label>
+            <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
+          </ion-segment-button>
+        }
+      </ion-segment>
+    }
+    @case("RADIO"){
+      <ion-radio-group [formControlName]="controlName">
+        @for (button of buttons; track button) {
+          <ion-row class="ion-justify-content-center ion-text-nowrap">
+            <ion-item lines="none" [disabled]="button.disabled" style="--inner-padding-end: 0;">
+              <ion-radio labelPlacement="end" [value]="button.value" (ionSelect)="button.callback">
+                <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
+                <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
+              </ion-radio>
+            </ion-item>
+          </ion-row>
+        }
+      </ion-radio-group>
+    }
+  }
+</form>
+
+<ng-template #contentIcon let-button>
+  @if (button.icon) {
+    <ion-icon [name]="button.icon.name"
+      [color]="formGroup.controls[controlName].value === button.value ? button.icon.color : 'medium'"
+      [size]="button.icon.size || 'small'"></ion-icon>
+  }
+</ng-template>
+
+<ng-template #contentLabel let-button>
+  {{button.name}}
+</ng-template>

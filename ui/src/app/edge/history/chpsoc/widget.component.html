@@ -1,17 +1,19 @@
-<ion-card *ngIf="component">
+@if (component) {
+  <ion-card>
     <ion-item lines="full" color="light">
-        <ion-icon slot="start" size="large" color="primary" name="flame-outline"></ion-icon>
-        <ion-label>{{ component.alias }}</ion-label>
+      <ion-icon slot="start" size="large" color="primary" name="flame-outline"></ion-icon>
+      <ion-label>{{ component.alias }}</ion-label>
     </ion-item>
     <ion-card-content>
-        <table class="full_width">
-            <tr>
-                <td style="width:65%" translate>
-                    Edge.History.activeDuration</td>
-                <td style="width:35%" class="align_right">
-                    {{ activeSecondsOverPeriod | formatSecondsToDuration }}
-                </td>
-            </tr>
-        </table>
+      <table class="full_width">
+        <tr>
+          <td style="width:65%" translate>
+          EDGE.HISTORY.ACTIVE_DURATION</td>
+          <td style="width:35%" class="align_right">
+            {{ activeSecondsOverPeriod | formatSecondsToDuration }}
+          </td>
+        </tr>
+      </table>
     </ion-card-content>
-</ion-card>
+  </ion-card>
+}

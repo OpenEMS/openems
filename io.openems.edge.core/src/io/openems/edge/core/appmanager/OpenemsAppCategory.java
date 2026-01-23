@@ -35,6 +35,11 @@ public enum OpenemsAppCategory {
 	EVCS_READ_ONLY("evcsReadOnly"),
 
 	/**
+	 * Electric vehicle.
+	 */
+	ELECTRIC_VEHCILE("electricVehicle"),
+
+	/**
 	 * Heat.
 	 */
 	HEAT("heat"),
@@ -80,9 +85,19 @@ public enum OpenemsAppCategory {
 	METER("meter"),
 
 	/**
+	 * Grid meter.
+	 */
+	GRID_METER("gridMeter"),
+
+	/**
 	 * Apis.
 	 */
 	API("api"),
+
+	/**
+	 * Prediction.
+	 */
+	PREDICTION("prediction"),
 
 	/**
 	 * Timedata..

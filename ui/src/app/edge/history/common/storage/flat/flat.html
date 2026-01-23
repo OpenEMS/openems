@@ -1,0 +1,9 @@
+@if (isInitialized) {
+  <oe-flat-widget [title]="'GENERAL.STORAGE_SYSTEM'| translate"
+    link="/device/{{edge.id}}/history/storagechart" [icon]="{name: 'oe-storage', color: 'success', size: 'large'}">
+    <oe-flat-widget-line [name]="'GENERAL.CHARGE' | translate" channelAddress="_sum/EssDcChargeEnergy"
+    [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.DISCHARGE' | translate" channelAddress="_sum/EssDcDischargeEnergy"
+    [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-flat-widget-line>
+  </oe-flat-widget>
+}

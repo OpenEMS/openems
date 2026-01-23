@@ -191,7 +191,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	/**
-	 * Gets the id of the map with the given default id
+	 * Gets the id of the map with the given default id.
 	 *
 	 * <p>
 	 * e. g. defaultId: "ess0" => the next available id with the base-name "ess" and
@@ -296,7 +296,8 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 			final JsonObject original //
 	) {
 		final var copy = original.deepCopy();
-		for (var prop : app.getProperties()) {
+		final var properties = app.getProperties();
+		for (var prop : properties) {
 			if (copy.has(prop.name)) {
 				continue;
 			}
@@ -304,6 +305,18 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				continue;
 			}
 			var value = prop.bidirectionalValue.apply(copy);
+			if (value == null) {
+				continue;
+			}
+			// add value to configuration
+			copy.add(prop.name, value);
+		}
+
+		for (var prop : properties) {
+			if (prop.valueMapper == null) {
+				continue;
+			}
+			var value = prop.valueMapper.apply(copy);
 			if (value == null) {
 				continue;
 			}

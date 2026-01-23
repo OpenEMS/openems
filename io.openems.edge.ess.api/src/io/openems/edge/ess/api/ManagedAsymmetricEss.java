@@ -1,12 +1,24 @@
 package io.openems.edge.ess.api;
 
+import static io.openems.common.channel.AccessMode.WRITE_ONLY;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.VOLT_AMPERE;
+import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -14,9 +26,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @ProviderType
 public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss {
@@ -33,10 +42,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetActivePowerL1Equals", Phase.L1, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL1Equals", L1, ACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed Active Power on L2.
 		 *
@@ -48,10 +56,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetActivePowerL2Equals", Phase.L2, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL2Equals", L2, ACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed Active Power on L3.
 		 *
@@ -63,10 +70,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetActivePowerL3Equals", Phase.L3, Pwr.ACTIVE, Relationship.EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL3Equals", L3, ACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L1.
 		 *
@@ -78,10 +84,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L1_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetReactivePowerL1Equals", Phase.L1, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.unit(VOLT_AMPERE_REACTIVE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL1Equals", L1, REACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L2.
 		 *
@@ -93,10 +98,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L2_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetReactivePowerL2Equals", Phase.L2, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.unit(VOLT_AMPERE_REACTIVE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2Equals", L2, REACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed Reactive Power on L3.
 		 *
@@ -108,10 +112,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(
-						new PowerConstraint("SetReactivePowerL2Equals", Phase.L3, Pwr.REACTIVE, Relationship.EQUALS))), //
+				.unit(VOLT_AMPERE_REACTIVE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2Equals", L3, REACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L1.
 		 *
@@ -123,10 +126,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL1LessOrEquals", Phase.L1, Pwr.ACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL1LessOrEquals", L1, ACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L2.
 		 *
@@ -138,10 +141,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL2LessOrEquals", Phase.L2, Pwr.ACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL2LessOrEquals", L2, ACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L3.
 		 *
@@ -153,10 +156,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL3LessOrEquals", Phase.L3, Pwr.ACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL3LessOrEquals", L3, ACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L1.
 		 *
@@ -168,10 +171,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL1GreaterOrEquals", Phase.L1, Pwr.ACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL1GreaterOrEquals", L1, ACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L2.
 		 *
@@ -183,10 +186,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL2GreaterOrEquals", Phase.L2, Pwr.ACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL2GreaterOrEquals", L2, ACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Active Power on L3.
 		 *
@@ -198,10 +201,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_ACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerL3GreaterOrEquals", Phase.L3, Pwr.ACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(WATT) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetActivePowerL3GreaterOrEquals", L3, ACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L1.
 		 *
@@ -213,10 +216,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL1LessOrEquals", Phase.L1, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL1LessOrEquals", L1, REACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L2.
 		 *
@@ -228,10 +231,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2LessOrEquals", Phase.L2, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL2LessOrEquals", L2, REACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed maximum Reactive Power on L3.
 		 *
@@ -243,10 +246,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3LessOrEquals", Phase.L3, Pwr.REACTIVE,
-						Relationship.LESS_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL3LessOrEquals", L3, REACTIVE, LESS_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L1.
 		 *
@@ -258,10 +261,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL1GreaterOrEquals", Phase.L1, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL1GreaterOrEquals", L1, REACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L2.
 		 *
@@ -273,10 +276,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2GreaterOrEquals", Phase.L2, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL2GreaterOrEquals", L2, REACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Sets a fixed minimum Reactive Power on L3.
 		 *
@@ -288,10 +291,10 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(Unit.VOLT_AMPERE) //
-				.accessMode(AccessMode.WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3GreaterOrEquals", Phase.L3, Pwr.REACTIVE,
-						Relationship.GREATER_OR_EQUALS))), //
+				.unit(VOLT_AMPERE) //
+				.accessMode(WRITE_ONLY) //
+				.onChannelSetNextWrite(
+						new PowerConstraint("SetReactivePowerL3GreaterOrEquals", L3, REACTIVE, GREATER_OR_EQUALS))), //
 		/**
 		 * Holds settings of Active Power L1 for debugging.
 		 *
@@ -305,9 +308,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DEBUG_SET_ACTIVE_POWER_L1(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)), //
 		/**
 		 * Holds settings of Reactive Power L1 for debugging.
 		 *
@@ -321,9 +324,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DEBUG_SET_REACTIVE_POWER_L1(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.persistencePriority(HIGH)), //
 		/**
 		 * Holds settings of Active Power L2 for debugging.
 		 *
@@ -337,9 +340,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DEBUG_SET_ACTIVE_POWER_L2(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)), //
 		/**
 		 * Holds settings of Reactive Power L2 for debugging.
 		 *
@@ -353,9 +356,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DEBUG_SET_REACTIVE_POWER_L2(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.persistencePriority(HIGH)), //
 		/**
 		 * Holds settings of Active Power L3 for debugging.
 		 *
@@ -369,9 +372,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)), //
+		DEBUG_SET_ACTIVE_POWER_L3(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.persistencePriority(HIGH)), //
 		/**
 		 * Holds settings of Reactive Power L3 for debugging.
 		 *
@@ -385,9 +388,9 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		DEBUG_SET_REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH)); //
+		DEBUG_SET_REACTIVE_POWER_L3(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.persistencePriority(HIGH)); //
 
 		private final Doc doc;
 

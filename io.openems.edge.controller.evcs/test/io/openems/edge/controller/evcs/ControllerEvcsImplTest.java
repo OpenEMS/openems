@@ -20,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
@@ -186,7 +186,7 @@ public class ControllerEvcsImplTest {
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input("evcs0", ACTIVE_POWER, 0) //
 						.input("evcs0", STATUS, Status.NOT_READY_FOR_CHARGING) //
-						.output("evcs0", SET_CHARGE_POWER_REQUEST, 0)) // f
+						.output("evcs0", SET_CHARGE_POWER_REQUEST, 6000)) //
 				.next(new TestCase() //
 						.input(ESS_DISCHARGE_POWER, -6000) //
 						.input("evcs0", IS_CLUSTERED, true) //
