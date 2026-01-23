@@ -115,6 +115,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	private final Map<String, Map<String, Role>> userRoles = new ConcurrentHashMap<>();
 
 	private DebugExecutor eventExecutor;
+	private DebugExecutor refreshTokenExecutor;
 	private final ConcurrentHashMap<String, Boolean> pendingEdgeConfigIds = new ConcurrentHashMap<>();
 
 	private DebugExecutor requestExecutor;
@@ -156,8 +157,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Event-%d").build()));
 		this.requestExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(
 				config.requestPoolSize(), Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
+		this.refreshTokenExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(1,
+				Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
 
-		this.odooHandler = new OdooHandler(this, this.edgeCache, config, this.requestExecutor);
+		this.odooHandler = new OdooHandler(this, this.edgeCache, config, this.refreshTokenExecutor,
+				this.requestExecutor);
 		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
@@ -174,6 +178,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.logInfo(this.log, "Deactivate");
 		shutdownAndAwaitTermination(this.eventExecutor, 5);
 		shutdownAndAwaitTermination(this.requestExecutor, 5);
+		shutdownAndAwaitTermination(this.refreshTokenExecutor, 5);
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
 		}
@@ -685,27 +690,29 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			final User user, //
 			final PaginationOptions paginationOptions //
 	) {
-		return this.requestExecutor.submit("getPageDevice", () -> {
-			// TODO should be async but fast enough for now
-			var result = this.odooHandler.getEdges(user, paginationOptions).get();
-			final var jsonArray = getAsJsonArray(result, "devices");
-			final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
-			OpenemsNamedException lastException = null;
-			for (var jElement : jsonArray) {
-				try {
-					final var metadata = this.convertToEdgeMetadata(user, jElement);
-					this.setRole(user, metadata.id(), metadata.role());
-					resultMetadata.add(metadata);
-				} catch (OpenemsNamedException e) {
-					this.logWarn(this.log,
-							"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
-					lastException = e;
+		return this.odooHandler.getEdges(user, paginationOptions).thenApply(result -> {
+			try {
+				var jsonArray = getAsJsonArray(result, "devices");
+				final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
+				OpenemsNamedException lastException = null;
+				for (var jElement : jsonArray) {
+					try {
+						final var metadata = this.convertToEdgeMetadata(user, jElement);
+						this.setRole(user, metadata.id(), metadata.role());
+						resultMetadata.add(metadata);
+					} catch (OpenemsNamedException e) {
+						this.logWarn(this.log,
+								"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
+						lastException = e;
+					}
 				}
+				if (resultMetadata.isEmpty() && lastException != null) {
+					throw lastException; // No results -> re-throw Exception
+				}
+				return resultMetadata;
+			} catch (OpenemsNamedException e) {
+				throw new CompletionException(e);
 			}
-			if (resultMetadata.isEmpty() && lastException != null) {
-				throw lastException; // No results -> re-throw Exception
-			}
-			return resultMetadata;
 		});
 	}
 

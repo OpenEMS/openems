@@ -82,12 +82,15 @@ public class OdooHandler {
 	private volatile CompletableFuture<String> adminLoginFuture = CompletableFuture
 			.failedFuture(new RuntimeException());
 
+	private final DebugExecutor refreshToken;
 	private final DebugExecutor executor;
 
-	public OdooHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, DebugExecutor executor) {
+	public OdooHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, DebugExecutor refreshToken,
+			DebugExecutor executor) {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
+		this.refreshToken = refreshToken;
 		this.executor = executor;
 	}
 
@@ -1591,8 +1594,7 @@ public class OdooHandler {
 	 * @return the edges
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<JsonObject> getEdges(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
+	public CompletableFuture<JsonObject> getEdges(User user, PaginationOptions paginationOptions) {
 		var request = buildJsonObject() //
 				.add("params", buildJsonObject() //
 						.addProperty("external_uid", user.getUserId()) //
@@ -1694,7 +1696,7 @@ public class OdooHandler {
 				return currentFuture;
 			}
 
-			return this.adminLoginFuture = this.executor.submit("authenticateAsAdmin", () -> {
+			return this.adminLoginFuture = this.refreshToken.submit("authenticateAsAdmin", () -> {
 				try {
 					return OdooUtils.loginAdmin(this.credentials);
 				} catch (Exception e) {
