@@ -182,9 +182,9 @@ public final class Utils {
 			// ...but discharging is required for peak-shaving to gridSoftLimit
 			return new ApplyMode(PEAK_SHAVING, peakShavingPower);
 
-		} else if (targetChargePower <= 0 && targetChargePower == pwrBalancing) {
+		} else if (targetChargePower <= 0 && targetChargePower >= pwrBalancing) {
 			// ...but actually charging
-			return new ApplyMode(BALANCING, targetChargePower);
+			return new ApplyMode(BALANCING, pwrBalancing);
 
 		} else {
 			return new ApplyMode(DELAY_DISCHARGE, targetChargePower);

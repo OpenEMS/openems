@@ -116,26 +116,14 @@ public class UtilsTest {
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
 						/* forceMode */ null));
 
-		// Never negative
-		assertEquals(new ApplyMode(DELAY_DISCHARGE, 0), //
+		// Actually Balancing
+		assertEquals(new ApplyMode(BALANCING, -1000), //
 				calculateAutomaticMode(//
 						/* sum */ new DummySum() //
-								.withGridActivePower(0), //
-						/* ess */ new DummyHybridEss("ess0") //
-								.withActivePower(-1500) //
-								.withDcDischargePower(-1000), //
-						/* maxChargePowerFromGrid */ 20000, //
-						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
-						/* forceMode */ null));
-
-		// AC-PV
-		assertEquals(new ApplyMode(DELAY_DISCHARGE, 0), //
-				calculateAutomaticMode(//
-						/* sum */ new DummySum() //
-								.withGridActivePower(0), //
+								.withGridActivePower(-1000), //
 						/* ess */ new DummyManagedSymmetricEss("ess0") //
-								.withActivePower(-1500), //
-						/* maxChargePowerFromGrid */ 20000, //
+								.withActivePower(0), //
+						/* maxChargePowerFromGrid */ 5000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
 						/* forceMode */ null));
 
