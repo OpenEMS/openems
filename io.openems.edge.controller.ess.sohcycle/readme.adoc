@@ -1,0 +1,64 @@
+= SOH Cycle Controller
+
+This controller is used to run a defined State-of-Health (SOH) test cycle on a battery storage system. It executes a reference cycle and a measurement cycle and evaluates the result in order to determine the SOH of the ESS.
+
+== Configuration
+
+Parameters which should be taken care of:
+
+`mode`::
+Select MANUAL_ON to activate the logic
+`ess_id`::
+Id of the device. ex, ess0
+`startTime`::
+Start time in format [YYYY-MM-DD HH:MM], activates the controller logic at required date and time
+`targetSoc`::
+Target state-of-charge for start/end of the SOH cycle (depending on implementation)
+`referenceDischargePower`::
+The (constant) power in Watt that is used for the *reference* discharging phase
+`referenceChargePower`::
+The (constant) power in Watt that is used for the *reference* charging phase
+`measurementDischargePower`::
+The (constant) power in Watt that is used for the *measurement* discharging phase
+`measurementChargePower`::
+The (constant) power in Watt that is used for the *measurement* charging phase
+`hybridEssMode`::
+Whether to apply the power on AC or DC side of a hybrid ESS
+`balancingTimeout`::
+Maximum time to wait for cell balancing before aborting with ERROR_ABORT
+`maxDeltaSoc`::
+Maximum allowed SOC deviation between phases; if violated, controller may abort with ERROR_ABORT
+
+== Monitoring
+
+Typical channels can be followed from Grafana or online monitoring (names may differ depending on configuration):
+
+`ctrlEssSohCycle0/StateMachine`::
+The current state of the SOH State-Machine: IDLE, PREPARE_REFERENCE, REFERENCE_CYCLE_CHARGING, REFERENCE_CYCLE_CHARGING_WAIT, REFERENCE_CYCLE_DISCHARGING, REFERENCE_CYCLE_DISCHARGING_WAIT, MEASUREMENT_CYCLE_CHARGING, MEASUREMENT_CYCLE_CHARGING_WAIT, CHECK_BALANCING, MEASUREMENT_CYCLE_DISCHARGING, MEASUREMENT_CYCLE_DISCHARGING_WAIT, EVALUATE_RESULT, DONE, ERROR_ABORT.
+`ctrlEssSohCycle0/ResultSoh`::
+Calculated SOH result of the last completed cycle in percent.
+`ctrlEssSohCycle0/IsRunning`::
+Indicates whether a SOH cycle is currently in progress.
+`ctrlEssSohCycle0/ErrorMessage`::
+Text description in case of ERROR_ABORT.
+
+== Algorithm logic
+
+The SOH Cycle Controller is implemented as a state machine:
+
+. `IDLE` – Waits for activation.
+. `PREPARE_REFERENCE` – Prepares the ESS (e.g. brings battery to target SOC).
+. `REFERENCE_CYCLE_CHARGING` – Charges using `referenceChargePower`.
+. `REFERENCE_CYCLE_CHARGING_WAIT` – Waits 30 minutes for stabilization.
+. `REFERENCE_CYCLE_DISCHARGING` – Discharges using `referenceDischargePower`.
+. `REFERENCE_CYCLE_DISCHARGING_WAIT` – Waits 30 minutes for stabilization.
+. `MEASUREMENT_CYCLE_CHARGING` – Charges using `measurementChargePower`.
+. `MEASUREMENT_CYCLE_CHARGING_WAIT` – Waits 30 minutes for stabilization.
+. `CHECK_BALANCING` – Checks cell balancing status.
+. `MEASUREMENT_CYCLE_DISCHARGING` – Discharges using `measurementDischargePower`.
+. `MEASUREMENT_CYCLE_DISCHARGING_WAIT` – Waits 30 minutes for stabilization.
+. `EVALUATE_RESULT` – Calculates SOH from collected data.
+. `DONE` – Cycle finished successfully.
+. `ERROR_ABORT` – Fatal error occurred; manual reset required.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.sohcycle[Source Code icon:github[]]

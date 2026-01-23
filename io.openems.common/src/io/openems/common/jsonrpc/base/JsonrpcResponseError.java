@@ -61,8 +61,8 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 		try {
 			openemsError = OpenemsError.fromCode(code);
 		} catch (OpenemsException e) {
-			JsonrpcResponseError.LOG
-					.warn("Falling back to Generic Error for JSON-RPC " + j.toString() + "; " + e.getMessage());
+			JsonrpcResponseError.LOG.warn("Falling back to Generic Error for JSON-RPC {}; {}", j.toString(),
+					e.getMessage());
 			openemsError = OpenemsError.GENERIC;
 		}
 		if (openemsError == OpenemsError.GENERIC) {
@@ -72,8 +72,6 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 		var params = JsonUtils.getAsJsonArray(error, "data");
 		return new JsonrpcResponseError(id, openemsError, params);
 	}
-
-	private final Logger log = LoggerFactory.getLogger(JsonrpcResponseError.class);
 
 	private final OpenemsError openemsError;
 	private final JsonArray params;
@@ -143,7 +141,8 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 		try {
 			return (Object[]) JsonUtils.getAsBestType(this.params);
 		} catch (OpenemsNamedException e) {
-			this.log.warn("Unable to convert JSON-RPC error params [" + this.params + "]: " + e.getMessage());
+			JsonrpcResponseError.LOG.warn("Unable to convert JSON-RPC error params [{}]: {}", this.params,
+					e.getMessage());
 			return new Object[0];
 		}
 	}

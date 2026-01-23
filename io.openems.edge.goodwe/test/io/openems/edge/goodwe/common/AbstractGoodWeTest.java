@@ -4,6 +4,7 @@ import static io.openems.edge.goodwe.common.AbstractGoodWe.mapGridMode;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class AbstractGoodWeTest {
 	@Test
 	public void testMapGridModeDefault() {
 		for (var goodWeType : Stream.of(GoodWeType.values()) //
-				.filter(t -> t != GoodWeType.FENECON_50K) //
+				.filter(t -> !Set.of(GoodWeType.FENECON_50K, GoodWeType.FENECON_100K).contains(t)) //
 				.toList()) {
 			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 0));
 			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1));
@@ -35,7 +36,7 @@ public class AbstractGoodWeTest {
 
 	@Test
 	public void testMapGridModeFenecon50k() {
-		for (var goodWeType : List.of(GoodWeType.FENECON_50K)) {
+		for (var goodWeType : List.of(GoodWeType.FENECON_50K, GoodWeType.FENECON_100K)) {
 			assertEquals(GridMode.OFF_GRID, mapGridMode(goodWeType, 0));
 			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1));
 			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 2));

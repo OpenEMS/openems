@@ -810,6 +810,7 @@ export namespace EdgeConfig {
             public id: string = "",
             public alias: string = "",
             public isEnabled: boolean = false,
+            public showProperties: boolean = false,
             public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {},
             public readonly channels?: { [channelId: string]: ComponentChannel },
@@ -819,7 +820,7 @@ export namespace EdgeConfig {
             if (component == null) {
                 return null;
             }
-            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.factoryId, component.properties, component.channels ?? {});
+            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.showProperties ?? false, component.factoryId, component.properties, component.channels ?? {});
         }
 
         /* Safely gets a property from a component, if it exists, else returns null.

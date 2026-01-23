@@ -286,7 +286,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 5000, //
 				/* gridMaxSell */ 10000);
-		var actualGridMaxBuy = m.setGridMaxBuy(1000 /* maxChargePowerFromGrid */);
+		var actualGridMaxBuy = m.setGridMaxBuy(1000 /* gridBuySoftLimit */);
 		assertEquals(2000, actualGridMaxBuy);
 
 		applyChargeGrid(m, 2500);

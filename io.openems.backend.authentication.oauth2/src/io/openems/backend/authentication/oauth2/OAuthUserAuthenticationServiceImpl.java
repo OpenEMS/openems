@@ -70,6 +70,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		AuthUserAuthorizationCodeFlowService, AuthUserPasswordAuthenticationService, DebugLoggable {
 
 	private static final String ID = "auth0";
+	private static final String SCOPES = "openid";
 
 	private final Logger log = LoggerFactory.getLogger(OAuthUserAuthenticationServiceImpl.class);
 
@@ -79,7 +80,6 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 	private final URI loginUrl;
 	private final URI tokenUrl;
 	private final URI certsUrl;
-	private final String scopes = "openid";
 
 	private final JWTVerifier verifier;
 
@@ -112,6 +112,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void unbindOAuthOemConfig(OAuthOemService service) {
 		final var config = service.getConfig();
 		if (this.oemsConfigs.remove(config.oem()) == null) {
@@ -230,7 +231,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 					.withQueryParam("state", identifier) //
 					.withQueryParam("code_challenge", codeChallenge) //
 					.withQueryParam("code_challenge_method", "S256") //
-					.withQueryParam("scope", this.scopes) //
+					.withQueryParam("scope", OAuthUserAuthenticationServiceImpl.SCOPES) //
 					.withQueryParam("redirect_uri", rUri) //
 					.withQueryParam("response_type", "code") //
 					.toEncodedString();
@@ -360,7 +361,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		queryParams.put("client_id", config.clientId());
 		queryParams.put("client_secret", config.clientSecret());
 		queryParams.put("redirect_uri", redirectUri);
-		queryParams.put("scope", this.scopes);
+		queryParams.put("scope", OAuthUserAuthenticationServiceImpl.SCOPES);
 		switch (grant) {
 		case Grant.AuthorizationCodeGrant acg -> {
 			queryParams.put("grant_type", "authorization_code");

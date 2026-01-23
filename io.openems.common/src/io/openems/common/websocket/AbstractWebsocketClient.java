@@ -216,7 +216,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 					.append("OnInternalError for ").append(wsDataString).append(". ") //
 					.append(t.getClass()).append(": ").append(t.getMessage()) //
 					.toString());
-			t.printStackTrace();
+			this.log.error(t.getMessage(), t);
 		};
 	}
 
