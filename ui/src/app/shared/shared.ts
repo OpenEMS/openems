@@ -14,7 +14,10 @@ import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { addIcons } from "ionicons";
 import { environment } from "src/environments";
-import { Edge } from "./components/edge/edge";
+import { Edge, EdgeSettings } from "./components/edge/edge";
+import { EdgeConfig } from "./components/edge/edgeconfig";
+import { MarketingAnnualReviewButtonComponent } from "./components/edge/popover/annual-review/button/button";
+import { ButtonLabel } from "./components/modal/modal-button/modal-button";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
@@ -41,6 +44,16 @@ export class Permission {
 }
 
 export class EdgePermission {
+
+    /**
+     * Checks if the edge has phase switching ability.
+     *
+     * @param edge The edge to check
+     * @returns True if the edge supports switching ability, false otherwise
+     */
+    public static hasPhaseSwitchingAbility(edge: Edge, component: EdgeConfig.Component): boolean {
+        return EdgePermission.hasSwitchArchitecture(edge) && StringUtils.isInArr(component.factoryId, ["Evse.ChargePoint.Keba.Modbus", /* TODO: remove, implemented for fems888 */"Evse.ChargePoint.Keba.UDP"]);
+    }
 
     /**
      * Checks if the edge has the switchArchitecture jsonRpc logic.
