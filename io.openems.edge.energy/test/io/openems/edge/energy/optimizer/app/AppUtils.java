@@ -29,11 +29,13 @@ import io.openems.common.jsonrpc.serialization.JsonElementPathActual.JsonElement
 import io.openems.common.jsonrpc.serialization.JsonObjectPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
@@ -82,10 +84,6 @@ public final class AppUtils {
 	 */
 	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
-			final var zone = ZoneId.of(json.getString("zone"));
-			final var startTime = json.getZonedDateTime("startTime").withZoneSameInstant(zone);
-			final var clock = new TimeLeapClock(startTime.toInstant(), zone);
-			final var componentManager = new DummyComponentManager(clock);
 			final var grid = json.getObject("grid", Grid.serializer());
 			final var meta = new DummyMeta() //
 					.withGridBuySoftLimit(grid.gridBuySoftLimit());
@@ -99,11 +97,13 @@ public final class AppUtils {
 			// Periods: Predictions and Prices
 			final TimeOfUseTariff timeOfUseTariff;
 			final PredictorManager predictorManager;
+			final ComponentManager componentManager;
 			try {
 				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
 				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
-				final var timeParser = new TimeParser(startTime);
+				final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
+						ZoneId.of(json.getString("zone")));
 				json.getJsonArray("periods").forEach(e -> {
 					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
 					var time = timeParser.apply(p);
@@ -116,6 +116,10 @@ public final class AppUtils {
 							.ifPresent(consumption -> consumptions.put(time,
 									PeriodDuration.QUARTER.convertEnergyToPower(consumption)));
 				});
+
+				final var clock = new TimeLeapClock(timeParser.getFirst());
+				componentManager = new DummyComponentManager(clock);
+
 				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
 				predictorManager = new DummyPredictorManager(//
 						new DummyPredictor("predictor0", componentManager, //
@@ -139,7 +143,7 @@ public final class AppUtils {
 					.map(EnergySchedulable::getEnergyScheduleHandler) //
 					.collect(toImmutableList());
 
-			return GlobalOptimizationContext.create() //
+			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
 					.setComponentManager(componentManager) //
 					.setMeta(meta) //
 					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
@@ -174,6 +178,9 @@ public final class AppUtils {
 				.map(l -> applyPatternOrError(PERIOD_PATTERN, l)) //
 				.map(m -> buildJsonObject() //
 						.addProperty("time", m.group("time")) //
+						.addProperty("gridBuySoftLimit", m.group("gridBuySoftLimit").equals("-") //
+								? null //
+								: Integer.parseInt(m.group("gridBuySoftLimit"))) //
 						.addProperty("price", m.group("price").equals("-") //
 								? null //
 								: Double.parseDouble(m.group("price"))) //
@@ -189,13 +196,16 @@ public final class AppUtils {
 
 	private static final Pattern PERIOD_PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
+			+ "\\s+(?<gridBuySoftLimit>-?\\d*)" //
 			+ "\\s+(?<price>-?\\d*)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
 
-	protected static JsonElement period(String time, double production, double consumption, double price) {
+	protected static JsonElement period(String time, Integer gridBuySoftLimit, double production, double consumption,
+			double price) {
 		return buildJsonObject() //
 				.addProperty("time", time) //
+				.addProperty("gridBuySoftLimit", gridBuySoftLimit) //
 				.addProperty("production", production) //
 				.addProperty("consumption", consumption) //
 				.addProperty("price", price) //
@@ -206,21 +216,29 @@ public final class AppUtils {
 
 		private final ZonedDateTime start;
 
+		private ZonedDateTime first = null;
 		private ZonedDateTime last = null;
 
-		public TimeParser(ZonedDateTime start) {
-			this.start = start;
+		public TimeParser(ZonedDateTime start, ZoneId zone) {
+			this.start = start.withZoneSameInstant(zone);
+		}
+
+		public ZonedDateTime getFirst() {
+			return this.first;
 		}
 
 		@Override
 		public synchronized Instant apply(JsonObjectPath p) {
 			var time = p.getLocalTime("time");
 			var base = this.last == null //
-					? this.start //
+					? this.start.with(time) //
 					: this.last;
 			var result = base.with(time);
 			if (result.isBefore(base)) {
 				result = result.plusDays(1);
+			}
+			if (this.first == null) {
+				this.first = result;
 			}
 			this.last = result;
 			return result.toInstant();

@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.joining;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -35,7 +34,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ComponentManager;
@@ -292,32 +290,32 @@ public record GlobalOptimizationContext(//
 			/**
 			 * Creates an instance of {@link GlobalOptimizationContext.Period.Quarter}.
 			 * 
-			 * @param i             the index
-			 * @param time          the {@link ZonedDateTime}
-			 * @param gridSoftLimit the {@link GridBuySoftLimit}
-			 * @param production    the production prediction
-			 * @param consumption   the consumption prediction
-			 * @param price         the price
+			 * @param i                the index
+			 * @param time             the {@link ZonedDateTime}
+			 * @param gridBuySoftLimit the {@link GridBuySoftLimit}
+			 * @param production       the production prediction
+			 * @param consumption      the consumption prediction
+			 * @param price            the price
 			 * @return {@link GlobalOptimizationContext.Period.Quarter}
 			 */
 			public static Period.Quarter from(
 					// From Period
-					int i, ZonedDateTime time, Integer gridSoftLimit,
+					int i, ZonedDateTime time, Integer gridBuySoftLimit,
 					// From Period.WithPrediction
 					Integer production, Integer consumption, //
 					// From Period.WithPrice
 					Double price //
 			) {
 				if (consumption != null && price != null) {
-					return new Period.Quarter.Complete(i, time, gridSoftLimit, production, consumption, price);
+					return new Period.Quarter.Complete(i, time, gridBuySoftLimit, production, consumption, price);
 				} else if (price != null) {
-					return new Period.Quarter.WithPrice(i, time, gridSoftLimit, price);
+					return new Period.Quarter.WithPrice(i, time, gridBuySoftLimit, price);
 				} else if (consumption != null) {
-					return new Period.Quarter.WithPrediction(i, time, gridSoftLimit, //
+					return new Period.Quarter.WithPrediction(i, time, gridBuySoftLimit, //
 							Optional.ofNullable(production).orElse(0), // default to zero
 							consumption);
 				} else {
-					return new Period.Quarter.Empty(i, time, gridSoftLimit);
+					return new Period.Quarter.Empty(i, time, gridBuySoftLimit);
 				}
 			}
 
@@ -364,19 +362,19 @@ public record GlobalOptimizationContext(//
 			/**
 			 * Creates an instance of {@link GlobalOptimizationContext.Period.Hour}.
 			 * 
-			 * @param i              the index
-			 * @param time           the {@link ZonedDateTime}
-			 * @param gridSoftLimit  the {@link GridBuySoftLimit} in [Wh]
-			 * @param production     the production prediction in [Wh]
-			 * @param consumption    the consumption prediction in [Wh]
-			 * @param price          the price
-			 * @param quarterPeriods the list of
-			 *                       {@link GlobalOptimizationContext.Period.Quarter}
+			 * @param i                the index
+			 * @param time             the {@link ZonedDateTime}
+			 * @param gridBuySoftLimit the {@link GridBuySoftLimit} in [Wh]
+			 * @param production       the production prediction in [Wh]
+			 * @param consumption      the consumption prediction in [Wh]
+			 * @param price            the price
+			 * @param quarterPeriods   the list of
+			 *                         {@link GlobalOptimizationContext.Period.Quarter}
 			 * @return {@link GlobalOptimizationContext.Period.Quarter}
 			 */
 			public static Hour from(
 					// From Period
-					int i, ZonedDateTime time, Integer gridSoftLimit, //
+					int i, ZonedDateTime time, Integer gridBuySoftLimit, //
 					// From Period.WithPrediction
 					Integer production, Integer consumption, //
 					// From Period.WithPrice
@@ -385,16 +383,16 @@ public record GlobalOptimizationContext(//
 					ImmutableList<Period.Quarter> quarterPeriods //
 			) {
 				if (consumption != null && price != null) {
-					return new Period.Hour.Complete(i, time, gridSoftLimit, production, consumption, price,
+					return new Period.Hour.Complete(i, time, gridBuySoftLimit, production, consumption, price,
 							quarterPeriods);
 				} else if (price != null) {
-					return new Period.Hour.WithPrice(i, time, gridSoftLimit, price, quarterPeriods);
+					return new Period.Hour.WithPrice(i, time, gridBuySoftLimit, price, quarterPeriods);
 				} else if (consumption != null) {
-					return new Period.Hour.WithPrediction(i, time, gridSoftLimit, //
+					return new Period.Hour.WithPrediction(i, time, gridBuySoftLimit, //
 							Optional.ofNullable(production).orElse(0), // default to zero
 							consumption, quarterPeriods);
 				} else {
-					return new Period.Hour.Empty(i, time, gridSoftLimit, quarterPeriods);
+					return new Period.Hour.Empty(i, time, gridBuySoftLimit, quarterPeriods);
 				}
 			}
 
@@ -466,6 +464,13 @@ public record GlobalOptimizationContext(//
 
 		protected Builder(LogVerbosity logVerbosity) {
 			this.logVerbosity = logVerbosity;
+		}
+
+		private void logInfo(String message) {
+			switch (this.logVerbosity) {
+			case NONE, DEBUG_LOG -> doNothing();
+			case TRACE -> this.log.info("OPTIMIZER " + message);
+			}
 		}
 
 		private void logWarn(String message) {
@@ -598,16 +603,16 @@ public record GlobalOptimizationContext(//
 
 			// Prediction values
 			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
-			this.log.info("OPTIMIZER GlobalOptimizationContext CONSUMPTIONS: " + consumptions.toString());
+			this.logInfo("OPTIMIZER GlobalOptimizationContext CONSUMPTIONS: " + consumptions.toString());
 			final var hasPredictions = !consumptions.isEmpty();
 			final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
-			this.log.info("OPTIMIZER GlobalOptimizationContext PRODUCTIONS: " + productions.toString());
+			this.logInfo("OPTIMIZER GlobalOptimizationContext PRODUCTIONS: " + productions.toString());
 
 			// Prices contains the price values and the time it is retrieved.
 			final var prices = this.timeOfUseTariff == null //
 					? TimeOfUsePrices.EMPTY_PRICES //
 					: this.timeOfUseTariff.getPrices();
-			this.log.info("OPTIMIZER GlobalOptimizationContext PRICES: " + prices.toString());
+			this.logInfo("OPTIMIZER GlobalOptimizationContext PRICES: " + prices.toString());
 			final boolean hasPrices = !prices.isEmpty();
 
 			final var endTime = Optional //
@@ -619,64 +624,11 @@ public record GlobalOptimizationContext(//
 					.orElse(startTime.plusMinutes(SCHEDULE_PERIODS_ON_EMPTY * 15));
 
 			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */, this.meta.getGridBuySoftLimit());
-			final var gridSoftLimits = grid.gridBuySoftLimit() //
+			final var gridBuySoftLimits = grid.gridBuySoftLimit() //
 					.getOneTasksBetween(startTime, endTime.plusMinutes(15));
 
 			// Helpers
-			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
-				final var time = startTime.plusMinutes(i * 15);
-				final var gridSoftLimit = Optional.ofNullable(gridSoftLimits.getPayloadAt(time)) //
-						.map(GridBuySoftLimit::power) //
-						.map(QUARTER::convertPowerToEnergy) //
-						.orElse(null);
-				final var production = QUARTER.convertPowerToEnergy(//
-						productions.getAtOrElse(time, 0 /* defaults to zero */));
-				final var consumption = Optional.ofNullable(consumptions.getAt(time)) //
-						.map(QUARTER::convertPowerToEnergy) //
-						.orElse(null);
-				final var price = prices.getAt(time);
-				return Period.Quarter.from(i, time, gridSoftLimit, production, consumption, price);
-			};
-
-			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
-				final var i = periodLengthHourFromIndex + j * 4;
-				final var rangeStart = startTime.plusMinutes(i * 15);
-				final var rangeEnd = rangeStart.plusMinutes(60);
-				final var gridSoftLimitOpt = gridSoftLimits.getBetween(rangeStart, rangeStart) //
-						.map(OneTask::payload) //
-						.map(GridBuySoftLimit::power) //
-						.map(HOUR::convertPowerToEnergy) //
-						.mapToDouble(Integer::doubleValue) //
-						.average();
-				final var gridSoftLimit = gridSoftLimitOpt.isEmpty() //
-						? null //
-						: (int) Math.round(gridSoftLimitOpt.getAsDouble());
-				final var production = productions //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(HOUR::convertPowerToEnergy) //
-						.orElse(null);
-				final var consumption = consumptions //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.reduce(Integer::sum) //
-						.map(HOUR::convertPowerToEnergy) //
-						.orElse(null);
-				final var priceOpt = prices //
-						.getBetweenInclusive(rangeStart, rangeEnd) //
-						.mapToDouble(Double::doubleValue) //
-						.average();
-				final var price = priceOpt.isEmpty() //
-						? null //
-						: priceOpt.getAsDouble();
-				final var quarterPeriods = IntStream.range(i, i + 4) //
-						.mapToObj(toQuarterPeriod) //
-						.filter(Objects::nonNull) //
-						.collect(toImmutableList());
-				return Period.Hour.from(periodLengthHourFromIndex + j, rangeStart, gridSoftLimit, //
-						production, consumption, price, quarterPeriods);
-			};
-
-			Predicate<? super Period> takeWhile = p -> {
+			final Predicate<? super Period> takeWhile = p -> {
 				return switch (p) {
 				case null -> false;
 				case Period.Complete c -> true;
@@ -687,6 +639,59 @@ public record GlobalOptimizationContext(//
 				};
 			};
 
+			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
+				final var time = startTime.plusMinutes(i * 15);
+				final var gridBuySoftLimit = Optional.ofNullable(gridBuySoftLimits.getPayloadAt(time)) //
+						.map(GridBuySoftLimit::power) //
+						.map(QUARTER::convertPowerToEnergy) //
+						.orElse(null);
+				final var production = QUARTER.convertPowerToEnergy(//
+						productions.getAtOrElse(time, 0 /* defaults to zero */));
+				final var consumption = Optional.ofNullable(consumptions.getAt(time)) //
+						.map(QUARTER::convertPowerToEnergy) //
+						.orElse(null);
+				final var price = prices.getAt(time);
+				return Period.Quarter.from(i, time, gridBuySoftLimit, production, consumption, price);
+			};
+
+			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
+				final var i = periodLengthHourFromIndex + j * 4;
+				final var quarterPeriods = IntStream.range(i, i + 4) //
+						.mapToObj(toQuarterPeriod) //
+						.takeWhile(takeWhile) //
+						.collect(toImmutableList());
+				if (quarterPeriods.isEmpty()) {
+					return null;
+				}
+				final var time = quarterPeriods.getFirst().time();
+				if (time.isAfter(endTime)) {
+					return null;
+				}
+				final var gridBuySoftLimit = quarterPeriods.stream() //
+						.map(Period::gridBuySoftLimit) //
+						.reduce(Integer::sum).orElse(null);
+				final var production = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::production) //
+						.reduce(Integer::sum).orElse(null);
+				final var consumption = quarterPeriods.stream() //
+						.filter(Period.WithPrediction.class::isInstance) //
+						.map(Period.WithPrediction.class::cast) //
+						.map(Period.WithPrediction::consumption) //
+						.reduce(Integer::sum).orElse(null);
+				final var priceOpt = quarterPeriods.stream() //
+						.filter(Period.WithPrice.class::isInstance) //
+						.map(Period.WithPrice.class::cast) //
+						.mapToDouble(Period.WithPrice::price) //
+						.average();
+				final var price = priceOpt.isEmpty() //
+						? null //
+						: priceOpt.getAsDouble();
+				return Period.Hour.from(periodLengthHourFromIndex + j, time, gridBuySoftLimit, //
+						production, consumption, price, quarterPeriods);
+			};
+
 			var periods = Stream.concat(//
 					IntStream.range(0, periodLengthHourFromIndex) //
 							.<Period>mapToObj(toQuarterPeriod) //
@@ -694,7 +699,6 @@ public record GlobalOptimizationContext(//
 					IntStream.iterate(0, i -> i + 1) //
 							.<Period>mapToObj(toHourPeriod) //
 							.takeWhile(takeWhile)) //
-					.filter(Objects::nonNull) //
 					.collect(toImmutableList());
 
 			if (periods.isEmpty()) {
@@ -720,7 +724,7 @@ public record GlobalOptimizationContext(//
 
 			final var eshsWithDifferentModes = filterEshsWithDifferentModes(this.eshs) //
 					.collect(toImmutableList());
-			this.log.info("OPTIMIZER GlobalOptimizationContext: " //
+			this.logInfo("OPTIMIZER GlobalOptimizationContext: " //
 					+ "startTime=" + startTime + "; " //
 					+ "consumptions=" + consumptions.asArray().length + "; " //
 					+ "productions=" + productions.asArray().length + "; " //

@@ -120,7 +120,7 @@ public class Simulator {
 		try {
 			ef = EnergyFlow.Model.from(gsc, period);
 		} catch (OpenemsException e) {
-			LOG.error("Error while simulating period [" + periodIndex + "]", e);
+			LOG.error("Error while simulating period [" + periodIndex + "]: " + e.getMessage());
 			fitness.addHardConstraintViolation();
 			return;
 		}

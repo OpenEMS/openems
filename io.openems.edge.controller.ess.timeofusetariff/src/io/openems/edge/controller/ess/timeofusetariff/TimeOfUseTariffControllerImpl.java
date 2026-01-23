@@ -176,7 +176,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		if (version == null) {
 			return;
 		}
-
 		// NOTE gridSoftLimit is nullable to handle deprecation of Config
 		// maxChargePowerFromGrid
 		var gridSoftLimit = Optional.ofNullable(this.meta.getGridBuySoftLimit().getActiveOneTask()) //
