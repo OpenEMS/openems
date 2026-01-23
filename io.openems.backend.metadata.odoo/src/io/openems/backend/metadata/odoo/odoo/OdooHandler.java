@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,6 +49,7 @@ import io.openems.backend.common.metadata.Metadata.SetupProtocolCoreInfo;
 import io.openems.backend.common.metadata.Metadata.SetupProtocolItem;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.DebugExecutor;
 import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.AlertingSetting;
@@ -76,10 +79,16 @@ public class OdooHandler {
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	public OdooHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config) {
+	private CompletableFuture<String> adminLoginFuture = CompletableFuture.failedFuture(new RuntimeException());
+	private final Semaphore semaphoreForSingleAdminSessionUpdate = new Semaphore(1);
+
+	private final DebugExecutor executor;
+
+	public OdooHandler(MetadataOdoo parent, EdgeCache edgeCache, Config config, DebugExecutor executor) {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
+		this.executor = executor;
 	}
 
 	/**
@@ -225,13 +234,18 @@ public class OdooHandler {
 	 * @return the {@link JsonObject} received from /openems_backend/info.
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject authenticateSession(String externalUserId) throws OpenemsNamedException {
-		return getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/info",
-				JsonUtils.buildJsonObject() //
-						.add("params", JsonUtils.buildJsonObject() //
-								.addProperty("external_uid", externalUserId) //
-								.build())
-						.build()).result);
+	public CompletableFuture<JsonObject> authenticateSession(String externalUserId) {
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("authenticateSession", () -> {
+				return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info",
+						"session_id=" + session, buildJsonObject() //
+								.add("params", buildJsonObject() //
+										.addProperty("external_uid", externalUserId) //
+										.build())
+								.build()).result
+						.getAsJsonObject();
+			});
+		});
 	}
 
 	/**
@@ -1577,7 +1591,8 @@ public class OdooHandler {
 	 * @return the edges
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject getEdges(User user, PaginationOptions paginationOptions) throws OpenemsNamedException {
+	public CompletableFuture<JsonObject> getEdges(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException {
 		var request = buildJsonObject() //
 				.add("params", buildJsonObject() //
 						.addProperty("external_uid", user.getUserId()) //
@@ -1589,8 +1604,17 @@ public class OdooHandler {
 						.build()) //
 				.build();
 
-		return getAsJsonObject(
-				OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/get_edges", request).result);
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("getEdges", () -> {
+				try {
+					return getAsJsonObject(
+							OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edges",
+									"session_id=" + session, request).result);
+				} catch (OpenemsNamedException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
 	}
 
 	/**
@@ -1601,7 +1625,7 @@ public class OdooHandler {
 	 * @return the edge with the role of the user
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject getEdgeWithRole(User user, String edgeId) throws OpenemsNamedException {
+	public CompletableFuture<JsonObject> getEdgeWithRole(User user, String edgeId) {
 		var request = buildJsonObject() //
 				.add("params", buildJsonObject() //
 						.addProperty("external_uid", user.getUserId()) //
@@ -1609,8 +1633,17 @@ public class OdooHandler {
 						.build()) //
 				.build();
 
-		return getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
-				"/openems_backend/get_edge_with_role", request).result);
+		return this.executeAdminRequest(session -> {
+			return this.executor.submit("getEdgeWithRole", () -> {
+				try {
+					return getAsJsonObject(OdooUtils.sendJsonrpcRequest(
+							this.credentials.getUrl() + "/openems_backend/get_edge_with_role", "session_id=" + session,
+							request).result);
+				} catch (OpenemsNamedException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
 	}
 
 	/**
@@ -1647,6 +1680,39 @@ public class OdooHandler {
 						.addProperty("userId", user.getId()) //
 						.build()) //
 				.build());
+	}
+
+	private synchronized CompletableFuture<String> authenticateAsAdmin() {
+		if (!this.semaphoreForSingleAdminSessionUpdate.tryAcquire()) {
+			return this.adminLoginFuture;
+		}
+
+		this.adminLoginFuture = this.executor.submit("authenticateAsAdmin", () -> {
+			return OdooUtils.loginAdmin(this.credentials);
+		});
+
+		this.adminLoginFuture.whenComplete((s, throwable) -> {
+			this.semaphoreForSingleAdminSessionUpdate.release();
+		});
+
+		return this.adminLoginFuture;
+	}
+
+	private <T> CompletableFuture<T> executeAdminRequest(Function<String, CompletableFuture<T>> request) {
+		return this.adminLoginFuture.thenCompose(token -> {
+			return request.apply(token).exceptionallyCompose(throwable -> {
+
+				// retry once if authentication failed
+				if (throwable instanceof SessionExpiredException
+						|| throwable.getCause() instanceof SessionExpiredException) {
+					return this.authenticateAsAdmin().thenCompose(request);
+				}
+
+				return CompletableFuture.failedFuture(throwable);
+			});
+		}).exceptionallyCompose(throwable -> {
+			return this.authenticateAsAdmin().thenCompose(request);
+		});
 	}
 
 }

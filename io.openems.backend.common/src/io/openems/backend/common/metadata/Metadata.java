@@ -407,7 +407,7 @@ public interface Metadata {
 	 * @return the role to the edge
 	 * @throws OpenemsNamedException on error
 	 */
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException;
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId);
 
 	/**
 	 * Gets the role for a edge of the current user.

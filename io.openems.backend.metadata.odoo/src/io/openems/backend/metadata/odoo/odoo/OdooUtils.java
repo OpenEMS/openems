@@ -157,7 +157,7 @@ public class OdooUtils {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				case "odoo.http.SessionExpiredException":
-					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+					throw new SessionExpiredException();
 
 				default:
 					// for OpenemsExceptions from Odoo only throw OpenemsException with message for
@@ -237,6 +237,10 @@ public class OdooUtils {
 		});
 	}
 
+	protected static String loginAdmin(Credentials credentials) throws OpenemsNamedException {
+		return OdooUtils.login(credentials, "admin", credentials.getPassword());
+	}
+
 	/**
 	 * Authenticates a user using Username and Password.
 	 *
@@ -246,8 +250,7 @@ public class OdooUtils {
 	 * @return the session_id
 	 * @throws OpenemsNamedException on login error
 	 */
-	protected static String login(Credentials credentials, String username, String password)
-			throws OpenemsNamedException {
+	public static String login(Credentials credentials, String username, String password) throws OpenemsNamedException {
 		if (username.isBlank() || password.isBlank()) {
 			// Do not even send request if username or password are blank
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
