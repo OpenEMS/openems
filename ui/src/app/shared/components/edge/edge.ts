@@ -212,7 +212,7 @@ export class Edge {
 
         const channelsToSubscribe = channels.map(channel => channel.toString());
 
-        if (ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
+        if (previousChannels.length > 0 && ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
             return;
         }
 
