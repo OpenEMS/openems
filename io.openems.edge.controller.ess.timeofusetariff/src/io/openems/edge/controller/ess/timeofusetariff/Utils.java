@@ -167,7 +167,6 @@ public final class Utils {
 	 */
 	private static ApplyMode calculateDelayDischarge(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
 			int pwrBalancing, Integer gridSoftLimit) {
-
 		var targetChargePower = switch (ess) {
 		case HybridEss e ->
 			// Limit discharge to DC-PV power

@@ -159,6 +159,11 @@ public class Simulator {
 
 		final EnergyFlow energyFlow = ef.solve();
 
+		// Evaluate Grid-Buy Soft-Limit
+		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
+			fitness.addHardConstraintViolation();
+		}
+
 		if (period instanceof Period.WithPrice periodWithPrice) {
 			final var price = periodWithPrice.price();
 

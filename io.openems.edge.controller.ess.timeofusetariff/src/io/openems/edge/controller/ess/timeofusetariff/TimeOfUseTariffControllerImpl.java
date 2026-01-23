@@ -12,6 +12,7 @@ import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -27,12 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
@@ -77,6 +81,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private Sum sum;
@@ -170,6 +177,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			return;
 		}
 
+		// NOTE gridSoftLimit is nullable to handle deprecation of Config
+		// maxChargePowerFromGrid
+		var gridSoftLimit = Optional.ofNullable(this.meta.getGridBuySoftLimit().getActiveOneTask()) //
+				.map(OneTask::payload) //
+				.map(GridBuySoftLimit::power) //
+				.orElse(this.config.maxChargePowerFromGrid());
+
 		// Version and Mode given from the configuration.
 		final var am = switch (this.energyScheduler.getImplementationVersion()) {
 
@@ -198,15 +212,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						null /* forceState */);
 			case FORCE_DELAY_DISCHARGE //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						StateMachine.DELAY_DISCHARGE /* forceState */);
 			case FORCE_CHARGE_GRID //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);

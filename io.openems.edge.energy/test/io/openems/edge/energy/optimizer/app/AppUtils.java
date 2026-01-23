@@ -31,11 +31,13 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
@@ -84,6 +86,9 @@ public final class AppUtils {
 			final var startTime = json.getZonedDateTime("startTime").withZoneSameInstant(zone);
 			final var clock = new TimeLeapClock(startTime.toInstant(), zone);
 			final var componentManager = new DummyComponentManager(clock);
+			final var grid = json.getObject("grid", Grid.serializer());
+			final var meta = new DummyMeta() //
+					.withGridBuySoftLimit(grid.gridBuySoftLimit());
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //
 					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
@@ -136,6 +141,7 @@ public final class AppUtils {
 
 			return GlobalOptimizationContext.create() //
 					.setComponentManager(componentManager) //
+					.setMeta(meta) //
 					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
 					.setEnergyScheduleHandlers(eshs) //
 					.setSum(sum) //

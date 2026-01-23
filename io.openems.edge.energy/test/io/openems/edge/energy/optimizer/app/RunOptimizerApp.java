@@ -27,6 +27,27 @@ public class RunOptimizerApp {
 			.add("grid", buildJsonObject() //
 					.addProperty("maxBuyPower", 100000) //
 					.addProperty("maxSellPower", 100000) //
+					.add("gridBuySoftLimit", buildJsonArray() //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.addProperty("start", "08:00:00") //
+									.addProperty("duration", "PT12H") //
+									.add("recurrenceRules", buildJsonArray() //
+											.add(buildJsonObject() //
+													.addProperty("frequency", "daily") //
+													.build()) //
+											.build()) //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 2000) //
+											.build()) //
+									.build()) //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 6000) //
+											.build()) //
+									.build()) //
+							.build()) //
 					.build()) //
 			.add("ess", buildJsonObject() //
 					.addProperty("currentEnergy", 11000) //
