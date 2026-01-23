@@ -439,7 +439,7 @@ public class PvInverterKostalPikoImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Parse a String containing a LongValue and convert from kWh to Wh
+	 * Parse a String containing a LongValue and convert from kWh to Wh.
 	 *
 	 * @param text The LongValue to parse
 	 * @return Wh as Long, or null if text is invalid or empty
