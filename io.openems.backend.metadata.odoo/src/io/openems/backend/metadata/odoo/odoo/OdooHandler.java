@@ -237,7 +237,7 @@ public class OdooHandler {
 	public CompletableFuture<JsonObject> authenticateSession(String externalUserId) {
 		return this.executeAdminRequest(session -> {
 			return this.executor.submit("authenticateSession", () -> {
-				return OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/info",
+				return OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/info",
 						"session_id=" + session, buildJsonObject() //
 								.add("params", buildJsonObject() //
 										.addProperty("external_uid", externalUserId) //
@@ -256,7 +256,7 @@ public class OdooHandler {
 	 */
 	public void logout(String sessionId) {
 		try {
-			OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/web/session/destroy", "session_id=" + sessionId,
+			OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/web/session/destroy", "session_id=" + sessionId,
 					new JsonObject());
 		} catch (OpenemsNamedException e) {
 			this.log.warn("Unable to logout session [" + sessionId + "]: " + e.getMessage());
@@ -1608,7 +1608,7 @@ public class OdooHandler {
 			return this.executor.submit("getEdges", () -> {
 				try {
 					return getAsJsonObject(
-							OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edges",
+							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edges",
 									"session_id=" + session, request).result);
 				} catch (OpenemsNamedException e) {
 					throw new RuntimeException(e);
@@ -1636,9 +1636,9 @@ public class OdooHandler {
 		return this.executeAdminRequest(session -> {
 			return this.executor.submit("getEdgeWithRole", () -> {
 				try {
-					return getAsJsonObject(OdooUtils.sendJsonrpcRequest(
-							this.credentials.getUrl() + "/openems_backend/get_edge_with_role", "session_id=" + session,
-							request).result);
+					return getAsJsonObject(
+							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edge_with_role",
+									"session_id=" + session, request).result);
 				} catch (OpenemsNamedException e) {
 					throw new RuntimeException(e);
 				}

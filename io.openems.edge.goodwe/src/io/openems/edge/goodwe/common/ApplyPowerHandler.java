@@ -5,7 +5,6 @@ import io.openems.common.function.BooleanConsumer;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.goodwe.common.enums.ControlMode;
@@ -34,8 +33,7 @@ public final class ApplyPowerHandler {
 	 */
 	public static synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
-			Value<Integer> maxAcExport, boolean isPidEnabled)
-			throws OpenemsNamedException {
+			Value<Integer> maxAcExport, boolean isPidEnabled) throws OpenemsNamedException {
 		// Evaluate MeterCommunicateStatus
 		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
@@ -59,8 +57,8 @@ public final class ApplyPowerHandler {
 	protected static synchronized void apply(int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
 			Value<Integer> maxAcExport, boolean isPidEnabled, MeterCommunicateStatus meterCommunicateStatus,
-			int pvProduction, int surplusPower,
-			BooleanConsumer setSmartModeNotWorkingWithPidFilter, BooleanConsumer setNoSmartMeterDetected, //
+			int pvProduction, int surplusPower, BooleanConsumer setSmartModeNotWorkingWithPidFilter,
+			BooleanConsumer setNoSmartMeterDetected, //
 			ThrowingConsumer<Long, OpenemsNamedException> writeEmsPowerSet, //
 			ThrowingConsumer<EmsPowerMode, OpenemsNamedException> writeEmsPowerMode) throws OpenemsNamedException {
 

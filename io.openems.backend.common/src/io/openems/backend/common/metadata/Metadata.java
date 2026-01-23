@@ -2,7 +2,7 @@ package io.openems.backend.common.metadata;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -187,7 +187,7 @@ public interface Metadata {
 	public static String activeStateChannelsToString(
 			Map<ChannelAddress, EdgeConfig.Component.Channel> activeStateChannels) {
 		// Sort active State-Channels by Level and Component-ID
-		var states = new HashMap<Level, HashMultimap<String, Channel>>();
+		var states = new EnumMap<Level, HashMultimap<String, Channel>>(Level.class);
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
 			var detail = entry.getValue().getDetail();
 			if (detail instanceof ChannelDetailState cds) {
@@ -206,16 +206,16 @@ public interface Metadata {
 		for (Level level : Level.values()) {
 			var channelsByComponent = states.get(level);
 			if (channelsByComponent != null) {
-				if (result.length() > 0) {
+				if (!result.isEmpty()) {
 					result.append("| ");
 				}
-				result.append(level.name() + ": ");
+				result.append(level.name()).append(": ");
 				var subResult = new StringBuilder();
 				for (Entry<String, Collection<Channel>> entry : channelsByComponent.asMap().entrySet()) {
-					if (subResult.length() > 0) {
+					if (!subResult.isEmpty()) {
 						subResult.append("; ");
 					}
-					subResult.append(entry.getKey() + ": ");
+					subResult.append(entry.getKey()).append(": ");
 					subResult.append(entry.getValue().stream() //
 							.map(channel -> {
 								if (!channel.getText().isEmpty()) {
@@ -369,6 +369,10 @@ public interface Metadata {
 	 * Defines Events a Metadata can throw.
 	 */
 	public static final class Events {
+		private Events() {
+			// static class
+		}
+
 		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "metadata/";
 
 		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";

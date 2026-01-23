@@ -179,7 +179,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				}
 			} catch (IOException e) {
 				this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 
@@ -203,7 +203,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				}
 			} catch (OpenemsNamedException e) {
 				this.logWarn(this.log, "Unable to JSON-parse file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 

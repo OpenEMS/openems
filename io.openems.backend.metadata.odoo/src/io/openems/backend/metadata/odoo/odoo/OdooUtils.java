@@ -199,8 +199,8 @@ public class OdooUtils {
 
 	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
 			JsonObject request, int timeout) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
-		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request, timeout);
+		var session = OdooUtils.login(credentials, "admin", credentials.password());
+		return OdooUtils.sendJsonrpcRequest(credentials.url() + url, "session_id=" + session, request, timeout);
 	}
 
 	/**
@@ -214,8 +214,8 @@ public class OdooUtils {
 	 */
 	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
 			JsonObject request) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
-		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+		var session = OdooUtils.login(credentials, "admin", credentials.password());
+		return OdooUtils.sendJsonrpcRequest(credentials.url() + url, "session_id=" + session, request);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class OdooUtils {
 	}
 
 	protected static String loginAdmin(Credentials credentials) throws OpenemsNamedException {
-		return OdooUtils.login(credentials, "admin", credentials.getPassword());
+		return OdooUtils.login(credentials, "admin", credentials.password());
 	}
 
 	/**
@@ -259,12 +259,12 @@ public class OdooUtils {
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //
 				.add("params", JsonUtils.buildJsonObject() //
-						.addProperty("db", credentials.getDatabase()) //
+						.addProperty("db", credentials.database()) //
 						.addProperty("login", username.toLowerCase()) //
 						.addProperty("password", password) //
 						.build()) //
 				.build();
-		var response = OdooUtils.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
+		var response = OdooUtils.sendJsonrpcRequest(credentials.url() + "/web/session/authenticate", request);
 		var sessionIdOpt = getFieldFromSetCookieHeader(response.headers, "session_id");
 		if (!sessionIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -279,8 +279,8 @@ public class OdooUtils {
 
 	private static Object executeKw(Credentials creds, String model, String action, Object[] arg, Map<String, ?> kw)
 			throws MalformedURLException, XMLRPCException {
-		var params = new Object[] { creds.getDatabase(), creds.getUid(), creds.getPassword(), model, action, arg, kw };
-		var uri = URI.create(String.format("%s/xmlrpc/2/object", creds.getUrl()));
+		var params = new Object[] { creds.database(), creds.uid(), creds.password(), model, action, arg, kw };
+		var uri = URI.create(String.format("%s/xmlrpc/2/object", creds.url()));
 		var client = new XMLRPCClient(uri.toURL(), XMLRPCClient.FLAGS_NIL);
 
 		client.setTimeout(60 /* seconds */);
@@ -599,13 +599,13 @@ public class OdooUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected static byte[] getOdooReport(Credentials credentials, String report, int id) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
+		var session = OdooUtils.login(credentials, "admin", credentials.password());
 
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) URI
-					.create(credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
-					.toURL().openConnection();
+					.create(credentials.url() + "/report/pdf/" + report + "/" + id + "?session_id=" + session).toURL()
+					.openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");
