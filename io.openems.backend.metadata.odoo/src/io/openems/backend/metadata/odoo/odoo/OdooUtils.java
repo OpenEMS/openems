@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -457,6 +458,15 @@ public class OdooUtils {
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
+	}
+
+	protected static Integer[] getObjectReferences(Credentials credentials, String module, List<String> name)
+			throws OpenemsException {
+		final var ids = new ArrayList<Integer>();
+		for (var s : name) {
+			ids.add(getObjectReference(credentials, module, s));
+		}
+		return ids.toArray(Integer[]::new);
 	}
 
 	/**

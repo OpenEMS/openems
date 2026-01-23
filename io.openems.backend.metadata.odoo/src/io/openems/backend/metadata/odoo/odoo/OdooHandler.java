@@ -618,6 +618,25 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Add tags to the referenced partner for given user id.
+	 *
+	 * @param userId   to get Odoo partner
+	 * @param tagNames the tags to add
+	 * @throws OpenemsException on error
+	 */
+	private void addTagsToPartner(int userId, List<String> tagNames) throws OpenemsException {
+		if (tagNames.isEmpty()) {
+			return;
+		}
+		final var tagIds = OdooUtils.getObjectReferences(this.credentials, "fems", tagNames);
+
+		var partnerId = this.getOdooPartnerId(userId);
+
+		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
+				new FieldValue<>(Field.Partner.CATEGORY_ID, tagIds));
+	}
+
+	/**
 	 * Create a setup protocol in Odoo.
 	 *
 	 * @param jsonObject  {@link SetupProtocol} to create
@@ -991,6 +1010,22 @@ public class OdooHandler {
 
 		final var includePasswordInRegistrationEmail = getAsOptionalBoolean(jsonObject,
 				"includePasswordInRegistrationEmail").orElse(false);
+
+		final var tagNames = new ArrayList<String>();
+		if (role == OdooUserRole.OWNER) {
+			tagNames.add("res_partner_category_customer");
+		}
+		// includePasswordInRegistrationEmail => Account got created via IBN
+		if (includePasswordInRegistrationEmail) {
+			tagNames.add("res_partner_category_created_via_ibn");
+		}
+
+		try {
+			this.addTagsToPartner(createdUserId, tagNames);
+		} catch (Exception e) {
+			this.log.warn("Unable to add tag for Odoo user id [" + createdUserId + "]", e);
+		}
+
 		if (password != null && includePasswordInRegistrationEmail) {
 			this.sendRegistrationMail(createdUserId, password, oem);
 		} else {
