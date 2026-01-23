@@ -4,6 +4,7 @@ import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE
 
 import java.util.LinkedHashSet;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -13,12 +14,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jscalendar.GetOneTasks;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi.UpdateJsCalendarRecord;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.scheduler.api.Scheduler;
 import io.openems.edge.scheduler.jscalendar.Utils.Payload;
@@ -39,6 +41,9 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 
 	private Config config = null;
 	private JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
+
+	@Reference
+	private ConfigurationAdmin cm;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -108,8 +113,8 @@ public class SchedulerJSCalendarImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(new GetOneTasks<Payload>(Payload.serializer()), call -> {
-			return GetOneTasks.Response.create(call.getRequest(), this.tasks);
-		});
+		JSCalendarApi.buildJsonApiRoutes(builder, Payload.serializer(), //
+				() -> this.tasks, //
+				() -> new UpdateJsCalendarRecord(this.cm, this.componentManager, this.servicePid(), "jsCalendar"));
 	}
 }

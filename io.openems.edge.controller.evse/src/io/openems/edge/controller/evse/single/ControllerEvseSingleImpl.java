@@ -4,7 +4,6 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.controller.evse.single.Utils.isSessionLimitReached;
-import static io.openems.edge.controller.evse.single.Utils.parseTasksConfig;
 
 import java.time.Instant;
 import java.util.function.BiConsumer;
@@ -102,7 +101,8 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 
 	private synchronized void applyConfig(Config config) {
 		this.config = config;
-		this.tasks = parseTasksConfig(config.jsCalendar());
+		this.tasks = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(), config.jsCalendar(),
+				Payload.serializer());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "chargePoint",
 				config.chargePoint_id())) {

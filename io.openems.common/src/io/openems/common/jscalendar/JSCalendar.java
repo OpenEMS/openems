@@ -50,7 +50,6 @@ import com.google.common.collect.Ordering;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
@@ -128,7 +127,7 @@ public class JSCalendar<PAYLOAD> {
 			try {
 				return Tasks.serializer(clock, payloadSerializer) //
 						.deserialize(string);
-			} catch (IllegalStateException | OpenemsNamedException e) {
+			} catch (Exception e) {
 				LOG.error("Unable to parse Tasks from " + string + ": " + e.getMessage());
 				return Tasks.empty();
 			}
