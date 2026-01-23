@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.joining;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -669,6 +670,7 @@ public record GlobalOptimizationContext(//
 				}
 				final var gridBuySoftLimit = quarterPeriods.stream() //
 						.map(Period::gridBuySoftLimit) //
+						.filter(Objects::nonNull) //
 						.reduce(Integer::sum).orElse(null);
 				final var production = quarterPeriods.stream() //
 						.filter(Period.WithPrediction.class::isInstance) //
