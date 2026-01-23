@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,8 +79,8 @@ public class OdooHandler {
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	private CompletableFuture<String> adminLoginFuture = CompletableFuture.failedFuture(new RuntimeException());
-	private final Semaphore semaphoreForSingleAdminSessionUpdate = new Semaphore(1);
+	private volatile CompletableFuture<String> adminLoginFuture = CompletableFuture
+			.failedFuture(new RuntimeException());
 
 	private final DebugExecutor executor;
 
@@ -1682,37 +1682,45 @@ public class OdooHandler {
 				.build());
 	}
 
-	private synchronized CompletableFuture<String> authenticateAsAdmin() {
-		if (!this.semaphoreForSingleAdminSessionUpdate.tryAcquire()) {
-			return this.adminLoginFuture;
+	private CompletableFuture<String> authenticateAsAdmin() {
+		var currentFuture = this.adminLoginFuture;
+		if (!currentFuture.isDone()) {
+			return currentFuture;
 		}
 
-		this.adminLoginFuture = this.executor.submit("authenticateAsAdmin", () -> {
-			return OdooUtils.loginAdmin(this.credentials);
-		});
+		synchronized (this) {
+			currentFuture = this.adminLoginFuture;
+			if (!currentFuture.isDone()) {
+				return currentFuture;
+			}
 
-		this.adminLoginFuture.whenComplete((s, throwable) -> {
-			this.semaphoreForSingleAdminSessionUpdate.release();
-		});
-
-		return this.adminLoginFuture;
+			return this.adminLoginFuture = this.executor.submit("authenticateAsAdmin", () -> {
+				try {
+					return OdooUtils.loginAdmin(this.credentials);
+				} catch (Exception e) {
+					this.log.warn("Unable to authenticate as admin", e);
+					throw e;
+				}
+			}).orTimeout(5, TimeUnit.MINUTES);
+		}
 	}
 
 	private <T> CompletableFuture<T> executeAdminRequest(Function<String, CompletableFuture<T>> request) {
-		return this.adminLoginFuture.thenCompose(token -> {
-			return request.apply(token).exceptionallyCompose(throwable -> {
+		return this.adminLoginFuture.exceptionallyCompose(t -> this.authenticateAsAdmin()) //
+				.thenCompose(token -> {
+					return request.apply(token).exceptionallyCompose(throwable -> {
 
-				// retry once if authentication failed
-				if (throwable instanceof SessionExpiredException
-						|| throwable.getCause() instanceof SessionExpiredException) {
-					return this.authenticateAsAdmin().thenCompose(request);
-				}
+						// retry once if authentication failed
+						if (throwable instanceof SessionExpiredException
+								|| throwable.getCause() instanceof SessionExpiredException) {
+							this.log.info("Session expired, re-authenticating as admin and retrying request",
+									throwable);
+							return this.authenticateAsAdmin().thenCompose(request);
+						}
 
-				return CompletableFuture.failedFuture(throwable);
-			});
-		}).exceptionallyCompose(throwable -> {
-			return this.authenticateAsAdmin().thenCompose(request);
-		});
+						return CompletableFuture.failedFuture(throwable);
+					});
+				});
 	}
 
 }
