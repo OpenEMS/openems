@@ -25,7 +25,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -208,8 +210,12 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
 				channelId);
-		Object channelValue = channel(channelId).getNextValue().get();
-
+		Object channelValue = null;
+		
+		if (OpenemsType.INTEGER == channelId.doc().getType()) {
+			channelValue = ((IntegerWriteChannel)channel(channelId)).getNextWriteValue() //
+					.orElse(null);			
+		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);
 	}
 }

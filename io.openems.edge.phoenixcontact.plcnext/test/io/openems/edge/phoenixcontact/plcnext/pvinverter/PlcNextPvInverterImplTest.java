@@ -44,7 +44,6 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsD
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextMappingDefinitionHelper;
-import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeter;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
@@ -202,7 +201,7 @@ public class PlcNextPvInverterImplTest {
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
 				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
 						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+						PlcNextPvInverterGdsDataWriteMappingDefinition.SET_ACTIVE_POWER.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
