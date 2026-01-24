@@ -185,7 +185,7 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

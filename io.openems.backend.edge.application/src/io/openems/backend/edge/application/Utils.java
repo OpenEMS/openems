@@ -21,28 +21,26 @@ public class Utils {
 		log.info(line);
 	}
 
-	protected static void configureLogger(ConfigurationAdmin cm) {
-		Configuration config;
-		try {
-			config = cm.getConfiguration("org.ops4j.pax.logging", null);
-			final var properties = config.getProperties();
-			if (properties == null || properties.isEmpty() || properties.get("log4j2.rootLogger.level") == null) {
-				final var log4j = new Hashtable<String, Object>();
-				log4j.put("log4j2.appender.console.type", "Console");
-				log4j.put("log4j2.appender.console.name", "console");
-				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
-				log4j.put("log4j2.appender.console.layout.pattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+	protected static void configureLogger(ConfigurationAdmin cm) throws IOException, SecurityException {
+		Configuration config = cm.getConfiguration("org.ops4j.pax.logging", null);
+		final var properties = config.getProperties();
 
-				log4j.put("log4j2.appender.paxosgi.type", "PaxOsgi");
-				log4j.put("log4j2.appender.paxosgi.name", "paxosgi");
-
-				log4j.put("log4j2.rootLogger.level", "INFO");
-				log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
-				log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
-				config.update(log4j);
-			}
-		} catch (IOException | SecurityException e) {
-			e.printStackTrace();
+		if (properties != null && !properties.isEmpty() && properties.get("log4j2.rootLogger.level") != null) {
+			return; // Logger already configured
 		}
+
+		final var log4j = new Hashtable<String, Object>();
+		log4j.put("log4j2.appender.console.type", "Console");
+		log4j.put("log4j2.appender.console.name", "console");
+		log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
+		log4j.put("log4j2.appender.console.layout.pattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+
+		log4j.put("log4j2.appender.paxosgi.type", "PaxOsgi");
+		log4j.put("log4j2.appender.paxosgi.name", "paxosgi");
+
+		log4j.put("log4j2.rootLogger.level", "INFO");
+		log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
+		log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
+		config.update(log4j);
 	}
 }

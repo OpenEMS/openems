@@ -1015,11 +1015,11 @@ public class BatteryFeneconHomeImplTest {
 						// DEEP_DISCHARGE_EVENT_COUNTER: 5
 						.output("battery0", "Tower0DeepDischargeEventCounter", 5) //
 						// OVER_DISCHARGE_EVENT_COUNTER: 3
-						.output("battery0", "Tower0OverDischargeEventCounter", 3) //
+						.output("battery0", "Tower0OverChargeEventCounter", 3) //
 						// ACC_DEEP_DISCHARGE_TIME: 1000 seconds
 						.output("battery0", "Tower0AccDeepDischargeTime", 1000) //
 						// ACC_OVER_DISCHARGE_TIME: 500 seconds
-						.output("battery0", "Tower0AccOverDischargeTime", 500) //
+						.output("battery0", "Tower0AccOverChargeTime", 500) //
 						// EXTREME_HIGH_TEMPERATURE_TIME: 100 seconds
 						.output("battery0", "Tower0ExtremeHighTemperatureTime", 100) //
 						// EXTREME_LOW_TEMPERATURE_TIME: 200 seconds
@@ -1046,9 +1046,9 @@ public class BatteryFeneconHomeImplTest {
 							assertUnit(Unit.PERCENT, sut, "Tower0BatteryChargeAndDischargeRoundTripEfficiency");
 							assertUnit(Unit.MICROOHM, sut, "Tower0OhmicResistanceOfBattery");
 							assertUnit(Unit.NONE, sut, "Tower0DeepDischargeEventCounter");
-							assertUnit(Unit.NONE, sut, "Tower0OverDischargeEventCounter");
+							assertUnit(Unit.NONE, sut, "Tower0OverChargeEventCounter");
 							assertUnit(Unit.SECONDS, sut, "Tower0AccDeepDischargeTime");
-							assertUnit(Unit.SECONDS, sut, "Tower0AccOverDischargeTime");
+							assertUnit(Unit.SECONDS, sut, "Tower0AccOverChargeTime");
 							assertUnit(Unit.SECONDS, sut, "Tower0ExtremeHighTemperatureTime");
 							assertUnit(Unit.SECONDS, sut, "Tower0ExtremeLowTemperatureTime");
 							assertUnit(Unit.WATT_HOURS, sut, "Tower0RemainingEnergy");

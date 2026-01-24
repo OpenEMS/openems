@@ -34,12 +34,8 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     protected loading: boolean = false;
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
-    protected isAtLeastInstaller: boolean = false;
-    protected readonly filters: FilterComponent["allFilters"] = [
-        ORDER_STATES(this.translate),
-        environment.PRODUCT_TYPES(this.translate),
-        SUM_STATES(this.translate),
-    ];
+    protected isAtLeastOwner: boolean = false;
+    protected filters: FilterComponent["allFilters"] = [];
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -69,7 +65,13 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             const user = this.userService.currentUser();
 
             if (user) {
-                this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                const isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
+
+                this.filters = [
+                    ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
+                    ...(isAtLeastInstaller ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
+                ];
             }
         });
     }

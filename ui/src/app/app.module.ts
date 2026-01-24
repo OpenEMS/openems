@@ -21,7 +21,6 @@ import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
 import { NavigationComponent } from "./shared/components/navigation/navigation.component";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
-import { StatusSingleComponent } from "./shared/components/status/single/status.component";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/states";
 import { AuthService } from "./shared/service/auth/auth.service";
@@ -38,7 +37,6 @@ provideTranslateLoader(MyTranslateLoader);
     declarations: [
         AppComponent,
         ChartOptionsPopoverComponent,
-        StatusSingleComponent,
         NavigationComponent,
     ],
     imports: [

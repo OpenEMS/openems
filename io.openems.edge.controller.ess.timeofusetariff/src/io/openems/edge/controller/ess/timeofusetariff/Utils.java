@@ -167,7 +167,6 @@ public final class Utils {
 	 */
 	private static ApplyMode calculateDelayDischarge(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
 			int pwrBalancing, Integer gridSoftLimit) {
-
 		var targetChargePower = switch (ess) {
 		case HybridEss e ->
 			// Limit discharge to DC-PV power
@@ -183,9 +182,9 @@ public final class Utils {
 			// ...but discharging is required for peak-shaving to gridSoftLimit
 			return new ApplyMode(PEAK_SHAVING, peakShavingPower);
 
-		} else if (targetChargePower <= 0 && targetChargePower == pwrBalancing) {
+		} else if (targetChargePower <= 0 && targetChargePower >= pwrBalancing) {
 			// ...but actually charging
-			return new ApplyMode(BALANCING, targetChargePower);
+			return new ApplyMode(BALANCING, pwrBalancing);
 
 		} else {
 			return new ApplyMode(DELAY_DISCHARGE, targetChargePower);

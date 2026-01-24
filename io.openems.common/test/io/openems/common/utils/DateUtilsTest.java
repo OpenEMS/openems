@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -87,8 +87,11 @@ public class DateUtilsTest {
 	}
 
 	@Test
-	public void testParseZonedDateTimeOrErrorSuccess() throws Exception {
-		DateUtils.parseZonedDateTimeOrError("2007-12-03T10:15:30+01:00[Europe/Paris]");
+	public void testParseZonedDateTimeOrErrorSuccess() throws OpenemsException {
+		final ZonedDateTime datetime = DateUtils.parseZonedDateTimeOrError("2007-12-03T10:15:30+01:00[Europe/Paris]");
+		assertEquals(2007, datetime.getYear());
+		assertEquals(12, datetime.getMonthValue());
+		assertEquals(3, datetime.getDayOfMonth());
 	}
 
 	@Test
@@ -121,8 +124,11 @@ public class DateUtilsTest {
 	}
 
 	@Test
-	public void testParseLocalDateOrErrorSuccess() throws Exception {
-		DateUtils.parseLocalDateOrError("2007-12-03");
+	public void testParseLocalDateOrErrorSuccess() throws OpenemsException {
+		final LocalDate date = DateUtils.parseLocalDateOrError("2007-12-03");
+		assertEquals(2007, date.getYear());
+		assertEquals(12, date.getMonthValue());
+		assertEquals(3, date.getDayOfMonth());
 	}
 
 	@Test

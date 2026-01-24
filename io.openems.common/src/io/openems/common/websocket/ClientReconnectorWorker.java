@@ -2,8 +2,8 @@ package io.openems.common.websocket;
 
 import java.lang.reflect.Field;
 import java.net.Socket;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -21,7 +21,6 @@ import io.openems.common.worker.AbstractWorker;
 public class ClientReconnectorWorker extends AbstractWorker {
 
 	public record Config(int connectTimeoutSeconds, int maxWaitSeconds, int minWaitSeconds, int cycleTime) {
-
 	}
 
 	public static final ClientReconnectorWorker.Config DEFAULT_CONFIG = new Config(100, 100, 10,
@@ -37,7 +36,8 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent, Config config) {
 		this.parent = parent;
 		this.config = config;
-		this.minWaitSecondsBetweenRetries = new Random().nextInt(config.maxWaitSeconds()) + config.minWaitSeconds();
+		this.minWaitSecondsBetweenRetries = ThreadLocalRandom.current() //
+				.nextInt(config.minWaitSeconds, config.maxWaitSeconds + 1);
 		this.lastTry = 0;
 	}
 

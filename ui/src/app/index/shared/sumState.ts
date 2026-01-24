@@ -5,6 +5,7 @@ import { Role } from "src/app/shared/type/role";
 import { Filter } from "../filter/filter.component";
 
 export enum SumState {
+    UNDEFINED = "UNDEFINED",
     OK = "OK",
     INFO = "INFO",
     WARNING = "WARNING",

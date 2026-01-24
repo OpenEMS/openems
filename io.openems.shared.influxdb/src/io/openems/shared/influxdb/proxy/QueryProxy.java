@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonElement;
 
@@ -209,48 +210,46 @@ public abstract class QueryProxy {
 			Set<ChannelAddress> channels //
 	) throws OpenemsNamedException;
 
-	public static class RandomLimit {
+	public static final class RandomLimit {
 		private static final double MAX_LIMIT = 0.95;
 		private static final double MIN_LIMIT = 0;
 		private static final double STEP_UP = 0.10;
 		private static final double STEP_DOWN = 0.01;
 
-		private double limit = 0;
+		private double probability = 0;
 
 		/**
-		 * Increases the current limit.
+		 * Increases the current probability by 10% up to a maximum of 95%.
 		 */
 		public synchronized void increase() {
-			this.limit += STEP_UP;
-			if (this.limit > MAX_LIMIT) {
-				this.limit = MAX_LIMIT;
-			}
+			this.probability = Math.min(this.probability + STEP_UP, MAX_LIMIT);
 		}
 
 		/**
-		 * Decreases the current limit.
+		 * Decreases the current probability by 1% down to a minimum of 0%.
 		 */
 		public synchronized void decrease() {
-			this.limit -= STEP_DOWN;
-			if (this.limit <= MIN_LIMIT) {
-				this.limit = MIN_LIMIT;
-			}
+			this.probability = Math.max(this.probability - STEP_DOWN, MIN_LIMIT);
 		}
 
-		protected double getLimit() {
-			return this.limit;
+		/**
+		 * Checks if the limit is reached based on the current probability.
+		 * @return true if the limit is reached, false otherwise
+		 */
+		public synchronized boolean limitReached() {
+			return ThreadLocalRandom.current().nextDouble() < this.probability;
 		}
 
 		@Override
 		public String toString() {
-			return String.format("%.3f", this.limit);
+			return String.format("%.3f", this.probability);
 		}
 	}
 
 	public final RandomLimit queryLimit = new RandomLimit();
 
 	public boolean isLimitReached() {
-		return Math.random() < this.queryLimit.getLimit();
+		return this.queryLimit.limitReached();
 	}
 
 	protected void assertQueryLimit() throws OpenemsException {
