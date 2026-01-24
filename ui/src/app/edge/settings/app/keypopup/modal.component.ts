@@ -303,6 +303,9 @@ export class KeyModalComponent implements OnInit {
             // if apps are not directly of a category, list them
             for (const appOfBundle of bundle) {
                 const app = this.knownApps.find(app => app.appId === appOfBundle.appId);
+                if (app == null) {
+                    continue;
+                }
                 descriptionFields.push(app.name);
             }
         }

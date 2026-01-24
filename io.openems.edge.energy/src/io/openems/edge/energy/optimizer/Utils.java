@@ -17,6 +17,7 @@ import com.google.common.collect.Ordering;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.scheduler.api.Scheduler;
@@ -149,9 +150,8 @@ public final class Utils {
 	 * @return execution limit in [s]
 	 */
 	public static long calculateExecutionLimitSeconds(Clock clock) {
-		var now = ZonedDateTime.now(clock);
-		var nextQuarter = roundDownToQuarter(now).plusMinutes(15).minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER);
-		return max(0, Duration.between(now, nextQuarter).getSeconds());
+		var durationUntilNextQaurter = DateUtils.durationUntilNextQuarter(clock);
+		return max(0, durationUntilNextQaurter.minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER).getSeconds());
 	}
 
 	/**

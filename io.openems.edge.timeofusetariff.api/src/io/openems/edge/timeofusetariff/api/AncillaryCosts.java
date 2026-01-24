@@ -259,8 +259,7 @@ public class AncillaryCosts {
 							.setDuration(duration) //
 							.addRecurrenceRule(b -> b.setFrequency(DAILY) //
 									.setUntil(dateRange.end())) //
-							.setPayload(payload)//
-							.build());
+							.setPayload(payload));
 				}
 			}
 
@@ -565,8 +564,7 @@ public class AncillaryCosts {
 							.addRecurrenceRule(rr -> rr //
 									.setFrequency(DAILY) //
 									.setUntil(q.end)) //
-							.setPayload(payload) //
-							.build());
+							.setPayload(payload)); //
 				}
 
 				// Create list of all intervals for gap detection
@@ -589,8 +587,7 @@ public class AncillaryCosts {
 								.setDuration(duration) //
 								.addRecurrenceRule(rr -> rr.setFrequency(DAILY) //
 										.setUntil(q.end))
-								.setPayload(standardTariff) //
-								.build());
+								.setPayload(standardTariff));
 					}
 
 					// Special handling for midnight end time
@@ -613,8 +610,7 @@ public class AncillaryCosts {
 							.setDuration(duration) //
 							.addRecurrenceRule(rr -> rr.setFrequency(DAILY) //
 									.setUntil(q.end)) //
-							.setPayload(standardTariff) //
-							.build());
+							.setPayload(standardTariff));
 				}
 			}
 		}

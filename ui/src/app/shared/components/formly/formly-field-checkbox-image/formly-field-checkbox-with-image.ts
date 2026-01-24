@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/
 import { FormControl } from "@angular/forms";
 import { FieldWrapper } from "@ngx-formly/core";
 import { Subject, takeUntil } from "rxjs";
+import { FormlyUtils } from "../formly-utils";
 
 @Component({
     selector: "formly-field-checkbox-with-image",
@@ -50,22 +51,16 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
     private destroy = new Subject<void>();
 
     protected get borderColor(): { [key: string]: string } {
-        let borderColor = "var(--ion-color-dark)";
-
-        if (this.value === true) {
-
-            const validSerialNumber: string | null = this.model[this.props?.serialNumberField?.key] ?? null;
-            if (validSerialNumber != null && validSerialNumber !== "") {
-                borderColor = "var(--highlight-color-valid)";
-            } else if (this.serialNumberFormControl.touched) {
-                borderColor = "var(--highlight-color-invalid)";
-            } else if (this.isSerialNumberFocused) {
-                borderColor = "var(--highlight-color-focused)";
-            }
+        // If the checkbox is unchecked, always use default color
+        if (this.value !== true) {
+            return { "border-color": "var(--ion-color-dark)" };
         }
-        return {
-            "border-color": borderColor,
-        };
+
+        return FormlyUtils.getControlStyle(
+            this.serialNumberFormControl,
+            this.isSerialNumberFocused,
+            "border-color"
+        );
     }
 
     public ngOnInit() {

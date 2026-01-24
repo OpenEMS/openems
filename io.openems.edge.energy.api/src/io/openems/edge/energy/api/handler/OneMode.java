@@ -5,7 +5,6 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import org.apache.logging.log4j.util.Supplier;
 
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;

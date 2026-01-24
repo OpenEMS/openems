@@ -6,9 +6,13 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	com.zaxxer.HikariCP,\
+	io.openems.backend.authentication.api,\
 	io.openems.backend.common,\
+	io.openems.backend.metrics.prometheus,\
 	io.openems.common,\
 	io.openems.wrapper.aXMLRPC,\
+	io.prometheus.metrics-core,\
+	io.prometheus.metrics-model,\
 	org.postgresql.jdbc, \
 	
 -testpath: \

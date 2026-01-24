@@ -248,14 +248,13 @@ public record ParamsV1(//
 	}
 
 	@Deprecated
-	public static final Pattern PARAMS_PATTERN = Pattern.compile("^" //
-			+ ".*time=(?<time>\\S+)," //
-			+ ".*essTotalEnergy=(?<essTotalEnergy>\\d+)" //
-			+ ".*essMinSocEnergy=(?<essMinSocEnergy>\\d+)" //
-			+ ".*essMaxSocEnergy=(?<essMaxSocEnergy>\\d+)" //
-			+ ".*essInitialEnergy=(?<essInitialEnergy>\\d+)" //
-			+ ".*states=\\[(?<states>[A-Z_, ]+)\\]" //
-			+ ".*$");
+	public static final Pattern PARAMS_PATTERN = Pattern.compile("" //
+			+ "time=(?<time>[^\\s,]++)[\\s,]++"
+			+ "essTotalEnergy=(?<essTotalEnergy>[^\\s,]++)[\\s,]++"
+			+ "essMinSocEnergy=(?<essMinSocEnergy>[^\\s,]++)[\\s,]++"
+			+ "essMaxSocEnergy=(?<essMaxSocEnergy>[^\\s,]++)[\\s,]++"
+			+ "essInitialEnergy=(?<essInitialEnergy>[^\\s,]++)[\\s,]++"
+			+ "states=\\[(?<states>[A-Z_, ]++)\\]");
 
 	@Deprecated
 	protected String toLogString() {

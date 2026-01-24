@@ -4,7 +4,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AlertingSettingResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
 import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
-import { AlertingType, DefaultValues, Delay } from "../alerting.component";
+import { AlertingType, DefaultValues, Delay } from "../component/alerting.component";
 
 export const currentUserRows = (defaultValues: DefaultValues, translate: TranslateService, edgeRole: Role): FormlyFieldConfig[] => {
     return [

@@ -10,6 +10,7 @@ export interface Environment {
     readonly theme: Theme;
 
     readonly uiTitle: string;
+    readonly uiTitleShort: string;
     readonly edgeShortName: string;
     readonly edgeLongName: string;
     readonly defaultLanguage: string;
@@ -19,6 +20,7 @@ export interface Environment {
 
     readonly production: boolean;
     debugMode: boolean;
+
 
     readonly docsUrlPrefix: string;
     readonly icons: {
