@@ -281,7 +281,7 @@ public class Solver {
 				break;
 			case OPTIMIZE_BY_PREFERRING_DC_POWER:
 				solution = PreferDcPower.apply(this.data.getCoefficients(), this.data.getEsss(), allInverters,
-						allConstraints, targetDirection);
+						allConstraints, targetDirection, this.debugMode);
 				break;
 			}
 

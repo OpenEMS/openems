@@ -10,10 +10,15 @@ import java.util.List;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.IntUtils;
+import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.core.power.data.TargetDirection;
@@ -26,6 +31,9 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class PreferDcPower {
 
+	private static final PointValuePair NO_RESULT = null;
+	private static final Logger log = LoggerFactory.getLogger(PreferDcPower.class);
+
 	/**
 	 * Tries to distribute power by preferring inverter DC power.
 	 *
@@ -37,7 +45,9 @@ public class PreferDcPower {
 	 * @return a solution or null
 	 */
 	public static PointValuePair apply(Coefficients coefficients, List<ManagedSymmetricEss> esss,
-			List<Inverter> allInverters, List<Constraint> allConstraints, TargetDirection direction) throws OpenemsException {
+			List<Inverter> allInverters, List<Constraint> allConstraints, TargetDirection direction,
+			boolean debugMode) throws OpenemsException {
+
 		if (esss.isEmpty()) {
 			return null;
 		}
@@ -46,7 +56,6 @@ public class PreferDcPower {
 		 *
 		 * TODO:
 		 *
-		 * 	- Can we use the same logic for ACTIVE and REACTIVE power?
 		 * 	- Documentation/Description with expected behavior of this implementation
 		 *
 		 *
@@ -74,341 +83,671 @@ public class PreferDcPower {
 			sortedInverters = Lists.reverse(allInverters);
 		}
 
-		var debug=false;
-		if(debug) {
-			System.out.println(direction);
-
-			//for (Inverter inv : allInverters) {
-			//	System.out.println(inv.toString() + ": "+inv.getEssId()+" "+inv.getWeight());
-			//}
-
-			for (Inverter inv : sortedInverters) {
-				System.out.println(inv.toString() + ": "+inv.getEssId()+" "+inv.getWeight());
-			}
-
-			for (ManagedSymmetricEss ess : esss) {
-				System.out.println(ess.toString() + ": "+ess.id()+ ", min "+getMinPowerFromEss(ess, Pwr.ACTIVE)+", max "+getMaxPowerFromEss(ess, Pwr.ACTIVE));
-			}
-			System.out.println(allConstraints);
-		}
-
 		if(esss.stream().filter(MetaEss.class::isInstance).count()==0) {
-			System.out.println("no ess cluster");
-			return null;
+			log.info("no ess cluster");
+			return NO_RESULT; // use next solver
 		}
 
 		var setActivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.ACTIVE);
 		var setReactivePower = getPowerSetPoint(esss, allConstraints, direction, Pwr.REACTIVE);
 
-		if (Double.isNaN(setActivePower) && Double.isNaN(setReactivePower)) {
-			return null;
-		}
-
 		var essList = getGenericEssList(esss);
 
-		var activePowerSolved = solvePowerIfNotNaN(setActivePower, essList, Pwr.ACTIVE, direction, coefficients, allConstraints, sortedInverters);
-		var reactivePowerSolved = solvePowerIfNotNaN(setReactivePower, essList, Pwr.REACTIVE, direction, coefficients, allConstraints, sortedInverters);
-
-		var mergedResult = mergeResults(coefficients, esss, activePowerSolved, reactivePowerSolved);
-
-		var result = Arrays.stream(mergedResult)//
-				.toArray();
-
-
-		if(debug) {
-			//var point = result;
-			var point = activePowerSolved.getPoint();
-			for (Inverter inv : allInverters) {
-				var essId = inv.getEssId();
-				for (Pwr pwr : Pwr.values()) {
-					var c = coefficients.of(essId, inv.getPhase(), pwr);
-					var value = point[c.getIndex()];
-
-					System.out.println("Solution -> "+essId+" "+pwr+" "+value);
-				}
-			}
-		}
-
-		return activePowerSolved;
-		//return new PointValuePair(result, 0);
-	}
-
-	private static Integer getPvProductionFromEss(ManagedSymmetricEss ess) {
-		Integer pvProduction = ess.getPvProduction();
-		if(pvProduction==null) {
-			System.out.println(ess.id()+" does not report PVProduction | "+ess.getClass().toString());
-			return 0;
-		}
-
-		return pvProduction;
-	}
-
-
-	/**
-	 * Solve it only if the setpower is present.
-	 *
-	 * @param setPower        the Setpower
-	 * @param essList         the {@link ManagedSymmetricEss}
-	 * @param powerType       the powerType {@link Pwr}
-	 * @param direction       the {@link TargetDirection}
-	 * @param coefficients    the {@link Coefficients}
-	 * @param allConstraints  all active {@link Constraint}s
-	 * @param sortedInverters all {@link Inverter}s
-	 * @return a solution
-	 */
-	private static PointValuePair solvePowerIfNotNaN(double setPower, List<ManagedSymmetricEss> essList, Pwr powerType,
-			TargetDirection direction, Coefficients coefficients, List<Constraint> allConstraints, List<Inverter> sortedInverters) throws OpenemsException {
-		if (Double.isNaN(setPower)) {
-			var defaultResult = new double[essList.size()];
-			return new PointValuePair(defaultResult, 0);
-		} else {
-			return solvePower(setPower, essList, powerType, direction, coefficients, allConstraints, sortedInverters);
-		}
-	}
-
-	/**
-	 * Merges results of Active-Power and Reactive-Power to a {@link PointValuePair}
-	 * compatible with default Solver.
-	 *
-	 * @param coefficients  the {@link Coefficients}
-	 * @param esss          the {@link ManagedSymmetricEss}s
-	 * @param activePower   the {@link PointValuePair} for Active-Power
-	 * @param reactivePower the {@link PointValuePair} for Reactive-Power
-	 * @return new {@link PointValuePair}
-	 */
-	public static double[] mergeResults(Coefficients coefficients, List<ManagedSymmetricEss> esss,
-			PointValuePair activePower, PointValuePair reactivePower) {
-		try {
-			var values = coefficients.getAll().stream() //
-					.mapToDouble(c -> {
-						var nonMetaEss = esss.stream() //
-								.filter(e -> !(e instanceof MetaEss)) //
-								.map(ManagedSymmetricEss::id) //
-								.toList();
-
-						var index = nonMetaEss.indexOf(c.getEssId());
-						if (index == -1) {
-							return 0;
-						}
-
-						final var pointValuePair = switch (c.getPwr()) {
-						case ACTIVE -> activePower;
-						case REACTIVE -> reactivePower;
-						};
-						return pointValuePair.getPoint()[index];
-					}).toArray();
-			return values;
-		} catch (Exception e) {
-			return null;
-		}
+		return solvePower(setActivePower, setReactivePower, essList, direction, coefficients, allConstraints, sortedInverters, debugMode);
 	}
 
 	/**
 	 * Solves the power optimization problem for a given set of coefficients, energy
-	 * storage systems (ESSs), inverters, constraints, description, power type, and
-	 * target direction.
+	 * storage systems (ESSs), inverters, constraints and target direction.
 	 *
-	 * @param power           the power to be distributed
+	 * @param activePower     the active power to be distributed
+	 * @param reactivePower   the reactive power to be distributed
 	 * @param essList         the {@link ManagedSymmetricEss}s
-	 * @param pwr             the {@link Pwr}.
 	 * @param direction       the {@link TargetDirection}.
 	 * @param coefficients    the {@link Coefficients}
 	 * @param allConstraints  all active {@link Constraint}s
 	 * @param sortedInverters all {@link Inverter}s
+	 * @param debugMode       the {@link EssPower} debug mode
 	 * @return The optimized solution The {@link PointValuePair}.
 	 */
-	private static PointValuePair solvePower(double power, List<ManagedSymmetricEss> essList, Pwr pwr,
-			TargetDirection direction, Coefficients coefficients, List<Constraint> allConstraints, List<Inverter> sortedInverters) throws OpenemsException {
+	private static PointValuePair solvePower(double activePower, double reactivePower, List<ManagedSymmetricEss> essList, TargetDirection direction,
+			Coefficients coefficients, List<Constraint> allConstraints, List<Inverter> sortedInverters, boolean debugMode) throws OpenemsException {
 		List<Constraint> constraints = new ArrayList<>(allConstraints);
+		var result = ConstraintSolver.solve(coefficients, constraints);
 
-		var debug=false;
-		if(debug) System.out.println("["+pwr+"] PowerSetPoint: "+power+ ", Direction: "+direction);
-
-		if (direction == TargetDirection.KEEP_ZERO) {
-			// Solve the system
-			var defaultResult = ConstraintSolver.solve(coefficients, constraints);
-
-			for (var inv : sortedInverters) {
-				// Create Constraint to force Ess on ZERO
-				defaultResult = addContraintIfProblemStillSolves(defaultResult, constraints, coefficients,
-						createSimpleConstraint(coefficients, //
-								inv.toString() + ": Force ActivePower " + direction.name(), //
-								inv.getEssId(), inv.getPhase(), pwr, Relationship.EQUALS, 0));
-			}
-			return defaultResult;
-		}
-
-		var essUpperLimit = sortedInverters.stream()//
-				.mapToDouble(inv -> getMaxPowerFromEss(getEss(essList, inv.getEssId()), pwr))//
+		var essState = sortedInverters.stream()//
+				.map(inv -> getEss(essList,inv.getEssId()).getState())//
 				.toArray();
 
-		var essLowerLimit = sortedInverters.stream()//
-				.mapToDouble(inv -> getMinPowerFromEss(getEss(essList,inv.getEssId()), pwr))//
-				.toArray();
+		if (!Double.isNaN(activePower)) {
 
-		var essPvProduction = sortedInverters.stream()//
-				.mapToDouble(inv -> getPvProductionFromEss(getEss(essList,inv.getEssId())))//
-				.toArray();
+			/*
+			 * Solve Active Power
+			 *
+			 */
 
-		// Handle discharge case (limit to maxmimum power if exceedsTotalUpperBound)
-		if (direction == TargetDirection.DISCHARGE && power > Arrays.stream(essUpperLimit).sum()) {
-			System.out.print("!! Limit discharge power "+power+" to "+Arrays.stream(essUpperLimit).sum());
-			power = Arrays.stream(essUpperLimit).sum();
-		}
+			var essUpperLimit = sortedInverters.stream()//
+					.mapToDouble(inv -> getMaxPowerFromEss(getEss(essList, inv.getEssId()), Pwr.ACTIVE))//
+					.toArray();
 
-		// Handle charge case (limit to minimum power if exceedsTotalLowerBound)
-		if (direction == TargetDirection.CHARGE && power < Arrays.stream(essLowerLimit).sum()) {
-			System.out.print("!! Limit charge power "+power+" to "+Arrays.stream(essLowerLimit).sum());
-			power = Arrays.stream(essLowerLimit).sum();
-		}
+			var essLowerLimit = sortedInverters.stream()//
+					.mapToDouble(inv -> getMinPowerFromEss(getEss(essList,inv.getEssId()), Pwr.ACTIVE))//
+					.toArray();
 
-		var essPowerRequired = new double[sortedInverters.size()];
-		double remainingPowerRequired = power;
+			var essPvProduction = sortedInverters.stream()//
+					.mapToDouble(inv -> getPvProductionFromEss(getEss(essList,inv.getEssId())))//
+					.toArray();
 
+			if(debugMode) log.debug("[ACTIVE] PowerSetPoint: "+activePower+ ", Direction: "+direction);
 
-		// use pv production power first
-		for (int i=0; i<sortedInverters.size(); i++) {
-			var inv = sortedInverters.get(i);
-			if(debug) System.out.print("["+pwr+"]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i]);
+			var essPowerRequired = new double[sortedInverters.size()];
+			double remainingPowerRequired = activePower;
 
-			switch (direction) {
-			case TargetDirection.DISCHARGE -> {
-				if(essLowerLimit[i]>remainingPowerRequired) {
-					// lowerLimit > remainingPowerRequired (e.g. ess requires minimum discharge while battery is full)
-					essPowerRequired[i] = essLowerLimit[i];
-					remainingPowerRequired -= essLowerLimit[i];
-				}
-				else if(essPvProduction[i] >= 100 && remainingPowerRequired >= essPvProduction[i]) {
-					// use all pvProduction power (minimum 100 W required)
-					essPowerRequired[i] = essPvProduction[i];
-					remainingPowerRequired -= essPvProduction[i];
-				}
-				else if(essPvProduction[i] >= 100)
-				{
-					// use partial pvProduction power (minimum 100 W required)
-					essPowerRequired[i] = remainingPowerRequired;
-					remainingPowerRequired = 0;
-				}
+			// Step 1: Distribute the active power
 
-				if(debug) System.out.print("  -> EQUALS "+essPowerRequired[i]);
-			}
-			}
-
-			if(debug) System.out.println();
-		}
-
-
-		if(debug) System.out.println("["+pwr+"]   -> remaining power required after pv production solved: "+remainingPowerRequired);
-
-
-		// use all ess which are already producing power (discharging)
-		for (int i=0; i<sortedInverters.size(); i++) {
-			if(remainingPowerRequired>0 && essPowerRequired[i]>0) {
-				var inv = sortedInverters.get(i);
-				var remainingUpperLimit = essUpperLimit[i]-essPowerRequired[i];
-				if(debug) System.out.print("["+pwr+"]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i]);
-
-				switch (direction) {
-				case TargetDirection.DISCHARGE -> {
-					if(remainingPowerRequired > remainingUpperLimit) {
-						// remainingPowerRequired > upperLimit, discharge with upperLimit
-						essPowerRequired[i] += remainingUpperLimit;
-						remainingPowerRequired -= remainingUpperLimit;
-					}
-					else
-					{
-						// provide required discharge power
-						essPowerRequired[i] += remainingPowerRequired;
-						remainingPowerRequired = 0;
-					}
-
-					if(debug) System.out.print("  -> EQUALS "+essPowerRequired[i]);
-				}
-				}
-
-				if(debug) System.out.println();
-			}
-		}
-
-		if(debug) System.out.println("["+pwr+"]   -> remaining power required after ess already discharging solved: "+remainingPowerRequired);
-
-
-		// use all ess if we still require more power (positive or negative)
-		if(remainingPowerRequired != 0) {
+			// Step 1.1: Distribute PV production power first
 			for (int i=0; i<sortedInverters.size(); i++) {
 				var inv = sortedInverters.get(i);
-				var remainingUpperLimit = essUpperLimit[i]-essPowerRequired[i];
-				if(debug) System.out.print("["+pwr+"]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i]);
+				var logMessage = new String();
+				if(debugMode) logMessage += "[ACTIVE]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i];
 
-				switch (direction) {
-				case TargetDirection.CHARGE -> {
+				if(essState[i] == Level.FAULT) {
+					if(debugMode) logMessage += "  -> ESS state: FAULT";
+					continue;
+				}
+
+				if(direction == TargetDirection.DISCHARGE) {
 					if(essLowerLimit[i] > remainingPowerRequired) {
-						// lowerLimit > remainingPowerRequired, charge with lowerLimit
+						// lowerLimit > remainingPowerRequired (e.g. ess requires minimum discharge while battery is full)
 						essPowerRequired[i] = essLowerLimit[i];
-						remainingPowerRequired += essLowerLimit[i]*(-1);
+						remainingPowerRequired -= essLowerLimit[i];
 					}
-					else
+					else if(essPvProduction[i] >= 100 && remainingPowerRequired >= essPvProduction[i]) {
+						// use all pvProduction power (minimum 100 W required)
+						essPowerRequired[i] = essPvProduction[i];
+						remainingPowerRequired -= essPvProduction[i];
+					}
+					else if(essPvProduction[i] >= 100)
 					{
-						// charge with partial ess charge power
+						// use partial pvProduction power (minimum 100 W required)
 						essPowerRequired[i] = remainingPowerRequired;
 						remainingPowerRequired = 0;
 					}
-				}
-				case TargetDirection.DISCHARGE -> {
-					if(remainingPowerRequired > remainingUpperLimit) {
-						// remainingPowerRequired > upperLimit, discharge with upperLimit
-						essPowerRequired[i] += remainingUpperLimit;
-						remainingPowerRequired -= remainingUpperLimit;
-					}
-					else
-					{
-						// provide required discharge power
-						essPowerRequired[i] += remainingPowerRequired;
-						remainingPowerRequired = 0;
-					}
-				}
+
+					if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
 				}
 
-				if(debug) System.out.println("\t-> "+inv.toString()+" EQUALS "+essPowerRequired[i]);
+				if(debugMode) log.debug(logMessage);
 			}
 
-			if(debug) System.out.println("["+pwr+"]   -> remaining power required after solving using all ess: "+remainingPowerRequired);
+
+			if(debugMode) log.debug("[ACTIVE]   -> remaining power required after pv production solved: "+remainingPowerRequired);
+
+
+			// Step 1.2: Distribute remaining power using all ESS currently producing power (discharging due to PV production); distribute using order
+			if(remainingPowerRequired != 0) {
+				for (int i=0; i<sortedInverters.size(); i++) {
+					if(remainingPowerRequired>0 && essPowerRequired[i]>0) {
+						var inv = sortedInverters.get(i);
+						var remainingUpperLimit = essUpperLimit[i]-essPowerRequired[i];
+						var logMessage = new String();
+						if(debugMode) logMessage += "[ACTIVE]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i];
+
+						if(essState[i] == Level.FAULT) {
+							if(debugMode) logMessage += "  -> ESS state: FAULT";
+							continue;
+						}
+
+						if(direction == TargetDirection.DISCHARGE) {
+							if(remainingPowerRequired > remainingUpperLimit && remainingUpperLimit >= 0) {
+								// remainingPowerRequired > upperLimit, discharge with upperLimit
+								essPowerRequired[i] += remainingUpperLimit;
+								remainingPowerRequired -= remainingUpperLimit;
+							}
+							else
+							{
+								// provide required discharge power
+								essPowerRequired[i] += remainingPowerRequired;
+								remainingPowerRequired = 0;
+							}
+
+							if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
+						}
+
+						if(debugMode) log.debug(logMessage);
+					}
+				}
+
+				if(debugMode) log.debug("[ACTIVE]   -> remaining power required after ess already discharging solved: "+remainingPowerRequired);
+			}
+
+
+			// Step 1.3: Distribute remaining power using all ESS if we still require more power; distribute using order
+			if(remainingPowerRequired != 0) {
+				for (int i=0; i<sortedInverters.size(); i++) {
+					var inv = sortedInverters.get(i);
+					var remainingLowerLimit = essLowerLimit[i]-essPowerRequired[i];
+					var remainingUpperLimit = essUpperLimit[i]-essPowerRequired[i];
+					var logMessage = new String();
+					if(debugMode) logMessage += "[ACTIVE]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i];
+
+					if(essState[i] == Level.FAULT) {
+						if(debugMode) logMessage += "  -> ESS state: FAULT";
+						continue;
+					}
+
+					if(direction == TargetDirection.CHARGE) {
+						if(remainingLowerLimit > remainingPowerRequired && remainingLowerLimit <= 0) {
+							// lowerLimit > remainingPowerRequired, charge with lowerLimit
+							essPowerRequired[i] += remainingLowerLimit;
+							remainingPowerRequired -= remainingLowerLimit;
+						}
+						else
+						{
+							// charge with partial ess charge power
+							essPowerRequired[i] += remainingPowerRequired;
+							remainingPowerRequired = 0;
+						}
+					} else if(direction == TargetDirection.DISCHARGE) {
+						if(remainingPowerRequired > remainingUpperLimit && remainingUpperLimit >= 0) {
+							// remainingPowerRequired > upperLimit, discharge with upperLimit
+							essPowerRequired[i] += remainingUpperLimit;
+							remainingPowerRequired -= remainingUpperLimit;
+						}
+						else
+						{
+							// provide required discharge power
+							essPowerRequired[i] += remainingPowerRequired;
+							remainingPowerRequired = 0;
+						}
+					}
+
+					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essPowerRequired[i]);
+				}
+
+				if(debugMode) log.debug("[ACTIVE]   -> remaining power required after solving using all ess: "+remainingPowerRequired);
+			}
+
+			// Step 2: Solve the active power system
+
+			var relationship = switch (direction) {
+			case CHARGE -> Relationship.LESS_OR_EQUALS;
+			case DISCHARGE -> Relationship.GREATER_OR_EQUALS;
+			case KEEP_ZERO -> Relationship.EQUALS;
+			};
+
+			for (int i=0; i<sortedInverters.size(); i++) {
+				var inv = sortedInverters.get(i);
+
+				if(essState[i] == Level.FAULT) {
+					// Create Constraint to force faulty Ess on ZERO
+					if(debugMode) log.debug("[ACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essPowerRequired[i]);
+					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+							createSimpleConstraint(coefficients, //
+									inv.toString() + ": Force ActivePower KEEP_ZERO", //
+									inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, 0));
+				} else {
+					// Create Constraint to force Ess positive/negative/zero according to
+					// targetDirection
+					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+							createSimpleConstraint(coefficients, //
+									inv.toString() + ": Force ActivePower " + direction.name(), //
+									inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0));
+				}
+			}
+
+			for (int i=0; i<sortedInverters.size(); i++) {
+				var inv = sortedInverters.get(i);
+
+				if(essState[i] != Level.FAULT) {
+					if(debugMode) log.debug("[ACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essPowerRequired[i]);
+					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+							createSimpleConstraint(coefficients, //
+									inv.toString() + ": Set ActivePower " + direction.name() + " value", //
+									inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, essPowerRequired[i]));
+				}
+			}
+
+		}
+
+		// Exit, if reactivePower is NaN
+		if(Double.isNaN(reactivePower)) return result;
+
+		/*
+		 * Solve Reactive Power
+		 *
+		 */
+
+		var reactiveDirection = getReactiveDirection(reactivePower);
+		var essActivePowerSetpoint = new double[sortedInverters.size()];
+		var essReactiveUpperLimit = new double[sortedInverters.size()];
+		var essReactiveLowerLimit = new double[sortedInverters.size()];
+
+		var dischargeEssActivePower = new double[sortedInverters.size()];
+		var idleEssMaxQ = new double[sortedInverters.size()];
+		var allEssMaxQ = new double[sortedInverters.size()];
+
+		double dischargeEssActivePowerTotal = 0;
+		double idleEssMaxQTotal = 0;
+		double allEssMaxQTotal = 0;
+
+		if(debugMode) log.debug("[REACTIVE] PowerSetPoint: "+reactivePower+ ", Direction: "+reactiveDirection);
+
+		// Step 3: Gets the active power from constraint system and define upper and lower limits
+		var point = result.getPoint();
+		double weightSum = 0;
+		double weightDistributedPowerTotal = 0;
+		for (int i=0; i<sortedInverters.size(); i++) {
+			var inv = sortedInverters.get(i);
+			var essId = inv.getEssId();
+			var ess = getEss(essList, essId);
+			int soc = ess.getSoc().orElse(0);
+			var precision = ess.getPowerPrecision();
+			var round = Round.TOWARDS_ZERO;
+			var c = coefficients.of(essId, inv.getPhase(), Pwr.ACTIVE);
+			var value = Math.round(point[c.getIndex()]);
+			if (value > 0 && soc > 50 || value < 0 && soc < 50) {
+				round = Round.AWAY_FROM_ZERO;
+			}
+
+			// skip ESS with FAULT state
+			if(essState[i] == Level.FAULT) {
+				continue;
+			}
+
+			// fill active power setpoint to array
+			essActivePowerSetpoint[i] = IntUtils.roundToPrecision((float) value, round, precision);
+			if (essActivePowerSetpoint[i] == -1 || essActivePowerSetpoint[i] == 1) {
+				essActivePowerSetpoint[i] = 0; // avoid unnecessary power settings on rounding 0.xxx to 1
+			}
+
+			// get maxQ using formula sMax = sqrt(P²+Q²)
+			double sMax = ess.getMaxApparentPower().getOrError();
+			double maxQ = Math.sqrt( (sMax*sMax) - (essActivePowerSetpoint[i]*essActivePowerSetpoint[i]) );
+			double minQ = maxQ == 0 ? 0 : maxQ*(-1);
+
+			// set maxQ to zero, if max allowed Q is < 50
+			if(sMax-Math.abs(essActivePowerSetpoint[i]) < 50) {
+				maxQ = 0;
+				minQ = 0;
+			}
+
+			maxQ = Math.floor(maxQ);
+			minQ = Math.ceil(minQ);
+
+			// get upper and lower limits from ESS
+			essReactiveUpperLimit[i] = getMaxPowerFromEss(getEss(essList, inv.getEssId()), Pwr.REACTIVE);
+			essReactiveLowerLimit[i] = getMinPowerFromEss(getEss(essList, inv.getEssId()), Pwr.REACTIVE);
+
+			// reduce upper and lower limit to maxQ/minQ if we have an active power setpoint
+			if(essActivePowerSetpoint[i] != 0 && maxQ<essReactiveUpperLimit[i]) essReactiveUpperLimit[i] = maxQ;
+			if(essActivePowerSetpoint[i] != 0 && minQ>essReactiveLowerLimit[i]) essReactiveLowerLimit[i] = minQ;
+
+			// calculate weights of discharging inverters with remaining Q using essActivePower/essActivePowerTotal
+			if(essActivePowerSetpoint[i] > 0 && maxQ > 0)
+			{
+				dischargeEssActivePower[i] = essActivePowerSetpoint[i];
+				dischargeEssActivePowerTotal += essActivePowerSetpoint[i];
+			}
+
+			// calculate weights of idle inverters with remaining Q using essRemainingQ/essRemainingQTotal
+			if(essActivePowerSetpoint[i] == 0 && maxQ > 0) {
+				idleEssMaxQ[i] = essReactiveUpperLimit[i];
+				idleEssMaxQTotal += essReactiveUpperLimit[i];
+			}
+
+			// calculate weights of all inverters using essRemainingQ/essRemainingQTotal
+			allEssMaxQ[i] = essReactiveUpperLimit[i];
+			allEssMaxQTotal += essReactiveUpperLimit[i];
 		}
 
 
-		// Solve the system
-		var result = ConstraintSolver.solve(coefficients, constraints);
+		// Step 4: Distribute the reactive power
+		var essReactivePowerRequired = new double[sortedInverters.size()];
+		double remainingReactivePowerRequired = reactivePower;
 
-		var relationship = switch (direction) {
+		// Step 4.1: Distribute using calculated weights first
+		do {
+			final double dischargeEssActivePowerTotal2 = dischargeEssActivePowerTotal;
+			final double idleEssMaxQTotal2 = idleEssMaxQTotal;
+			final double allEssMaxQTotal2 = allEssMaxQTotal;
+
+			enum WeightStrategy {
+			    USE_DISCHARGING_ESS, // prefer discharging ESS
+			    USE_IDLE_ESS, // use idle ESS if discharging ESS are not sufficient
+			    USE_ALL_ESS; // use all ESS if discharging and idle ESS are not sufficient
+			}
+
+			WeightStrategy weightStrategy;
+
+			// define weight strategy
+			if(dischargeEssActivePowerTotal != 0) weightStrategy = WeightStrategy.USE_DISCHARGING_ESS;
+			else if(idleEssMaxQTotal != 0) weightStrategy = WeightStrategy.USE_IDLE_ESS;
+			else weightStrategy = WeightStrategy.USE_ALL_ESS;
+
+			// calculate weights
+			var weights = switch (weightStrategy) {
+		    case USE_DISCHARGING_ESS:
+		        yield Arrays.stream(dischargeEssActivePower).map(setpoint -> Math.round((setpoint/dischargeEssActivePowerTotal2)*100.0)/100.0 ).toArray();
+		    case USE_IDLE_ESS:
+		        yield Arrays.stream(idleEssMaxQ).map(maxQ -> Math.round((maxQ/idleEssMaxQTotal2)*100.0)/100.0 ).toArray();
+		    case USE_ALL_ESS:
+		        yield Arrays.stream(allEssMaxQ).map(maxQ -> Math.round((maxQ/allEssMaxQTotal2)*100.0)/100.0 ).toArray();
+			};
+
+			weightSum = Arrays.stream(weights).sum();
+
+			// reset counters
+			dischargeEssActivePower = new double[sortedInverters.size()];
+			dischargeEssActivePowerTotal = 0;
+			idleEssMaxQ = new double[sortedInverters.size()];
+			idleEssMaxQTotal = 0;
+			allEssMaxQ = new double[sortedInverters.size()];
+			allEssMaxQTotal = 0;
+
+			double remainingReactivePowerForWeightsRun = remainingReactivePowerRequired;
+			weightDistributedPowerTotal = 0;
+			for (int i=0; i<sortedInverters.size(); i++) {
+				var q = Math.round(remainingReactivePowerForWeightsRun*weights[i]);
+				weightDistributedPowerTotal += q;
+			}
+
+			if(remainingReactivePowerRequired != 0 && weightSum > 0 && weightDistributedPowerTotal != 0) {
+				for (int i=0; i<sortedInverters.size(); i++) {
+					if(remainingReactivePowerRequired!=0) {
+						var inv = sortedInverters.get(i);
+						var q = Math.round(remainingReactivePowerForWeightsRun*weights[i]);
+						var remainingReactiveLowerLimit = essReactiveLowerLimit[i]-essReactivePowerRequired[i];
+						var remainingReactiveUpperLimit = essReactiveUpperLimit[i]-essReactivePowerRequired[i];
+						var logMessage = new String();
+						if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": weight: "+weights[i]+", min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
+
+						if(weights[i]==0) {
+							if(debugMode) log.debug(logMessage + "  -> EQUALS 0.0"); // weight zero
+							continue;
+						}
+
+						if(reactiveDirection == TargetDirection.CHARGE) {
+							if(remainingReactivePowerRequired < remainingReactiveLowerLimit && remainingReactiveLowerLimit <= 0) {
+								// lowerLimit > remainingPowerRequired, charge with lowerLimit
+								essReactivePowerRequired[i] += remainingReactiveLowerLimit;
+								remainingReactivePowerRequired -= remainingReactiveLowerLimit;
+							}
+							else if(q < remainingReactivePowerRequired) {
+								// q < remainingReactivePowerRequired, use remainigReactivePowerRequired
+								essReactivePowerRequired[i] += remainingReactivePowerRequired;
+								remainingReactivePowerRequired -= remainingReactivePowerRequired;
+							}
+							else
+							{
+								// provide required (negative) reactive power
+								essReactivePowerRequired[i] += q;
+								remainingReactivePowerRequired -= q;
+							}
+						} else if(reactiveDirection == TargetDirection.DISCHARGE) {
+							if(remainingReactivePowerRequired > remainingReactiveUpperLimit && remainingReactiveUpperLimit >= 0) {
+								// remainingPowerRequired > upperLimit, discharge with upperLimit
+								essReactivePowerRequired[i] += remainingReactiveUpperLimit;
+								remainingReactivePowerRequired -= remainingReactiveUpperLimit;
+							}
+							else if(q > remainingReactivePowerRequired) {
+								// q > remainingReactivePowerRequired, use remainigReactivePowerRequired
+								essReactivePowerRequired[i] += remainingReactivePowerRequired;
+								remainingReactivePowerRequired -= remainingReactivePowerRequired;
+							}
+							else
+							{
+								// provide required (positive) reactive power
+								essReactivePowerRequired[i] += q;
+								remainingReactivePowerRequired -= q;
+							}
+						}
+
+						if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+					}
+				}
+
+				// update counters for weight calculation
+				for (int i=0; i<sortedInverters.size(); i++) {
+					var remainingReactiveLowerLimit = essReactiveLowerLimit[i]-essReactivePowerRequired[i];
+					var remainingReactiveUpperLimit = essReactiveUpperLimit[i]-essReactivePowerRequired[i];
+
+					// skip ESS with FAULT state
+					if(essState[i] == Level.FAULT) {
+						continue;
+					}
+
+					if(reactiveDirection == TargetDirection.CHARGE) {
+
+						// calculate weights of discharging inverters with remaining Q using essActivePower/essActivePowerTotal
+						if(essActivePowerSetpoint[i] > 0 && remainingReactiveLowerLimit < 0) {
+							dischargeEssActivePower[i] = essActivePowerSetpoint[i];
+							dischargeEssActivePowerTotal += essActivePowerSetpoint[i];
+						}
+
+						// calculate weights of idle inverters with remaining Q using essRemainingQ/essRemainingQTotal
+						if(essActivePowerSetpoint[i] == 0 && remainingReactiveLowerLimit < 0) {
+							idleEssMaxQ[i] = Math.abs(remainingReactiveLowerLimit);
+							idleEssMaxQTotal += idleEssMaxQ[i];
+						}
+
+						// calculate weights of all inverters using essRemainingQ/essRemainingQTotal
+						allEssMaxQ[i] = Math.abs(remainingReactiveLowerLimit);
+						allEssMaxQTotal += allEssMaxQ[i];
+					} else if (reactiveDirection == TargetDirection.DISCHARGE) {
+
+						// calculate weights of discharging inverters with remaining Q using essActivePower/essActivePowerTotal
+						if(essActivePowerSetpoint[i] > 0 && remainingReactiveUpperLimit > 0) {
+							dischargeEssActivePower[i] = essActivePowerSetpoint[i];
+							dischargeEssActivePowerTotal += essActivePowerSetpoint[i];
+						}
+
+						// calculate weights of idle inverters with remaining Q using essRemainingQ/essRemainingQTotal
+						if(essActivePowerSetpoint[i] == 0 && remainingReactiveUpperLimit > 0) {
+							idleEssMaxQ[i] = remainingReactiveUpperLimit;
+							idleEssMaxQTotal += remainingReactiveUpperLimit;
+						}
+
+						// calculate weights of all inverters using essRemainingQ/essRemainingQTotal
+						allEssMaxQ[i] = remainingReactiveUpperLimit;
+						allEssMaxQTotal += remainingReactiveUpperLimit;
+					}
+
+
+				}
+
+				if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using calculated weights (strategy "+weightStrategy+"): "+remainingReactivePowerRequired);
+			}
+		}while(remainingReactivePowerRequired != 0 && weightSum > 0 && weightDistributedPowerTotal != 0);
+
+
+		// Step 4.2: Distribute remaining reactive power using discharging ESS; distribute using order
+		if(remainingReactivePowerRequired != 0) {
+			for (int i=0; i<sortedInverters.size(); i++) {
+				if(remainingReactivePowerRequired != 0 && essActivePowerSetpoint[i] > 0) {
+					var inv = sortedInverters.get(i);
+					var remainingReactiveLowerLimit = essReactiveLowerLimit[i]-essReactivePowerRequired[i];
+					var remainingReactiveUpperLimit = essReactiveUpperLimit[i]-essReactivePowerRequired[i];
+					var logMessage = new String();
+					if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
+
+					if(reactiveDirection == TargetDirection.CHARGE) {
+						if(remainingReactiveLowerLimit > remainingReactivePowerRequired && remainingReactiveLowerLimit <= 0) {
+							// lowerLimit > remainingPowerRequired, charge with lowerLimit
+							essReactivePowerRequired[i] += remainingReactiveLowerLimit;
+							remainingReactivePowerRequired -= remainingReactiveLowerLimit;
+						}
+						else
+						{
+							// provide required (negative) reactive power
+							essReactivePowerRequired[i] += remainingReactivePowerRequired;
+							remainingReactivePowerRequired = 0;
+						}
+					} else if(reactiveDirection == TargetDirection.DISCHARGE) {
+						if(remainingReactivePowerRequired > remainingReactiveUpperLimit && remainingReactiveUpperLimit >= 0) {
+							// remainingPowerRequired > upperLimit, discharge with upperLimit
+							essReactivePowerRequired[i] += remainingReactiveUpperLimit;
+							remainingReactivePowerRequired -= remainingReactiveUpperLimit;
+						}
+						else
+						{
+							// provide required (positive) reactive power
+							essReactivePowerRequired[i] += remainingReactivePowerRequired;
+							remainingReactivePowerRequired = 0;
+						}
+					}
+
+					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+				}
+			}
+
+			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using discharging ess (distributed using order): "+remainingReactivePowerRequired);
+		}
+
+
+		// Step 4.3: Distribute remaining reactive power using idle ESS; distribute using order
+		if(remainingReactivePowerRequired != 0) {
+			for (int i=0; i<sortedInverters.size(); i++) {
+				if(remainingReactivePowerRequired != 0 && essActivePowerSetpoint[i] == 0) {
+					var inv = sortedInverters.get(i);
+					var remainingReactiveLowerLimit = essReactiveLowerLimit[i]-essReactivePowerRequired[i];
+					var remainingReactiveUpperLimit = essReactiveUpperLimit[i]-essReactivePowerRequired[i];
+					var logMessage = new String();
+					if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
+
+					if(essState[i] == Level.FAULT) {
+						if(debugMode) log.debug(logMessage + "  -> ESS state: FAULT");
+						continue;
+					}
+
+					if(reactiveDirection == TargetDirection.CHARGE) {
+						if(remainingReactiveLowerLimit > remainingReactivePowerRequired && remainingReactiveLowerLimit <= 0) {
+							// lowerLimit > remainingPowerRequired, charge with lowerLimit
+							essReactivePowerRequired[i] += remainingReactiveLowerLimit;
+							remainingReactivePowerRequired -= remainingReactiveLowerLimit;
+						}
+						else
+						{
+							// provide required (negative) reactive power
+							essReactivePowerRequired[i] += remainingReactivePowerRequired;
+							remainingReactivePowerRequired = 0;
+						}
+					} else if(reactiveDirection == TargetDirection.DISCHARGE) {
+						if(remainingReactivePowerRequired > remainingReactiveUpperLimit && remainingReactiveUpperLimit >= 0) {
+							// remainingPowerRequired > upperLimit, discharge with upperLimit
+							essReactivePowerRequired[i] += remainingReactiveUpperLimit;
+							remainingReactivePowerRequired -= remainingReactiveUpperLimit;
+						}
+						else
+						{
+							// provide required (positive) reactive power
+							essReactivePowerRequired[i] += remainingReactivePowerRequired;
+							remainingReactivePowerRequired = 0;
+						}
+					}
+
+					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+				}
+			}
+
+			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using idle ess (distributed using order): "+remainingReactivePowerRequired);
+		}
+
+
+		// Step 4.4: Distribute remaining reactive power using all ESS; distribute using order
+		if(remainingReactivePowerRequired != 0) {
+			for (int i=0; i<sortedInverters.size(); i++) {
+				var inv = sortedInverters.get(i);
+				var remainingReactiveLowerLimit = essReactiveLowerLimit[i]-essReactivePowerRequired[i];
+				var remainingReactiveUpperLimit = essReactiveUpperLimit[i]-essReactivePowerRequired[i];
+				var logMessage = new String();
+				if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
+
+				if(essState[i] == Level.FAULT) {
+					if(debugMode) log.debug(logMessage + "  -> ESS state: FAULT");
+					continue;
+				}
+
+				if(reactiveDirection == TargetDirection.CHARGE) {
+					if(remainingReactiveLowerLimit > remainingReactivePowerRequired && remainingReactiveLowerLimit <= 0) {
+						// lowerLimit > remainingPowerRequired, charge with lowerLimit
+						essReactivePowerRequired[i] += remainingReactiveLowerLimit;
+						remainingReactivePowerRequired -= remainingReactiveLowerLimit;
+					}
+					else
+					{
+						// provide required (negative) reactive power
+						essReactivePowerRequired[i] += remainingReactivePowerRequired;
+						remainingReactivePowerRequired = 0;
+					}
+				} else if(reactiveDirection == TargetDirection.DISCHARGE) {
+					if(remainingReactivePowerRequired > remainingReactiveUpperLimit && remainingReactiveUpperLimit >= 0) {
+						// remainingPowerRequired > upperLimit, discharge with upperLimit
+						essReactivePowerRequired[i] += remainingReactiveUpperLimit;
+						remainingReactivePowerRequired -= remainingReactiveUpperLimit;
+					}
+					else
+					{
+						// provide required (positive) reactive power
+						essReactivePowerRequired[i] += remainingReactivePowerRequired;
+						remainingReactivePowerRequired = 0;
+					}
+				}
+
+				if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+			}
+
+			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using all ess (distributed using order): "+remainingReactivePowerRequired);
+		}
+
+
+		// Step 5: Solve the reactive power system
+
+		var reactiveRelationship = switch (reactiveDirection) {
 		case CHARGE -> Relationship.LESS_OR_EQUALS;
 		case DISCHARGE -> Relationship.GREATER_OR_EQUALS;
 		case KEEP_ZERO -> Relationship.EQUALS;
 		};
 
-		for (var inv : sortedInverters) {
-			// Create Constraint to force Ess positive/negative/zero according to
-			// targetDirection
-			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					createSimpleConstraint(coefficients, //
-							inv.toString() + ": Force ActivePower " + direction.name(), //
-							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, relationship, 0));
-			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					createSimpleConstraint(coefficients, //
-							inv.toString() + ": Force ReactivePower " + direction.name(), //
-							inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, relationship, 0));
+		for (int i=0; i<sortedInverters.size(); i++) {
+			var inv = sortedInverters.get(i);
+
+			if(essState[i] == Level.FAULT) {
+				// Create Constraint to force faulty Ess on ZERO
+				if(debugMode) log.debug("[REACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essReactivePowerRequired[i]);
+				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+						createSimpleConstraint(coefficients, //
+								inv.toString() + ": Force ReactivePower KEEP_ZERO", //
+								inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, 0));
+			} else {
+				// Create Constraint to force Ess positive/negative/zero according to
+				// reactiveDirection
+				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+						createSimpleConstraint(coefficients, //
+								inv.toString() + ": Force ReactivePower " + reactiveDirection.name(), //
+								inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, reactiveRelationship, 0));
+			}
 		}
 
 		for (int i=0; i<sortedInverters.size(); i++) {
 			var inv = sortedInverters.get(i);
 
-			if(debug) System.out.println("["+pwr+"] Add Constraint for "+inv.toString()+": "+relationship+" "+essPowerRequired[i]);
-			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
-					createSimpleConstraint(coefficients, //
-							inv.toString() + ": Set "+pwr.toString()+" Power " + direction.name() + " value", //
-							inv.getEssId(), inv.getPhase(), pwr, relationship, essPowerRequired[i]));
+			if(essState[i] != Level.FAULT) {
+				if(debugMode) log.debug("[REACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essReactivePowerRequired[i]);
+				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
+						createSimpleConstraint(coefficients, //
+								inv.toString() + ": Set ReactivePower " + reactiveDirection.name() + " value", //
+								inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, essReactivePowerRequired[i]));
+			}
 		}
 
 		return result;
+	}
+
+	private static TargetDirection getReactiveDirection(double reactivePower) {
+		if(reactivePower > 0) return TargetDirection.DISCHARGE;
+		if(reactivePower < 0) return TargetDirection.CHARGE;
+		return TargetDirection.KEEP_ZERO;
 	}
 
 	private static ManagedSymmetricEss getEss(List<ManagedSymmetricEss> esss, String essId) {
@@ -418,6 +757,16 @@ public class PreferDcPower {
 			}
 		}
 		return null;
+	}
+
+	private static Integer getPvProductionFromEss(ManagedSymmetricEss ess) {
+		Integer pvProduction = ess.getPvProduction();
+		if(pvProduction==null) {
+			log.info(ess.id()+" does not report PVProduction | "+ess.getClass().toString());
+			return 0;
+		}
+
+		return pvProduction;
 	}
 
 	/**
@@ -475,7 +824,31 @@ public class PreferDcPower {
 	 * @return the maximum available power in watts for the given parameters
 	 */
 	private static int getMaxPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
-		return ess.getPower().getMaxPower(ess, ALL, pwr);
+		var maxPower = ess.getPower().getMaxPower(ess, ALL, pwr);
+		var minPower =  ess.getPower().getMinPower(ess, ALL, pwr);
+
+		// Verify that maxPower is not lower than minPower (on force charge); tolerate rounding difference
+		if(maxPower<0 && maxPower<minPower && minPower-maxPower>1) maxPower = minPower;
+
+		// When constraint system gives negative/zero, use raw ESS discharge limit
+		try {
+			var allowedDischargeValue = ess.getAllowedDischargePower().getOrError();
+			var allowedChargeValue = ess.getAllowedChargePower().getOrError();
+			if (maxPower > allowedDischargeValue) {
+				return allowedDischargeValue; // limit maxPower to allowedDischargeValue
+			} else if(maxPower < allowedChargeValue) {
+				return allowedChargeValue; // limit maxPower to allowedChargeValue (on force charge)
+			} else {
+				// Tolerate rounding difference (e.g. maxPower 9999, allowedDischargePower 10000)
+				if(allowedDischargeValue-maxPower == 1) {
+					return allowedDischargeValue;
+				}
+				return maxPower;
+			}
+		} catch (Exception e) {
+			// Value not available, use fallback
+		}
+		return 1; // Fallback if null, invalid, or not available
 	}
 
 	/**
@@ -486,6 +859,30 @@ public class PreferDcPower {
 	 * @return the maximum available power in watts for the given parameters
 	 */
 	private static int getMinPowerFromEss(ManagedSymmetricEss ess, Pwr pwr) {
-		return ess.getPower().getMinPower(ess, ALL, pwr);
+		var maxPower = ess.getPower().getMaxPower(ess, ALL, pwr);
+		var minPower =  ess.getPower().getMinPower(ess, ALL, pwr);
+
+		// Verify that minPower is not higher than maxPower (on force discharge)
+		if(minPower>0 && minPower>maxPower) minPower = maxPower;
+
+		// When constraint system gives negative/zero, use raw ESS discharge limit
+		try {
+			var allowedDischargeValue = ess.getAllowedDischargePower().getOrError();
+			var allowedChargeValue = ess.getAllowedChargePower().getOrError();
+			if (minPower < allowedChargeValue) {
+				return allowedChargeValue; // limit minPower to allowedChargeValue
+			} else if(minPower > allowedDischargeValue) {
+				return allowedDischargeValue; // limit minPower to allowedDischargeValue (on force discharge)
+			} else {
+				// Tolerate rounding difference (e.g. minPower -9999, allowedChargePower -10000)
+				if(minPower-allowedChargeValue == 1) {
+					return allowedChargeValue;
+				}
+				return minPower;
+			}
+		} catch (Exception e) {
+			// Value not available, use fallback
+		}
+		return -1; // Fallback if null, invalid, or not available
 	}
 }
