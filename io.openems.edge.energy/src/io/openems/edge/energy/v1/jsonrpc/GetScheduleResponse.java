@@ -41,10 +41,12 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	private final ZonedDateTime toDate;
 	private final ScheduleDatas scheduleDatas;
 
+	@Deprecated
 	public GetScheduleResponse(ZonedDateTime fromDate, ZonedDateTime toDate, ScheduleDatas scheduleDatas) {
 		this(UUID.randomUUID(), fromDate, toDate, scheduleDatas);
 	}
 
+	@Deprecated
 	public GetScheduleResponse(UUID id, ZonedDateTime fromDate, ZonedDateTime toDate, ScheduleDatas scheduleDatas) {
 		super(id);
 		this.fromDate = fromDate;
@@ -52,6 +54,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 		this.scheduleDatas = scheduleDatas;
 	}
 
+	@Deprecated
 	@Override
 	public JsonObject getResult() {
 		var s = new TreeMap<ZonedDateTime, JsonObject>();

@@ -28,7 +28,7 @@ public class SellToGridLimit {
 	 */
 	protected Integer getSellToGridLimit() throws OpenemsNamedException {
 
-		if (this.parent.meta.getGridFeedInLimitationType().asEnum() == GridFeedInLimitationType.NO_LIMITATION) {
+		if (this.parent.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.NO_LIMITATION) {
 			this.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.DISABLED, null);
 			return null;
 		}

@@ -4,6 +4,8 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertAmpereToWatt;
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertMilliAmpereToWatt;
+import static io.openems.edge.evse.api.common.ApplySetPoint.convertWattToAmpere;
+import static io.openems.edge.evse.api.common.ApplySetPoint.convertWattToMilliAmpere;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -29,6 +31,12 @@ public class ProfileTest {
 
 		assertEquals(22080, convertAmpereToWatt(THREE_PHASE, 32));
 		assertEquals(22080, convertMilliAmpereToWatt(THREE_PHASE, 32000));
+
+		assertEquals(17891, convertWattToMilliAmpere(THREE_PHASE, 12345));
+		assertEquals(17, convertWattToAmpere(THREE_PHASE, 12345));
+
+		assertEquals(5365, convertWattToMilliAmpere(SINGLE_PHASE, 1234));
+		assertEquals(5, convertWattToAmpere(SINGLE_PHASE, 1234));
 	}
 
 }

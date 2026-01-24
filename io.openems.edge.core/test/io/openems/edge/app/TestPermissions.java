@@ -56,9 +56,10 @@ public class TestPermissions extends AbstractOpenemsAppWithProps<TestPermissions
 	}
 
 	public static enum Property implements Type<Property, TestPermissions, TestPermissionsParameter> {
-		ID(AppDef.componentId("id0")), ADMIN_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		ID(AppDef.componentId("id0")), //
+		ADMIN_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setMinRole(Role.ADMIN))), //
-		INSTALLER_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
+		INSTALLER_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setMinRole(Role.INSTALLER))), //
 		EVERYONE(AppDef.copyOfGeneric(CommonProps.defaultDef())), //
 		UPDATE_ARRAY(AppDef.copyOfGeneric(defaultDef(), def -> def //

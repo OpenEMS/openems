@@ -6,8 +6,8 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImplTest;

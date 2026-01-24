@@ -4,18 +4,18 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.gson.JsonObject;
-import io.openems.edge.core.appmanager.OpenemsApp;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonObject;
 
 import io.openems.common.session.Language;
 import io.openems.edge.app.common.props.PropsUtil;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.Apps;
+import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 

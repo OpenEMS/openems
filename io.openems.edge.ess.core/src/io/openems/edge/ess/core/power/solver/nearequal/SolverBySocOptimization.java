@@ -1,6 +1,7 @@
 package io.openems.edge.ess.core.power.solver.nearequal;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
@@ -31,6 +32,7 @@ public record SolverBySocOptimization(double[] upperBound, double[] lowerBound, 
 	 * @return result the {@link PointValuePair}
 	 */
 	public PointValuePair solve(int totalVariables) {
+
 		// Handle discharge case
 		if (this.targetDirection == TargetDirection.DISCHARGE && this.exceedsTotalUpperBound()) {
 			return new PointValuePair(this.upperBound, DEFAULT_VALUE);
@@ -71,6 +73,7 @@ public record SolverBySocOptimization(double[] upperBound, double[] lowerBound, 
 	 */
 	public static double[] solveDistribution(double[] upperBound, double[] lowerBound, double[] socDistribution,
 			double powerSetValue, TargetDirection targetDirection) {
+
 		final var n = upperBound.length;
 
 		if (targetDirection == TargetDirection.KEEP_ZERO) {
@@ -219,6 +222,36 @@ public record SolverBySocOptimization(double[] upperBound, double[] lowerBound, 
 		} while (boundViolation);
 
 		return result;
+	}
+
+	/**
+	 * Gets a summary of the solver state.
+	 * 
+	 * @param socDistribution the array of SOC distribution
+	 * @param upperBound      the array of upper bounds (discharge limits)
+	 * @param solution        the array of solution values
+	 * @param lowerBound      the array of lower bounds (charge limits)
+	 * @param powerSetValue   the requested power value
+	 * @return compact one-line summary
+	 */
+	public static String getCompactSolverSummary(double[] socDistribution, double[] upperBound, double[] solution,
+			double[] lowerBound, double powerSetValue) {
+
+		double totalSolution = Arrays.stream(solution).sum();
+
+		return String.format("SOC Solver: SOCs=[%s] → Solutions=[%s] (Req:%.0fW, Total:%.0fW)",
+				formatCompactArray(socDistribution), //
+				formatCompactArray(solution), //
+				powerSetValue, //
+				totalSolution);
+	}
+
+	private static String formatCompactArray(double[] array) {
+		StringJoiner joiner = new StringJoiner(",");
+		for (double v : array) {
+			joiner.add(String.format("%.0f", v));
+		}
+		return joiner.toString();
 	}
 
 	/**

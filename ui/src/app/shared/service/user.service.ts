@@ -66,12 +66,12 @@ export class UserService {
     }
 
     /**
-     * Updates the userSettings
+     * Updates the settings from User
      *
      * @param key the key to update
      * @param value the value for given key
      */
-    public async updateUserSettingsWithProperty(key: string, value: boolean | string | number) {
+    public async updateUserSettingsWithProperty(key: string, value: User["settings"][keyof User["settings"]]) {
         const user = this.currentUser();
         AssertionUtils.assertIsDefined(user);
         const updatedSettings = { ...user.settings, [key]: value };
@@ -129,6 +129,7 @@ export class UserService {
         // Provide color to set before angular app inits
         const backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-background-color");
         localStorage.setItem("THEME_COLOR", backgroundColor);
+        localStorage.setItem("THEME", validTheme);
 
         document.documentElement.setAttribute("data-theme", attr);
     }
@@ -163,7 +164,7 @@ export class UserService {
         if (environment.backend === "OpenEMS Edge") {
             return Promise.resolve([new UnimplementedInEdgeError(request), null]);
         }
-        return JsonRpcUtils.handle<JsonrpcResponseSuccess>(this.service.websocket.sendSafeRequest(request));
+        return JsonRpcUtils.handle(this.service.websocket.sendSafeRequest(request));
     }
 
     /**

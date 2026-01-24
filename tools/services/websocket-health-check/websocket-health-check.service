@@ -1,0 +1,18 @@
+[Unit]
+Description=WebSocket health check
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/websocket-health-check
+ExecStart=/opt/websocket-health-check/websocket-health-check.sh \
+    "ws://localhost:8092" \
+    "openems-backend.service" \
+    --threshold 6 \
+    --state-file /tmp/websocket-health-check/failcount \
+    --log-file ./trigger.log
+
+[Install]
+WantedBy=multi-user.target
+Also=websocket-health-check.timer

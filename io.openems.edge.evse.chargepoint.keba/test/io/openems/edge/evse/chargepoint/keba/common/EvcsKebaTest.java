@@ -14,7 +14,6 @@ public class EvcsKebaTest {
 	 */
 	public static void testEvcsKebaChannels(TestCase tc) throws Exception {
 		tc //
-				.output(EvcsKeba.ChannelId.MAX_HARDWARE_CURRENT, null) //
 				.output(EvcsKeba.ChannelId.PLUG, CableState.PLUGGED_AND_LOCKED) //
 		;
 	}

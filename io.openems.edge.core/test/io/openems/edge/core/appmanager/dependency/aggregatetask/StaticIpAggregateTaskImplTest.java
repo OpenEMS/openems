@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.session.Language;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;

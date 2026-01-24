@@ -142,4 +142,52 @@ To run a simulation:
 }
 ----
 
+== Datasources
+
+Datasources provide input data for simulated components. There are several types available:
+
+=== CSV Datasources
+
+* **Simulator.Datasource.CSV.Direct** - Reads data directly from a CSV string provided in the configuration.
+* **Simulator.Datasource.CSV.Predefined** - Reads data from predefined CSV files bundled with OpenEMS (e.g., standard load profiles).
+
+=== Single Value Datasources
+
+* **Simulator.Datasource.Single.Direct** - Provides a single data channel with values defined as an integer array in the configuration.
+* **Simulator.Datasource.Single.Channel** - Provides a single data channel that can be set dynamically via a writable channel. This is useful for external testing scenarios where production/consumption data needs to be injected at runtime.
+
+==== Using Simulator.Datasource.Single.Channel
+
+This datasource allows setting simulation values externally via REST API or other channel write mechanisms.
+
+.Example: Setting consumption data via REST API
+[source,bash]
+----
+# Set consumption to 6000 W
+curl -d '{"value":6000}' http://admin:admin@localhost:8084/rest/channel/simulateConsumption/Data
+
+# Verify the value was set
+curl http://admin:admin@localhost:8084/rest/channel/_sum/ConsumptionActivePower
+----
+
+.Configuration example
+[source,json]
+----
+{
+  "factoryPid": "Simulator.Datasource.Single.Channel",
+  "properties": [
+    {
+      "name": "id",
+      "value": "simulateConsumption"
+    },
+    {
+      "name": "enabled",
+      "value": true
+    }
+  ]
+}
+----
+
+The datasource exposes a `Data` channel with read/write access. When a value is written to this channel, it immediately becomes available as the datasource's output value. If no value has been set, the default value is `0`.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator[Source Code icon:github[]]

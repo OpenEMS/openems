@@ -1,12 +1,7 @@
 package io.openems.backend.common.metadata;
 
-import java.util.NavigableMap;
-import java.util.TreeMap;
-
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -28,12 +23,14 @@ public class User extends AbstractUser {
 
 	public User(String id, String name, String token, Language language, Role globalRole, boolean hasMultipleEdges,
 			JsonObject settings) {
-		this(id, name, token, language, globalRole, new TreeMap<>(), hasMultipleEdges, settings);
+		super(id, name, language, globalRole, settings);
+		this.hasMultipleEdges = hasMultipleEdges;
+		this.token = token;
 	}
 
-	public User(String id, String name, String token, Language language, Role globalRole,
-			NavigableMap<String, Role> roles, boolean hasMultipleEdges, JsonObject settings) {
-		super(id, name, language, globalRole, roles, settings);
+	public User(String userId, String email, String name, String token, Language language, Role globalRole,
+			boolean hasMultipleEdges, JsonObject settings) {
+		super(userId, email, name, language, globalRole, settings);
 		this.hasMultipleEdges = hasMultipleEdges;
 		this.token = token;
 	}
@@ -48,25 +45,14 @@ public class User extends AbstractUser {
 	}
 
 	/**
-	 * Throws an exception if the current Role is equal or more privileged than the
-	 * given Role.
+	 * Creates a new User with the given token.
 	 *
-	 * @param resource a resource identifier; used for the exception
-	 * @param edgeId   the Edge-ID
-	 * @param role     the compared Role
-	 * @return the current {@link Role}
-	 * @throws OpenemsNamedException if the current Role privileges are less
+	 * @param token the token
+	 * @return a new User
 	 */
-	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
-		var thisRoleOpt = this.getRole(edgeId);
-		if (!thisRoleOpt.isPresent()) {
-			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, this.getId());
-		}
-		var thisRole = thisRoleOpt.get();
-		if (!thisRole.isAtLeast(role)) {
-			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, thisRole.toString());
-		}
-		return thisRole;
+	public User withToken(String token) {
+		return new User(this.getUserId(), this.getEmail(), this.getName(), token, this.getLanguage(),
+				this.getGlobalRole(), this.hasMultipleEdges(), this.getSettings());
 	}
 
 	@Override

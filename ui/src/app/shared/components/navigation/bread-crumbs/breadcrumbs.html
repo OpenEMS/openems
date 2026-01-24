@@ -1,9 +1,17 @@
-<ion-breadcrumbs *ngIf="breadCrumbs().length > 0" maxItems="3">
-    @for(parent of breadCrumbs(); track parent.id; let isLast = $last){
-    <ion-breadcrumb [active]="isLast" (click)="navigateTo(parent, !isLast)" color="primary">
-        <ion-text *ngIf="parent.mode === 'label'" [color]="isLast ? 'primary': 'medium'">{{parent.label}}</ion-text>
-        <ion-icon *ngIf="parent.mode === 'icon'" [name]="'home-outline'"
+@if (breadCrumbs().length > 0) {
+  <ion-breadcrumbs [maxItems]="maxItems">
+    @for(parent of breadCrumbs(); track parent.id; let isLast = $last; let isFirst = $first; let index = $index){
+      <ion-breadcrumb [active]="isLast" (keydown.enter)="navigateTo($event, parent, !isLast)" (click)="index === 1 
+        ? navigateTo($event, breadCrumbs()[breadCrumbs().length - 2], true, false) 
+        : navigateTo($event, parent, !isLast, isOpen)" tabindex="0" color="primary">
+        @if (parent.mode === 'label') {
+          <ion-text style="cursor: pointer" [color]="isLast ? 'primary': 'medium'">{{parent.label}}</ion-text>
+        }
+        @if (parent.mode === 'icon') {
+          <ion-icon style="cursor: pointer" [name]="'home-outline'"
             [color]="currentlyActive ? 'primary':'medium'"></ion-icon>
-    </ion-breadcrumb>
+        }
+      </ion-breadcrumb>
     }
-</ion-breadcrumbs>
+  </ion-breadcrumbs>
+}

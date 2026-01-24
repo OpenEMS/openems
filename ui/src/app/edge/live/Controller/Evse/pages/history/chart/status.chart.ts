@@ -35,7 +35,7 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => this.getDataset(data, 1),
                     color: ChartConstants.Colors.GREEN,
                 }, {
-                    name: translate.instant("EVSE_SINGLE.HOME.MODE.PV"),
+                    name: translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS"),
                     converter: () => this.getDataset(data, 2),
                     color: ChartConstants.Colors.BLUE,
                 }, {
@@ -65,7 +65,6 @@ export class ChartComponent extends AbstractHistoryChart {
     private static getDataset(data: HistoryUtils.ChannelData, desiredState: number): any[] {
         const prices = data["QuarterlyPrice"]
             .map(val => TimeOfUseTariffUtils.formatPrice(Utils.multiplySafely(val, 1000)));
-        console.log(data, desiredState);
         const states = data["ActualMode"]
             .map(val => Utils.multiplySafely(val, 1000))
             .map(val => {

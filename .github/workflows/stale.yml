@@ -14,9 +14,29 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-stale: 90
           days-before-close: 14
-          stale-issue-message: "This issue has been automatically marked as stale due to inactivity. It will be closed in 14 days if no further activity occurs."
-          close-issue-message: "Closing this issue due to inactivity. Please reopen if needed."
-          stale-pr-message: "This PR has been automatically marked as stale due to inactivity. It will be closed in 14 days if no further activity occurs."
-          close-pr-message: "Closing this PR due to inactivity."
-          exempt-issue-labels: "pinned,security,hacktoberfest,good-first-issue"
           exempt-pr-labels: "work-in-progress,do-not-close,security"
+          exempt-issue-labels: "pinned,security,hacktoberfest,good-first-issue"
+          stale-issue-message: |
+            **This issue has been automatically marked as stale due to inactivity**
+            ---
+            If it is still relevant, please comment or update the issue.
+            Otherwise, it will be automatically closed in 14 days.
+
+            For further assistance, visit the [OpenEMS Community Forum](https://community.openems.io).
+          close-issue-message: |
+            **This issue has been closed due to inactivity**
+            ---
+            It was automatically closed because there has been no recent activity.
+            If the issue is still relevant, please feel free to reopen it and add any new information.
+          stale-pr-message: |
+            **This PR has been automatically marked as stale due to inactivity**
+            ---
+            If it is still relevant, please update the PR.
+            Otherwise, it will be automatically closed in 14 days.
+
+            Before updating, please review our [Contribution Guidelines](https://github.com/OpenEMS/openems/blob/develop/.github/CONTRIBUTING.md) to ensure all required information is provided.
+          close-pr-message: |
+            **This PR has been closed due to inactivity**
+            ---
+            It was automatically closed because there has been no recent activity.
+            If the PR is still relevant, please feel free to reopen and update it and add any new information.

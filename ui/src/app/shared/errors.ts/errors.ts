@@ -15,3 +15,19 @@ export class UnimplementedInEdgeError<T extends JsonrpcRequest> extends Unimplem
         super(request, "not available with edge as backend");
     }
 }
+
+export class EdgeNotSetError extends Error {
+    constructor() {
+        super("edge not set");
+    }
+}
+
+export class AuthenticationFailedError extends Error {
+    public static id: number = 1003;
+}
+
+export class DuplicateAuthenticationFailureException extends Error {
+    constructor() {
+        super("Duplicate Authentication Failure");
+    }
+}

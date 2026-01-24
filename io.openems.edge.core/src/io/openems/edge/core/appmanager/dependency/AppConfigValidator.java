@@ -3,6 +3,7 @@ package io.openems.edge.core.appmanager.dependency;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -15,11 +16,9 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppManagerUtil;
-import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
 
@@ -48,12 +47,16 @@ public class AppConfigValidator {
 	 * Validates the expected configuration of an app the actual configuration on
 	 * the system.
 	 * 
-	 * @param instance the instance to validate
+	 * @param instance          the instance to validate
+	 * @param configuration     the configuration of the instance
+	 * @param allConfigurations all configurations of all existing instances
 	 * @throws OpenemsNamedException on error
 	 */
-	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException {
-		final var configuration = this.appManagerUtil.getAppConfiguration(ConfigurationTarget.VALIDATE, instance,
-				Language.DEFAULT);
+	public void validate(//
+			OpenemsAppInstance instance, //
+			AppConfiguration configuration, //
+			Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) throws OpenemsNamedException {
 
 		final var errors = new ArrayList<String>();
 		for (var task : configuration.tasks()) {
@@ -63,7 +66,7 @@ public class AppConfigValidator {
 				continue;
 			}
 
-			validate(aggregateTask, errors, configuration, task.configuration());
+			validate(aggregateTask, errors, configuration, task.configuration(), allConfigurations);
 		}
 
 		this.validateDependecies(errors, instance.dependencies, configuration.dependencies());
@@ -75,8 +78,9 @@ public class AppConfigValidator {
 
 	@SuppressWarnings("unchecked")
 	private static <T> void validate(AggregateTask<T> aggregateTask, List<String> errors,
-			AppConfiguration appConfiguration, Object configuration) {
-		aggregateTask.validate(errors, appConfiguration, (T) configuration);
+			AppConfiguration appConfiguration, Object configuration,
+			Map<OpenemsAppInstance, AppConfiguration> allConfigurations) {
+		aggregateTask.validate(errors, appConfiguration, (T) configuration, allConfigurations);
 	}
 
 	private AggregateTask<?> findTaskByClass(Class<? extends AggregateTask<?>> clazz) {
@@ -119,8 +123,11 @@ public class AppConfigValidator {
 				} else {
 					var list = this.appManagerUtil.getInstantiatedAppsOfApp(appConfig.appId);
 					if (list.size() != 1) {
-						errors.add("Missing dependency with Key[" + dependency.key + "] needed App[" + appConfig.appId
-								+ "]");
+						if (dependency.createPolicy == DependencyDeclaration.CreatePolicy.NEVER) {
+							continue;
+						}
+						appConfigErrors.add("Missing dependency with Key[" + dependency.key + "] needed App["
+								+ appConfig.appId + "]");
 					} else {
 						checkProperties(errors, list.get(0).properties, appConfig, dependency.key);
 					}
@@ -131,7 +138,9 @@ public class AppConfigValidator {
 				}
 			}
 
-			errors.addAll(minErrors);
+			if (minErrors != null) {
+				errors.addAll(minErrors);
+			}
 		}
 
 		if (configDependencies == null) {

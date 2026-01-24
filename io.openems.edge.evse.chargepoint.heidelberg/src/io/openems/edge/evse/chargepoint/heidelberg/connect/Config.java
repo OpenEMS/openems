@@ -4,8 +4,8 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.heidelberg.connect.enums.PhaseSwitching;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "EVSE Charge-Point Heidelberg Connect", //
 		description = "The Heidelberg electric vehicle charging station")

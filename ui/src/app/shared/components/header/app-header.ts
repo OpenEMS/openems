@@ -7,7 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
-import { Edge, Service, Websocket } from "../../shared";
+import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
@@ -46,7 +46,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
-
             const _currentUrl = routeService.currentUrl();
 
             if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
@@ -112,75 +111,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
     }
 
-    updateBackUrl(url: string) {
-
-        if (this._customBackUrl) {
-            this.backUrl = this._customBackUrl;
-            return;
-        }
-
-        // disable backUrl & Segment Navigation on initial 'login' page
-        if (url === "/login" || url === "/overview" || url === "/index") {
-            this.backUrl = false;
-            return;
-        }
-
-
-        // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
-        if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
-            return;
-        }
-
-        // set backUrl for user if no edge had been selected
-        if (url === "/user") {
-            this.backUrl = "/overview";
-            return;
-        }
-
-        if (url === "/changelog" && currentEdge != null) {
-            // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
-            return;
-        }
-
-        const urlArray = url.split("/");
-        let backUrl: string | boolean = "/";
-        const file = urlArray.pop();
-
-        // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
-        if ((file == "history" || file == "live") && urlArray.length == 3) {
-            this.backUrl = false;
-            return;
-        }
-
-        // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
-            this.backUrl = false;
-            return;
-        }
-
-        // remove one part of the url for 'index'
-        if (file === "live") {
-            urlArray.pop();
-        }
-
-        // fix url for App "settings/app/install" and "settings/app/update"
-        if (urlArray.slice(-3, -1).join("/") === "settings/app") {
-            urlArray.pop();
-        }
-
-        // re-join the url
-        backUrl = urlArray.join("/") || "/";
-
-        // correct path for '/device/[edgeId]/index'
-        if (backUrl === "/device") {
-            backUrl = "/";
-        }
-        this.backUrl = backUrl;
-    }
-
     updateCurrentPage(url: string) {
         const urlArray = url.split("/");
         let file = urlArray.pop();
@@ -234,12 +164,61 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.menu.toggle();
     }
 
+    private updateBackUrl(url: string) {
+
+        if (this._customBackUrl) {
+            this.backUrl = this._customBackUrl;
+            return;
+        }
+
+        // disable backUrl & Segment Navigation on initial 'login' page
+        if (url === "/login" || url === "/overview" || url === "/index") {
+            this.backUrl = false;
+            return;
+        }
+
+        const urlArray = url.split("/");
+        let backUrl: string | boolean = "/";
+        const file = urlArray.pop();
+
+        // disable backUrl for History & EdgeIndex Component ++ Enable Segment Navigation
+        if ((file == "history" || file == "live") && urlArray.length == 3) {
+            this.backUrl = false;
+            return;
+        }
+
+        // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
+        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
+            this.backUrl = false;
+            return;
+        }
+
+        // remove one part of the url for 'index'
+        if (file === "live") {
+            urlArray.pop();
+        }
+
+        // fix url for App "settings/app/install" and "settings/app/update"
+        if (urlArray.slice(-3, -1).join("/") === "settings/app") {
+            urlArray.pop();
+        }
+
+        // re-join the url
+        backUrl = urlArray.join("/") || "/";
+
+        // correct path for '/device/[edgeId]/index'
+        if (backUrl === "/device") {
+            backUrl = "/";
+        }
+        this.backUrl = backUrl;
+    }
+
     private isAllowedForView(url: string): boolean {
 
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
 
-        if (url.includes("/history/")) {
+        if (url.includes("/history/") && !url.includes("/history/user") && this.navigationService.position() === "disabled") {
             return false;
         }
 
@@ -247,9 +226,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             case "/login":
             case "/index":
             case "/demo":
+            case "/oauthcallback":
                 return false;
             default:
                 return true;
         }
     }
+
 }

@@ -157,7 +157,7 @@ public class SimulatorV1Test {
 				.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
 				.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 				.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
-				.setStates(ControlMode.CHARGE_CONSUMPTION.modes) //
+				.setStates(ControlMode.CHARGE_CONSUMPTION.modesArray) //
 				.setExistingSchedule(UtilsV1Test.prepareExistingSchedule(TIME, existingSchedule)) //
 				.build();
 		var s = getBestSchedule(p, //

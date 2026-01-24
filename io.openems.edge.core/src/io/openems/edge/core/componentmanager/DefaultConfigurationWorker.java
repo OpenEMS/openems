@@ -1,9 +1,8 @@
 package io.openems.edge.core.componentmanager;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,7 +18,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
-import io.openems.common.utils.DictionaryUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -91,31 +89,27 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		final var defaultConfigurationFailed = new AtomicBoolean(false);
 
 		/*
-		 * Create Default Logging configuration
+		 * Delete configuration for deprecated Controller.Api.Rest
 		 */
-		if (existingConfigs.stream().noneMatch(c -> "org.ops4j.pax.logging".equals(c.pid) //
-				&& !DictionaryUtils.containsAnyKey(c.properties, "log4j2.rootLogger.level"))) {
-			// Adding Configuration manually, because this is not a OpenEMS Configuration
-			try {
-				var log4j = new Hashtable<String, Object>();
-				log4j.put("log4j2.appender.console.type", "Console");
-				log4j.put("log4j2.appender.console.name", "console");
-				log4j.put("log4j2.appender.console.layout.type", "PatternLayout");
-				log4j.put("log4j2.appender.console.layout.pattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+		existingConfigs.stream().filter(c -> //
+		c.componentId.isPresent() && "Controller.Api.Rest".equals(c.factoryPid)).forEach(c -> {
+			this.deleteConfiguration(defaultConfigurationFailed, c.componentId.get());
+		});
 
-				log4j.put("log4j2.appender.paxosgi.type", "PaxOsgi");
-				log4j.put("log4j2.appender.paxosgi.name", "paxosgi");
-
-				log4j.put("log4j2.rootLogger.level", "INFO");
-				log4j.put("log4j2.rootLogger.appenderRef.console.ref", "console");
-				log4j.put("log4j2.rootLogger.appenderRef.paxosgi.ref", "paxosgi");
-				var config = this.parent.cm.getConfiguration("org.ops4j.pax.logging", null);
-				config.update(log4j);
-			} catch (IOException e) {
-				this.parent.logError(this.log, "Unable to create Default Logging configuration: " + e.getMessage());
-				e.printStackTrace();
-				defaultConfigurationFailed.set(true);
-			}
+		/*
+		 * Create Timedata.Rrd4j
+		 */
+		if (existingConfigs.stream().noneMatch(c -> //
+		// Check if either "Timedata.Rrd4j" or
+		// "Timedata.InfluxDB" exist
+		"Timedata.Rrd4j".equals(c.factoryPid) || "Timedata.InfluxDB".equals(c.factoryPid))) {
+			// if not -> create configuration for "Timedata.Rrd4j"
+			this.createConfiguration(defaultConfigurationFailed, "Timedata.Rrd4j", Arrays.asList(//
+					new Property("id", "rrd4j0"), //
+					new Property("alias", ""), //
+					new Property("enabled", true), //
+					new Property("noOfCycles", 60) //
+			));
 		}
 
 		return defaultConfigurationFailed.get();

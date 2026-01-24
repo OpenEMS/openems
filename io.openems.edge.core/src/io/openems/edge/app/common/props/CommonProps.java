@@ -1,5 +1,6 @@
 package io.openems.edge.app.common.props;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.common.utils.JsonUtils;
@@ -13,6 +14,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public final class CommonProps {
 
@@ -109,4 +111,19 @@ public final class CommonProps {
 						"unofficialAppWarning.text2")));
 	}
 
+	/**
+	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("phaseRotation.label") //
+				.setDefaultValue(PhaseRotation.L1_L2_L3) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Arrays.stream(PhaseRotation.values()) //
+							.map(PhaseRotation::name) //
+							.toList());
+				}));
+	}
 }

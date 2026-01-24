@@ -1,0 +1,40 @@
+.weather-icon {
+    font-size: 1.8rem;
+    vertical-align: middle;
+}
+
+ion-text.weather-temp {
+    font-size: 3.2rem;
+    line-height: 1;
+}
+
+ion-text.temp-min {
+    margin-right: 0.25rem;
+}
+
+.sunshine-row {
+    gap: 0.2rem;
+}
+
+.sunshine-duration-icon {
+    font-size: 1.05rem;
+    vertical-align: middle;
+}
+
+.thin-divider {
+  height: 0.1rem;
+    background-color: var(--ion-background-color);
+    margin: 0.5rem 0 0.5rem 0;
+}
+
+.card {
+    border: 0rem !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-style: none !important;
+}
+
+ion-item-divider {
+    margin-top: 0.4rem;
+    min-height: 0.1rem !important;
+}

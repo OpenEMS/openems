@@ -1,5 +1,6 @@
 package io.openems.common.jsonrpc.serialization;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -10,6 +11,7 @@ import java.util.UUID;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserChannelAddress;
+import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserDuration;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserEnum;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalDate;
 import io.openems.common.jsonrpc.serialization.StringPathParser.StringParserLocalTime;
@@ -177,6 +179,17 @@ public interface JsonPrimitivePathNullable extends JsonPath {
 	 */
 	public default StringPathNullable<LocalTime> getAsStringPathNullableLocalTime() {
 		return this.getAsStringPathNullable(new StringParserLocalTime());
+	}
+
+	/**
+	 * Gets the current {@link JsonPrimitivePathNullable} as a
+	 * {@link StringPathNullable} which contains a {@link Duration} as its parsed
+	 * value.
+	 * 
+	 * @return the current element as a {@link StringPathNullable}
+	 */
+	public default StringPathNullable<Duration> getAsStringPathNullableDuration() {
+		return this.getAsStringPathNullable(new StringParserDuration());
 	}
 
 	/**

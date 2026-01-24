@@ -69,8 +69,21 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile TimeOfUseTariff timeOfUseTariff;
+
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
+	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		this.timeOfUseTariff = tariff;
+		this.triggerReschedule("EnergySchedulerImpl::bindTimeOfUseTariff()");
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		if (this.timeOfUseTariff == tariff) {
+			this.timeOfUseTariff = null;
+			this.triggerReschedule("EnergySchedulerImpl::unbindTimeOfUseTariff()");
+		}
+	}
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
@@ -150,19 +163,14 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.setTimeOfUseTariff(this.timeOfUseTariff) //
 							.build();
 				}, //
-				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-
-		if (this.applyConfig(config, "activate")) {
-			switch (config.version()) {
-			case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-			case V2_ENERGY_SCHEDULABLE -> this.optimizer.activate();
-			}
-		}
+		this.applyConfig(config, "activate");
 	}
 
 	@Modified
@@ -171,13 +179,42 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.applyConfig(config, "modified");
 	}
 
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		this.optimizerV1.deactivate();
+		this.optimizer.deactivate();
+		super.deactivate();
+	}
+
+	private synchronized void applyConfig(Config config, String reason) {
+		this.config = config;
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+
+		if (!config.enabled()) {
+			this.optimizerV1.deactivate();
+			this.optimizer.interruptTask();
+			return;
+		}
+
+		this.triggerReschedule("EnergySchedulerImpl::applyConfig() " + reason);
+	}
+
 	private void triggerReschedule(String reason) {
 		if (this.config == null) {
 			return; // Wait for @Activate
 		}
 		switch (this.config.version()) {
-		case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-		case V2_ENERGY_SCHEDULABLE -> this.optimizer.triggerReschedule(reason);
+		case V1_ESS_ONLY -> {
+			this.optimizer.interruptTask();
+			this.optimizerV1.activate(this.id());
+		}
+		case V2_ENERGY_SCHEDULABLE -> {
+			this.optimizerV1.deactivate();
+			this.optimizer.triggerReschedule(reason);
+		}
 		}
 	}
 
@@ -187,31 +224,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 			return this.optimizer.debugLog();
 		}
 		return null;
-	}
-
-	private synchronized boolean applyConfig(Config config, String reason) {
-		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return false;
-		}
-
-		if (config.enabled()) {
-			this.triggerReschedule("EnergySchedulerImpl::applyConfig() " + reason);
-		} else {
-			this.optimizerV1.deactivate();
-			this.optimizer.interruptTask();
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		this.optimizerV1.deactivate();
-		this.optimizer.deactivate();
-		super.deactivate();
 	}
 
 	@Override

@@ -47,7 +47,8 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class PredictorPersistenceModelImpl extends AbstractPredictor implements Predictor, OpenemsComponent {
+public class PredictorPersistenceModelImpl extends AbstractPredictor
+		implements Predictor, PredictorPersistenceModel, OpenemsComponent {
 
 	/** Use that many quarters to calculate regression. */
 	private static final int REGRESSION_QUERY_QUARTERS = 2 /* hours */ * 4 /* quarters */;
@@ -92,7 +93,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 	}
 
 	@Override
-	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
+	public Prediction createNewPrediction(ChannelAddress channelAddress) {
 		var now = ZonedDateTime.now(this.componentManager.getClock());
 		var fromDate = now.minus(24 * 60 + EXTRA_QUERY_QUARTERS * 15, ChronoUnit.MINUTES);
 
@@ -160,7 +161,7 @@ public class PredictorPersistenceModelImpl extends AbstractPredictor implements 
 						.skip(EXTRA_QUERY_QUARTERS + REGRESSION_APPLY_QUARTERS + SMOOTH_APPLY_QUARTERS) //
 		).toArray(Integer[]::new);
 
-		return Prediction.from(this.sum, channelAddress, now, result);
+		return Prediction.from(this.sum, channelAddress, now.toInstant(), result);
 	}
 
 	/**

@@ -16,7 +16,9 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -29,6 +31,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
@@ -47,22 +50,53 @@ public final class IntegratedSystemProps {
 	}
 
 	/**
+	 * Creates a {@link AppDef} for {@link GridCode}.
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridCode() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.gridCode.label") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GridCode.class), l);
+				})); //
+	}
+
+	/**
 	 * Creates a {@link AppDef} for a feed in type.
 	 * 
 	 * @param exclude the {@link ExternalLimitationType FeedInTypes} to exclude
 	 * 
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> externalLimitationType(ExternalLimitationType... exclude) {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> externalLimitationType(
+			ExternalLimitationType... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.externalLimitationType.label") //
 				.setDefaultValue(ExternalLimitationType.NO_LIMITATION) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 
-					final var excludeCombinedArray = ArrayUtils.concat(exclude, new ExternalLimitationType[] {
-							ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION, ExternalLimitationType.DYNAMIC_LIMITATION });
+					final var excludeCombinedArray = ArrayUtils.concat(exclude,
+							new ExternalLimitationType[] { ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION,
+									ExternalLimitationType.DYNAMIC_LIMITATION });
 
 					field.setOptions(OptionsFactory.of(ExternalLimitationType.class, excludeCombinedArray), l);
+				}) //
+				.valueMapper((app, property, l, parameter, props) -> {
+					final var currentValue = props.get(property.name());
+					return JsonUtils.getAsOptionalEnum(ExternalLimitationType.class, currentValue) //
+							.map(externalLimitationType -> {
+								return switch (externalLimitationType) {
+								case NO_LIMITATION, DYNAMIC_LIMITATION -> ExternalLimitationType.NO_LIMITATION;
+								case EXTERNAL_LIMITATION, DYNAMIC_AND_EXTERNAL_LIMITATION ->
+									ExternalLimitationType.EXTERNAL_LIMITATION;
+								case DYNAMIC_EXTERNAL_LIMITATION -> ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION;
+								};
+							}) //
+							.map(Enum::name) //
+							.map(JsonPrimitive::new) //
+							.orElse(null);
 				}));
 	}
 
@@ -190,8 +224,10 @@ public final class IntegratedSystemProps {
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
-							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					if (gridMeterType != null) {
+						field.onlyShowIf(Exp.currentModelValue(gridMeterType)
+								.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					}
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.onlyPositiveNumbers();
@@ -213,6 +249,15 @@ public final class IntegratedSystemProps {
 		}), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
 				.setDefaultValue(200));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst() {
+		return ctRatioFirst(null);
 	}
 
 	/**
@@ -321,7 +366,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasAcMeter.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(property).notNull());
+				}));
 	}
 
 	/**
@@ -350,7 +397,7 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
-	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+			AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //
@@ -361,6 +408,20 @@ public final class IntegratedSystemProps {
 					if (!FeneconHomeComponents.isLimiter14aCompatible(hardwareType)) {
 						field.disabled(true);
 					}
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the feed in link.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> feedInLink() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.feedInLink.label") //
+				.setTranslatedDescription("App.IntegratedSystem.feedInLink.description") //
+				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
+					field.setLink(new LinkBuilder.AppUpdateLink("App.Core.Meta"));
 				}));
 	}
 

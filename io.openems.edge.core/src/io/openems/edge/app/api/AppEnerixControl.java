@@ -107,16 +107,18 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var url = this.getString(p, Property.URL);
+			final var url = this.getValueOrDefault(p, Property.URL, null);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
+									.addProperty("readOnly", false)//
 									.build()));
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)).addTask(Tasks.schedulerByCentralOrder(//
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
 							new SchedulerComponent(id, "Controller.Clever-PV", this.getAppId()))) //
 					.build();
 		};

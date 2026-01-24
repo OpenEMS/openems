@@ -1,0 +1,15 @@
+@if (isInitialized) {
+  <oe-navigation-view [title]="'this.component.alias'" [component]="'component'">
+    <task-form [(startTime)]="startTime" [(endTime)]="endTime" [(selectedMode)]="selectedMode"></task-form>
+    <ion-grid>
+      <ion-row class="ion-justify-content-end ion-padding-top">
+        <ion-button (click)="saveTask()" class="ion-margin-end">
+          {{ "EVSE_SINGLE.SCHEDULE.ACCEPT" | translate }}
+        </ion-button>
+        <ion-button (click)="deleteTask()" fill="outline" color="danger">
+          {{ "EVSE_SINGLE.SCHEDULE.DELETE" | translate }}
+        </ion-button>
+      </ion-row>
+    </ion-grid>
+  </oe-navigation-view>
+}

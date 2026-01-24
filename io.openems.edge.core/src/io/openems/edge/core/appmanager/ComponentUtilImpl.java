@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -30,7 +29,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -45,6 +43,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.host.HostImpl;
 import io.openems.edge.core.host.NetworkInterface;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
@@ -73,18 +73,33 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// both are not null
-		if (expected == null || actual == null || !expected.isJsonPrimitive() || !actual.isJsonPrimitive()) {
+		if (expected == null || actual == null) {
 			return false;
 		}
 
-		// both are JsonPrimitives
-		var e = expected.getAsJsonPrimitive();
-		var a = actual.getAsJsonPrimitive();
-
-		if (e.getAsString().equals(a.getAsString())) {
-			// compare 'toString'
-			return true;
+		// If one is a primitive string and the other is not, try parsing the string.
+		if (expected.isJsonPrimitive() && expected.getAsJsonPrimitive().isString() && !actual.isJsonPrimitive()) {
+			try {
+				var parsedExpected = JsonUtils.parse(expected.getAsString());
+				return parsedExpected.equals(actual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
 		}
+
+		if (actual.isJsonPrimitive() && actual.getAsJsonPrimitive().isString() && !expected.isJsonPrimitive()) {
+			try {
+				var parsedActual = JsonUtils.parse(actual.getAsString());
+				return expected.equals(parsedActual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
+		}
+
+		if (expected.isJsonPrimitive() && actual.isJsonPrimitive()) {
+			return expected.getAsString().equals(actual.getAsString());
+		}
+
 		return false;
 	}
 
@@ -147,7 +162,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfiguration(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfiguration(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, true, true);
 	}
@@ -162,7 +177,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param includeId         if the Component-ID should be checked
 	 * @return true if the configurations are the same
 	 */
-	private static boolean isSameConfiguration(List<String> errors, Component expectedComponent,
+	private static boolean isSameConfiguration(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent, boolean includeAlias, boolean includeId) {
 		if (errors == null) {
 			// if the caller doesn't want errors use the fast way.
@@ -171,22 +186,22 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 		var componentErrors = new ArrayList<String>();
 
-		if (includeAlias && !expectedComponent.getAlias().equals(actualComponent.getAlias())) {
+		if (includeAlias && !expectedComponent.alias().equals(actualComponent.getAlias())) {
 			componentErrors.add("Alias: " //
-					+ "expected '" + expectedComponent.getAlias() + "', " //
+					+ "expected '" + expectedComponent.alias() + "', " //
 					+ "got '" + actualComponent.getAlias() + "'");
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.factoryId(), actualComponent.getFactoryId())) {
 			componentErrors.add("Factory-ID: " //
-					+ "expected '" + expectedComponent.getFactoryId() + "', " //
+					+ "expected '" + expectedComponent.factoryId() + "', " //
 					+ "got '" + actualComponent.getFactoryId() + "'");
 		}
 
-		for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-			var key = entry.getKey();
-			var expectedProperty = entry.getValue();
+		for (ComponentProperties.Property entry : expectedComponent.properties().values()) {
+			var key = entry.name();
+			var expectedProperty = entry.value();
 			JsonElement actualProperty;
 			try {
 				actualProperty = actualComponent.getPropertyOrError(key);
@@ -204,14 +219,14 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 		}
 
-		if (includeId && !expectedComponent.getId().equals(actualComponent.getId())) {
+		if (includeId && !expectedComponent.id().equals(actualComponent.getId())) {
 			componentErrors.add("Id: " //
-					+ "expected '" + expectedComponent.getId() + "', " //
+					+ "expected '" + expectedComponent.id() + "', " //
 					+ "got '" + actualComponent.getId() + "'");
 		}
 
 		if (!componentErrors.isEmpty()) {
-			errors.add(expectedComponent.getId() + ": " //
+			errors.add(expectedComponent.id() + ": " //
 					+ componentErrors.stream().collect(Collectors.joining("; ")));
 			return false;
 		}
@@ -219,7 +234,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent. Returns on
+	 * Checks if the expected Components match with the actualComponent. Returns on
 	 * the first error.
 	 *
 	 * @param expectedComponent the expected component
@@ -228,22 +243,22 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param includeId         if the Component-ID should be checked
 	 * @return true if the configurations are the same
 	 */
-	private static boolean isSameConfigurationFast(Component expectedComponent, Component actualComponent,
+	private static boolean isSameConfigurationFast(ComponentDef expectedComponent, Component actualComponent,
 			boolean includeAlias, boolean includeId) {
 
-		if (includeId && !expectedComponent.getId().equals(actualComponent.getId())
-				|| includeAlias && !expectedComponent.getAlias().equals(actualComponent.getAlias())) {
+		if (includeId && !expectedComponent.id().equals(actualComponent.getId())
+				|| includeAlias && !expectedComponent.alias().equals(actualComponent.getAlias())) {
 			return false;
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.factoryId(), actualComponent.getFactoryId())) {
 			return false;
 		}
 
-		for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-			var key = entry.getKey();
-			var expectedProperty = entry.getValue();
+		for (var entry : expectedComponent.properties().values()) {
+			var key = entry.name();
+			var expectedProperty = entry.value();
 			JsonElement actualProperty;
 			try {
 				actualProperty = actualComponent.getPropertyOrError(key);
@@ -260,43 +275,40 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the alias.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutAlias(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutAlias(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, false, true);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the Component-ID.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutId(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutId(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, true, false);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the Component-ID and the alias.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutIdAndAlias(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutIdAndAlias(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, false, false);
 	}
@@ -308,18 +320,18 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param components the component list
 	 * @return an ordered copy of the list
 	 */
-	public static List<Component> order(List<Component> components) {
+	public static List<ComponentDef> order(List<ComponentDef> components) {
 		var copy = new ArrayList<>(components);
 		if (components.size() <= 1) {
 			return copy;
 		}
-		for (Component component : components) {
+		for (var component : components) {
 			// determine which id s the component needs
 			List<String> ids = new ArrayList<>();
-			for (Component comp : components) {
-				for (var entry : component.getProperties().entrySet()) {
-					if (entry.getValue().toString().contains(comp.getId())) {
-						ids.add(comp.getId());
+			for (var comp : components) {
+				for (var entry : component.properties().values()) {
+					if (entry.value().toString().contains(comp.id())) {
+						ids.add(comp.id());
 						break;
 					}
 				}
@@ -334,9 +346,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 			var minIndex = 0;
 			var count = 0;
 			// determine minIndex to insert the component
-			for (Component comp : copy) {
-				if (ids.contains(comp.getId())) {
-					ids.remove(comp.getId());
+			for (var comp : copy) {
+				if (ids.contains(comp.id())) {
+					ids.remove(comp.id());
 					minIndex = count;
 					if (ids.isEmpty()) {
 						break;
@@ -383,7 +395,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> {
 					return !ignoreIds.stream().anyMatch(id -> t.id().equals(id)); //
-				})
+				}) //
 				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {
@@ -426,9 +438,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public Component getComponentByConfig(Component component) {
-		for (var comp : this.componentManager.getEdgeConfig().getComponentsByFactory(component.getFactoryId())) {
-			if (ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(null, component, comp)) {
+	public Component getComponentByConfig(ComponentDef component) {
+		for (var comp : this.componentManager.getEdgeConfig().getComponentsByFactory(component.factoryId())) {
+			if (ComponentUtilImpl.isSameConfiguration(null, component, comp, false, false)) {
 				return comp;
 			}
 		}

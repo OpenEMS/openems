@@ -2,8 +2,8 @@ package io.openems.edge.ess.fenecon.commercial40;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
 public class EssFeneconCommercial40ImplTest {

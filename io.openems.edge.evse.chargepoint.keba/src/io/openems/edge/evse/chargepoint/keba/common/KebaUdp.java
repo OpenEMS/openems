@@ -52,13 +52,8 @@ public interface KebaUdp extends Keba {
 				.text("Firmware version")), //
 		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Device is enabled")), //
-		MAX_CURR(Doc.of(OpenemsType.INTEGER)//
-				.text("Current value in mA offered to the vehicle")), //
 		MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER)//
 				.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
-		CURR_HW(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.MILLIAMPERE)//
-				.text("Current preset value via Control pilot")), //
 		CURR_USER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)//
 				.text("Current preset value of the user via UDP; Default = 63000mA")), //

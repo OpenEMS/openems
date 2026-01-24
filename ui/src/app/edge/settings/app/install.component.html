@@ -1,28 +1,46 @@
 <ion-content>
   <ngx-spinner [name]="spinnerId"></ngx-spinner>
-  <ion-grid *ngIf="form">
-    <ion-row class="ion-justify-content-center">
-
-      <ion-col size="12" size-xl="8">
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <ion-card>
-            <ion-item lines="full" color="primary">
-              <ion-label> {{ appName }}</ion-label>
-            </ion-item>
-            <ion-card-content>
-              <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-              <ion-item>
-                <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
-                  Edge.Config.App.createApp
-                </ion-button>
-                <div *ngIf="isInstalling" style="min-height: 100px;">
-                </div>
-                <ngx-spinner [name]="appId"></ngx-spinner>
+  @if (form) {
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" size-xl="8">
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <ion-card>
+              <ion-item lines="full" color="primary">
+                <ion-label> {{ appName }}</ion-label>
               </ion-item>
-            </ion-card-content>
-          </ion-card>
-        </form>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+              <ion-card-content>
+                @for (step of steps; track step) {
+                  @switch(step.type) {
+                    @case('configuration') {
+                      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+                      <ion-item>
+                        <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
+                          EDGE.CONFIG.APP.CREATE_APP
+                        </ion-button>
+                        @if (isInstalling) {
+                          <div style="min-height: 100px;">
+                          </div>
+                        }
+                        <ngx-spinner [name]="appId"></ngx-spinner>
+                      </ion-item>
+                    }
+                    @case('oauth') {
+                      <configuration-oauth [step]="step">
+                      </configuration-oauth>
+                    }
+                    @default {
+                      <p>
+                        {{ 'EDGE.CONFIG.APP.UNKNOWN_INSTALLATION_STEP' | translate: { step: step.type } }}
+                      </p>
+                    }
+                  }
+                }
+              </ion-card-content>
+            </ion-card>
+          </form>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  }
 </ion-content>

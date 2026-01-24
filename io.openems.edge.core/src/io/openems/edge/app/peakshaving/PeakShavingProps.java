@@ -82,9 +82,9 @@ public final class PeakShavingProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <A extends OpenemsApp, PA extends BundleProvider, P extends Nameable & Type<P, A, PA>> //
-	AppDef<A, P, PA> peakShavingRechargePowerGroup(//
-			final P peakShavingPowerProp, //
-			final P rechargePowerProp //
+			AppDef<A, P, PA> peakShavingRechargePowerGroup(//
+					final P peakShavingPowerProp, //
+					final P rechargePowerProp //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def.setField(JsonFormlyUtil::buildFieldGroupFromNameable,
 				(app, property, l, parameter, field) -> {

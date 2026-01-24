@@ -36,3 +36,16 @@ export class GetSetupProtocolDataRequest extends JsonrpcRequest {
         super(GetSetupProtocolDataRequest.METHOD, params);
     }
 }
+
+export class GetSetupProtocolCoreInfoRequest extends JsonrpcRequest {
+
+    private static METHOD: string = "getProtocolsCoreInfo";
+
+    public constructor(
+        public override readonly params: {
+            edgeId: string
+        },
+    ) {
+        super(GetSetupProtocolCoreInfoRequest.METHOD, params);
+    }
+}
