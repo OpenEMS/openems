@@ -14,9 +14,9 @@
             <ion-item color="light">
               <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
               <ion-label>
-                <span>{{ 'Edge.Index.SYSTEMUPDATE'| translate}}</span>
+                <span>{{ 'EDGE.INDEX.SYSTEMUPDATE'| translate}}</span>
                 @if (environment.backend === 'OpenEMS Backend') {
-                  <span> {{ 'General.FOR' | translate }}
+                  <span> {{ 'GENERAL.FOR' | translate }}
                   {{ edge.id }}</span>
                 }
               </ion-label>
@@ -29,7 +29,7 @@
 
         @if (canSeeAdditionalUpdates && updateables.length !== 0) {
           <ion-item-divider>
-            <ion-label>{{"General.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
+            <ion-label>{{"GENERAL.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
           </ion-item-divider>
           @for (updateableState of updateables; track updateableState.updateable.id) {
             <ion-card>

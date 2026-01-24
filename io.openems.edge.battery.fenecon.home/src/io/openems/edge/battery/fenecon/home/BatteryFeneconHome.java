@@ -625,37 +625,84 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Number of modules per tower") //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
-		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
+		NUMBER_OF_TOWERS(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Number of towers of the built system")),
+				.text("Number of towers of the built system") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateBatteryProtection)
+		),
 
-		TOWER_4_BMS_SOFTWARE_VERSION(new IntegerDoc() //
-				.unit(Unit.NONE) //
+		TOWER_4_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of fifth tower")),
 
-		TOWER_3_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_4_BMS_SOFTWARE_VERSION_MAJ(new IntegerDoc() //
 				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Major software version of fifth tower")),
+
+		TOWER_4_BMS_SOFTWARE_VERSION_MIN(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Minor software version of fifth tower")),
+		
+		TOWER_3_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of fourth tower")),
 
-		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_3_BMS_SOFTWARE_VERSION_MAJ(new IntegerDoc() //
 				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Major software version of fourth tower")),
+
+		TOWER_3_BMS_SOFTWARE_VERSION_MIN(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Minor software version of fourth tower")),
+		
+		TOWER_2_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of third tower")),
 
-		TOWER_1_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_2_BMS_SOFTWARE_VERSION_MAJ(new IntegerDoc() //
 				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Major software version of third tower")),
+
+		TOWER_2_BMS_SOFTWARE_VERSION_MIN(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Minor software version of third tower")),
+		
+		TOWER_1_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of second tower")),
 
-		TOWER_0_BMS_SOFTWARE_VERSION(new IntegerDoc() //
+		TOWER_1_BMS_SOFTWARE_VERSION_MAJ(new IntegerDoc() //
 				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Major software version of second tower")),
+
+		TOWER_1_BMS_SOFTWARE_VERSION_MIN(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Minor software version of second tower")),
+		
+		TOWER_0_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),
 
+		TOWER_0_BMS_SOFTWARE_VERSION_MAJ(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Major software version of first tower")),
+
+		TOWER_0_BMS_SOFTWARE_VERSION_MIN(new IntegerDoc() //
+				.unit(Unit.NONE) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.text("Bms Minor software version of first tower")),
+		
 		BATTERY_HARDWARE_TYPE(Doc.of(BatteryFeneconHomeHardwareType.values()) //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
@@ -681,7 +728,15 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Low min voltage fault - Battery stopped "
 						+ "| Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur")),
 
-		;
+        EMS_POWER_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //)
+                .unit(Unit.MILLIAMPERE)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Power consumption of HV BOX for EMS power supply")),
+
+        EMS_OFF_GRID(Doc.of(OpenemsType.BOOLEAN) //)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Indicates if the HV BOX is operating in off-grid mode"));
+
 
 		private final Doc doc;
 

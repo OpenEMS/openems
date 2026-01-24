@@ -20,8 +20,7 @@
       }
       <!-- page title is shown if the current page isn't Live nor History -->
       @if ((currentPage !== 'IndexLive' && currentPage !== 'IndexHistory')) {
-        <ion-title style="color: var(--ion-title-color);"
-          class="ion-hide-md-up" slot="start">
+        <ion-title style="color: var(--ion-title-color);" class="ion-hide-md-up" slot="start">
           {{ service.currentPageTitle }}
         </ion-title>
       }
@@ -36,12 +35,16 @@
             <ion-segment-button tabindex="0" class="focus-visible"
               style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content"
               value="IndexLive">
-              <ion-label style="color: var(--ion-color-header-contrast);">{{"General.LIVE" | translate}}</ion-label>
+              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
+                {{"GENERAL.LIVE" | translate}}
+              </ion-label>
             </ion-segment-button>
             <ion-segment-button
               style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color);min-width: fit-content"
               value="IndexHistory">
-              <ion-label style="color: var(--ion-color-header-contrast);">{{"General.HISTORY" | translate}}</ion-label>
+              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
+                {{"GENERAL.HISTORY" | translate}}
+              </ion-label>
             </ion-segment-button>
           </ion-segment>
         }
@@ -49,45 +52,18 @@
       <!-- this title tag is for spacing purpose only -->
       <ion-title class="ion-hide-md-down" slot="end">
       </ion-title>
-      @if (service.currentEdge(); as edge) {
-        <ion-buttons slot="end" class="ion-padding-end">
-          @if (edge.currentData | async; as currentData) {
-            @if (currentData.summary.system; as sum) {
-              @if (sum.state !== null) {
-                <ion-button (keydown.enter)="presentSingleStatusModal()" class="ion-toolbar-button"
-                  (click)="presentSingleStatusModal()" fill="solid" shape="round">
-                  @switch (sum.state) {
-                    @case (0) {
-                      <ion-icon color="success"
-                        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-                      name="checkmark-circle-outline"></ion-icon>
-                    }
-                    @case (1) {
-                      <ion-icon color="success"
-                        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-                        [name]="edge.roleIsAtLeast('admin') ? 'information-outline' : 'checkmark-circle-outline'"
-                      size="medium"></ion-icon>
-                    }
-                    @case (2) {
-                      <ion-icon color="warning" name="warning-outline"
-                      style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"></ion-icon>
-                    }
-                    @case (3) {
-                      <ion-icon color="danger" name="alert-circle-outline"
-                      style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-danger));"></ion-icon>
-                    }
-                  }
-                </ion-button>
-              }
-            }
-          }
+      <ion-buttons slot="end" class="ion-padding-end">
+        @if (currentPage === 'IndexLive' || currentPage === 'IndexHistory' || currentPage === 'EdgeSettings') {
+          <oe-system-status></oe-system-status>
+        }
+        @if (service.currentEdge(); as edge) {
           @if (environment.debugMode && edge.roleIsAtLeast('owner')) {
             <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
               <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="bug-outline"></ion-icon>
             </ion-button>
           }
-        </ion-buttons>
-      }
+        }
+      </ion-buttons>
     </ion-toolbar>
     @if (currentPage === 'IndexHistory' && navigationService.position() !== 'left') {
       <ion-toolbar color="secondary">

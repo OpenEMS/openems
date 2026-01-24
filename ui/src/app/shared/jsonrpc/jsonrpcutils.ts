@@ -1,5 +1,5 @@
 import { ChannelAddress } from "../type/channeladdress";
-import { JsonrpcRequest } from "./base";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "./base";
 
 export class JsonRpcUtils {
 
@@ -57,5 +57,18 @@ export class JsonRpcUtils {
         return promise
             .then((data): [null, T] => [null, data])
             .catch((err): [Error, T] => [err, orElse]);
+    }
+
+    /**
+     * Handles a jsonRpcRequests, with fallback value if error thrown
+     *
+     * @param promise the promise
+     * @param orElse the default value to use, if err thrown
+     * @returns either the the result or if error thrown the fallback value orElse
+     */
+    public static handleResponse<T extends JsonrpcResponseSuccess>(promise: Promise<T>): Promise<[null | Error, T | null]> {
+        return promise
+            .then((data): [null, T] => [null, data])
+            .catch((err): [Error, null] => [err, null]);
     }
 }

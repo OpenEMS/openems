@@ -6,10 +6,11 @@
           <ion-card>
             <ion-item lines="full" color="light">
               <ion-icon slot="start" size="large" color="primary" name="today-outline"></ion-icon>
-              <ion-label>{{"Edge.Config.Index.systemProfile" | translate}}</ion-label>
+              <ion-label>{{"EDGE.CONFIG.INDEX.SYSTEM_PROFILE" | translate}}</ion-label>
             </ion-item>
             <ion-card-content>
               <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/profile'}">
+                {{("GENERAL.OPEN" | translate ) | uppercase }}
                 <ion-icon name="arrow-forward-outline"></ion-icon>
               </oe-flat-button>
             </ion-card-content>
@@ -20,10 +21,11 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="list-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.log" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.LOG" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemlog'}">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -35,10 +37,11 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="globe-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.networkConfiguration" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.NETWORK_CONFIGURATION" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/network'}">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -50,11 +53,12 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
-                <ion-label>{{ 'Edge.Config.App.NAME_WITH_EDGE_NAME' | translate:
+                <ion-label>{{ 'EDGE.CONFIG.APP.NAME_WITH_EDGE_NAME' | translate:
                 {edgeShortName: environment.edgeShortName} }}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/app'}">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -70,6 +74,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/system'}">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -81,10 +86,11 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" color="primary" name="notifications-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.alerting" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ALERTING" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/alerting'}">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -96,17 +102,18 @@
         <ion-row justify-content-left>
           <ion-col size="12">
             <ion-item-divider>
-              <ion-label>{{"General.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
+              <ion-label>{{"GENERAL.VISIBLE_FOR_ADMINS_ONLY" | translate}}</ion-label>
             </ion-item-divider>
           </ion-col>
           <ion-col size="12" size-sm="4">
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" class="normal-icon" name="toggle-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.adjustComponents" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ADJUST_COMPONENTS" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.update'}" color="light">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -116,10 +123,11 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" class="normal-icon" name="add-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.addComponents" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.ADD_COMPONENTS" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/component.install'}" color="light">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -134,6 +142,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/channels'}" color="light">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -143,10 +152,11 @@
             <ion-card>
               <ion-item lines="full" color="light">
                 <ion-icon slot="start" size="large" class="normal-icon" name="play-outline"></ion-icon>
-                <ion-label>{{"Edge.Config.Index.systemExecute" | translate}}</ion-label>
+                <ion-label>{{"EDGE.CONFIG.INDEX.SYSTEM_EXECUTE" | translate}}</ion-label>
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/systemexecute'}" color="light">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -160,6 +170,7 @@
               </ion-item>
               <ion-card-content>
                 <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/powerAssistant'}" color="light">
+                  {{("GENERAL.OPEN" | translate ) | uppercase }}
                   <ion-icon name="arrow-forward-outline"></ion-icon>
                 </oe-flat-button>
               </ion-card-content>
@@ -174,6 +185,7 @@
                 </ion-item>
                 <ion-card-content>
                   <oe-flat-button [link]="{ text: '/device/'+ edge.id + '/settings/jsonrpctest'}" color="light">
+                    {{("GENERAL.OPEN" | translate ) | uppercase }}
                     <ion-icon name="arrow-forward-outline"></ion-icon>
                   </oe-flat-button>
                 </ion-card-content>

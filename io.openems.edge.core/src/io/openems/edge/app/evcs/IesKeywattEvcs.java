@@ -76,10 +76,10 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 		CTRL_EVCS_ID(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
-		OCCP_CHARGE_POINT_IDENTIFIER(AppDef.of(IesKeywattEvcs.class) //
-				.setTranslatedLabelWithAppPrefix(".chargepoint.label") //
-				.setTranslatedDescriptionWithAppPrefix(".chargepoint.description") //
-				.setDefaultValue("IES1") //
+		OCCP_CHARGE_POINT_IDENTIFIER(AppDef.of(IesKeywattEvcs.class)//
+				.setTranslatedLabelWithAppPrefix(".chargepoint.label")//
+				.setTranslatedDescriptionWithAppPrefix(".chargepoint.description")//
+				.setDefaultValue("IES1")//
 				.setRequired(true)), //
 		OCCP_CONNECTOR_IDENTIFIER(AppDef.of(IesKeywattEvcs.class) //
 				.setTranslatedLabelWithAppPrefix(".connector.label") //
@@ -87,9 +87,9 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 				.setDefaultValue(1) //
 				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> //
-				field.setInputType(NUMBER) //
+				field.setInputType(NUMBER)//
 						.setMin(0))), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))), //

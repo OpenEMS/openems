@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -284,7 +285,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, schedulerConfig);
+		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
 		assertTrue("Validation should be successful but got: " + String.join(", ", errors), errors.isEmpty());
 	}
@@ -305,7 +306,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, schedulerConfig);
+		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
 		assertFalse("Validation should not be successful but got: " + String.join(", ", errors), errors.isEmpty());
 	}
@@ -327,7 +328,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, schedulerConfig);
+		this.task.validate(errors, config, schedulerConfig, emptyMap());
 
 		assertFalse("Validation should not be successful but got: " + String.join(", ", errors), errors.isEmpty());
 	}

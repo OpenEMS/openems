@@ -8,30 +8,48 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.common.type.RegexUtils.applyPatternOrError;
-import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
+import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
+import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
 import static java.time.Duration.ofSeconds;
 
-import java.time.Duration;
+import java.time.Instant;
 import java.time.ZoneId;
-import java.util.concurrent.atomic.AtomicReference;
+import java.time.ZonedDateTime;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonElementPathActual.JsonElementPathActualNonNull;
+import io.openems.common.jsonrpc.serialization.JsonObjectPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
+import io.openems.edge.predictor.api.manager.PredictorManager;
+import io.openems.edge.predictor.api.prediction.Prediction;
+import io.openems.edge.predictor.api.test.DummyPredictor;
+import io.openems.edge.predictor.api.test.DummyPredictorManager;
+import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
+import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public final class AppUtils {
 
@@ -60,14 +78,59 @@ public final class AppUtils {
 	}
 
 	/**
-	 * Returns a {@link JsonSerializer} for a {@link Ess}.
+	 * Returns a {@link JsonSerializer} for a {@link GlobalOptimizationContext}.
 	 * 
 	 * @return the created {@link JsonSerializer}
 	 */
 	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
-			final var startTime = json.getZonedDateTime("startTime");
-			final var clock = new TimeLeapClock(startTime.toInstant(), ZoneId.of("UTC"));
+			final var grid = json.getObject("grid", Grid.serializer());
+			final var meta = new DummyMeta() //
+					.withGridBuySoftLimit(grid.gridBuySoftLimit());
+			final var ess = json.getObject("ess", Ess.serializer());
+			final var sum = new DummySum() //
+					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
+					.withEssCapacity(ess.totalEnergy()) //
+					.withEssMaxDischargePower(ess.maxDischargePower()) //
+					.withEssMinDischargePower(-ess.maxChargePower());
+
+			// Periods: Predictions and Prices
+			final TimeOfUseTariff timeOfUseTariff;
+			final PredictorManager predictorManager;
+			final ComponentManager componentManager;
+			try {
+				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
+				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
+				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
+				final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
+						ZoneId.of(json.getString("zone")));
+				json.getJsonArray("periods").forEach(e -> {
+					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
+					var time = timeParser.apply(p);
+					p.getNullableNumberPath("price").getAsOptionalDouble() //
+							.ifPresent(price -> prices.put(time, price));
+					p.getNullableNumberPath("production").getAsOptionalInt() //
+							.ifPresent(production -> productions.put(time,
+									PeriodDuration.QUARTER.convertEnergyToPower(production)));
+					p.getNullableNumberPath("consumption").getAsOptionalInt() //
+							.ifPresent(consumption -> consumptions.put(time,
+									PeriodDuration.QUARTER.convertEnergyToPower(consumption)));
+				});
+
+				final var clock = new TimeLeapClock(timeParser.getFirst());
+				componentManager = new DummyComponentManager(clock);
+
+				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
+				predictorManager = new DummyPredictorManager(//
+						new DummyPredictor("predictor0", componentManager, //
+								Prediction.from(productions.build()), SUM_PRODUCTION),
+						new DummyPredictor("predictor1", componentManager, //
+								Prediction.from(consumptions.build()), SUM_UNMANAGED_CONSUMPTION));
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(e.getMessage());
+			}
+
 			final var controllers = json.getJsonArrayPath("eshs").getAsImmutableList(e -> {
 				var j = e.getAsJsonObjectPath();
 				var parentFactoryPid = j.getString("factoryPid");
@@ -76,31 +139,19 @@ public final class AppUtils {
 				return EnergySchedulerTestUtils.createFromJson(parentFactoryPid, parentId, source);
 			});
 
-			var nextTime = new AtomicReference<>(startTime);
-			final var periods = json.getJsonArrayPath("periods").getAsImmutableList(e -> {
-				var j = e.getAsJsonObjectPath();
-				var time = nextTime.get();
-				var index = (int) Duration.between(startTime, time).toMinutes() / 15;
-				nextTime.set(time.plusMinutes(15));
-				return (GlobalOptimizationContext.Period) new GlobalOptimizationContext.Period.Quarter(index, time, //
-						j.getInt("production"), j.getInt("consumption"), j.getDouble("price"));
-			});
-
 			final var eshs = controllers.stream() //
 					.map(EnergySchedulable::getEnergyScheduleHandler) //
 					.collect(toImmutableList());
-			var eshsWithDifferentModes = filterEshsWithDifferentModes(eshs) //
-					.collect(toImmutableList());
 
-			return new GlobalOptimizationContext(//
-					clock, //
-					json.getEnum("riskLevel", RiskLevel.class), //
-					startTime, //
-					eshs, //
-					eshsWithDifferentModes, //
-					json.getObject("grid", Grid.serializer()), //
-					json.getObject("ess", Ess.serializer()), //
-					periods); //
+			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
+					.setComponentManager(componentManager) //
+					.setMeta(meta) //
+					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
+					.setEnergyScheduleHandlers(eshs) //
+					.setSum(sum) //
+					.setPredictorManager(predictorManager) //
+					.setTimeOfUseTariff(timeOfUseTariff) //
+					.build();
 
 		}, GlobalOptimizationContext::toJson);
 	}
@@ -127,9 +178,14 @@ public final class AppUtils {
 				.map(l -> applyPatternOrError(PERIOD_PATTERN, l)) //
 				.map(m -> buildJsonObject() //
 						.addProperty("time", m.group("time")) //
+						.addProperty("gridBuySoftLimit", m.group("gridBuySoftLimit").equals("-") //
+								? null //
+								: Integer.parseInt(m.group("gridBuySoftLimit"))) //
+						.addProperty("price", m.group("price").equals("-") //
+								? null //
+								: Double.parseDouble(m.group("price"))) //
 						.addProperty("production", Integer.parseInt(m.group("production"))) //
 						.addProperty("consumption", Integer.parseInt(m.group("consumption"))) //
-						.addProperty("price", Double.parseDouble(m.group("price"))) //
 						.build()) //
 				.collect(toJsonArray()));
 		return goc;
@@ -140,16 +196,52 @@ public final class AppUtils {
 
 	private static final Pattern PERIOD_PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
-			+ "\\s+(?<price>-?\\d+)" //
+			+ "\\s+(?<gridBuySoftLimit>-?\\d*)" //
+			+ "\\s+(?<price>-?\\d*)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
 
-	protected static JsonElement period(String time, double production, double consumption, double price) {
+	protected static JsonElement period(String time, Integer gridBuySoftLimit, double production, double consumption,
+			double price) {
 		return buildJsonObject() //
 				.addProperty("time", time) //
+				.addProperty("gridBuySoftLimit", gridBuySoftLimit) //
 				.addProperty("production", production) //
 				.addProperty("consumption", consumption) //
 				.addProperty("price", price) //
 				.build();
+	}
+
+	private static class TimeParser implements Function<JsonObjectPath, Instant> {
+
+		private final ZonedDateTime start;
+
+		private ZonedDateTime first = null;
+		private ZonedDateTime last = null;
+
+		public TimeParser(ZonedDateTime start, ZoneId zone) {
+			this.start = start.withZoneSameInstant(zone);
+		}
+
+		public ZonedDateTime getFirst() {
+			return this.first;
+		}
+
+		@Override
+		public synchronized Instant apply(JsonObjectPath p) {
+			var time = p.getLocalTime("time");
+			var base = this.last == null //
+					? this.start.with(time) //
+					: this.last;
+			var result = base.with(time);
+			if (result.isBefore(base)) {
+				result = result.plusDays(1);
+			}
+			if (this.first == null) {
+				this.first = result;
+			}
+			this.last = result;
+			return result.toInstant();
+		}
 	}
 }

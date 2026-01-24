@@ -20,18 +20,25 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Role;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi.UpdateJsCalendarRecord;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -54,6 +61,9 @@ public class MetaImpl extends AbstractOpenemsComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Reference
+	private ComponentManager componentManager;
+
 	private Config config;
 
 	@Reference
@@ -64,6 +74,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 	private BridgeHttp httpBridge;
 	private OpenCageGeocodingService geocodingService;
+	private JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit = JSCalendar.Tasks.empty();
 
 	public MetaImpl() {
 		super(//
@@ -117,6 +128,8 @@ public class MetaImpl extends AbstractOpenemsComponent
 		this._setIsEssChargeFromGridAllowed(config.isEssChargeFromGridAllowed());
 		this._setMaximumGridFeedInLimit(config.maximumGridFeedInLimit());
 		this._setGridFeedInLimitationType(config.gridFeedInLimitationType().getGridFeedInLimitationType());
+		this.gridBuySoftLimit = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(),
+				config.gridBuySoftLimit(), GridBuySoftLimit.serializer());
 	}
 
 	@Override
@@ -158,12 +171,27 @@ public class MetaImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public Tasks<GridBuySoftLimit> getGridBuySoftLimit() {
+		return this.gridBuySoftLimit;
+	}
+
+	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		JSCalendarApi.buildJsonApiRoutes(builder, GridBuySoftLimit.serializer(), //
+				() -> this.gridBuySoftLimit, //
+				() -> new UpdateJsCalendarRecord(this.cm, this.componentManager, this.servicePid(),
+						"gridBuySoftLimit"));
+
 		builder.handleRequest(new GeocodeJsonRpcEndpoint(), endpoint -> {
 			endpoint.setGuards(roleIsAtleast(Role.OWNER));
 		}, call -> {
 			return new GeocodeJsonRpcEndpoint.Response(//
 					this.geocodingService.geocode(call.getRequest().query()).get());
 		});
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
+		return this.config.thirdPartyUsageAcceptance();
 	}
 }

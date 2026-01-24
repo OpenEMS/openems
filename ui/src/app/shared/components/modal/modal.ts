@@ -29,12 +29,13 @@ export class ModalComponent {
 
     /** Title in Header */
     @Input({ required: true }) public title!: string | null;
+    @Input() public isCommonWidget: boolean = false;
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});
     @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | {
         callback: () =>
-            {}, icon: Icon
+        {}, icon: Icon
     } | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 
@@ -74,9 +75,9 @@ export class ModalComponent {
         if (this.edge) {
             this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                 .then(() => {
-                    this.service.toast(this.translate.instant("General.changeAccepted"), "success");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 }).catch(reason => {
-                    this.service.toast(this.translate.instant("General.changeFailed") + "\n" + reason.error.message, "danger");
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
                 }).finally(() => this.service.stopSpinner("spinner"));
         }
         this.formGroup.markAsPristine();

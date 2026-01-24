@@ -124,7 +124,7 @@ public class QueryAppInstancesByFilterTest {
 		var req = this.request(null, null, new Pagination(1));
 		var resp = this.appManagerTestBundle.sut.handleQueryAppInstancesByFilterRequest(req);
 		assertEquals(resp.apps().size(), 1);
-		
+
 		req = this.request(null, null, null);
 		resp = this.appManagerTestBundle.sut.handleQueryAppInstancesByFilterRequest(req);
 		assertEquals(resp.apps().size(), 2);
@@ -144,8 +144,9 @@ public class QueryAppInstancesByFilterTest {
 	private QueryAppInstancesByFilter.Request request(ComponentFilter component, Set<OpenemsAppCategory> categorys) {
 		return new QueryAppInstancesByFilter.Request(new Filter(component, categorys), new Pagination(2));
 	}
-	
-	private QueryAppInstancesByFilter.Request request(ComponentFilter component, Set<OpenemsAppCategory> categorys, Pagination pagination) {
+
+	private QueryAppInstancesByFilter.Request request(ComponentFilter component, Set<OpenemsAppCategory> categorys,
+			Pagination pagination) {
 		return new QueryAppInstancesByFilter.Request(new Filter(component, categorys), pagination);
 	}
 

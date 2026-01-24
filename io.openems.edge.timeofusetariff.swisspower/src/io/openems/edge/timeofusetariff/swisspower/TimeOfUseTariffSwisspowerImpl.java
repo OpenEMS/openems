@@ -6,11 +6,13 @@ import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -30,17 +32,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.DurationUnit;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.api.UrlBuilder;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -59,7 +63,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffSwisspower {
 	private static final UrlBuilder URL_BASE = UrlBuilder.parse("https://esit.code-fabrik.ch/api/v1/metering_code");
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	private static final DateTimeFormatter DATE_FORMATTER = ISO_OFFSET_DATE_TIME;
 	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
 	private static final int DEFAULT_READ_TIMEOUT = 200;
 	protected static final int SERVER_ERROR_CODE = 500;
@@ -80,6 +84,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	private HttpBridgeTimeService timeService;
+
 	public TimeOfUseTariffSwisspowerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -88,8 +94,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	}
 
 	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
-		this.httpBridge.removeAllTimeEndpoints();
-		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+		this.timeService.removeAllTimeEndpoints();
+		this.timeService.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
 				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -119,7 +125,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
 
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		this.timeService.subscribeTime(new SwisspowerProvider(this.componentManager.getClock()), //
 				this::createSwisspowerEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -211,7 +218,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -227,7 +234,7 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	protected static TimeOfUsePrices parsePrices(String jsonData, double exchangeRate) throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		var data = parseToJsonObject(jsonData);
 		var prices = getAsJsonArray(data, "prices");
 
@@ -240,8 +247,8 @@ public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 			// Example: 0.1 CHF/kWh * 1000 = 100 CHF/MWh.
 			var marketPrice = getAsDouble(integrated.get(0), "value") * 1000 * exchangeRate;
 
-			// Convert LocalDateTime to ZonedDateTime
-			var startTimeStamp = ZonedDateTime.parse(startTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+			// Convert LocalDateTime to Instant
+			var startTimeStamp = ZonedDateTime.parse(startTimeString, ISO_OFFSET_DATE_TIME).toInstant();
 
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);

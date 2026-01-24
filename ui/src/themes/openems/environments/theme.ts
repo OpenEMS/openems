@@ -1,10 +1,11 @@
-import { Theme } from "src/environments";
+import { Environment, Theme } from "src/environments";
 import { OemMeta } from "./oem-meta";
 
-export const theme = {
+export const theme: Omit<Environment, "url" | "backend" | "production" | "debugMode"> = {
     theme: "OpenEMS" as Theme,
 
     uiTitle: "OpenEMS UI",
+    uiTitleShort: "OpenEMS",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
     defaultLanguage: "de",

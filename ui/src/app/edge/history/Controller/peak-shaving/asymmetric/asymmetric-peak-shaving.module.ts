@@ -10,28 +10,28 @@ import { PickdateComponentModule } from "src/app/shared/components/pickdate/pick
 import { OverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
-  { path: "", component: OverviewComponent },
+    { path: "", component: OverviewComponent },
 ];
 
 @NgModule({
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    IonicModule,
-    TranslateModule,
-    PickdateComponentModule,
-    RouterModule.forChild(routes),
-    HistoryDataErrorModule,
-    NgxSpinnerModule,
-  ],
-  declarations: [
-  ],
-  exports: [
-    RouterModule,
-  ],
-  schemas: [
-    CUSTOM_ELEMENTS_SCHEMA,
-  ],
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+        PickdateComponentModule,
+        RouterModule.forChild(routes),
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+    ],
+    declarations: [
+    ],
+    exports: [
+        RouterModule,
+    ],
+    schemas: [
+        CUSTOM_ELEMENTS_SCHEMA,
+    ],
 })
 export class AsymmetricPeakShavingModule {
 }

@@ -3,6 +3,7 @@ package io.openems.edge.core.meta;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 
 @SuppressWarnings("all")
@@ -22,6 +23,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private double latitude = -999.0;
 		private double longitude = -999.0;
 		private String timezone = "";
+		private String gridSoftLimit = "[]";
+		private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance = ThirdPartyUsageAcceptance.UNDECIDED;
 
 		private Builder() {
 		}
@@ -73,6 +76,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setTimezone(String timezone) {
 			this.timezone = timezone;
+			return this;
+		}
+
+		public Builder setGridSoftLimit(String gridSoftLimit) {
+			this.gridSoftLimit = gridSoftLimit;
+			return this;
+		}
+
+		public Builder setThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
+			this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
 			return this;
 		}
 
@@ -155,5 +168,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String timezone() {
 		return this.builder.timezone;
+	}
+
+	@Override
+	public String gridBuySoftLimit() {
+		return this.builder.gridSoftLimit;
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance thirdPartyUsageAcceptance() {
+		return this.builder.thirdPartyUsageAcceptance;
 	}
 }

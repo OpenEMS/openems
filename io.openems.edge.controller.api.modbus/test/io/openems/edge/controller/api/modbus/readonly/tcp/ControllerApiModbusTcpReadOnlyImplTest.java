@@ -1,6 +1,6 @@
 package io.openems.edge.controller.api.modbus.readonly.tcp;
 
-import static io.openems.edge.controller.api.modbus.AbstractModbusTcpApi.DEFAULT_PORT;
+import static io.openems.edge.controller.api.modbus.CommonConfig.Tcp.DEFAULT_PORT;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -12,6 +12,8 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.controller.api.modbus.LogVerbosity;
+import io.openems.edge.controller.api.modbus.MyTcpConfig;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusTcpReadOnlyImplTest {
@@ -22,14 +24,15 @@ public class ControllerApiModbusTcpReadOnlyImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusTcpReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta("_meta")) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.activate(MyConfig.create() //
+				.activate(MyTcpConfig.create(io.openems.edge.controller.api.modbus.readonly.tcp.Config.class) //
 						.setId("ctrl0") //
 						.setEnabled(false) // do not actually start server
 						.setComponentIds() //
 						.setMaxConcurrentConnections(5) //
 						.setPort(DEFAULT_PORT) //
+						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase()) //
 				.deactivate();

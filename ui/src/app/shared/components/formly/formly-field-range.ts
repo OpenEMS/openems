@@ -1,9 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
+import { AssertionUtils } from "../../utils/assertions/assertions.utils";
+import { ObjectUtils } from "../../utils/object/object.utils";
 
 @Component({
-  selector: "formly-range-type",
-  template: `
+    selector: "formly-range-type",
+    template: `
     @if (props.note) {
       <p class="ion-padding-top"> {{ props.note }} </p>
     }
@@ -41,19 +43,29 @@ import { FieldType } from "@ngx-formly/core";
       </ion-text>
     }
     `,
-  standalone: false,
+    standalone: false,
 })
-export class FormlyRangeTypeComponent extends FieldType {
-  protected boundPinFormatter = this.pinFormatter.bind(this);
+export class FormlyRangeTypeComponent extends FieldType implements OnInit {
+    protected boundPinFormatter = this.pinFormatter.bind(this);
 
-  public onChange(event: any): void {
-    if (this.props.change) {
-      this.props.change(this.field);
+    public onChange(event: any): void {
+        if (this.props.change) {
+            this.props.change(this.field);
+        }
     }
-  }
 
-  protected pinFormatter(value: number): string {
-    const unit = this.props?.unit || "";
-    return `${value}${unit}`;
-  }
+    ngOnInit(): void {
+        AssertionUtils.assertIsDefined(this.field);
+        AssertionUtils.assertIsDefined(this.field.formControl);
+
+        if (ObjectUtils.isObjectNullOrEmpty(this.field)) {
+            return;
+        }
+        this.field.formControl.setValue(this.field.defaultValue ?? this.field.formControl.value);
+    }
+
+    protected pinFormatter(value: number): string {
+        const unit = this.props?.unit || "";
+        return `${value}${unit}`;
+    }
 }

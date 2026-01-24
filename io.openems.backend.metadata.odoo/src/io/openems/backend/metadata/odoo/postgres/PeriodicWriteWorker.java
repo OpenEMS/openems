@@ -88,9 +88,9 @@ public class PeriodicWriteWorker {
 	}
 
 	private final LinkedBlockingQueue<Integer> lastMessageOdooIds = new LinkedBlockingQueue<>();
-	private ExchangableObject<Map<Integer, Boolean>> connectionStatesToUpdate = new ExchangableObject<>(
+	private final ExchangableObject<Map<Integer, Boolean>> connectionStatesToUpdate = new ExchangableObject<>(
 			new ConcurrentHashMap<>());
-	private ExchangableObject<Map<Integer, Level>> sumStatesToUpdate = new ExchangableObject<>(
+	private final ExchangableObject<Map<Integer, Level>> sumStatesToUpdate = new ExchangableObject<>(
 			new ConcurrentHashMap<>());
 
 	private final void applyChanges() {

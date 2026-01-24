@@ -3,11 +3,15 @@ package io.openems.edge.common.test;
 import java.time.ZoneId;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -22,12 +26,13 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	private String postcode;
 	private Coordinates coordinates;
 	private ZoneId timezone;
+	private JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit = JSCalendar.Tasks.empty();
+	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
 
-	public DummyMeta(String id) {
-		super(id, //
+	public DummyMeta() {
+		super(Meta.SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, //
 				OpenemsComponent.ChannelId.values(), //
-				Meta.ChannelId.values() //
-		);
+				Meta.ChannelId.values());
 	}
 
 	@Override
@@ -68,6 +73,11 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	@Override
 	public ZoneId getTimezone() {
 		return this.timezone;
+	}
+
+	@Override
+	public Tasks<GridBuySoftLimit> getGridBuySoftLimit() {
+		return this.gridBuySoftLimit;
 	}
 
 	/**
@@ -172,5 +182,34 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	public DummyMeta withTimezone(ZoneId timezone) {
 		this.timezone = timezone;
 		return this.self();
+	}
+
+	/**
+	 * Sets the {@link GridBuySoftLimit} for this {@link DummyMeta} instance and
+	 * returns the instance itself.
+	 *
+	 * @param gridBuySoftLimit the {@link GridBuySoftLimit}
+	 * @return myself
+	 */
+	public DummyMeta withGridBuySoftLimit(JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit) {
+		this.gridBuySoftLimit = gridBuySoftLimit;
+		return this.self();
+	}
+
+	/**
+	 * Sets the {@link ThirdPartyUsageAcceptance} for this {@link DummyMeta}
+	 * instance and returns the instance itself.
+	 *
+	 * @param thirdPartyUsageAcceptance the acceptance status of third-party usage
+	 * @return myself
+	 */
+	public DummyMeta withThirdPartyUsageAcceptance(ThirdPartyUsageAcceptance thirdPartyUsageAcceptance) {
+		this.thirdPartyUsageAcceptance = thirdPartyUsageAcceptance;
+		return this.self();
+	}
+
+	@Override
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance() {
+		return this.thirdPartyUsageAcceptance;
 	}
 }

@@ -2,6 +2,7 @@
 import { Component } from "@angular/core";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { saveAs } from "file-saver-es";
+import { v4 as uuidv4 } from "uuid";
 import { PlatFormService } from "src/app/platform.service";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { QueryHistoricTimeseriesExportXlxsRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs";
@@ -18,7 +19,8 @@ export class FlatComponent extends AbstractFlatWidget {
 
     private static readonly EXCEL_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     private static readonly EXCEL_EXTENSION = ".xlsx";
-    protected autarchyValue: number | null;
+    protected spinnerId: string = uuidv4();
+    protected autarchyValue: number | null = null;
     protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
     protected readonly isApp: boolean = PlatFormService.platform !== "web";
 
@@ -51,6 +53,7 @@ export class FlatComponent extends AbstractFlatWidget {
         }
 
         this.service.getCurrentEdge().then(edge => {
+            this.service.startSpinner(this.spinnerId);
             edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(DateUtils.maxDate(this.service.historyPeriod.value.from, this.edge?.firstSetupProtocol), this.service.historyPeriod.value.to)).then(response => {
                 const r = response as Base64PayloadResponse;
                 const binary = atob(r.result.payload.replace(/\s/g, ""));
@@ -81,7 +84,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
             }).catch(reason => {
                 console.warn(reason);
-            });
+            }).finally(() => {
+                this.service.stopSpinner(this.spinnerId);
+            }
+            );
         });
     }
 }

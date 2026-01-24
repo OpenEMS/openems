@@ -17,10 +17,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Time-Delta", description = "Time-Delta between two entries in the csv-file in seconds. "
-			+ "If set the output-value doesn't change, until the Time-Delta has passed in realtime.", required = false)
-	int timeDelta() default -1;
-
 	@AttributeDefinition(name = "Values", description = "An array containing a series of values.")
 	int[] values();
 

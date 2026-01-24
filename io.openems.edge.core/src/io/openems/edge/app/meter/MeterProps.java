@@ -1,10 +1,13 @@
 package io.openems.edge.app.meter;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+
 import io.openems.common.session.Role;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.edge.app.enums.Phase;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.Nameable;
@@ -34,7 +37,7 @@ public final class MeterProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a boolean for a invertion of a meter.
+	 * Creates a {@link AppDef} for a boolean for an inversion of a meter.
 	 * 
 	 * @param <APP> the type of the app
 	 * @param prop  {@link Nameable} referencing the meter id
@@ -52,7 +55,7 @@ public final class MeterProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a ip for a meter.
+	 * Creates a {@link AppDef} for an ip for a meter.
 	 * 
 	 * @param <P> the type of the parameters
 	 * @return the {@link AppDef}
@@ -96,9 +99,23 @@ public final class MeterProps {
 	 * @see CommonProps#phaseRotation()
 	 */
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
-		return AppDef.copyOfGeneric(
-				CommonProps.phaseRotation() //
-						.setTranslatedDescription("App.Meter.phaseRotation.description"));
+		return AppDef.copyOfGeneric(CommonProps.phaseRotation() //
+				.setTranslatedDescription("App.Meter.phaseRotation.description"));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a meter phase selection.
+	 *
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> singlePhase() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("phase.label") //
+				.setTranslatedDescription("phase.description") //
+				.setDefaultValue(Phase.L1) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(Phase.class, Phase.ALL), l);
+				}));
 	}
 
 }

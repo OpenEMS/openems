@@ -18,6 +18,7 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -46,6 +47,20 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(SafetyCountry.optionsFactory(), l);
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for {@link GridCode}.
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridCode() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.gridCode.label") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GridCode.class), l);
+				})); //
 	}
 
 	/**
@@ -351,7 +366,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasAcMeter.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(property).notNull());
+				}));
 	}
 
 	/**
@@ -380,7 +397,7 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
-	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+			AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //

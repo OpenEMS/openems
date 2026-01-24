@@ -8,11 +8,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.DynamicDocText;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
@@ -282,6 +283,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.AMPERE)), //
 		P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
+		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
 		SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), // .
 		WORK_MODE(Doc.of(WorkMode.values())), //
@@ -417,10 +419,10 @@ public interface GoodWe extends OpenemsComponent {
 						+ "Ggf. Behinderung des Luftstroms, z.B. Kühlkörper wurde abgedeckt")), //
 
 		STATE_14(Doc.of(Level.WARNING) //
-				.text("Utility Phase Failure " //
-						+ "| Phasenfehler " //
-						+ "| Überprüfen Sie das Drehfeld am Wechselrichter. " //
-						+ "Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt")), //
+				.textByChannel(GoodWe.class, ChannelId.GOODWE_TYPE,
+						DynamicDocText.fromEnumChannel(GoodWeType.class)
+								.when("GoodWe.State14.Specific", GoodWeType.FENECON_FHI_10_DAH) //
+								.defaultText("GoodWe.State14.Default"))), //
 
 		STATE_15(Doc.of(Level.WARNING) //
 				.text("PV Over Voltage " //
@@ -753,7 +755,6 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		FACTORY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY)), //
 		CLEAR_DATA(Doc.of(OpenemsType.INTEGER) //
@@ -1251,7 +1252,7 @@ public interface GoodWe extends OpenemsComponent {
 		FIXED_POWER_FACTOR(Doc.of(FixedPowerFactor.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		// Separate Register to enable Fixed Power Factor used for ET50 (1547-1) 
+		// Separate Register to enable Fixed Power Factor used for ET50 (1547-1)
 		ENABLE_FIXED_POWER_FACTOR_V2(Doc.of(EnableCurve.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FIXED_POWER_FACTOR_V2(Doc.of(FixedPowerFactor.values()) //
@@ -1458,7 +1459,7 @@ public interface GoodWe extends OpenemsComponent {
 		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE)), //
-		EMS_POWER_SET(new IntegerDoc() //
+		EMS_POWER_SET(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET)), //
 
@@ -2065,6 +2066,15 @@ public interface GoodWe extends OpenemsComponent {
 	 */
 	public default void setBmsDischargeMinVoltage(Integer value) throws OpenemsNamedException {
 		this.getBmsDischargeMinVoltageChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EMS_POWER_SET}.
+	 *
+	 * @return the Channel
+	 */
+	public default WriteChannel<Long> getEmsPowerSetChannel() {
+		return this.channel(ChannelId.EMS_POWER_SET);
 	}
 
 	/**

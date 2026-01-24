@@ -1,9 +1,9 @@
 package io.openems.edge.energy;
 
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
-import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssEmergencyCapacityReserve;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssFixActivePower;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssGridOptimizedCharge;
@@ -21,22 +21,22 @@ import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
-import io.openems.edge.controller.evse.single.CombinedAbilities;
 import io.openems.edge.energy.optimizer.Optimizer;
-import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
-import io.openems.edge.evse.api.common.ApplySetPoint;
-import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
@@ -59,7 +59,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		final var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		final var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum() //
@@ -76,6 +76,17 @@ public class EnergySchedulerImplTest {
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
+				.addReference("meta", new DummyMeta()//
+						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+								.add(t -> t//
+										.setStart("08:00") //
+										.setDuration(Duration.ofHours(12)) //
+										.addRecurrenceRule(b -> b //
+												.setFrequency(DAILY)) //
+										.setPayload(new GridBuySoftLimit(2000))) //
+								.add(t -> t//
+										.setPayload(new GridBuySoftLimit(6000))) //
+								.build())) //
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
@@ -87,20 +98,6 @@ public class EnergySchedulerImplTest {
 						dummyEssGridOptimizedCharge("ctrlGridOptimizedCharge0", LocalTime.of(10, 00))) //
 				.addReference("addSchedulable",
 						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION)) //
-				.addReference("addSchedulable", EnergySchedulerTestUtils.dummyEvseSingle("ctrlEvseSingle0", //
-						io.openems.edge.evse.api.chargepoint.Mode.Actual.FORCE, //
-						CombinedAbilities.createFrom(//
-								ChargePointAbilities.create() //
-										.setApplySetPoint(
-												new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
-										.setIsReadyForCharging(true) //
-										.build(),
-								ElectricVehicleAbilities.create() //
-										.setSinglePhaseLimitInMilliAmpere(6000, 32000) //
-										.setThreePhaseLimitInMilliAmpere(6000, 16000) //
-										.build()) //
-								.build(),
-						10_000)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

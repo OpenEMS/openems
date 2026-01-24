@@ -21,6 +21,7 @@ import com.google.common.base.CaseFormat;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.Disposable;
 import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -32,7 +33,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.edge2edge.websocket.Edge2EdgeWebsocket;
 import io.openems.edge.edge2edge.websocket.bridge.BridgeComponentStateHandler;
 import io.openems.edge.edge2edge.websocket.bridge.ChannelSubscriber;
-import io.openems.edge.edge2edge.websocket.bridge.Disposable;
 import io.openems.edge.edge2edge.websocket.bridge.Edge2EdgeWebsocketBridge;
 import io.openems.edge.ess.power.api.Power;
 

@@ -2,6 +2,38 @@
 #
 # Provides commonly used functions and variables
 
+_get_version() {
+    SRC_OPENEMS_CONSTANTS="${SRC_OPENEMS_CONSTANTS:-io.openems.common/src/io/openems/common/OpenemsConstants.java}"
+    SRC_PACKAGE_JSON="${SRC_PACKAGE_JSON:-ui/package.json}"
+
+    if [ -f "${SRC_PACKAGE_JSON}" ]; then
+        UI_VERSION="$(grep '"version": '  ${SRC_PACKAGE_JSON} | head -n1 | sed 's/.*"version":[[:space:]]*"\([^"]*\)".*/\1/')"
+    fi;
+
+    if [ -f "${SRC_OPENEMS_CONSTANTS}" ]; then
+        JAVA_VERSION_MAJOR="$(grep 'VERSION_MAJOR =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_MAJOR[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_MINOR="$(grep 'VERSION_MINOR =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_MINOR[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_PATCH="$(grep 'VERSION_PATCH =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_PATCH[[:space:]]*=[[:space:]]*\([0-9][0-9]*\).*/\1/')"
+        JAVA_VERSION_STRING="$(grep 'VERSION_STRING =' ${SRC_OPENEMS_CONSTANTS} | head -n1 | sed 's/.*VERSION_STRING[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/')"
+        JAVA_VERSION="${JAVA_VERSION_MAJOR}.${JAVA_VERSION_MINOR}.${JAVA_VERSION_PATCH}"
+        if [ -n "$JAVA_VERSION_STRING" ]; then
+            JAVA_VERSION="${JAVA_VERSION}-${JAVA_VERSION_STRING}"
+        fi
+    fi;
+
+    if [ "$UI_VERSION" != "" ] && [ "$JAVA_VERSION" != "" ]; then
+        if [ "$UI_VERSION" != "$JAVA_VERSION" ]; then
+            echo "Error: Version mismatch between UI ($UI_VERSION) and Java ($JAVA_VERSION)!" >&2
+            exit 1
+        fi
+    elif [ "$UI_VERSION" == "" ] && [ "$JAVA_VERSION" == "" ]; then
+        echo "Error: Could not determine version from source files!" >&2
+        exit 1
+    fi;
+
+    echo "${JAVA_VERSION:-$UI_VERSION}"
+}
+
 common_initialize_environment() {
     # Code files relevant for version
     SRC_OPENEMS_CONSTANTS="io.openems.common/src/io/openems/common/OpenemsConstants.java"
@@ -14,7 +46,7 @@ common_initialize_environment() {
     PACKAGE_NAME="openems-edge"
 
     VERSION_STRING=""
-    VERSION="$(cd ui && node -p "require('./package.json').version" && cd ..)"
+    VERSION="$(_get_version)"
     local tmp_version=$(echo $VERSION | cut -d'-' -f1)
     VERSION_MAJOR=$(echo $tmp_version | cut -d'.' -f1)
     VERSION_MINOR=$(echo $tmp_version | cut -d'.' -f2)
@@ -27,7 +59,11 @@ common_build_snapshot_version() {
     if [[ "$VERSION" == *"-SNAPSHOT" ]]; then
         # Replace unwanted characters with '.', compliant with Debian version
         # Ref: https://unix.stackexchange.com/a/23673
-        VERSION_DEV_BRANCH="$(git branch --show-current)"
+        if [[ -n "$CI_COMMIT_BRANCH" ]]; then
+            VERSION_DEV_BRANCH="${CI_COMMIT_BRANCH}"
+        else
+            VERSION_DEV_BRANCH="$(git branch --show-current)"
+        fi
         VERSION_DEV_COMMIT=""
         git diff --exit-code --quiet
         if [ $? -ne 0 ]; then
@@ -45,23 +81,31 @@ common_build_snapshot_version() {
 # Inserts the version number into the Code
 common_update_version_in_code() {
     echo "# Update version in Code"
-    echo "## Update $SRC_OPENEMS_CONSTANTS"
-    sed --in-place "s#\(VERSION_MAJOR = \)\([0-9]\+\);#\1$VERSION_MAJOR;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_MINOR = \)\([0-9]\+\);#\1$VERSION_MINOR;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_PATCH = \)\([0-9]\+\);#\1$VERSION_PATCH;#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_STRING = \)\"\(.*\)\";#\1\"$VERSION_STRING\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_BRANCH = \)\"\(.*\)\";#\1\"${VERSION_DEV_BRANCH}\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_COMMIT = \)\"\(.*\)\";#\1\"$VERSION_DEV_COMMIT\";#" $SRC_OPENEMS_CONSTANTS
-    sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
+    if [[ -f "$SRC_OPENEMS_CONSTANTS" ]]; then
+        echo "## Update $SRC_OPENEMS_CONSTANTS"
+        sed --in-place "s#\(VERSION_MAJOR = \)\([0-9]\+\);#\1$VERSION_MAJOR;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_MINOR = \)\([0-9]\+\);#\1$VERSION_MINOR;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_PATCH = \)\([0-9]\+\);#\1$VERSION_PATCH;#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_STRING = \)\"\(.*\)\";#\1\"$VERSION_STRING\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_BRANCH = \)\"\(.*\)\";#\1\"${VERSION_DEV_BRANCH}\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_COMMIT = \)\"\(.*\)\";#\1\"$VERSION_DEV_COMMIT\";#" $SRC_OPENEMS_CONSTANTS
+        sed --in-place "s#\(VERSION_DEV_BUILD_TIME = \)\"\(.*\)\";#\1\"$VERSION_DEV_BUILD_TIME\";#" $SRC_OPENEMS_CONSTANTS
+    fi
+    
+    if [[ -f "$SRC_PACKAGE_JSON" ]]; then
+        echo "## Update $SRC_PACKAGE_JSON"
+        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+    fi
+    
+    if [[ -f "$SRC_PACKAGE_LOCK_JSON" ]]; then
+        echo "## Update $SRC_PACKAGE_LOCK_JSON"
+        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+    fi
 
-    echo "## Update $SRC_PACKAGE_JSON"
-    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
-
-    echo "## Update $SRC_PACKAGE_LOCK_JSON"
-    sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
-
-    echo "## Update $SRC_CHANGELOG_CONSTANTS"
-    sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+    if [[ -f "$SRC_CHANGELOG_CONSTANTS" ]]; then
+        echo "## Update $SRC_CHANGELOG_CONSTANTS"
+        sed --in-place "s#\(UI_VERSION = \"\).*\(\";\)#\1$VERSION\2#" $SRC_CHANGELOG_CONSTANTS
+    fi
 }
 
 common_print_banner() {
@@ -76,7 +120,7 @@ common_print_banner() {
 # Build OpenEMS Backend
 common_build_backend() {
     common_print_banner "Build OpenEMS Backend"
-    ./gradlew "$@" --build-cache build buildBackend resolve.BackendApp
+    ./gradlew "$@" --build-cache buildBackend resolve.BackendApp
     git diff --exit-code io.openems.backend.application/BackendApp.bndrun
 }
 
@@ -91,7 +135,7 @@ common_build_edge_and_ui_in_parallel() {
 # Build OpenEMS Edge
 common_build_edge() {
     common_print_banner "Build OpenEMS Edge"
-    ./gradlew "$@" --build-cache build buildEdge resolve.EdgeApp
+    ./gradlew "$@" --build-cache buildEdge resolve.EdgeApp
     git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 }
 
@@ -99,6 +143,24 @@ common_build_edge() {
 common_run_checkstyle() {
     common_print_banner "Run Checkstyle"
     ./gradlew "$@" checkstyleAll
+}
+
+# Run OpenEMS Edge Tests
+common_test_edge() {
+    common_print_banner "Run OpenEMS Edge JUnit Tests"
+    ./gradlew "$@" --build-cache testEdge
+}
+
+# Run OpenEMS Backend Tests
+common_test_backend() {
+    common_print_banner "Run OpenEMS Backend JUnit Tests"
+    ./gradlew "$@" --build-cache testBackend
+}
+
+# Run OpenEMS Tests
+common_test() {
+    common_print_banner "Run OpenEMS JUnit Tests"
+    ./gradlew "$@" --build-cache test
 }
 
 # Build OpenEMS UI
@@ -151,7 +213,7 @@ common_build_android_app() {
 
     # Build App
     cd android
-    THEME=${THEME} ./gradlew buildThemeRelease
+    THEME=${THEME} bash ./gradlew buildThemeRelease
 
     cd ../..
 }
@@ -197,17 +259,15 @@ common_build_ios_app() {
 
 common_save_environment() {
     local file=${1:-build.environment}
-    echo "
-    export VERSION=\"$VERSION\"
-    export VERSION_MAJOR=\"$VERSION_MAJOR\"
-    export VERSION_MINOR=\"$VERSION_MINOR\"
-    export VERSION_PATCH=\"$VERSION_PATCH\"
-    export VERSION_STRING=\"$VERSION_STRING\"
-    export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
-    export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
-    export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
-    export VERSION_FULL=\"$VERSION_FULL\"
-    " | tee $file
+    echo "export VERSION=\"$VERSION\"
+export VERSION_MAJOR=\"$VERSION_MAJOR\"
+export VERSION_MINOR=\"$VERSION_MINOR\"
+export VERSION_PATCH=\"$VERSION_PATCH\"
+export VERSION_STRING=\"$VERSION_STRING\"
+export VERSION_DEV_BRANCH=\"$VERSION_DEV_BRANCH\"
+export VERSION_DEV_COMMIT=\"$VERSION_DEV_COMMIT\"
+export VERSION_DEV_BUILD_TIME=\"$VERSION_DEV_BUILD_TIME\"
+export VERSION_FULL=\"$VERSION_FULL\"" | tee $file
 }
 
 common_check_file() {
@@ -217,4 +277,13 @@ common_check_file() {
         echo "Error: $error_message"
         exit 1
     fi
+}
+
+common_create_version_file() {
+    local file="${1:-fems.version}"
+    if [ -f "$file" ]; then
+        echo "File exists: $file; Skip!"
+        return
+    fi
+    echo $VERSION > "$file"
 }

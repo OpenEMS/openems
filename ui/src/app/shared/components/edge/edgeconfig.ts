@@ -1,5 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
-import { ChannelAddress, Widgets } from "../../shared";
+import { ChannelAddress } from "../../shared";
+import { Widgets } from "../../type/widgets";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -167,14 +168,14 @@ export class EdgeConfig {
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOs"), icon: "log-in-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IOS"), icon: "log-in-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalOutput"),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.io.api.DigitalInput"),
                 ].flat(2),
             },
             {
-                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO-CONTROL"), icon: "options-outline" },
+                category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.IO_CONTROL"), icon: "options-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByIds(factories, [
                         "Controller.IO.ChannelSingleThreshold",
@@ -762,8 +763,6 @@ export class EdgeConfig {
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
         return component?.properties[property] ?? null;
     }
-
-
 }
 
 export enum PersistencePriority {
@@ -811,6 +810,7 @@ export namespace EdgeConfig {
             public id: string = "",
             public alias: string = "",
             public isEnabled: boolean = false,
+            public showProperties: boolean = false,
             public readonly factoryId: string = "",
             public readonly properties: { [key: string]: any } = {},
             public readonly channels?: { [channelId: string]: ComponentChannel },
@@ -820,7 +820,7 @@ export namespace EdgeConfig {
             if (component == null) {
                 return null;
             }
-            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.factoryId, component.properties, component.channels ?? {});
+            return new EdgeConfig.Component(component.id, component.alias, component.isEnabled, component.showProperties ?? false, component.factoryId, component.properties, component.channels ?? {});
         }
 
         /* Safely gets a property from a component, if it exists, else returns null.

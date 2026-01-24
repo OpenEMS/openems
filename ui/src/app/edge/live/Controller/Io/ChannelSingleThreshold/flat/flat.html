@@ -1,14 +1,14 @@
 @if (isInitialized) {
   <oe-flat-widget button (click)="presentModal()" [title]="component.alias"
     [icon]="{name: icon.name, color: 'normal'}">
-    <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.STATE' | translate" [value]="state"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'GENERAL.MODE' | translate" [value]="mode"></oe-flat-widget-line>
     @if (modeValue === 'AUTOMATIC') {
-      <oe-flat-widget-line [name]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate"
+      <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON' | translate"
         [value]="dependentOnLabel" leftColumnWidth="20" [filter]="Filter.NOT_NULL_OR_UNDEFINED">
       </oe-flat-widget-line>
       @if (isOtherInputAddress) {
-        <oe-flat-widget-line [name]="'General.currentValue' | translate" [value]="currentValue"
+        <oe-flat-widget-line [name]="'GENERAL.CURRENT_VALUE' | translate" [value]="currentValue"
           [filter]="Filter.NOT_NULL_OR_UNDEFINED">
         </oe-flat-widget-line>
       }

@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
@@ -327,4 +328,23 @@ public interface Meta extends ModbusSlave {
 	 * @return the time zone, or null if not set
 	 */
 	public ZoneId getTimezone();
+
+	/**
+	 * Returns the {@link GridBuySoftLimit} {@link JSCalendar.Tasks}.
+	 * 
+	 * <p>
+	 * A Schedule for Grid-Buy Soft-Limits. Controllers will try to achieve this
+	 * Soft-Limit, e.g. via Peak-Shaving with an ESS.
+	 * 
+	 * @return JSCalendar Tasks
+	 */
+	public JSCalendar.Tasks<GridBuySoftLimit> getGridBuySoftLimit();
+
+	/**
+	 * Returns whether the user has accepted, declined, or not yet decided on
+	 * third-party usage.
+	 *
+	 * @return the third party usage acceptance status
+	 */
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
 }

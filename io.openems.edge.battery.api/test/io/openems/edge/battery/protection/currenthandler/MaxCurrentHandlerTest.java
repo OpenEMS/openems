@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.function.IntSupplier;
 
 import org.junit.Test;
 
@@ -113,21 +114,26 @@ public class MaxCurrentHandlerTest {
 		ChargeMaxCurrentHandler sut = ChargeMaxCurrentHandler.create(cm, 40) //
 				.setForceDischarge(3660, 3640, 3450) //
 				.build();
+		IntSupplier defaultCurr = () -> 2;
+
 		// Before Force-Discharge limit -> no force discharge
-		assertEquals(null, sut.getForceCurrent(3000, 3650));
+		assertEquals(null, sut.getForceCurrent(3000, 3650, defaultCurr));
 		// Start WAIT_FOR_FORCE_MODE (60 seconds) -> no force discharge
-		assertEquals(null, sut.getForceCurrent(3000, 3660));
+		assertEquals(null, sut.getForceCurrent(3000, 3660, defaultCurr));
 		clock.leap(1, ChronoUnit.MINUTES);
 		// Enter FORCE_MODE -> force discharge
-		assertEquals(-2., sut.getForceCurrent(3000, 3660), 0.001);
+		assertEquals(-2., sut.getForceCurrent(3000, 3660, defaultCurr), 0.001);
 		clock.leap(1, ChronoUnit.SECONDS);
-		assertEquals(-2., sut.getForceCurrent(3000, 3650), 0.001);
+		assertEquals(-2., sut.getForceCurrent(3000, 3650, defaultCurr), 0.001);
+		assertEquals(-4, sut.getForceCurrent(3000, 3650, () -> 4), 0.001);
 		// Enter BLOCK_MODE -> no charge/discharge
-		assertEquals(0, sut.getForceCurrent(3000, 3639), 0.001);
-		assertEquals(0, sut.getForceCurrent(3000, 3600), 0.001);
-		assertEquals(0, sut.getForceCurrent(3000, 3500), 0.001);
-		// Ende Force-Discharge Mode
-		assertEquals(null, sut.getForceCurrent(3000, 3449));
+		assertEquals(0, sut.getForceCurrent(3000, 3639, defaultCurr), 0.001);
+		assertEquals(0, sut.getForceCurrent(3000, 3600, defaultCurr), 0.001);
+		assertEquals(0, sut.getForceCurrent(3000, 3600, () -> 4), 0.001);
+		assertEquals(0, sut.getForceCurrent(3000, 3500, defaultCurr), 0.001);
+		// End Force-Discharge Mode
+		assertEquals(null, sut.getForceCurrent(3000, 3449, defaultCurr));
+
 	}
 
 	@Test

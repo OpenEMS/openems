@@ -5,7 +5,7 @@
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" color="primary" name="today-outline"></ion-icon>
-          <ion-label>{{"Menu.changelog" | translate}}</ion-label>
+          <ion-label>{{"MENU.CHANGELOG" | translate}}</ion-label>
         </ion-item>
         <ion-card-content>
           @for (changelog of changelogs | slice:0:(showAll ? changelogs.length : slice); track changelog; let last = $last) {

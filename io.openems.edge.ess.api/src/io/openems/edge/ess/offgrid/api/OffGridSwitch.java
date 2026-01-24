@@ -160,6 +160,8 @@ public interface OffGridSwitch extends OpenemsComponent {
 
 	public static enum Contactor {
 		/**
+		 * Contactor OPEN.
+		 * 
 		 * <ul>
 		 * <li>In Normally-Open: Switch the relay off.
 		 * <li>In Normally-Close: Switch the relay on.
@@ -167,6 +169,8 @@ public interface OffGridSwitch extends OpenemsComponent {
 		 */
 		OPEN, //
 		/**
+		 * Contactor CLOSE.
+		 * 
 		 * <ul>
 		 * <li>In Normally-Open: Switch the relay on.
 		 * <li>In Normally-Close: Switch the relay off.

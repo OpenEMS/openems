@@ -3,11 +3,13 @@ package io.openems.edge.io.shelly.shellypluspmmini;
 import static io.openems.common.types.MeterType.CONSUMPTION_METERED;
 import static org.junit.Assert.assertEquals;
 
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import org.junit.Test;
 
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase.SinglePhase;
@@ -20,8 +22,11 @@ public class IoShellyPlusPmMiniImplTest {
 	public void test() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
@@ -61,7 +66,7 @@ public class IoShellyPlusPmMiniImplTest {
 									    }
 									  }
 									}"""));
-							httpTestBundle.triggerNextCycle();
+							dummyCycleSubscriber.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("L1:7 W", sut.debugLog()))
 
@@ -76,7 +81,7 @@ public class IoShellyPlusPmMiniImplTest {
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
-							httpTestBundle.triggerNextCycle();
+							dummyCycleSubscriber.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("L1:UNDEFINED", sut.debugLog()))
 
@@ -95,8 +100,11 @@ public class IoShellyPlusPmMiniImplTest {
 	public void testInvert() throws Exception {
 		final var sut = new IoShellyPlusPmMiniImpl();
 		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
@@ -136,7 +144,7 @@ public class IoShellyPlusPmMiniImplTest {
 									    }
 									  }
 									}"""));
-							httpTestBundle.triggerNextCycle();
+							dummyCycleSubscriber.triggerNextCycle();
 						}) //
 						.onAfterProcessImage(() -> assertEquals("L1:-7 W", sut.debugLog()))
 

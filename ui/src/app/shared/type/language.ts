@@ -5,8 +5,8 @@ import localES from "@angular/common/locales/es";
 import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
-import { TranslateLoader, TranslateService } from "@ngx-translate/core";
-import { filter, Observable, of, take } from "rxjs";
+import { TranslateLoader } from "@ngx-translate/core";
+import { Observable, of } from "rxjs";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
 import en from "src/assets/i18n/en.json";
@@ -30,6 +30,7 @@ export class MyTranslateLoader implements TranslateLoader {
         return of(Language.DEFAULT.json);
     }
 }
+export type LanguageKeyUnion = (typeof Language.ALL)[number]["key"];
 
 export class Language {
 
@@ -127,26 +128,13 @@ export class Language {
      *  IMPORTANT: Translation keys will overwrite each other.
      *  Make sure to use a unique top level key.
      *
-     * @param translationFile the translation file
+     * @param translations the translation files
      * @returns translations params
      */
-    public static async setAdditionalTranslationFile(translationFile: any, translate: TranslateService): Promise<{ lang: string; translations: {}; shouldMerge?: boolean; }> {
-        const lang = translate.currentLang ?? (await translate.onLangChange.pipe(filter(lang => !!lang), take(1)).toPromise())?.lang ?? Language.DEFAULT.key;
-        let translationKey: string = lang;
-
-        if (!(Language.DEFAULT.key in translationFile)) {
-            throw new Error(`Translation for fallback ${Language.DEFAULT.key} is missing`);
-        }
-
-        if (!(lang in translationFile)) {
-
-            if (environment.debugMode) {
-                console.warn(`No translation available for Language ${lang}. Implemented languages are: ${Object.keys(translationFile)}`);
-            }
-            translationKey = Language.EN.key;
-        }
-        return { lang: lang, translations: translationFile[translationKey], shouldMerge: true };
+    public static async normalizeAdditionalTranslationFiles(translations: Record<LanguageKeyUnion, any>) {
+        return Object.entries(translations).map(([key, value]) => ({ lang: key, translation: value, shouldMerge: true }));
     }
+
 
     /**
      * Gets the i18n locale key without passed key

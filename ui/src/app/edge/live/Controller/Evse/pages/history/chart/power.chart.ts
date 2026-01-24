@@ -19,7 +19,7 @@ export class ChartComponent extends AbstractHistoryChart {
             input: [{ name: "ActivePower", powerChannel: new ChannelAddress(component.id, "ActivePower"), converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE }],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
-                    name: translate.instant("General.power"),
+                    name: translate.instant("GENERAL.POWER"),
                     converter: () => data["ActivePower"],
                     color: ChartConstants.Colors.YELLOW,
                 }];

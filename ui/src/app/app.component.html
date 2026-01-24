@@ -10,8 +10,7 @@
         </ng-template>
       }
       @if (navigationService.position() === 'left') {
-        <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main"
-          >
+        <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main">
           <ng-container *ngTemplateOutlet="sidemenu">
           </ng-container>
           <div id="main">
@@ -30,8 +29,7 @@
 
   <oe-navigation></oe-navigation>
   @if (latestIncident !== null) {
-    <oe-notification color="warning" [text]="latestIncident.message"
-      [id]="latestIncident.id">
+    <oe-notification color="warning" [text]="latestIncident.message" [id]="latestIncident.id">
     </oe-notification>
   }
   <ng-container *ngTemplateOutlet="footer"></ng-container>
@@ -49,7 +47,7 @@
                 <ion-item color="light">
                   <ion-icon slot="start" name="wifi-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    <h2 translate>Index.connectionInProgress</h2>
+                    <h2 translate>INDEX.CONNECTION_IN_PROGRESS</h2>
                   </ion-label>
                 </ion-item>
               }
@@ -58,7 +56,7 @@
                 <ion-item color="light">
                   <ion-icon slot="start" name="close-circle-outline"></ion-icon>
                   <ion-label class="ion-text-wrap">
-                    <h2 translate [translateParams]="{value: 'OpenEMS'}">Index.connectionFailed</h2>
+                    <h2 translate [translateParams]="{value: 'OpenEMS'}">INDEX.CONNECTION_FAILED</h2>
                     <p color="light">{{ environment.url }}</p>
                   </ion-label>
                 </ion-item>
@@ -83,15 +81,18 @@
     [type]="navigationService.position === 'left' ? '': 'overlay'" side="start">
     <ion-list>
       @if ((service.metadata | async)?.user; as user) {
-        <ion-item tabindex="0" button routerLinkActive="active"
-          (keydown.enter)="navCtrl.navigateRoot('/user');menu.close()"
-          (click)="navCtrl.navigateRoot('/user');menu.close()">
+        <ion-item tabindex="0" button routerLinkActive="active" (keydown.enter)="navigateToUser()"
+          (click)="navigateToUser()">
           <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
           </ion-icon>
           <ion-label>
-            <p style="color:var(--ion-text-color);">{{ user.name }}</p>
+            <p style="color:var(--ion-text-color); font-weight: bold;">
+              {{ user.name }}
+            </p>
             <ion-text>
-              <p style="color:var(--ion-text-color-shade);">{{ user.id }}</p>
+              <p style="color:var(--ion-text-color-shade); ">
+                {{ user.id }}
+              </p>
             </ion-text>
           </ion-label>
         </ion-item>
@@ -101,7 +102,7 @@
       @if ((service.metadata | async); as service) {
         @if (isUserAllowedToSeeOverview) {
           <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
-            <ion-label>{{"Menu.overview" | translate}}</ion-label>
+            <ion-label>{{"MENU.OVERVIEW" | translate}}</ion-label>
           </ion-item>
         }
       }
@@ -109,7 +110,7 @@
       @if (service.currentEdge(); as edge) {
         <nav>
           <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
-            <ion-label>{{"Menu.edgeSettings" | translate}}</ion-label>
+            <ion-label>{{"MENU.EDGE_SETTINGS" | translate}}</ion-label>
           </ion-item>
         </nav>
       }
@@ -128,7 +129,7 @@
         <ion-grid>
           <ion-row class="ion-justify-content-center">
             <ion-col size="12" size-md="6">
-              <span translate>General.SystemOutage</span>
+              <span translate>GENERAL.SYSTEM_OUTAGE</span>
               <span>&nbsp;</span>
               <a href="https://status.fenecon.de/" target="_blank">status.fenecon.de</a>
             </ion-col>

@@ -1,11 +1,13 @@
 package io.openems.edge.predictor.profileclusteringmodel;
 
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -26,13 +28,17 @@ import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.predictor.api.common.LogSeverity;
+import io.openems.edge.predictor.api.common.PredictionException;
+import io.openems.edge.predictor.api.common.PredictionState;
+import io.openems.edge.predictor.api.common.TrainingError;
+import io.openems.edge.predictor.api.common.TrainingState;
 import io.openems.edge.predictor.api.mlcore.classification.BernoulliNaiveBayesClassifier;
 import io.openems.edge.predictor.api.mlcore.clustering.AutoKMeansClusterer;
 import io.openems.edge.predictor.api.prediction.AbstractPredictor;
@@ -41,7 +47,6 @@ import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionContext;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionOrchestrator;
 import io.openems.edge.predictor.profileclusteringmodel.prediction.ProfileSwitcher;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.predictor.profileclusteringmodel.training.TrainingContext;
 import io.openems.edge.predictor.profileclusteringmodel.training.TrainingRunnable;
 import io.openems.edge.timedata.api.Timedata;
@@ -117,18 +122,24 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	protected void deactivate() {
 		super.deactivate();
 		shutdownAndAwaitTermination(this.scheduler, 5);
-		this.predictionPersistenceService.deactivateShiftingJob();
+		if (this.predictionPersistenceService != null) {
+			this.predictionPersistenceService.deactivateShiftingJob();
+		}
+		this._setTrainingState(TrainingState.DEACTIVATED);
+		this._setPredictionState(PredictionState.DEACTIVATED);
 	}
 
 	@Override
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 		if (this.currentModels == null) {
-			this.logError(this.log, "Prediction failed: No trained model available");
+			this._setPredictionState(PredictionState.FAILED_NO_MODEL);
+			this.logPredictionError(PredictionState.FAILED_NO_MODEL, LogSeverity.INFO, "No trained model available");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
 		if (this.isModelTooOld()) {
-			this.logError(this.log, "Prediction failed: Model is too old");
+			this._setPredictionState(PredictionState.FAILED_MODEL_OUTDATED);
+			this.logPredictionError(PredictionState.FAILED_MODEL_OUTDATED, LogSeverity.INFO, "Trained model outdated");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
@@ -138,8 +149,13 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 		List<Profile> predictedProfiles;
 		try {
 			predictedProfiles = predictionOchestrator.predictProfiles(this.predictorConfig.forecastDays());
+		} catch (PredictionException e) {
+			this._setPredictionState(e.getError().getFailedState());
+			this.logPredictionError(e.getError().getFailedState(), e.getError().getSeverity(), e.getMessage());
+			return Prediction.EMPTY_PREDICTION;
 		} catch (Exception e) {
-			this.logError(this.log, "Prediction failed: " + e.getMessage());
+			this._setPredictionState(PredictionState.FAILED_UNKNOWN);
+			this.logPredictionError(PredictionState.FAILED_UNKNOWN, LogSeverity.ERROR, e.getMessage());
 			return Prediction.EMPTY_PREDICTION;
 		}
 
@@ -151,13 +167,24 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 		this.predictionPersistenceService.updatePredictionAheadChannels(prediction);
 
+		this._setPredictionState(PredictionState.SUCCESSFUL);
 		return prediction;
 	}
 
 	@Override
-	public void onModelsTrained(ModelBundle bundle) {
+	public void onTrainingSuccess(ModelBundle bundle) {
 		this.currentModels = bundle;
 		this.currentProfile = null;
+		this._setTrainingState(TrainingState.SUCCESSFUL);
+		this.logInfo(this.log, String.format(//
+				"Training succeeded [%s]", //
+				TrainingState.SUCCESSFUL.getName()));
+	}
+
+	@Override
+	public void onTrainingError(TrainingError error, String message) {
+		this._setTrainingState(error.getFailedState());
+		this.logTrainingError(error.getFailedState(), error.getSeverity(), message);
 	}
 
 	private boolean isModelTooOld() {
@@ -170,8 +197,8 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 	private Prediction createNewPredictionFromProfiles(List<Profile> profiles) {
 		var clock = this.componentManager.getClock();
-		var baseTime = ZonedDateTime.now(clock).truncatedTo(ChronoUnit.DAYS);
-		var now = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
+		var baseTime = Instant.now(clock).truncatedTo(DAYS);
+		var now = roundDownToQuarter(Instant.now(clock));
 
 		int quarterHourIndex = (int) ChronoUnit.MINUTES.between(baseTime, now) / MINUTES_PER_QUARTER;
 
@@ -195,11 +222,10 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 				() -> this.componentManager.getClock(), //
 				this.timedata, //
 				SUM_UNMANAGED_CONSUMPTION_ACTIVE_POWER, //
-				new QueryWindow(//
-						this.predictorConfig.minTrainingWindowDays(), //
-						this.predictorConfig.maxTrainingWindowDays()), //
+				this.predictorConfig.trainingWindowInDays(), //
 				this.predictorConfig.maxGapSizeInterpolationInQuarters(), //
-				this.predictorConfig.minTrainingSamplesRequired(), //
+				this.predictorConfig.minTrainingSamples(), //
+				this.predictorConfig.maxTrainingSamples(), //
 				this.predictorConfig.clustererFitter(), //
 				this.predictorConfig.classifierFitter(), //
 				() -> this.meta.getSubdivisionCode());
@@ -219,6 +245,16 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 				this.currentProfile);
 	}
 
+	private void logTrainingError(TrainingState state, LogSeverity severity, String message) {
+		var logMessage = String.format("Training failed [%s]: %s", state.getName(), message);
+		this.logWithSeverity(this.log, severity, logMessage);
+	}
+
+	private void logPredictionError(PredictionState state, LogSeverity severity, String message) {
+		var logMessage = String.format("Prediction failed [%s]: %s", state.getName(), message);
+		this.logWithSeverity(this.log, severity, logMessage);
+	}
+
 	@Override
 	protected ClockProvider getClockProvider() {
 		return this.componentManager;
@@ -228,12 +264,7 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	public static class DefaultPredictorConfig implements PredictorConfig {
 
 		@Override
-		public int minTrainingWindowDays() {
-			return 30;
-		}
-
-		@Override
-		public int maxTrainingWindowDays() {
+		public int trainingWindowInDays() {
 			return 90;
 		}
 
@@ -243,8 +274,13 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 		}
 
 		@Override
-		public int minTrainingSamplesRequired() {
-			return 28;
+		public int minTrainingSamples() {
+			return 30;
+		}
+
+		@Override
+		public int maxTrainingSamples() {
+			return 60;
 		}
 
 		@Override

@@ -13,7 +13,8 @@ import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { ChartComponent } from "../chart/chart";
-import tr from "./translation.json";
+import de from "./i18n/de.json";
+import en from "./i18n/en.json";
 @Component({
     selector: "controller-io-heatpump-overview",
     templateUrl: "./overview.html",
@@ -31,10 +32,10 @@ import tr from "./translation.json";
 export class OverviewComponent extends AbstractHistoryChartOverview {
 
     protected readonly STATES: string = `
-    1.${this.translate.instant("Edge.Index.Widgets.HeatPump.lock")}
-    2.${this.translate.instant("Edge.Index.Widgets.HeatPump.normalOperation")} 
-    3.${this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnRec")} 
-    4.${this.translate.instant("Edge.Index.Widgets.HeatPump.switchOnCom")}
+    1.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK")}
+    2.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION")} 
+    3.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC")} 
+    4.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM")}
     `;
     protected chartType: "line" | "bar" = "line";
 
@@ -45,8 +46,11 @@ export class OverviewComponent extends AbstractHistoryChartOverview {
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
-        Language.setAdditionalTranslationFile(tr, this.translate).then(({ lang, translations, shouldMerge }) => {
-            this.translate.setTranslation(lang, translations, shouldMerge);
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
         });
     }
 

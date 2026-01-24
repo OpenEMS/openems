@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import io.openems.edge.predictor.api.common.PredictionException;
+import io.openems.edge.predictor.api.common.TrainingException;
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
 import io.openems.edge.predictor.api.mlcore.datastructures.Series;
 import io.openems.edge.predictor.api.mlcore.interpolation.LinearInterpolator;
@@ -16,6 +18,8 @@ import io.openems.edge.predictor.api.mlcore.transformer.DropNaTransformer;
 import io.openems.edge.predictor.api.mlcore.transformer.InterpolationTransformer;
 import io.openems.edge.predictor.api.mlcore.transformer.NegativeValueCleaner;
 import io.openems.edge.predictor.api.mlcore.transformer.SeriesTransformerPipeline;
+import io.openems.edge.predictor.profileclusteringmodel.prediction.PredictionError;
+import io.openems.edge.predictor.profileclusteringmodel.training.TrainingError;
 
 public class TimeSeriesPreprocessingService {
 
@@ -28,14 +32,15 @@ public class TimeSeriesPreprocessingService {
 	}
 
 	/**
-	 * Preprocesses the given time series by cleaning negative values, interpolating
-	 * gaps, grouping by day, and dropping days with missing data.
+	 * Preprocesses the given time series for training by cleaning negative values,
+	 * interpolating gaps, grouping by day, and dropping days with missing data.
 	 *
 	 * @param rawTimeSeries the raw time series data
 	 * @return a cleaned DataFrame indexed by date
-	 * @throws IllegalStateException if no valid days remain after preprocessing
+	 * @throws TrainingException if no valid days remain after preprocessing
 	 */
-	public DataFrame<LocalDate> preprocessTimeSeries(Series<ZonedDateTime> rawTimeSeries) throws IllegalStateException {
+	public DataFrame<LocalDate> preprocessTimeSeriesForTraining(Series<ZonedDateTime> rawTimeSeries)
+			throws TrainingException {
 		var interpolationPipeline = new SeriesTransformerPipeline<ZonedDateTime>(List.of(//
 				new NegativeValueCleaner<ZonedDateTime>(Double.NaN), //
 				new InterpolationTransformer<ZonedDateTime>(new LinearInterpolator(this.maxGapSizeInterpolation))//
@@ -48,7 +53,37 @@ public class TimeSeriesPreprocessingService {
 		var cleanedTimeSeriesByDate = dropNaTransformer.transform(timeSeriesByDate);
 
 		if (cleanedTimeSeriesByDate.rowCount() == 0) {
-			throw new IllegalStateException("No valid days left after time series preprocessing");
+			throw new TrainingException(TrainingError.INSUFFICIENT_TRAINING_DATA,
+					"No valid consumption profiles left after time series preprocessing");
+		}
+		return cleanedTimeSeriesByDate;
+	}
+
+	/**
+	 * Preprocesses the given time series for prediction by cleaning negative
+	 * values, interpolating gaps, grouping by day, and dropping days with missing
+	 * data.
+	 *
+	 * @param rawTimeSeries the raw time series data
+	 * @return a cleaned DataFrame indexed by date
+	 * @throws IllegalStateException if no valid days remain after preprocessing
+	 */
+	public DataFrame<LocalDate> preprocessTimeSeriesForPrediction(Series<ZonedDateTime> rawTimeSeries)
+			throws PredictionException {
+		var interpolationPipeline = new SeriesTransformerPipeline<ZonedDateTime>(List.of(//
+				new NegativeValueCleaner<ZonedDateTime>(Double.NaN), //
+				new InterpolationTransformer<ZonedDateTime>(new LinearInterpolator(this.maxGapSizeInterpolation))//
+		));
+		var interpolatedTimeSeries = interpolationPipeline.transform(rawTimeSeries);
+
+		var timeSeriesByDate = groupTimeSeriesByDate(interpolatedTimeSeries);
+
+		var dropNaTransformer = new DropNaTransformer<LocalDate>();
+		var cleanedTimeSeriesByDate = dropNaTransformer.transform(timeSeriesByDate);
+
+		if (cleanedTimeSeriesByDate.rowCount() == 0) {
+			throw new PredictionException(PredictionError.INSUFFICIENT_PREDICTION_DATA,
+					"No valid consumption profiles left after time series preprocessing");
 		}
 		return cleanedTimeSeriesByDate;
 	}
@@ -79,9 +114,11 @@ public class TimeSeriesPreprocessingService {
 
 			var values = sortedTimes.stream().map(timeMap::get).toList();
 
+			// During the switch to winter time, a day can have more than 96 values (100
+			// values). Such days are skipped here to keep only complete days with 96
+			// quarter-hour values.
 			if (values.size() != QUARTERS_PER_DAY) {
-				throw new IllegalStateException("Expected " + QUARTERS_PER_DAY + " values per day, but got "
-						+ values.size() + " for day " + day);
+				continue;
 			}
 
 			index.add(day);

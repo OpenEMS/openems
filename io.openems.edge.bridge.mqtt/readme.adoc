@@ -1,0 +1,5 @@
+= MQTT
+
+This implementation provides MQTT communication support for OpenEMS Edge with MQTT 3.1, 3.1.1, and 5.0 via Eclipse Paho client.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.http[Source Code icon:github[]]

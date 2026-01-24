@@ -65,7 +65,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 
 	public static enum Property implements Type<Property, RestJsonApiReadOnly, BundleParameter>, Nameable {
 		// Components
-		CONTROLLER_ID(AppDef.of(RestJsonApiReadOnly.class) //
+		CONTROLLER_ID(AppDef.of(RestJsonApiReadOnly.class)//
 				.setDefaultValue("ctrlApiRest0")), //
 		// Properties
 		ALIAS(alias()), //
@@ -74,7 +74,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.Rest.ReadWrite").isEmpty();
 					return new JsonPrimitive(active);
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckbox)), //
 		;
 
