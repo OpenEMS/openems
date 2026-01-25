@@ -19,7 +19,7 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	private Power power = new DummyPower();
 
 	private int powerPrecision = 1;
-	private int pvProduction;
+	private Integer pvProduction = null;
 	private Consumer<SymmetricApplyPowerRecord> symmetricApplyPowerCallback = null;
 
 	protected AbstractDummyManagedSymmetricEss(String id,

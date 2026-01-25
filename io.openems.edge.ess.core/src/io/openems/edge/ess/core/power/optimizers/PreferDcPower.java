@@ -138,7 +138,7 @@ public class PreferDcPower {
 					.mapToDouble(inv -> getPvProductionFromEss(getEss(essList,inv.getEssId())))//
 					.toArray();
 
-			if(debugMode) log.debug("[ACTIVE] PowerSetPoint: "+activePower+ ", Direction: "+direction);
+			if(debugMode) log.info("[ACTIVE] PowerSetPoint: "+activePower+ ", Direction: "+direction);
 
 			var essPowerRequired = new double[sortedInverters.size()];
 			double remainingPowerRequired = activePower;
@@ -177,11 +177,11 @@ public class PreferDcPower {
 					if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
 				}
 
-				if(debugMode) log.debug(logMessage);
+				if(debugMode) log.info(logMessage);
 			}
 
 
-			if(debugMode) log.debug("[ACTIVE]   -> remaining power required after pv production solved: "+remainingPowerRequired);
+			if(debugMode) log.info("[ACTIVE]   -> remaining power required after pv production solved: "+remainingPowerRequired);
 
 
 			// Step 1.2: Distribute remaining power using all ESS currently producing power (discharging due to PV production); distribute using order
@@ -214,11 +214,11 @@ public class PreferDcPower {
 							if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
 						}
 
-						if(debugMode) log.debug(logMessage);
+						if(debugMode) log.info(logMessage);
 					}
 				}
 
-				if(debugMode) log.debug("[ACTIVE]   -> remaining power required after ess already discharging solved: "+remainingPowerRequired);
+				if(debugMode) log.info("[ACTIVE]   -> remaining power required after ess already discharging solved: "+remainingPowerRequired);
 			}
 
 
@@ -262,10 +262,10 @@ public class PreferDcPower {
 						}
 					}
 
-					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essPowerRequired[i]);
+					if(debugMode) log.info(logMessage + "\t-> "+inv.toString()+" EQUALS "+essPowerRequired[i]);
 				}
 
-				if(debugMode) log.debug("[ACTIVE]   -> remaining power required after solving using all ess: "+remainingPowerRequired);
+				if(debugMode) log.info("[ACTIVE]   -> remaining power required after solving using all ess: "+remainingPowerRequired);
 			}
 
 			// Step 2: Solve the active power system
@@ -281,7 +281,7 @@ public class PreferDcPower {
 
 				if(essState[i] == Level.FAULT) {
 					// Create Constraint to force faulty Ess on ZERO
-					if(debugMode) log.debug("[ACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essPowerRequired[i]);
+					if(debugMode) log.info("[ACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essPowerRequired[i]);
 					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 							createSimpleConstraint(coefficients, //
 									inv.toString() + ": Force ActivePower KEEP_ZERO", //
@@ -300,7 +300,7 @@ public class PreferDcPower {
 				var inv = sortedInverters.get(i);
 
 				if(essState[i] != Level.FAULT) {
-					if(debugMode) log.debug("[ACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essPowerRequired[i]);
+					if(debugMode) log.info("[ACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essPowerRequired[i]);
 					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 							createSimpleConstraint(coefficients, //
 									inv.toString() + ": Set ActivePower " + direction.name() + " value", //
@@ -331,7 +331,7 @@ public class PreferDcPower {
 		double idleEssMaxQTotal = 0;
 		double allEssMaxQTotal = 0;
 
-		if(debugMode) log.debug("[REACTIVE] PowerSetPoint: "+reactivePower+ ", Direction: "+reactiveDirection);
+		if(debugMode) log.info("[REACTIVE] PowerSetPoint: "+reactivePower+ ", Direction: "+reactiveDirection);
 
 		// Step 3: Gets the active power from constraint system and define upper and lower limits
 		var point = result.getPoint();
@@ -463,7 +463,7 @@ public class PreferDcPower {
 						if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": weight: "+weights[i]+", min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
 
 						if(weights[i]==0) {
-							if(debugMode) log.debug(logMessage + "  -> EQUALS 0.0"); // weight zero
+							if(debugMode) log.info(logMessage + "  -> EQUALS 0.0"); // weight zero
 							continue;
 						}
 
@@ -503,7 +503,7 @@ public class PreferDcPower {
 							}
 						}
 
-						if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+						if(debugMode) log.info(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
 					}
 				}
 
@@ -556,7 +556,7 @@ public class PreferDcPower {
 
 				}
 
-				if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using calculated weights (strategy "+weightStrategy+"): "+remainingReactivePowerRequired);
+				if(debugMode) log.info("[REACTIVE]   -> remaining power required after solving using calculated weights (strategy "+weightStrategy+"): "+remainingReactivePowerRequired);
 			}
 		}while(remainingReactivePowerRequired != 0 && weightSum > 0 && weightDistributedPowerTotal != 0);
 
@@ -597,11 +597,11 @@ public class PreferDcPower {
 						}
 					}
 
-					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+					if(debugMode) log.info(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
 				}
 			}
 
-			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using discharging ess (distributed using order): "+remainingReactivePowerRequired);
+			if(debugMode) log.info("[REACTIVE]   -> remaining power required after solving using discharging ess (distributed using order): "+remainingReactivePowerRequired);
 		}
 
 
@@ -616,7 +616,7 @@ public class PreferDcPower {
 					if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
 
 					if(essState[i] == Level.FAULT) {
-						if(debugMode) log.debug(logMessage + "  -> ESS state: FAULT");
+						if(debugMode) log.info(logMessage + "  -> ESS state: FAULT");
 						continue;
 					}
 
@@ -646,11 +646,11 @@ public class PreferDcPower {
 						}
 					}
 
-					if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+					if(debugMode) log.info(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
 				}
 			}
 
-			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using idle ess (distributed using order): "+remainingReactivePowerRequired);
+			if(debugMode) log.info("[REACTIVE]   -> remaining power required after solving using idle ess (distributed using order): "+remainingReactivePowerRequired);
 		}
 
 
@@ -664,7 +664,7 @@ public class PreferDcPower {
 				if(debugMode) logMessage += "[REACTIVE]   " + inv.toString() + ": min: "+essReactiveLowerLimit[i]+", max: "+essReactiveUpperLimit[i];
 
 				if(essState[i] == Level.FAULT) {
-					if(debugMode) log.debug(logMessage + "  -> ESS state: FAULT");
+					if(debugMode) log.info(logMessage + "  -> ESS state: FAULT");
 					continue;
 				}
 
@@ -694,10 +694,10 @@ public class PreferDcPower {
 					}
 				}
 
-				if(debugMode) log.debug(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
+				if(debugMode) log.info(logMessage + "\t-> "+inv.toString()+" EQUALS "+essReactivePowerRequired[i]);
 			}
 
-			if(debugMode) log.debug("[REACTIVE]   -> remaining power required after solving using all ess (distributed using order): "+remainingReactivePowerRequired);
+			if(debugMode) log.info("[REACTIVE]   -> remaining power required after solving using all ess (distributed using order): "+remainingReactivePowerRequired);
 		}
 
 
@@ -714,7 +714,7 @@ public class PreferDcPower {
 
 			if(essState[i] == Level.FAULT) {
 				// Create Constraint to force faulty Ess on ZERO
-				if(debugMode) log.debug("[REACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essReactivePowerRequired[i]);
+				if(debugMode) log.info("[REACTIVE] Add Constraint for "+inv.toString()+": EQUALS "+essReactivePowerRequired[i]);
 				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 						createSimpleConstraint(coefficients, //
 								inv.toString() + ": Force ReactivePower KEEP_ZERO", //
@@ -733,7 +733,7 @@ public class PreferDcPower {
 			var inv = sortedInverters.get(i);
 
 			if(essState[i] != Level.FAULT) {
-				if(debugMode) log.debug("[REACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essReactivePowerRequired[i]);
+				if(debugMode) log.info("[REACTIVE] Add Constraint for "+inv.toString()+": "+Relationship.EQUALS+" "+essReactivePowerRequired[i]);
 				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 						createSimpleConstraint(coefficients, //
 								inv.toString() + ": Set ReactivePower " + reactiveDirection.name() + " value", //
@@ -762,7 +762,7 @@ public class PreferDcPower {
 	private static Integer getPvProductionFromEss(ManagedSymmetricEss ess) {
 		Integer pvProduction = ess.getPvProduction();
 		if(pvProduction==null) {
-			log.info(ess.id()+" does not report PVProduction | "+ess.getClass().toString());
+			log.info(ess.id()+" does not report PV production");
 			return 0;
 		}
 
