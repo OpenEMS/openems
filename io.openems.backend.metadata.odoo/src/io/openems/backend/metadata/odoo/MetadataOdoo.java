@@ -22,7 +22,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -113,6 +115,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	private final Map<String, Map<String, Role>> userRoles = new ConcurrentHashMap<>();
 
 	private DebugExecutor eventExecutor;
+	private DebugExecutor refreshTokenExecutor;
 	private final ConcurrentHashMap<String, Boolean> pendingEdgeConfigIds = new ConcurrentHashMap<>();
 
 	private DebugExecutor requestExecutor;
@@ -154,8 +157,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 				new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Event-%d").build()));
 		this.requestExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(
 				config.requestPoolSize(), Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
+		this.refreshTokenExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(1,
+				Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
 
-		this.odooHandler = new OdooHandler(this, this.edgeCache, config);
+		this.odooHandler = new OdooHandler(this, this.edgeCache, config, this.refreshTokenExecutor,
+				this.requestExecutor);
 		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
@@ -172,6 +178,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.logInfo(this.log, "Deactivate");
 		shutdownAndAwaitTermination(this.eventExecutor, 5);
 		shutdownAndAwaitTermination(this.requestExecutor, 5);
+		shutdownAndAwaitTermination(this.refreshTokenExecutor, 5);
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
 		}
@@ -192,9 +199,9 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	public CompletableFuture<PasswordAuthenticationResult> authenticateWithPassword(String username, String password) {
 		try {
 			final var session = this.odooHandler.authenticate(username, password);
-			final var user = this.authenticate(session);
-			return CompletableFuture
-					.completedFuture(new PasswordAuthenticationResult(user.getId(), user.getName(), session));
+			return this.authenticate(session).thenApply(user -> {
+				return new PasswordAuthenticationResult(user.getId(), user.getName(), session);
+			});
 		} catch (OpenemsNamedException e) {
 			return CompletableFuture.failedFuture(e);
 		}
@@ -202,25 +209,17 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public CompletableFuture<PasswordAuthenticationResult> authenticateWithToken(String token) {
-		try {
-			final var user = this.authenticate(token);
-			return CompletableFuture
-					.completedFuture(new PasswordAuthenticationResult(user.getId(), user.getName(), token));
-		} catch (OpenemsNamedException e) {
-			return CompletableFuture.failedFuture(e);
-		}
+		return this.authenticate(token).thenApply(user -> {
+			return new PasswordAuthenticationResult(user.getId(), user.getName(), token);
+		});
 	}
 
 	@Override
 	public CompletableFuture<Void> logout(String token) {
-		try {
-			final var user = this.authenticate(token);
+		return this.authenticate(token).thenAccept(user -> {
 			this.users.remove(user.getId());
 			this.odooHandler.logout(user.getToken());
-			return CompletableFuture.completedFuture(null);
-		} catch (OpenemsNamedException e) {
-			return CompletableFuture.failedFuture(e);
-		}
+		});
 	}
 
 	/**
@@ -230,27 +229,30 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	 * @return the {@link User}
 	 * @throws OpenemsException on error
 	 */
-	public User authenticate(String externalUserId) throws OpenemsNamedException {
-		var result = this.odooHandler.authenticateSession(externalUserId);
+	public CompletableFuture<User> authenticate(String externalUserId) {
+		return this.odooHandler.authenticateSession(externalUserId).thenApply(result -> {
+			try {
+				var jUser = getAsJsonObject(result, "user");
+				var odooUserId = getAsInt(jUser, "id");
+				var login = getAsString(jUser, "login");
+				var name = getAsString(jUser, "name");
+				var language = Language.from(getAsString(jUser, "language"));
+				var globalRole = Role.getRole(getAsString(jUser, "global_role"));
+				var hasMultipleEdges = getAsBoolean(jUser, "has_multiple_edges");
 
-		// Parse Result
-		var jUser = getAsJsonObject(result, "user");
-		var odooUserId = getAsInt(jUser, "id");
-		var login = getAsString(jUser, "login");
-		var name = getAsString(jUser, "name");
-		var language = Language.from(getAsString(jUser, "language"));
-		var globalRole = Role.getRole(getAsString(jUser, "global_role"));
-		var hasMultipleEdges = getAsBoolean(jUser, "has_multiple_edges");
+				final var settings = getAsOptionalString(jUser, "settings") //
+						.flatMap(JsonUtils::parseOptional) //
+						.flatMap(JsonUtils::getAsOptionalJsonObject) //
+						.orElse(new JsonObject());
 
-		final var settings = getAsOptionalString(jUser, "settings") //
-				.flatMap(JsonUtils::parseOptional) //
-				.flatMap(JsonUtils::getAsOptionalJsonObject) //
-				.orElse(new JsonObject());
-
-		var user = new MyUser(odooUserId, externalUserId, login, name, "", language, globalRole, hasMultipleEdges,
-				settings);
-		this.users.put(login, user);
-		return user;
+				var user = new MyUser(odooUserId, externalUserId, login, name, "", language, globalRole,
+						hasMultipleEdges, settings);
+				this.users.put(login, user);
+				return user;
+			} catch (OpenemsNamedException e) {
+				throw new CompletionException(e);
+			}
+		});
 	}
 
 	@Override
@@ -283,16 +285,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public CompletableFuture<User> getUserByExternalId(String userId) {
-		return this.requestExecutor.submit("getUserByExternalId", () -> {
-			try {
-				this.log.info("Try authenticate getUser with external user id {}", userId);
-				final var user = this.authenticate(userId);
-				return user;
-			} catch (OpenemsNamedException e) {
-				this.log.error("Unable to get user by external id", e);
-				throw new RuntimeException("Unable to get user", e);
-			}
-		});
+		return this.authenticate(userId);
 	}
 
 	@Override
@@ -697,26 +690,29 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			final User user, //
 			final PaginationOptions paginationOptions //
 	) {
-		return this.requestExecutor.submit("getPageDevice", () -> {
-			var result = this.odooHandler.getEdges(user, paginationOptions);
-			final var jsonArray = getAsJsonArray(result, "devices");
-			final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
-			OpenemsNamedException lastException = null;
-			for (var jElement : jsonArray) {
-				try {
-					final var metadata = this.convertToEdgeMetadata(user, jElement);
-					this.setRole(user, metadata.id(), metadata.role());
-					resultMetadata.add(metadata);
-				} catch (OpenemsNamedException e) {
-					this.logWarn(this.log,
-							"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
-					lastException = e;
+		return this.odooHandler.getEdges(user, paginationOptions).thenApply(result -> {
+			try {
+				var jsonArray = getAsJsonArray(result, "devices");
+				final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
+				OpenemsNamedException lastException = null;
+				for (var jElement : jsonArray) {
+					try {
+						final var metadata = this.convertToEdgeMetadata(user, jElement);
+						this.setRole(user, metadata.id(), metadata.role());
+						resultMetadata.add(metadata);
+					} catch (OpenemsNamedException e) {
+						this.logWarn(this.log,
+								"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
+						lastException = e;
+					}
 				}
+				if (resultMetadata.isEmpty() && lastException != null) {
+					throw lastException; // No results -> re-throw Exception
+				}
+				return resultMetadata;
+			} catch (OpenemsNamedException e) {
+				throw new CompletionException(e);
 			}
-			if (resultMetadata.isEmpty() && lastException != null) {
-				throw lastException; // No results -> re-throw Exception
-			}
-			return resultMetadata;
 		});
 	}
 
@@ -728,9 +724,9 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 		return userRoles.computeIfAbsent(edgeId, t -> {
 			try {
-				final var edgeMetadata = this.getEdgeMetadataForUserInternal(user, t);
+				final var edgeMetadata = this.getEdgeMetadataForUserInternal(user, t).get();
 				return edgeMetadata.role();
-			} catch (OpenemsNamedException e) {
+			} catch (ExecutionException | InterruptedException e) {
 				this.log.warn("Unable to get EdgeMetadata user={}, edge={}", user.getId(), edgeId, e);
 				return null;
 			}
@@ -746,14 +742,21 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
-		final var result = this.getEdgeMetadataForUserInternal(user, edgeId);
-		this.setRole(user, edgeId, result.role());
-		return result;
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId) {
+		return this.getEdgeMetadataForUserInternal(user, edgeId).thenApply(edgeMetadata -> {
+			this.setRole(user, edgeId, edgeMetadata.role());
+			return edgeMetadata;
+		});
 	}
 
-	private EdgeMetadata getEdgeMetadataForUserInternal(User user, String edgeId) throws OpenemsNamedException {
-		return this.convertToEdgeMetadata(user, this.odooHandler.getEdgeWithRole(user, edgeId));
+	private CompletableFuture<EdgeMetadata> getEdgeMetadataForUserInternal(User user, String edgeId) {
+		return this.odooHandler.getEdgeWithRole(user, edgeId).thenApply(jsonObject -> {
+			try {
+				return this.convertToEdgeMetadata(user, jsonObject);
+			} catch (OpenemsNamedException e) {
+				throw new CompletionException(e);
+			}
+		});
 	}
 
 	private EdgeMetadata convertToEdgeMetadata(User user, JsonElement jDevice) throws OpenemsNamedException {

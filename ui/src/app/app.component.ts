@@ -107,40 +107,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.platform.ready().then(() => {
             // OEM colors exist only after ionic is initialized, so the notch color has to be set here
-            const notchColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-background");
-            this.meta.updateTag(
-                { name: "theme-color", content: notchColor },
-            );
-            this.service.deviceHeight = this.platform.height();
-            this.service.deviceWidth = this.platform.width();
-            this.checkSmartphoneResolution(true);
-            this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.service.deviceHeight = this.platform.height();
-                this.service.deviceWidth = this.platform.width();
-                this.checkSmartphoneResolution(false);
-            });
+            const notchColor = getComputedStyle(document.documentElement)
+                .getPropertyValue("--ion-color-background");
+            this.meta.updateTag({ name: "theme-color", content: notchColor });
+
+            this.appService.handleResize(this.platform, this.service, this.ngUnsubscribe);
+
+
         });
 
         this.title.setTitle(environment.edgeShortName);
-    }
-
-    private checkSmartphoneResolution(init: boolean): void {
-        if (init == true) {
-            if (this.platform.width() <= 576) {
-                this.service.isSmartphoneResolution = true;
-                this.service.isSmartphoneResolutionSubject.next(true);
-            } else if (this.platform.width() > 576) {
-                this.service.isSmartphoneResolution = false;
-                this.service.isSmartphoneResolutionSubject.next(false);
-            }
-        } else {
-            if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
-                this.service.isSmartphoneResolution = true;
-                this.service.isSmartphoneResolutionSubject.next(true);
-            } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
-                this.service.isSmartphoneResolution = false;
-                this.service.isSmartphoneResolutionSubject.next(false);
-            }
-        }
     }
 }

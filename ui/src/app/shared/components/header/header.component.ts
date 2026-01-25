@@ -10,7 +10,6 @@ import { RouteService } from "../../service/route.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
-import { StatusSingleComponent } from "../status/single/status.component";
 
 @Component({
     selector: "header",
@@ -179,13 +178,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
-    }
-
-    async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
-        });
-        return await modal.present();
     }
 
     ngOnDestroy() {

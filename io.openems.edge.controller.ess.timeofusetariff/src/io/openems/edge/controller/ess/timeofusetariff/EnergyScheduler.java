@@ -106,6 +106,11 @@ public class EnergyScheduler {
 						mode = BALANCING;
 					}
 
+					if (period.gridBuySoftLimit() != null) {
+						// Try setting GridMaxBuy to GridBuySoftLimit
+						ef.setGridMaxBuy(period.gridBuySoftLimit());
+					}
+
 					if (isFinalRun) {
 						// This is the final run -> post-process mode
 						mode = postProcessMode(period, gsc, coc, ef, mode);
