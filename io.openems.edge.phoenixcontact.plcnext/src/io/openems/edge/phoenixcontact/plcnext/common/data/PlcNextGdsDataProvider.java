@@ -1,7 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,7 +36,7 @@ public interface PlcNextGdsDataProvider {
 	 * @param authConfig          config to be used for authentication
 	 * @return @link{JsonObject} containing raw response from REST-API
 	 */
-	Optional<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
+	CompletableFuture<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
 			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
 
 	/**
@@ -48,7 +48,7 @@ public interface PlcNextGdsDataProvider {
 	 * @param authConfig       config to be used for authentication
 	 * @return @link{JsonObject} containing raw response from REST-API
 	 */
-	Optional<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
+	CompletableFuture<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
 			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
 
 	/**

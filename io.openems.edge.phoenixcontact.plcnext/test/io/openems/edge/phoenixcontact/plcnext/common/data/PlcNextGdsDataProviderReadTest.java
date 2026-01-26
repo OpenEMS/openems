@@ -1,13 +1,14 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -175,7 +176,7 @@ public class PlcNextGdsDataProviderReadTest {
 	}
 
 	@Test
-	public void testFetchVariablesFromGds_Successfully() {
+	public void testFetchVariablesFromGds_Successfully() throws Throwable {
 		// prep
 		List<String> variableIdentifiers = List.of("phase_voltages", "neutral_current", "energy_import");
 
@@ -241,11 +242,11 @@ public class PlcNextGdsDataProviderReadTest {
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
 		// test
-		Optional<JsonObject> result = dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null);
+		JsonObject result = dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null) //
+				.join();
 
 		// check
 		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isPresent());
 	}
 
 	@Test
@@ -282,12 +283,9 @@ public class PlcNextGdsDataProviderReadTest {
 		when(mockDummyBridgeHttp.requestJson(eq(dataEndpoint)))//
 				.thenThrow(CompletionException.class);
 
-		// test
-		Optional<JsonObject> result = dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null);
-
-		// check
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		// test + check
+		assertThrows(CompletionException.class, () -> 
+			dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null).join());
 	}
 
 	@Test
@@ -296,13 +294,20 @@ public class PlcNextGdsDataProviderReadTest {
 		List<String> variableIdentifiers = List.of("phaseVoltages", "neutralCurrent", "energyImport");
 
 		when(mockTokenManager.getToken()).thenReturn(null);
+		when(mockTokenManager.hasValidToken()).thenReturn(false);
+		when(mockTokenManager.fetchToken(any())).thenReturn( //
+				CompletableFuture.completedFuture(null));
+		
 		when(mockDummyBridgeHttp.requestJson(any(Endpoint.class)))//
 				.thenThrow(CompletionException.class);
 
-		// test + check
-		assertThrows(CompletionException.class, () -> {
-			dataProvider.readDataFromRestApi(variableIdentifiers, dataProviderConfig, null);
-		});
+		// test 
+		CompletableFuture<JsonObject> result = dataProvider.readDataFromRestApi( //
+				variableIdentifiers, dataProviderConfig, null);
+
+		// check
+		assertNotNull(result);
+		assertTrue(result.isCompletedExceptionally());
 	}
 
 	@Test
@@ -320,14 +325,13 @@ public class PlcNextGdsDataProviderReadTest {
 						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
 		// test
-		Optional<PlcNextCreateSessionResponse> createSessionResponse = dataProvider
-				.createSessionIfNecessary(dataProviderConfig);
+		PlcNextCreateSessionResponse createSessionResponse = dataProvider
+				.createOrFetchSessionID(dataProviderConfig).join();
 
 		// check
 		Assert.assertNotNull(createSessionResponse);
-		Assert.assertTrue(createSessionResponse.isPresent());
-		Assert.assertEquals(sessionId, createSessionResponse.get().sessionId());
-		Assert.assertNotNull(createSessionResponse.get().sessionTimeout());
+		Assert.assertEquals(sessionId, createSessionResponse.sessionId());
+		Assert.assertNotNull(createSessionResponse.sessionTimeout());
 	}
 
 	@Test
@@ -336,16 +340,16 @@ public class PlcNextGdsDataProviderReadTest {
 		when(mockTokenManager.getToken()).thenReturn(accessToken);
 		when(mockTokenManager.hasValidToken()).thenReturn(true);
 
-		JsonObject createSessionResponseBody = new JsonObject();
-
 		when(mockDummyBridgeHttp.requestJson(any()))//
-				.thenReturn(CompletableFuture.supplyAsync(() -> new HttpResponse<JsonElement>(HttpStatus.UNAUTHORIZED,
-						Map.of(), createSessionResponseBody)));
+				.thenThrow(CompletionException.class);
 
-		// test + check
-		assertThrows(CompletionException.class, () -> {
-			dataProvider.createSessionIfNecessary(dataProviderConfig);
-		});
+		// test 
+		CompletableFuture<PlcNextCreateSessionResponse> result = 
+				dataProvider.createOrFetchSessionID(dataProviderConfig);
+
+		// check
+		assertNotNull(result);
+		assertTrue(result.isCompletedExceptionally());
 	}
 
 	@Test
@@ -357,15 +361,14 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(),
+		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(ote);
-		Assert.assertTrue(ote.isPresent());
+		Assert.assertNotNull(te);
 
 		// test trigger
-		ote.get().onResult().accept(HttpResponse.ok("{ 'sessionID': '" + sessionId + "'}"));
+		te.onResult().accept(HttpResponse.ok("{ 'sessionID': '" + sessionId + "'}"));
 
 		// check trigger
 		Assert.assertEquals(sessionId, dataProvider.sessionId);
@@ -379,15 +382,14 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(),
+		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(ote);
-		Assert.assertTrue(ote.isPresent());
+		Assert.assertNotNull(te);
 
 		// test trigger
-		ote.get().onResult().accept(HttpResponse.ok("{}"));
+		te.onResult().accept(HttpResponse.ok("{}"));
 
 		// check trigger
 		Assert.assertNull(dataProvider.sessionId);
@@ -401,15 +403,14 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(),
+		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(ote);
-		Assert.assertTrue(ote.isPresent());
+		Assert.assertNotNull(te);
 
 		// test trigger
-		ote.get().onError().accept(new HttpError.ResponseError(HttpStatus.UNAUTHORIZED, "{}"));
+		te.onError().accept(new HttpError.ResponseError(HttpStatus.UNAUTHORIZED, "{}"));
 
 		// check trigger
 		Assert.assertNull(dataProvider.sessionId);
@@ -423,15 +424,14 @@ public class PlcNextGdsDataProviderReadTest {
 		dataProvider.sessionId = "1234567890";
 
 		// test register
-		Optional<TimeEndpoint> ote = dataProvider.triggerSessionMaintenanceIfNecessary(Delay.immediate(),
+		TimeEndpoint te = dataProvider.enableSessionMaintenance(Delay.immediate(),
 				dataProviderConfig);
 
 		// check register
-		Assert.assertNotNull(ote);
-		Assert.assertTrue(ote.isPresent());
+		Assert.assertNotNull(te);
 
 		// test trigger
-		ote.get().onResult().accept(new HttpResponse<String>(HttpStatus.CONFLICT, Map.of(), "{}"));
+		te.onResult().accept(new HttpResponse<String>(HttpStatus.CONFLICT, Map.of(), "{}"));
 
 		// check trigger
 		Assert.assertNull(dataProvider.sessionId);

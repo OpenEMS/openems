@@ -1,6 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -50,7 +51,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextMeterImpl.class);
 
-	private static final JsonObject defaultResponse = JsonUtils.buildJsonObject()//
+	private static final JsonObject DEFAULT_RESPONSE = JsonUtils.buildJsonObject()//
 			.add("variables", JsonUtils.buildJsonArray().build()).build();
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
@@ -138,25 +139,30 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 */
 	void processDataOnBeforeProcessImageEvent() {
 		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.dataUrl());
-
 		List<String> variableIdentifiers = Stream.of(this.readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		JsonObject apiResponseBody = gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig).orElse(defaultResponse);
 
-		try {
-			log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
-					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-					config.dataInstanceName(), this.readDataMappingDefinition);
-
-			if (!mappedValues.isEmpty()) {
-				log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
-				setNextValuesToChannels(mappedValues);
-			}
-		} catch (PlcNextGdsDataMappingException e) {
-			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
-		}
+		gdsDataProvider
+				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+				.thenApply(apiResponseBody -> {
+					if (Objects.isNull(apiResponseBody)) {
+						apiResponseBody = DEFAULT_RESPONSE;
+					}
+					try {
+						log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
+						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
+								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
+								config.dataInstanceName(), this.readDataMappingDefinition);
+						
+						if (!mappedValues.isEmpty()) {
+							log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
+							setNextValuesToChannels(mappedValues);
+						}
+					} catch (PlcNextGdsDataMappingException e) {
+						log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
+					}
+					return null;
+				});
 	}
 
 	/**
@@ -173,5 +179,4 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 		}
 	}
-
 }

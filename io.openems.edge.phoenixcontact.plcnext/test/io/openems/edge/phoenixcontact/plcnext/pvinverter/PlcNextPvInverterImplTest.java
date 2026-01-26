@@ -29,6 +29,7 @@ import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -44,7 +45,6 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsD
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextMappingDefinitionHelper;
-import io.openems.edge.phoenixcontact.plcnext.ess.PlcNextEssGdsDataWriteMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeter;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
@@ -57,6 +57,11 @@ public class PlcNextPvInverterImplTest {
 	private static ThrowingRunnable<Exception> assertChannelValue(PlcNextPvInverterImpl sut, ChannelId channelId,
 			Object expectedValue) {
 		return () -> assertEquals(expectedValue, sut.channel(channelId).value().get());
+	}
+
+	private static ThrowingRunnable<Exception> assertIntegerWriteChannelValue(PlcNextPvInverterImpl sut, ChannelId channelId,
+			Object expectedValue) {
+		return () -> assertEquals(expectedValue, ((IntegerWriteChannel)sut.channel(channelId)).getNextWriteValue().get());
 	}
 
 	private TestConfig myConfig;
@@ -202,7 +207,7 @@ public class PlcNextPvInverterImplTest {
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
 				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
 						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+						PlcNextPvInverterGdsDataWriteMappingDefinition.SET_ACTIVE_POWER.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
@@ -228,17 +233,22 @@ public class PlcNextPvInverterImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
+		this.test.next(new TestCase("Trigger value consumption and check write value") //
 				.input(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, setActivePowerEqualsValue)
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
+				.onBeforeWriteCallbacks(
+						assertIntegerWriteChannelValue(componentUnderTest, 
+								ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, 
+								setActivePowerEqualsValue)))
+				.next(new TestCase("Check requested data dropped in asynchronously")
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
 						expectedPhases2Neutral1Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
 						expectedPhases2Neutral2Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
 						expectedPhases2Neutral3Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
 						expectedPhasesNeutralValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
 						expectedPhasesNeutralValue))); //
 
 		this.test.deactivate();

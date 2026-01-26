@@ -1,7 +1,10 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +47,7 @@ public class PlcNextTokenManagerTest {
 	@Test
 	public void testFetchAccessToken_Successfully() {
 		// test
-		tokenManager.fetchToken(authClientConfig);
+		tokenManager.fetchToken(authClientConfig).join();
 		String accessToken = tokenManager.getToken();
 
 		// check
@@ -99,11 +102,12 @@ public class PlcNextTokenManagerTest {
 				}
 			}
 		};
-
-		// test
 		PlcNextTokenManager tokenManagerFailing = new PlcNextTokenManagerImpl(dummyAuthBridgeHttpFailing);
 
-		tokenManagerFailing.fetchToken(authClientConfig);
+		// test
+		assertThrows(CompletionException.class, //
+				() -> tokenManagerFailing.fetchToken(authClientConfig).join());
+
 		String accessToken = tokenManagerFailing.getToken();
 
 		// check
@@ -157,7 +161,7 @@ public class PlcNextTokenManagerTest {
 		// test
 		PlcNextTokenManager tokenManagerFailing = new PlcNextTokenManagerImpl(dummyAuthBridgeHttpFailing);
 
-		tokenManagerFailing.fetchToken(authClientConfig);
+		tokenManagerFailing.fetchToken(authClientConfig).join();
 		String accessToken = tokenManagerFailing.getToken();
 
 		// check

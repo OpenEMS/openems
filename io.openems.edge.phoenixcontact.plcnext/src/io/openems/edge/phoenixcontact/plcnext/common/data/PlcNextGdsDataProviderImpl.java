@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import org.osgi.service.component.annotations.Activate;
@@ -63,33 +64,39 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	}
 
 	@Override
-	public synchronized Optional<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
+	public synchronized CompletableFuture<JsonObject> readDataFromRestApi(List<String> variableIdentifiers,
 			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig) {
-		Optional<JsonObject> result = Optional.empty();
 
-		ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig);
+		return ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig) //
+			.thenCompose(ignore -> {
+				String requestBody = buildPostBodyForRead(sessionId, variableIdentifiers, dataAccessConfig);
+				Endpoint dataEndPoint = buildDataEndpointRepresentation(tokenManager.getToken(), //
+						HttpMethod.POST, requestBody, dataAccessConfig);
 
-		String requestBody = buildPostBodyForRead(sessionId, variableIdentifiers, dataAccessConfig);
-		JsonObject apiResponseBody = sendRequestToApi(HttpMethod.POST, requestBody, dataAccessConfig);
-
-		if (Objects.nonNull(apiResponseBody)) {
-			result = Optional.of(apiResponseBody);
-		}
-		return result;
+				return sendRequestToApi(dataEndPoint, HttpStatus.OK, dataAccessConfig.stationId());
+			});
 	}
 
-	private void ensureAccessTokenAndSessionIdAreValid(PlcNextGdsDataAccessConfig dataAccessConfig,
-			PlcNextAuthConfig authConfig) {
-		if (!tokenManager.hasValidToken()) {
-			log.warn("No valid access token! Renewing authentication.");
-			tokenManager.fetchToken(authConfig);
-		}
+	@Override
+	public synchronized CompletableFuture<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
+			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig) {
 
-		Optional<PlcNextCreateSessionResponse> createSessionResponse = createSessionIfNecessary(dataAccessConfig);
-		if (createSessionResponse.isPresent()) {
-			this.sessionId = createSessionResponse.get().sessionId();
-			this.maintainSessionTimeEndpoint = triggerSessionMaintenanceIfNecessary(
-					Delay.of(createSessionResponse.get().sessionTimeout()), dataAccessConfig).orElse(null);
+		if (Objects.isNull(mappedVariables)) {
+			log.warn("StationID '{}': Nothing to update, because variable data is NULL! This should never happen! Skipping PUT request.",
+					dataAccessConfig.stationId());
+			return CompletableFuture.failedFuture(new IllegalArgumentException("Mapped variables may not be NULL"));
+		} else if (mappedVariables.isEmpty()) {
+			log.info("StationID '{}': Nothing to update. Skipping PUT request.", dataAccessConfig.stationId());
+			return CompletableFuture.completedFuture(null);
+		} else {
+			return ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig)
+					.thenCompose(ignore -> {
+						String requestBody = buildPutBodyForWrite(sessionId, mappedVariables);
+						Endpoint dataEndPoint = buildDataEndpointRepresentation(tokenManager.getToken(), HttpMethod.PUT, //
+								requestBody, dataAccessConfig);
+						
+						return sendRequestToApi(dataEndPoint, HttpStatus.OK, dataAccessConfig.stationId());
+					});
 		}
 	}
 
@@ -102,7 +109,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	}
 
 	private void deactivateSessionMaintenanceIfNecessary() {
-		log.info("Deactivating session maintenance");
+		log.info("StationID 'n/a': Deactivating session maintenance for sessionID {}", this.sessionId);
 
 		// remove session ID
 		this.sessionId = null;
@@ -114,37 +121,31 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		this.maintainSessionTimeEndpoint = null;
 	}
 
-	/**
-	 * Sends request to PLCnext REST API to read variables from or write variables
-	 * to GDS
-	 * 
-	 * @param httpMethod  represents the HTTP method to be used for the request
-	 * @param requestBody the body to send to the API
-	 * @param config      config to be used to fetch the data
-	 * @return response body as @link{JsonObject}
-	 */
-	JsonObject sendRequestToApi(HttpMethod httpMethod, String requestBody, PlcNextGdsDataAccessConfig config) {
-		try {
-			Endpoint dataEndPoint = buildDataEndpointRepresentation(tokenManager.getToken(), httpMethod, requestBody,
-					config);
-			log.debug("StationID '{}': Sending GDS data request to endpoint: '{}'", config.stationId(),
-					dataEndPoint.url());
-
-			return http.requestJson(dataEndPoint).thenApply(dataResponse -> {
-				if (HttpStatus.OK == dataResponse.status()) {
-					log.debug("StationID '{}': Request successful", config.stationId());
-					return dataResponse.data().getAsJsonObject();
-				} else {
-					throw new IllegalStateException("Data endpoint responds with status: '" + dataResponse.status()
-							+ "' and body: '" + dataResponse.data() + "'");
-				}
-			}).join();
-
-		} catch (CompletionException e) {
-			log.error("StationID '{}': Error while sending GDS data request! Request body: {}", config.stationId(),
-					requestBody, e);
-			return null;
+	CompletableFuture<Void> ensureAccessTokenAndSessionIdAreValid( //
+			PlcNextGdsDataAccessConfig dataAccessConfig, //
+			PlcNextAuthConfig authConfig) {
+		
+		CompletableFuture<Void> result = CompletableFuture.completedFuture(null);
+		
+		if (!tokenManager.hasValidToken()) {
+			log.warn("StationID '{}': No valid access token! Renewing authentication.", dataAccessConfig.stationId());			
+			result = tokenManager.fetchToken(authConfig);
+		} 
+		if (canCreateSession(dataAccessConfig)) {
+			result = result.thenCompose(ignore -> createOrFetchSessionID(dataAccessConfig)) //
+					.thenApply(createSessionResponse -> {
+						if (!createSessionResponse.sessionId.isBlank()) {							
+							this.sessionId = createSessionResponse.sessionId();
+							
+							if (canActivateSessionMaintenance()) {
+								this.maintainSessionTimeEndpoint = enableSessionMaintenance( //
+										Delay.of(createSessionResponse.sessionTimeout()),  dataAccessConfig);
+							}
+						}		
+						return null;
+					});
 		}
+		return result; 
 	}
 
 	/**
@@ -157,96 +158,80 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 *         type @link{PlcNextCreateSessionResponse} representing the response
 	 *         containing the session ID
 	 */
-	Optional<PlcNextCreateSessionResponse> createSessionIfNecessary(PlcNextGdsDataAccessConfig config) {
-		Optional<PlcNextCreateSessionResponse> createSessionResponse = Optional.empty();
+	CompletableFuture<PlcNextCreateSessionResponse> createOrFetchSessionID(PlcNextGdsDataAccessConfig config) {
+		log.debug("StationID '{}': Create new session. Current session ID: {}", config.stationId(), this.sessionId);
 
-		if (canCreateSession(config)) {
-			log.debug("StationID '{}': Create new session. Current session ID: {}", config.stationId(), this.sessionId);
+		// deactivate old session
+		deactivateSessionMaintenanceIfNecessary();
 
-			// deactivate old session
-			deactivateSessionMaintenanceIfNecessary();
-
-			try {
-				createSessionResponse = createSession(config);
-			} catch (CompletionException ce) {
-				log.error("Create session failed! Trying to fetch session ID.", ce);
-				createSessionResponse = fetchSession(config);
-			}
+		try {
+			return createSession(config);
+		} catch (CompletionException ce) {
+			log.error("StationID '{}': Create session failed! Trying to fetch session ID.", config.stationId(), ce);
+			return fetchSession(config);
 		}
-		return createSessionResponse;
 	}
-
-	private Optional<PlcNextCreateSessionResponse> createSession(PlcNextGdsDataAccessConfig config) {
-		Optional<PlcNextCreateSessionResponse> createSessionResponse = Optional.empty();
-
-		// create session
-		Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
-		log.info("StationID '{}': Create session using endpoint: {}", config.stationId(), createSessionEndpoint);
-		JsonObject createSessionBody = http.requestJson(createSessionEndpoint).thenApply(response -> {
-			if (HttpStatus.CREATED == response.status()) {
-				return response.data().getAsJsonObject();
-			} else {
-				throw new IllegalStateException("Create session endpoint responds with status: '"
-						+ response.status() + "' and body: '" + response.data() + "'");
-			}
-		}).join();
-		log.debug("StationID '{}': Create session body: {}", config.stationId(), createSessionBody);
-
-		if (Objects.nonNull(createSessionBody)) {
-			String newSessionId = createSessionBody.get("sessionID").getAsString();
-			Duration timeoutDuration = Duration.ofMillis(createSessionBody.get("timeout").getAsLong())
-					.minusSeconds(1L);
-
-			createSessionResponse = Optional.of(new PlcNextCreateSessionResponse(newSessionId, timeoutDuration));
-		}
-		return createSessionResponse;
-	}
-
-	private Optional<PlcNextCreateSessionResponse> fetchSession(PlcNextGdsDataAccessConfig config) {
-		Optional<PlcNextCreateSessionResponse> fetchSessionResponse = Optional.empty();
-
-		// create session
-		Endpoint fetchSessionsEndpoint = buildFetchSessionsEndpoint(tokenManager.getToken(), config);
-		log.info("StationID '{}': Fetch sessions using endpoint: {}", config.stationId(), fetchSessionsEndpoint);
-		JsonObject fetchSessionsResponseBody = http.requestJson(fetchSessionsEndpoint).thenApply(response -> {
-			if (HttpStatus.OK == response.status()) {
-				return response.data().getAsJsonObject();
-			} else {
-				throw new IllegalStateException("Create session endpoint responds with status: '"
-						+ response.status() + "' and body: '" + response.data() + "'");
-			}
-		}).join();
-		log.debug("StationID '{}': Fetch sessions response body: {}", config.stationId(), fetchSessionsResponseBody);
-
-		if (Objects.nonNull(fetchSessionsResponseBody)) {
-			JsonElement sessions = fetchSessionsResponseBody.get("sessions");
-			
-			if (Objects.nonNull(sessions) && !sessions.isJsonNull() && sessions.isJsonArray()) {
-				Optional<JsonObject> sessionJsonObject = sessions.getAsJsonArray().asList().stream() //
-						.filter(item -> item.isJsonObject() && //
-									item.getAsJsonObject().has("stationID") && //
-									config.stationId().equalsIgnoreCase(item.getAsJsonObject().get("stationID").getAsString())) //
-						.map(JsonElement::getAsJsonObject) //
-						.findFirst();
-				
-				if (sessionJsonObject.isEmpty()) {
-					log.info("StationID '{}': Cannot find session of this station!", config.stationId());
-				} else {
-					String sessionId = sessionJsonObject.get().get("id").getAsString();
-					Duration timeoutDuration = Duration.ofMillis(fetchSessionsResponseBody.get("timeout").getAsLong())
-							.minusSeconds(1L);
-					
-					fetchSessionResponse = Optional.of(new PlcNextCreateSessionResponse(sessionId, timeoutDuration));					
-					log.debug("StationID '{}': Session of this station found {}.", config.stationId(), fetchSessionResponse.get());
-				}
-			}
-		}
-		return fetchSessionResponse;
-	}
-
 	
 	private boolean canCreateSession(PlcNextGdsDataAccessConfig config) {
 		return Objects.isNull(this.sessionId) || Objects.isNull(config);
+	}
+
+	private CompletableFuture<PlcNextCreateSessionResponse> createSession(PlcNextGdsDataAccessConfig config) {
+		// create session
+		Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
+		log.info("StationID '{}': Create session using endpoint: {}", config.stationId(), createSessionEndpoint);
+		
+		return sendRequestToApi(createSessionEndpoint, HttpStatus.CREATED, config.stationId()) //
+				.thenApply(createSessionBody -> {
+					log.debug("StationID '{}': Create session body: {}", config.stationId(), createSessionBody);
+					PlcNextCreateSessionResponse result = null;
+					
+					if (Objects.nonNull(createSessionBody)) {
+						String newSessionId = createSessionBody.get("sessionID").getAsString();
+						Duration timeoutDuration = Duration.ofMillis(createSessionBody.get("timeout").getAsLong())
+								.minusSeconds(1L);
+						
+						result = new PlcNextCreateSessionResponse(newSessionId, timeoutDuration);
+					}
+					return result;
+				});
+	}
+
+	private CompletableFuture<PlcNextCreateSessionResponse> fetchSession(PlcNextGdsDataAccessConfig config) {
+		// fetch session
+		Endpoint fetchSessionsEndpoint = buildFetchSessionsEndpoint(tokenManager.getToken(), config);
+		log.info("StationID '{}': Fetch sessions using endpoint: {}", config.stationId(), fetchSessionsEndpoint);
+		
+		return sendRequestToApi(fetchSessionsEndpoint, HttpStatus.OK, config.stationId()) //
+				.thenApply(fetchSessionsResponseBody -> {
+					log.debug("StationID '{}': Fetch sessions response body: {}", config.stationId(), fetchSessionsResponseBody);
+					PlcNextCreateSessionResponse result = null;
+					
+					if (Objects.nonNull(fetchSessionsResponseBody)) {
+						JsonElement sessions = fetchSessionsResponseBody.get("sessions");
+						
+						if (Objects.nonNull(sessions) && !sessions.isJsonNull() && sessions.isJsonArray()) {
+							Optional<JsonObject> sessionJsonObject = sessions.getAsJsonArray().asList().stream() //
+									.filter(item -> item.isJsonObject() && //
+											item.getAsJsonObject().has("stationID") && //
+											config.stationId().equalsIgnoreCase(item.getAsJsonObject().get("stationID").getAsString())) //
+									.map(JsonElement::getAsJsonObject) //
+									.findFirst();
+							
+							if (sessionJsonObject.isEmpty()) {
+								log.info("StationID '{}': Cannot find session of this station!", config.stationId());
+							} else {
+								String sessionId = sessionJsonObject.get().get("id").getAsString();
+								Duration timeoutDuration = Duration.ofMillis(fetchSessionsResponseBody.get("timeout").getAsLong())
+										.minusSeconds(1L);
+								
+								result = new PlcNextCreateSessionResponse(sessionId, timeoutDuration);					
+								log.debug("StationID '{}': Session of this station found {}.", config.stationId(), result);
+							}
+						}
+					}
+					return result;
+				});
 	}
 
 	/**
@@ -259,60 +244,87 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 *         type @link{TimeEndpoint} representing the continuous session
 	 *         maintenance, if the optional is not empty
 	 */
-	Optional<TimeEndpoint> triggerSessionMaintenanceIfNecessary(Delay sessionTimeout,
+	TimeEndpoint enableSessionMaintenance(Delay sessionTimeout,
 			PlcNextGdsDataAccessConfig config) {
-		Optional<TimeEndpoint> newMaintainSessionTimeEndpoint = Optional.empty();
 
-		if (canActivateSessionMaintenance()) {
-			// trigger session maintenance
-			DelayTimeProvider delayTimeProvider = new DefaultDelayTimeProvider(() -> sessionTimeout, //
-					(error) -> Delay.infinite(), //
-					(result) -> sessionTimeout);
-			Endpoint maintainSessionEndpoint = buildMaintainSessionEndpoint(tokenManager.getToken(), sessionId, config);
-			log.info("SessionID '{}': Maintaining session using endpoint: {}", this.sessionId, maintainSessionEndpoint);
+		// trigger session maintenance
+		DelayTimeProvider delayTimeProvider = new DefaultDelayTimeProvider(() -> sessionTimeout, //
+				(error) -> Delay.infinite(), //
+				(result) -> sessionTimeout);
+		Endpoint maintainSessionEndpoint = buildMaintainSessionEndpoint(tokenManager.getToken(), sessionId, config);
+		log.info("SessionID '{}': Maintaining session using endpoint: {}", this.sessionId, maintainSessionEndpoint);
 
-			TimeEndpoint recurringSessionMaintenanceEndpoint = this.timeService.subscribeJsonTime(delayTimeProvider,
-					maintainSessionEndpoint, (httpResponse, httpError) -> {
-						if (Objects.isNull(httpResponse) && Objects.isNull(httpError)) {
-							// Stop on no result
-							deactivateSessionMaintenanceIfNecessary();
-							log.info("SessionID '{}': No result while maintaining session. "
-									+ "Processing skipped and session ID has been reset.", this.sessionId);
-						} else if (Objects.nonNull(httpError)) {
-							// Stop on error
-							log.error("SessionID '{}': Got HTTP error '{}'! Session ID will be reset.", this.sessionId,
-									httpError);
-							deactivateSessionMaintenanceIfNecessary();
-						} else if (Objects.nonNull(httpResponse) && !tokenManager.hasValidToken()) {
-							// Stop on expired token
-							log.info(
-									"SessionID '{}': Got result, but access token has been expired. Session ID will be reset.",
-									this.sessionId);
-							deactivateSessionMaintenanceIfNecessary();
-						} else if (Objects.nonNull(httpResponse) && httpResponse.status() == HttpStatus.OK
-								&& Objects.nonNull(httpResponse.data())
-								&& Objects.nonNull(httpResponse.data().getAsJsonObject())
-								&& Objects.nonNull(httpResponse.data().getAsJsonObject().get("sessionID"))) {
-							// Success
-							this.sessionId = httpResponse.data().getAsJsonObject().get("sessionID").getAsString();
-							log.info("SessionID '{}': Maintaining session has been successful.", this.sessionId);
-						} else {
-							// Fallback
-							log.info("SessionID '{}': Got unprocessable result with status '{}' and body '{}'..",
-									this.sessionId, httpResponse.status(), httpResponse.data());
-							log.error(
-									"SessionID '{}': Session maintenance entered state UNDEFINED! Session ID has been reset.",
-									this.sessionId);
-							deactivateSessionMaintenanceIfNecessary();
-						}
-					});
-			newMaintainSessionTimeEndpoint = Optional.of(recurringSessionMaintenanceEndpoint);
-		}
-		return newMaintainSessionTimeEndpoint;
+		return this.timeService.subscribeJsonTime(delayTimeProvider,
+				maintainSessionEndpoint, (httpResponse, httpError) -> {
+					if (Objects.isNull(httpResponse) && Objects.isNull(httpError)) {
+						// Stop on no result
+						deactivateSessionMaintenanceIfNecessary();
+						log.info("SessionID '{}': No result while maintaining session. "
+								+ "Processing skipped and session ID has been reset.", this.sessionId);
+					} else if (Objects.nonNull(httpError)) {
+						// Stop on error
+						log.error("SessionID '{}': Got HTTP error '{}'! Session ID will be reset.", this.sessionId,
+								httpError);
+						deactivateSessionMaintenanceIfNecessary();
+					} else if (Objects.nonNull(httpResponse) && !tokenManager.hasValidToken()) {
+						// Stop on expired token
+						log.info(
+								"SessionID '{}': Got result, but access token has been expired. Session ID will be reset.",
+								this.sessionId);
+						deactivateSessionMaintenanceIfNecessary();
+					} else if (Objects.nonNull(httpResponse) && httpResponse.status() == HttpStatus.OK
+							&& Objects.nonNull(httpResponse.data())
+							&& Objects.nonNull(httpResponse.data().getAsJsonObject())
+							&& Objects.nonNull(httpResponse.data().getAsJsonObject().get("sessionID"))) {
+						// Success
+						this.sessionId = httpResponse.data().getAsJsonObject().get("sessionID").getAsString();
+						log.info("SessionID '{}': Maintaining session has been successful.", this.sessionId);
+					} else {
+						// Fallback
+						log.info("SessionID '{}': Got unprocessable result with status '{}' and body '{}'..",
+								this.sessionId, httpResponse.status(), httpResponse.data());
+						log.error(
+								"SessionID '{}': Session maintenance entered state UNDEFINED! Session ID has been reset.",
+								this.sessionId);
+						deactivateSessionMaintenanceIfNecessary();
+					}
+				});
 	}
 
 	private boolean canActivateSessionMaintenance() {
 		return Objects.nonNull(this.sessionId) && Objects.isNull(this.maintainSessionTimeEndpoint);
+	}
+
+	/**
+	 * Sends request to PLCnext REST API to read from or write to controller
+	 * 
+	 * @param endpoint  represents the endpoint definition to be used for the request
+	 * @param expectedStatus represents the expected status to state a successful API request
+	 * @param stationId the stationID for logging
+	 * @return response body as @link{JsonObject} as @link{CompletableFuture}
+	 * @throws Throwable 
+	 */
+	CompletableFuture<JsonObject> sendRequestToApi(Endpoint endpoint, HttpStatus expectedStatus, //
+			String stationId) {
+		
+		try {
+			log.debug("StationID '{}': Sending request to API endpoint: '{}'", stationId, endpoint.url());
+			CompletableFuture<JsonObject> requestFuture =  http.requestJson(endpoint) //
+					.thenApply(apiResponse -> {
+						if (expectedStatus == apiResponse.status()) {
+							log.debug("StationID '{}': Request successful", stationId);
+							return apiResponse.data().getAsJsonObject();
+						} else {
+							throw new IllegalStateException("API endpoint responds with status: '" + apiResponse.status()
+							+ "' and body: '" + apiResponse.data() + "'");
+						}
+					});
+			return requestFuture;
+		} catch (CompletionException e) {
+			log.error("StationID '{}': Error while sending API request! Request body: {}", stationId,
+					endpoint.body(), e);
+			return CompletableFuture.failedFuture(e);
+		}
 	}
 
 	/**
@@ -429,31 +441,6 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 			postRequestBody = postRequestBodyBuilder.toString();
 		}
 		return postRequestBody;
-	}
-
-	@Override
-	public synchronized Optional<JsonObject> writeDataToRestApi(List<JsonElement> mappedVariables,
-			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig) {
-
-		Optional<JsonObject> result = Optional.empty();
-
-		if (Objects.isNull(mappedVariables)) {
-			log.warn(
-					"StationID '{}': Nothing to update, because variable data is NULL! This should never happen! Skipping PUT request.",
-					dataAccessConfig.stationId());
-		} else if (mappedVariables.isEmpty()) {
-			log.info("StationID '{}': Nothing to update. Skipping PUT request.", dataAccessConfig.stationId());
-		} else {
-			ensureAccessTokenAndSessionIdAreValid(dataAccessConfig, authConfig);
-
-			String requestBody = buildPutBodyForWrite(sessionId, mappedVariables);
-			JsonObject apiResponseBody = sendRequestToApi(HttpMethod.PUT, requestBody, dataAccessConfig);
-
-			if (Objects.nonNull(apiResponseBody)) {
-				result = Optional.of(apiResponseBody);
-			}
-		}
-		return result;
 	}
 
 	/**

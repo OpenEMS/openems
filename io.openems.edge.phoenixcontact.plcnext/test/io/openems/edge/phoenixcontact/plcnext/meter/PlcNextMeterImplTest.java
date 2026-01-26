@@ -126,7 +126,7 @@ public class PlcNextMeterImplTest {
 	}
 
 	@Test
-	public void testRunModule() throws Exception {
+	public void testRunModuleSuccessfully() throws Exception {
 		// prep
 		int expectedPhases2Neutral1Value = 110000;
 		int expectedPhases2Neutral2Value = 220000;
@@ -181,16 +181,17 @@ public class PlcNextMeterImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
+		this.test.next(new TestCase("Trigger value consumption and do one wait cycle")) //
+				.next(new TestCase("Check requested data dropped in asynchronously")
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
 						expectedPhases2Neutral1Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
 						expectedPhases2Neutral2Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
 						expectedPhases2Neutral3Value)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
 						expectedPhasesNeutralValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
 						expectedPhasesNeutralValue))); //
 
 		test.deactivate();
