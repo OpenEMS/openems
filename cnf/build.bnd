@@ -56,5 +56,5 @@ testpath: \
 	Backend;member=${filter;${p};io\\.openems\\.backend\\..*},\
 	Common;member=${filter;${p};cnf|io\\.openems\\.common*|io\\.openems\\.shared\\..*|io\\.openems\\.wrapper|io\\.openems\\.oem\\.openems},\
 
-javac.source: 21
-javac.target: 21
+javac.source: 25
+javac.target: 25
