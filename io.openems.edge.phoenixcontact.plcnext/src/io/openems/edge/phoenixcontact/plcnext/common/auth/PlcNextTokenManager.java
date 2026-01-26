@@ -1,5 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * TODO
  */
@@ -20,7 +22,7 @@ public interface PlcNextTokenManager {
 	 * 
 	 * @param authClientConfig configuration to be used
 	 */
-	void fetchToken(PlcNextAuthConfig authClientConfig);
+	CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig);
 
 	/**
 	 * 

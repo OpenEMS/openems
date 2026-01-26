@@ -5,7 +5,7 @@ public final class PlcNextAuthAndAccessTokenDTO {
 	private final String code;
 	private final int expiresIn;
 	private String accessToken;
-
+	
 	public PlcNextAuthAndAccessTokenDTO(String code, int expiresIn) {
 		this.code = code;
 		this.expiresIn = expiresIn;

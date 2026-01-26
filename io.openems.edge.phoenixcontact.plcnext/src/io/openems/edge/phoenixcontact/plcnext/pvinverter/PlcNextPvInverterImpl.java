@@ -4,6 +4,7 @@
 package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -60,7 +61,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextPvInverterImpl.class);
 
-	private static final JsonObject defaultResponse = JsonUtils.buildJsonObject()//
+	private static final JsonObject DEFAULT_RESPONSE = JsonUtils.buildJsonObject()//
 			.add("variables", JsonUtils.buildJsonArray().build()).build();
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
@@ -145,22 +146,28 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		JsonObject apiResponseBody = gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig).orElse(defaultResponse);
 
-		try {
-			log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
-					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-					config.dataInstanceName(), readDataMappingDefinition);
-
-			if (!mappedValues.isEmpty()) {
-				log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
-				setNextValuesToChannels(mappedValues);
-			}
-		} catch (PlcNextGdsDataMappingException e) {
-			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
-		}
+		gdsDataProvider
+				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+				.thenApply(apiResponseBody -> {
+					if (Objects.isNull(apiResponseBody)) {
+						apiResponseBody = DEFAULT_RESPONSE;
+					}
+					try {
+						log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
+						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
+								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
+								config.dataInstanceName(), readDataMappingDefinition);
+						
+						if (!mappedValues.isEmpty()) {
+							log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
+							setNextValuesToChannels(mappedValues);
+						}
+					} catch (PlcNextGdsDataMappingException e) {
+						log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
+					}
+					return null;
+				});
 	}
 
 	/**
