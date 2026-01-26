@@ -33,6 +33,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.core.meta.geocoding.GeoResult;
@@ -67,6 +68,7 @@ public class GeocodingTest {
 				.build();
 		new ComponentTest(sut)//
 				.addReference("cm", cm)//
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("oem", oem)//
 				.addReference("httpBridgeFactory", factory)//
 				.activate(config);

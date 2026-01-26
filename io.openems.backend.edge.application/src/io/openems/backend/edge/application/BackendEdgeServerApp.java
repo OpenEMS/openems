@@ -44,7 +44,11 @@ public class BackendEdgeServerApp {
 	public BackendEdgeServerApp(@Reference ConfigurationAdmin cm, Config config) throws URISyntaxException {
 		this.config = config;
 		this.cache = new Cache(this::evaluateServerStart);
-		configureLogger(cm);
+		try {
+			configureLogger(cm);
+		} catch (Exception e) {
+			this.log.warn("Could not configure logger: {}", e.getMessage(), e);
+		}
 		logWelcomeMessage(this.log);
 
 		// Prepare Client

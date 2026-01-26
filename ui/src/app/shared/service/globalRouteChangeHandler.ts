@@ -13,6 +13,7 @@ import { Service } from "./service";
 export class GlobalRouteChangeHandler {
 
     constructor(
+
         public service: Service,
         private router: Router,
         private translate: TranslateService,
@@ -39,12 +40,32 @@ export class GlobalRouteChangeHandler {
                 return;
             }
 
-            const res = lastData.key === "navbarTitle" ? lastData.value :
-                (lastData.key === "navbarTitleToBeTranslated"
-                    ? translate.instant(lastData.value) : null)
-        ?? this.service.currentPageTitle
-        ?? environment.uiTitle;
-            this.service.currentPageTitle = res;
+            this.service.currentPageTitle = this.resolvePageTitle(
+                lastData,
+                this.service.currentPageTitle,
+                this.translate
+            );
+
+            if (this.service.isSmartphoneResolution) {
+                this.service.currentPageTitle = environment.uiTitleShort;
+            }
         });
     }
+
+    private resolvePageTitle(
+        lastData: { key: string; value: string },
+        currentTitle: string | null,
+        translate: TranslateService
+    ): string {
+        if (lastData.key === "navbarTitle") {
+            return lastData.value;
+        }
+
+        if (lastData.key === "navbarTitleToBeTranslated") {
+            return translate.instant(lastData.value);
+        }
+
+        return currentTitle ?? environment.uiTitle;
+    }
+
 }

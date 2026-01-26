@@ -43,7 +43,7 @@
               </ion-row>
               <!-- Filter -->
               @if ((service.metadata | async)?.user; as user) {
-                @if (isAtLeastInstaller) {
+                @if (isAtLeastOwner) {
                   <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
                 }
               }

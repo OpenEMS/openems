@@ -33,7 +33,8 @@ public class ControllerEvseSingleImplTest {
 						    }
 						  ],
 						  "openems.io:payload": {
-						    "sessionEnergyMinimum": 10001
+						    "class": "Manual",
+						    "mode": "FORCE"
 						  }
 						}]"""));
 

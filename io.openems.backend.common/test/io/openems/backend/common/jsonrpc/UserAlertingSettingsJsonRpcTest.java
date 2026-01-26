@@ -21,7 +21,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
-public class UserAlertingSettingsJsonRpc {
+public class UserAlertingSettingsJsonRpcTest {
 
 	@Test
 	public void testGetUserAlertingConfigsRequest() throws OpenemsNamedException {

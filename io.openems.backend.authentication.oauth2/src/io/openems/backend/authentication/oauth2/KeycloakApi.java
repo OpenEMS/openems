@@ -69,10 +69,7 @@ public final class KeycloakApi {
 						"username", username, //
 						"password", password))
 				.build()) //
-				.thenApply(response -> {
-					final var obj = response.data().getAsJsonObject();
-					return obj.get("access_token").getAsString();
-				});
+				.thenApply(response -> response.data().getAsJsonObject().get("access_token").getAsString());
 	}
 
 	/**
@@ -138,9 +135,7 @@ public final class KeycloakApi {
 								.toEncodedString()) //
 						.setHeader("Authorization", "Bearer " + token) //
 						.build()) //
-				.thenApply(response -> {
-					return RealmRole.serializer().toListSerializer().deserialize(response.data());
-				});
+				.thenApply(response -> RealmRole.serializer().toListSerializer().deserialize(response.data()));
 	}
 
 	public record RealmRole(String id, String name, String description, boolean composite, boolean clientRole,
@@ -152,25 +147,23 @@ public final class KeycloakApi {
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<RealmRole> serializer() {
-			return JsonSerializerUtil.jsonObjectSerializer(RealmRole.class, json -> {
-				return new RealmRole(//
-						json.getString("id"), //
-						json.getString("name"), //
-						json.getString("description"), //
-						json.getBoolean("composite"), //
-						json.getBoolean("clientRole"), //
-						json.getString("containerId") //
-				);
-			}, obj -> {
-				return JsonUtils.buildJsonObject() //
-						.addProperty("id", obj.id()) //
-						.addProperty("name", obj.name()) //
-						.addProperty("description", obj.description()) //
-						.addProperty("composite", obj.composite()) //
-						.addProperty("clientRole", obj.clientRole()) //
-						.addProperty("containerId", obj.containerId()) //
-						.build();
-			});
+			return JsonSerializerUtil.jsonObjectSerializer(RealmRole.class, //
+					json -> new RealmRole(//
+							json.getString("id"), //
+							json.getString("name"), //
+							json.getString("description"), //
+							json.getBoolean("composite"), //
+							json.getBoolean("clientRole"), //
+							json.getString("containerId") //
+					), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("id", obj.id()) //
+							.addProperty("name", obj.name()) //
+							.addProperty("description", obj.description()) //
+							.addProperty("composite", obj.composite()) //
+							.addProperty("clientRole", obj.clientRole()) //
+							.addProperty("containerId", obj.containerId()) //
+							.build());
 		}
 
 	}

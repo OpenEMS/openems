@@ -97,7 +97,7 @@ public class SubscribedEdgesChannelsWorker {
 				try {
 					message = this.getCurrentDataNotification();
 				} catch (OpenemsNamedException e) {
-					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
+					this.log.warn("Unable to send SubscribedChannels: {}", e.getMessage());
 					return;
 				}
 

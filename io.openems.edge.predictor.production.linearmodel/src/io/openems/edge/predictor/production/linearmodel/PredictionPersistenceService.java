@@ -112,7 +112,7 @@ public class PredictionPersistenceService {
 								channelMapping.channelAheadAddress())//
 								.orElse(null));
 			} catch (OpenemsNamedException e) {
-				this.log.error("Failed to shift prediction for channel {} ({}h ahead)", //
+				this.log.info("Failed to shift prediction for channel {} ({}h ahead)", //
 						channelMapping.channelAheadAddress(), //
 						channelMapping.hoursAhead(), //
 						e);

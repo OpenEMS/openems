@@ -116,8 +116,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 									metricCollector.labelValues(channelAddress.getComponentId())
 											.set(t.getValue().getAsDouble());
 								} catch (OpenemsNamedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									this.log.error(e.getMessage(), e);
 								}
 							});
 

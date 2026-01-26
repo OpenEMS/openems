@@ -700,19 +700,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @param user    {@User} who called the request
 	 * @param request the {@link GetEdgeRequest}
 	 * @return the {@link GetEdgeResponse} Future
-	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetEdgeRequest(//
 			final User user, //
 			final GetEdgeRequest request //
-	) throws OpenemsNamedException {
-		final var edgeMetadata = this.parent.metadata.getEdgeMetadataForUser(user, request.edgeId);
-		if (edgeMetadata == null) {
-			throw new OpenemsException("Unable to find edge with id [" + request.edgeId + "]");
-		}
-
-		return CompletableFuture //
-				.completedFuture(new GetEdgeResponse(request.getId(), edgeMetadata));
+	) {
+		return this.parent.metadata.getEdgeMetadataForUser(user, request.edgeId).thenApply(edgeMetadata -> {
+			return new GetEdgeResponse(request.getId(), edgeMetadata);
+		});
 	}
 
 	/**

@@ -212,7 +212,7 @@ export class Edge {
 
         const channelsToSubscribe = channels.map(channel => channel.toString());
 
-        if (ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
+        if (previousChannels.length > 0 && ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
             return;
         }
 
@@ -517,7 +517,6 @@ export class Edge {
 
                                 new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
                                 new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null),
                                 new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
                                     new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.ADD_TASK"), baseMode, [], null),
                                 ], null),

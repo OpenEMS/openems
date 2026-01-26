@@ -179,7 +179,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				}
 			} catch (IOException e) {
 				this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 
@@ -203,7 +203,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				}
 			} catch (OpenemsNamedException e) {
 				this.logWarn(this.log, "Unable to JSON-parse file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 
@@ -358,13 +358,13 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId) {
 		final var edge = this.edges.get(edgeId);
 		if (edge == null) {
-			return null;
+			return CompletableFuture.failedFuture(new OpenemsException("Unable to find edge with id [" + edgeId + "]"));
 		}
 
-		return new EdgeMetadata(//
+		return CompletableFuture.completedFuture(new EdgeMetadata(//
 				edge.getId(), //
 				edge.getComment(), //
 				edge.getProducttype(), //
@@ -375,7 +375,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				null, // firstSetupProtocol
 				Level.OK, //
 				edge.getSettings() //
-		);
+		));
 	}
 
 	@Override
