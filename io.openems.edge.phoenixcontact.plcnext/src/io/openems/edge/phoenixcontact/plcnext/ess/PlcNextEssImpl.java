@@ -227,6 +227,7 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
 				channelId);
+
 		Object channelValue = null;
 		
 		if (OpenemsType.INTEGER == channelId.doc().getType()) {
@@ -256,5 +257,4 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 	public int getPowerPrecision() {
 		return 1;
 	}
-
 }

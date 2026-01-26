@@ -212,5 +212,4 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(PlcNextLoadCircuit.class, accessMode, 100) //
 						.build());
 	}
-
 }

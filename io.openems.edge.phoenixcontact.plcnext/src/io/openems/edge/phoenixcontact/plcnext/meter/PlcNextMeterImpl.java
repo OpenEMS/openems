@@ -179,5 +179,4 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 		}
 	}
-
 }

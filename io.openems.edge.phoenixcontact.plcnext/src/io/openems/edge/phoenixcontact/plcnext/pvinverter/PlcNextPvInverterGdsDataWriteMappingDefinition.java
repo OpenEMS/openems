@@ -24,5 +24,4 @@ public enum PlcNextPvInverterGdsDataWriteMappingDefinition implements PlcNextGds
 	public String getIdentifier() {
 		return this.identifier;
 	}
-
 }

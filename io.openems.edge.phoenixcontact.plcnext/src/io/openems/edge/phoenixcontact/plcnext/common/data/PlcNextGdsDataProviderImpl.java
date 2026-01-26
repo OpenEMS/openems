@@ -234,7 +234,6 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 				});
 	}
 
-	
 	/**
 	 * Activates the session maintenance when there is a session ID and maintenance
 	 * is not active

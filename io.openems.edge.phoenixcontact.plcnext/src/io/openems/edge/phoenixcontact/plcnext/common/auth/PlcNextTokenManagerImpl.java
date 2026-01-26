@@ -118,6 +118,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 		log.info("Fetching auth token from endpoint: '{}'", authTokenEndpoint.url());
 
 		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
+			
 			if (HttpStatus.OK == authTokenResponse.status()) {
 				JsonObject responseBody = authTokenResponse.data().getAsJsonObject();
 
