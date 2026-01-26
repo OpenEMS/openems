@@ -4,6 +4,7 @@
 package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -25,7 +26,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -58,7 +61,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextPvInverterImpl.class);
 
-	private static final JsonObject defaultResponse = JsonUtils.buildJsonObject()//
+	private static final JsonObject DEFAULT_RESPONSE = JsonUtils.buildJsonObject()//
 			.add("variables", JsonUtils.buildJsonArray().build()).build();
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
@@ -143,22 +146,28 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		JsonObject apiResponseBody = gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig).orElse(defaultResponse);
 
-		try {
-			log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
-					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-					config.dataInstanceName(), readDataMappingDefinition);
-
-			if (!mappedValues.isEmpty()) {
-				log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
-				setNextValuesToChannels(mappedValues);
-			}
-		} catch (PlcNextGdsDataMappingException e) {
-			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
-		}
+		gdsDataProvider
+				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+				.thenApply(apiResponseBody -> {
+					if (Objects.isNull(apiResponseBody)) {
+						apiResponseBody = DEFAULT_RESPONSE;
+					}
+					try {
+						log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
+						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
+								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
+								config.dataInstanceName(), readDataMappingDefinition);
+						
+						if (!mappedValues.isEmpty()) {
+							log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
+							setNextValuesToChannels(mappedValues);
+						}
+					} catch (PlcNextGdsDataMappingException e) {
+						log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
+					}
+					return null;
+				});
 	}
 
 	/**
@@ -208,8 +217,12 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
 				channelId);
-		Object channelValue = channel(channelId).getNextValue().get();
-
+		Object channelValue = null;
+		
+		if (OpenemsType.INTEGER == channelId.doc().getType()) {
+			channelValue = ((IntegerWriteChannel)channel(channelId)).getNextWriteValue() //
+					.orElse(null);			
+		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);
 	}
 }

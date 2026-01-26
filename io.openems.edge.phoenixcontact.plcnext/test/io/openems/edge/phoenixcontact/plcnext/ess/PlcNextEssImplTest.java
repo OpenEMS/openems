@@ -29,6 +29,7 @@ import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -56,6 +57,11 @@ public class PlcNextEssImplTest {
 	private static ThrowingRunnable<Exception> assertChannelValue(PlcNextEssImpl sut, ChannelId channelId,
 			Object expectedValue) {
 		return () -> assertEquals(expectedValue, sut.channel(channelId).value().get());
+	}
+
+	private static ThrowingRunnable<Exception> assertIntegerWriteChannelValue(PlcNextEssImpl sut, ChannelId channelId,
+			Object expectedValue) {
+		return () -> assertEquals(expectedValue, ((IntegerWriteChannel)sut.channel(channelId)).getNextWriteValue().get());
 	}
 
 	private TestConfig myConfig;
@@ -213,13 +219,18 @@ public class PlcNextEssImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
-				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onAfterProcessImage(
+		this.test.next(new TestCase("Trigger value consumption and check write value") //
+					.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
+					.onBeforeWriteCallbacks(
+						assertIntegerWriteChannelValue(componentUnderTest, 
+								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, 
+								setActivePowerEqualsValue)))
+				.next(new TestCase("Check requested data dropped in asynchronously")		
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-				.onAfterProcessImage(
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY, expectedCapacityValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 						expectedGridModeValue))); //
 
 		this.test.deactivate();
@@ -299,13 +310,18 @@ public class PlcNextEssImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
-				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onAfterProcessImage(
+		this.test.next(new TestCase("Trigger value consumption and check write value") //
+					.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
+					.onBeforeWriteCallbacks(
+						assertIntegerWriteChannelValue(componentUnderTest, 
+								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, 
+								setActivePowerEqualsValue)))
+				.next(new TestCase("Check requested data dropped in asynchronously")
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-				.onAfterProcessImage(
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY, expectedCapacityValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 						expectedGridModeValue))); //
 
 		this.test.deactivate();
@@ -384,13 +400,18 @@ public class PlcNextEssImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
-				.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
-				.onAfterProcessImage(
+		this.test.next(new TestCase("Trigger value consumption and check write value") //
+					.input(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, setActivePowerEqualsValue)
+					.onBeforeWriteCallbacks(
+						assertIntegerWriteChannelValue(componentUnderTest, 
+								ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, 
+								setActivePowerEqualsValue)))
+				.next(new TestCase("Check requested data dropped in asynchronously")
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.SOC, expectedSocValue)) //
-				.onAfterProcessImage(
+					.onAfterProcessImage(
 						assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.CAPACITY, expectedCapacityValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest, SymmetricEss.ChannelId.GRID_MODE,
 						expectedGridModeValue))); //
 
 		this.test.deactivate();

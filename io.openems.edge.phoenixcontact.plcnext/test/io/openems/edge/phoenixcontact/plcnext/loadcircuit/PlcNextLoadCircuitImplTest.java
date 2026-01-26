@@ -134,7 +134,7 @@ public class PlcNextLoadCircuitImplTest {
 	}
 
 	@Test
-	public void testRunModule() throws Exception {
+	public void testRunModuleSuccessfully() throws Exception {
 		// prep
 		int expectedMaxPowerExportValue = 110001;
 		int expectedMaxPowerImportValue = 210001;
@@ -175,12 +175,13 @@ public class PlcNextLoadCircuitImplTest {
 		// test + check
 		this.test.activate(myConfig); //
 
-		this.test.next(new TestCase() //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest,
+		this.test.next(new TestCase("Trigger value consumption and do one wait cycle")) //
+				.next(new TestCase("Check requested data dropped in asynchronously")
+					.onAfterProcessImage(assertChannelValue(componentUnderTest,
 						PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT, expectedMaxPowerExportValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest,
 						PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_IMPORT, expectedMaxPowerImportValue)) //
-				.onAfterProcessImage(assertChannelValue(componentUnderTest,
+					.onAfterProcessImage(assertChannelValue(componentUnderTest,
 						PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER, expectedReactivePowerValue))); //
 
 		this.test.deactivate();

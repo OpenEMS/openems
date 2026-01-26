@@ -1,6 +1,7 @@
 package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -63,7 +64,7 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextLoadCircuitImpl.class);
 
-	private static final JsonObject defaultResponse = JsonUtils.buildJsonObject()//
+	private static final JsonObject DEFAULT_RESPONSE = JsonUtils.buildJsonObject()//
 			.add("variables", JsonUtils.buildJsonArray().build()).build();
 
 	@Reference
@@ -164,25 +165,30 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 	 */
 	void processDataOnBeforeProcessImageEvent() {
 		log.info("StationID '{}': Reading LOAD CIRCUIT data from URL '{}'", gdsDataAccessConfig.dataUrl());
-
 		List<String> variableIdentifiers = Stream.of(PlcNextLoadCircuitGdsDataReadMappingDefinition.values())//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		JsonObject apiResponseBody = gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig).orElse(defaultResponse);
 
-		try {
-			log.info("StationID '{}': Mapping LOAD CIRCUIT data", this.gdsDataAccessConfig.stationId());
-			List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
-					apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-					config.dataInstanceName(), PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
-
-			if (!mappedValues.isEmpty()) {
-				log.info("StationID '{}': Pushing LOAD CIRCUIT data to channels", this.gdsDataAccessConfig.stationId());
-				setNextValuesToChannels(mappedValues);
-			}
-		} catch (PlcNextGdsDataMappingException e) {
-			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
-		}
+		gdsDataProvider
+				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+				.thenApply(apiResponseBody -> {
+					if (Objects.isNull(apiResponseBody)) {
+						apiResponseBody = DEFAULT_RESPONSE;
+					}
+					try {
+						log.info("StationID '{}': Mapping LOAD CIRCUIT data", this.gdsDataAccessConfig.stationId());
+						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
+								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
+								config.dataInstanceName(), PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+						
+						if (!mappedValues.isEmpty()) {
+							log.info("StationID '{}': Pushing LOAD CIRCUIT data to channels", this.gdsDataAccessConfig.stationId());
+							setNextValuesToChannels(mappedValues);
+						}
+					} catch (PlcNextGdsDataMappingException e) {
+						log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
+					}
+					return null;
+				});
 	}
 
 	/**
@@ -206,5 +212,4 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(PlcNextLoadCircuit.class, accessMode, 100) //
 						.build());
 	}
-
 }

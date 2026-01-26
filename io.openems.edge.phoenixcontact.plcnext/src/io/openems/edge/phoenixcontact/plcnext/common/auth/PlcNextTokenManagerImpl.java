@@ -53,33 +53,36 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	 * @param authClientConfig configuration to be used
 	 */
 	@Override
-	public synchronized void fetchToken(PlcNextAuthConfig authClientConfig) {
+	public synchronized CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig) {
 		if (!hasValidToken()) {
 			log.info("Start fetching authentication");
 			try {
-				CompletableFuture<PlcNextAuthAndAccessTokenDTO> authTokenFuture = fetchAuthToken(authClientConfig)
-						.thenCompose(code -> fetchAccessToken(code, authClientConfig));
-				PlcNextAuthAndAccessTokenDTO combinedToken = authTokenFuture.join();
-
-				if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
-					log.debug("Fetching access token has been successful.");
-					token = combinedToken.getAccessToken();
-					tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
-							.plusSeconds(combinedToken.getExpiresIn());
-				} else if (Objects.isNull(combinedToken)) {
-					log.error("No token information returned!");
-					resetTokenAndExpiery();
-				} else {
-					log.error("No access token or expiery information returned!");
-					resetTokenAndExpiery();
-				}
+				return fetchAuthToken(authClientConfig)
+						.thenCompose(code -> fetchAccessToken(code, authClientConfig))
+						.thenApply(combinedToken -> {
+							if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
+								log.debug("Fetching access token has been successful.");
+								token = combinedToken.getAccessToken();
+								tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+										.plusSeconds(combinedToken.getExpiresIn());
+							} else if (Objects.isNull(combinedToken)) {
+								log.error("No token information returned!");
+								resetTokenAndExpiery();
+							} else {
+								log.error("No access token or expiery information returned!");
+								resetTokenAndExpiery();
+							}
+							log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
+							return null;
+						});
 			} catch (CompletionException e) {
 				log.error("Error while fetching access token!", e);
 				resetTokenAndExpiery();
+				return CompletableFuture.completedFuture(null);
 			}
-			log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
 		} else {
 			log.info("Token still valid, skipping token refresh.");
+			return CompletableFuture.completedFuture(null);
 		}
 	}
 	
@@ -115,7 +118,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 		log.info("Fetching auth token from endpoint: '{}'", authTokenEndpoint.url());
 
 		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
-
+			
 			if (HttpStatus.OK == authTokenResponse.status()) {
 				JsonObject responseBody = authTokenResponse.data().getAsJsonObject();
 
@@ -162,7 +165,7 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 				log.error("Access token endpoint responds with status: '{}' and body: '{}'",
 						accessTokenResponse.status(), accessTokenResponse.data());
 
-				return null;
+				return new PlcNextAuthAndAccessTokenDTO("", -1);
 			}
 		});
 	}
