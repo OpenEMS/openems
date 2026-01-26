@@ -17,6 +17,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.predictor.api.common.LogSeverity;
 
 public abstract class AbstractPredictor extends AbstractOpenemsComponent implements Predictor, OpenemsComponent {
 
@@ -103,6 +104,15 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 
 	protected LogVerbosity getLogVerbosity() {
 		return this.logVerbosity;
+	}
+
+	protected void logWithSeverity(Logger log, LogSeverity severity, String message) {
+		switch (severity) {
+		case ERROR -> logError(log, message);
+		case WARNING -> logWarn(log, message);
+		case INFO -> logInfo(log, message);
+		case DEBUG -> logDebug(log, message);
+		}
 	}
 
 	private static ChannelAddress[] toChannelAddresses(String[] strings) throws OpenemsNamedException {

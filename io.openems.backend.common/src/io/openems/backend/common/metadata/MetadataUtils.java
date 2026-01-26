@@ -56,9 +56,8 @@ public class MetadataUtils {
 					var c = switch (orderItem.field()) {
 					case "id" -> Comparator.comparing(EDGE::getId);
 					case "comment" -> Comparator.comparing(EDGE::getComment);
-					case "sumState" -> Comparator.<EDGE, Level>comparing(o -> {
-						return Optional.ofNullable(o.getSumState()).orElse(Level.OK);
-					});
+					case "sumState" -> Comparator.<EDGE, Level>comparing(o -> //
+						Optional.ofNullable(o.getSumState()).orElse(Level.OK));
 					default -> null;
 					};
 					if (c == null) {
@@ -77,19 +76,18 @@ public class MetadataUtils {
 				.sorted(comparator) //
 				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
 				.limit(paginationOptions.getLimit()) //
-				.map(myEdge -> {
-					return new EdgeMetadata(//
-							myEdge.getId(), //
-							myEdge.getComment(), //
-							myEdge.getProducttype(), //
-							myEdge.getVersion(), //
-							Role.ADMIN, //
-							myEdge.isOnline(), //
-							myEdge.getLastmessage(), //
-							null, // firstSetupProtocol
-							Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
-							myEdge.getSettings());
-				}).toList();
+				.map(myEdge -> new EdgeMetadata(//
+						myEdge.getId(), //
+						myEdge.getComment(), //
+						myEdge.getProducttype(), //
+						myEdge.getVersion(), //
+						Role.ADMIN, //
+						myEdge.isOnline(), //
+						myEdge.getLastmessage(), //
+						null, // firstSetupProtocol
+						Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
+						myEdge.getSettings())) //
+				.toList();
 	}
 
 }

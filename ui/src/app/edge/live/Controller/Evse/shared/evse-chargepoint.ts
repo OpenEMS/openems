@@ -10,7 +10,7 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
     constructor(
         component: EdgeConfig.Component,
     ) {
-        super(component.id, component.alias, component.isEnabled, component.factoryId, component.properties, component.channels);
+        super(component.id, component.alias, component.isEnabled, false, component.factoryId, component.properties, component.channels);
     }
 
     public static getEvseChargepoint(chargePoint: EdgeConfig.Component): EvseChargepoint | null {

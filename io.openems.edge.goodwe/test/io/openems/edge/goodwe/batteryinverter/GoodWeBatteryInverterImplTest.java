@@ -126,7 +126,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000));
+						.output(EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -161,7 +161,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), -1000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.CHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000));
+						.output(EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -196,7 +196,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.DISCHARGE_BAT) //
-						.output(EMS_POWER_SET, 1000));
+						.output(EMS_POWER_SET, 1000L));
 	}
 
 	@Test
@@ -230,7 +230,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 6000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -277,7 +277,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 10000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -310,7 +310,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 3000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -343,7 +343,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 8000, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -376,7 +376,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 0, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test
@@ -409,7 +409,7 @@ public class GoodWeBatteryInverterImplTest {
 							ess.run(new DummyBattery("battery0"), 0, 0);
 						}) //
 						.output(EMS_POWER_MODE, EmsPowerMode.AUTO) //
-						.output(EMS_POWER_SET, 0));
+						.output(EMS_POWER_SET, 0L));
 	}
 
 	@Test

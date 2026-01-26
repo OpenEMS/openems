@@ -56,7 +56,8 @@ public class CyclicTask implements Runnable {
 			this.printDebugLog();
 			this.sendConnectedEdgesNotification();
 		} catch (Exception e) {
-			e.printStackTrace();
+			this.log.error(e.getMessage());
+			this.log.debug("Stacktrace:", e);
 		}
 	}
 

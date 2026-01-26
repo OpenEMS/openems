@@ -225,6 +225,9 @@ public record SimulationResult(//
 			final var ef = p.energyFlow;
 			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
+			Optional.ofNullable(p.period.gridBuySoftLimit()).ifPresentOrElse(//
+					limit -> log(b, "%7d ", limit), //
+					() -> log(b, "%7s ", "-"));
 			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
 				log(b, "%5.0f ", wp.price());
 			} else {

@@ -31,6 +31,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.Call;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -62,6 +63,9 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 
 	@Reference
 	private ConfigurationAdmin cm;
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -156,6 +160,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.collect(toImmutableList());
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
+							.setMeta(this.meta) //
 							.setRiskLevel(this.config.riskLevel()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
