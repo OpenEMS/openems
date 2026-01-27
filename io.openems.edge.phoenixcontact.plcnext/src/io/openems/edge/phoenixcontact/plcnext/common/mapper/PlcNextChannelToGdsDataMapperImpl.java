@@ -60,10 +60,17 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 		return Collections.unmodifiableList(mappedValues);
 	}
 
+	/**
+	 * Search for mapping definition by channel ID
+	 * 
+	 * @param channelId				the channel ID to search for
+	 * @param varMappingDefinitions	list of mapping definitions
+	 * @return	@link{Optional} containing mapping definition or empty optional
+	 */
 	Optional<PlcNextGdsDataMappingDefinition> getMappingByChannelId(ChannelId channelId,
 			PlcNextGdsDataMappingDefinition[] varMappingDefinitions) {
+		
 		return Stream.of(varMappingDefinitions).filter(item -> item.getChannelId().name().equals(channelId.name()))
 				.findFirst();
 	}
-
 }

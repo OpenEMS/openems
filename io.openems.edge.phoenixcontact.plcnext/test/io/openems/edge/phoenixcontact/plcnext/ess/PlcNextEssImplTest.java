@@ -243,7 +243,7 @@ public class PlcNextEssImplTest {
 		int expectedSocValue = 110001;
 		int expectedCapacityValue = 210001;
 		int setActivePowerEqualsValue = 140002;
-		String gridModeValue = "OffGrid";
+		String gridModeValue = "Off@Grid";
 		int expectedGridModeValue = GridMode.UNDEFINED.getValue();
 
 		//// Read

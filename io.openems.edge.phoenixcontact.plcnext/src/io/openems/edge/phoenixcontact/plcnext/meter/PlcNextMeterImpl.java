@@ -106,7 +106,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		log.info("StationID '{}': Deactivating component", config.id());
-		gdsDataProvider.deactivateSessionMaintenance();
+		gdsDataProvider.deactivateSessionMaintenance(gdsDataAccessConfig);
 
 		super.deactivate();
 	}
@@ -138,7 +138,8 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 * Triggers fetching and mapping data and pushing to channels
 	 */
 	void processDataOnBeforeProcessImageEvent() {
-		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.dataUrl());
+		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.stationId(), 
+				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(this.readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
 

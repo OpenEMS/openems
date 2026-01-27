@@ -38,20 +38,11 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 		this.http = http;
 	}
 
-	/**
-	 * 
-	 * @return the cached token
-	 */
 	@Override
 	public synchronized String getToken() {
 		return this.token;
 	}
 
-	/**
-	 * Initialize fetching valid JWT periodically
-	 * 
-	 * @param authClientConfig configuration to be used
-	 */
 	@Override
 	public synchronized CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig) {
 		if (!hasValidToken()) {
@@ -92,17 +83,18 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 		tokenExpiery = null;		
 	}
 
-	/**
-	 * Checks if a valid token has been fetched.
-	 * 
-	 * @return TRUE if token is valid, FALSE otherwise
-	 */
 	@Override
 	public synchronized boolean hasValidToken() {
 		return Objects.nonNull(this.token) && //
 				Objects.nonNull(tokenExpiery) && !tokenExpiery.isBefore(ZonedDateTime.now());
 	}
 
+	/**
+	 * Creates endpoint configuration to fetch an auth token from REST-API
+	 * 
+	 * @param config	represents the authentication configuration
+	 * @return	configured endpoint to be called
+	 */
 	Endpoint buildAuthTokenEndpointRepresentation(PlcNextAuthConfig config) {
 		String requestBody = "{\"scope\":\"variables\" }";
 		Map<String, String> headers = Map.of(//
@@ -113,6 +105,12 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 				BridgeHttp.DEFAULT_READ_TIMEOUT, requestBody, headers);
 	}
 
+	/**
+	 * Fetches new valid auth token for REST-API, required to fetch an access token
+	 * 
+	 * @param config	represents the authentication configuration
+	 * @return @link{CompletableFuture} covering the auth token and timeout
+	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDTO> fetchAuthToken(PlcNextAuthConfig config) {
 		Endpoint authTokenEndpoint = buildAuthTokenEndpointRepresentation(config);
 		log.info("Fetching auth token from endpoint: '{}'", authTokenEndpoint.url());
@@ -133,6 +131,12 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 		});
 	}
 
+	/**
+	 * Creates endpoint configuration to fetch an access token from REST-API
+	 * 
+	 * @param config	represents the authentication configuration
+	 * @return	configured endpoint to be called
+	 */
 	Endpoint buildAccessTokenEndpointRepresentation(PlcNextAuthAndAccessTokenDTO authAndAccessToken,
 			PlcNextAuthConfig config) {
 		String requestBody = "{ \"code\": \"" + authAndAccessToken.getCode() + "\", "
@@ -146,6 +150,12 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 				BridgeHttp.DEFAULT_READ_TIMEOUT, requestBody, headers);
 	}
 
+	/**
+	 * Fetches new valid access token for REST-API
+	 * 
+	 * @param config	represents the authentication configuration
+	 * @return @link{CompletableFuture} covering the authorization data
+	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDTO> fetchAccessToken(PlcNextAuthAndAccessTokenDTO authToken,
 			PlcNextAuthConfig config) {
 		Endpoint accessTokenEndpoint = buildAccessTokenEndpointRepresentation(authToken, config);

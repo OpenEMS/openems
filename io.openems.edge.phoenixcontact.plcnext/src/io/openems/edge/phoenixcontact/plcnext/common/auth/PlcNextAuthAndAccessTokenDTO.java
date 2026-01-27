@@ -1,5 +1,8 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
+/**
+ * Data transfer object joining result of both auth requests
+ */
 public final class PlcNextAuthAndAccessTokenDTO {
 
 	private final String code;

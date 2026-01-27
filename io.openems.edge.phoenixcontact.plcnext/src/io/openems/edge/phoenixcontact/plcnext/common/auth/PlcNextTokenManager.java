@@ -3,7 +3,7 @@ package io.openems.edge.phoenixcontact.plcnext.common.auth;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * TODO
+ * Manages the handling of access tokens
  */
 public interface PlcNextTokenManager {
 
@@ -25,7 +25,6 @@ public interface PlcNextTokenManager {
 	CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig);
 
 	/**
-	 * 
 	 * @return the cached token
 	 */
 	String getToken();
