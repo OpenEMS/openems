@@ -100,6 +100,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		}
 	}
 
+
 	@Override
 	public synchronized void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config) {
 		deactivateSessionMaintenanceIfNecessary(config);

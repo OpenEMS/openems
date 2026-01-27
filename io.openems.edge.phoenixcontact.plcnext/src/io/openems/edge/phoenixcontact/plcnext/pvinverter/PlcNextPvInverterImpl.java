@@ -1,6 +1,3 @@
-/**
- * 
- */
 package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import java.util.List;
@@ -26,10 +23,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -45,9 +40,6 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappin
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-/**
- * 
- */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "PLCnext.PvInverter.Device", //

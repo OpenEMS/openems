@@ -1,11 +1,311 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
-	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
 			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin" path="src">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin_test" path="generated/generated/sources/annotationProcessor/java/test">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="optional" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin" path="generated/generated/sources/annotationProcessor/java/main">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JavaSE-21">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="gson-2.13.2.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/com/google/guava/guava/33.5.0-jre/guava-33.5.0-jre.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="guava-33.5.0-jre.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/osgi.annotation/8.1.0/osgi.annotation-8.1.0.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="osgi.annotation-8.1.0.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.metatype/1.4.1/org.osgi.service.metatype-1.4.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.metatype-1.4.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/ops4j/pax/logging/pax-logging-api/2.3.1/pax-logging-api-2.3.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="pax-logging-api-2.3.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.meter.api/generated/io.openems.edge.meter.api.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.meter.api.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/io/openems/j2mod/3.2.2-openems.2/j2mod-3.2.2-openems.2.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="j2mod-3.2.2-openems.2.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.component/1.5.1/org.osgi.service.component-1.5.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.component-1.5.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.metatype.annotations/1.4.1/org.osgi.service.metatype.annotations-1.4.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.metatype.annotations-1.4.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.common.bridge.http/generated/io.openems.common.bridge.http.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.common.bridge.http.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.ess.api/generated/io.openems.edge.ess.api.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.ess.api.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.common/generated/io.openems.edge.common.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.common.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/osgi.core/8.0.0/osgi.core-8.0.0.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="osgi.core-8.0.0.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.cm/1.6.1/org.osgi.service.cm-1.6.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.cm-1.6.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.common/generated/io.openems.common.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.common.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="failureaccess-1.0.3.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.util.promise/1.3.0/org.osgi.util.promise-1.3.0.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.util.promise-1.3.0.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.bridge.http/generated/io.openems.edge.bridge.http.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.bridge.http.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.event/1.4.1/org.osgi.service.event-1.4.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.event-1.4.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.pvinverter.api/generated/io.openems.edge.pvinverter.api.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.pvinverter.api.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/Development/PhoenixContact/openems/io.openems.edge.bridge.modbus/generated/io.openems.edge.bridge.modbus.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="io.openems.edge.bridge.modbus.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/osgi/org.osgi.service.component.annotations/1.5.1/org.osgi.service.component.annotations-1.5.1.jar">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.osgi.service.component.annotations-1.5.1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/junit/jupiter/junit-jupiter-api/6.0.2/junit-jupiter-api-6.0.2.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="junit-jupiter-api-6.0.2.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/mockito/mockito-core/2.18.3/mockito-core-2.18.3.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="mockito-core-2.18.3.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/slf4j/slf4j-simple/1.7.25/slf4j-simple-1.7.25.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="slf4j-simple-1.7.25.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/objenesis/objenesis/2.6/objenesis-2.6.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="objenesis-2.6.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/net/bytebuddy/byte-buddy/1.9.11/byte-buddy-1.9.11.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="byte-buddy-1.9.11.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="opentest4j-1.3.0.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/mbreier/.m2/repository/org/apache/servicemix/bundles/org.apache.servicemix.bundles.junit/4.13.2_1/org.apache.servicemix.bundles.junit-4.13.2_1.jar">
+		<attributes>
+			<attribute name="test" value="true"/>
+			<attribute name="gradle.buildServer" value="true"/>
+			<attribute name="groupId" value="unknown"/>
+			<attribute name="artifactId" value="org.apache.servicemix.bundles.junit-4.13.2_1.jar"/>
+			<attribute name="version" value="unknown"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.common">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.meter.api">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.ess.api">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.common">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.pvinverter.api">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.bridge.modbus">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.common.bridge.http">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/io.openems.edge.bridge.http">
+		<attributes>
+			<attribute name="gradle.buildServer" value="true"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
