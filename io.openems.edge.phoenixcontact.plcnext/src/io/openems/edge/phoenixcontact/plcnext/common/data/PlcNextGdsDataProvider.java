@@ -29,7 +29,7 @@ public interface PlcNextGdsDataProvider {
 
 	/**
 	 * Fetch data for given variables from PLCnext REST-API and return as JSON
-	 * object
+	 * response object
 	 * 
 	 * @param variableIdentifiers list of variable identifiers to fetch
 	 * @param dataAccessConfig    config to be used to fetch the data
@@ -40,7 +40,8 @@ public interface PlcNextGdsDataProvider {
 			PlcNextGdsDataAccessConfig dataAccessConfig, PlcNextAuthConfig authConfig);
 
 	/**
-	 * WIP: Proposal
+	 * Writes data of given mapped variables to PLCnext REST-API and return as JSON
+	 * response object
 	 * 
 	 * @param mappedVariables  map containing key values of variables to write to
 	 *                         PLCnext REST-API
@@ -53,7 +54,9 @@ public interface PlcNextGdsDataProvider {
 
 	/**
 	 * Deactivates session maintenance mechanism
+	 * 
+	 * @param config	config to be used to fetch the data
 	 */
-	void deactivateSessionMaintenance();
+	void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config);
 
 }

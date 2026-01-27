@@ -1,6 +1,9 @@
 package io.openems.edge.phoenixcontact.plcnext.common.utils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.channel.ChannelCategory;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
@@ -19,13 +23,25 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataWriteVal
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappingException;
 
+/**
+ * Utility class for @link{ChannelId} to value and vince versa mapping
+ */
 public final class PlcNextChannelValueTypeHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextChannelValueTypeHelper.class);
+	
+	private static final String REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES = "[-_]";
 
 	private PlcNextChannelValueTypeHelper() {
 	}
 
+	/**
+	 * Helper method to extract value from given JSON object.
+	 * 
+	 * @param jsonElement		represents the JSON object to be interpreted
+	 * @param openEmsChannelDoc	represents the channel definition
+	 * @return	extracted value
+	 */
 	public static Object getChannelValue(JsonElement jsonElement, Doc openEmsChannelDoc) {
 		Object mappedValue = null;
 
@@ -57,11 +73,24 @@ public final class PlcNextChannelValueTypeHelper {
 	private static Object mapToEnum(JsonElement jsonElement, Doc openEmsChannelDoc) {
 		Object mappedValue = null;
 		String sourceValue = jsonElement.getAsString();
+		OptionsEnum[] options = ((EnumDoc)openEmsChannelDoc).getOptions();
 		
 		try {
-			mappedValue = ((EnumDoc)openEmsChannelDoc).getOptionFromString(sourceValue);
+			List<OptionsEnum> mappedValues = Stream.of(options) //
+				.filter(item -> item.getName().replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, "") //
+						.equalsIgnoreCase(sourceValue.replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, ""))) //
+				.toList();
+
+			if (mappedValues.isEmpty()) {
+				throw OpenemsError.EDGE_CHANNEL_NO_OPTION.exception(sourceValue, Arrays.toString(options));
+			} else if (mappedValues.size() > 1) {
+				log.warn("Multiple options found for source value '{}', choosing first.");
+				mappedValue = mappedValues.getFirst();
+			} else {
+				mappedValue = mappedValues.getFirst();
+			}
 		} catch (OpenemsNamedException e) {
-			log.warn("Cannot map '{}' to ENUM {}! Trying using value.", sourceValue, ((EnumDoc)openEmsChannelDoc).getOptions());
+			log.warn("Cannot map '{}' to ENUM {}! Trying using value.", sourceValue, ((EnumDoc)openEmsChannelDoc).getOptions(), e);
 		}
 		if (Objects.isNull(mappedValue)) {
 			try {
@@ -76,6 +105,14 @@ public final class PlcNextChannelValueTypeHelper {
 		return mappedValue;
 	}
 
+	/**
+	 * Helper method to build single JSON object that contains a path to value assignment to be written to REST-API.
+	 *  
+	 * @param variablePath		represents the path of the variable to write
+	 * @param variableValue		represents the value of the variable to write
+	 * @param openEmsChannelDoc	the channel definition for processing
+	 * @return	JSON object with mapped value or NULL otherwise
+	 */
 	public static JsonElement buildVariableToWrite(String variablePath, Object variableValue, Doc openEmsChannelDoc) {
 		JsonObject mappedValue = null;
 

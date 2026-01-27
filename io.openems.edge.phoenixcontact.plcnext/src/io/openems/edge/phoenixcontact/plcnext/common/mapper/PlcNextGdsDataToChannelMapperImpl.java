@@ -164,7 +164,7 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 
 		if (Objects.isNull(channelValue)) {
 			throw new PlcNextGdsDataMappingException("Mapping from source to destination type failed!");
-		}
+		}	
 		return channelValue;
 	}
 
