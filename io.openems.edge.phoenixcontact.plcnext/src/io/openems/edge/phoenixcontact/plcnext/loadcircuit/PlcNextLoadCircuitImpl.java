@@ -12,9 +12,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.annotations.ReferenceScope;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -25,23 +22,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.WordOrder;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
@@ -59,8 +45,8 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChan
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
-		implements PlcNextLoadCircuit, OpenemsComponent, ModbusSlave, EventHandler {
+public class PlcNextLoadCircuitImpl extends AbstractOpenemsComponent
+		implements PlcNextLoadCircuit, OpenemsComponent, EventHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(PlcNextLoadCircuitImpl.class);
 
@@ -74,11 +60,6 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private PlcNextGdsDataToChannelMapper gdsDataToChannelMapper;
 
-	
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus); 
-	}
 	
 	private Config config;
 	private PlcNextAuthConfig authConfig;
@@ -95,22 +76,14 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		log.info("StationID '{}': Activating component", config.id());
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.configAdmin,
-				"Modbus", config.modbus_id())) {
-			log.debug("StationID '{}': Modbus super component activate() returned TRUE, skipping apply config.", config.id());
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		applyConfig(config);
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsException {
 		log.info("StationID '{}': Modifing component ", config.id());
-		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.configAdmin,
-				"Modbus", config.modbus_id())) {
-			log.debug("StationID '{}': Modbus super component modify() returned TRUE, skipping apply config.", config.id());
-			return;
-		}
+		super.modified(context, config.id(), config.alias(), config.enabled());
 		applyConfig(config);
 	}
 
@@ -126,25 +99,16 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		log.info("StationID '{}': Deactivating component", config.id());
-		gdsDataProvider.deactivateSessionMaintenance();
+		gdsDataProvider.deactivateSessionMaintenance(gdsDataAccessConfig);
 
 		super.deactivate();
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() {
-		// TODO: Find suitable Modbus TCP channel or handling of MAX_ACTIVE_POWER_IMPORT !!!
-		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0x0706, Priority.LOW, //
-						m(PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT, new FloatDoublewordElement(0x0706) //
-								.wordOrder(WordOrder.LSWMSW), ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER, new FloatDoublewordElement(0x0708) //
-								.wordOrder(WordOrder.LSWMSW), ElementToChannelConverter.SCALE_FACTOR_1))); //
-	}
-
-	@Override
 	public String debugLog() {
-		return "MAPEx:" + this.getMaxActivePowerExport().asString();
+		return "MaxActPow:" + this.getMaxActivePowerExport().asString() + ";" + //
+				this.getMaxActivePowerImport().asString() + "|" +
+				"MaxReactPow: " + this.getMaxReactivePower().asString();
 	}
 
 	@Override
@@ -164,7 +128,8 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 	 * Triggers fetching and mapping data and pushing to channels
 	 */
 	void processDataOnBeforeProcessImageEvent() {
-		log.info("StationID '{}': Reading LOAD CIRCUIT data from URL '{}'", gdsDataAccessConfig.dataUrl());
+		log.info("StationID '{}': Reading LOAD CIRCUIT data from URL '{}'", gdsDataAccessConfig.stationId(), 
+				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(PlcNextLoadCircuitGdsDataReadMappingDefinition.values())//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
 
@@ -202,14 +167,8 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsModbusComponent
 			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
 					mappedValue.getValue(), mappedValue.getChannelId());
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
+			log.info("StationID '{}': Next value provided to channel named '{}' is: {}", this.gdsDataAccessConfig.stationId(),
+					channel(mappedValue.getChannelId()).getNextValue(), mappedValue.getChannelId());
 		}
-	}
-
-	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(PlcNextLoadCircuit.class, accessMode, 100) //
-						.build());
 	}
 }

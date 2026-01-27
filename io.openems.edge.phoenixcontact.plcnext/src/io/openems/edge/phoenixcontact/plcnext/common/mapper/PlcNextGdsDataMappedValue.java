@@ -4,6 +4,9 @@ import java.util.Objects;
 
 import io.openems.edge.common.channel.ChannelId;
 
+/**
+ * Containing @link{ChannelId} to single value assignment 
+ */
 public class PlcNextGdsDataMappedValue {
 
 	private final ChannelId channelId;

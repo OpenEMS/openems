@@ -8,6 +8,9 @@ import java.util.stream.Stream;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDynamicDefinition;
 
+/**
+ * Helper class for mapping definitions
+ */
 public final class PlcNextMappingDefinitionHelper {
 
 	private PlcNextMappingDefinitionHelper() {
