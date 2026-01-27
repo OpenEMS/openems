@@ -100,27 +100,34 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		}
 	}
 
-	/**
-	 * Deactivates session maintenance mechanism
-	 */
+
 	@Override
-	public synchronized void deactivateSessionMaintenance() {
-		deactivateSessionMaintenanceIfNecessary();
+	public synchronized void deactivateSessionMaintenance(PlcNextGdsDataAccessConfig config) {
+		deactivateSessionMaintenanceIfNecessary(config);
 	}
 
-	private void deactivateSessionMaintenanceIfNecessary() {
-		log.info("StationID 'n/a': Deactivating session maintenance for sessionID {}", this.sessionId);
+	private void deactivateSessionMaintenanceIfNecessary(PlcNextGdsDataAccessConfig config) {
+		log.info("StationID '{}': Deactivating session maintenance called", config.stationId());
+		String oldSessionId = this.sessionId;
 
 		// remove session ID
 		this.sessionId = null;
 
 		// remove time endpoint that maintains the session if it has been created
 		if (Objects.nonNull(this.maintainSessionTimeEndpoint)) {
+			log.info("StationID '{}': Deactivating session maintenance for sessionID {}", config.stationId(), oldSessionId);
 			timeService.removeTimeEndpoint(this.maintainSessionTimeEndpoint);
 		}
 		this.maintainSessionTimeEndpoint = null;
 	}
 
+	/** 
+	 * Checks access token and session and triggers fetching both if not existing or invalid
+	 * 
+	 * @param dataAccessConfig    config to be used to fetch the data
+	 * @param authConfig          config to be used for authentication
+	 * @return @link{CompletableFuture} of void
+	 */
 	CompletableFuture<Void> ensureAccessTokenAndSessionIdAreValid( //
 			PlcNextGdsDataAccessConfig dataAccessConfig, //
 			PlcNextAuthConfig authConfig) {
@@ -149,12 +156,12 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	}
 
 	/**
-	 * Creates new session and triggers session maintenance while access token is
-	 * valid and no error occurs when there is no active session. It sets the member
-	 * variables "sessionId" and "maintainSessionEndpoint".
+	 * Create new session or try to fetch existing session ID and trigger session 
+	 * maintenance while access token is valid and no error occurs when there is 
+	 * no active session. It sets the member variables "sessionId" and "maintainSessionEndpoint".
 	 * 
 	 * @param config config of base URL and instance name
-	 * @return @link{Optional} containing an object of
+	 * @return @link{CompletableFuture} containing an object of
 	 *         type @link{PlcNextCreateSessionResponse} representing the response
 	 *         containing the session ID
 	 */
@@ -162,7 +169,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		log.debug("StationID '{}': Create new session. Current session ID: {}", config.stationId(), this.sessionId);
 
 		// deactivate old session
-		deactivateSessionMaintenanceIfNecessary();
+		deactivateSessionMaintenanceIfNecessary(config);
 
 		try {
 			return createSession(config);
@@ -240,9 +247,8 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * 
 	 * @param sessionTimeout delay of session timeout
 	 * @param config         config of base URL and instance name
-	 * @return @link{Optional} object containing an object of
-	 *         type @link{TimeEndpoint} representing the continuous session
-	 *         maintenance, if the optional is not empty
+	 * @return @link{TimeEndpoint} representing the continuous session
+	 *         maintenance or NULL otherwise
 	 */
 	TimeEndpoint enableSessionMaintenance(Delay sessionTimeout,
 			PlcNextGdsDataAccessConfig config) {
@@ -258,20 +264,20 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 				maintainSessionEndpoint, (httpResponse, httpError) -> {
 					if (Objects.isNull(httpResponse) && Objects.isNull(httpError)) {
 						// Stop on no result
-						deactivateSessionMaintenanceIfNecessary();
+						deactivateSessionMaintenanceIfNecessary(config);
 						log.info("SessionID '{}': No result while maintaining session. "
 								+ "Processing skipped and session ID has been reset.", this.sessionId);
 					} else if (Objects.nonNull(httpError)) {
 						// Stop on error
 						log.error("SessionID '{}': Got HTTP error '{}'! Session ID will be reset.", this.sessionId,
 								httpError);
-						deactivateSessionMaintenanceIfNecessary();
+						deactivateSessionMaintenanceIfNecessary(config);
 					} else if (Objects.nonNull(httpResponse) && !tokenManager.hasValidToken()) {
 						// Stop on expired token
 						log.info(
 								"SessionID '{}': Got result, but access token has been expired. Session ID will be reset.",
 								this.sessionId);
-						deactivateSessionMaintenanceIfNecessary();
+						deactivateSessionMaintenanceIfNecessary(config);
 					} else if (Objects.nonNull(httpResponse) && httpResponse.status() == HttpStatus.OK
 							&& Objects.nonNull(httpResponse.data())
 							&& Objects.nonNull(httpResponse.data().getAsJsonObject())
@@ -286,7 +292,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 						log.error(
 								"SessionID '{}': Session maintenance entered state UNDEFINED! Session ID has been reset.",
 								this.sessionId);
-						deactivateSessionMaintenanceIfNecessary();
+						deactivateSessionMaintenanceIfNecessary(config);
 					}
 				});
 	}
@@ -301,8 +307,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param endpoint  represents the endpoint definition to be used for the request
 	 * @param expectedStatus represents the expected status to state a successful API request
 	 * @param stationId the stationID for logging
-	 * @return response body as @link{JsonObject} as @link{CompletableFuture}
-	 * @throws Throwable 
+	 * @return response body wrapped into a @link{CompletableFuture}
 	 */
 	CompletableFuture<JsonObject> sendRequestToApi(Endpoint endpoint, HttpStatus expectedStatus, //
 			String stationId) {

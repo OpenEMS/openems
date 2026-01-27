@@ -1,6 +1,3 @@
-/**
- * 
- */
 package io.openems.edge.phoenixcontact.plcnext.ess;
 
 import java.util.List;
@@ -27,9 +24,10 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -119,7 +117,7 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		log.info("StationID '{}': Deactivating component", config.id());
-		gdsDataProvider.deactivateSessionMaintenance();
+		gdsDataProvider.deactivateSessionMaintenance(gdsDataAccessConfig);
 
 		super.deactivate();
 	}
@@ -229,9 +227,10 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 				channelId);
 
 		Object channelValue = null;
+		Channel<?> channel = channel(channelId);
 		
-		if (OpenemsType.INTEGER == channelId.doc().getType()) {
-			channelValue = ((IntegerWriteChannel)channel(channelId)).getNextWriteValue() //
+		if (channel instanceof WriteChannel<?> writeChannel) {
+			channelValue = writeChannel.getNextWriteValue() //
 					.orElse(null);			
 		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);

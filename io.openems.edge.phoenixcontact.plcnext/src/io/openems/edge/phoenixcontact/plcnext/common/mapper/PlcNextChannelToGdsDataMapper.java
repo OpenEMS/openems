@@ -25,7 +25,8 @@ public interface PlcNextChannelToGdsDataMapper {
 	 */
 	JsonElement mapSingleValueToGdsData(PlcNextGdsDataMappedValue channelValue, //
 			String dataInstanceName, //
-			PlcNextGdsDataMappingDefinition[] mappingDefinition);
+			PlcNextGdsDataMappingDefinition[] mappingDefinition)
+					throws PlcNextGdsDataMappingException;
 
 	/**
 	 * Extracts all incoming variables in JSON format.
@@ -39,6 +40,6 @@ public interface PlcNextChannelToGdsDataMapper {
 	 */
 	List<JsonElement> mapAllValuesToGdsData(List<PlcNextGdsDataMappedValue> channelValues, //
 			String dataInstanceName, //
-			PlcNextGdsDataMappingDefinition[] mappingDefinition);
-
+			PlcNextGdsDataMappingDefinition[] mappingDefinition)
+					throws PlcNextGdsDataMappingException;
 }

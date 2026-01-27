@@ -1,6 +1,3 @@
-/**
- * 
- */
 package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import java.util.List;
@@ -26,9 +23,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -43,9 +40,6 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataMappin
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-/**
- * 
- */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "PLCnext.PvInverter.Device", //
@@ -113,7 +107,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	@Deactivate
 	protected void deactivate() {
 		log.info("StationID '{}': Deactivating component", config.id());
-		gdsDataProvider.deactivateSessionMaintenance();
+		gdsDataProvider.deactivateSessionMaintenance(gdsDataAccessConfig);
 
 		super.deactivate();
 	}
@@ -147,8 +141,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 		List<String> variableIdentifiers = Stream.of(readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
 
-		gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+		gdsDataProvider.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
 				.thenApply(apiResponseBody -> {
 					if (Objects.isNull(apiResponseBody)) {
 						apiResponseBody = DEFAULT_RESPONSE;
@@ -218,9 +211,10 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
 				channelId);
 		Object channelValue = null;
+		Channel<?> channel = channel(channelId);
 		
-		if (OpenemsType.INTEGER == channelId.doc().getType()) {
-			channelValue = ((IntegerWriteChannel)channel(channelId)).getNextWriteValue() //
+		if (channel instanceof WriteChannel<?> writeChannel) {
+			channelValue = writeChannel.getNextWriteValue() //
 					.orElse(null);			
 		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);
