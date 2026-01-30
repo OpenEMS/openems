@@ -17,7 +17,9 @@ public enum PlcNextEssGdsDataReadMappingDefinition implements PlcNextGdsDataMapp
 	MIN_CELL_VOLTAGE("essMeter.MinCellVoltage", SymmetricEss.ChannelId.MIN_CELL_VOLTAGE), //
 	MAX_CELL_VOLTAGE("essMeter.MaxCellVoltage", SymmetricEss.ChannelId.MAX_CELL_VOLTAGE), //
 	MIN_CELL_TEMPERATURE("essMeter.MinCellTemperature", SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE), //
-	MAX_CELL_TEMPERATURE("essMeter.MaxCellTemperature", SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE);
+	MAX_CELL_TEMPERATURE("essMeter.MaxCellTemperature", SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE), //
+	ACTIVE_POWER("electricityMeter.powerMeasurement.activePower.L123", SymmetricEss.ChannelId.ACTIVE_POWER), //
+	REACTIVE_POWER("electricityMeter.powerMeasurement.reactivePower.L123", SymmetricEss.ChannelId.REACTIVE_POWER);
 
 	private final String identifier;
 	private final ChannelId channelId;

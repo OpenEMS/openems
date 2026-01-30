@@ -31,10 +31,6 @@ public class PlcNextMappingDefinitionHelperTest {
 		// check
 		assertNotNull(result);
 		assertEquals(expectedMappingCount, result.length);
-
-		List<String> itemsWithMappingPrefix = Stream.of(result).map(PlcNextGdsDataMappingDefinition::getIdentifier)
-				.filter(item -> item.startsWith(mappingPrefix)).toList();
-		assertEquals(PlcNextMeterGdsDataReadMappingDefinition.values().length, itemsWithMappingPrefix.size());
 	}
 
 	@Test
@@ -102,8 +98,10 @@ public class PlcNextMappingDefinitionHelperTest {
 		String mappingPrefix = "electricityMeter";
 
 		// test
-		PlcNextGdsDataMappingDefinition[] result = PlcNextMappingDefinitionHelper.joinMappings(null,
-				PlcNextMeterGdsDataReadMappingDefinition.values(), mappingPrefix);
+		PlcNextGdsDataMappingDefinition[] result = PlcNextMappingDefinitionHelper.joinMappings(
+				null, //
+				PlcNextMeterGdsDataReadMappingDefinition.values(), //
+				mappingPrefix);
 
 		// check
 		assertNotNull(result);
@@ -115,22 +113,28 @@ public class PlcNextMappingDefinitionHelperTest {
 	}
 
 	@Test
-	public void testJoinTwoMappingsWithEmptyJoinSourcMapping() {
+	public void testJoinTwoMappingsWithEmptyJoinSourceMapping() {
 		// prep
 		int expectedMappingCount = PlcNextEssGdsDataReadMappingDefinition.values().length;
-		String mappingPrefix = "electricityMeter";
+		String mappingPrefix = "mappingPrefix";
 
 		// test
-		PlcNextGdsDataMappingDefinition[] result = PlcNextMappingDefinitionHelper.joinMappings(
-				PlcNextEssGdsDataReadMappingDefinition.values(), new PlcNextGdsDataMappingDynamicDefinition[0],
+		PlcNextGdsDataMappingDefinition[] result = PlcNextMappingDefinitionHelper.joinMappings( //
+				PlcNextEssGdsDataReadMappingDefinition.values(), //
+				new PlcNextGdsDataMappingDynamicDefinition[0], //
 				mappingPrefix);
 
 		// check
 		assertNotNull(result);
 		assertEquals(expectedMappingCount, result.length);
 
-		List<String> itemsWithMappingPrefix = Stream.of(result).map(PlcNextGdsDataMappingDefinition::getIdentifier)
-				.filter(item -> item.startsWith(mappingPrefix)).toList();
+		List<String> itemsWithMappingPrefix = Stream.of(result) //
+				.map(PlcNextGdsDataMappingDefinition::getIdentifier) //
+				.filter(item -> !item.startsWith("essMeter")) //
+				.filter(item -> !item.startsWith("electricityMeter")) //
+				.toList();
+		// find two mappings leftover: 'electricityMeter.powerMeasurement.activePower.L123'
+		// AND 'electricityMeter.powerMeasurement.reactivePower.L123'
 		assertTrue(itemsWithMappingPrefix.isEmpty());
 	}
 

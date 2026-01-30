@@ -11,7 +11,7 @@ public enum PlcNextMeterGdsDataReadMappingDefinition implements PlcNextGdsDataMa
 	VOLTAGE_L3("voltageMeasurement.phasesToNeutral.L3N", ElectricityMeter.ChannelId.VOLTAGE_L3), //
 	VOLTAGE_LINE_L12("voltageMeasurement.phasesToPhase.L12", PlcNextMeter.ChannelId.VOLTAGE_LINE_L12), //
 	VOLTAGE_LINE_L23("voltageMeasurement.phasesToPhase.L23", PlcNextMeter.ChannelId.VOLTAGE_LINE_L23), //
-	VOLTAGE_LINE_L31("voltageMeasurement.phasesToPhase.L23", PlcNextMeter.ChannelId.VOLTAGE_LINE_L31), //
+	VOLTAGE_LINE_L31("voltageMeasurement.phasesToPhase.L31", PlcNextMeter.ChannelId.VOLTAGE_LINE_L31), //
 	CURRENT_L1("currentMeasurement.phases.L1", ElectricityMeter.ChannelId.CURRENT_L1), //
 	CURRENT_L2("currentMeasurement.phases.L2", ElectricityMeter.ChannelId.CURRENT_L2), //
 	CURRENT_L3("currentMeasurement.phases.L3", ElectricityMeter.ChannelId.CURRENT_L3), //
