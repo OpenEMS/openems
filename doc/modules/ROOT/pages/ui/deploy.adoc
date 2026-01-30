@@ -10,7 +10,8 @@
 
 == Deploy OpenEMS UI together with Edge or Backend
 
-If you want to deploy the UI together with Edge or Backend on Docker, look at the respective pages: 
+If you want to deploy the UI together with Edge or Backend on Docker, look at the respective pages:
+
 * xref:edge/deploy/docker.adoc#_openems_edge_ui[Edge]
 * xref:backend/deploy/docker.adoc[Backend]
 
