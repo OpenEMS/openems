@@ -1,4 +1,3 @@
-@ -0,0 +1,14 @@
 import { Environment, getWebsocketScheme } from "src/environments";
 import { theme } from "./theme";
 
