@@ -975,7 +975,7 @@ public class PreferDcPowerTest {
 		ess0.setReactivePowerEquals(1000); // 1000W reactive power
 		componentTest.next(new TestCase("#5"));
 
-		// Test very small power & megative reactive power request
+		// Test very small power & negative reactive power request
 		expect("#6.1", ess1, 20, -1000); // feed-in inverters are preferred
 		expect("#6.2", ess2, 0, 0);
 

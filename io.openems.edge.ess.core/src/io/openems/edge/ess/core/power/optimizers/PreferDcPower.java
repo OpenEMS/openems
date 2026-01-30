@@ -146,42 +146,43 @@ public class PreferDcPower {
 			// Step 1: Distribute the active power
 
 			// Step 1.1: Distribute PV production power first
-			for (int i=0; i<sortedInverters.size(); i++) {
-				var inv = sortedInverters.get(i);
-				var logMessage = new String();
-				if(debugMode) logMessage += "[ACTIVE]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i];
+			if(remainingPowerRequired != 0) {
+				for (int i=0; i<sortedInverters.size(); i++) {
+					var inv = sortedInverters.get(i);
+					var logMessage = new String();
+					if(debugMode) logMessage += "[ACTIVE]   " + inv.toString() + ": PVProduction: "+essPvProduction[i]+", min: "+essLowerLimit[i]+", max: "+essUpperLimit[i];
 
-				if(essState[i] == Level.FAULT) {
-					if(debugMode) logMessage += "  -> ESS state: FAULT";
-					continue;
+					if(essState[i] == Level.FAULT) {
+						if(debugMode) logMessage += "  -> ESS state: FAULT";
+						continue;
+					}
+
+					if(direction == TargetDirection.DISCHARGE) {
+						if(essLowerLimit[i] > remainingPowerRequired) {
+							// lowerLimit > remainingPowerRequired (e.g. ess requires minimum discharge while battery is full)
+							essPowerRequired[i] = essLowerLimit[i];
+							remainingPowerRequired -= essLowerLimit[i];
+						}
+						else if(essPvProduction[i] >= 100 && remainingPowerRequired >= essPvProduction[i]) {
+							// use all pvProduction power (minimum 100 W required)
+							essPowerRequired[i] = essPvProduction[i];
+							remainingPowerRequired -= essPvProduction[i];
+						}
+						else if(essPvProduction[i] >= 100)
+						{
+							// use partial pvProduction power (minimum 100 W required)
+							essPowerRequired[i] = remainingPowerRequired;
+							remainingPowerRequired = 0;
+						}
+
+						if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
+					}
+
+					if(debugMode) log.info(logMessage);
 				}
 
-				if(direction == TargetDirection.DISCHARGE) {
-					if(essLowerLimit[i] > remainingPowerRequired) {
-						// lowerLimit > remainingPowerRequired (e.g. ess requires minimum discharge while battery is full)
-						essPowerRequired[i] = essLowerLimit[i];
-						remainingPowerRequired -= essLowerLimit[i];
-					}
-					else if(essPvProduction[i] >= 100 && remainingPowerRequired >= essPvProduction[i]) {
-						// use all pvProduction power (minimum 100 W required)
-						essPowerRequired[i] = essPvProduction[i];
-						remainingPowerRequired -= essPvProduction[i];
-					}
-					else if(essPvProduction[i] >= 100)
-					{
-						// use partial pvProduction power (minimum 100 W required)
-						essPowerRequired[i] = remainingPowerRequired;
-						remainingPowerRequired = 0;
-					}
-
-					if(debugMode) logMessage += "  -> EQUALS "+essPowerRequired[i];
-				}
-
-				if(debugMode) log.info(logMessage);
+				if(debugMode) log.info("[ACTIVE]   -> remaining power required after pv production solved: "+remainingPowerRequired);
 			}
-
-
-			if(debugMode) log.info("[ACTIVE]   -> remaining power required after pv production solved: "+remainingPowerRequired);
 
 
 			// Step 1.2: Distribute remaining power using all ESS currently producing power (discharging due to PV production); distribute using order
