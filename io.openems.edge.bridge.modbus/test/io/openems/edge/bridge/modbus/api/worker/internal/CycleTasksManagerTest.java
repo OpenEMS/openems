@@ -216,8 +216,6 @@ public class CycleTasksManagerTest {
 	public void testWriteTaskExecutesImmediatelyAfterExecuteWrite() throws OpenemsException, InterruptedException {
 		// This test verifies that write tasks execute immediately after onExecuteWrite()
 		// even when a WaitDelayTask is running.
-		System.out.println("=== TEST: Write task executes immediately after onExecuteWrite ===");
-
 		var cycle1 = CycleTasks.create() //
 				.reads(RT_L_1, RT_H_1) //
 				.writes(WT_1) //
@@ -229,24 +227,17 @@ public class CycleTasksManagerTest {
 				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
 
 		// Start cycle
-		System.out.println("Starting cycle with onBeforeProcessImage()");
 		sut.onBeforeProcessImage();
 
 		// Get the initial WaitMutexTask
 		var mutexTask = sut.getNextTask();
 		assertTrue(mutexTask instanceof WaitTask.Mutex);
-		System.out.println("Got WaitMutexTask, waiting for EXECUTE_WRITE event");
 
 		// Now trigger onExecuteWrite()
-		System.out.println("Calling onExecuteWrite()");
 		sut.onExecuteWrite();
 
 		// The next task should be the write task, available immediately
 		var writeTask = sut.getNextTask();
 		assertEquals(WT_1, writeTask);
-		System.out.println("Got write task immediately: " + writeTask);
-
-		System.out.println("Test passed: Write task was available immediately!");
-		System.out.println("=== END TEST ===");
 	}
 }
