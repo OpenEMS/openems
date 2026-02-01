@@ -138,25 +138,33 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
-	private static final Pattern KEY_VALUE_PATTERN = Pattern.compile("\\((?<key>\\S+)=(?<value>\\S+)\\)");
+	private static final Pattern KEY_VALUE_PATTERN = Pattern.compile("\\((?<key>[^=]++)=(?<value>[^)]++)\\)");
 
 	@Override
 	public synchronized Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
+		final String key, value;
+		
+		if (filter == null || filter.isBlank()) {
+			key = value = null;
+		} else {
+			var matcher = KEY_VALUE_PATTERN.matcher(filter);
+			if (matcher.find()) {
+				key = matcher.group("key");
+				value = matcher.group("value");
+			} else {
+				key = value = null;
+			}
+		}
+		
 		// org.apache.felix.cm.impl.Simplefilter is not available here, so we apply just
 		// a simple parsing. See
 		// https://github.com/apache/felix-dev/blob/master/configadmin/src/main/java/org/apache/felix/cm/impl/SimpleFilter.java
 		return this.configurations.values().stream() //
 				.filter(c -> {
-					if (filter == null) {
-						return true;
-					}
-					var matcher = KEY_VALUE_PATTERN.matcher(filter);
-					if (!matcher.find()) {
+					if (key == null) {
 						return true;
 					}
 					final var props = c.getProperties();
-					var key = matcher.group("key");
-					var value = matcher.group("value");
 					if (value.equalsIgnoreCase("true") && getAsBoolean(props, key) == TRUE) {
 						return true;
 					} else if (value.equalsIgnoreCase("false") && getAsBoolean(props, key) == FALSE) {

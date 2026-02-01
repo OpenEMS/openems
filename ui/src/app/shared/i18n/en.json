@@ -1,0 +1,5 @@
+{
+    "SHARED_MODULE": {
+        "PERSON_NAME_PROHIBITED_CHARACTERS": "{{formControlValue}} contains at least one of these invalid characters: {{invalidCharacters}}."
+    }
+}

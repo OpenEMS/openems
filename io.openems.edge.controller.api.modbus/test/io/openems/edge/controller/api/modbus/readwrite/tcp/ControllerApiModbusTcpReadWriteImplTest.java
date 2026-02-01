@@ -43,7 +43,7 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyCycle(1000)) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta("_meta")) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.activate(MyTcpConfig.create(io.openems.edge.controller.api.modbus.readonly.tcp.Config.class) //
 						.setId(CONTROLLER_ID) //
 						.setEnabled(true) // has to be enabled for resetting channel

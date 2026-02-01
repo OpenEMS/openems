@@ -154,7 +154,7 @@ public class TestUtils {
 		private History history = new History();
 		private PhaseSwitching phaseSwitching = PhaseSwitching.DISABLE;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
-		private JSCalendar.Tasks<Payload> smartConfig = JSCalendar.Tasks.empty();
+		private JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
 
 		public CtrlBuilder setId(String id) {
 			this.id = id;
@@ -207,8 +207,8 @@ public class TestUtils {
 			return this;
 		}
 
-		public CtrlBuilder setSmartConfig(JSCalendar.Tasks<Payload> smartConfig) {
-			this.smartConfig = smartConfig;
+		public CtrlBuilder setTasks(JSCalendar.Tasks<Payload> tasks) {
+			this.tasks = tasks;
 			return this;
 		}
 
@@ -219,7 +219,7 @@ public class TestUtils {
 				this.combinedAbilitiesCallback.accept(combinedAbilities);
 			}
 			var params = new Params(this.id, this.mode, this.activePower, this.sessionEnergy, this.sessionEnergyLimit,
-					this.history, this.phaseSwitching, combinedAbilities.build(), this.smartConfig);
+					this.history, this.phaseSwitching, combinedAbilities.build(), this.tasks);
 			return new DummyControllerEvseSingle(this.id) //
 					.withParams(params);
 		}

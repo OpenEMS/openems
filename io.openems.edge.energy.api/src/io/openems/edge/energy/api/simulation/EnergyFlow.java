@@ -136,6 +136,7 @@ public class EnergyFlow {
 
 		private final int production;
 		private final int unmanagedConsumption;
+		private final Map<String, Integer> managedConsumptions;
 
 		/* -: charge, +: discharge */
 		private Integer ess;
@@ -150,8 +151,6 @@ public class EnergyFlow {
 		private int consumption;
 		private int surplus;
 
-		private final Map<String, Integer> managedConsumptions;
-
 		private State state;
 
 		public Model(//
@@ -161,23 +160,33 @@ public class EnergyFlow {
 				int essMaxDischarge, //
 				int gridMaxBuy, //
 				int gridMaxSell) throws OpenemsException {
+			this(//
+					production, unmanagedConsumption, new HashMap<>(), //
+					null, essMaxCharge, essMaxDischarge, //
+					null, gridMaxBuy, gridMaxSell, //
+					unmanagedConsumption, State.UNSET);
+		}
+
+		private Model(//
+				int production, int unmanagedConsumption, Map<String, Integer> managedConsumptions, //
+				Integer ess, int essMaxCharge, int essMaxDischarge, //
+				Integer grid, int gridMaxBuy, int gridMaxSell, //
+				int consumption, State state) throws OpenemsException {
 			this.production = production;
 			this.unmanagedConsumption = unmanagedConsumption;
+			this.managedConsumptions = managedConsumptions;
 
-			this.ess = null;
+			this.ess = ess;
 			this.essMaxCharge = essMaxCharge;
 			this.essMaxDischarge = essMaxDischarge;
 
-			this.grid = null;
+			this.grid = grid;
 			this.gridMaxBuy = gridMaxBuy;
 			this.gridMaxSell = gridMaxSell;
 
-			this.consumption = this.unmanagedConsumption;
+			this.consumption = consumption;
 			this.surplus = this.production - this.consumption;
-
-			this.managedConsumptions = new HashMap<>();
-
-			this.state = State.UNSET;
+			this.state = state;
 
 			// Check that initial setup is solvable
 			int minPossibleSurplus = -this.essMaxDischarge - this.gridMaxBuy;
@@ -219,6 +228,26 @@ public class EnergyFlow {
 							gsc.ess.getInitialEnergy()), //
 					/* gridMaxBuy */ period.duration().convertPowerToEnergy(grid.maxBuyPower()), //
 					/* gridMaxSell */ period.duration().convertPowerToEnergy(grid.maxSellPower()));
+		}
+
+		/**
+		 * Creates a copy of an {@link EnergyFlow.Model}.
+		 * 
+		 * @param o the other {@link EnergyFlow.Model}
+		 * @return a copy
+		 */
+		public static EnergyFlow.Model copyOf(EnergyFlow.Model o) {
+			try {
+				return new EnergyFlow.Model(//
+						o.production, o.unmanagedConsumption, o.managedConsumptions, //
+						o.ess, o.essMaxCharge, o.essMaxDischarge, //
+						o.grid, o.gridMaxBuy, o.gridMaxSell, //
+						o.consumption, o.state);
+			} catch (OpenemsException e) {
+				System.err.println("Error while copying EnergyFlow.Model. This should never happen: " + e.getMessage());
+				e.printStackTrace();
+				return null;
+			}
 		}
 
 		/**
@@ -423,6 +452,16 @@ public class EnergyFlow {
 			return this.managedConsumptions.values().stream() //
 					.mapToInt(Integer::intValue) //
 					.sum();
+		}
+
+		/**
+		 * Returns the managed consumption for a given ID.
+		 * 
+		 * @param id an identifier, e.g., the component ID
+		 * @return the managed consumption value, or 0 if not present
+		 */
+		public int getManagedConsumption(String id) {
+			return this.managedConsumptions.getOrDefault(id, 0);
 		}
 
 		/**

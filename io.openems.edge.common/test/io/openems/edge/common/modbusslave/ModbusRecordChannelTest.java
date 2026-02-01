@@ -64,7 +64,7 @@ public class ModbusRecordChannelTest {
 				.withReadOnlyChannel(100) //
 				.withReadWriteChannel(200);
 
-		assertArrayEquals(ModbusRecordUint16.UNDEFINED_VALUE,
+		assertArrayEquals(ModbusRecordUint16.UNDEFINED_BYTE_ARRAY,
 				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.WRITE_ONLY_CHANNEL, READ_WRITE)
 						.getValue(component));
 

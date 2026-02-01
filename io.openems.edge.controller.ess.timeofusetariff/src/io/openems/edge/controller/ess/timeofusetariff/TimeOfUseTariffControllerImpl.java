@@ -7,10 +7,12 @@ import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAuto
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -22,14 +24,19 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
+import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
@@ -60,6 +67,8 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,
 		EnergySchedulable, Controller, OpenemsComponent, TimedataProvider, ComponentJsonApi {
 
+	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffControllerImpl.class);
+
 	@Deprecated
 	private final EnergyScheduleHandlerV1 energyScheduleHandlerV1;
 	private final CalculateActiveTime calculateDelayedTime = new CalculateActiveTime(this,
@@ -72,6 +81,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference
+	private Meta meta;
 
 	@Reference
 	private Sum sum;
@@ -98,9 +110,9 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private ManagedSymmetricEss ess;
 
-	@Reference
 	@Deprecated
-	private io.openems.edge.energy.api.EnergyScheduler energyScheduler;
+	@Reference(policy = DYNAMIC, cardinality = OPTIONAL)
+	private volatile io.openems.edge.energy.api.EnergyScheduler energyScheduler;
 
 	private EshWithDifferentModes<StateMachine, OptimizationContext, Void> energyScheduleHandler;
 	private Config config = null;
@@ -113,7 +125,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		);
 
 		this.energyScheduleHandlerV1 = new EnergyScheduleHandlerV1(//
-				() -> this.config.controlMode().modes, //
+				() -> this.config.controlMode().modesArray, //
 				() -> new ContextV1(this.ctrlEmergencyCapacityReserves, this.ctrlLimitTotalDischarges,
 						this.ctrlLimiter14as, this.ess, this.config.controlMode(),
 						this.config.maxChargePowerFromGrid()));
@@ -155,10 +167,21 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		if (this.energyScheduler == null) {
+			this.logWarn(this.log, "EnergyScheduler reference is not available");
+			return;
+		}
+
 		var version = this.energyScheduler.getImplementationVersion();
 		if (version == null) {
 			return;
 		}
+		// NOTE gridSoftLimit is nullable to handle deprecation of Config
+		// maxChargePowerFromGrid
+		var gridSoftLimit = Optional.ofNullable(this.meta.getGridBuySoftLimit().getActiveOneTask()) //
+				.map(OneTask::payload) //
+				.map(GridBuySoftLimit::power) //
+				.orElse(this.config.maxChargePowerFromGrid());
 
 		// Version and Mode given from the configuration.
 		final var am = switch (this.energyScheduler.getImplementationVersion()) {
@@ -188,15 +211,15 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			-> switch (this.config.mode()) {
 			case AUTOMATIC //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						null /* forceState */);
 			case FORCE_DELAY_DISCHARGE //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						StateMachine.DELAY_DISCHARGE /* forceState */);
 			case FORCE_CHARGE_GRID //
 				-> calculateAutomaticMode(this.sum, this.ess, //
-						this.config.maxChargePowerFromGrid(), this.energyScheduleHandler.getCurrentPeriod(), //
+						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
 						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);
@@ -229,6 +252,11 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
 		builder.handleRequest(GetScheduleRequest.METHOD, call -> {
+			if (this.energyScheduler == null) {
+				this.logWarn(this.log, "EnergyScheduler reference is not available");
+				throw new IllegalStateException("No EnergyScheduler reference available");
+			}
+
 			var version = this.energyScheduler.getImplementationVersion();
 			if (version == null) {
 				throw new IllegalStateException("No EnergyScheduler version available");
@@ -247,6 +275,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 
 	@Override
 	public String debugLog() {
+		if (this.energyScheduler == null) {
+			return null;
+		}
+
 		var b = new StringBuilder() //
 				.append(this.getStateMachine()); //
 

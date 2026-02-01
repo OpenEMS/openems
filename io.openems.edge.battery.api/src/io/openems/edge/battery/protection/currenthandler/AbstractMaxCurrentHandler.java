@@ -3,12 +3,15 @@ package io.openems.edge.battery.protection.currenthandler;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.IntSupplier;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.battery.protection.BatteryProtection.ChannelId;
+import io.openems.edge.battery.protection.BatteryProtectionDefinition;
 import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge;
+import io.openems.edge.battery.protection.force.AbstractForceChargeDischarge.State;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.linecharacteristic.PolyLine;
@@ -24,6 +27,7 @@ public abstract class AbstractMaxCurrentHandler {
 		protected PolyLine temperatureToPercent = PolyLine.empty();
 		protected PolyLine socToPercent = PolyLine.empty();
 		protected Double maxIncreasePerSecond = null;
+		protected IntSupplier forceChargeDischargeCurrent = BatteryProtectionDefinition.DEFAULT_FORCE_CHARGE_DISCHARGE_CURRENT;
 
 		/**
 		 * Creates a {@link Builder} for {@link AbstractMaxCurrentHandler}.
@@ -84,6 +88,17 @@ public abstract class AbstractMaxCurrentHandler {
 			return this.self();
 		}
 
+		/**
+		 * Sets the IntSupplier to provide a force charge/discharge current.
+		 *
+		 * @param forceChargeDischargeCurrent charge/discharge current
+		 * @return a {@link Builder}
+		 */
+		public T setForceChargeDischargeCurrent(IntSupplier forceChargeDischargeCurrent) {
+			this.forceChargeDischargeCurrent = forceChargeDischargeCurrent;
+			return this.self();
+		}
+
 		protected abstract T self();
 	}
 
@@ -92,6 +107,7 @@ public abstract class AbstractMaxCurrentHandler {
 	protected final PolyLine temperatureToPercent;
 	protected final PolyLine socToPercent;
 	protected final AbstractForceChargeDischarge forceChargeDischarge;
+	protected final IntSupplier forceChargeDischargeCurrent;
 
 	protected int bmsMaxEverCurrent;
 
@@ -102,7 +118,8 @@ public abstract class AbstractMaxCurrentHandler {
 
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
-			Double maxIncreasePerSecond, AbstractForceChargeDischarge forceChargeDischarge) {
+			Double maxIncreasePerSecond, AbstractForceChargeDischarge forceChargeDischarge,
+			IntSupplier forceChargeDischargeCurrent) {
 		this.clockProvider = clockProvider;
 		this.bmsMaxEverCurrent = initialBmsMaxEverCurrent;
 		this.voltageToPercent = voltageToPercent;
@@ -110,6 +127,7 @@ public abstract class AbstractMaxCurrentHandler {
 		this.socToPercent = socToPercent;
 		this.maxIncreasePerSecond = maxIncreasePerSecond;
 		this.forceChargeDischarge = forceChargeDischarge;
+		this.forceChargeDischargeCurrent = forceChargeDischargeCurrent;
 	}
 
 	/**
@@ -260,7 +278,7 @@ public abstract class AbstractMaxCurrentHandler {
 		// Calculate Max Increase Ampere Limit
 		final var maxIncreaseAmpereLimit = this.getMaxIncreaseAmpereLimit();
 		// Calculate Force Current
-		final var forceCurrent = this.getForceCurrent(minCellVoltage, maxCellVoltage);
+		final var forceCurrent = this.getForceCurrent(minCellVoltage, maxCellVoltage, this.forceChargeDischargeCurrent);
 
 		/*
 		 * Store limits in Channels. If value is 'null', store the bmsMaxEverCurrent
@@ -395,11 +413,13 @@ public abstract class AbstractMaxCurrentHandler {
 	 * <li>null -> otherwise
 	 * </ul>
 	 *
-	 * @param minCellVoltage the Min-Cell-Voltage, possibly null
-	 * @param maxCellVoltage the Max-Cell-Voltage, possibly null
+	 * @param minCellVoltage              the Min-Cell-Voltage, possibly null
+	 * @param maxCellVoltage              the Max-Cell-Voltage, possibly null
+	 * @param forceChargeDischargeCurrent force charge/discharge current supplier
 	 * @return the Current, possibly null
 	 */
-	protected Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage) {
+	protected Double getForceCurrent(Integer minCellVoltage, Integer maxCellVoltage,
+			IntSupplier forceChargeDischargeCurrent) {
 		if (this.forceChargeDischarge == null) {
 			return null;
 		}
@@ -422,13 +442,26 @@ public abstract class AbstractMaxCurrentHandler {
 		}
 
 		// Evaluate force charge/discharge current from current state
+		return getForceCurrentFromState(state, forceChargeDischargeCurrent);
+
+	}
+
+	/**
+	 * Evaluate force charge/discharge current from current state.
+	 * 
+	 * @param state                       current state
+	 * @param forceChargeDischargeCurrent forceChargeCurrent
+	 * @return force current depending on the state
+	 */
+	protected static Double getForceCurrentFromState(State state, IntSupplier forceChargeDischargeCurrent) {
+
 		return switch (state) {
 		case UNDEFINED, WAIT_FOR_FORCE_MODE //
 			-> null;
 		case FORCE_MODE ->
 			// TODO Plan is making the value adaptive, i.e. start with 1 A; if voltage still
 			// decreases, then slowly increase force charge current.
-			-2.;
+			(double) -Math.abs(forceChargeDischargeCurrent.getAsInt());
 		case BLOCK_MODE //
 			-> 0.;
 		};

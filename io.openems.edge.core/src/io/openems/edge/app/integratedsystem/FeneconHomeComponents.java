@@ -6,6 +6,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
@@ -603,9 +604,13 @@ public final class FeneconHomeComponents {
 	/**
 	 * Creates a default stateLED dependency for a FENECON Home.
 	 * 
+	 * @param ioId the id of the io component
+	 * 
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration stateLed() {
+	public static DependencyDeclaration stateLed(String ioId)
+			throws OpenemsNamedException {
+
 		return new DependencyDeclaration("STATE_LED", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 				DependencyDeclaration.UpdatePolicy.IF_MINE, //
@@ -615,7 +620,7 @@ public final class FeneconHomeComponents {
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.System.Fenecon.Home") //
 						.setInitialProperties(JsonUtils.buildJsonObject() //
-								.addProperty(SystemFeneconHome.Property.RELAY_ID.name(), "io1") //
+								.addProperty(SystemFeneconHome.Property.RELAY_ID.name(), ioId) //
 								.addProperty(SystemFeneconHome.Property.LED_ORDER.name(), "DEFAULT_RED_BLUE_GREEN") //
 								.build())
 						.build());

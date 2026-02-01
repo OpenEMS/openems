@@ -92,13 +92,14 @@ public class UtilsTest {
 
 	@Test
 	public void testGetCombinedPricesWithEmptyHelper() {
-		final var octopusHelper = createTestOctopusHelper();
+		final var clock = createDummyClock();
+		final var octopusHelper = createTestOctopusHelper(clock);
 		final var ancillaryHelper = EMPTY_TOU_MANUAL_HELPER;
 		final var ancillaryConfig = buildJsonObject() //
 				.build() //
 				.toString();
 
-		var result = getPrices(octopusHelper, ancillaryHelper, ancillaryConfig, this.logWarn);
+		var result = getPrices(clock, octopusHelper, ancillaryHelper, ancillaryConfig, this.logWarn);
 
 		assertNotNull("Should return prices even without ancillary helper", result);
 		assertTrue("Should return original octopus prices", !result.isEmpty());
@@ -106,7 +107,8 @@ public class UtilsTest {
 
 	@Test
 	public void testGetCombinedPricesWithValidCalculation() throws OpenemsNamedException {
-		final var octopusHelper = createTestOctopusHelper();
+		final var clock = createDummyClock();
+		final var octopusHelper = createTestOctopusHelper(clock);
 		final var ancillaryConfig = buildJsonObject() //
 				.addProperty("dso", "BAYERNWERK") //
 				.build() //
@@ -115,7 +117,7 @@ public class UtilsTest {
 		final var ancillarySchedule = parseScheduleFromConfig(this.clock, ancillaryConfig);
 		final var ancillaryHelper = new TouManualHelper(this.clock, ancillarySchedule, 0.0d);
 
-		final var result = getPrices(octopusHelper, ancillaryHelper, ancillaryConfig, this.logWarn);
+		final var result = getPrices(clock, octopusHelper, ancillaryHelper, ancillaryConfig, this.logWarn);
 
 		assertNotNull("Should return adjusted prices", result);
 		assertTrue("Should have adjusted prices", !result.isEmpty());
@@ -131,7 +133,8 @@ public class UtilsTest {
 
 	@Test
 	public void testGetCombinedPricesWithInvalidConfig() throws OpenemsNamedException {
-		final var octopusHelper = createTestOctopusHelper();
+		final var clock = createDummyClock();
+		final var octopusHelper = createTestOctopusHelper(clock);
 		final var invalidAncillaryConfig = "invalid json";
 
 		assertThrows(OpenemsNamedException.class, () -> {
@@ -146,7 +149,7 @@ public class UtilsTest {
 		var ancillarySchedule = parseScheduleFromConfig(this.clock, invalidAncillaryConfig1);
 		var ancillaryHelper = new TouManualHelper(this.clock, ancillarySchedule, 0.0d);
 
-		var result = getPrices(octopusHelper, ancillaryHelper, invalidAncillaryConfig, this.logWarn);
+		var result = getPrices(clock, octopusHelper, ancillaryHelper, invalidAncillaryConfig, this.logWarn);
 
 		assertNotNull("Should return prices even with configuration error", result);
 
@@ -154,23 +157,23 @@ public class UtilsTest {
 		ancillarySchedule = parseScheduleFromConfig(this.clock, invalidAncillaryConfig2);
 		ancillaryHelper = new TouManualHelper(this.clock, ancillarySchedule, 0.0d);
 
-		result = getPrices(octopusHelper, ancillaryHelper, invalidAncillaryConfig, this.logWarn);
+		result = getPrices(clock, octopusHelper, ancillaryHelper, invalidAncillaryConfig, this.logWarn);
 
 		assertNotNull("Should return prices even with configuration error", result);
 	}
 
 	// Helper methods
-	private static TouManualHelper createTestOctopusHelper() {
+	private static TouManualHelper createTestOctopusHelper(Clock clock) {
 		var schedule = JSCalendar.Tasks.<Double>create() //
+				.setClock(clock) //
 				.add(t -> t.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b.setFrequency(//
 								JSCalendar.RecurrenceFrequency.DAILY)) //
-						.setPayload(12.3) // Low price
-						.build())
+						.setPayload(12.3)) // Low price
 				.build();
 		return new TouManualHelper(//
-				createDummyClock(), //
+				clock, //
 				schedule, 24.8); // Standard price
 	}
 }

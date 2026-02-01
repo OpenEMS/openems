@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jscalendar.GetOneTasks;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.MeterType;
@@ -32,6 +31,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi.UpdateJsCalendarRecord;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.io.api.DigitalOutput;
@@ -445,8 +446,8 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implem
 
 	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetOneTasks.withoutPayload(), call -> {
-			return GetOneTasks.Response.create(call.getRequest(), this.schedule);
-		});
+		JSCalendarApi.buildJsonApiRoutes(builder, JSCalendar.VOID_SERIALIZER, //
+				() -> this.schedule, //
+				() -> new UpdateJsCalendarRecord(this.cm, this.componentManager, this.servicePid(), "schedule"));
 	}
 }
