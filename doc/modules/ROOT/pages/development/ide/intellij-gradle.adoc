@@ -9,8 +9,6 @@ toc::[]
 
 This page describes how to import the OpenEMS *fems* repository into IntelliJ IDEA as a Gradle project and how to create useful run/debug configurations.
 
-NOTE: This guide intentionally ignores screenshots. Replace the `IMAGE PLACEHOLDER` blocks with real screenshots when publishing.
-
 == Prerequisites
 
 * IntelliJ IDEA (Community or Ultimate)
