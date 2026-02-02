@@ -171,3 +171,17 @@ This requires that UI dependencies are installed (usually via `npm install`) and
 ====
 
 image::intellij-import-as-gradle-13.png[Settings]
+
+== IntelliJ Commit
+
+To ensure code is properly formatted and quality checks run on commit.
+Click on gear icon in the Commit tool window and enable:
+
+* Reformat code
+* Run Checkstyle
+* Optimize imports
+* Scan with Checkstyle
+* Perform SonarQube for IDE analysis (if SonarQube plugin is installed)
+* Check TODOs
+
+image::intellij-import-as-gradle-14.png[Settings]
