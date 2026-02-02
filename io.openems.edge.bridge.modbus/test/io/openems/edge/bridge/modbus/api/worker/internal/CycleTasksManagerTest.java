@@ -1,7 +1,6 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.FINISHED;
-import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WAIT_BEFORE_READ;
 import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManager.StateMachine.WRITE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -64,12 +63,7 @@ public class CycleTasksManagerTest {
 		// Cycle 1
 		sut.onBeforeProcessImage();
 		var task = sut.getNextTask();
-		assertTrue(task instanceof WaitTask.Delay);
-		task.execute(null);
-
-		task = sut.getNextTask();
-		assertEquals(RT_L_1, task);
-		task.execute(null);
+		assertTrue(task instanceof WaitTask.Mutex); // Wait for EXECUTE_WRITE
 
 		sut.onExecuteWrite();
 		task = sut.getNextTask();
@@ -78,6 +72,10 @@ public class CycleTasksManagerTest {
 
 		task = sut.getNextTask();
 		assertTrue(task instanceof WaitTask.Delay);
+		task.execute(null);
+
+		task = sut.getNextTask();
+		assertEquals(RT_L_1, task); // LOW priority first
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -95,12 +93,7 @@ public class CycleTasksManagerTest {
 		// Cycle 2
 		sut.onBeforeProcessImage();
 		task = sut.getNextTask();
-		assertTrue(task instanceof WaitTask.Delay);
-		task.execute(null);
-
-		task = sut.getNextTask();
-		assertEquals(RT_L_2, task);
-		task.execute(null);
+		assertTrue(task instanceof WaitTask.Mutex); // Wait for EXECUTE_WRITE
 
 		sut.onExecuteWrite();
 		task = sut.getNextTask();
@@ -109,6 +102,10 @@ public class CycleTasksManagerTest {
 
 		task = sut.getNextTask();
 		assertTrue(task instanceof WaitTask.Delay);
+		task.execute(null);
+
+		task = sut.getNextTask();
+		assertEquals(RT_L_2, task); // LOW priority first
 		task.execute(null);
 
 		task = sut.getNextTask();
@@ -145,11 +142,11 @@ public class CycleTasksManagerTest {
 		sut.getNextTask();
 		assertEquals(FINISHED, sut.getState());
 		sut.onExecuteWrite();
-		sut.getNextTask();
 		assertEquals(WRITE, sut.getState());
 		sut.onBeforeProcessImage();
-		sut.getNextTask();
-		assertEquals(WAIT_BEFORE_READ, sut.getState());
+		// When onBeforeProcessImage is called while not in FINISHED state,
+		// it detects cycle time is too short and doesn't change state
+		assertEquals(WRITE, sut.getState());
 	}
 
 	@Test
@@ -175,19 +172,17 @@ public class CycleTasksManagerTest {
 		// Cycle 1
 		sut.onBeforeProcessImage();
 		var task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Mutex); // Wait for EXECUTE_WRITE
+
+		sut.onExecuteWrite();
+		sut.getNextTask().execute(null); // Write task
+		task = sut.getNextTask();
 		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
-
-		task = sut.getNextTask();
-		assertEquals(RT_L_1, task);
-		task.execute(null);
-
-		sut.getNextTask().execute(null);
-		sut.getNextTask().execute(null);
-		sut.onExecuteWrite();
-		sut.getNextTask().execute(null);
-		sut.getNextTask().execute(null);
-		sut.getNextTask();
+		sut.getNextTask().execute(null); // RT_L_1
+		sut.getNextTask().execute(null); // RT_H_1
+		sut.getNextTask().execute(null); // RT_H_2
+		sut.getNextTask(); // Mutex
 
 		// Cycle 2
 		sut.onBeforeProcessImage();
@@ -206,12 +201,43 @@ public class CycleTasksManagerTest {
 		// Cycle 1
 		sut.onBeforeProcessImage();
 		var task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Mutex); // Wait for EXECUTE_WRITE
+
+		sut.onExecuteWrite();
+		task = sut.getNextTask();
 		assertTrue(task instanceof WaitTask.Delay);
 		task.execute(null);
 
+		task = sut.getNextTask();
+		assertTrue(task instanceof WaitTask.Mutex); // FINISHED state, waiting for next cycle
+	}
+
+	@Test
+	public void testWriteTaskExecutesImmediatelyAfterExecuteWrite() throws OpenemsException, InterruptedException {
+		// This test verifies that write tasks execute immediately after onExecuteWrite()
+		// even when a WaitDelayTask is running.
+		var cycle1 = CycleTasks.create() //
+				.reads(RT_L_1, RT_H_1) //
+				.writes(WT_1) //
+				.build();
+		var tasksSupplier = new DummyTasksSupplier(cycle1);
+		var defectiveComponents = new DefectiveComponents(LOG_HANDLER);
+
+		var sut = new CycleTasksManager(tasksSupplier, defectiveComponents, //
+				CYCLE_TIME_IS_TOO_SHORT, CYCLE_DELAY, LOG_HANDLER);
+
+		// Start cycle
 		sut.onBeforeProcessImage();
 
-		task = sut.getNextTask();
-		assertTrue(task instanceof WaitTask.Mutex);
+		// Get the initial WaitMutexTask
+		var mutexTask = sut.getNextTask();
+		assertTrue(mutexTask instanceof WaitTask.Mutex);
+
+		// Now trigger onExecuteWrite()
+		sut.onExecuteWrite();
+
+		// The next task should be the write task, available immediately
+		var writeTask = sut.getNextTask();
+		assertEquals(WT_1, writeTask);
 	}
 }
