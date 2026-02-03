@@ -33,7 +33,7 @@ import { HistoryParentComponent } from "./historyparent.component";
         DelayedSellToGridChartOverviewComponent,
         DelayedSellToGridWidgetComponent,
         HeatpumpFlatComponent,
-            ThresholdPeakshavingFlatComponent,
+        ThresholdPeakshavingFlatComponent,
         TimeslotPeakshavingFlatComponent,
         StorageFlatComponent,
         SymmetricPeakshavingFlatComponent,

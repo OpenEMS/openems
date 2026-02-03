@@ -17,6 +17,15 @@ public interface DeyeMeterInternal extends ElectricityMeter, ModbusComponent, Op
 				.unit(Unit.MILLIVOLT)),
 		VOLTAGE_L3_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT)),		
+		GRID_INNER_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),		
+		GRID_INNER_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		GRID_INNER_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),	
+		GRID_INNER_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),			
+		
 		ACTIVE_POWER_L1_TO_GRID(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		ACTIVE_POWER_L2_TO_GRID(Doc.of(OpenemsType.INTEGER) //

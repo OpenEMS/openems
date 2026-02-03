@@ -109,7 +109,8 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				StartStoppable.ChannelId.values(), Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), 
+				Battery.ChannelId.values(), //
 				DeyeSunBattery.ChannelId.values() //
 		);
 		// this._setCapacity(NET_CAPACITY);
@@ -167,7 +168,7 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 				//		m(DeyeSunBattery.ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109))), // 0-185A
 
 				new FC3ReadRegistersTask(102, Priority.HIGH, // °C
-						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY, new SignedWordElement(102)),
+						m(DeyeSunBattery.ChannelId.BATTERY_CAPACITY_AH, new SignedWordElement(102)),
 						new DummyRegisterElement(103, 107),
 						m(DeyeSunBattery.ChannelId.CONFIGURABLE_CHARGE_CURRENT_LIMIT, new SignedWordElement(108)), //
 						m(DeyeSunBattery.ChannelId.CONIGURABLE_DISCHARGE_CURRENT_LIMIT, new SignedWordElement(109)),
@@ -306,6 +307,7 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			// this.hasError();
 			this.calculateEnergy();
+			this.setBatteryCapacity();
 			this.logDebug(this.log, "");
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
@@ -497,6 +499,18 @@ public class DeyeSunBatteryImpl extends AbstractOpenemsModbusComponent implement
 		}
 	}
 
+	private void setBatteryCapacity() {
+		
+		Integer capacityAmpHours = this.getBatteryCapacityAmpHours().get();
+		Integer voltage = this.getBatteryVoltage().get();
+		
+		if (capacityAmpHours != null && voltage != null) {
+			int capacityWattHours = Math.round(capacityAmpHours * voltage / 1000);
+			this._setCapacity(capacityWattHours);
+		}
+	}
+	
+	
 	@Override
 	public void setStartStop(StartStop value) throws OpenemsNamedException {
 		StartStop previous = this.getStartStop(); //

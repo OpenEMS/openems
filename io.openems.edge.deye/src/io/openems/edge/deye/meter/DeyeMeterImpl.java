@@ -29,7 +29,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -112,86 +112,168 @@ public class DeyeMeterImpl extends AbstractOpenemsModbusComponent implements Dey
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return
 
-		new ModbusProtocol(this,
-				/* commented out due to timeout
-				new FC3ReadRegistersTask(185, Priority.LOW,
-						m(DeyeMeterInternal.ChannelId.GRID_HIGH_VOLTAGE, new SignedWordElement(185),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeMeterInternal.ChannelId.GRID_LOW_VOLTAGE, new SignedWordElement(186),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeMeterInternal.ChannelId.GRID_HIGH_FREQUENCY, new SignedWordElement(187),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeMeterInternal.ChannelId.GRID_LOW_FREQUENCY, new SignedWordElement(188),
-								ElementToChannelConverter.SCALE_FACTOR_1)),
-				*/
-				new FC3ReadRegistersTask(598, Priority.LOW,
+		if (this.meterType == MeterType.GRID) {
+			return new ModbusProtocol(this,
+					/*
+					 * commented out due to timeout new FC3ReadRegistersTask(185, Priority.LOW,
+					 * m(DeyeMeterInternal.ChannelId.GRID_HIGH_VOLTAGE, new SignedWordElement(185),
+					 * ElementToChannelConverter.SCALE_FACTOR_2),
+					 * m(DeyeMeterInternal.ChannelId.GRID_LOW_VOLTAGE, new SignedWordElement(186),
+					 * ElementToChannelConverter.SCALE_FACTOR_2),
+					 * m(DeyeMeterInternal.ChannelId.GRID_HIGH_FREQUENCY, new
+					 * SignedWordElement(187), ElementToChannelConverter.SCALE_FACTOR_1),
+					 * m(DeyeMeterInternal.ChannelId.GRID_LOW_FREQUENCY, new SignedWordElement(188),
+					 * ElementToChannelConverter.SCALE_FACTOR_1)),
+					 */
+					new FC3ReadRegistersTask(598, Priority.LOW,
 
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(598),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(599),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(600),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeMeterInternal.ChannelId.VOLTAGE_L1_L2, new UnsignedWordElement(601),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeMeterInternal.ChannelId.VOLTAGE_L2_L3, new UnsignedWordElement(602),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(DeyeMeterInternal.ChannelId.VOLTAGE_L3_L1, new UnsignedWordElement(603),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+							m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(598),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(599),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(600),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L1_L2, new UnsignedWordElement(601),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L2_L3, new UnsignedWordElement(602),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L3_L1, new UnsignedWordElement(603),
+									ElementToChannelConverter.SCALE_FACTOR_2),
 
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(604)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(605)),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(606)),
+							m(DeyeMeterInternal.ChannelId.GRID_INNER_ACTIVE_POWER_L1, new SignedWordElement(604)),
+							m(DeyeMeterInternal.ChannelId.GRID_INNER_ACTIVE_POWER_L2, new SignedWordElement(605)),
+							m(DeyeMeterInternal.ChannelId.GRID_INNER_ACTIVE_POWER_L3, new SignedWordElement(606)),
 
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(607)),
-						/*
-						 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L1_TO_GRID, new
-						 * SignedWordElement(604)),
-						 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L2_TO_GRID, new
-						 * SignedWordElement(605)),
-						 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L3_TO_GRID, new
-						 * SignedWordElement(606)),
-						 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_SIDE_TO_SIDE_GRID, new
-						 * SignedWordElement(607)),
-						 */
-						m(DeyeMeterInternal.ChannelId.APPARENT_POWER_SIDE_TO_SIDE_GRID, new SignedWordElement(608)),
+							m(DeyeMeterInternal.ChannelId.GRID_INNER_ACTIVE_POWER, new SignedWordElement(607)),
+							
+							/*
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L1_TO_GRID, new
+							 * SignedWordElement(604)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L2_TO_GRID, new
+							 * SignedWordElement(605)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L3_TO_GRID, new
+							 * SignedWordElement(606)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_SIDE_TO_SIDE_GRID, new
+							 * SignedWordElement(607)),
+							 */
+							m(DeyeMeterInternal.ChannelId.APPARENT_POWER_SIDE_TO_SIDE_GRID, new SignedWordElement(608)),
 
-						m(ElectricityMeter.ChannelId.FREQUENCY, new SignedWordElement(609),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+							m(ElectricityMeter.ChannelId.FREQUENCY, new SignedWordElement(609),
+									ElementToChannelConverter.SCALE_FACTOR_1),
 
-						m(DeyeMeterInternal.ChannelId.CURRENT_L1_TO_GRID, new SignedWordElement(610),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeMeterInternal.ChannelId.CURRENT_L2_TO_GRID, new SignedWordElement(611),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeMeterInternal.ChannelId.CURRENT_L3_TO_GRID, new SignedWordElement(612),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L1_TO_GRID, new SignedWordElement(610),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L2_TO_GRID, new SignedWordElement(611),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L3_TO_GRID, new SignedWordElement(612),
+									ElementToChannelConverter.SCALE_FACTOR_1),
 
-						m(DeyeMeterInternal.ChannelId.CURRENT_L1_FROM_GRID, new SignedWordElement(613),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeMeterInternal.ChannelId.CURRENT_L2_FROM_GRID, new SignedWordElement(614),
-								ElementToChannelConverter.SCALE_FACTOR_1),
-						m(DeyeMeterInternal.ChannelId.CURRENT_L3_FROM_GRID, new SignedWordElement(615),
-								ElementToChannelConverter.SCALE_FACTOR_1),
+							// from grid
+							m(ElectricityMeter.ChannelId.CURRENT_L1, new SignedWordElement(613),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(ElectricityMeter.ChannelId.CURRENT_L2, new SignedWordElement(614),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(ElectricityMeter.ChannelId.CURRENT_L3, new SignedWordElement(615),
+									ElementToChannelConverter.SCALE_FACTOR_1),
 
-						m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L1_FROM_GRID, new SignedWordElement(616)),
-						m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L2_FROM_GRID, new SignedWordElement(617)),
-						m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L3_FROM_GRID, new SignedWordElement(618)),
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(616)),
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(617)),
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(618)),
 
-						m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_FROM_GRID, new SignedWordElement(619)),
-						m(DeyeMeterInternal.ChannelId.APPARENT_POWER_FROM_GRID, new SignedWordElement(620)),
-						m(DeyeMeterInternal.ChannelId.GRID_CONNECTED_POWER_FACTOR, new SignedWordElement(621)
-						/*
-						 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(622)),
-						 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(623)),
-						 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(624)),
-						 * 
-						 * 
-						 * m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625)
-						 */
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(619)),
+							m(DeyeMeterInternal.ChannelId.APPARENT_POWER_FROM_GRID, new SignedWordElement(620)),
+							m(DeyeMeterInternal.ChannelId.GRID_CONNECTED_POWER_FACTOR, new SignedWordElement(621)
+							/*
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(622)),
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(623)),
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(624)),
+							 * 
+							 * 
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625)
+							 */
 
-						)));
+							)));
+		} else { // othe meter types. ToDo: unsure about the right values
+			return new ModbusProtocol(this,
+					/*
+					 * commented out due to timeout new FC3ReadRegistersTask(185, Priority.LOW,
+					 * m(DeyeMeterInternal.ChannelId.GRID_HIGH_VOLTAGE, new SignedWordElement(185),
+					 * ElementToChannelConverter.SCALE_FACTOR_2),
+					 * m(DeyeMeterInternal.ChannelId.GRID_LOW_VOLTAGE, new SignedWordElement(186),
+					 * ElementToChannelConverter.SCALE_FACTOR_2),
+					 * m(DeyeMeterInternal.ChannelId.GRID_HIGH_FREQUENCY, new
+					 * SignedWordElement(187), ElementToChannelConverter.SCALE_FACTOR_1),
+					 * m(DeyeMeterInternal.ChannelId.GRID_LOW_FREQUENCY, new SignedWordElement(188),
+					 * ElementToChannelConverter.SCALE_FACTOR_1)),
+					 */
+					new FC3ReadRegistersTask(598, Priority.LOW,
+
+							m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(598),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(599),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(600),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L1_L2, new UnsignedWordElement(601),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L2_L3, new UnsignedWordElement(602),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+							m(DeyeMeterInternal.ChannelId.VOLTAGE_L3_L1, new UnsignedWordElement(603),
+									ElementToChannelConverter.SCALE_FACTOR_2),
+
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(604)),
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(605)),
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(606)),
+
+							m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(607)),
+							/*
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L1_TO_GRID, new
+							 * SignedWordElement(604)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L2_TO_GRID, new
+							 * SignedWordElement(605)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L3_TO_GRID, new
+							 * SignedWordElement(606)),
+							 * m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_SIDE_TO_SIDE_GRID, new
+							 * SignedWordElement(607)),
+							 */
+							m(DeyeMeterInternal.ChannelId.APPARENT_POWER_SIDE_TO_SIDE_GRID, new SignedWordElement(608)),
+
+							m(ElectricityMeter.ChannelId.FREQUENCY, new SignedWordElement(609),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+
+							m(DeyeMeterInternal.ChannelId.CURRENT_L1_TO_GRID, new SignedWordElement(610),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L2_TO_GRID, new SignedWordElement(611),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L3_TO_GRID, new SignedWordElement(612),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+
+							m(DeyeMeterInternal.ChannelId.CURRENT_L1_FROM_GRID, new SignedWordElement(613),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L2_FROM_GRID, new SignedWordElement(614),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+							m(DeyeMeterInternal.ChannelId.CURRENT_L3_FROM_GRID, new SignedWordElement(615),
+									ElementToChannelConverter.SCALE_FACTOR_1),
+
+							m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L1_FROM_GRID, new SignedWordElement(616)),
+							m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L2_FROM_GRID, new SignedWordElement(617)),
+							m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_L3_FROM_GRID, new SignedWordElement(618)),
+
+							m(DeyeMeterInternal.ChannelId.ACTIVE_POWER_FROM_GRID, new SignedWordElement(619)),
+							m(DeyeMeterInternal.ChannelId.APPARENT_POWER_FROM_GRID, new SignedWordElement(620)),
+							m(DeyeMeterInternal.ChannelId.GRID_CONNECTED_POWER_FACTOR, new SignedWordElement(621)
+							/*
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(622)),
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(623)),
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(624)),
+							 * 
+							 * 
+							 * m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(625)
+							 */
+
+							)));
+		}
 	}
 
 	@Override

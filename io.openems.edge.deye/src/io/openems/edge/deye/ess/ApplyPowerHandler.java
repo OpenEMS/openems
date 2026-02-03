@@ -25,8 +25,13 @@ public class ApplyPowerHandler {
 
 	// === Smoothing & state ===
 	private final AverageCalculator targetPowerAvg = new AverageCalculator(5);
-	private long timerDeadlineMs = 0;
 	private int powerDeciPercentLast = 0;
+	
+	// --- Watchdog state ---
+	private static final long KEEPALIVE_INTERVAL_MS = 60_000;
+	private static final long MIN_WRITE_INTERVAL_MS = 10_000; // block writes for 10sec
+	private long lastEssWriteMs = 0;
+	
 
 	public ApplyPowerHandler(DeyeSunHybridImpl ess, DeyeSunBattery battery, DeyeDcCharger dcCharger) {
 		this.ess = ess;
@@ -59,6 +64,8 @@ public class ApplyPowerHandler {
 		Integer maxAllowedChargePower = ess.getAllowedChargePower().get();
 		Integer maxAllowedDischargePower = ess.getAllowedDischargePower().get();
 		Integer activeDeciPercent = ess.getBatteryPowerDeciPercent().orElse(0);
+		
+		long now = System.currentTimeMillis();
 				
 		// calculation of target power
 		activePowerTarget = activePowerTarget - pvPower;
@@ -74,73 +81,89 @@ public class ApplyPowerHandler {
 			return;
 		}
 
-		this.writeFlags();
-
 		int powerDeciPercent = calculateDeciPercentFromPower(maxApparentPower, activePowerTarget);
 		int averageTargetPower = this.targetPowerAvg.getAverage();
+		
+		// Criteria for 'write now'
+		boolean targetMoved = Math.abs(averageTargetPower - activePowerTarget) > 100;
+		boolean setpointChanged = powerDeciPercent != this.powerDeciPercentLast;
 
-		if ((Math.abs(averageTargetPower - activePowerTarget) > 100) || this.timerElapsed(10000)) { // write new values if difference > 100W or 10 seconds
-			if (powerDeciPercent != this.powerDeciPercentLast || powerDeciPercent != activeDeciPercent) {
-				this.ess.setRemoteMode(RemoteMode.ON); // reg 1100 0->disable, 1->enable
-				this.ess.setSetRemoteWatchdogTime(600); // reg 1101 Watchdog
+		// Watchdog: write forced if watchdog time exceeded
+		boolean keepalive = keepaliveDue(now);
+		boolean recentWrite = wroteRecently(now);
+		
+		boolean shouldWrite = !recentWrite && (keepalive || (targetMoved && setpointChanged));
+		
+		ess.logDebug(log,"keepalive: " + keepalive + " recentWrite: " + recentWrite + " targetMoved: " + targetMoved + " setpointChanged: " + setpointChanged);
 
-				// set placeholders to avoid splitted modbus writes
-				this.ess.setPlaceholder1(0); // 1102
-				this.ess.setPlaceholder2(0); // 1103
+		if (shouldWrite) {			
 
-				this.ess.setSetControlMode(1); // reg 1104 // set 1 for battery control (DC); set 0 for AC-control
-				this.ess.setSetBatteryControlMode(2); // reg 1105 // set 2 for for percentage control (reg 1109); set 3 for
-														// SOC control (reg 1110)
-				this.ess.setSet3PControlMode(0); // reg 1106 set 0 for 3p control via reg. 1111; set 1 for control each
-													// phase individually
+			this.writeFlags();
+			
+			this.writeSetpointToEss(powerDeciPercent);
 
-				this.ess.setBatteryConstantVoltage(0); // 1107
-				this.ess.setBatteryConstantCurrent(0); // 1108
+			int powerPercent = (int) Math.round((double) powerDeciPercent / 10.0);
 
-				this.ess.setSetBatteryPowerDeciPercent(powerDeciPercent); // 1109
-				this.ess.setSetBatteryPowerSoc(0); // 1110
-
-				this.ess.setSetAcSetpoint3pPercent(0); // reg 1111. Negative values -> Charge
-				this.powerDeciPercentLast = powerDeciPercent;			
-
-				// convert for debugging
-				int powerPercent = (int) Math.round((double) powerDeciPercent / 10.0);
-				ess.logDebug(log,"\n\n\n Writing new values to ESS. Active DeciPercent: " + activeDeciPercent);				
+			if (keepalive && !setpointChanged && !targetMoved) {
+				ess.logDebug(log, "Keepalive write to ESS (no setpoint change) -> " + powerPercent + "% (" + powerDeciPercent + " d%)");
+			} else {
 				ess.logDebug(log,
-						"\n-> AC target: " + activePowerTarget + " avg Target:" + averageTargetPower + "(" + powerPercent
-								+ "[d%]) " + "\n   PV: " + pvPower + "\n   DcDisCharge: " + dcDischargePower
-								+ "\n   ActivePower: " + activePower + " | Grid (Deye AC In): ToDo"
-								+ "\n | EnergyManagementModel: " + this.ess.getEnergyManagementModel()
-								+ "\n | LimitControlFunction: " + this.ess.getLimitControlFunction() + "\n | SolarSellMode: "
-								+ this.ess.getSolarSellMode() + "\n | GridChargeEnabled: " + this.ess.getGridCharingEnabled());
+					"\n\n\n Writing values to ESS. Active DeciPercent: " + activeDeciPercent
+					+ "\n-> AC target: " + activePowerTarget + " avg Target:" + averageTargetPower + "(" + powerPercent + "[d%]) "
+					+ "\n   PV: " + pvPower
+					+ "\n   DcDisCharge: " + dcDischargePower
+					+ "\n   ActivePower: " + activePower
+					+ "\n | EnergyManagementModel: " + this.ess.getEnergyManagementModel()
+					+ "\n | LimitControlFunction: " + this.ess.getLimitControlFunction()
+					+ "\n | SolarSellMode: " + this.ess.getSolarSellMode()
+					+ "\n | GridChargeEnabled: " + this.ess.getGridCharingEnabled()
+				);
 			}
-
-
 		}
-
 
 
 	}
 
+	private void writeSetpointToEss(int powerDeciPercent) throws OpenemsNamedException {
+		
+		this.ess.setRemoteMode(RemoteMode.ON); // reg 1100 0->disable, 1->enable
+		this.ess.setSetRemoteWatchdogTime(600); // reg 1101 Watchdog
+
+		// set placeholders to avoid splitted modbus writes
+		this.ess.setPlaceholder1(0); // 1102
+		this.ess.setPlaceholder2(0); // 1103
+
+		this.ess.setSetControlMode(1); // reg 1104 // set 1 for battery control (DC); set 0 for AC-control
+		this.ess.setSetBatteryControlMode(2); // reg 1105 // set 2 for for percentage control (reg 1109); set 3 for
+												// SOC control (reg 1110)
+		this.ess.setSet3PControlMode(0); // reg 1106 set 0 for 3p control via reg. 1111; set 1 for control each
+											// phase individually
+
+		this.ess.setBatteryConstantVoltage(0); // 1107
+		this.ess.setBatteryConstantCurrent(0); // 1108
+
+		this.ess.setSetBatteryPowerDeciPercent(powerDeciPercent); // 1109
+		this.ess.setSetBatteryPowerSoc(0); // 1110
+
+		this.ess.setSetAcSetpoint3pPercent(0); // reg 1111. Negative values -> Charge
+
+		// Watchdog bookkeeping
+		this.lastEssWriteMs = System.currentTimeMillis();
+		this.powerDeciPercentLast = powerDeciPercent;
+	}
+	
+	
+	
 	// ========================= Helper =========================
-
-	/**
-	 * Returns {@code false} until the given delay has elapsed since the first call.
-	 * After the delay has passed, it returns {@code true}.
-	 *
-	 * @param delayMs the delay in milliseconds
-	 * @return {@code true} if the timer has elapsed, otherwise {@code false}
-	 */
-	private boolean timerElapsed(long delayMs) {
-		long now = System.currentTimeMillis();
-
-		if (timerDeadlineMs == 0) {
-			timerDeadlineMs = now + delayMs;
-			return false;
-		}
-
-		return now >= timerDeadlineMs;
+	
+	private boolean keepaliveDue(long nowMs) {
+		return lastEssWriteMs == 0 || (nowMs - lastEssWriteMs) >= KEEPALIVE_INTERVAL_MS;
 	}
+	
+	private boolean wroteRecently(long nowMs) {
+	    return lastEssWriteMs != 0 && (nowMs - lastEssWriteMs) < MIN_WRITE_INTERVAL_MS;
+	}	
+
 
 	private int calculateDeciPercentFromPower(int maxApparentPower, int targetPower) {
 		if (maxApparentPower <= 0) {

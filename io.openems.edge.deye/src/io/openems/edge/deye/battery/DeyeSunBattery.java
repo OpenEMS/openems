@@ -49,7 +49,7 @@ public interface DeyeSunBattery
 		BATTERY_ABSORPTION_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 		        .accessMode(AccessMode.READ_ONLY)), //
 
-		BATTERY_CAPACITY(Doc.of(OpenemsType.INTEGER) //
+		BATTERY_CAPACITY_AH(Doc.of(OpenemsType.INTEGER) //
 		        .unit(Unit.AMPERE_HOURS) //
 		        .accessMode(AccessMode.READ_ONLY)), //
 
@@ -576,14 +576,35 @@ public interface DeyeSunBattery
 		return this.getBatteryCapacityShutdownChannel().value();
 	}
 	
-	// Capacity
-	public default IntegerReadChannel getBatteryCapacityChannel() {
-	    return this.channel(ChannelId.BATTERY_CAPACITY);
+	/**
+	 * Gets the Battery Capacity in Ah.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default IntegerReadChannel getBatteryCapacityAmpHoursChannel() {
+	    return this.channel(ChannelId.BATTERY_CAPACITY_AH);
 	}
 
-	public default Value<Integer> getBatteryCapacity() {
-	    return this.getBatteryCapacityChannel().value();
+	public default Value<Integer> getBatteryCapacityAmpHours() {
+	    return this.getBatteryCapacityAmpHoursChannel().value();
 	}	
+	
+	
+	/**
+	 * Gets the corrected Battery Capacity in Ah.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default IntegerReadChannel getCorrectedBatteryCapacityAmpHoursChannel() {
+	    return this.channel(ChannelId.BATTERY_CORRECTED_AH);
+	}
+
+	public default Value<Integer> getCorrectedBatteryCapacityAmpHours() {
+	    return this.getCorrectedBatteryCapacityAmpHoursChannel().value();
+	}	
+		
+	
+	
 
 	public boolean hasError();
 

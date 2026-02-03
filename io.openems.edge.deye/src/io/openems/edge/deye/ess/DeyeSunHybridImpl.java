@@ -129,7 +129,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 	private volatile DeyeSunBattery battery;
 
 	@Reference(name = "DcCharger", bind = "setDcCharger", policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL, unbind = "unsetDcCharger")
-	private volatile DeyeDcCharger dcCharger = null;
+	private volatile DeyeDcCharger dcCharger;
 
 	// private final AllowedChargeDischargeHandler allowedChargeDischargeHandler =
 	// new AllowedChargeDischargeHandler(this,this.battery);
@@ -180,9 +180,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		if (this.config.readOnlyMode()) {
-			return;
-		}
+
 		log.debug("\n\n applyPower called by {} with {} W", Thread.currentThread().getStackTrace()[2].getClassName(),
 				activePower);
 		// AC 1/28/2024
@@ -200,7 +198,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower());
 		}
 
-		this._setSoc(this.battery.getSoc().get());
+		
 	}
 
 	public EmsPowerMode getEmsPowerMode() {
@@ -501,14 +499,16 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			// this.applyPowerLimitOnPowerDecreaseCausedByOvertemperatureError();
-
+			this._setSoc(this.battery.getSoc().get());
+			this._setEssCapacity();
 			this.calculateEnergy();
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			// this.calculateAllowedChargeDischargePower();
 			this.getAndSetChannels();
-			this.allowedChargeDischargeHandler.accept(this.componentManager);
+			if (this.allowedChargeDischargeHandler != null) {
+				this.allowedChargeDischargeHandler.accept(this.componentManager);
+			}
 			/*
 			 * if (this.applyPowerHandler != null) {
 			 * this.applyPowerHandler.calculateMaxAcPower(this.getMaxApparentPower().orElse(
@@ -527,8 +527,6 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 		// power for a while and we don't need emergency power.
 		if (this.getWorkState() != WorkState.NORMAL || this.lastDefineWorkState == null) {
 
-			this.logDebug(this.log, "Battery: " + this.battery + " Running: " + this.battery.isStarted() + " RunState: "
-					+ this.battery.getRunState().toString() + "" + "");
 
 			if (this.battery == null || this.battery.getStartStop() != StartStop.START
 					|| this.battery.getRunState() != BatteryRunState.NORMAL) {
@@ -536,6 +534,10 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				this.logWarn(log, "No battery connected or not fully initialzied");
 				return;
 			}
+			
+			this.logDebug(this.log, "Battery: " + this.battery + " Running: " + this.battery.isStarted() + " RunState: "
+					+ this.battery.getRunState().toString() + "" + "");
+			
 
 			// --- BMS COMMUNICATION ERROR handling ---
 			boolean commError = DeyeSunHybrid.isBmsCommError(this);  // ToDo: move to battery
@@ -557,7 +559,10 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 
 			// Charge from grid is not allowed at startup
 			if (!this.checkEssInitialValues()) {
-				this.setEssInitialValues();
+				if (this.isManaged()) {
+					this.setEssInitialValues();
+				}
+				this.logWarn(log, "Initial values could not be set");
 				this.changeState(WorkState.INITIALIZING);
 				return;
 			}
@@ -575,7 +580,7 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 				return;
 			}
 
-			if (this.getRemoteMode() != RemoteMode.ON) {
+			if (this.isManaged() && this.getRemoteMode() != RemoteMode.ON) {
 				try {
 					this.setRemoteMode(RemoteMode.ON);
 				} catch (OpenemsNamedException e) { // only got to normal state if remote mode is turned on
@@ -693,38 +698,53 @@ public class DeyeSunHybridImpl extends AbstractOpenemsModbusComponent
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}
+
 	}
 
 	@Override
 	public int getCycleTime() {
 		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
+	
+	// ToDo: Change calculation if more than 1 battery is connected
+	private void _setEssCapacity() {
+		Integer capacity = this.battery.getCapacity().get();
+		if (capacity != null) {
+			this._setCapacity(capacity);
+		}
+	}
 
 	// References for battery and dc-charger have to be up-to-date
 	protected void setBattery(DeyeSunBattery battery) {
 		this.battery = battery;
-		this.applyPowerHandler = new ApplyPowerHandler(this, this.battery, this.dcCharger);
-		this.allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this, this.battery, this.dcCharger);
+		this.setPowerHandlers();
 	}
 
 	protected void unsetBattery(DeyeSunBattery battery) {
 		this.battery = null;
-		this.applyPowerHandler = null;
-		this.allowedChargeDischargeHandler = null;
+		this.setPowerHandlers();
 	}
 
 	//
 	protected void setDcCharger(DeyeDcCharger dcCharger) {
 		this.dcCharger = dcCharger;
-		this.applyPowerHandler = new ApplyPowerHandler(this, this.battery, this.dcCharger);
-		this.allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this, this.battery, this.dcCharger);
+		this.setPowerHandlers();
 	}
 
 	protected void unsetDcCharger(DeyeDcCharger dcCharger) {
 		this.dcCharger = null;
-		this.applyPowerHandler = null;
-		this.allowedChargeDischargeHandler = null;
+		this.setPowerHandlers();
 	}
+	
+	private void setPowerHandlers() {
+		  if (this.battery != null && this.dcCharger != null) {
+		    this.applyPowerHandler = new ApplyPowerHandler(this, this.battery, this.dcCharger);
+		    this.allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this, this.battery, this.dcCharger);
+		  } else {
+		    this.applyPowerHandler = null;
+		    this.allowedChargeDischargeHandler = null;
+		  }
+		}	
 
 	@Override
 	public Integer getSurplusPower() {
