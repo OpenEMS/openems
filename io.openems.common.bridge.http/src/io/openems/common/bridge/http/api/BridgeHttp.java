@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.Disposable;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.DebugMode;
 import io.openems.common.utils.JsonUtils;
@@ -45,7 +46,7 @@ import io.openems.common.utils.JsonUtils;
  * final var responseFuture = this.httpBridge.get("http://127.0.0.1/status");
  * </pre>
  */
-public interface BridgeHttp {
+public interface BridgeHttp extends BridgeHttpEventRaiser {
 
 	public static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
 	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
@@ -122,6 +123,69 @@ public interface BridgeHttp {
 			Map<String, String> properties //
 	) {
 
+		public static class Builder {
+			private final String url;
+			private HttpMethod method = HttpMethod.GET;
+			private String body;
+			private final Map<String, String> properties = new HashMap<>();
+
+			public Builder(String url) {
+				this.url = url;
+			}
+
+			public Builder setHeader(String key, String value) {
+				Objects.requireNonNull(key, "Header key must not be null!");
+				Objects.requireNonNull(value, "Header value must not be null!");
+				this.properties.put(key, value);
+				return this;
+			}
+
+			public Builder setMethod(HttpMethod method) {
+				Objects.requireNonNull(method, "Method must not be null!");
+				this.method = method;
+				return this;
+			}
+
+			public Builder setBody(String body) {
+				this.setMethod(HttpMethod.POST);
+				this.body = body;
+				return this;
+			}
+
+			public Builder setBodyJson(JsonElement json) {
+				this.setHeader("Content-Type", "application/json");
+				return this.setBody(json.toString());
+			}
+
+			public Builder setBodyFormEncoded(Map<String, String> body) {
+				this.setHeader("Content-Type", "application/x-www-form-urlencoded");
+				return this.setBody(body.entrySet().stream() //
+						.map(t -> t.getKey() + "=" + UrlBuilder.encode(t.getValue())) //
+						.collect(Collectors.joining("&")));
+			}
+
+			public Endpoint build() {
+				return new Endpoint(//
+						this.url, //
+						this.method, //
+						DEFAULT_CONNECT_TIMEOUT, //
+						DEFAULT_READ_TIMEOUT, //
+						this.body, // default body
+						this.properties // default properties
+				);
+			}
+		}
+
+		/**
+		 * Creates a new builder for a {@link Endpoint} with the given url.
+		 * 
+		 * @param url the url of the endpoint
+		 * @return a new {@link Builder} instance
+		 */
+		public static Builder create(String url) {
+			return new Builder(url);
+		}
+
 		public Endpoint {
 			Objects.requireNonNull(url, "Url of Endpoint must not be null!");
 			Objects.requireNonNull(method, "Method of Endpoint must not be null!");
@@ -129,6 +193,27 @@ public interface BridgeHttp {
 		}
 
 	}
+
+	/**
+	 * Subscribes to the given event.
+	 *
+	 * @param <T>             the type of the event data
+	 * @param eventDefinition the {@link BridgeHttpEventDefinition} to subscribe to
+	 * @param listener        the {@link BridgeHttpEventListener} to notify when the
+	 *                        event occurs
+	 * @return a {@link Disposable} to unsubscribe from the event
+	 */
+	public <T> Disposable subscribeEvent(//
+			BridgeHttpEventDefinition<T> eventDefinition, //
+			BridgeHttpEventListener<T> listener //
+	);
+
+	/**
+	 * Sets the maximum pool size for this bridge.
+	 * 
+	 * @param maximumPoolSize the maximum pool size to set
+	 */
+	public void setMaximumPoolSize(int maximumPoolSize);
 
 	/**
 	 * Sets the {@link DebugMode} for this bridge.
@@ -311,6 +396,13 @@ public interface BridgeHttp {
 	public default CompletableFuture<HttpResponse<JsonElement>> requestJson(Endpoint endpoint) {
 		return mapFuture(this.request(endpoint), BridgeHttp::mapToJson);
 	}
+
+	/**
+	 * Gets metrics about this BridgeHttp.
+	 * 
+	 * @return the metrics
+	 */
+	Map<String, Long> getMetrics();
 
 	private static HttpResponse<JsonElement> mapToJson(HttpResponse<String> origin) throws OpenemsNamedException {
 		return origin.withData(JsonUtils.parse(origin.data()));

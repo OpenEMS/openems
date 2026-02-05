@@ -7,8 +7,6 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import io.openems.common.jscalendar.JSCalendar;
-import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
@@ -77,30 +75,5 @@ public final class Utils {
 			return true;
 		}
 		return false;
-	}
-
-	protected static JSCalendar.Tasks<Payload> parseTasksConfig(String smartConfig) {
-		if (smartConfig.isBlank() || smartConfig.equals("[]")) {
-			return JSCalendar.Tasks.empty();
-		}
-
-		try {
-			return JSCalendar.Tasks.serializer(Payload.serializer()) //
-					.deserialize(smartConfig);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return JSCalendar.Tasks.empty();
-		}
-	}
-
-	protected static String serializeTasksConfig(JSCalendar.Tasks<Payload> tasks) {
-		if (tasks == null || tasks.numberOfTasks() == 0) {
-			return "[]";
-		}
-
-		return JSCalendar.Tasks.serializer(Payload.serializer())//
-				.serialize(tasks)//
-				.toString();
 	}
 }

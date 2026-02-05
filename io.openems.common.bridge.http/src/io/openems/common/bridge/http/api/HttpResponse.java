@@ -12,6 +12,10 @@ public record HttpResponse<T>(//
 		T data //
 ) {
 
+	public HttpResponse(HttpStatus status, T data) {
+		this(status, Map.of(), data);
+	}
+
 	/**
 	 * Creates a successful response with predefined values status 200 and message
 	 * "OK".

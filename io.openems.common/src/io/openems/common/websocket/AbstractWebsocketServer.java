@@ -179,7 +179,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 						.append(t.getClass()).append(": ") //
 						.append(t.getMessage()).toString());
 			}
-			t.printStackTrace();
+			this.log.error(t.getMessage(), t);
 		};
 	}
 

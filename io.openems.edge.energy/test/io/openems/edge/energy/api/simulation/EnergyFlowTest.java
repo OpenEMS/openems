@@ -277,6 +277,27 @@ public class EnergyFlowTest {
 		assertEquals(1600, ef.getGrid());
 	}
 
+	@Test
+	public void testChargeGridAndAboveGridMaxEnergy2() throws Exception {
+		var m = new EnergyFlow.Model(//
+				/* production */ 0, //
+				/* consumption */ 7000, //
+				/* essMaxCharge */ 5000, //
+				/* essMaxDischarge */ 5000, //
+				/* gridMaxBuy */ 5000, //
+				/* gridMaxSell */ 10000);
+		var actualGridMaxBuy = m.setGridMaxBuy(1000 /* gridBuySoftLimit */);
+		assertEquals(2000, actualGridMaxBuy);
+
+		applyChargeGrid(m, 2500);
+		var ef = m.solve();
+
+		assertEquals(7000, ef.getConsumption());
+		assertEquals(0, ef.getProduction());
+		assertEquals(5000, ef.getEss());
+		assertEquals(2000, ef.getGrid());
+	}
+
 	/*
 	 * DISCHARGE GRID
 	 */

@@ -34,7 +34,7 @@
                     Version</ion-label>
                     <a class="ion-link"
                       style="white-space: initial; display: inline-block; max-width: 50%; text-align: right;"
-                      routerLinkActive="active" routerLink="/changelog">{{ edge.version |
+                      routerLinkActive="active" (keydown.enter)="navigateToChangelog($event)" (click)="navigateToChangelog($event)">{{ edge.version |
                     version:edge.role }}</a>
                   </ion-item>
                   <ion-item>

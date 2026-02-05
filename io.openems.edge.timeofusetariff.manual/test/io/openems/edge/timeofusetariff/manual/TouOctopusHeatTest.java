@@ -38,22 +38,19 @@ public class TouOctopusHeatTest {
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_LOWER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_LOWER_PRICE)) //
 				.add(t -> t // Lower price 12:00-16:00
 						.setStart(LocalTime.of(12, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_LOWER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_LOWER_PRICE)) //
 				.add(t -> t // Higher price 18:00-21:00
 						.setStart(LocalTime.of(18, 0)) //
 						.setDuration(Duration.ofHours(3)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_HIGHER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_HIGHER_PRICE)) //
 				.build();
 		this.heatHelper = new TouManualHelper(this.clock, schedule, HEAT_STANDARD_PRICE);
 	}

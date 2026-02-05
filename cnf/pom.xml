@@ -24,7 +24,7 @@
 			<!-- On update: also update gradle.properties file -->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.2.0</version>
+			<version>7.2.1</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -339,33 +339,28 @@
 			<!-- Changelog: https://github.com/jmdns/jmdns/releases -->
 		    <groupId>org.jmdns</groupId>
 		    <artifactId>jmdns</artifactId>
-		    <version>3.6.2</version>
+		    <version>3.6.3</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.4.0</version>
+			<version>7.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>7.4.0</version>
+			<version>7.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.4.0</version>
+			<version>7.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>7.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.java-websocket</groupId>
-			<artifactId>Java-WebSocket</artifactId>
-			<version>1.6.0</version>
+			<version>7.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
@@ -381,12 +376,12 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.21.2</version>
+			<version>1.22.1</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.junit.jupiter</groupId>
 		    <artifactId>junit-jupiter-api</artifactId>
-		    <version>6.0.1</version>
+		    <version>6.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.junit.jupiter:junit-jupiter-api -->
@@ -479,7 +474,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.8</version>
+			<version>42.7.9</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
@@ -491,7 +486,7 @@
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.9</version>
+			<version>3.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.tribuo</groupId>
@@ -552,7 +547,7 @@
 			<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.33.2</version>
+			<version>4.33.5</version>
 		</dependency>
 		<dependency>
 		  <groupId>org.mockito</groupId>
@@ -563,14 +558,38 @@
 		<dependency>
 		  <groupId>net.bytebuddy</groupId>
 		  <artifactId>byte-buddy</artifactId>
-		  <version>1.18.3</version>
+		  <version>1.18.4</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
 		  <groupId>org.objenesis</groupId>
 		  <artifactId>objenesis</artifactId>
-		  <version>3.4</version>
+		  <version>3.5</version>
 		  <scope>test</scope>
+		</dependency>
+		<dependency>
+			<!-- used by io.openems.backend.authentication.oauth -->
+  			<groupId>com.auth0</groupId>
+  			<artifactId>auth0</artifactId>
+  			<version>3.0.0</version>
+		</dependency>
+			<!-- used by io.openems.backend.authentication.oauth -->
+		<dependency>
+  			<groupId>com.auth0</groupId>
+  			<artifactId>java-jwt</artifactId>
+  			<version>4.5.0</version>
+		</dependency>
+		<dependency>
+			<!-- used by io.openems.backend.authentication.oauth -->
+  			<groupId>com.auth0</groupId>
+  			<artifactId>jwks-rsa</artifactId>
+  			<version>0.23.0</version>
+		</dependency>
+		<dependency>
+			<!-- used by io.openems.backend.authentication.oauth -->
+    		<groupId>com.fasterxml.jackson.core</groupId>
+    		<artifactId>jackson-annotations</artifactId>
+    		<version>2.21</version>
 		</dependency>
 	</dependencies>
 </project>

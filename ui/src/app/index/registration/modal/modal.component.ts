@@ -5,6 +5,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { RegisterUserRequest } from "src/app/shared/jsonrpc/request/registerUserRequest";
 import { Service, Websocket } from "src/app/shared/shared";
+import { PersonNameProhibitedCharactersValidator } from "src/app/shared/shared.module";
 import { COUNTRY_OPTIONS } from "src/app/shared/type/country";
 import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
 import { environment } from "src/environments";
@@ -112,8 +113,8 @@ export class RegistrationModalComponent implements OnInit {
         if (role === "installer") {
             return this.formBuilder.group({
                 companyName: new FormControl("", Validators.required),
-                firstname: new FormControl("", Validators.required),
-                lastname: new FormControl("", Validators.required),
+                firstname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
+                lastname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
                 street: new FormControl("", Validators.required),
                 zip: new FormControl("", Validators.required),
                 city: new FormControl("", Validators.required),
@@ -127,8 +128,8 @@ export class RegistrationModalComponent implements OnInit {
             }, {});
         } else {
             return this.formBuilder.group({
-                firstname: new FormControl("", Validators.required),
-                lastname: new FormControl("", Validators.required),
+                firstname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
+                lastname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
                 street: new FormControl("", Validators.required),
                 zip: new FormControl("", Validators.required),
                 city: new FormControl("", Validators.required),

@@ -1,4 +1,5 @@
 import { Utils } from "../../shared";
+import { ObjectUtils } from "../object/object.utils";
 
 export namespace ArrayUtils {
 
@@ -144,6 +145,15 @@ export namespace ArrayUtils {
         if (keysA.length !== keysB.length) { return false; }
 
         return keysA.every(key => deepEqual(a[key], b[key]));
+    }
+
+    export function getFirstElementWhereOrNull<T extends Record<string, any>, K extends keyof T>(arr: T[], property: K, propertyValue: string): T | null {
+        const results = arr.filter(el => ObjectUtils.getKeySafely(el, property) === propertyValue) ?? [];
+
+        if (results.length == 1) {
+            return arr[0];
+        }
+        return null;
     }
 
 

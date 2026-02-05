@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
+import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
@@ -155,7 +156,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
 
                     this.socValue = sum.storage.soc;
                     if (this.square) {
-                        this.square.image.image = "assets/img/" + this.getImagePath();
+                        this.square.image.image = this.getImagePath();
                         this.svgStyle = "storage-" + Utils.getStorageSocSegment(this.socValue);
                     }
                 });
@@ -181,7 +182,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getImagePath(): string {
-        return "icon/storage.svg";
+        return environment.icons.COMMON.STORAGE;
     }
 
     protected getValueText(value: number): string {

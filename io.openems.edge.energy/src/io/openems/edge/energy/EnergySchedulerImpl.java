@@ -31,6 +31,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.Call;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -64,13 +65,29 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	private ConfigurationAdmin cm;
 
 	@Reference
+	private Meta meta;
+
+	@Reference
 	private ComponentManager componentManager;
 
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile TimeOfUseTariff timeOfUseTariff;
+
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
+	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		this.timeOfUseTariff = tariff;
+		this.triggerReschedule("EnergySchedulerImpl::bindTimeOfUseTariff()");
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		if (this.timeOfUseTariff == tariff) {
+			this.timeOfUseTariff = null;
+			this.triggerReschedule("EnergySchedulerImpl::unbindTimeOfUseTariff()");
+		}
+	}
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
@@ -143,6 +160,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.collect(toImmutableList());
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
+							.setMeta(this.meta) //
 							.setRiskLevel(this.config.riskLevel()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
@@ -150,7 +168,8 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.setTimeOfUseTariff(this.timeOfUseTariff) //
 							.build();
 				}, //
-				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
 	}
 
 	@Activate

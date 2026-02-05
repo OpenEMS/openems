@@ -168,9 +168,9 @@ type RequestExample = {
 };
 
 type ElementDefinition =
-  { type: "object", optional: boolean, properties: { [key: string]: ElementDefinition } }
-  | { type: "array", optional: boolean, elementType: ElementDefinition }
-  | { type: "string" | "boolean" | "number", optional: boolean };
+    { type: "object", optional: boolean, properties: { [key: string]: ElementDefinition } }
+    | { type: "array", optional: boolean, elementType: ElementDefinition }
+    | { type: "string" | "boolean" | "number", optional: boolean };
 
 type Endpoint = {
     method: string,
