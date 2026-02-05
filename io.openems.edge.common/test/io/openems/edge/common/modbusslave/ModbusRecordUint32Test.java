@@ -2,8 +2,10 @@ package io.openems.edge.common.modbusslave;
 
 import static io.openems.common.test.DummyOptionsEnum.UNDEFINED;
 import static io.openems.common.test.DummyOptionsEnum.VALUE_1;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -11,10 +13,33 @@ import org.junit.Test;
 public class ModbusRecordUint32Test {
 
 	@Test
+	public void testUndefined() {
+		assertEquals(//
+				ModbusRecordUint32.UNDEFINED_VALUE, //
+				ByteBuffer.wrap(ModbusRecordUint32.UNDEFINED_BYTE_ARRAY).getInt(0) & 0xffffffffL);
+		assertArrayEquals(//
+				ModbusRecordUint32.UNDEFINED_BYTE_ARRAY, //
+				ModbusRecordUint32.toByteArray(ModbusRecordUint32.UNDEFINED_VALUE));
+		assertEquals(//
+				"0xFFFFFFFF", //
+				"0x" + Long.toHexString(ModbusRecordUint32.UNDEFINED_VALUE & 0xffffffffL).toUpperCase());
+		assertEquals(ModbusRecordUint32.UNDEFINED_BYTE_ARRAY.length, ModbusRecordUint32.BYTE_LENGTH);
+	}
+
+	@Test
 	public void testValue() {
-		var sut = new ModbusRecordUint32(0, "foo", 123456789);
-		assertEquals("ModbusRecordUInt32 [value=123456789/0x75bcd15, type=uint32]", sut.toString());
-		assertEquals("\"123456789\"", sut.getValueDescription());
+		{
+			// Some value
+			var sut = new ModbusRecordUint32(0, "foo", 123456789L);
+			assertEquals("ModbusRecordUInt32 [value=123456789/0x75bcd15, type=uint32]", sut.toString());
+			assertEquals("\"123456789\"", sut.getValueDescription());
+		}
+		{
+			// Max valid value
+			var sut = new ModbusRecordUint32(0, "foo", 4294967295L);
+			assertEquals("ModbusRecordUInt32 [value=4294967295/0xffffffff, type=uint32]", sut.toString());
+			assertEquals("\"4294967295\"", sut.getValueDescription());
+		}
 	}
 
 	@Test

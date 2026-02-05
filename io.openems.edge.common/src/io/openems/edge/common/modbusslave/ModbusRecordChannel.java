@@ -119,32 +119,32 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case FLOAT32 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordFloat32.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordFloat32.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordFloat32.UNDEFINED_BYTE_ARRAY;
 			};
 		case FLOAT64 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordFloat64.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordFloat64.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordFloat64.UNDEFINED_BYTE_ARRAY;
 			};
 		case STRING16 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordString16.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordString16.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordString16.UNDEFINED_BYTE_ARRAY;
 			};
 		case ENUM16, UINT16 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint16.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordUint16.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordUint16.UNDEFINED_BYTE_ARRAY;
 			};
 		case UINT32 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint32.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordUint32.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordUint32.UNDEFINED_BYTE_ARRAY;
 			};
 		case UINT64 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint64.toByteArray(value);
-			case WRITE_ONLY -> ModbusRecordUint64.UNDEFINED_VALUE;
+			case WRITE_ONLY -> ModbusRecordUint64.UNDEFINED_BYTE_ARRAY;
 			};
 		};
 	}

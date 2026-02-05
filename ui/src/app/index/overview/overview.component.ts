@@ -2,9 +2,9 @@
 import { Component, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
 import { Pagination } from "src/app/shared/service/pagination";
@@ -34,12 +34,8 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     protected loading: boolean = false;
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
-    protected isAtLeastInstaller: boolean = false;
-    protected readonly filters: FilterComponent["allFilters"] = [
-        ORDER_STATES(this.translate),
-        environment.PRODUCT_TYPES(this.translate),
-        SUM_STATES(this.translate),
-    ];
+    protected isAtLeastOwner: boolean = false;
+    protected filters: FilterComponent["allFilters"] = [];
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -51,6 +47,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     private limitReached: boolean = false;
 
     private lastReqId: string | null = null;
+    private sub: Subscription = new Subscription();
 
     constructor(
         public service: Service,
@@ -61,13 +58,20 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         protected route: ActivatedRoute,
         private router: Router,
         private userService: UserService,
+        private platform: Platform,
     ) {
 
         effect(() => {
             const user = this.userService.currentUser();
 
             if (user) {
-                this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                const isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
+
+                this.filters = [
+                    ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
+                    ...(isAtLeastInstaller ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
+                ];
             }
         });
     }
@@ -79,6 +83,16 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
             this.init();
         });
+    }
+
+    ionViewDidEnter() {
+        // TODO implement gestures
+        // prevent url segment pop by back navigation gesture
+        this.sub = this.platform.backButton.subscribeWithPriority(1, () => { });
+    }
+
+    ionViewWillLeave() {
+        this.sub?.unsubscribe();
     }
 
     /**

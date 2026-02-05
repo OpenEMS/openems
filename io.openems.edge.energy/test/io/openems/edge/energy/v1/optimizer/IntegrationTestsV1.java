@@ -8,6 +8,8 @@ import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.logSchedule;
 import static java.lang.Integer.parseInt;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -28,6 +30,15 @@ public class IntegrationTestsV1 {
 	@Before
 	public void before() {
 		initializeRandomRegistryForUnitTest();
+	}
+	
+	@Test
+	public void pattern() {
+		final String example = "Params [time=123, essTotalEnergy=123, essMinSocEnergy=123, essMaxSocEnergy=123, essInitialEnergy=123, states=[WARN, ERROR]]";
+		assertTrue(PARAMS_PATTERN.matcher(example).find());
+		
+		final String noMatch = "No match string";
+		assertFalse(PARAMS_PATTERN.matcher(noMatch).find());
 	}
 
 	/**

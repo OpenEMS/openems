@@ -66,7 +66,7 @@ public class WeatherOpenMeteoImplTest {
 		var clock = Clock.fixed(Instant.parse("2025-01-01T10:00:00Z"), ZoneId.of("UTC"));
 		new ComponentTest(sut)//
 				.addReference("componentManager", new DummyComponentManager(clock))
-				.addReference("meta", new DummyMeta("meta0"));
+				.addReference("meta", new DummyMeta());
 
 		var expected = quarterlyWeatherSnapshots(clock);
 
@@ -89,7 +89,7 @@ public class WeatherOpenMeteoImplTest {
 		var clock = Clock.fixed(Instant.parse("2025-01-01T10:00:00Z"), ZoneId.of("UTC"));
 		new ComponentTest(sut)//
 				.addReference("componentManager", new DummyComponentManager(clock))//
-				.addReference("meta", new DummyMeta("meta0"));
+				.addReference("meta", new DummyMeta());
 
 		var result = sut.getHistoricalWeather(//
 				LocalDate.now(clock), //
@@ -249,7 +249,7 @@ public class WeatherOpenMeteoImplTest {
 		var clock = Clock.fixed(Instant.parse("2025-01-01T10:00:00Z"), ZoneId.of("UTC"));
 		new ComponentTest(sut)//
 				.addReference("componentManager", new DummyComponentManager(clock))
-				.addReference("meta", new DummyMeta("meta0"));
+				.addReference("meta", new DummyMeta());
 
 		var meta1 = mock(Meta.class);
 		when(meta1.getCoordinates()).thenReturn(Coordinates.of(1.0, 2.0));

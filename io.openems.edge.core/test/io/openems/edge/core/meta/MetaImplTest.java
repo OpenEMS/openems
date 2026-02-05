@@ -12,6 +12,7 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 
 public class MetaImplTest {
 
@@ -32,6 +33,7 @@ public class MetaImplTest {
 
 		new ComponentTest(new MetaImpl()) //
 				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("oem", oem) //
 				.addReference("httpBridgeFactory", factory)//
 				.activate(MyConfig.create() //

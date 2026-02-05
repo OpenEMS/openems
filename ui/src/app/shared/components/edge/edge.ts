@@ -30,13 +30,11 @@ import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { ObjectUtils } from "../../utils/object/object.utils";
-import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
-import { ThirdPartyUsageAcceptance } from "./popover/shared/third-party-usage-acceptance";
 
 export enum EdgeSettings {
     ANNUAL_REVIEW_2025 = "annual_review_2025",
@@ -214,7 +212,7 @@ export class Edge {
 
         const channelsToSubscribe = channels.map(channel => channel.toString());
 
-        if (ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
+        if (previousChannels.length > 0 && ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
             return;
         }
 
@@ -519,7 +517,6 @@ export class Edge {
 
                                 new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
                                 new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null),
                                 new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
                                     new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.ADD_TASK"), baseMode, [], null),
                                 ], null),
@@ -554,27 +551,7 @@ export class Edge {
      * @returns
      */
     public async shouldShowPrivacyPolicyPopover(websocket: Websocket): Promise<boolean> {
-        const [_err, config] = await PromiseUtils.Functions.handle(this.getFirstValidConfig(websocket));
-
-        if (_err) {
-            return false;
-        }
-
-        if (this.isOnline === false) {
-            return false;
-        }
-
-        const isUndecided = config
-            .getComponent("_meta")
-            .hasPropertyValue<ThirdPartyUsageAcceptance>("thirdPartyUsageAcceptance", ThirdPartyUsageAcceptance.UNDECIDED);
-        const latitude = config.getComponent("_meta").getPropertyFromComponent<number>("latitude");
-        const longitude = config.getComponent("_meta").getPropertyFromComponent<number>("longitude");
-        const hasValidCoordinates =
-            latitude != null && longitude != null &&
-            latitude >= -90 && latitude <= 90 &&
-            longitude >= -180 && longitude <= 180;
-        const isOwner = this.role === Role.OWNER;
-        return isUndecided && isOwner && hasValidCoordinates;
+        return false;
     }
 
     private addCommonWidgetNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {

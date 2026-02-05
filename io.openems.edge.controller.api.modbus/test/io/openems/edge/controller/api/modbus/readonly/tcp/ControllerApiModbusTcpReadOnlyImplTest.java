@@ -24,7 +24,7 @@ public class ControllerApiModbusTcpReadOnlyImplTest {
 	public void test() throws Exception {
 		new ControllerTest(new ControllerApiModbusTcpReadOnlyImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta("_meta")) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyTcpConfig.create(io.openems.edge.controller.api.modbus.readonly.tcp.Config.class) //
 						.setId("ctrl0") //

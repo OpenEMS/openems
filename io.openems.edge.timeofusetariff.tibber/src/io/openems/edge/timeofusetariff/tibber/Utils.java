@@ -12,7 +12,7 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.stream.Collectors.joining;
 
 import java.time.Duration;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
@@ -141,15 +141,14 @@ public class Utils {
 		// Adding to an array to avoid individual variables for individual for loops.
 		JsonArray[] days = { today, tomorrow };
 
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 
 		// parse the arrays for price and time stamps.
 		for (var day : days) {
 			for (var element : day) {
 				// Multiply the price with 1000 to make it Currency/MWh.
 				var price = getAsDouble(element, "total") * 1000;
-				var startsAt = ZonedDateTime.parse(getAsString(element, "startsAt"), ISO_DATE_TIME)
-						.withZoneSameInstant(ZoneId.systemDefault());
+				var startsAt = ZonedDateTime.parse(getAsString(element, "startsAt"), ISO_DATE_TIME).toInstant();
 
 				// Adding the value to the Map.
 				result.put(startsAt, price);

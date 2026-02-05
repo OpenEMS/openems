@@ -350,6 +350,46 @@ public class ElementToChannelConverter {
 	}
 
 	/**
+	 * Sets the null value for given {@link Float} value.
+	 * 
+	 * @param defaultValue to ignore {@link Float}
+	 * @return null if actual value is equal to default value.
+	 */
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SET_NULL_FOR_DEFAULT(float defaultValue) {
+		// CHECKSTYLE:ON
+		return new ElementToChannelConverter(value -> {
+			var v = TypeUtils.<Float>getAsType(OpenemsType.FLOAT, value);
+
+			if (v == null || Float.compare(v, defaultValue) == 0) {
+				return null;
+			}
+
+			return v;
+		});
+	}
+
+	/**
+	 * Sets the null value for given {@link Double} value.
+	 * 
+	 * @param defaultValue to ignore {@link Double}
+	 * @return null if actual value is equal to default value.
+	 */
+	// CHECKSTYLE:OFF
+	public static final ElementToChannelConverter SET_NULL_FOR_DEFAULT(double defaultValue) {
+		// CHECKSTYLE:ON
+		return new ElementToChannelConverter(value -> {
+			var v = TypeUtils.<Double>getAsType(OpenemsType.DOUBLE, value);
+
+			if (v == null || Double.compare(v, defaultValue) == 0) {
+				return null;
+			}
+
+			return v;
+		});
+	}
+
+	/**
 	 * Sets the chain with given {@link ElementToChannelConverter
 	 * ElementToChannelConverters}.
 	 * 

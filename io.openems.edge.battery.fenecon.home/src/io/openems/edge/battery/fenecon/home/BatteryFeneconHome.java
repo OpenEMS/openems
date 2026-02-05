@@ -625,11 +625,13 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Number of modules per tower") //
 				.onChannelChange(BatteryFeneconHomeImpl::updateNumberOfTowersAndModules)),
 
-		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
+		NUMBER_OF_TOWERS(new IntegerDoc() //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Number of towers of the built system")),
+				.text("Number of towers of the built system") //
+				.onChannelChange(BatteryFeneconHomeImpl::updateBatteryProtection)
+		),
 
 		TOWER_4_BMS_SOFTWARE_VERSION(Doc.of(OpenemsType.STRING) //
 				.accessMode(AccessMode.READ_ONLY) //
@@ -726,7 +728,15 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 				.text("Low min voltage fault - Battery stopped "
 						+ "| Batterie wurde wegen zu niedrigem Ladezustand abgeschaltet. Bitte kontaktieren Sie Ihren Installateur")),
 
-		;
+        EMS_POWER_CONSUMPTION(Doc.of(OpenemsType.INTEGER) //)
+                .unit(Unit.MILLIAMPERE)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Power consumption of HV BOX for EMS power supply")),
+
+        EMS_OFF_GRID(Doc.of(OpenemsType.BOOLEAN) //)
+                .accessMode(AccessMode.READ_ONLY)
+                .text("Indicates if the HV BOX is operating in off-grid mode"));
+
 
 		private final Doc doc;
 

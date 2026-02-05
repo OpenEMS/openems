@@ -1,9 +1,7 @@
 @if (edge?.currentData | async; as currentData) {
   @if (navigationService.position() === 'bottom') {
     <!-- Hide ion-card with bottom navigation -->
-    <ion-item lines="none">
-      <energymonitor-chart class="ion-margin-bottom" [currentData]="currentData"></energymonitor-chart>
-    </ion-item>
+    <energymonitor-chart class="ion-margin-bottom" [currentData]="currentData"></energymonitor-chart>
   } @else {
     <ion-card>
       <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">

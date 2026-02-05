@@ -222,14 +222,14 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 					predictionUnmanagedConsumption()//
 			);
 
-			if (isStateLedCompatible(deviceHardware)) {
-				dependencies.add(stateLed());
-			}
-
 			final var gpioId = FunctionUtils
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();

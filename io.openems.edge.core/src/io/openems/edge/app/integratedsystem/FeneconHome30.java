@@ -374,10 +374,6 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 					predictionUnmanagedConsumption()//
 			);
 
-			if (isStateLedCompatible(deviceHardware)) {
-				dependencies.add(stateLed());
-			}
-
 			if (hasAcMeter) {
 				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
@@ -386,6 +382,10 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
