@@ -1,0 +1,22 @@
+= io.openems.edge.phoenixcontact.plcnext
+
+Official drivers for PLCnext architecture of Phoenix Contact.
+
+Implemented drivers/natures:
+
+* io.openems.edge.phoenixcntact.plcnext.ess: ManagedSymmetricEss, SymmetricEss
+* io.openems.edge.phoenixcntact.plcnext.loadcircuit: No nature! Represents a PPC (= Powerplant Controller)
+* io.openems.edge.phoenixcntact.plcnext.meter: ElectricityMeter
+* io.openems.edge.phoenixcntact.plcnext.pvinverter: ManagedSymmetricPvInverter
+
+To use the drivers stated above, pls. use basic PLCnext C++ components provided by Phoenix Contact. 
+These basic components bundled by a "PLCnext Engineer" project can be obtained here:
+
+https://gitlab.phoenixcontact.com/openems/opemems
+
+The "PLCnext Engineer" project provides the data in a suitable way to be picked up or provided by the 
+drivers from/to "PLCnext GDS" (= Global-Data-Space).
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.phoenixcontact.plcnext[Source Code icon:github[]]
+
