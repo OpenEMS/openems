@@ -10,7 +10,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
@@ -19,6 +19,7 @@ import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.OneMode;
@@ -56,13 +57,12 @@ public class SimulatorTest {
 
 	public static final EshWithDifferentModes<Esh2State, Void, Void> ESH2 = //
 			new DifferentModes.Builder<Esh2State, Void, Void>("Controller.Dummy", "esh2") //
-					.setDefaultMode(Esh2State.BAR) //
-					.setAvailableModes(() -> Esh2State.values()) //
-					.setInitialPopulationsProvider((goc, coc, availableModes) -> {
-						return ImmutableList.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
+					.setModes(() -> Modes.of(Esh2State.values())) //
+					.setInitialPopulationsProvider((goc, coc, modes) -> {
+						return ImmutableSortedSet.of(new InitialPopulation<Esh2State>(goc.periods().stream() //
 								.map(p -> p.index() % 3 == 0 //
-										? Esh2State.FOO // set FOO mode
-										: Esh2State.BAR) // default
+										? Esh2State.BAR // set BAR mode
+										: Esh2State.FOO) // default
 								.toArray(Esh2State[]::new)));
 					}) //
 					.build();
@@ -73,7 +73,7 @@ public class SimulatorTest {
 	public static final Simulator DUMMY_SIMULATOR = new Simulator(GOC);
 
 	public static final SimulationResult DUMMY_PREVIOUS_RESULT = SimulationResult.fromQuarters(GOC,
-			new int[] { 3, 2, 1 });
+			new int[] { 3, 2, 1 }, 0, 0);
 
 	@Before
 	public void before() {
@@ -108,6 +108,6 @@ public class SimulatorTest {
 		});
 
 		assertEquals("BALANCING", ESH_TIME_OF_USE_TARIFF_CTRL.getCurrentPeriod().mode().toString());
-		assertEquals("BAR", ESH2.getCurrentPeriod().mode().toString());
+		assertEquals("FOO", ESH2.getCurrentPeriod().mode().toString());
 	}
 }

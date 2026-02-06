@@ -2,16 +2,16 @@
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
-import { AlertController, ToastController } from "@ionic/angular";
+import { AlertController, Platform, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver-es";
 import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, map, startWith, Subject, takeUntil, tap } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
 import { GetSetupProtocolRequest } from "./shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "./shared/jsonrpc/response/base64PayloadResponse";
-import { Websocket } from "./shared/shared";
+import { Service, Websocket } from "./shared/shared";
 
 @Injectable()
 export class PlatFormService {
@@ -21,7 +21,9 @@ export class PlatFormService {
     public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
     public static deviceInfo: DeviceInfo;
     public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
-    private static isMobile: boolean = false;
+    public static isMobile: boolean = false;
+
+    private static readonly SMARTPHONE_BP = 576;
 
     public isActiveAgain: WritableSignal<boolean> = signal(false);
 
@@ -56,7 +58,7 @@ export class PlatFormService {
     }
 
     public listen() {
-    // Don't use in web
+        // Don't use in web
         if (PlatFormService.platform === "web") {
             return;
         }
@@ -66,6 +68,28 @@ export class PlatFormService {
         App.addListener("appStateChange", () => {
             this.updateState();
         });
+    }
+
+    public handleResize(platform: Platform, service: Service, ngUnsubscribe: Subject<void>) {
+        platform.resize
+            .pipe(
+                startWith(null),
+                takeUntil(ngUnsubscribe),
+                map(() => ({
+                    width: platform.width(),
+                    height: platform.height(),
+                })),
+                tap(({ width, height }) => {
+                    service.deviceWidth = width;
+                    service.deviceHeight = height;
+                }),
+                map(({ width }) => width <= PlatFormService.SMARTPHONE_BP),
+                distinctUntilChanged(),
+                tap((isSmartphone) => {
+                    service.isSmartphoneResolution = isSmartphone;
+                    service.isSmartphoneResolutionSubject.next(isSmartphone);
+                })
+            ).subscribe();
     }
 
     /**
@@ -186,7 +210,7 @@ export class PlatFormService {
     private setIsActiveAgain(isAppCurrentlyActive: boolean) {
 
         if (isAppCurrentlyActive === true
-      && PlatFormService.isActive?.getValue() === false) {
+            && PlatFormService.isActive?.getValue() === false) {
             this.isActiveAgain.set(true);
             return;
         }

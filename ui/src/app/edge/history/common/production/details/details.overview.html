@@ -1,6 +1,5 @@
 @if (isInitialized && component && componentSome) {
-  <oe-chart [title]="componentSome.displayName"
-    [period]="service.historyPeriod.value">
+  <oe-chart [title]="componentSome.displayName" [period]="service.historyPeriod.value">
     @switch (componentSome.type) {
       @case ('sum') {
         <sumChart [isOnlyChart]="true"></sumChart>
@@ -12,9 +11,6 @@
         <chargerChart [isOnlyChart]="true"></chargerChart>
       }
     }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
   </oe-chart>
-}
-@if (isInitialized) {
-  <oe-footer-subnavigation [backButton]="true"
-  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
 }

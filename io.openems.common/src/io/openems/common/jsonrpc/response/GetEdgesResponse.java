@@ -41,12 +41,13 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 			boolean isOnline, //
 			ZonedDateTime lastmessage, //
 			ZonedDateTime firstSetupProtocol, //
-			Level sumState //
+			Level sumState, //
+			JsonObject settings // nullable
 	) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link GetEdgesResponse.EdgeMetadata}.
-		 * 
+		 *
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<GetEdgesResponse.EdgeMetadata> serializer() {
@@ -60,7 +61,8 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 							json.getBoolean("isOnline"), //
 							json.getZonedDateTime("lastmessage"), //
 							json.getZonedDateTimeOrNull("firstSetupProtocol"), //
-							json.getEnum("sumState", Level.class)),
+							json.getEnum("sumState", Level.class), //
+							json.getNullableJsonObjectPath("settings").getOrNull()),
 					obj -> JsonUtils.buildJsonObject() //
 							.addProperty("id", obj.id()) //
 							.addProperty("comment", obj.comment()) //
@@ -71,6 +73,8 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 							.addProperty("lastmessage", obj.lastmessage()) //
 							.addProperty("firstSetupProtocol", obj.firstSetupProtocol()) //
 							.addProperty("sumState", obj.sumState()) //
+							.addProperty("sumState", obj.sumState()) //
+							.addIfNotNull("settings", obj.settings()) //
 							.build());
 		}
 
@@ -109,6 +113,7 @@ public class GetEdgesResponse extends JsonrpcResponseSuccess {
 					.addPropertyIfNotNull("lastmessage", this.lastmessage) //
 					.addPropertyIfNotNull("sumState", this.sumState) //
 					.addPropertyIfNotNull("firstSetupProtocol", this.firstSetupProtocol) //
+					.addIfNotNull("settings", this.settings) //
 					.build();
 		}
 	}

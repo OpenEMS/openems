@@ -684,6 +684,25 @@ public class AppDef<APP extends OpenemsApp, //
 		return this.setDefaultValueString(AppDef::fieldValuesToAppName);
 	}
 
+	/**
+	 * Wraps the value of the translation in a {@link JsonPrimitive} and sets it as
+	 * the default value with {@link AppDef#setDefaultValue(Function)}.
+	 * 
+	 * @param key    the key of the translation
+	 * @param params the parameter of the translation
+	 * @return this
+	 */
+	public final AppDef<APP, PROPERTY, PARAMETER> setTranslatedDefaultValue(//
+			final String key, //
+			final Object... params //
+	) {
+		return this.setDefaultValue(JsonPrimitive::new, (app, prop, t, param) -> {
+			return this.usingTranslation(param) //
+					.map(b -> TranslationUtil.getTranslation(b, key, params)) //
+					.orElse(null);
+		});
+	}
+
 	private static final <APP extends OpenemsApp, //
 			PROPERTY, //
 			PARAMETER> //
@@ -773,7 +792,7 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setIsAllowedToSee(//
-			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, User> isAllowedToSee //
+			final FieldValuesBiPredicate<? super APP, ? super PROPERTY, ? super PARAMETER, ? super User> isAllowedToSee //
 	) {
 		this.isAllowedToSee = isAllowedToSee;
 		return this.self();

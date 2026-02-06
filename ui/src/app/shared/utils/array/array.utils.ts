@@ -1,4 +1,5 @@
 import { Utils } from "../../shared";
+import { ObjectUtils } from "../object/object.utils";
 
 export namespace ArrayUtils {
 
@@ -125,6 +126,36 @@ export namespace ArrayUtils {
         const restArrays = values.flat(1);
         return inputArr?.filter(item => restArrays.includes(item) == false) as T ?? null;
     }
+
+
+    export function findObjectInArray<T extends object>(array: T[], target: Partial<T>): T | undefined {
+        return array.find(obj =>
+            deepEqual(obj, target)
+        );
+    }
+
+    export function deepEqual(a: any, b: any): boolean {
+        if (a === b) { return true; }
+
+        if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) { return false; }
+
+        const keysA = Object.keys(a);
+        const keysB = Object.keys(b);
+
+        if (keysA.length !== keysB.length) { return false; }
+
+        return keysA.every(key => deepEqual(a[key], b[key]));
+    }
+
+    export function getFirstElementWhereOrNull<T extends Record<string, any>, K extends keyof T>(arr: T[], property: K, propertyValue: string): T | null {
+        const results = arr.filter(el => ObjectUtils.getKeySafely(el, property) === propertyValue) ?? [];
+
+        if (results.length == 1) {
+            return arr[0];
+        }
+        return null;
+    }
+
 
     export namespace ReducerFunctions {
         export const sum = ((acc: number, val: number) => acc + val);

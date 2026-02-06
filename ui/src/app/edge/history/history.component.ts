@@ -57,7 +57,7 @@ export class HistoryComponent implements OnInit {
             this.widgets = this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
             // Are we connected to OpenEMS Edge and is a timedata service available?
             if (environment.backend == "OpenEMS Edge"
-        && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
+                && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
                 this.isTimedataAvailable = false;
             }
         });

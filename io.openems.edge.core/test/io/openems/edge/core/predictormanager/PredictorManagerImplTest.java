@@ -4,7 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 import org.junit.Test;
 
@@ -29,8 +29,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -66,8 +65,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -103,8 +101,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -140,8 +137,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //

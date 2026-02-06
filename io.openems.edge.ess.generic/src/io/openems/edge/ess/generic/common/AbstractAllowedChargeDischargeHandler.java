@@ -65,8 +65,34 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	private Instant lastCalculate = null;
 	private Instant onEntryEssProtection = null;
 
+	private Integer voltRegulationChargeMaxCurrent;
+	private Integer voltRegulationDischargeMaxCurrent;
+
 	@Override
 	public abstract void accept(ClockProvider clockProvider, Battery battery, SymmetricBatteryInverter inverter);
+
+	/**
+	 * Calculates Ep-Charge-Max-Current and Ep-Discharge-Max-Current from the given
+	 * parameters. Result is stored in 'voltRegulationChargeMaxCurrent' and
+	 * 'voltRegulationDischargeMaxCurrent' variables.
+	 * 
+	 * @param clockProvider the {@link ClockProvider}
+	 * @param battery       the {@link Battery}
+	 * @param inverter      the {@link SymmetricBatteryInverter}
+	 */
+	public void calculateVoltageRegulationLimits(ClockProvider clockProvider, Battery battery,
+			SymmetricBatteryInverter inverter) {
+		final var cycleTime = this.parent.getCycleTime();
+		this.voltRegulationChargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
+				this.pt1FilterChargeMaxCurrentVoltLimit, TypeUtils::min, TypeUtils::subtract, true);
+		this.voltRegulationDischargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
+				this.pt1FilterDischargeMaxCurrentVoltLimit, TypeUtils::max, TypeUtils::sum, false);
+
+		if (this.parent instanceof EssProtection ess) {
+			ess._setEpChargeMaxCurrent(this.voltRegulationChargeMaxCurrent);
+			ess._setEpDischargeMaxCurrent(this.voltRegulationDischargeMaxCurrent);
+		}
+	}
 
 	/**
 	 * Calculates Allowed-Charge-Power and Allowed-Discharge Power from the given
@@ -79,22 +105,11 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 */
 	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, Battery battery,
 			SymmetricBatteryInverter inverter) {
-		final var cycleTime = this.parent.getCycleTime();
 		var chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
 		var dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
 
-		final var voltRegulationChargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterChargeMaxCurrentVoltLimit, TypeUtils::min, TypeUtils::subtract, true);
-		final var voltRegulationDischargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterDischargeMaxCurrentVoltLimit, TypeUtils::max, TypeUtils::sum, false);
-
-		if (this.parent instanceof EssProtection ess) {
-			ess._setEpChargeMaxCurrent(voltRegulationChargeMaxCurrent);
-			ess._setEpDischargeMaxCurrent(voltRegulationDischargeMaxCurrent);
-		}
-
-		chargeMaxCurrent = TypeUtils.min(chargeMaxCurrent, voltRegulationChargeMaxCurrent);
-		dischargeMaxCurrent = TypeUtils.min(dischargeMaxCurrent, voltRegulationDischargeMaxCurrent);
+		chargeMaxCurrent = TypeUtils.min(chargeMaxCurrent, this.voltRegulationChargeMaxCurrent);
+		dischargeMaxCurrent = TypeUtils.min(dischargeMaxCurrent, this.voltRegulationDischargeMaxCurrent);
 
 		final var current = battery.getCurrentChannel().value();
 		this.checkEssProtectionExtremes(clockProvider, chargeMaxCurrent, dischargeMaxCurrent, current);
@@ -279,7 +294,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 		}
 	}
 
-	private static Integer calculateMaxCurrent(Battery battery, SymmetricBatteryInverter inverter, int cycleTime,
+	protected static Integer calculateMaxCurrent(Battery battery, SymmetricBatteryInverter inverter, int cycleTime,
 			Pt1filter pt1Filter, BiFunction<Integer, Integer, Integer> dcLimit,
 			BiFunction<Double, Double, Double> typeUtilsMethod, boolean invert) {
 		var regulationValues = RegulationValues.from(battery, inverter);

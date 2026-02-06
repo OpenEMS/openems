@@ -8,4 +8,12 @@ public interface PredictionError {
 	 * @return the failed {@link PredictionState}
 	 */
 	public PredictionState getFailedState();
+
+	/**
+	 * Returns the {@link LogSeverity} indicating how severe this prediction error
+	 * is for logging purposes.
+	 *
+	 * @return the {@link LogSeverity} for this prediction error
+	 */
+	public LogSeverity getSeverity();
 }

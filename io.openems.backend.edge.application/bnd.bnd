@@ -1,0 +1,18 @@
+Bundle-Name: OpenEMS Backend Edge-Application
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+Bundle-Description: Proxy between OpenEMS Edges and OpenEMS Backend
+
+-buildpath: \
+	${buildpath},\
+	io.openems.backend.common,\
+	io.openems.backend.metrics.prometheus,\
+	io.openems.backend.oauthregistry,\
+	io.openems.common,\
+	io.openems.wrapper.Java-WebSocket,\
+	io.prometheus.metrics-core,\
+	io.prometheus.metrics-model,\
+
+-testpath: \
+	${testpath},\

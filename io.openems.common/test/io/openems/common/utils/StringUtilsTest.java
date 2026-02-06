@@ -2,6 +2,7 @@ package io.openems.common.utils;
 
 import static io.openems.common.utils.StringUtils.definedOrElse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -84,7 +85,7 @@ public class StringUtilsTest {
 			assertNull(StringUtils.emptyToNull(input));
 		}
 	}
- 
+
 	@Test
 	public void testEmptyToNull_ShouldReturnSameString_WhenNonBlank() {
 		String[] inputs = { "abc", "  abc  ", "0", "true" };
@@ -92,4 +93,13 @@ public class StringUtilsTest {
 			assertEquals(input, StringUtils.emptyToNull(input));
 		}
 	}
+
+	@Test
+	public void testContainsIgnoreCase() {
+		assertTrue(StringUtils.containsIgnoreCase("Hello, its me", "ITS"));
+		assertTrue(StringUtils.containsIgnoreCase("Hello, its me", "its"));
+		assertFalse(StringUtils.containsIgnoreCase("Hello, its me", "itse"));
+		assertFalse(StringUtils.containsIgnoreCase("Hello, its me", "ITSE"));
+	}
+
 }

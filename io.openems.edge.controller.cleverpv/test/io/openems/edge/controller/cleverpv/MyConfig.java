@@ -1,15 +1,17 @@
 package io.openems.edge.controller.cleverpv;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.DebugMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id = null;
+		private String id;
+		private boolean readOnly;
 		private String url;
-		private LogVerbosity logVerbosity;
-		private Mode mode;
+		private ControlMode controlMode;
+		private DebugMode debugMode;
 
 		private Builder() {
 		}
@@ -19,18 +21,23 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return this;
+		}
+
 		public Builder setUrl(String url) {
 			this.url = url;
 			return this;
 		}
 
-		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
-			this.logVerbosity = logVerbosity;
+		public Builder setMode(ControlMode controlMode) {
+			this.controlMode = controlMode;
 			return this;
 		}
 
-		public Builder setMode(Mode mode) {
-			this.mode = mode;
+		public Builder setDebugMode(DebugMode debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -61,17 +68,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public LogVerbosity logVerbosity() {
-		return this.builder.logVerbosity;
-	}
-
-	@Override
 	public boolean readOnly() {
-		return false;
+		return this.builder.readOnly;
 	}
 
 	@Override
-	public Mode mode() {
-		return this.builder.mode;
+	public ControlMode controlMode() {
+		return this.builder.controlMode;
+	}
+
+	@Override
+	public DebugMode debugMode() {
+		return this.builder.debugMode;
 	}
 }

@@ -8,6 +8,8 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -36,7 +38,7 @@ public class RestHandler extends Handler.Abstract {
 	@Override
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		try {
-			var user = this.authenticate(request);
+			var user = this.authenticate(request).get(1, TimeUnit.MINUTES);
 
 			// Determine the target from the path info.
 			var target = request.getHttpURI().getDecodedPath();
@@ -68,7 +70,7 @@ public class RestHandler extends Handler.Abstract {
 	 * @return the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
-	private User authenticate(Request request) throws OpenemsNamedException {
+	private CompletableFuture<User> authenticate(Request request) throws OpenemsNamedException {
 		var authHeader = request.getHeaders().get("Authorization");
 		if (authHeader != null) {
 			var parts = authHeader.split(" ");
@@ -79,7 +81,9 @@ public class RestHandler extends Handler.Abstract {
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
 						var password = credentials.substring(p + 1).trim();
-						return this.parent.metadata.authenticate(username, password);
+						return this.parent.authService.authenticateWithPassword(username, password).thenCompose(result -> {
+							return this.parent.metadata.getUserByExternalId(result.userId());
+						});
 					}
 				} catch (Exception e) {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();

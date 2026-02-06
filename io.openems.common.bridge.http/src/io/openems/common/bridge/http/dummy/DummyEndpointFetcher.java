@@ -6,11 +6,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.function.ThrowingFunction;
 import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpEventRaiser;
 import io.openems.common.bridge.http.api.EndpointFetcher;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.DebugMode;
 import io.openems.common.utils.FunctionUtils;
 
@@ -31,7 +32,8 @@ public class DummyEndpointFetcher implements EndpointFetcher {
 	@Override
 	public HttpResponse<String> fetchEndpoint(//
 			final BridgeHttp.Endpoint endpoint, //
-			DebugMode mode //
+			final DebugMode mode, //
+			final BridgeHttpEventRaiser eventRaiser //
 	) throws HttpError {
 		try {
 			for (final var iterator = this.urlHandler.iterator(); iterator.hasNext();) {

@@ -3,9 +3,11 @@ plugins {
 	id 'java'
 	id 'com.github.node-gradle.node'
 	id 'org.barfuin.gradle.jacocolog'
+	id 'org.sonarqube'
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 	gradlePluginPortal()
 }
@@ -33,11 +35,11 @@ subprojects {
 		mavenCentral()
 	}
 	
-	if (name ==~ /io.openems.(common|edge|oem|shared|wrapper).*/) {
+	if (name ==~ /io.openems.(common|core|edge|oem|shared|wrapper).*/) {
 		ext.isEdge = true
 	}
 	
-	if (name ==~ /io.openems.(backend|common|shared|wrapper).*/) {
+	if (name ==~ /io.openems.(backend|common|core|oem|shared|wrapper).*/) {
 		ext.isBackend = true
 	}
 
@@ -137,15 +139,43 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
+task checkstyleEdge() {
+	group = 'OpenEMS-Test'
+	description = 'Checkstyle Edge bundles'
+
+	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
+		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+			dependsOn(proj.checkstyleMain)
+		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
+		}
+	}
+}
+
+task checkstyleBackend() {
+	group = 'OpenEMS-Test'
+	description = 'Checkstyle Backend bundles'
+
+	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
+		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+			dependsOn(proj.checkstyleMain)
+		}
+		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+			dependsOn(proj.checkstyleTest)
+		}
+	}
+}
+
 task checkstyleAll() {
 	group = 'OpenEMS-Test'
 	description = 'Checkstyle all bundles'
 
-	subprojects.each { proj ->
-		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
-			dependsOn(proj.checkstyleMain)
-		}
-	}
+	def edge = tasks.getByPath(':checkstyleEdge')
+	def backend = tasks.getByPath(':checkstyleBackend')
+	
+	dependsOn edge
+	dependsOn backend
 }
 
 task testEdge() {
@@ -369,6 +399,12 @@ task copyBundleReadmes() {
 							return // ignore
 						}
 
+					} else if(bundle.startsWith("io.openems.common.")) {
+						def commonBundle = bundle.substring("io.openems.common.".length())
+						if(commonBundle.startsWith("bridge.")) {
+							target = targetBridge
+						}
+
 					} else if(bundle.startsWith("io.openems.wrapper")
 						|| bundle.startsWith("io.openems.oem.")) {
 						// ignore
@@ -401,9 +437,12 @@ task copyBundleReadmes() {
 /*
  * Build Antora docs
  */
-task buildAntoraDocs(dependsOn: copyBundleReadmes) {
+task buildAntoraDocs() {
 	group = 'Documentation'
 	dependsOn ":doc:buildAntoraDocs"
+	dependsOn ":copyBundleReadmes"
+
+	mustRunAfter ":copyBundleReadmes"
 
 	def source = file("doc/build/www")
 	def output = file("${buildDir}/www")

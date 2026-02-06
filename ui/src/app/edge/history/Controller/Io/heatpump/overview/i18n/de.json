@@ -1,3 +1,5 @@
 {
-    "LEGEND_DESCRIPTION": "Legende Betriebszustand"
+    "HEATPUMP": {
+        "LEGEND_DESCRIPTION": "Legende Betriebszustand"
+    }
 }

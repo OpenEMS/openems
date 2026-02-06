@@ -1,6 +1,9 @@
 package io.openems.edge.controller.evse.single;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.evse.single.Types.History.allReadyForCharging;
 import static io.openems.edge.controller.evse.single.Types.History.allSetPointsAreZero;
 import static io.openems.edge.controller.evse.single.Types.History.noSetPointsAreZero;
@@ -10,7 +13,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
+import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class Types {
 
@@ -211,6 +217,66 @@ public class Types {
 					return Hysteresis.KEEP_CHARGING;
 				}
 			}
+		}
+	}
+
+	public sealed interface Payload {
+
+		public static record Manual(Mode mode) implements Payload {
+			/**
+			 * Returns a {@link JsonSerializer} for {@link Payload.Manual}.
+			 * 
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<Manual> serializer() {
+				return jsonObjectSerializer(json -> {
+					return new Manual(//
+							json.getEnum("mode", Mode.class));
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.addProperty("mode", obj.mode) //
+							.build();
+				});
+			}
+		}
+
+		public static record Smart(int sessionEnergyMinimum) implements Payload {
+			/**
+			 * Returns a {@link JsonSerializer} for a {@link Payload.Smart}.
+			 * 
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<Smart> serializer() {
+				return jsonObjectSerializer(Smart.class, json -> {
+					return new Smart(//
+							json.getInt("sessionEnergyMinimum") //
+					);
+				}, obj -> {
+					return buildJsonObject() //
+							.addProperty("class", obj.getClass().getSimpleName()) //
+							.addProperty("sessionEnergyMinimum", obj.sessionEnergyMinimum) //
+							.build();
+				});
+			}
+		}
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Payload}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Payload> serializer() {
+			final var polymorphicSerializer = PolymorphicSerializer.<Payload>create() //
+					.add(Manual.class, Manual.serializer(), Manual.class.getSimpleName()) //
+					.add(Smart.class, Smart.serializer(), Smart.class.getSimpleName()) //
+					.build();
+
+			return jsonSerializer(Payload.class, json -> {
+				return json.polymorphic(polymorphicSerializer, t -> t.getAsJsonObjectPath().getStringPath("class"));
+			}, obj -> {
+				return polymorphicSerializer.serialize(obj);
+			});
 		}
 	}
 }

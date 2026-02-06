@@ -17,7 +17,7 @@ export class FlatComponent extends AbstractFlatWidget {
         return [
             new ChannelAddress(this.component.id, "CumulatedInactiveTime"),
             new ChannelAddress(this.component.id, "CumulatedNoDischargeTime"),
-            new ChannelAddress(this.component.id, "CumulatedForceChargeTime"),
+            new ChannelAddress(this.component.id, "CumulatedChargeFromGridTime"),
         ];
     }
 }

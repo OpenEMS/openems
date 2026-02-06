@@ -4,6 +4,6 @@
     (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod.value">
     <pickdate custom-pickdate [historyPeriods]="['day', 'week']"></pickdate>
     <common-grid-details-external-limitation-chart [isOnlyChart]="true"></common-grid-details-external-limitation-chart>
+    <oe-footer-subnavigation [backButton]="true"></oe-footer-subnavigation>
   </oe-chart>
-  <oe-footer-subnavigation [backButton]="true"></oe-footer-subnavigation>
 }

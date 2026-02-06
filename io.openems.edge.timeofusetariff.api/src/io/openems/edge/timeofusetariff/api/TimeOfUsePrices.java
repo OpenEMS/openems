@@ -3,8 +3,7 @@ package io.openems.edge.timeofusetariff.api;
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
-import java.time.ZonedDateTime;
-import java.util.Comparator;
+import java.time.Instant;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
@@ -38,7 +37,7 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param values the quarterly price values; no nulls
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ZonedDateTime time, Double... values) {
+	public static TimeOfUsePrices from(Instant time, Double... values) {
 		if (values.length == 0) {
 			return EMPTY_PRICES;
 		}
@@ -60,7 +59,7 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param map a {@link SortedMap} of times and prices
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ImmutableSortedMap<ZonedDateTime, Double> map) {
+	public static TimeOfUsePrices from(ImmutableSortedMap<Instant, Double> map) {
 		if (map.isEmpty()) {
 			return EMPTY_PRICES;
 		}
@@ -79,19 +78,19 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param prices the source {@link TimeOfUsePrices} object
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ZonedDateTime time, TimeOfUsePrices prices) {
+	public static TimeOfUsePrices from(Instant time, TimeOfUsePrices prices) {
 		if (time == null || prices == null || prices.valuePerQuarter.isEmpty()) {
 			// prices is EMPTY
 			return EMPTY_PRICES;
 		}
 		final var baseTime = roundDownToQuarter(time);
-		if (prices.valuePerQuarter.firstKey().isEqual(baseTime)) {
+		if (prices.valuePerQuarter.firstKey().equals(baseTime)) {
 			// prices is still valid
 			return prices;
 		}
 		final var newMap = prices.valuePerQuarter.entrySet().stream() //
 				.filter(e -> !baseTime.isAfter(e.getKey())) //
-				.collect(toImmutableSortedMap(Comparator.naturalOrder(), Entry::getKey, Entry::getValue));
+				.collect(toImmutableSortedMap(Instant::compareTo, Entry::getKey, Entry::getValue));
 		if (newMap.isEmpty()) {
 			// new prices would be empty
 			return EMPTY_PRICES;
@@ -99,11 +98,11 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 		return new TimeOfUsePrices(newMap);
 	}
 
-	private TimeOfUsePrices(ImmutableSortedMap<ZonedDateTime, Double> pricePerQuarter) {
+	private TimeOfUsePrices(ImmutableSortedMap<Instant, Double> pricePerQuarter) {
 		super(pricePerQuarter);
 	}
 
-	private TimeOfUsePrices(ZonedDateTime time, Double... values) {
+	private TimeOfUsePrices(Instant time, Double... values) {
 		super(time, values);
 	}
 

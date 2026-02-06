@@ -1,20 +1,20 @@
 {
-    "PROFILE": {
-        "SYSTEM_PROTOCOL": {
-            "LABEL": "Systemprotokoll",
-            "DOWNLOAD": "Download",
-            "TITLE": "Aktuelles"
-        }
-    },
-    "EDGE": {
-        "CONFIG": {
-            "APP": {
-                "STATUS_INSTALLED": "Installiert",
-                "STATUS_AVAILABLE": "Verfügbar",
-                "STATUS_INCOMPATIBLE": "Inkompatibel",
-                "STATUS_FILTER": "Verfügbarkeit",
-                "CATEGORY_FILTER": "App-Kategorien"
-            }
-        }
+  "PROFILE": {
+    "SYSTEM_PROTOCOL": {
+      "LABEL": "Systemprotokoll",
+      "DOWNLOAD": "Download",
+      "TITLE": "Aktuelles"
     }
+  },
+  "EDGE": {
+    "CONFIG": {
+      "APP": {
+        "STATUS_INSTALLED": "Installiert",
+        "STATUS_AVAILABLE": "Verfügbar",
+        "STATUS_INCOMPATIBLE": "Inkompatibel",
+        "STATUS_FILTER": "Verfügbarkeit",
+        "CATEGORY_FILTER": "App-Kategorien"
+      }
+    }
+  }
 }

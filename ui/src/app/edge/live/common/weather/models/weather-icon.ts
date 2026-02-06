@@ -1,4 +1,5 @@
 import { addIcons } from "ionicons";
+import { environment } from "src/environments";
 
 export enum WeatherIcon {
     ClearDay = "oe-clear-day",
@@ -16,17 +17,17 @@ export enum WeatherIcon {
 
 export function registerWeatherIcons(): void {
     addIcons({
-        "oe-clear-day": "assets/img/icon/clear_day.svg",
-        "oe-clear-night": "assets/img/icon/clear_night.svg",
-        "oe-partly-cloudy-day": "assets/img/icon/partly_cloudy_day.svg",
-        "oe-partly-cloudy-night": "assets/img/icon/partly_cloudy_night.svg",
-        "oe-thunderstorm": "assets/img/icon/thunderstorm.svg",
-        "oe-weather-cloudy": "assets/img/icon/weather_cloudy.svg",
-        "oe-weather-foggy": "assets/img/icon/weather_foggy.svg",
-        "oe-weather-mix": "assets/img/icon/weather_mix.svg",
-        "oe-weather-rainy": "assets/img/icon/weather_rainy.svg",
-        "oe-weather-snowy": "assets/img/icon/weather_snowy.svg",
-        "oe-sunshine-duration": "assets/img/icon/sunshine_duration.svg",
-        "oe-help": "assets/img/icon/help.svg",
+        "oe-clear-day": environment.icons.COMMON.WEATHER.CLEAR_DAY,
+        "oe-clear-night": environment.icons.COMMON.WEATHER.CLEAR_NIGHT,
+        "oe-partly-cloudy-day": environment.icons.COMMON.WEATHER.PARTLY_CLOUDY_DAY,
+        "oe-partly-cloudy-night": environment.icons.COMMON.WEATHER.PARTLY_CLOUDY_NIGHT,
+        "oe-thunderstorm": environment.icons.COMMON.WEATHER.THUNDERSTORM,
+        "oe-weather-cloudy": environment.icons.COMMON.WEATHER.WEATHER_CLOUDY,
+        "oe-weather-foggy": environment.icons.COMMON.WEATHER.WEATHER_FOGGY,
+        "oe-weather-mix": environment.icons.COMMON.WEATHER.WEATHER_MIX,
+        "oe-weather-rainy": environment.icons.COMMON.WEATHER.WEATHER_RAINY,
+        "oe-weather-snowy": environment.icons.COMMON.WEATHER.WEATHER_SNOWY,
+        "oe-sunshine-duration": environment.icons.COMMON.WEATHER.SUNSHINE_DURATION,
+        "oe-help": environment.icons.COMMON.WEATHER.HELP,
     });
 }

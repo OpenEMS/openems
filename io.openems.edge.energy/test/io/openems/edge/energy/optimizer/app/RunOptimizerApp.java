@@ -22,11 +22,33 @@ public class RunOptimizerApp {
 	private static final long EXECUTION_LIMIT_SECONDS = 10;
 
 	private static final JsonObject JSON = buildJsonObject() //
+			.addProperty("zone", "Europe/Berlin") //
 			.addProperty("startTime", ZonedDateTime.parse("2025-03-17T07:45:00Z")) //
 			.addProperty("riskLevel", RiskLevel.MEDIUM) //
 			.add("grid", buildJsonObject() //
-					.addProperty("maxBuyPower", 10000) //
-					.addProperty("maxSellPower", 5000) //
+					.addProperty("maxBuyPower", 100000) //
+					.addProperty("maxSellPower", 100000) //
+					.add("gridBuySoftLimit", buildJsonArray() //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.addProperty("start", "08:00:00") //
+									.addProperty("duration", "PT12H") //
+									.add("recurrenceRules", buildJsonArray() //
+											.add(buildJsonObject() //
+													.addProperty("frequency", "daily") //
+													.build()) //
+											.build()) //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 2000) //
+											.build()) //
+									.build()) //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 6000) //
+											.build()) //
+									.build()) //
+							.build()) //
 					.build()) //
 			.add("ess", buildJsonObject() //
 					.addProperty("currentEnergy", 11000) //
@@ -35,164 +57,179 @@ public class RunOptimizerApp {
 					.addProperty("maxDischargePower", 6000) //
 					.build()) //
 			.add("eshs", buildJsonArray() //
+
 					// ESS Fix-Active-Power
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_FIX_ACTIVE_POWER.factoryPid) //
-							.addProperty("id", "ctrlFixActivePower0") //
-							.add("source", buildJsonObject() //
-									.addProperty("power", 1000) //
-									.addProperty("relationship", "EQUALS") //
-									.build()) //
-							.build())
+					// .add(buildJsonObject() //
+					// .addProperty("factoryPid", Controller.ESS_FIX_ACTIVE_POWER.factoryPid) //
+					// .addProperty("id", "ctrlFixActivePower0") //
+					// .add("source", buildJsonObject() //
+					// .addProperty("power", 1000) //
+					// .addProperty("relationship", "EQUALS") //
+					// .build()) //
+					// .build())
 
 					// ESS Limit-Total-Discharge
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_LIMIT_TOTAL_DISCHARGE.factoryPid) //
-							.addProperty("id", "ctrlLimitTotalDischarge0") //
-							.add("source", buildJsonObject() //
-									.addProperty("minSoc", 10) //
-									.build()) //
-							.build())
+					// .add(buildJsonObject() //
+					// .addProperty("factoryPid", Controller.ESS_LIMIT_TOTAL_DISCHARGE.factoryPid)
+					// //
+					// .addProperty("id", "ctrlLimitTotalDischarge0") //
+					// .add("source", buildJsonObject() //
+					// .addProperty("minSoc", 10) //
+					// .build()) //
+					// .build())
 
 					// ESS Emergency-Capacity-Reserve
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_EMERGENCY_CAPACITY_RESERVE.factoryPid) //
-							.addProperty("id", "ctrlEmergencyCapacityReserve0") //
-							.add("source", buildJsonObject() //
-									.addProperty("minSoc", 100) //
-									.build()) //
-							.build())
+					// .add(buildJsonObject() //
+					// .addProperty("factoryPid",
+					// Controller.ESS_EMERGENCY_CAPACITY_RESERVE.factoryPid) //
+					// .addProperty("id", "ctrlEmergencyCapacityReserve0") //
+					// .add("source", buildJsonObject() //
+					// .addProperty("minSoc", 100) //
+					// .build()) //
+					// .build())
 
 					// ESS Grid-Optimized-Charge in MANUAL mode
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid) //
-							.addProperty("id", "ctrlGridOptimizedCharge0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "Manual") //
-									.addProperty("targetTime", "13:00") //
-									.build()) //
-							.build())
+					// .add(buildJsonObject() //
+					// .addProperty("factoryPid", Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid)
+					// //
+					// .addProperty("id", "ctrlGridOptimizedCharge0") //
+					// .add("source", buildJsonObject() //
+					// .addProperty("class", "Manual") //
+					// .addProperty("targetTime", "13:00") //
+					// .build()) //
+					// .build())
 
 					// ESS Grid-Optimized-Charge in AUTOMATIC mode
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid) //
-							.addProperty("id", "ctrlGridOptimizedCharge0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "Automatic") //
-									.build()) //
-							.build())
+					// .add(buildJsonObject() //
+					// .addProperty("factoryPid", Controller.ESS_GRID_OPTIMIZED_CHARGE.factoryPid)
+					// //
+					// .addProperty("id", "ctrlGridOptimizedCharge0") //
+					// .add("source", buildJsonObject() //
+					// .addProperty("class", "Automatic") //
+					// .build()) //
+					// .build())
 
-					// EVSE in MANUAL mode
+					// EVSE Cluster
 					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.EVSE_SINGLE.factoryPid) //
-							.addProperty("id", "ctrlEvseSingle0") //
+							.addProperty("factoryPid", Controller.EVSE_CLUSTER.factoryPid) //
+							.addProperty("id", "ctrlEvseCluster0") //
 							.add("source", buildJsonObject() //
-									.addProperty("class", "ManualOptimizationContext") //
-									.addProperty("mode", "MINIMUM") //
-									.add("abilities", buildJsonObject() //
-											.add("chargePointAbilities", buildJsonObject() //
-													.add("applySetPoint", buildJsonObject() //
-															.addProperty("class", "MilliAmpere") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 6000) //
-															.addProperty("max", 16000) //
-															.build()) //
-													.add("phaseSwitch", JsonNull.INSTANCE) //
-													.addProperty("isEvConnected", true) //
-													.addProperty("isReadyForCharging", true) //
-													.build()) //
-											.add("electricVehicleAbilities", buildJsonObject() //
-													.add("singlePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "SINGLE_PHASE") //
-															.addProperty("min", 1380) //
-															.addProperty("max", 7360) //
-															.addProperty("step", 1) //
-															.build()) //
-													.add("threePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 4140) //
-															.addProperty("max", 11040) //
-															.addProperty("step", 1) //
-															.build()) //
-													.addProperty("canInterrupt", true) //
-													.build()) //
-											.addProperty("isReadyForCharging", true) //
-											.add("applySetPoint", buildJsonObject() //
-													.addProperty("class", "Watt") //
-													.addProperty("phase", "THREE_PHASE") //
-													.addProperty("min", 4140) //
-													.addProperty("max", 11040) //
-													.addProperty("step", 1) //
-													.build()) //
-											.add("phaseSwitch", JsonNull.INSTANCE) //
-											.build()) //
-									.addProperty("appearsToBeFullyCharged", false) //
-									.addProperty("sessionEnergy", 0) //
-									.addProperty("sessionEnergyLimit", 10000) //
-									.build()) //
-							.build())
-
-					// EVSE in SMART mode
-					.add(buildJsonObject() //
-							.addProperty("factoryPid", Controller.EVSE_SINGLE.factoryPid) //
-							.addProperty("id", "ctrlEvseSingle0") //
-							.add("source", buildJsonObject() //
-									.addProperty("class", "SmartOptimizationConfig") //
-									.add("abilities", buildJsonObject() //
-											.add("chargePointAbilities", buildJsonObject() //
-													.add("applySetPoint", buildJsonObject() //
-															.addProperty("class", "MilliAmpere") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 6000) //
-															.addProperty("max", 16000) //
-															.build()) //
-													.add("phaseSwitch", JsonNull.INSTANCE) //
-													.addProperty("isEvConnected", true) //
-													.addProperty("isReadyForCharging", true) //
-													.build()) //
-											.add("electricVehicleAbilities", buildJsonObject() //
-													.add("singlePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "SINGLE_PHASE") //
-															.addProperty("min", 1380) //
-															.addProperty("max", 7360) //
-															.addProperty("step", 1) //
-															.build()) //
-													.add("threePhaseLimit", buildJsonObject() //
-															.addProperty("class", "Watt") //
-															.addProperty("phase", "THREE_PHASE") //
-															.addProperty("min", 4140) //
-															.addProperty("max", 11040) //
-															.addProperty("step", 1) //
-															.build()) //
-													.addProperty("canInterrupt", true) //
-													.build()) //
-											.addProperty("isReadyForCharging", true) //
-											.add("applySetPoint", buildJsonObject() //
-													.addProperty("class", "Watt") //
-													.addProperty("phase", "THREE_PHASE") //
-													.addProperty("min", 4140) //
-													.addProperty("max", 11040) //
-													.addProperty("step", 1) //
-													.build()) //
-											.add("phaseSwitch", JsonNull.INSTANCE) //
-											.build()) //
-									.addProperty("appearsToBeFullyCharged", false) //
-									.add("smartConfig", buildJsonArray() //
+									.addProperty("distributionStrategy", "EQUAL_POWER") //
+									.add("params", buildJsonArray() //
 											.add(buildJsonObject() //
-													.addProperty("@type", "Task") //
-													.addProperty("start", "12:00:00") //
-													.add("recurrenceRules", buildJsonArray() //
+													.addProperty("componentId", "ctrlEvseSingle0") //
+													.addProperty("mode", "SURPLUS") //
+													.addProperty("activePower", 0) //
+													.addProperty("sessionEnergy", 0) //
+													.addProperty("sessionEnergyLimit", 10000) //
+													.addProperty("history", "") //
+													.addProperty("phaseSwitching", "DISABLE") //
+													.add("combinedAbilities", buildJsonObject() //
+															.add("chargePointAbilities", buildJsonObject() //
+																	.add("applySetPoint", buildJsonObject() //
+																			.addProperty("class", "MilliAmpere") //
+																			.addProperty("phase", "THREE_PHASE") //
+																			.addProperty("min", 6000) //
+																			.addProperty("max", 16000) //
+																			.build()) //
+																	.add("phaseSwitch", JsonNull.INSTANCE) //
+																	.addProperty("isEvConnected", true) //
+																	.addProperty("isReadyForCharging", true) //
+																	.build()) //
+															.add("electricVehicleAbilities", buildJsonObject() //
+																	.add("singlePhaseLimit", buildJsonObject() //
+																			.addProperty("class", "Watt") //
+																			.addProperty("phase", "SINGLE_PHASE") //
+																			.addProperty("min", 1380) //
+																			.addProperty("max", 7360) //
+																			.addProperty("step", 1) //
+																			.build()) //
+																	.add("threePhaseLimit", buildJsonObject() //
+																			.addProperty("class", "Watt") //
+																			.addProperty("phase", "THREE_PHASE") //
+																			.addProperty("min", 4140) //
+																			.addProperty("max", 11040) //
+																			.addProperty("step", 1) //
+																			.build()) //
+																	.addProperty("canInterrupt", true) //
+																	.build()) //
+															.addProperty("isReadyForCharging", true) //
+															.add("applySetPoint", buildJsonObject() //
+																	.addProperty("class", "Watt") //
+																	.addProperty("phase", "THREE_PHASE") //
+																	.addProperty("min", 4140) //
+																	.addProperty("max", 11040) //
+																	.addProperty("step", 1) //
+																	.build()) //
+															.add("phaseSwitch", JsonNull.INSTANCE) //
+															.build()) //
+													.add("tasks", buildJsonArray() //
+															.build()) //
+													.build()) //
+											.add(buildJsonObject() //
+													.addProperty("componentId", "ctrlEvseSingle1") //
+													.addProperty("mode", "ZERO") //
+													.addProperty("activePower", 0) //
+													.addProperty("sessionEnergy", 0) //
+													.addProperty("sessionEnergyLimit", 0) //
+													.addProperty("history", "") //
+													.addProperty("phaseSwitching", "DISABLE") //
+													.add("combinedAbilities", buildJsonObject() //
+															.add("chargePointAbilities", buildJsonObject() //
+																	.add("applySetPoint", buildJsonObject() //
+																			.addProperty("class", "MilliAmpere") //
+																			.addProperty("phase", "THREE_PHASE") //
+																			.addProperty("min", 6000) //
+																			.addProperty("max", 16000) //
+																			.build()) //
+																	.add("phaseSwitch", JsonNull.INSTANCE) //
+																	.addProperty("isEvConnected", true) //
+																	.addProperty("isReadyForCharging", true) //
+																	.build()) //
+															.add("electricVehicleAbilities", buildJsonObject() //
+																	.add("singlePhaseLimit", buildJsonObject() //
+																			.addProperty("class", "Watt") //
+																			.addProperty("phase", "SINGLE_PHASE") //
+																			.addProperty("min", 1380) //
+																			.addProperty("max", 7360) //
+																			.addProperty("step", 1) //
+																			.build()) //
+																	.add("threePhaseLimit", buildJsonObject() //
+																			.addProperty("class", "Watt") //
+																			.addProperty("phase", "THREE_PHASE") //
+																			.addProperty("min", 4140) //
+																			.addProperty("max", 11040) //
+																			.addProperty("step", 1) //
+																			.build()) //
+																	.addProperty("canInterrupt", true) //
+																	.build()) //
+															.addProperty("isReadyForCharging", true) //
+															.add("applySetPoint", buildJsonObject() //
+																	.addProperty("class", "Watt") //
+																	.addProperty("phase", "THREE_PHASE") //
+																	.addProperty("min", 4140) //
+																	.addProperty("max", 11040) //
+																	.addProperty("step", 1) //
+																	.build()) //
+															.add("phaseSwitch", JsonNull.INSTANCE) //
+															.build()) //
+													.add("tasks", buildJsonArray() //
 															.add(buildJsonObject() //
-																	.addProperty("frequency", "daily") //
+																	.addProperty("@type", "Task") //
+																	.addProperty("start", "13:00:00") //
+																	.addProperty("duration", "PT2H") //
+																	.add("recurrenceRules", buildJsonArray() //
+																			.add(buildJsonObject() //
+																					.addProperty("frequency", "daily") //
+																					.build())
+																			.build())
+																	.add("openems.io:payload", buildJsonObject() //
+																			.addProperty("class", "Manual") //
+																			.addProperty("mode", "FORCE") //
+																			.build())
 																	.build())
-															.build())
-													.add("openems.io:payload", buildJsonObject() //
-															.addProperty("sessionEnergyMinimum", 10000) //
-															.build())
-													.build())
+															.build()) //
+													.build()) //
 											.build()) //
 									.build()) //
 							.build())
@@ -209,72 +246,72 @@ public class RunOptimizerApp {
 					.build()) //
 
 			.add("periods", buildJsonArray() //
-					// time | production | consumption | price
-					.add(period("07:45", 305.0, 291.3, 367.0)) //
-					.add(period("08:00", 351.0, 258.4, 345.0)) //
-					.add(period("08:15", 932.0, 258.4, 1490.0)) //
-					.add(period("08:30", 1087.0, 258.4, 1523.0)) //
-					.add(period("08:45", 1258.0, 258.4, 1535.0)) //
-					.add(period("09:00", 1372.0, 215.4, 1480.0)) //
-					.add(period("09:15", 1388.0, 215.4, 1567.0)) //
-					.add(period("09:30", 1533.0, 215.4, 1065.0)) //
-					.add(period("09:45", 1808.0, 215.4, 503.0)) //
-					.add(period("10:00", 1951.0, 192.6, 794.0)) //
-					.add(period("10:15", 1918.0, 192.6, 906.0)) //
-					.add(period("10:30", 2072.0, 192.6, 868.0)) //
-					.add(period("10:45", 2222.0, 192.6, 1781.0)) //
-					.add(period("11:00", 2370.0, 180.7, 973.0)) //
-					.add(period("11:15", 2476.0, 180.7, 853.0)) //
-					.add(period("11:30", 2552.0, 180.7, 996.0)) //
-					.add(period("11:45", 2581.0, 180.7, 979.0)) //
-					.add(period("12:00", 2598.0, 177.9, 1231.0)) //
-					.add(period("12:15", 2604.0, 177.9, 1431.0)) //
-					.add(period("12:30", 2603.0, 177.9, 1100.0)) //
-					.add(period("12:45", 2583.0, 177.9, 895.0)) //
-					.add(period("13:00", 2596.0, 178.2, 904.0)) //
-					.add(period("13:15", 2603.0, 178.2, 1025.0)) //
-					.add(period("13:30", 2594.0, 178.2, 781.0)) //
-					.add(period("13:45", 2516.0, 178.2, 838.0)) //
-					.add(period("14:00", 2431.0, 180.7, 931.0)) //
-					.add(period("14:15", 2325.0, 180.7, 654.0)) //
-					.add(period("14:30", 2153.0, 180.7, 613.0)) //
-					.add(period("14:45", 2087.0, 180.7, 1117.0)) //
-					.add(period("15:00", 2021.0, 201.3, 987.0)) //
-					.add(period("15:15", 1864.0, 201.3, 1554.0)) //
-					.add(period("15:30", 1653.0, 201.3, 1692.0)) //
-					.add(period("15:45", 1581.0, 201.3, 970.0)) //
-					.add(period("16:00", 1360.0, 288.4, 803.0)) //
-					.add(period("16:15", 1262.0, 288.4, 676.0)) //
-					.add(period("16:30", 1148.0, 288.4, 1395.0)) //
-					.add(period("16:45", 985.0, 288.4, 975.0)) //
-					.add(period("17:00", 743.0, 330.2, 397.0)) //
-					.add(period("17:15", 516.0, 330.2, 604.0)) //
-					.add(period("17:30", 224.0, 330.2, 892.0)) //
-					.add(period("17:45", 68.0, 330.2, 1113.0)) //
-					.add(period("18:00", 13.0, 341.7, 590.0)) //
-					.add(period("18:15", 2.0, 341.7, 832.0)) //
-					.add(period("18:30", 0.0, 341.7, 726.0)) //
-					.add(period("18:45", 0.0, 341.7, 394.0)) //
-					.add(period("19:00", 0.0, 343.3, 950.0)) //
-					.add(period("19:15", 0.0, 343.3, 662.0)) //
-					.add(period("19:30", 0.0, 343.3, 394.0)) //
-					.add(period("19:45", 0.0, 343.3, 728.0)) //
-					.add(period("20:00", 0.0, 335.6, 492.0)) //
-					.add(period("20:15", 0.0, 335.6, 1320.0)) //
-					.add(period("20:30", 0.0, 335.6, 663.0)) //
-					.add(period("20:45", 0.0, 335.6, 432.0)) //
-					.add(period("21:00", 0.0, 326.6, 579.0)) //
-					.add(period("21:15", 0.0, 326.6, 430.0)) //
-					.add(period("21:30", 0.0, 326.6, 421.0)) //
-					.add(period("21:45", 0.0, 326.6, 542.0)) //
-					.add(period("22:00", 0.0, 314.9, 703.0)) //
-					.add(period("22:15", 0.0, 314.9, 656.0)) //
-					.add(period("22:30", 0.0, 314.9, 476.0)) //
-					.add(period("22:45", 0.0, 314.9, 446.0)) //
-					.add(period("23:00", 0.0, 307.7, 450.0)) //
-					.add(period("23:15", 0.0, 307.7, 487.0)) //
-					.add(period("23:30", 0.0, 307.7, 554.0)) //
-					.add(period("23:45", 0.0, 307.7, 434.0)) //
+					// time | gridBuySoftLimit | production | consumption | price
+					.add(period("07:45", null, 305.0, 291.3, 367.0)) //
+					.add(period("08:00", null, 351.0, 258.4, 345.0)) //
+					.add(period("08:15", null, 932.0, 258.4, 1490.0)) //
+					.add(period("08:30", null, 1087.0, 258.4, 1523.0)) //
+					.add(period("08:45", null, 1258.0, 258.4, 1535.0)) //
+					.add(period("09:00", null, 1372.0, 215.4, 1480.0)) //
+					.add(period("09:15", null, 1388.0, 215.4, 1567.0)) //
+					.add(period("09:30", null, 1533.0, 215.4, 1065.0)) //
+					.add(period("09:45", null, 1808.0, 215.4, 503.0)) //
+					.add(period("10:00", null, 1951.0, 192.6, 794.0)) //
+					.add(period("10:15", null, 1918.0, 192.6, 906.0)) //
+					.add(period("10:30", null, 2072.0, 192.6, 868.0)) //
+					.add(period("10:45", null, 2222.0, 192.6, 1781.0)) //
+					.add(period("11:00", null, 2370.0, 180.7, 973.0)) //
+					.add(period("11:15", null, 2476.0, 180.7, 853.0)) //
+					.add(period("11:30", null, 2552.0, 180.7, 996.0)) //
+					.add(period("11:45", null, 2581.0, 180.7, 979.0)) //
+					.add(period("12:00", null, 2598.0, 177.9, 1231.0)) //
+					.add(period("12:15", null, 2604.0, 177.9, 1431.0)) //
+					.add(period("12:30", null, 2603.0, 177.9, 1100.0)) //
+					.add(period("12:45", null, 2583.0, 177.9, 895.0)) //
+					.add(period("13:00", null, 2596.0, 178.2, 904.0)) //
+					.add(period("13:15", null, 2603.0, 178.2, 1025.0)) //
+					.add(period("13:30", null, 2594.0, 178.2, 781.0)) //
+					.add(period("13:45", null, 2516.0, 178.2, 838.0)) //
+					.add(period("14:00", null, 2431.0, 180.7, 931.0)) //
+					.add(period("14:15", null, 2325.0, 180.7, 654.0)) //
+					.add(period("14:30", null, 2153.0, 180.7, 613.0)) //
+					.add(period("14:45", null, 2087.0, 180.7, 1117.0)) //
+					.add(period("15:00", null, 2021.0, 201.3, 987.0)) //
+					.add(period("15:15", null, 1864.0, 201.3, 1554.0)) //
+					.add(period("15:30", null, 1653.0, 201.3, 1692.0)) //
+					.add(period("15:45", null, 1581.0, 201.3, 970.0)) //
+					.add(period("16:00", null, 1360.0, 288.4, 803.0)) //
+					.add(period("16:15", null, 1262.0, 288.4, 676.0)) //
+					.add(period("16:30", null, 1148.0, 288.4, 1395.0)) //
+					.add(period("16:45", null, 985.0, 288.4, 975.0)) //
+					.add(period("17:00", null, 743.0, 330.2, 397.0)) //
+					.add(period("17:15", null, 516.0, 330.2, 604.0)) //
+					.add(period("17:30", null, 224.0, 330.2, 892.0)) //
+					.add(period("17:45", null, 68.0, 330.2, 1113.0)) //
+					.add(period("18:00", null, 13.0, 341.7, 590.0)) //
+					.add(period("18:15", null, 2.0, 341.7, 832.0)) //
+					.add(period("18:30", null, 0.0, 341.7, 726.0)) //
+					.add(period("18:45", null, 0.0, 341.7, 394.0)) //
+					.add(period("19:00", null, 0.0, 343.3, 950.0)) //
+					.add(period("19:15", null, 0.0, 343.3, 662.0)) //
+					.add(period("19:30", null, 0.0, 343.3, 394.0)) //
+					.add(period("19:45", null, 0.0, 343.3, 728.0)) //
+					.add(period("20:00", null, 0.0, 335.6, 492.0)) //
+					.add(period("20:15", null, 0.0, 335.6, 1320.0)) //
+					.add(period("20:30", null, 0.0, 335.6, 663.0)) //
+					.add(period("20:45", null, 0.0, 335.6, 432.0)) //
+					.add(period("21:00", null, 0.0, 326.6, 579.0)) //
+					.add(period("21:15", null, 0.0, 326.6, 430.0)) //
+					.add(period("21:30", null, 0.0, 326.6, 421.0)) //
+					.add(period("21:45", null, 0.0, 326.6, 542.0)) //
+					.add(period("22:00", null, 0.0, 314.9, 703.0)) //
+					.add(period("22:15", null, 0.0, 314.9, 656.0)) //
+					.add(period("22:30", null, 0.0, 314.9, 476.0)) //
+					.add(period("22:45", null, 0.0, 314.9, 446.0)) //
+					.add(period("23:00", null, 0.0, 307.7, 450.0)) //
+					.add(period("23:15", null, 0.0, 307.7, 487.0)) //
+					.add(period("23:30", null, 0.0, 307.7, 554.0)) //
+					.add(period("23:45", null, 0.0, 307.7, 434.0)) //
 					.build())
 			.build();
 

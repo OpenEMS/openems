@@ -15,9 +15,6 @@
         <heatChart [isOnlyChart]="true"></heatChart>
       }
     }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
   </oe-chart>
-}
-@if (isInitialized) {
-  <oe-footer-subnavigation [backButton]="true"
-  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
 }

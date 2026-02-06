@@ -46,7 +46,6 @@ public class OneHotEncoder<I> extends AbstractStatefulDataFrameTransformer<I> {
 
 		for (var columnName : this.columnNames) {
 			var originalValues = dataframe.getColumn(columnName).getValues();
-
 			var uniqueValues = this.uniqueValuesPerColumn.get(columnName);
 
 			for (var value : uniqueValues) {
