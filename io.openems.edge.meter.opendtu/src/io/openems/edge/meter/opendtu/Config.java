@@ -19,13 +19,10 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Phase", description = "Which Phase is measured by this Meter?")
+	@AttributeDefinition(name = "Phase", description = "Which Phase is the Inverter connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 
-	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption")
-	MeterType type() default MeterType.PRODUCTION;
-
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the OpenWB.")
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the OpenDTU.")
 	String ipAddress();
 
 	@AttributeDefinition(name = "Inverter Serial Number", description = "Serial Number of the Inverter")
