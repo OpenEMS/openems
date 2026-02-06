@@ -149,7 +149,6 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 		Integer power = null;
 		Integer voltage = null;
 		Integer current = null;
-		//boolean restartRequired = false;
 
 		if (error != null) {
 			this.logDebug(this.log, error.getMessage());
@@ -202,7 +201,7 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return this.config.type();
+		return MeterType.PRODUCTION;
 	}
 
 	@Override
