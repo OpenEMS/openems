@@ -113,13 +113,6 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 
 		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/api/livedata/status?inv=" + config.serialNumber(), this::processHttpResult);
-
-		/*
-		 * this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.serialNumber());
-		 */
-		/*
-		 * this.worker.activate(config.id());
-		 */
 	}
 
 	@Deactivate
