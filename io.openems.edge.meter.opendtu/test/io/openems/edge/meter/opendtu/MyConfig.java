@@ -69,11 +69,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public MeterType type() {
-		return this.builder.type;
-	}
-
-	@Override
 	public SinglePhase phase() {
 		return this.builder.phase;
 	}
