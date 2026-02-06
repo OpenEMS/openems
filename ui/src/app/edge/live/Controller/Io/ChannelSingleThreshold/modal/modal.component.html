@@ -206,11 +206,11 @@
                       </td>
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
+                          @if (inputChannelUnit) {
+                            <ion-label  class="regularFont">&nbsp;{{ inputChannelUnit }}</ion-label>
+                          }
                           <ion-input class="regularFont" style="text-align: end;" type="number"
-                            formControlName="threshold"
-                            [label]="inputMode.value !== 'OTHER' 
-                            ? '&nbsp;W' 
-                            : ((inputMode.value === 'OTHER' && inputChannelUnit) ? '&nbsp;{{ inputChannelUnit }}' : '')" class="regularFont">
+                            formControlName="threshold">
                           </ion-input>
                         </ion-item>
                       </td>
@@ -236,7 +236,7 @@
                           {{ threshold.value | unitvalue:'%' }}
                         } @else {
                           <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE</span>
-                          {{ threshold.value | unitvalue:'W'}}
+                          {{ threshold.value | unitvalue:inputChannelUnit}}
                         }
                       </ion-label>
                       <ion-icon style="width:40px" name="arrow-up-outline"></ion-icon>
@@ -248,7 +248,7 @@
                           {{ threshold.value | unitvalue:'%' }}
                         } @else {
                           <span translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW</span>
-                          {{ threshold.value | unitvalue:'W' }}
+                          {{ threshold.value | unitvalue:inputChannelUnit }}
                         }
                       </ion-label>
                       <ion-icon style="width:40px" name="arrow-down-outline"></ion-icon>
