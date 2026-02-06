@@ -149,8 +149,8 @@
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)';startlevel=14,\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)';startlevel=15,\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.2,2.3.3)';startlevel=14,\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.2,2.3.3)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.service.jdbc;version='[1.1.0,1.1.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
