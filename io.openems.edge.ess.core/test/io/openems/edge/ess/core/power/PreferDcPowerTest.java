@@ -97,7 +97,7 @@ public class PreferDcPowerTest {
 				.addReference("addEss", ess6) //
 				.activate(MyConfig.create() //
 						.setStrategy(OPTIMIZE_BY_PREFERRING_DC_POWER) //
-						.setSymmetricMode(true) //
+						.setSymmetricMode(false) //
 						.setDebugMode(false) //
 						.setEnablePid(false) //
 						.build()); //
@@ -190,9 +190,9 @@ public class PreferDcPowerTest {
 		// Test discharge
 		expect("#8.1", ess1, 10000, 0); // Pv production active
 		expect("#8.2", ess2, 10000, 0); // Pv Production active
-		expect("#8.3", ess3, 10000, 0); // Pv Production active
+		expect("#8.3", ess3, 9996, 0); // Pv Production active and lowest SOC -> gets less discharge power
 		expect("#8.4", ess4, 10000, 0); // Pv Production active
-		expect("#8.5", ess5, 9996, 0); // No pv Production active -> lowest SOC within all no pv production inverter -> gets less discharge power
+		expect("#8.5", ess5, 10000, 0); // No pv Production active
 		expect("#8.6", ess6, 10000, 0); // No pv Production active
 
 		ess0.setActivePowerEquals(59996); // Discharging with 4 W less than maximum power
@@ -494,19 +494,13 @@ public class PreferDcPowerTest {
 		componentTest.next(new TestCase("#27"));
 
 		// Test charge & reactive power request -> Test USE_IDLE_ESS WeightStrategy with asymmetric MaxApparentPower ratio
-		expect("#28.1", ess1, 0, -121); // MaxApparentPower/MaxApparentPowerTotal -> 5000/40000 -> 12% of -1000W -> -120W
-										//  + 12% of remaining -10W (rounding difference) -> -1W = -121W reactive power
-		expect("#28.2", ess2, 0, -123); // MaxApparentPower/MaxApparentPowerTotal -> 5000/40000 -> 12% of -1000W -> -120W
-										//  + 12% of remaining -10W (rounding difference) -> -1W = -121W reactive power
-										//  + remaining -2W (rounding difference); solved using order over discharging ess
-										//  -> -2W = -123W
+		expect("#28.1", ess1, 0, -130); // MaxApparentPower/MaxApparentPowerTotal -> 5000/40000 -> 13% of -1000W -> -130W
+		expect("#28.2", ess2, 0, -130); // MaxApparentPower/MaxApparentPowerTotal -> 5000/40000 -> 13% of -1000W -> -130W
 		expect("#28.3", ess3, -5000, 0); // charging inverter should not be used
-		expect("#28.4", ess4, 0, -252); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
-										//  + 25% of remaining -10W (rounding difference) -> -2W = -252W reactive power
-		expect("#28.5", ess5, 0, -252); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
-										//  + 25% of remaining -10W (rounding difference) -> -2W = -252W reactive power
-		expect("#28.6", ess6, 0, -252); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
-										//  + 25% of remaining -10W (rounding difference) -> -2W = -252W reactive power
+		expect("#28.4", ess4, 0, -250); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
+		expect("#28.5", ess5, 0, -250); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
+		expect("#28.6", ess6, 0, -240); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
+										//  limited to maximum remaining required reactive power of -240W
 
 		ess1.withMaxApparentPower(5000);
 		ess2.withMaxApparentPower(5000);
@@ -886,9 +880,9 @@ public class PreferDcPowerTest {
 						.build()); //
 
 		// Test discharge with limited power on ess2
-		expect("#1.1", ess1, 5000, 0); // Gets remaining power due to lower SOC
-		expect("#1.2", ess2, 5000, 0); // High SOC ESS limited by max discharge power
-		expect("#1.3", ess3, 50000, 0); // High SOC ESS limited by max discharger power
+		expect("#1.1", ess1, 10000, 0); // Gets 5kW due to minimum constraint + remaining power due to lower SOC
+		expect("#1.2", ess2, 0, 0); // Discharge of ess3 is not required
+		expect("#1.3", ess3, 50000, 0); // Gets 5kW due to minimum constraint + max discharge power due to higher SOC
 
 		ess0.setActivePowerEquals(60000); // 60kW discharge
 		componentTest.next(new TestCase("#1"));
@@ -1104,6 +1098,357 @@ public class PreferDcPowerTest {
 		ess0.setActivePowerEquals(0); // Zero power
 		ess0.setReactivePowerEquals(-8000); // -8000W reactive power
 		componentTest.next(new TestCase("#18"));
+	}
+
+	@Test
+	public void testEssConstraints() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+
+		var ess1 = new DummyManagedSymmetricEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-20000) //
+				.withAllowedDischargePower(60000) //
+				.withMaxApparentPower(60000) //
+				.withPvProduction(1000) //
+				.withSoc(30);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-60000) //
+				.withAllowedDischargePower(20000) //
+				.withMaxApparentPower(60000) //
+				.withPvProduction(1000) //
+				.withSoc(70);
+		var ess3 = new DummyManagedSymmetricEss("ess3") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-40000) //
+				.withAllowedDischargePower(40000) //
+				.withMaxApparentPower(40000) //
+				.withPvProduction(0) //
+				.withSoc(50);
+
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2, ess3) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.addReference("addEss", ess3) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_PREFERRING_DC_POWER) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// Test discharge
+		expect("#1.1", ess1, 1000, 0); // gets 1kW due to pv production
+		expect("#1.2", ess2, 1000, 0); // gets 1kW due to pv production
+		expect("#1.3", ess3, 1000, 0); // fulfill minimum constraint
+
+		ess3.setActivePowerGreaterOrEquals(1000); // minimum discharge of 1kW required
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		componentTest.next(new TestCase("#1"));
+
+		// Test discharge & minimum constraint on ess with pv production
+		expect("#2.1", ess1, 1500, 0); // gets 1.5kW due to minimum constraint
+		expect("#2.2", ess2, 1000, 0); // gets remaining 1kW due to pv production
+		expect("#2.3", ess3, 0, 0);
+
+		ess1.setActivePowerGreaterOrEquals(1500); // minimum discharge of 1.5kW required
+		ess0.setActivePowerEquals(2500); // 2.5kW discharge
+		componentTest.next(new TestCase("#2"));
+
+		// Test discharge & minimum constraint on ess with pv production
+		expect("#3.1", ess1, 1500, 0); // gets 1.5kW due to minimum constraint
+		expect("#3.2", ess2, 1500, 0); // gets 1kW due to pv production  + remaining 500W due to highest SOC
+		expect("#3.3", ess3, 0, 0);
+
+		ess1.setActivePowerGreaterOrEquals(1500); // minimum discharge of 1.5kW required
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		componentTest.next(new TestCase("#3"));
+
+		// Test discharge & minimum constraint on ess with pv production
+		expect("#4.1", ess1, 1500, 0); // gets 1.5kW due to minimum constraint
+		expect("#4.2", ess2, 500, 0); // gets remaining 500 W due to pv production
+		expect("#4.3", ess3, 0, 0);
+
+		ess1.setActivePowerGreaterOrEquals(1500); // minimum discharge of 1.5kW required
+		ess0.setActivePowerEquals(2000); // 2kW discharge
+		componentTest.next(new TestCase("#4"));
+
+		// Test discharge & maximum constraint on ess with pv production
+		expect("#5.1", ess1, 500, 0); // gets only 0.5kW of 1kW pv production due to maximum constraint
+		expect("#5.2", ess2, 1500, 0); // gets 1kW due to pv production + remaining 0.5kW due to already discharging
+		expect("#5.3", ess3, 0, 0);
+
+		ess1.setActivePowerLessOrEquals(500); // maximum discharge of 0.5kW allowed
+		ess0.setActivePowerEquals(2000); // 2kW discharge
+		componentTest.next(new TestCase("#5"));
+
+		// Test discharge & minimum constraint on ess without pv production
+		expect("#6.1", ess1, 1000, 0); // gets 1kW due to pv production
+		expect("#6.2", ess2, 2000, 0); // gets 1kW due to pv production + remaining 1kW due to highest soc
+		expect("#6.3", ess3, 1000, 0); // fulfill minimum constraint
+
+		ess3.setActivePowerGreaterOrEquals(1000); // minimum discharge of 1kW required
+		ess0.setActivePowerEquals(4000); // 4kW discharge
+		componentTest.next(new TestCase("#6"));
+
+		// Test discharge & minimum charge constraint on ess3
+		expect("#7.1", ess1, 1000, 0); // gets 1kW due to pv production
+		expect("#7.2", ess2, 3000, 0); // gets 1kW due to pv production + remaining 2kW due to higher SOC
+		expect("#7.3", ess3, -1000, 0); // fulfill maximum constraint (other ess have to compensate this with +1000W)
+
+		ess3.setActivePowerLessOrEquals(-1000); // minimum charge of 1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		componentTest.next(new TestCase("#7"));
+
+		// Test discharge & positive reactive power request & positive reactive ess constraint on ess not planned to deliver reactive power
+		expect("#8.1", ess1, 1000, 330); // 1000/3000 -> 33% of 2000-1000 (1000) W -> 330 W
+		expect("#8.2", ess2, 2000, 670); // 2000/3000 -> 67% of 2000-1000 (1000) W -> 670 W
+		expect("#8.3", ess3, 0, 1000); // fulfill minimum reactive power constraint
+
+		ess3.setReactivePowerGreaterOrEquals(1000); // minimum reactive power of 1kW required
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#8"));
+
+		// Test discharge & positive reactive power request & positive reactive ess constraint on ess not planned to deliver reactive power
+		expect("#9.1", ess1, 1000, 500); // 1000/3000 -> 33% of 2000-1000 (1000) W -> 330 W -> increased with 170W due to max max constraint of ess2
+		expect("#9.2", ess2, 2000, 500); // 2000/3000 -> 67% of 2000-1000 (1000) W -> 670 W -> limited to 500W due to max constraint
+		expect("#9.3", ess3, 0, 1000); // fulfill minimum reactive power constraint
+
+		ess2.setReactivePowerLessOrEquals(500); // maximum reactive power of 0.5kW allowed
+		ess3.setReactivePowerGreaterOrEquals(1000); // minimum reactive power of 1kW required
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#9"));
+
+		// Test discharge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#10.1", ess1, 1000, 500); // 1000/3000 -> 33% of 2000 W -> 660 W -> decreased to remaining power required of 500W
+		expect("#10.2", ess2, 2000, 1500); // 2000/3000 -> 67% of 2000 W -> 1340 W -> increased to minimum of 1500W
+		expect("#10.3", ess3, 0, 0);
+
+		ess2.setReactivePowerGreaterOrEquals(1500); // minimum reactive power of 1.5kW required
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#10"));
+
+		// Test discharge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#11.1", ess1, 1000, 500); // 1000/3000 -> 33% of 2000-1000 (1000) W -> 330 W -> increased with 170W due to max max constraint of ess2
+		expect("#11.2", ess2, 2000, 500); // 2000/3000 -> 67% of 2000-1000 (1000) W -> 670 W -> limited to 500W due to max constraint
+		expect("#11.3", ess3, 0, 0); // fulfill minimum reactive power constraint
+
+		ess2.setReactivePowerLessOrEquals(500); // maximum reactive power of 0.5kW allowed
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(1000); // 1kW reactive power
+		componentTest.next(new TestCase("#11"));
+
+		// Test discharge & positive reactive power request & negative reactive ess constraint on ess not planned to deliver reactive power
+		expect("#12.1", ess1, 1000, 990); // 1000/3000 -> 33% of 2000+1000 (3000) W -> 990 W
+		expect("#12.2", ess2, 2000, 2010); // 2000/3000 -> 67% of 2000+1000 (3000) W -> 2010 W
+		expect("#12.3", ess3, 0, -1000); // fulfill minimum reactive power constraint (other ess have to compensate this with +1000W)
+
+		ess3.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#12"));
+
+		// Test discharge & positive reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#13.1", ess1, 1000, -1000); // fulfill minimum reactive power constraint
+		expect("#13.2", ess2, 2000, 3000); // gets all reactive power + additional 1000W to compensate constraint of ess1
+		expect("#13.3", ess3, 0, 0); // idle ess should not be used for reactive power
+
+		ess1.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#13"));
+
+		// Test discharge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#14.1", ess1, 1000, -660); // 1000/3000 -> 33% of -2000W -> -660W
+		expect("#14.2", ess2, 2000, -1340); // 2000/3000 -> 67% of -2000W -> -1340W
+		expect("#14.3", ess3, 0, 0); // fulfill maximum reactive power constraint
+
+		ess2.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#14"));
+
+		// Test discharge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#15.1", ess1, 1000, -500); // 1000/3000 -> 33% of -2000W -> -660W -> decrease to remaining reactive power -500.0
+		expect("#15.2", ess2, 2000, -1500); // 2000/3000 -> 67% of -2000W -> -1340W -> increase to maximum constraint -1500.0
+		expect("#15.3", ess3, 0, 0); // fulfill maximum reactive power constraint
+
+		ess2.setReactivePowerLessOrEquals(-1500); // minimum reactive power of -1.5kW required -> maximum constraint -1500.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#15"));
+
+		// Test discharge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#16.1", ess1, 1000, -1000); // 1000/3000 -> 33% of -2000W -> -660W -> increase to remaining reactive power -1000.0
+		expect("#16.2", ess2, 2000, -1000); // 2000/3000 -> 67% of -2000W -> -1340W -> decrease to minimum constraint -1000.0
+		expect("#16.3", ess3, 0, 0); // fulfill maximum reactive power constraint
+
+		ess2.setReactivePowerGreaterOrEquals(-1000); // maximum reactive power of -1kW allowed -> minimum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#16"));
+
+		// Test discharge & negative reactive power request & negative reactive ess constraint on ess not planned to deliver reactive power
+		expect("#17.1", ess1, 1000, -330); // 1000/3000 -> 33% of -1000 W -> -330 W
+		expect("#17.2", ess2, 2000, -670); // 2000/3000 -> 67% of -1000 W -> -670 W
+		expect("#17.3", ess3, 0, -1000); // fulfill maximum reactive power constraint
+
+		ess3.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#17"));
+
+		// Test discharge & negative reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#18.1", ess1, 1000, -3500); // gets all reactive power + additional -1500W to compensate constraint of ess2
+		expect("#18.2", ess2, 2000, 1500); // fulfill minimum reactive power constraint
+		expect("#18.3", ess3, 0, 0); // idle ess should not be used for reactive power
+
+		ess2.setReactivePowerGreaterOrEquals(1500); // minimum reactive power of 1.5kW required -> minimum constraint 1500.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#18"));
+
+		// Test discharge & negative reactive power request & positive reactive ess constraint on ess not planned to deliver reactive power
+		expect("#19.1", ess1, 1000, -990); // 1000/3000 -> 33% of -2000-1000 (-3000) W -> -990 W
+		expect("#19.2", ess2, 2000, -2010); // 2000/3000 -> 67% of -2000-1000 (-3000) W -> -2010 W
+		expect("#19.3", ess3, 0, 1000); // fulfill minimum reactive power constraint (other ess have to compensate this with -1000W)
+
+		ess3.setReactivePowerGreaterOrEquals(1000); // minimum reactive power of 1kW required -> minimum constraint 1000.0
+		ess0.setActivePowerEquals(3000); // 3kW discharge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#19"));
+
+		// Test charge & minimum charge constraint
+		expect("#20.1", ess1, -2000, 0); // gets remaining charge power due to lowest SOC
+		expect("#20.2", ess2, 0, 0);
+		expect("#20.3", ess3, -1000, 0); // fulfill maximum constraint
+
+		ess3.setActivePowerLessOrEquals(-1000); // minimum charge of 1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		componentTest.next(new TestCase("#20"));
+
+		// Test charge & maximum charge constraint
+		expect("#21.1", ess1, -1000, 0); // gets charge power due to lowest SOC limited by maximum constraint
+		expect("#21.2", ess2, 0, 0);
+		expect("#21.3", ess3, -2000, 0); // gets remaining charge power due to lower SOC
+
+		ess1.setActivePowerGreaterOrEquals(-1000); // maximum charge of 1kW allowed -> minimum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		componentTest.next(new TestCase("#21"));
+
+		// Test charge & minimum discharge constraint
+		expect("#22.1", ess1, -4000, 0); // gets all charge power due to lowest SOC + 1kW compensate for ess2 discharge
+		expect("#22.2", ess2, 1000, 0); // force discharge
+		expect("#22.3", ess3, 0, 0);
+
+		ess2.setActivePowerGreaterOrEquals(1000); // minimum discharge of 1kW required -> minimum constraint 1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		componentTest.next(new TestCase("#22"));
+
+		// Test charge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#23.1", ess1, -3000, 0);
+		expect("#23.2", ess2, 0, -1000); // gets remaining charge power due to idle state
+		expect("#23.3", ess3, 0, -1000); // fulfill maximum reactive power constraint -1000.0
+
+		ess3.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#23"));
+
+		// Test charge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#24.1", ess1, -3000, 0);
+		expect("#24.2", ess2, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of -2000W -> -1200W
+										 //  -> limited to -1000W
+		expect("#24.3", ess3, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of -2000W -> -800W
+										 //  -> increased to remaining reactive power of -1000W
+
+		ess3.setReactivePowerGreaterOrEquals(-1000); // maximum reactive power of -1kW allowed -> minimum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#24"));
+
+		// Test charge & negative reactive power request & negative reactive ess constraint on ess not planned to deliver reactive power
+		expect("#25.1", ess1, -3000, -1000); // fulfill maximum reactive power constraint -1000.0
+		expect("#25.2", ess2, 0, -600); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of -1000W -> -600W
+		expect("#25.3", ess3, 0, -400); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of -1000W -> -400W
+
+		ess1.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(-2000); // -2kW reactive power
+		componentTest.next(new TestCase("#25"));
+
+		// Test charge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#26.1", ess1, -3000, 0); // charging ess should not be used for reactive power
+		expect("#26.2", ess2, 0, 1200); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 2000W -> 1200W (above minimum)
+		expect("#26.3", ess3, 0, 800); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 2000W -> 800W
+
+		ess2.setReactivePowerGreaterOrEquals(1000); // minimum reactive power of 1kW required
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#8"));
+
+		// Test charge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#27.1", ess1, -3000, 0); // charging ess should not be used for reactive power
+		expect("#27.2", ess2, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 2000W -> 1200W
+									    //  -> limited to maximum of 1000W
+		expect("#27.3", ess3, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 2000W -> 800W
+									    //  -> increased to remaining required reactive power of 1000W
+
+		ess2.setReactivePowerLessOrEquals(1000); // maximum reactive power of 1kW allowed
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#27"));
+
+		// Test charge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
+		expect("#28.1", ess1, -3000, 0); // charging ess should not be used for reactive power
+		expect("#28.2", ess2, 0, 1500); // fulfill minimum reactive power constraint
+		expect("#28.3", ess3, 0, 500); // gets remaining reactive power
+
+		ess2.setReactivePowerGreaterOrEquals(1500); // minimum reactive power of 1.5kW required
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#28"));
+
+		// Test charge & positive reactive power request & positive reactive ess constraint on ess not planned to deliver reactive power
+		expect("#29.1", ess1, -3000, 1000); // fulfill minimum reactive power constraint
+		expect("#29.2", ess2, 0, 600); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 1000W -> 600W
+		expect("#29.3", ess3, 0, 400); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 1000W -> 400W
+
+		ess1.setReactivePowerGreaterOrEquals(1000); // minimum reactive power of 1kW required
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#29"));
+
+		// Test charge & positive reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
+		expect("#30.1", ess1, -3000, 0); // charging ess should not be used for reactive power
+		expect("#30.2", ess2, 0, -1500); // fulfill maximum reactive power constraint
+		expect("#30.3", ess3, 0, 3500); // gets all reactive power + additional 1500W to compensate constraint of ess2
+
+		ess2.setReactivePowerLessOrEquals(-1500); // minimum reactive power of -1.5kW required -> maximum constraint -1500.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#30"));
+
+		// Test charge & positive reactive power request & negative reactive ess constraint on ess not planned to deliver reactive power
+		expect("#31.1", ess1, -3000, -1000); // fulfill maximum reactive power constraint (other ess have to compensate this with +1000W)
+		expect("#31.2", ess2, 0, 1800); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 2000+1000 (3000) W -> 1800W
+		expect("#31.3", ess3, 0, 1200); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 1000+1000 (3000) W -> 1200W
+
+		ess1.setReactivePowerLessOrEquals(-1000); // minimum reactive power of -1kW required -> maximum constraint -1000.0
+		ess0.setActivePowerEquals(-3000); // 3kW charge
+		ess0.setReactivePowerEquals(2000); // 2kW reactive power
+		componentTest.next(new TestCase("#31"));
 	}
 
 	@Test
