@@ -124,9 +124,11 @@ Some teams require specific import and indentation behavior.
 === Imports: avoid wildcard imports
 
 . Open *Settings/Preferences -> Editor -> Code Style -> Java -> Imports*.
-. Configure the thresholds for wildcard imports to high values (example: `99`) to avoid `*` imports:
-** *Class count to use import with '*'*: `99`
-** *Names count to use static import with '*'*: `99`
+. Configure the thresholds for wildcard imports to high values (example: `999`) to avoid `*` imports:
+** (1) *Remove java.awt.* and javax.swing.* imports*: unchecked (unless your project uses these packages)
+** (2) *Class count to use import with '*'*: `999`
+** (2) *Names count to use static import with '*'*: `999`
+
 
 image::intellij-import-as-gradle-10.png[Settings]
 
@@ -136,6 +138,10 @@ image::intellij-import-as-gradle-10.png[Settings]
 . If your project uses tabs, enable *Use tab character*.
 
 image::intellij-import-as-gradle-11.png[Settings]
+
+. Repeat for other languages used in your project (e.g., Kotlin, XML, etc.) if they have different indentation rules.
+
+image::intellij-import-as-gradle-11-1.png[Settings]
 
 [NOTE]
 ====
