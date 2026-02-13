@@ -1,3 +1,7 @@
+ifdef::env-github[]
+:imagesdir: ../../../assets/images
+endif::[]
+
 = IntelliJ IDEA + Gradle Setup for OpenEMS
 :toc: macro
 :toclevels: 3
