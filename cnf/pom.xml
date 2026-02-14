@@ -36,7 +36,7 @@
             Wrapper: io.openems.wrapper.auth0-auth0.bnd -->
             <groupId>com.auth0</groupId>
             <artifactId>auth0</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
         </dependency>
         <dependency>
             <!-- used by io.openems.backend.authentication.oauth -->
