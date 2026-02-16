@@ -228,12 +228,12 @@ public enum Unit {
 	/**
 	 * Unit of Temperature [C].
 	 */
-	DEGREE_CELSIUS("C"),
+	DEGREE_CELSIUS("°C"),
 
 	/**
 	 * Unit of Temperature [dC].
 	 */
-	DEZIDEGREE_CELSIUS("dC", DEGREE_CELSIUS, -1),
+	DEZIDEGREE_CELSIUS("°dC", DEGREE_CELSIUS, -1),
 
 	// ##########
 	// Time
