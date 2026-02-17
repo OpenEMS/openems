@@ -181,7 +181,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		final var vehicleAppsToDelete = this.findVehicleAppsToDelete(instantiatedApps, appInstances);
 		this.deleteVehicleComponents(user, vehicleAppsToDelete);
-		// TODO(alex.belke 12.02.2026): remove this scheduler update after there is a central way to work with it.
+		// TODO(alex.belke 12.02.2026): remove this scheduler update after there is a
+		// central way to work with it.
 		this.updateEnergyScheduler(user, io.openems.edge.energy.api.Version.V1_ESS_ONLY);
 		this.updateAppConfigurationForEvseToEvcs(user, instantiatedApps, response, vehicleAppsToDelete);
 	}
@@ -302,9 +303,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		this.componentManager.handleCreateComponentConfigRequest(user,
 				new CreateComponentConfig.Request("Evcs.HardyBarth", evcsProperties));
-		int i = index;
 		// install evse cp
-		var ctrlEvcsId = "ctrlEvcs" + i;
+		var ctrlEvcsId = this.getNextEvcsControllerId();
 		final var evcsCtrlProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", ctrlEvcsId), //
 				new UpdateComponentConfigRequest.Property("alias", alias), //
@@ -322,7 +322,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				.addPropertyIfNotNull("IP", ip);//
 		final var numberOfChargePoints = JsonUtils.getAsInt(instance.properties.get("NUMBER_OF_CHARGING_STATIONS"));
 		if (numberOfChargePoints > 1) {
-			i++;
 			final var evcsIdCp2 = JsonUtils.getAsString(instance.properties.get("EVCS_ID_CP_2"));
 			final var singleIdCp2 = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID_CP_2"));
 			final var aliasCp2 = JsonUtils.getAsString(instance.properties.get("ALIAS_CP_2"));
@@ -342,7 +341,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					new CreateComponentConfig.Request("Evcs.HardyBarth", evcsPropertiesCp2));
 
 			// install evse cp
-			ctrlEvcsId = "ctrlEvcs" + i;
+			ctrlEvcsId = this.getNextEvcsControllerId();
 			final var evcsCtrlPropertiesCp2 = List.of(//
 					new UpdateComponentConfigRequest.Property("id", ctrlEvcsId), //
 					new UpdateComponentConfigRequest.Property("alias", aliasCp2), //
@@ -410,7 +409,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 						evcsProperties));
 
 		// install single controller
-		final var ctrlEvcsId = "ctrlEvcs" + i;
+		final var ctrlEvcsId = this.getNextEvcsControllerId();
 		// install evse cp
 		final var evcsCtrlProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", ctrlEvcsId), //
@@ -449,6 +448,12 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		response.add(newInstance);
 	}
 
+	private String getNextEvcsControllerId() {
+		final String prefix = "ctrlEvcs";
+
+		return this.componentUtil.getNextAvailableId(prefix, Collections.emptyList());
+	}
+
 	private void evseCluster(User user, JsonArrayBuilder clusterProperties, UUID clusterInstanceId,
 			ArrayList<OpenemsAppInstance> response) throws OpenemsNamedException {
 		final var clusterAppRaw = this.appManagerUtil.findAppById("App.Evse.Controller.Cluster");
@@ -483,7 +488,10 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 	private String ctrlSingle(String ctrlEvcsId, String evcsId, String vehicleId, String alias, int i, User user,
 			JsonArrayBuilder clusterProperties) throws OpenemsNamedException {
-		final var ctrlSingleId = "ctrlEvseSingle" + i;
+		final var prefix = "ctrlEvseSingle";
+
+		final String ctrlSingleId = this.componentUtil.getNextAvailableId(prefix, Collections.emptyList());
+
 		final var singleProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", ctrlSingleId), //
 				new UpdateComponentConfigRequest.Property("alias", alias), //
@@ -509,7 +517,9 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			return defaultValue.get();
 		}).findFirst().get();
 
-		final var vehicleId = "evseElectricVehicle" + i;
+		final var prefix = "evseElectricVehicle";
+
+		final String vehicleId = this.componentUtil.getNextAvailableId(prefix, Collections.emptyList());
 
 		final var vehicleProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", vehicleId), //

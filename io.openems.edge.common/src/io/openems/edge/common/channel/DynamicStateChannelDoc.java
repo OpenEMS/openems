@@ -1,10 +1,10 @@
 package io.openems.edge.common.channel;
 
+import java.util.function.Consumer;
+
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.dynamicdoctext.DynamicDocText;
 import io.openems.edge.common.component.OpenemsComponent;
-
-import java.util.function.Consumer;
 
 /**
  * This class extends the default StateChannelDoc. It adds the feature to
@@ -29,6 +29,7 @@ public class DynamicStateChannelDoc extends StateChannelDoc implements DynamicCh
 		return new DynamicStateChannelDoc(this.getLevel(), this.factory);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public StateChannel createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId) {

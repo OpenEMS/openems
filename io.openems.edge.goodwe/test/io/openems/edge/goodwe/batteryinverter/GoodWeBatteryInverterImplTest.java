@@ -1197,7 +1197,6 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testDynamicState14Text() throws Exception {
-		var inv = "batteryInverter0";
 		var component = new GoodWeBatteryInverterImpl();
 		final var docForState14 = component.channel(GoodWe.ChannelId.STATE_14).channelDoc();
 
@@ -1224,11 +1223,14 @@ public class GoodWeBatteryInverterImplTest {
 				.next(new TestCase() //
 						.input(GOODWE_TYPE, GoodWeType.GOODWE_5K_BT));
 
-		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter. Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt", docForState14.getText());
+		assertEquals(
+				"Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter. Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt",
+				docForState14.getText());
 
 		test.next(new TestCase() //
 				.input(GOODWE_TYPE, GoodWeType.FENECON_FHI_10_DAH));
 
-		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter.", docForState14.getText());
+		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter.",
+				docForState14.getText());
 	}
 }
