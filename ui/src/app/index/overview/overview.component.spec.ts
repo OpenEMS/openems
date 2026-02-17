@@ -87,6 +87,8 @@ describe("OverviewComponent", () => {
     });
 
     async function getIbnButtonElement(component: OverViewComponent, fixture: ComponentFixture<OverViewComponent>, globalRole: "installer" | "owner") {
+        const user: User = new User("", "test.user", globalRole, Language.DE.key, true, {});
+        userServiceSpyObj.currentUser.set(user);
         serviceSpyObject.metadata.next({
             edges: { ["edge0"]: DummyConfig.dummyEdge({ role: Role.INSTALLER }) },
             user: {
