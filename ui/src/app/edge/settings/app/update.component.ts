@@ -111,28 +111,16 @@ export class UpdateAppComponent implements OnInit {
                         payload: new GetAppAssistant.Request({ appId: appId }),
                     })).then(getAppAssistantResponse => {
                     const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
-                    const EV_ID_KEY = "electricVehicle.id";
 
                     if (this.isAppCenter == true) {
-                        this.setInstance(appAssistant, null, recInstances, null);
+                        this.setInstance(appAssistant, null, recInstances, null, appId);
                         return;
                     }
 
-                    if (this.edge == null || componentId == null) {
-                        this.setInstance(appAssistant, null, recInstances, null);
-                        return;
-                    }
+                    const filterComponentId = this.routeService.getQueryParam<string>("componentId");
 
-                    const component = this.edge.getCurrentConfig()?.getComponentSafely(componentId);
-
-                    if (component == null) {
-                        this.setInstance(appAssistant, componentId, recInstances, null);
-                        return;
-                    }
-
-                    const electricVehicleId = component.getPropertyFromComponent<string>(EV_ID_KEY);
-                    if (electricVehicleId == null) {
-                        this.setInstance(appAssistant, componentId, recInstances, null);
+                    if (filterComponentId == null) {
+                        this.setInstance(appAssistant, componentId, recInstances, null, appId);
                         return;
                     }
 
@@ -143,7 +131,7 @@ export class UpdateAppComponent implements OnInit {
                                 filter: {
                                     component: {
                                         componentId: [
-                                            electricVehicleId,
+                                            filterComponentId,
                                         ],
                                     },
                                 },
@@ -154,7 +142,7 @@ export class UpdateAppComponent implements OnInit {
                         })).then(queryAppInstancesByFilter => {
                         const queryedAppInstance = (queryAppInstancesByFilter as QueryAppInstancesByFilter.Response).result.apps;
 
-                        this.setInstance(appAssistant, componentId, recInstances, queryedAppInstance);
+                        this.setInstance(appAssistant, filterComponentId, recInstances, queryedAppInstance, appId);
                     }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
                 }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
             }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
@@ -305,7 +293,7 @@ export class UpdateAppComponent implements OnInit {
             });
     }
 
-    private setInstance(appAssistant: GetAppAssistant.AppAssistant, componentId: string | null, recInstances: GetAppInstances.AppInstance[], queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null) {
+    private setInstance(appAssistant: GetAppAssistant.AppAssistant, componentId: string | null, recInstances: GetAppInstances.AppInstance[], queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null, appId: string) {
         this.appName = appAssistant.name;
         this.instances = [];
 
@@ -317,7 +305,7 @@ export class UpdateAppComponent implements OnInit {
             return;
         }
 
-        if (instanceId == null) {
+        if (instanceId == null && appId == "App.Evse.ElectricVehicle.Generic") {
             this.service.toast(this.translateService.instant("EDGE.INDEX.WIDGETS.EVSE.VEHICLE_ID_ERROR"), "warning");
             this.buildUiInstances(recInstances, appAssistant);
             return;
