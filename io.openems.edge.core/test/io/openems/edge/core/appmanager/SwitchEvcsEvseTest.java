@@ -66,7 +66,7 @@ public class SwitchEvcsEvseTest {
 				any(User.class), //
 				any(UpdateComponentConfig.Request.class));
 
-		this.sa = new SwitchArchitecture(this.amtb.appManagerUtil, this.cmSpy, this.amtb.sut,
+		this.sa = new SwitchArchitecture(this.amtb.appManagerUtil, this.cmSpy, this.amtb.componentUtil, this.amtb.sut,
 				new DummyOpenemsEdgeOem());
 	}
 

@@ -13,6 +13,7 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
+import { extractErrorMessage } from "../../../shared/utils/error/error.utils";
 import { AddAppInstance } from "./jsonrpc/addAppInstance";
 import { Flags } from "./jsonrpc/flag/flags";
 import { GetApp } from "./jsonrpc/getApp";
@@ -70,23 +71,17 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     ) { }
 
     /**
- * Displays a error toast with the string supplied from the messageBuilder.
- * If the error is from a Jsonrpc call the error message gets extracted.
- *
- * @param service the service to open the toast with
- * @param messageBuilder the message supplier
- * @returns a method to handle a catch from a promise
- */
+     * Displays a error toast with the string supplied from the messageBuilder.
+     *
+     * @param service the service to open the toast with
+     * @param messageBuilder the message supplier
+     * @returns a method to handle a catch from a promise
+     */
     public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
         return (reason) => {
-            if (reason.error) {
-                reason = reason.error;
-                if (reason.message) {
-                    reason = reason.message;
-                }
-            }
+            const errorMessage = extractErrorMessage(reason);
             console.error(reason);
-            service.toast(messageBuilder(reason), "danger");
+            service.toast(messageBuilder(errorMessage), "danger");
         };
     }
 
