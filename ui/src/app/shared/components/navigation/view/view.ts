@@ -35,7 +35,7 @@ export enum Status {
 export class NavigationPageComponent {
 
     @Input() protected component: EdgeConfig.Component | null = null;
-    @Input() protected formGroup: FormGroup = new FormGroup({});
+    @Input() protected formGroup: FormGroup | null = null;
 
     protected contentHeight: number | null = null;
     protected actionSheetModalHeight: number = 0;

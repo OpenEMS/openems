@@ -615,7 +615,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         options.scales.x["bounds"] = "ticks";
         options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
         Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family");
-        console.log(getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"));
 
         return options;
     }

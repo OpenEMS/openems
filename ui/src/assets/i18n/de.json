@@ -544,7 +544,8 @@
             "SCHEDULE": "Zeitplan",
             "ADD_TASK": "Aufgabe hinzufügen"
           },
-          "CHARGE_MODE": "Lademodus"
+          "CHARGE_MODE": "Lademodus",
+          "VEHICLE_ID_ERROR": "Die Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfen Sie die Konfiguration. Alle registrierten Fahrzeuge werden angezeigt."
         }
       }
     },

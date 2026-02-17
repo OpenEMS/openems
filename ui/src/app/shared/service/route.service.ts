@@ -67,6 +67,22 @@ export class RouteService {
         return null;
     }
 
+    /**
+     * Gets a query param
+     *
+     * @param key the key
+     * @returns the value for this key if found, else null
+     */
+    public getQueryParam<T>(key: string): T | null {
+        const queryParams = this.router.routerState.snapshot.root.queryParams;
+
+        if (key in queryParams) {
+            return queryParams[key] as T;
+        }
+        return null;
+    }
+
+
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {
             routeSnapshot = routeSnapshot.firstChild;
