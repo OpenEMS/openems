@@ -3,8 +3,6 @@ import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { AbstractIbn } from "src/app/edge/installation/installation-systems/abstract-ibn";
-import { ComponentData } from "src/app/edge/installation/shared/ibndatatypes";
 import { environment } from "src/environments";
 import { ComponentJsonApiRequest } from "../../jsonrpc/request/componentJsonApiRequest";
 import { Service, Websocket } from "../../shared";
@@ -60,7 +58,6 @@ export type SaveResult =
     ],
 })
 export class SystemLocationValidatorComponent implements OnInit {
-    @Input() public ibn!: AbstractIbn;
     @Input() public edge: Edge | null = null;
 
     @Input() public context: ValidatorContext = "PROFILE";
@@ -101,8 +98,7 @@ export class SystemLocationValidatorComponent implements OnInit {
         }
 
         const metaProperties = config.getComponentProperties("_meta");
-        // const location = ProtocolSystemLocationValidationComponent.getLocation(this.ibn);
-        const location = (this.ibn?.location?.isEqualToCustomerData ? this.ibn?.customer : this.ibn?.location) ?? null;
+        const location = null;
 
         this.initialModel = {
             street: location?.street ?? "",
@@ -252,7 +248,7 @@ export class SystemLocationValidatorComponent implements OnInit {
     }
 
     private fillGeoCodeFields(results: GeoResult[]) {
-        const options: ComponentData[] = [];
+        const options: any[] = [];
         let defaultIndex = 0;
 
         results.forEach((geoCode, index) => {

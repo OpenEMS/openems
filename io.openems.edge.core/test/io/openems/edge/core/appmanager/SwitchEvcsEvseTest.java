@@ -33,6 +33,7 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
+import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SwitchEvcsEvseTest {
@@ -89,6 +90,24 @@ public class SwitchEvcsEvseTest {
 
 		var response = this.sa.handleCanSwitch(DUMMY_ADMIN);
 		assertFalse(response.canSwitch());
+	}
+	
+	@Test
+	public void testCanSwitchOld() throws Exception {
+		this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new Request(this.hardyApp.getAppId(), null, "testApp", JsonUtils.buildJsonObject()//
+						.addProperty("NUMBER_OF_CHARGING_STATIONS", 1) //
+						.addProperty("IP", "192.168.25.11") //
+						.build()));
+
+		this.amtb.assertInstalledApps(1);
+
+		var response = this.sa.handleCanSwitch(DUMMY_ADMIN);
+		assertTrue(response.canSwitch());
+		assertEquals(Version.OLD,response.current());
+		
+		var responseSwitch = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
+		
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-<ion-content class="{{environment.theme === 'FENECON' ? 'background': ''}}">
+<ion-content>
   @switch (backendState) {
     @case ('loading') {
       <ngx-spinner [name]="spinnerId">
@@ -67,25 +67,6 @@
       </ion-item>
     </ion-col>
   </ion-row>
-
-  @if (environment.theme !== 'OpenEMS') {
-    <ion-row class="ion-justify-content-center ion-align-items-center">
-      <ion-col size="12" class="ion-text-center">
-        @switch (environment.theme) {
-          @case ('Heckert') {
-            <ion-button size="small" fill="outline"
-              href="https://symphon-e.heckert-solar.com/docs/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
-              translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-          }
-          @default {
-            <ion-button size="small" fill="outline"
-              href="https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
-              translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-          }
-        }
-      </ion-col>
-    </ion-row>
-  }
 
 </ng-template>
 

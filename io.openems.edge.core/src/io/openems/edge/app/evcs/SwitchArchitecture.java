@@ -404,8 +404,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		final var modbusId = JsonUtils.getAsString(instance.properties.get("MODBUS_ID"));
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
 		final var singleId = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID"));
-		final var readonly = JsonUtils.getAsOptionalBoolean(instance.properties.get("READ_ONLY"))//
-				.orElse(false);
 		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))//
 				.orElse("L1_L2_L3");
 		final var alias = instance.alias;//
@@ -420,7 +418,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
 				new UpdateComponentConfigRequest.Property("alias", alias), //
 				new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
-				new UpdateComponentConfigRequest.Property("readOnly", readonly), //
+				new UpdateComponentConfigRequest.Property("readOnly", false), //
 				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 		);
 		this.componentManager.handleCreateComponentConfigRequest(user,
@@ -583,7 +581,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		final var alias = instance.alias; //
 		final var numberOfChargePoints = JsonUtils.getAsInt(instance.properties.get("NUMBER_OF_CHARGING_STATIONS"));
 		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
-		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION")).orElse(null);
+		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))
+				.orElse("L1_L2_L3");
 
 		final var cpProperties = List.of(//
 				new UpdateComponentConfigRequest.Property("id", evcsId), //
@@ -659,9 +658,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		var vehicleId = JsonUtils.getAsString(vehicleInstance.properties.get("VEHICLE_ID"));
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
 		final var modbusId = JsonUtils.getAsString(instance.properties.get("MODBUS_ID"));
-		final var readonly = JsonUtils.getAsOptionalBoolean(instance.properties.get("READ_ONLY"))//
-				.orElse(null);
-		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION")).orElse(null);
+		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))
+				.orElse("L1_L2_L3");
 		final var alias = instance.alias;//
 		final var modbusUnitId = JsonUtils.getAsOptionalInt(instance.properties.get("MODBUS_UNIT_ID"))//
 				.orElse(null);
@@ -673,7 +671,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
 				new UpdateComponentConfigRequest.Property("alias", alias), //
 				new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
-				new UpdateComponentConfigRequest.Property("readOnly", readonly), //
+				new UpdateComponentConfigRequest.Property("readOnly", false), //
 				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
 		);
 
@@ -744,14 +742,15 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// Must be write-enabled only
 		final var notOnlyWrite = evcsApps.stream()
-				.anyMatch(t -> JsonUtils.getAsOptionalBoolean(t.properties.get("READ_ONLY")).orElse(true));
+				.anyMatch(t -> JsonUtils.getAsOptionalBoolean(t.properties.get("READ_ONLY")).orElse(false));
 
 		if (notOnlyWrite) {
 			return new CanSwitchEvcsEvse.Response(false, null, uiText, uiInfoText, infoLink);
 		}
 
 		// Extract FIRST architecture safely
-		final var firstArch = JsonUtils.getAsString(evcsApps.getFirst().properties.get("ARCHITECTURE_TYPE"));
+		final var firstArch = JsonUtils.getAsOptionalString(evcsApps.getFirst().properties.get("ARCHITECTURE_TYPE"))//
+				.orElse("EVCS");
 
 		// KEBA must be P40 only
 		final var notOnlyP40 = evcsApps.stream().anyMatch(t -> {
@@ -767,11 +766,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// Architecture mismatch check
 		final var mismatch = evcsApps.stream().anyMatch(t -> {
-			try {
-				return !JsonUtils.getAsString(t.properties.get("ARCHITECTURE_TYPE")).equals(firstArch);
-			} catch (OpenemsNamedException e) {
-				return true;
-			}
+			return !JsonUtils.getAsOptionalString(t.properties.get("ARCHITECTURE_TYPE")).orElse("EVCS")
+					.equals(firstArch);
 		});
 
 		if (mismatch) {
