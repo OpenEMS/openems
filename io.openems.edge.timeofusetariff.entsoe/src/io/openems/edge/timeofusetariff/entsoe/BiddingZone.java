@@ -36,6 +36,10 @@ public enum BiddingZone {
 	 * BZN|NL.
 	 */
 	NETHERLANDS("10YNL----------L"), //
+	/**
+	 * BZN|LT.
+	 */
+	LITHUANIA("10YLT-1001A0008Q"), //
 	;
 
 	public final String code;
