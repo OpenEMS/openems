@@ -12,6 +12,7 @@ import static io.openems.edge.goodwe.GoodWeConstants.DEFAULT_UNIT_ID;
 import static io.openems.edge.goodwe.batteryinverter.GoodWeBatteryInverterImpl.doSetBmsVoltage;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_MODE;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.EMS_POWER_SET;
+import static io.openems.edge.goodwe.common.GoodWe.ChannelId.GOODWE_TYPE;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_EXPORT;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.MAX_AC_IMPORT;
 import static io.openems.edge.goodwe.common.GoodWe.ChannelId.METER_COMMUNICATE_STATUS;
@@ -1192,5 +1193,42 @@ public class GoodWeBatteryInverterImplTest {
 				() -> sut.channel("GwState32021B0"));
 
 		sut.deactivate();
+	}
+
+	@Test
+	public void testDynamicState14Text() throws Exception {
+		var inv = "batteryInverter0";
+		var component = new GoodWeBatteryInverterImpl();
+		final var docForState14 = component.channel(GoodWe.ChannelId.STATE_14).channelDoc();
+
+		var test = new ComponentTest(component) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()) //
+				.activate(MyConfig.create() //
+						.setId("batteryInverter0") //
+						.setModbusId("modbus0") //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.REMOTE) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+				.next(new TestCase() //
+						.input(GOODWE_TYPE, GoodWeType.GOODWE_5K_BT));
+
+		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter. Ggf. Kommunikationsadapter (ET+) nicht (richtig) gesteckt", docForState14.getText());
+
+		test.next(new TestCase() //
+				.input(GOODWE_TYPE, GoodWeType.FENECON_FHI_10_DAH));
+
+		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter.", docForState14.getText());
 	}
 }
