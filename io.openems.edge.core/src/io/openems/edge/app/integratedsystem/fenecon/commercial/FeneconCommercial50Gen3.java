@@ -19,8 +19,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
@@ -263,7 +262,6 @@ public class FeneconCommercial50Gen3 extends
 					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
-					ComponentDef.from(predictor(bundle, t)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
 					new ComponentDef("_power", "", "Ess.Power", new ComponentProperties(List.of(//
 							ComponentProperties.Property.of("enablePid") //
@@ -291,6 +289,7 @@ public class FeneconCommercial50Gen3 extends
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					prepareBatteryExtension(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption() //
 			);
 
@@ -325,7 +324,6 @@ public class FeneconCommercial50Gen3 extends
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

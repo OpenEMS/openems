@@ -10,9 +10,8 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpio
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
@@ -186,7 +185,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					// ess
 					FeneconHomeComponents.ess(bundle, essId, "battery0", "batteryInverter0"),
-					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), predictor(bundle, t), //
+					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), //
 					// battery
 					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
@@ -219,6 +218,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
 					prepareBatteryExtension(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption()//
 			);
 
@@ -248,7 +248,6 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

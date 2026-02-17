@@ -356,41 +356,6 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
-	 * Creates a default predictor component for a FENECON Home.
-	 *
-	 * @param bundle the translation bundle
-	 * @param t      the current {@link ConfigurationTarget}
-	 * @return the {@link Component}
-	 */
-	public static EdgeConfig.Component predictor(//
-			final ResourceBundle bundle, //
-			final ConfigurationTarget t //
-	) {
-		return new EdgeConfig.Component("predictor0",
-				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.predictor0.alias"),
-				"Predictor.PersistenceModel", //
-				JsonUtils.buildJsonObject() //
-						.addProperty("enabled", true) //
-						.onlyIf(t == ConfigurationTarget.ADD, b -> b//
-								.add("channelAddresses", JsonUtils.buildJsonArray() //
-										.add("_sum/ProductionActivePower") //
-										.add("_sum/ConsumptionActivePower") //
-										.build())) //
-						.build());
-	}
-
-	/**
-	 * Creates a default predictor task for a PersistenceModel Predictor.
-	 * 
-	 * @return the {@link Task}
-	 */
-	public static Task<PredictorManagerByCentralOrderConfiguration> persistencePredictorTask() {
-		return Tasks.predictorManagerByCentralOrder(//
-				new PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent("predictor0",
-						"Predictor.PersistenceModel"));
-	}
-
-	/**
 	 * Creates a default ctrlEssSurplusFeedToGrid component for a FENECON Home.
 	 *
 	 * @param bundle the translation bundle
@@ -825,6 +790,23 @@ public final class FeneconHomeComponents {
 			true;
 		default -> false;
 		};
+	}
+
+	/**
+	 * Creates a default predictionDefault dependency for a FENECON Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration predictionDefault() {
+		return new DependencyDeclaration("PREDICTION_DEFAULT", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create()//
+						.setAppId("App.Prediction.Default")//
+						.build());
 	}
 
 	/**

@@ -19,10 +19,9 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
@@ -258,7 +257,6 @@ public class FeneconCommercial100
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
-					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
@@ -283,6 +281,7 @@ public class FeneconCommercial100
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption()//
 			);
 
@@ -308,7 +307,6 @@ public class FeneconCommercial100
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

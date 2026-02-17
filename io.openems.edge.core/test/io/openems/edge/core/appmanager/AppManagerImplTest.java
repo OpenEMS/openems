@@ -137,17 +137,6 @@ public class AppManagerImplTest {
 								.addProperty("rcrEnable", "DISABLE") //
 								.build()) //
 						.build()) //
-				.add("predictor0", JsonUtils.buildJsonObject() //
-						.addProperty("factoryId", "Predictor.PersistenceModel") //
-						.addProperty("alias", "Prognose") //
-						.add("properties", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.add("channelAddresses", JsonUtils.buildJsonArray() //
-										.add("_sum/ProductionActivePower") //
-										.add("_sum/ConsumptionActivePower") //
-										.build()) //
-								.build()) //
-						.build()) //
 				.add("ctrlGridOptimizedCharge0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Controller.Ess.GridOptimizedCharge") //
 						.addProperty("alias", "Netzdienliche Beladung") //
@@ -195,6 +184,17 @@ public class AppManagerImplTest {
 								.addProperty("terminationBuffer", 120) //
 								.addProperty("conditionalTermination", true) //
 								.addProperty("endCondition", "CAPACITY_CHANGED") //
+								.build()) //
+						.build()) //
+				.add("predictor0", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Predictor.PersistenceModel") //
+						.addProperty("alias", "Standardprognose") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.add("channelAddresses", JsonUtils.buildJsonArray() //
+										.add("_sum/ProductionActivePower") //
+										.add("_sum/ConsumptionActivePower") //
+										.build()) //
 								.build()) //
 						.build()) //
 				.add("predictor2", JsonUtils.buildJsonObject() //
@@ -310,6 +310,13 @@ public class AppManagerImplTest {
 										.build()) //
 								.build())
 						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Prediction.Default") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.build()) //
+								.build())
+						.add(JsonUtils.buildJsonObject() //
 								.addProperty("appId", "App.Prediction.UnmanagedConsumption") //
 								.addProperty("alias", "") //
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
@@ -320,8 +327,7 @@ public class AppManagerImplTest {
 								.addProperty("appId", "App.System.Fenecon.Home") //
 								.addProperty("alias", "") //
 								.addProperty("instanceId", UUID.randomUUID().toString()) //
-								.add("properties",
-										JsonUtils.buildJsonObject() //
+								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("RELAY_ID", "io1") //
 										.addProperty("LED_ORDER", "DEFAULT_RED_BLUE_GREEN") //
 										.build()) //
@@ -336,11 +342,11 @@ public class AppManagerImplTest {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //
 					Apps.stateLed(t), //
-
+					Apps.predictionDefault(t), //
+					Apps.predictionUnmanagedConsumption(t), //
 					this.kebaEvcsApp = Apps.kebaEvcs(t), //
 					this.awattarApp = Apps.awattarHourly(t), //
-					this.stromdao = Apps.stromdaoCorrently(t), //
-					Apps.predictionUnmanagedConsumption(t)//
+					this.stromdao = Apps.stromdaoCorrently(t)//
 			);
 		});
 	}
@@ -351,7 +357,7 @@ public class AppManagerImplTest {
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
-		assertEquals(6, this.appManagerTestBundle.sut.instantiatedApps.size());
+		assertEquals(7, this.appManagerTestBundle.sut.instantiatedApps.size());
 
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}

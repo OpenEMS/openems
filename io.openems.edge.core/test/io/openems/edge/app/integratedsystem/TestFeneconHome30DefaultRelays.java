@@ -38,6 +38,7 @@ public class TestFeneconHome30DefaultRelays {
 					Apps::combinedHeatAndPower, //
 					Apps::manualRelayControl, //
 					Apps::thresholdControl, //
+					Apps::predictionDefault, //
 					Apps::predictionUnmanagedConsumption//
 			);
 		}, null, new PseudoComponentManagerFactory());
