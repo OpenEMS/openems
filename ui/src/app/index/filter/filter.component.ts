@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { v4 as uuidv4 } from "uuid";
 
+import { v4 as uuidv4 } from "uuid";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Service } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";

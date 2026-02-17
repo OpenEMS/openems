@@ -1,0 +1,17 @@
+@if(isInitialized){
+<oe-components-scheduler (schedule)="schedule" [(payload)]="payload">
+    <ng-template let-task="task">
+        <ion-row class="ion-align-items-center">
+            <ion-col>
+                <ion-label>
+                    {{"INDUSTRIAL_L.BMS_SELF_TEST" | translate}}
+                </ion-label>
+            </ion-col>
+            <ion-col class="ion-justify-content-end ion-text-align-end">
+                <oe-help-popover-button [helpMsg]="('INDUSTRIAL_L.BMS_HELP_MSG' | translate)"></oe-help-popover-button>
+            </ion-col>
+        </ion-row>
+    </ng-template>
+
+</oe-components-scheduler>
+}

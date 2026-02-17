@@ -362,6 +362,21 @@ export class EdgeConfig {
         }
     }
 
+    /**
+     * Gets the first component of components filtered by factory id.
+     *
+     * @param factoryId the factory id
+     * @returns the first element with this factory id, if none found null
+     */
+    public getFirstComponentByFactoryId(factoryId: string): EdgeConfig.Component | null {
+        const result = this.getComponentsByFactory(factoryId);
+
+        if (result.length >= 1) {
+            return result[0];
+        }
+        return null;
+    }
+
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
         return EdgeConfig.getFactoriesByNature(this.factories, natureId);
     }
@@ -731,8 +746,8 @@ export class EdgeConfig {
      * @param componentId the Component-ID
      * @returns a component
      */
-    public getComponentSafely(componentId: string): EdgeConfig.Component | null {
-        if (componentId in this.components) {
+    public getComponentSafely(componentId: string | null): EdgeConfig.Component | null {
+        if (componentId !== null && componentId in this.components) {
             return this.components[componentId];
         }
         return null;

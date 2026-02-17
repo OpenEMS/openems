@@ -6,7 +6,7 @@ import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
-import { LocationModel, SystemLocationValidatorComponent } from "src/app/shared/components/system-location-validator/system-location-validator.component";
+import { LocationModel } from "src/app/shared/components/system-location-validator/system-location-validator.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetSetupProtocolCoreInfoRequest, GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
@@ -36,7 +36,6 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
         LiveDataServiceProvider,
         LocaleProvider,
         HelpButtonComponent,
-        SystemLocationValidatorComponent,
         LocationComponent,
     ],
 })

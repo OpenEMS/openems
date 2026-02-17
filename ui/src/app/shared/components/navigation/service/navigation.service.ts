@@ -53,7 +53,7 @@ export class NavigationService {
         }
 
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
-        return config.hasFactories(["Evse.Controller.Single"]);
+        return config.hasFactories(["Evse.Controller.Single", "System.Fenecon.Industrial.L"]);
     }
 
     /**
@@ -142,7 +142,8 @@ export class NavigationService {
         }
 
         const newWidgets: TMutable<Widgets> = { ...widgets };
-        newWidgets.classes = ArrayUtils.removeMatching<TEnumKeys<typeof WidgetClass>[]>(widgets.classes, NavigationConstants.newWidgets);
+        newWidgets.classes = ArrayUtils.removeMatching<(TEnumKeys<typeof WidgetClass>)[]>(widgets.classes, NavigationConstants.newClasses);
+        newWidgets.list = widgets.list?.filter(listItem => NavigationConstants.newWidgets.some(name => name != listItem.name)) ?? null;
         return newWidgets;
     }
 
@@ -187,12 +188,31 @@ export class NavigationService {
                 childNavigationTree.parent = node;
                 node.children.push(childNavigationTree);
             });
-            // const clone = structuredClone(tree);
-            // tree.setChild(clone.id, clone);
             return tree;
         });
 
         this.initNavigation(this.routeService.currentUrl(), this.navigationTree());
+    }
+
+    /**
+     * Sets child navigation to currently active navigation node.
+     *
+     * @param newNavigationTree the new navigation tree to insert
+     * @returns
+     */
+    public setChildNavigationToCurrentNavigation(newNavigationTree: NavigationTree) {
+        const currentNavigationTree = this.navigationTree();
+        if (currentNavigationTree == null) {
+            return;
+        }
+
+        // Find the parent node by its ID
+        const parentNode = currentNavigationTree.findParentByUrl(this.routeService.getCurrentUrl());
+        parentNode?.setChildToCurrentNode(newNavigationTree);
+        newNavigationTree.parent = parentNode;
+
+        this.navigationTree.set(currentNavigationTree);
+        this.currentNode.set(newNavigationTree);
     }
 
     /**
@@ -210,10 +230,13 @@ export class NavigationService {
 
     /**
      * Sets the navigation position
+     *
+     * - bottom: action sheet navigation
+     * - left: side menu navigation
+     * - disabled: not visible
      */
     private setPosition() {
         const user = this.userService.currentUser();
-
         if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
             this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
@@ -222,7 +245,7 @@ export class NavigationService {
     }
 
     /**
-     * Gets the previous route/navigation from a given key by splitting array at key
+     * Gets the previous route/navigation from a given key by splitting array at key.
      *
      * @param arr the array
      * @param key the key to find
@@ -238,7 +261,7 @@ export class NavigationService {
     }
 
     /**
-     * Finds the active node from a passed url
+     * Finds the active node from a passed url.
      *
      * @param nodes the nodes
      * @param currentUrl the current url
@@ -247,7 +270,7 @@ export class NavigationService {
     private findActiveNode(nodes: NavigationTree | null, currentUrl: string | null): NavigationTree | null {
 
         /**
-         * Converts a relative routerLink to absolute from root node
+         * Converts a relative routerLink to absolute from root node.
          *
          * @param tree the current navigation node
             * @returns a navigationTree
@@ -255,7 +278,7 @@ export class NavigationService {
         function convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
 
             /**
-             * Builds the absolute link from root node to current node
+             * Builds the absolute link from root node to current node.
              *
              * @param node the current node
              * @returns a update navigation tree
@@ -273,7 +296,7 @@ export class NavigationService {
             }
 
             /**
-             * Traverses through the navigation tree
+             * Traverses through the navigation tree.
              *
              * @param node the current node
              */

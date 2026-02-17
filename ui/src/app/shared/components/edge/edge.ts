@@ -532,7 +532,6 @@ export class Edge {
                                 new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
                                 new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null),
                                 new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.ADD_TASK"), baseMode, [], null),
                                 ], null),
                                 new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
                                 ...(this.roleIsAtLeast(Role.OWNER)
@@ -549,7 +548,6 @@ export class Edge {
             }
         }
         navigationTree.setChild(NavigationId.LIVE, new NavigationTree("navigation-info", { baseString: "navigation-info" }, { name: "information-outline" }, translate.instant("GENERAL.HELP"), "label", [], null));
-
         return navigationTree;
     }
 
@@ -585,7 +583,7 @@ export class Edge {
         const list = Widgets.parseWidgets(edge, conf).list;
 
         for (const item of list) {
-            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getControllerNavigationTree(edge, item.name, translate, conf);
+            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getControllerNavigationTree(edge, item, translate, conf);
 
             if (navigationTree == null) {
                 continue;

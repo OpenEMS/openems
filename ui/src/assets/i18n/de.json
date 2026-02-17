@@ -518,9 +518,6 @@
           "TOTAL_DC": "Gesamt DC"
         },
         "SYSTEM": {
-          "INDUSTRIAL": {
-            "NOTE": "Startet oder stoppt das Gesamtsystem, inklusive Batteriewechselrichter und Batterien."
-          },
           "OVERALL_SYSTEM": "Gesamtsystem"
         },
         "TIME_OF_USE_TARIFF": {

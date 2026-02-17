@@ -24,7 +24,8 @@ export class ModalLineComponent extends AbstractModalLine {
         { type: "SELECT", options: { value: string, name: string }[] } |
         /* the properties for range slider*/
         { type: "RANGE", properties: { /* ticks*/ tickMin: number, tickMax: number, tickFormatter?: IonRange["pinFormatter"], unit: "H" | string, step?: number, pinFormatter: IonRange["pinFormatter"], label?: IonRange["label"], snaps?: boolean } } |
-        { type: "TEXT", valueConverter?: Converter };
+        { type: "TEXT", valueConverter?: Converter } |
+        { type: "BUTTON", button: ButtonLabel };
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;

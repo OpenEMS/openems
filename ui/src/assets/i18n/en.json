@@ -519,9 +519,6 @@
           "TOTAL_DC": "Total DC"
         },
         "SYSTEM": {
-          "INDUSTRIAL": {
-            "NOTE": "Starts or stops the entire system, including battery inverter and batteries."
-          },
           "OVERALL_SYSTEM": "Overall system"
         },
         "TIME_OF_USE_TARIFF": {
