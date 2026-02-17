@@ -11,6 +11,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.hardware.IoGpio;
@@ -654,6 +655,26 @@ public final class FeneconHomeComponents {
 						.setAppId("App.Ess.PrepareBatteryExtension") //
 						.setProperties(JsonUtils.buildJsonObject() //
 								.addProperty(PrepareBatteryExtension.Property.TARGET_SOC.name(), 30) //
+								.build())
+						.build());
+	}
+
+	/**
+	 * Creates a default SoH Cycle dependency for a FENECON Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration sohCycle() {
+		return new DependencyDeclaration("ESS_SOH_CYCLE",
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING,
+				DependencyDeclaration.UpdatePolicy.NEVER,
+				DependencyDeclaration.DeletePolicy.IF_MINE,
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES,
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED,
+				DependencyDeclaration.AppDependencyConfig.create()
+						.setAppId(AppSohCycle.APP_ESS_SOH_CYCLE)
+						.setProperties(JsonUtils.buildJsonObject()
+								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0")
 								.build())
 						.build());
 	}

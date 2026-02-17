@@ -1217,6 +1217,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle sohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
+	}
+
+	/**
 	 * Test method for creating a {@link PowerPlantController}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}

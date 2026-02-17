@@ -54,10 +54,11 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 
 	public static final String APP_ESS_SOH_CYCLE = "App.Ess.SohCycle";
 	private static final String CONTROLLER_ESS_SOH_CYCLE_FACTORY_ID = "Controller.Ess.SoH.Cycle";
+	public static final String CTRL_ESS_SOH_CYCLE_0 = "ctrlEssSohCycle0";
 
 	public enum Property implements Type<Property, AppSohCycle, Parameter.BundleParameter>, Nameable {
 		// Components
-		CTRL_ESS_SOH_CYCLE_ID(AppDef.componentId("ctrlEssSohCycle0")), //
+		CTRL_ESS_SOH_CYCLE_ID(AppDef.componentId(CTRL_ESS_SOH_CYCLE_0)), //
 
 		// Properties
 		ALIAS(alias()), //

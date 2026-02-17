@@ -33,6 +33,7 @@ public class TestFeneconHome30DefaultRelays {
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
 					Apps::prepareBatteryExtension, //
+					Apps::sohCycle, //
 					Apps::heatPump, //
 					Apps::heatingElement, //
 					Apps::combinedHeatAndPower, //
