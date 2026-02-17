@@ -73,7 +73,7 @@ public final class Utils {
 			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
-		if (period == null || gridActivePower == null || essActivePower == null) {
+		if ((period == null && forceMode == null) || gridActivePower == null || essActivePower == null) {
 			// undefined state
 			return new ApplyMode(BALANCING, null);
 		}
@@ -160,6 +160,11 @@ public final class Utils {
 	/**
 	 * Calculates the {@link ApplyMode} for {@link StateMachine#DELAY_DISCHARGE}.
 	 * 
+	 * <p>
+	 * This mode stops discharging the battery, but allows charging. (i.e.
+	 * ESS::DcDischargePower <= 0); unless peak-shaving to "gridSoftLimit" is
+	 * required, then it also allows discharging.
+	 * 
 	 * @param ess             the {@link ManagedSymmetricEss}
 	 * @param essActivePower  the ESS ActivePower
 	 * @param gridActivePower the Grid ActivePower
@@ -169,7 +174,7 @@ public final class Utils {
 	 */
 	private static ApplyMode calculateDelayDischarge(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
 			int pwrBalancing, Integer gridSoftLimit) {
-		var targetChargePower = switch (ess) {
+		var pwrDelayDischarge = switch (ess) {
 		case HybridEss e ->
 			// Limit discharge to DC-PV power
 			max(0, essActivePower - e.getDcDischargePower().orElse(0));
@@ -184,12 +189,12 @@ public final class Utils {
 			// ...but discharging is required for peak-shaving to gridSoftLimit
 			return new ApplyMode(PEAK_SHAVING, peakShavingPower);
 
-		} else if (targetChargePower <= 0 && targetChargePower >= pwrBalancing) {
+		} else if (pwrDelayDischarge >= pwrBalancing) {
 			// ...but actually charging
 			return new ApplyMode(BALANCING, pwrBalancing);
 
 		} else {
-			return new ApplyMode(DELAY_DISCHARGE, targetChargePower);
+			return new ApplyMode(DELAY_DISCHARGE, pwrDelayDischarge);
 		}
 	}
 

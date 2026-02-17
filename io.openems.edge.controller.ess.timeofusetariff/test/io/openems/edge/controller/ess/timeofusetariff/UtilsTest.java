@@ -106,14 +106,14 @@ public class UtilsTest {
 	@Test
 	public void testCalculateDelayDischarge() {
 		// DC-PV
-		assertEquals(new ApplyMode(DELAY_DISCHARGE, 500), //
+		assertEquals(new ApplyMode(DELAY_DISCHARGE, 704), // DC-Production is 704
 				calculateAutomaticMode(//
 						/* sum */ new DummySum() //
-								.withGridActivePower(0), //
+								.withGridActivePower(4052), //
 						/* ess */ new DummyHybridEss("ess0") //
-								.withActivePower(-500) //
-								.withDcDischargePower(-1000), //
-						/* maxChargePowerFromGrid */ 20000, //
+								.withActivePower(699) //
+								.withDcDischargePower(-5), //
+						/* maxChargePowerFromGrid */ 23000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
 						/* forceMode */ null));
 
@@ -124,7 +124,17 @@ public class UtilsTest {
 								.withGridActivePower(-1000), //
 						/* ess */ new DummyManagedSymmetricEss("ess0") //
 								.withActivePower(0), //
-						/* maxChargePowerFromGrid */ 5000, //
+						/* maxChargePowerFromGrid */ 23000, //
+						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* forceMode */ null));
+		assertEquals(new ApplyMode(BALANCING, -1823), //
+				calculateAutomaticMode(//
+						/* sum */ new DummySum() //
+								.withGridActivePower(-2323), //
+						/* ess */ new DummyHybridEss("ess0") //
+								.withActivePower(500) //
+								.withDcDischargePower(23), //
+						/* maxChargePowerFromGrid */ 23000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
 						/* forceMode */ null));
 
