@@ -1,7 +1,7 @@
 @if (isSmartphoneResolution) {
   <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
     [icon]="{name: 'laptop-outline', color: 'normal', size: 'large'}" *ngIf="isInitialized"
-    [style.height.px]="getChartHeight()" class="no-all-edges-shadow">
+    [style.height.vh]="chartHeight" class="no-all-edges-shadow">
     <oe-flat-button button (click)="exportToXlxs()" slot="end">
       <ion-icon name="download-outline"></ion-icon>
     </oe-flat-button>
@@ -13,8 +13,7 @@
   @if (isInitialized) {
     <ngx-spinner [name]="spinnerId">{{ 'EDGE.HISTORY.EXPORT_LOADING' | translate }}</ngx-spinner>
     <oe-flat-widget [title]="'EDGE.INDEX.ENERGYMONITOR.TITLE'| translate"
-      [icon]="{name: 'laptop-outline', color: 'normal'}" [style.height.px]="getChartHeight()"
-      class="no-all-edges-shadow">
+      [icon]="{name: 'laptop-outline', color: 'normal'}" [style.height.vh]="chartHeight" class="no-all-edges-shadow">
       <oe-flat-button button slot="end" class="ion-float-right" (click)="exportToXlxs()">
         <ion-icon slot="start" [name]="'download-outline'">
         </ion-icon>

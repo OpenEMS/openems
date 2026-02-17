@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -20,6 +20,7 @@ import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
+import { LayoutRefreshService } from "../../service/layoutRefreshService";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -42,7 +43,7 @@ Chart.Chart.register(ChartDataLabels);
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit {
+export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit, AfterContentInit {
 
     protected static readonly phaseColors: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
 
@@ -66,7 +67,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     public options: Chart.ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS();
     public colors: any[] = [];
     public chartObject: HistoryUtils.ChartData | null = null;
-
     protected spinnerId: string = uuidv4();
     protected chartType: "line" | "bar" = "line";
     protected chartTypeSignal: WritableSignal<"line" | "bar"> = signal("line");
@@ -76,6 +76,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     protected channelData: { data: { [name: string]: number[] } } = { data: {} };
     protected viewHeight: number | null = null;
+    private layoutRefresh = inject(LayoutRefreshService);
 
     constructor(
         public service: Service,
@@ -88,6 +89,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         this.service.historyPeriod.subscribe(() => {
             this.updateChart();
         });
+
     }
 
     /**
@@ -1008,6 +1010,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         return options;
     }
 
+    @HostListener("window:resize", ["$event.target.innerHeight"])
+    private onResize(height: number) {
+        this.ngAfterViewInit();
+    }
+
     /**
     * Start NGX-Spinner
     *
@@ -1027,6 +1034,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      */
     public stopSpinner() {
         this.service.stopSpinner(this.spinnerId);
+        this.layoutRefresh.request(300);
     }
 
     ngOnInit() {
@@ -1048,20 +1056,29 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         this.options = AbstractHistoryChart.removePlugins(this.options);
     }
 
-    ionViewWillLeave() {
-        this.ngOnDestroy();
-    }
-
     ngAfterViewInit() {
         this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
         this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
-    protected getChartHeight(): number {
-        if (this.isOnlyChart) {
-            return window.innerHeight / 1.3;
-        }
-        return window.innerHeight / 21 * 9;
+    ngAfterContentInit() {
+        setTimeout(() => {
+
+            // TODO: rm after new navigation refactoring complete
+            let counter = 0;
+            const interval = setInterval(() => {
+                this.ngAfterViewInit();
+
+                if (counter > 10) {
+                    clearInterval(interval);
+                }
+                counter++;
+            });
+        });
+    }
+
+    protected getChartHeight(): number | null {
+        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
     }
 
     protected updateChart() {

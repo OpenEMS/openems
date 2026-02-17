@@ -34,7 +34,7 @@ export class FlatWidgetButtonComponent {
         }
 
         this.router.navigate([this.link.text],
-            this.link.queryParams ? { queryParams: this.link.queryParams } : {});
+            this.link.queryParams ? { queryParams: this.link.queryParams } : { replaceUrl: true });
     }
 }
 

@@ -6,7 +6,7 @@ import { NavigationTree } from "./shared";
 
 @Component({
     selector: "oe-navigation",
-    templateUrl: "./navigation.component.html",
+    templateUrl: "./action-sheet-modal.html",
     standalone: false,
 })
 export class NavigationComponent {
