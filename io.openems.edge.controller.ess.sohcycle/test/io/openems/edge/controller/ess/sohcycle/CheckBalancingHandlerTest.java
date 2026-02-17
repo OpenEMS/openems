@@ -140,7 +140,7 @@ public class CheckBalancingHandlerTest {
 				.activate(MyConfig.create()
 						.setId(CONTROLLER_ID)
 						.setEssId(ESS_ID)
-						.setMode(Mode.MANUAL_ON)
+						.setRunning(true)
 						.build());
 	}
 }

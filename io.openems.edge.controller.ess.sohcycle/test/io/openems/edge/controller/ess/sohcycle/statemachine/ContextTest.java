@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.sohcycle.statemachine;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MIN_CELL_VOLTAGE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import java.time.Clock;
@@ -12,6 +13,7 @@ import java.time.ZoneOffset;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.ess.sohcycle.BatteryBalanceError;
@@ -19,7 +21,6 @@ import io.openems.edge.controller.ess.sohcycle.BatteryBalanceStatus;
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
-import io.openems.edge.controller.ess.sohcycle.Mode;
 import io.openems.edge.controller.ess.sohcycle.MyConfig;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
@@ -45,7 +46,7 @@ public class ContextTest {
 		this.config = MyConfig.create() //
 				.setId(CONTROLLER_ID) //
 				.setEssId(ESS_ID) //
-				.setMode(Mode.MANUAL_ON) //
+				.setRunning(true) //
 				.build();
 	}
 
@@ -220,10 +221,13 @@ public class ContextTest {
 		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG, 99L);
 		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG,
 				BatteryBalanceError.INTERNAL_ERROR);
-
+		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.SOH_PERCENT, 85);
+		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.SOH_RAW_DEBUG, 87.5f);
+		ChannelUtils.setValue(this.controller, ControllerEssSohCycle.ChannelId.IS_MEASURED, true);
+		this.updateAllChannels();
 		// Act
 		context.resetController();
-
+		this.updateAllChannels();
 		// Assert internal state cleared
 		assertNull(context.getMeasurementChargingMaxMinVoltage());
 		assertNull(context.getMeasurementStartEnergyWh());
@@ -236,5 +240,12 @@ public class ContextTest {
 		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG).value().get());
 		assertEquals(BatteryBalanceError.NONE,
 				this.controller.channel(ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG).value().asEnum());
+		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.SOH_PERCENT).value().get());
+		assertNull(this.controller.channel(ControllerEssSohCycle.ChannelId.SOH_RAW_DEBUG).value().get());
+		assertFalse((boolean) this.controller.channel(ControllerEssSohCycle.ChannelId.IS_MEASURED).value().get());
+	}
+
+	private void updateAllChannels() {
+		this.controller.channels().forEach(Channel::nextProcessImage);
 	}
 }

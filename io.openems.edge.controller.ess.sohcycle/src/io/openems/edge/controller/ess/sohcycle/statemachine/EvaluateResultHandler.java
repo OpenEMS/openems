@@ -59,6 +59,7 @@ public class EvaluateResultHandler extends StateHandler<StateMachine.State, Cont
 		setValue(controller, ControllerEssSohCycle.ChannelId.SOH_PERCENT, result.soh());
 		setValue(controller, ControllerEssSohCycle.ChannelId.SOH_RAW_DEBUG, Utils.round2(result.sohRaw()));
 		setValue(controller, ControllerEssSohCycle.ChannelId.MEASURED_CAPACITY, measuredCapacityWh);
+		setValue(controller, ControllerEssSohCycle.ChannelId.IS_MEASURED, true);
         return StateMachine.State.DONE;
     }
 

@@ -15,7 +15,7 @@ public class PrepareHandler extends StateHandler<StateMachine.State, Context> {
 		final var result = context.applyDischargingTarget(EssSohCycleConstants.MIN_SOC);
 
 		if (result == null) {
-			return StateMachine.State.PREPARE;
+			return StateMachine.State.ERROR_ABORT;
 		}
 
 		if (!result.thresholdReached()) {

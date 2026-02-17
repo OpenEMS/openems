@@ -22,6 +22,7 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.ess.AppSohCycle.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -63,13 +64,11 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 		// Properties
 		ALIAS(alias()), //
 		ESS_ID(ComponentProps.pickManagedSymmetricEssId()), //
-		MODE(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".mode.label") //
-				.setDefaultValue("MANUAL_OFF") //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable,
-						(app, property, l, parameter, field) -> field.setOptions(List.of("MANUAL_OFF", "MANUAL_ON")))
-				.bidirectional(CTRL_ESS_SOH_CYCLE_ID, "mode", //
+		IS_RUNNING(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".isRunning.label")//
+				.setDefaultValue(false)//
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+				.bidirectional(CTRL_ESS_SOH_CYCLE_ID, "isRunning", //
 						ComponentManagerSupplier::getComponentManager))), //
 		LOG_VERBOSITY(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".logVerbosity.label") //
@@ -143,7 +142,7 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 			final var ctrlEssSohCycleId = this.getId(t, p, Property.CTRL_ESS_SOH_CYCLE_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var essId = this.getString(p, Property.ESS_ID);
-			final var mode = this.getString(p, Property.MODE);
+			final var isRunning = this.getBoolean(p, Property.IS_RUNNING);
 			final var logVerbosity = this.getString(p, Property.LOG_VERBOSITY);
 			final var referenceCycleEnabled = this.getBoolean(p, Property.REFERENCE_CYCLE_ENABLED);
 
@@ -151,7 +150,7 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 					CONTROLLER_ESS_SOH_CYCLE_FACTORY_ID, JsonUtils.buildJsonObject() //
 							.addProperty("enabled", true) //
 							.addProperty("ess.id", essId) //
-							.addProperty("mode", mode) //
+							.addProperty("isRunning", isRunning) //
 							.addProperty("logVerbosity", logVerbosity) //
 							.addProperty("referenceCycleEnabled", referenceCycleEnabled) //
 							.build());

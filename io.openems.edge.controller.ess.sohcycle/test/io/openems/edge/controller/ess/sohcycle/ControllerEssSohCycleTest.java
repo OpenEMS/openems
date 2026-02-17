@@ -101,8 +101,8 @@ public class ControllerEssSohCycleTest {
 						.output(STATE_MACHINE, StateMachine.State.IDLE)//
 						.onAfterControllersCallbacks(() -> {
 							var config = this.cm.getOrCreateEmptyConfiguration(controller.servicePid());
-							assertEquals("Mode should switch to MANUAL_OFF after DONE->IDLE",
-									Mode.MANUAL_OFF.name(), config.getProperties().get("mode"));
+							assertEquals("Running should switch to false after DONE->IDLE",
+									Boolean.FALSE, config.getProperties().get("isRunning"));
 							this.assertMeasuredCapacity(controller, 15_000L);
 						}))
 				.deactivate();
@@ -352,7 +352,7 @@ public class ControllerEssSohCycleTest {
 				.activate(MyConfig.create()
 					.setId(CONTROLLER_ID)
 					.setEssId(ESS_ID)
-					.setMode(Mode.MANUAL_ON)
+					.setRunning(true)
 					.build());
 
 		power.addEss(ess);
@@ -411,7 +411,7 @@ public class ControllerEssSohCycleTest {
 				.activate(MyConfig.create()
 						.setId(CONTROLLER_ID)
 						.setEssId(ESS_ID)
-						.setMode(Mode.MANUAL_ON)
+						.setRunning(true)
 						.setReferenceCycleEnabled(referenceCycleEnabled)
 						.build());
 	}

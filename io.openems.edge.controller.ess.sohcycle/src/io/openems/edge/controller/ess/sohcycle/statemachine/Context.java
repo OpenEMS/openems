@@ -18,7 +18,6 @@ import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
 import io.openems.edge.controller.ess.sohcycle.LogVerbosity;
-import io.openems.edge.controller.ess.sohcycle.Mode;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
@@ -154,6 +153,9 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
         final var capacityValue = this.ess.getCapacity();
 
         if (!socValue.isDefined() || !maxPowerValue.isDefined() || !capacityValue.isDefined()) {
+            this.logError(log, String.format(
+                    "Cannot calculate power details: socDefined=%s, maxPowerDefined=%s, capacityDefined=%s",
+                    socValue.isDefined(), maxPowerValue.isDefined(), capacityValue.isDefined()));
             return null;
         }
 
@@ -166,6 +168,10 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
         // Allow changing by 1% of max apparent power per run, similar to
         // EmergencyCapacityReserve.
         return new ReferencePowerResult(soc, limitedPower, maxApparentPower * 0.01f);
+    }
+
+    public boolean isRunning() {
+        return this.config.isRunning();
     }
 
     /**
@@ -358,7 +364,14 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
         this.resetVoltageDelta();
         this.resetIsBatteryBalancedChannel();
         this.resetBalancingDiagnostics();
+        this.resetSoh();
+        this.resetIsMeasuredChannel();
     }
+
+	private void resetSoh() {
+		ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.SOH_PERCENT, null);
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.SOH_RAW_DEBUG, null);
+	}
 
     private void resetVoltageDelta() {
         ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.VOLTAGE_DELTA, null);
@@ -379,8 +392,8 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
                 BatteryBalanceError.NONE);
     }
 
-    public boolean isManualModeOff() {
-        return this.config.mode().equals(Mode.MANUAL_OFF);
+    private void resetIsMeasuredChannel() {
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.IS_MEASURED, false);
     }
 
     public void setVoltageDelta(Integer voltageDelta) {

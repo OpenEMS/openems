@@ -18,7 +18,6 @@ import org.junit.runners.Parameterized.Parameters;
 import io.openems.edge.controller.ess.sohcycle.BatteryBalanceError;
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
-import io.openems.edge.controller.ess.sohcycle.Mode;
 import io.openems.edge.controller.ess.sohcycle.MyConfig;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
@@ -80,7 +79,7 @@ public class ContextCalculateCellVoltageDeltaParamTest {
         this.config = MyConfig.create() //
                 .setId(CONTROLLER_ID) //
                 .setEssId(ESS_ID) //
-                .setMode(Mode.MANUAL_ON) //
+                .setRunning(true) //
                 .build();
     }
 

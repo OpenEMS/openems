@@ -195,7 +195,7 @@ public class AppManagerImplTest {
 						.add("properties", JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("ess.id", "ess0") //
-								.addProperty("mode", "MANUAL_OFF") //
+								.addProperty("isRunning", false) //
 								.addProperty("referenceCycleEnabled", false) //
 								.addProperty("logVerbosity", "NONE") //
 								.build()) //
