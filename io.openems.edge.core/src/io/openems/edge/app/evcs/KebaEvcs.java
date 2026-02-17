@@ -1,13 +1,12 @@
 package io.openems.edge.app.evcs;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -128,7 +127,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					final var architectureType = Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE));
 					field.onlyShowIf(hardwareType.and(architectureType));
-				}) //
+				})//
 				.setDefaultValue(false)),
 		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
 				.setRequired(true) //

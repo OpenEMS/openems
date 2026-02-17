@@ -632,8 +632,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		dependencies.add(new Dependency(VEHICLE, vehicleInstance.instanceId));
 		if (numberOfChargePoints == 2) {
 			i++;
-			var vehicleInstanceCp2 = this.evseVehicle(user, response, i);
-			var vehicleIdCp2 = JsonUtils.getAsString(vehicleInstanceCp2.properties.get(VEHICLE_ID));
+			final var vehicleInstanceCp2 = this.evseVehicle(user, response, i);
+			final var vehicleIdCp2 = JsonUtils.getAsString(vehicleInstanceCp2.properties.get(VEHICLE_ID));
 
 			final var evcsIdCp2 = JsonUtils.getAsString(instance.properties.get("EVCS_ID_CP_2"));
 			final var ctrlEvcsIdCp2 = JsonUtils.getAsString(instance.properties.get("CTRL_EVCS_ID_CP_2"));
