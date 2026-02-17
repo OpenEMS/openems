@@ -15,6 +15,7 @@ import { PopoverComponent } from "../popover/popover";
 
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
+    selector: "oe-controller-evcs-modal",
     templateUrl: "./modal.html",
     standalone: false,
 })

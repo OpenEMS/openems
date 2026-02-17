@@ -9,6 +9,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { LiveDataService } from "../../../livedataservice";
 
 @Component({
+    selector: "oe-common-consumption-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

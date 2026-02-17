@@ -5,6 +5,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 
 @Component({
+    selector: "oe-controller-ess-fix-active-power-modal",
     templateUrl: "./modal.html",
     standalone: false,
 })
