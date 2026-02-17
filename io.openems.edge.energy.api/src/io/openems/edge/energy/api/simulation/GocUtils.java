@@ -468,7 +468,11 @@ public class GocUtils {
 					.map(i -> i.atZone(clock.getZone())) //
 					.orElse(startTime.plusMinutes(SCHEDULE_PERIODS_ON_EMPTY * 15));
 
-			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */, this.meta.getGridBuySoftLimit());
+			final var gridLimit = this.meta.getMaximumGridFeedInLimitValue().orElse(0);
+			final var grid = new Grid(//
+					/* maxBuyPower */ gridLimit, //
+					/* maxSellPOwer */ gridLimit, //
+					/* gridBuySoftLimit */ this.meta.getGridBuySoftLimit());
 			final var gridBuySoftLimits = grid.gridBuySoftLimit() //
 					.getOneTasksBetween(startTime, endTime.plusMinutes(15));
 
