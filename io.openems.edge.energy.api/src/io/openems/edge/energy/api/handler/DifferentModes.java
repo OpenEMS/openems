@@ -148,12 +148,12 @@ public class DifferentModes {
 	}
 
 	public static class Modes<MODE> {
-		public static record Mode<MODE>(MODE mode, boolean addToOptimizer) {
+		public record Mode<MODE>(MODE mode, boolean addToOptimizer, Integer preferenceRank) {
 			@Override
-			public final String toString() {
-				return new StringBuilder(this.mode.toString()) //
-						.append("[").append(this.addToOptimizer ? "+" : "-").append("]") //
-						.toString();
+			public String toString() {
+				return this.mode.toString() //
+						+ "[" + (this.addToOptimizer ? "+" : "-") + "]" //
+						+ "(prio=" + this.preferenceRank + ")";
 			}
 		}
 
@@ -168,7 +168,8 @@ public class DifferentModes {
 		}
 
 		/**
-		 * Create {@link Modes} from an Array of MODEs, add all to Optimizer.
+		 * Create {@link Modes} from an Array of MODEs, add all to Optimizer, with no
+		 * priorities.
 		 * 
 		 * @param <MODE> the type of the Mode
 		 * @param modes  the MODEs array
@@ -176,7 +177,7 @@ public class DifferentModes {
 		 */
 		public static <MODE> Modes<MODE> of(MODE[] modes) {
 			return new Modes<MODE>(Arrays.stream(modes) //
-					.map(m -> new Mode<MODE>(m, true)) //
+					.map(m -> new Mode<MODE>(m, true, null)) //
 					.collect(toImmutableList()));
 		}
 
@@ -216,7 +217,7 @@ public class DifferentModes {
 		 * @return boolean
 		 */
 		public boolean hasForOptimizer() {
-			return this.optimizerModes.isEmpty();
+			return !this.optimizerModes.isEmpty();
 		}
 
 		/**
@@ -269,6 +270,16 @@ public class DifferentModes {
 			return this._get(index) //
 					.map(Mode::mode) //
 					.orElse(null);
+		}
+
+		/**
+		 * Gets the preference rank of the MODE for the given index.
+		 *
+		 * @param index the index
+		 * @return the preference rank
+		 */
+		public Integer getPreferenceRank(int index) {
+			return this.allModes.get(index).preferenceRank();
 		}
 
 		/**

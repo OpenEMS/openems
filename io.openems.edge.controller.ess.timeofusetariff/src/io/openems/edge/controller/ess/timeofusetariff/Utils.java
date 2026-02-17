@@ -20,7 +20,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
@@ -269,19 +269,15 @@ public final class Utils {
 		}
 	}
 
-	protected static int calculateMaxSocForRiskLvel(RiskLevel riskLevel) {
-		return switch (riskLevel) {
-		case HIGH -> 100;
-		case MEDIUM -> 99;
-		case LOW -> 98;
+	protected static int calculateMaxSocForEnvironment(Environment environment) {
+		return switch (environment) {
+			case PRODUCTION, BETA, TEST -> 99;
 		};
 	}
 
-	protected static int calculateMinSocForRiskLvel(RiskLevel riskLevel) {
-		return switch (riskLevel) {
-		case HIGH -> 0;
-		case MEDIUM -> 1;
-		case LOW -> 2;
+	protected static int calculateMinSocForEnvironment(Environment environment) {
+		return switch (environment) {
+			case PRODUCTION, BETA, TEST -> 1;
 		};
 	}
 }

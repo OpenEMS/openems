@@ -23,7 +23,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Periods;
@@ -218,17 +218,17 @@ public class UtilsTest {
 	@Test
 	public void testCalculateChargePowerInChargeGrid() {
 		assertEquals(5745, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.empty()),
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(4336, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
 								.add(TIME, null, 0, 1000, 0.) //
 								.add(TIME.plusMinutes(15), null, 100, 1100, 0.) //
 								.add(TIME.plusMinutes(30), null, 200, 0, 0.) //
@@ -236,10 +236,10 @@ public class UtilsTest {
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3182, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
 								.add(TIME, null, 0, 700, 123.) //
 								.add(TIME.plusMinutes(30), null, 100, 600, 123.) //
 								.add(TIME.plusMinutes(45), null, 200, 500, 125.) //
@@ -252,10 +252,10 @@ public class UtilsTest {
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3818, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
 								.add(TIME, null, 0, 700, 120.) //
 								.add(TIME.plusMinutes(15), null, 100, 600, 121.) //
 								.add(TIME.plusMinutes(30), null, 200, 500, 122.) //

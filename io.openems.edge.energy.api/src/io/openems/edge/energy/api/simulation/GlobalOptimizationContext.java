@@ -18,8 +18,8 @@ import com.google.gson.JsonObject;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GocUtils.GocBuilder;
 import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
@@ -33,7 +33,7 @@ import io.openems.edge.energy.api.simulation.GocUtils.PeriodsBuilder;
  */
 public record GlobalOptimizationContext(//
 		Clock clock, //
-		RiskLevel riskLevel,
+		Environment environment,
 		/** Start-Timestamp */
 		ZonedDateTime startTime, //
 		ImmutableList<EnergyScheduleHandler> eshs, //
@@ -83,7 +83,7 @@ public record GlobalOptimizationContext(//
 	public static JsonElement toJson(GlobalOptimizationContext goc) {
 		return buildJsonObject() //
 				.addProperty("zone", goc.clock.getZone().getId()) //
-				.addProperty("riskLevel", goc.riskLevel) //
+				.addProperty("environment", goc.environment) //
 				.addProperty("startTime", goc.startTime) //
 				.add("grid", goc.grid, Grid.serializer()) //
 				.add("ess", goc.ess, Ess.serializer()) //
@@ -243,11 +243,11 @@ public record GlobalOptimizationContext(//
 		/**
 		 * Create a builder for {@link Periods}.
 		 * 
-		 * @param riskLevel the {@link RiskLevel}
+		 * @param environment the {@link Environment}
 		 * @return a {@link PeriodsBuilder}
 		 */
-		public static PeriodsBuilder create(RiskLevel riskLevel) {
-			return new PeriodsBuilder(riskLevel);
+		public static PeriodsBuilder create(Environment environment) {
+			return new PeriodsBuilder(environment);
 		}
 
 		/**
@@ -329,7 +329,7 @@ public record GlobalOptimizationContext(//
 				int consumptionPredicted,
 
 				/**
-				 * Consumption prediction for the Period adjusted by {@link RiskLevel} in [Wh].
+				 * Consumption prediction for the Period adjusted by {@link Environment} in [Wh].
 				 * 
 				 * @return the consumption prediction
 				 */

@@ -28,6 +28,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
+import io.openems.edge.energy.api.simulation.GocUtils;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 
 public record SimulationResult(//
@@ -105,7 +106,8 @@ public record SimulationResult(//
 			int simulationsCounter, //
 			int generationsCounter) {
 		final var bsc = new BestScheduleCollector();
-		final var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule, bsc);
+		final var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule, bsc,
+				GocUtils.normalizeEshModePreferenceRanks(goc.eshsWithDifferentModes()));
 		final var periods = bsc.periods.buildOrThrow();
 
 		var schedules = bsc.modesPerEsh.entrySet().stream() //
@@ -168,8 +170,8 @@ public record SimulationResult(//
 
 		// Convert to Quarters
 		final var quarterPeriods = GlobalOptimizationContext.Periods.copyOfQuarterly(goc.periods());
-		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.riskLevel(), goc.startTime(), goc.eshs(),
-				goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
+		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.environment(), goc.startTime(),
+				goc.eshs(), goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
 		final var quarterSchedule = IntStream.range(0, goc.periods().size()) //
 				.flatMap(periodIndex -> switch (goc.periods().get(periodIndex)) {
 				case GlobalOptimizationContext.Period.Hour ph //

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
@@ -32,11 +32,11 @@ public class DummyGlobalOptimizationContext {
 		final var eshs = Arrays.stream(handlers).collect(toImmutableList());
 
 		return new GlobalOptimizationContext(//
-				CLOCK, RiskLevel.MEDIUM, TIME, //
+				CLOCK, Environment.TEST, TIME, //
 				eshs, filterEshsWithDifferentModes(eshs).collect(toImmutableList()), //
 				new GlobalOptimizationContext.Grid(16000, 20000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(5000, 22000, 16000, 16000), //
-				GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+				GlobalOptimizationContext.Periods.create(Environment.TEST) //
 						.add(time(0, 0), null, 0, 106, 293.70) //
 						.add(time(0, 15), null, 0, 86, 293.70) //
 						.add(time(0, 30), null, 0, 88, 293.70) //

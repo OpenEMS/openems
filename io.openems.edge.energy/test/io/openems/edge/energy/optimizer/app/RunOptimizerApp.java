@@ -18,7 +18,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.energy.EnergySchedulerTestUtils.Controller;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
 
 /**
@@ -35,7 +35,7 @@ public class RunOptimizerApp {
 	private static final JsonObject JSON = buildJsonObject() //
 			.addProperty("zone", "Europe/Berlin") //
 			.addProperty("startTime", ZonedDateTime.parse("2025-03-17T07:45:00Z")) //
-			.addProperty("riskLevel", RiskLevel.MEDIUM) //
+			.addProperty("environment", Environment.PRODUCTION) //
 			.add("grid", buildJsonObject() //
 					.addProperty("maxBuyPower", 100000) //
 					.addProperty("maxSellPower", 100000) //

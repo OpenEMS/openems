@@ -39,8 +39,8 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
@@ -163,7 +163,7 @@ public final class AppUtils {
 			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
 					.setComponentManager(componentManager) //
 					.setMeta(meta) //
-					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
+					.setEnvironment(json.getEnum("environment", Environment.class)) //
 					.setEnergyScheduleHandlers(eshs) //
 					.setSum(sum) //
 					.setPredictorManager(predictorManager) //

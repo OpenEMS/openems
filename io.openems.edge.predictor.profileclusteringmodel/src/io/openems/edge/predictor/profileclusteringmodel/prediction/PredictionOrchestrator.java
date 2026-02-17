@@ -147,7 +147,7 @@ public class PredictionOrchestrator {
 
 	private List<Profile> buildAllProfiles() {
 		var centroids = this.predictionContext.clusterer().getCentroids();
-		var upperQuantileCentroids = this.predictionContext.clusterer().getCentroids();
+		var upperQuantileCentroids = this.predictionContext.clusterer().getUpperQuantileCentroids();
 		return IntStream.range(0, centroids.size()).mapToObj(i -> Profile.fromArray(i, centroids.get(i), upperQuantileCentroids.get(i))).toList();
 	}
 

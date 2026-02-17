@@ -10,7 +10,8 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHA
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.PEAK_SHAVING;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.ESS_DISCHARGE_TO_GRID_POWER;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargePowerInChargeGrid;
-import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateMaxSocForRiskLvel;
+import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateMaxSocForEnvironment;
+import static io.openems.edge.energy.api.EnergyUtils.energyToSoc;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
@@ -43,8 +44,8 @@ public class EnergyScheduler {
 			int maxSocInChargeGrid, int maxEnergyInChargeGrid, int essChargePowerInChargeGrid) {
 
 		protected static OptimizationContext from(GlobalOptimizationContext goc) {
-			// TODO calculateMinSocForRiskLvel() is prepared for DISCHARGE_GRID
-			final var maxSocInChargeGrid = calculateMaxSocForRiskLvel(goc.riskLevel());
+			// TODO: calculateMaxSocForEnvironment() is prepared for DISCHARGE_GRID
+			final var maxSocInChargeGrid = calculateMaxSocForEnvironment(goc.environment());
 			final var maxEnergyInChargeGrid = round(goc.ess().totalEnergy() * (maxSocInChargeGrid / 100F));
 			final var essChargePowerInChargeGrid = calculateChargePowerInChargeGrid(goc, maxEnergyInChargeGrid);
 
@@ -73,8 +74,10 @@ public class EnergyScheduler {
 				.setModes(() -> {
 					var config = configSupplier.get();
 					return Modes.of(Arrays.stream(StateMachine.values()) //
-							.map(m -> new Mode<StateMachine>(m, //
-									config != null && config.controlMode.modes.contains(m))) //
+							.map(m -> new Mode<StateMachine>(//
+									m, //
+									config != null && config.controlMode.modes.contains(m), //
+									preferenceRankFor(m)))//
 							.collect(toImmutableList()));
 				})
 
@@ -118,11 +121,25 @@ public class EnergyScheduler {
 						mode = postProcessMode(period, gsc, coc, ef, mode);
 					}
 
+					// Disallow mode CHARGE_GRID when ess is full
+					final int soc = energyToSoc(gsc.ess.getInitialEnergy(), gsc.goc.ess().totalEnergy());
+					if (mode == CHARGE_GRID && soc >= coc.maxSocInChargeGrid()) {
+						fitness.addHardConstraintViolation();
+					}
+
 					simulateMode(period, gsc, coc, ef, mode);
 					return mode;
 				})
 
 				.build();
+	}
+
+	private static Integer preferenceRankFor(StateMachine m) {
+		return switch (m) {
+		case CHARGE_GRID, DISCHARGE_GRID -> 1;
+		case BALANCING, PEAK_SHAVING -> 2;
+		case DELAY_DISCHARGE -> 3;
+		};
 	}
 
 	private static void simulateMode(Period period, GlobalScheduleContext gsc, OptimizationContext coc,

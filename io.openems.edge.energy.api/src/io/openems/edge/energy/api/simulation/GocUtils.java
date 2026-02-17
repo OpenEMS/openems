@@ -17,13 +17,19 @@ import static java.util.stream.Collectors.joining;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.utils.DateUtils;
@@ -35,8 +41,8 @@ import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
@@ -60,10 +66,10 @@ public class GocUtils {
 		protected static record TmpPeriod(ZonedDateTime time, Integer gridBuySoftLimit, //
 				Integer production, Integer consumption, //
 				Double price) {
-			protected Period.Quarter toPeriodQuarter(RiskLevel riskLevel, int index,
+			protected Period.Quarter toPeriodQuarter(Environment environment, int index,
 					DoubleToDoubleFunction normalizePrice) {
 				final var price = toPrice(this.price, normalizePrice);
-				final var prediction = toPrediction(this.production, this.consumption, riskLevel, price);
+				final var prediction = toPrediction(this.production, this.consumption, environment, price);
 
 				if (prediction != null && price != null) {
 					return new Period.Quarter.Complete(//
@@ -81,11 +87,11 @@ public class GocUtils {
 			}
 		}
 
-		private final RiskLevel riskLevel;
+		private final Environment environment;
 		private final List<TmpPeriod> tmpPeriods = new ArrayList<TmpPeriod>();
 
-		protected PeriodsBuilder(RiskLevel riskLevel) {
-			this.riskLevel = riskLevel;
+		protected PeriodsBuilder(Environment environment) {
+			this.environment = environment;
 		}
 
 		/**
@@ -145,13 +151,13 @@ public class GocUtils {
 			return this;
 		}
 
-		private static Prediction toPrediction(Integer production, Integer consumption, RiskLevel riskLevel,
+		private static Prediction toPrediction(Integer production, Integer consumption, Environment environment,
 				Price price) {
 			if (consumption == null) {
 				return null;
 			}
 			final double factor = price == null ? 1. //
-					: riskLevel.consumptionFunction.apply(price.normalized());
+					: environment.consumptionFunction.apply(price.normalized());
 
 			return consumption == null ? null //
 					: new Prediction(TypeUtils.orElse(production, 0), consumption,
@@ -188,7 +194,7 @@ public class GocUtils {
 				if (i < periodLengthHourFromIndex) {
 					// Add QUARTER
 					final var tp = this.tmpPeriods.get(i);
-					final Period.Quarter p = tp.toPeriodQuarter(this.riskLevel, i, normalizePrice);
+					final Period.Quarter p = tp.toPeriodQuarter(this.environment, i, normalizePrice);
 					periods.add(p);
 					i += 1;
 
@@ -199,7 +205,7 @@ public class GocUtils {
 						var index = i + j;
 						if (index < this.tmpPeriods.size()) {
 							var tp = this.tmpPeriods.get(index);
-							qpb.add(tp.toPeriodQuarter(this.riskLevel, j, normalizePrice));
+							qpb.add(tp.toPeriodQuarter(this.environment, j, normalizePrice));
 						}
 					}
 					final var quarterPeriods = qpb.build();
@@ -227,7 +233,7 @@ public class GocUtils {
 							.map(Period.WithPrice::price) //
 							.mapToDouble(Price::actual) //
 							.average()), normalizePrice);
-					final var prediction = toPrediction(production, consumption, this.riskLevel, price);
+					final var prediction = toPrediction(production, consumption, this.environment, price);
 
 					final var j = periodLengthHourFromIndex + (i - periodLengthHourFromIndex) / 4;
 					final Period.Hour p;
@@ -298,7 +304,7 @@ public class GocUtils {
 
 		private ComponentManager componentManager;
 		private Meta meta;
-		private RiskLevel riskLevel;
+		private Environment environment;
 		private ImmutableList<EnergyScheduleHandler> eshs;
 		private Sum sum;
 		private PredictorManager predictorManager;
@@ -345,13 +351,13 @@ public class GocUtils {
 		}
 
 		/**
-		 * The {@link RiskLevel}.
+		 * The {@link Environment}.
 		 * 
-		 * @param riskLevel the {@link RiskLevel}
+		 * @param environment the {@link Environment}
 		 * @return myself
 		 */
-		public GocBuilder setRiskLevel(RiskLevel riskLevel) {
-			this.riskLevel = riskLevel;
+		public GocBuilder setEnvironment(Environment environment) {
+			this.environment = environment;
 			return this;
 		}
 
@@ -466,7 +472,7 @@ public class GocUtils {
 			final var gridBuySoftLimits = grid.gridBuySoftLimit() //
 					.getOneTasksBetween(startTime, endTime.plusMinutes(15));
 
-			final var periodsBuilder = Periods.create(this.riskLevel);
+			final var periodsBuilder = Periods.create(this.environment);
 			for (var i = 0;; i++) {
 				final var time = startTime.plusMinutes(i * 15);
 				final var gridBuySoftLimit = Optional.ofNullable(gridBuySoftLimits.getPayloadAt(time)) //
@@ -523,7 +529,7 @@ public class GocUtils {
 							.map(EnergyScheduleHandler::getParentId) //
 							.collect(joining(",")));
 
-			return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
+			return new GlobalOptimizationContext(clock, this.environment, startTime, //
 					this.eshs, eshsWithDifferentModes, //
 					grid, ess, periods);
 		}
@@ -548,5 +554,74 @@ public class GocUtils {
 			minute = 60;
 		}
 		return 6 * 4 + (60 - minute) / 15;
+	}
+
+	/**
+	 * Normalizes the preference ranks of all modes added to optimization for each
+	 * ESH in the given {@link GlobalOptimizationContext}.
+	 *
+	 * <p>
+	 * For each ESH in the context, this method:
+	 * <ol>
+	 * <li>Filters the modes that are considered for optimization (via
+	 * {@code addToOptimizer}).</li>
+	 * <li>Builds a map from mode index to its raw preference rank.</li>
+	 * <li>Normalizes the ranks to a double value between 0.0 and 1.0.</li>
+	 * </ol>
+	 *
+	 * <p>
+	 * The result is a list of maps, one per ESH, mapping mode indices to their
+	 * normalized preference scores.
+	 *
+	 * @param eshs the {@link EnergyScheduleHandler.WithDifferentModes}s containing
+	 *             their modes
+	 * @return a list of maps, each map corresponding to an ESH and mapping mode
+	 *         indices to normalized preference ranks between 0.0 and 1.0
+	 */
+	public static List<Map<Integer, Double>> normalizeEshModePreferenceRanks(
+			List<EnergyScheduleHandler.WithDifferentModes> eshs) {
+		return eshs.stream()//
+				.map(esh -> {
+					final Map<Integer, Integer> modeIndexToPreferenceRank = esh.modes().streamAllIndices()//
+							.filter(i -> esh.modes().addToOptimizer(i))//
+							.boxed()//
+							.collect(//
+									HashMap::new, //
+									(m, i) -> m.put(i, esh.modes().getPreferenceRank(i)), //
+									Map::putAll);
+
+					return normalizeModePreferenceRanks(modeIndexToPreferenceRank);
+				})//
+				.toList();
+	}
+
+	@VisibleForTesting
+	static Map<Integer, Double> normalizeModePreferenceRanks(Map<Integer, Integer> modeIndexToPreferenceRank) {
+		if (modeIndexToPreferenceRank.isEmpty()) {
+			return Map.of();
+		}
+
+		final Function<Integer, Integer> nullToMax = v -> v != null ? v : Integer.MAX_VALUE;
+
+		final var sortedUniquePreferenceRanks = modeIndexToPreferenceRank.values().stream()//
+				.map(nullToMax)//
+				.distinct()//
+				.sorted()//
+				.toList();
+
+		final var preferenceRankToDenseRank = IntStream.range(0, sortedUniquePreferenceRanks.size())//
+				.boxed()//
+				.collect(Collectors.toMap(//
+						sortedUniquePreferenceRanks::get, //
+						Function.identity()));
+
+		final int maxDenseRank = Math.max(1, preferenceRankToDenseRank.values().stream()//
+				.max(Integer::compareTo)//
+				.orElse(0));
+
+		return modeIndexToPreferenceRank.entrySet().stream()//
+				.collect(Collectors.toMap(//
+						Map.Entry::getKey, //
+						e -> preferenceRankToDenseRank.get(nullToMax.apply(e.getValue())) / (double) maxDenseRank));
 	}
 }

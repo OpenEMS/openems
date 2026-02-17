@@ -160,7 +160,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
 							.setMeta(this.meta) //
-							.setRiskLevel(this.config.riskLevel()) //
+							.setEnvironment(this.config.environment()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //

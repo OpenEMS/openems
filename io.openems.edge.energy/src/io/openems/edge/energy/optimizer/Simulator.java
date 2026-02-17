@@ -7,6 +7,10 @@ import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateIn
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Math.max;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
@@ -38,6 +42,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils;
 import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
@@ -45,9 +50,11 @@ import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 public class Simulator {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
+	private static final double EFFICIENCY_FACTOR = 1.17;
 
 	public final GlobalOptimizationContext goc;
 	public final ModeCombinations modeCombinations;
+	private final List<Map<Integer, Double>> normalizedEshModePreferenceRanks;
 
 	private final AtomicInteger simulationsCounter = new AtomicInteger(0);
 	private final AtomicLong generationsCounter = new AtomicLong(0);
@@ -61,6 +68,7 @@ public class Simulator {
 			LOG.info("OPTIMIZER ControllerOptimizationContext '" + esh.getParentId() + "': " + coc);
 		}
 		this.modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
+		this.normalizedEshModePreferenceRanks = GocUtils.normalizeEshModePreferenceRanks(goc.eshsWithDifferentModes());
 	}
 
 	protected int getTotalNumberOfSimulations() {
@@ -71,8 +79,12 @@ public class Simulator {
 		return (int) this.generationsCounter.get();
 	}
 
-	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
-			BestScheduleCollector bsc) {
+	protected static Fitness simulate(//
+			GlobalOptimizationContext goc, //
+			ModeCombinations modeCombinations, //
+			int[] schedule, //
+			BestScheduleCollector bsc, //
+			List<Map<Integer, Double>> normalizedEshModePreferenceRanks) {
 		final var gsc = GlobalScheduleContext.from(goc);
 		final var cscsBuilder = ImmutableMap.<EnergyScheduleHandler, Object>builder();
 		for (var esh : goc.eshs()) {
@@ -90,7 +102,11 @@ public class Simulator {
 			simulatePeriod(gsc, cscs, periodIndex, modeCombination, fitness, bsc);
 		}
 
-		var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
+		final var modePreferencePenalty = calculateModePreferencePenalty(goc, modeCombinations, schedule,
+				normalizedEshModePreferenceRanks);
+		fitness.setModePreferencePenalty(modePreferencePenalty);
+
+		final var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
 		fitness.addSoftConstraintViolation(runLengthCost);
 
 		return fitness;
@@ -177,7 +193,7 @@ public class Simulator {
 						// Cost for direct Consumption
 						gridToCons * price
 								// Cost for future Consumption after storage
-								+ max(0, gridToEss) * price * gsc.goc.riskLevel().efficiencyFactor);
+								+ max(0, gridToEss) * price * EFFICIENCY_FACTOR);
 			}
 
 			// Calculate Grid-Sell Revenue
@@ -245,7 +261,7 @@ public class Simulator {
 		var engine = Engine //
 				.builder(gt -> {
 					this.simulationsCounter.incrementAndGet();
-					return simulate(this.goc, this.modeCombinations, gt, null);
+					return simulate(this.goc, this.modeCombinations, gt, null, this.normalizedEshModePreferenceRanks);
 				}, codec) //
 				.selector(//
 						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
@@ -281,6 +297,52 @@ public class Simulator {
 				bestGt, //
 				this.getTotalNumberOfSimulations(), //
 				this.getTotalNumberOfGenerations());
+	}
+
+	/**
+	 * Calculates a weighted penalty based on the normalized preference ranks of
+	 * modes in a given schedule.
+	 *
+	 * <p>
+	 * The penalty is computed by summing the normalized preference scores of all
+	 * modes for each ESH in every period. Early periods are given a higher weight,
+	 * so that preferred modes appearing earlier contribute more to the total
+	 * penalty.
+	 *
+	 * <p>
+	 * Lower penalty values correspond to schedules that better match the preferred
+	 * modes across ESHs and periods.
+	 *
+	 * @param goc                              the {@link GlobalOptimizationContext}
+	 * @param modeCombinations                 the {@link ModeCombinations}
+	 * @param schedule                         the given schedule
+	 * @param normalizedEshModePreferenceRanks precomputed normalized preference
+	 *                                         ranks for each ESH's modes
+	 * @return the total weighted penalty for the given schedule
+	 */
+	private static double calculateModePreferencePenalty(GlobalOptimizationContext goc,
+			ModeCombinations modeCombinations, int[] schedule,
+			List<Map<Integer, Double>> normalizedEshModePreferenceRanks) {
+		final int numPeriods = goc.periods().size();
+
+		double penalty = 0.;
+		for (int periodIndex = 0; periodIndex < numPeriods; periodIndex++) {
+			final var modeCombination = modeCombinations.get(schedule[periodIndex]);
+
+			double prefRankSum = 0.;
+			for (int eshIndex = 0; eshIndex < goc.eshsWithDifferentModes().size(); eshIndex++) {
+				if (!goc.eshsWithDifferentModes().get(eshIndex).modes().hasForOptimizer()) {
+					continue;
+				}
+				prefRankSum += normalizedEshModePreferenceRanks.get(eshIndex)
+						.get(modeCombination.mode(eshIndex).index());
+			}
+
+			final double weight = numPeriods - periodIndex + 1;
+			penalty += weight * prefRankSum;
+		}
+
+		return penalty;
 	}
 
 	/**

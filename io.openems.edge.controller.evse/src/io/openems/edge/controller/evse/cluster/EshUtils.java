@@ -212,8 +212,11 @@ public class EshUtils {
 				.stream() //
 				.map(l -> {
 					var addToOptimizer = l.stream().anyMatch(sm -> addToOptimizers.contains(sm.componentId()));
-					return new Modes.Mode<SingleModes>(new SingleModes(l.stream() //
-							.collect(toImmutableMap(SingleMode::componentId, SingleMode::mode))), addToOptimizer);
+					return new Modes.Mode<SingleModes>(//
+							new SingleModes(
+									l.stream().collect(toImmutableMap(SingleMode::componentId, SingleMode::mode))), //
+							addToOptimizer, //
+							null); // TODO
 				}) //
 				.collect(toImmutableList());
 		return Modes.of(allModes);

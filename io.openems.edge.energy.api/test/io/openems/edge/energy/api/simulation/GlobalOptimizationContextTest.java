@@ -1,7 +1,7 @@
 package io.openems.edge.energy.api.simulation;
 
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
-import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
+import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.simulation.GocUtils.calculatePeriodDurationHourFromIndex;
 import static org.junit.Assert.assertEquals;
 
@@ -80,7 +80,7 @@ public class GlobalOptimizationContextTest {
 		var goc = GlobalOptimizationContext.create() //
 				.setComponentManager(cm) //
 				.setMeta(meta) //
-				.setRiskLevel(MEDIUM) //
+				.setEnvironment(PRODUCTION) //
 				.setEnergyScheduleHandlers(ImmutableList.of()) //
 				.setSum(sum) //
 				.setPredictorManager(predictorManager) //

@@ -17,7 +17,7 @@ import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Payload;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.evse.api.chargepoint.Mode;
 
@@ -46,10 +46,10 @@ public class EshUtilsTest {
 				""");
 		var params = new Params("ctrl0", null, null, 0, 0, null, null, null, false, null, tasks);
 		var clusterEshConfig = new ClusterEshConfig(null, ImmutableMap.of("ctrl0", params));
-		var goc = new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
+		var goc = new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
 				new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-				GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+				GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
 						.add(TIME.plusMinutes(0), null, 0, 700, 123.) //
 						.add(TIME.plusMinutes(15), null, 100, 600, 123.) //
 						.add(TIME.plusMinutes(30), null, 200, 500, 125.) //
