@@ -63,6 +63,12 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	private Integer measurementChargingMinVoltage;
 
 	/**
+	 * Maximum observed MAX_CELL_VOLTAGE during the measurement charging phase.
+	 * Stored here to persist across handler invocations.
+	 */
+	private Integer measurementChargingMaxVoltage;
+
+	/**
 	 * Measurement baseline energy in Wh captured at the beginning of the measurement
 	 * cycle. This is internal controller state and is intentionally not exposed via
 	 * channels to keep handlers stateless and thread-safe.
@@ -165,6 +171,14 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 
 	public void setMeasurementChargingMinVoltage(Integer value) {
 		this.measurementChargingMinVoltage = value;
+	}
+
+	public Integer getMeasurementChargingMaxVoltage() {
+		return this.measurementChargingMaxVoltage;
+	}
+
+	public void setMeasurementChargingMaxVoltage(Integer value) {
+		this.measurementChargingMaxVoltage = value;
 	}
 
 	/**

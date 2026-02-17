@@ -1,64 +1,232 @@
-= SOH Cycle Controller
+== SOH Cycle Controller
 
-This controller is used to run a defined State-of-Health (SOH) test cycle on a battery storage system. It executes a reference cycle and a measurement cycle and evaluates the result in order to determine the SOH of the ESS.
+This controller runs a defined State-of-Health (SOH) test cycle on an
+ESS (battery storage system). It executes an optional *reference cycle*
+and a *measurement cycle*, then evaluates the result to determine the
+SOH of the ESS.
 
-== Configuration
+The purpose of this README is to store useful technical information
+about the controller logic and states. This information is primarily
+needed for developers (e.g., to answer questions from product
+management).
 
-Parameters which should be taken care of:
+'''''
 
-`mode`::
-Select MANUAL_ON to activate the logic
-`ess_id`::
-Id of the device. ex, ess0
-`startTime`::
-Start time in format [YYYY-MM-DD HH:MM], activates the controller logic at required date and time
-`targetSoc`::
-Target state-of-charge for start/end of the SOH cycle (depending on implementation)
-`referenceDischargePower`::
-The (constant) power in Watt that is used for the *reference* discharging phase
-`referenceChargePower`::
-The (constant) power in Watt that is used for the *reference* charging phase
-`measurementDischargePower`::
-The (constant) power in Watt that is used for the *measurement* discharging phase
-`measurementChargePower`::
-The (constant) power in Watt that is used for the *measurement* charging phase
-`hybridEssMode`::
-Whether to apply the power on AC or DC side of a hybrid ESS
-`balancingTimeout`::
-Maximum time to wait for cell balancing before aborting with ERROR_ABORT
-`maxDeltaSoc`::
-Maximum allowed SOC deviation between phases; if violated, controller may abort with ERROR_ABORT
+=== Configuration
 
-== Monitoring
+The following configuration parameters are available:
 
-Typical channels can be followed from Grafana or online monitoring (names may differ depending on configuration):
+* *`id`* +
+Component-ID – Unique ID of this component (default: `ctrlEssSohCycle0`)
+* *`ess++_++id`* +
+ID of the ESS device to monitor (e.g., `ess0`)
+* *`alias`* +
+Human-readable name of this component; defaults to Component-ID
+* *`enabled`* +
+Whether this component is enabled (default: `true`)
+* *`mode`* +
+Operating mode – Select `MANUAL++_++ON` to activate the cycle logic;
+`MANUAL++_++OFF` disables the cycle (default: `MANUAL++_++OFF`)
+* *`logVerbosity`* +
+Sets the logging verbosity level (default: `NONE`)
+** `NONE`: No logs
+** `DEBUG++_++LOG`: Detailed logging to Controller.Debug.Log
+* *`referenceCycleEnabled`* +
+Enables the optional reference cycle measurement (default: `false`)
+** If `false`: cycle skips directly to the measurement cycle
+** If `true`: full cycle with reference measurements included
 
-`ctrlEssSohCycle0/StateMachine`::
-The current state of the SOH State-Machine: IDLE, PREPARE_REFERENCE, REFERENCE_CYCLE_CHARGING, REFERENCE_CYCLE_CHARGING_WAIT, REFERENCE_CYCLE_DISCHARGING, REFERENCE_CYCLE_DISCHARGING_WAIT, MEASUREMENT_CYCLE_CHARGING, MEASUREMENT_CYCLE_CHARGING_WAIT, CHECK_BALANCING, MEASUREMENT_CYCLE_DISCHARGING, MEASUREMENT_CYCLE_DISCHARGING_WAIT, EVALUATE_RESULT, DONE, ERROR_ABORT.
-`ctrlEssSohCycle0/ResultSoh`::
-Calculated SOH result of the last completed cycle in percent.
-`ctrlEssSohCycle0/IsRunning`::
-Indicates whether a SOH cycle is currently in progress.
-`ctrlEssSohCycle0/ErrorMessage`::
-Text description in case of ERROR_ABORT.
+'''''
 
-== Algorithm logic
+=== Monitoring
 
-The SOH Cycle Controller is implemented as a state machine:
+Typical channels can be followed from Grafana or online monitoring
+(names may differ depending on configuration).
 
-. `IDLE` – Waits for activation.
-. `PREPARE_REFERENCE` – Prepares the ESS (e.g. brings battery to target SOC).
-. `REFERENCE_CYCLE_CHARGING` – Charges using `referenceChargePower`.
-. `REFERENCE_CYCLE_CHARGING_WAIT` – Waits 30 minutes for stabilization.
-. `REFERENCE_CYCLE_DISCHARGING` – Discharges using `referenceDischargePower`.
-. `REFERENCE_CYCLE_DISCHARGING_WAIT` – Waits 30 minutes for stabilization.
-. `MEASUREMENT_CYCLE_CHARGING` – Charges using `measurementChargePower`.
-. `MEASUREMENT_CYCLE_CHARGING_WAIT` – Waits 30 minutes for stabilization.
-. `CHECK_BALANCING` – Checks cell balancing status.
-. `MEASUREMENT_CYCLE_DISCHARGING` – Discharges using `measurementDischargePower`.
-. `MEASUREMENT_CYCLE_DISCHARGING_WAIT` – Waits 30 minutes for stabilization.
-. `EVALUATE_RESULT` – Calculates SOH from collected data.
-. `DONE` – Cycle finished successfully.
-. `ERROR_ABORT` – Fatal error occurred; manual reset required.
+==== Core state and results
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.sohcycle[Source Code icon:github[]]
+* *`ctrlEssSohCycle0/StateMachine`* +
+Current state of the SOH state machine: +
+`IDLE`, `PREPARE`, `REFERENCE++_++CYCLE++_++CHARGING`,
+`REFERENCE++_++CYCLE++_++CHARGING++_++WAIT`, +
+`REFERENCE++_++CYCLE++_++DISCHARGING`,
+`REFERENCE++_++CYCLE++_++DISCHARGING++_++WAIT`, +
+`MEASUREMENT++_++CYCLE++_++CHARGING`,
+`MEASUREMENT++_++CYCLE++_++CHARGING++_++WAIT`, `CHECK++_++BALANCING`, +
+`MEASUREMENT++_++CYCLE++_++DISCHARGING`,
+`MEASUREMENT++_++CYCLE++_++DISCHARGING++_++WAIT`, +
+`EVALUATE++_++RESULT`, `DONE`, `ERROR++_++ABORT`.
+* *`ctrlEssSohCycle0/SohPercent`* +
+Calculated SOH result of the last completed cycle in percent (0–100).
+* *`ctrlEssSohCycle0/SohRawDebug`* +
+Raw calculated SOH value without clamping to 100. May exceed 100 and is
+intended for debugging.
+* *`ctrlEssSohCycle0/MeasuredCapacity`* +
+Last measured capacity of the ESS in Watt-hours (Wh).
+
+==== Battery balancing status and diagnostics
+
+* *`ctrlEssSohCycle0/IsBatteryBalanced`* +
+Indicates whether the battery cells are sufficiently balanced. +
+Values: `NOT++_++MEASURED`, `BALANCED`, `NOT++_++BALANCED`, `ERROR`.
+* *`ctrlEssSohCycle0/BalancingDeltaMvDebug`* +
+Cell voltage delta (max − min) in millivolts. Persisted for debugging
+long-running cycles. +
+`null` if delta cannot be calculated.
+* *`ctrlEssSohCycle0/BalancingReason`* +
+Explains why the balance check results in `NOT++_++MEASURED` or
+`NOT++_++BALANCED`. +
+Typical values: +
+`NONE`, `BASELINE++_++MIN++_++MISSING`, `MAX++_++VOLTAGE++_++UNDEFINED`,
+`MIN++_++VOLTAGE++_++UNDEFINED`, +
+`DELTA++_++NEGATIVE`, `DELTA++_++ABOVE++_++THRESHOLD`, `TIMEOUT`,
+`INTERNAL++_++ERROR`.
+
+____
+Note: exact enum values depend on the controller version.
+____
+
+==== Voltage monitoring
+
+* *`ctrlEssSohCycle0/VoltageDelta`* +
+Cell voltage delta (in mV) used for balancing evaluation and
+diagnostics.
+
+'''''
+
+=== Algorithm logic
+
+The SOH Cycle Controller is implemented as a state machine with the
+following phases:
+
+==== 1) Idle & preparation
+
+* *`IDLE`* – Waits for activation via `MANUAL++_++ON` mode.
+* *`PREPARE`* – Prepares the ESS by discharging to minimum SOC (0%).
+
+==== 2) Reference cycle (optional)
+
+* *`REFERENCE++_++CYCLE++_++CHARGING`* – Charges the battery to maximum
+SOC (100%) at 0.2C rate.
+* *`REFERENCE++_++CYCLE++_++CHARGING++_++WAIT`* – Waits for voltage
+stabilization.
+* *`REFERENCE++_++CYCLE++_++DISCHARGING`* – Discharges the battery to
+minimum SOC (0%) at 0.2C rate.
+* *`REFERENCE++_++CYCLE++_++DISCHARGING++_++WAIT`* – Waits for voltage
+stabilization.
+
+==== 3) Measurement cycle (always executed)
+
+* *`MEASUREMENT++_++CYCLE++_++CHARGING`* – Charges the battery to
+maximum SOC (100%) at 0.2C rate. +
+During this phase the controller continuously collects cell voltage
+range data for balancing diagnostics.
+* *`MEASUREMENT++_++CYCLE++_++CHARGING++_++WAIT`* – Waits for voltage
+stabilization.
+* *`CHECK++_++BALANCING`* – Evaluates battery cell balancing status
+using the measured cell voltage delta. +
+Sets:
+** `IsBatteryBalanced`
+** `BalancingDeltaMvDebug`
+** `BalancingReason`
++
+Threshold: *100 mV*.
+* *`MEASUREMENT++_++CYCLE++_++DISCHARGING`* – Discharges the battery to
+minimum SOC (0%) at 0.2C rate while measuring energy for capacity
+calculation.
+* *`MEASUREMENT++_++CYCLE++_++DISCHARGING++_++WAIT`* – Waits for voltage
+stabilization.
+
+==== 4) Result evaluation
+
+* *`EVALUATE++_++RESULT`* – Calculates SOH from measured capacity; sets:
+** `SohPercent`
+** `SohRawDebug`
+** `MeasuredCapacity`
+* *`DONE`* – Cycle finished successfully.
+
+==== 5) Error handling
+
+* *`ERROR++_++ABORT`* – Fatal error occurred; manual reset required via
+mode change to `MANUAL++_++OFF`.
+
+'''''
+
+=== Battery balancing check: how voltage delta is measured
+
+==== What is measured?
+
+The balancing check uses the cell voltage delta:
+
+....
+delta_mV = maxCellVoltage_mV - minCellVoltage_mV
+....
+
+The value is written to `BalancingDeltaMvDebug` and used to determine
+`IsBatteryBalanced`.
+
+==== How are min and max voltages captured?
+
+During the measurement charging phase and again at
+`CHECK++_++BALANCING`, the controller calls:
+
+[source,java]
+----
+refreshMeasurementChargingVoltageRange()
+----
+
+This method reads:
+
+* `ess.getMinCellVoltage()`
+* `ess.getMaxCellVoltage()`
+
+and stores them internally.
+
+*Important: min and max may be captured at different times*
+
+Min and max voltages are updated independently:
+
+The stored minimum voltage is actually the highest observed minimum
+during charging:
+
+[source,java]
+----
+if (stored == null || current > stored) {
+    stored = current;
+}
+----
+
+The stored maximum voltage is the highest observed maximum:
+
+[source,java]
+----
+if (stored == null || current > stored) {
+    stored = current;
+}
+----
+
+As a result, the voltage delta may combine values measured at different
+points in time. It represents a range envelope observed during charging,
+not necessarily an instantaneous snapshot.
+
+===== Implications
+
+* The delta is a diagnostic indicator of imbalance.
+* It may be slightly conservative, but helps answer:
+** “Did a large spread occur during charging?”
+** “Is the spread still significant near the end of charging?”
+
+If an instantaneous delta at a single timestamp is required, min and max
+would need to be sampled together and evaluated immediately.
+
+'''''
+
+==== CHECK++_++BALANCING behavior and diagnostics
+
+In `CHECK++_++BALANCING`, the controller: 1. Refreshes voltage range
+data 3. Calculates voltage delta and diagnostic reason 5. Sets: ++*++
+BalancingDeltaMvDebug ++*++ BalancingReason ++*++ IsBatteryBalanced 13.
+Continues the cycle even if the battery is not balanced
+
+Diagnostics are persisted as channels, enabling root-cause analysis
+without relying on logs.

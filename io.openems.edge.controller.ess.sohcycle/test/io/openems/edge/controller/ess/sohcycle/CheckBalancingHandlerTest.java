@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.sohcycle;
 
+import static io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG;
+import static io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG;
 import static io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle.ChannelId.IS_BATTERY_BALANCED;
 import static io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle.ChannelId.STATE_MACHINE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
@@ -37,7 +39,9 @@ public class CheckBalancingHandlerTest {
 				.input(ESS_ID, MAX_CELL_VOLTAGE, 3230)) // 3230 mV -> delta = 30 mV
 				.next(new TestCase()
 				.output(STATE_MACHINE, StateMachine.State.MEASUREMENT_CYCLE_DISCHARGING)
-				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.BALANCED))
+				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.BALANCED)
+				.output(BALANCING_DELTA_MV_DEBUG, 30L)
+				.output(BALANCING_ERROR_DEBUG, BatteryBalanceError.NONE))
 				.deactivate();
 	}
 
@@ -55,7 +59,9 @@ public class CheckBalancingHandlerTest {
 				.input(ESS_ID, MAX_CELL_VOLTAGE, 3250)) // delta = 50 mV
 				.next(new TestCase()
 				.output(STATE_MACHINE, StateMachine.State.MEASUREMENT_CYCLE_DISCHARGING)
-				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.BALANCED))
+				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.BALANCED)
+				.output(BALANCING_DELTA_MV_DEBUG, 50L)
+				.output(BALANCING_ERROR_DEBUG, BatteryBalanceError.NONE))
 				.deactivate();
 	}
 
@@ -67,10 +73,50 @@ public class CheckBalancingHandlerTest {
 		test.addReference("sum", new DummySum());
 		setup.power().addEss(setup.ess());
 
-		test.next(new TestCase("Missing cell voltage data yields NOT_MEASURED"))
+		test.next(new TestCase("Missing cell voltage data yields NOT_MEASURED with MAX_VOLTAGE_UNDEFINED reason"))
 				.next(new TestCase()
 				.output(STATE_MACHINE, StateMachine.State.MEASUREMENT_CYCLE_DISCHARGING)
-				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.NOT_MEASURED))
+				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.NOT_MEASURED)
+				.output(BALANCING_DELTA_MV_DEBUG, null)
+				.output(BALANCING_ERROR_DEBUG, BatteryBalanceError.MAX_VOLTAGE_UNDEFINED))
+				.deactivate();
+	}
+
+	@Test
+	public void testBalancingMissingBaselineMinVoltage() throws Exception {
+		final var setup = this.createTestSetup();
+		final var test = this.createControllerTest(setup.clock(), setup.ess(),
+				ControllerEssSohCycleImpl.startIn(StateMachine.State.CHECK_BALANCING));
+		test.addReference("sum", new DummySum());
+		setup.power().addEss(setup.ess());
+
+		test.next(new TestCase("Max voltage available but baseline min voltage not captured -> NOT_MEASURED with BASELINE_MIN_MISSING reason")
+				.input(ESS_ID, MAX_CELL_VOLTAGE, 3250)) // Max available
+				// MIN_CELL_VOLTAGE not provided, so baseline not captured
+				.next(new TestCase()
+				.output(STATE_MACHINE, StateMachine.State.MEASUREMENT_CYCLE_DISCHARGING)
+				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.NOT_MEASURED)
+				.output(BALANCING_DELTA_MV_DEBUG, null)
+				.output(BALANCING_ERROR_DEBUG, BatteryBalanceError.BASELINE_MIN_MISSING))
+				.deactivate();
+	}
+
+	@Test
+	public void testBalancingNotBalancedAboveThreshold() throws Exception {
+		final var setup = this.createTestSetup();
+		final var test = this.createControllerTest(setup.clock(), setup.ess(),
+				ControllerEssSohCycleImpl.startIn(StateMachine.State.CHECK_BALANCING));
+		test.addReference("sum", new DummySum());
+		setup.power().addEss(setup.ess());
+
+		test.next(new TestCase("Voltage delta exceeds threshold -> NOT_BALANCED with DELTA_ABOVE_THRESHOLD reason")
+				.input(ESS_ID, MIN_CELL_VOLTAGE, 3200)
+				.input(ESS_ID, MAX_CELL_VOLTAGE, 3310)) // delta = 110 mV > threshold 100 mV
+				.next(new TestCase()
+				.output(STATE_MACHINE, StateMachine.State.MEASUREMENT_CYCLE_DISCHARGING)
+				.output(IS_BATTERY_BALANCED, BatteryBalanceStatus.NOT_BALANCED)
+				.output(BALANCING_DELTA_MV_DEBUG, 110L)
+				.output(BALANCING_ERROR_DEBUG, BatteryBalanceError.DELTA_ABOVE_THRESHOLD))
 				.deactivate();
 	}
 

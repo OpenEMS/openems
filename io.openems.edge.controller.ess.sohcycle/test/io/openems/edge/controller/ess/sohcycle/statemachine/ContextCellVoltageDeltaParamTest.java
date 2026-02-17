@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
-import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -16,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
 import io.openems.edge.controller.ess.sohcycle.Mode;
@@ -81,7 +79,7 @@ public class ContextCellVoltageDeltaParamTest {
         }
 
         if (this.max != null) {
-            TestUtils.withValue(this.ess, MAX_CELL_VOLTAGE, this.max);
+            context.setMeasurementChargingMaxVoltage(this.max);
         }
 
         var delta = context.calculateCellVoltageDelta();

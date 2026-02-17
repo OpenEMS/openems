@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.sohcycle.statemachine;
 import static io.openems.edge.controller.ess.sohcycle.EssSohCycleConstants.C_RATE;
 
 import java.time.Clock;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.controller.ess.sohcycle.BatteryBalanceError;
 import io.openems.edge.controller.ess.sohcycle.BatteryBalanceStatus;
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle;
@@ -167,6 +169,12 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
     }
 
     /**
+     * Result of cell voltage delta calculation with diagnostic error.
+     */
+    public record VoltageDeltaResult(Integer delta, BatteryBalanceError error) {
+    }
+
+    /**
      * Calculates the cell voltage delta (max - min) in millivolts.
      *
      * <p>
@@ -177,38 +185,63 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
      * @return cell voltage delta in mV, or {@code null} if values are undefined
      */
     public Integer calculateCellVoltageDelta() {
-        final var maxVoltage = this.ess.getMaxCellVoltage();
-        if (!maxVoltage.isDefined()) {
-            return null;
+        final var result = this.calculateCellVoltageDeltaWithReason();
+        return result.delta();
+    }
+
+    /**
+     * Calculates the cell voltage delta (max - min) in millivolts with diagnostic reason.
+     *
+     * <p>
+     * Returns a result containing both the delta value (or null) and the reason
+     * why the calculation succeeded or failed. This is used for diagnostic tracking
+     * in long-running cycles.
+     *
+     * @return VoltageDeltaResult with delta and reason
+     */
+    public VoltageDeltaResult calculateCellVoltageDeltaWithReason() {
+        final var maxVoltage = this.getMeasurementChargingMaxVoltage();
+        if (maxVoltage == null) {
+            this.logDebug(log, "Cell voltage delta undefined: max cell voltage not available");
+            return new VoltageDeltaResult(null, BatteryBalanceError.MAX_VOLTAGE_UNDEFINED);
         }
 
         final Integer minVoltage = this.getMeasurementChargingMaxMinVoltage();
         if (minVoltage == null) {
-            return null;
+            this.logDebug(log, "Cell voltage delta undefined: baseline min voltage not yet captured");
+            return new VoltageDeltaResult(null, BatteryBalanceError.BASELINE_MIN_MISSING);
         }
 
-        final int delta = maxVoltage.get() - minVoltage;
+        final int delta = maxVoltage - minVoltage;
         if (delta < 0) {
-            log.warn("Invalid cell voltage delta (max={} mV, min={} mV). Treating as undefined.", maxVoltage.get(), minVoltage);
-            return null;
+            log.warn("Invalid cell voltage delta (max={} mV, min={} mV). Treating as undefined.", maxVoltage, minVoltage);
+            return new VoltageDeltaResult(null, BatteryBalanceError.DELTA_NEGATIVE);
         }
-        return delta;
+        return new VoltageDeltaResult(delta, BatteryBalanceError.NONE);
     }
 
     /**
-     * Refresh the stored maximum min-cell-voltage using the current ESS reading.
-     * It updates the stored value only if the current min-cell-voltage is higher
-     * than the stored one.
+     * Refresh the stored maximum min-cell-voltage and maximum max-cell-voltage
+     * using the current ESS reading. It updates the stored values only if the
+     * current readings are higher than the stored ones.
      */
-    public void refreshMeasurementChargingMinVoltageFromEss() {
+    public void refreshMeasurementChargingVoltageRange() {
         var minVoltage = this.ess.getMinCellVoltage();
-        if (!minVoltage.isDefined()) {
-            return;
+        if (minVoltage.isDefined()) {
+            var current = minVoltage.get();
+            var stored = this.getMeasurementChargingMaxMinVoltage();
+            if (stored == null || current > stored) {
+                this.setMeasurementChargingMaxMinVoltage(current);
+            }
         }
-        var current = minVoltage.get();
-        var stored = this.getMeasurementChargingMaxMinVoltage();
-        if (stored == null || current > stored) {
-            this.setMeasurementChargingMaxMinVoltage(current);
+
+        var maxVoltage = this.ess.getMaxCellVoltage();
+        if (maxVoltage.isDefined()) {
+            var current = maxVoltage.get();
+            var stored = this.getMeasurementChargingMaxVoltage();
+            if (stored == null || current > stored) {
+                this.setMeasurementChargingMaxVoltage(current);
+            }
         }
     }
 
@@ -233,11 +266,26 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
         this.getParent().setMeasurementChargingMinVoltage(value);
     }
 
+    public Integer getMeasurementChargingMaxVoltage() {
+        return this.getParent().getMeasurementChargingMaxVoltage();
+    }
+
+    public void setMeasurementChargingMaxVoltage(Integer value) {
+        this.getParent().setMeasurementChargingMaxVoltage(value);
+    }
+
     /**
      * Resets the stored maximum min-cell-voltage.
      */
     public void resetMeasurementChargingMaxMinVoltage() {
         this.getParent().setMeasurementChargingMinVoltage(null);
+    }
+
+    /**
+     * Resets the stored maximum max-cell-voltage.
+     */
+    public void resetMeasurementChargingMaxVoltage() {
+        this.getParent().setMeasurementChargingMaxVoltage(null);
     }
 
     public Long getMeasurementStartEnergyWh() {
@@ -272,6 +320,27 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
     }
 
     /**
+     * Calculates the State of Health (SoH) based on the measured capacity.
+     *
+     * @param measuredCapacityWh the measured capacity in watt-hours
+     * @return an Optional containing the calculated SoH, or empty if calculation fails
+     */
+    public Optional<SohResult> calculateSoh(Long measuredCapacityWh) {
+        if (!this.ess.getCapacity().isDefined()) {
+            logWarn(log,"SoH calculation skipped: nominal capacity undefined");
+            return Optional.empty();
+        }
+        if (measuredCapacityWh == null || measuredCapacityWh <= 0) {
+            logWarn(log, "Invalid measured capacity for SoH calculation: %d Wh".formatted(measuredCapacityWh));
+            return Optional.empty();
+        }
+
+        var sohRaw = (measuredCapacityWh.floatValue() / this.ess.getCapacity().get().floatValue()) * 100f;
+        var soh = TypeUtils.fitWithin(0, 100, Math.round(sohRaw));
+        return Optional.of(new SohResult(soh, sohRaw));
+    }
+
+    /**
      * Resets the measurement baseline to null.
      */
     public void resetMeasurementStartEnergyWh() {
@@ -282,11 +351,13 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
      * Resets all measurement-related stored values in the controller.
      */
     public void resetController() {
-		this.resetMeasurementChargingMaxMinVoltage();
-		this.resetMeasurementStartEnergyWh();
+ 		this.resetMeasurementChargingMaxMinVoltage();
+        this.resetMeasurementChargingMaxVoltage();
+ 		this.resetMeasurementStartEnergyWh();
         this.resetMeasuredCapacity();
         this.resetVoltageDelta();
         this.resetIsBatteryBalancedChannel();
+        this.resetBalancingDiagnostics();
     }
 
     private void resetVoltageDelta() {
@@ -302,12 +373,37 @@ public class Context extends AbstractContext<ControllerEssSohCycleImpl> {
                 BatteryBalanceStatus.NOT_MEASURED);
     }
 
+    private void resetBalancingDiagnostics() {
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG, null);
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG,
+                BatteryBalanceError.NONE);
+    }
+
     public boolean isManualModeOff() {
         return this.config.mode().equals(Mode.MANUAL_OFF);
     }
 
     public void setVoltageDelta(Integer voltageDelta) {
         ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.VOLTAGE_DELTA, voltageDelta);
+    }
+
+    /**
+     * Sets the balancing delta debug channel (in millivolts) for diagnostic tracking.
+     *
+     * @param deltaMv the voltage delta in millivolts, or null if not available
+     */
+    public void setBalancingDeltaMvDebug(Integer deltaMv) {
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.BALANCING_DELTA_MV_DEBUG,
+                deltaMv == null ? null : (long) deltaMv);
+    }
+
+    /**
+     * Sets the balancing error debug channel.
+     *
+     * @param error the error/reason for the balance check outcome
+     */
+    public void setBalancingError(BatteryBalanceError error) {
+        ChannelUtils.setValue(this.getParent(), ControllerEssSohCycle.ChannelId.BALANCING_ERROR_DEBUG, error);
     }
 
     public record ReferenceTargetResult(int soc, float limitedPower, boolean thresholdReached) {
