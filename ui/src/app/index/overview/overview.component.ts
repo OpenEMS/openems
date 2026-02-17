@@ -65,12 +65,12 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             const user = this.userService.currentUser();
 
             if (user) {
-                const isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
                 this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
 
                 this.filters = [
                     ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
-                    ...(isAtLeastInstaller ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
+                    ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
                 ];
             }
         });
