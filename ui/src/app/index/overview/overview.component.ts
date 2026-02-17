@@ -62,7 +62,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
         effect(() => {
             const user = this.userService.currentUser();
-
             if (user) {
                 this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
                 this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
@@ -71,6 +70,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
                     ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
                 ];
+                this.loadNextPage();
             }
         });
     }
@@ -150,13 +150,11 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     }
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
-                    if (user.hasMultipleEdges === false && Role.isAtMost(user.globalRole, Role.OWNER) && edges.length == 1) {
-                        if (environment.backend == "OpenEMS Edge") {
-                            const edge = edges[0];
-                            setTimeout(() => {
-                                this.router.navigate(["/device", edge.id]);
-                            }, 100);
-                        }
+                    if (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false || (Role.isAtMost(user.globalRole, Role.OWNER) && edges.length == 1)) {
+                        const edge = edges[0];
+                        setTimeout(() => {
+                            this.router.navigate(["/device", edge.id]);
+                        }, 100);
                     }
                     resolve(edges);
                 }).catch((err) => {
