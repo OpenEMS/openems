@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Formatter } from "src/app/shared/components/shared/formatter";

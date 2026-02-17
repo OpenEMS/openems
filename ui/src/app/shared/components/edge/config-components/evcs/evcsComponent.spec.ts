@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { DummyConfig } from "../edgeconfig.spec";
+import { DummyConfig } from "../../edgeconfig.spec";
 import { EvcsComponent } from "./evcsComponent";
 
 describe("EvcsComponent", () => {

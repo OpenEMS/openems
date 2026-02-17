@@ -1,5 +1,9 @@
 {
   "PROFILE": {
+    "SYSTEM_LOCATION_VALIDATOR": {
+      "TITLE": "Systemstandort",
+      "SUCCESS_MESSAGE": "Systemstandort erfolgreich aktualisiert."
+    },
     "SYSTEM_PROTOCOL": {
       "LABEL": "Systemprotokoll",
       "DOWNLOAD": "Download",

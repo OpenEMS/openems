@@ -3,8 +3,8 @@ import { ChannelAddress } from "src/app/shared/shared";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { HistoryUtils } from "src/app/shared/utils/utils";
-import { Edge } from "../edge";
-import { EdgeConfig } from "../edgeconfig";
+import { Edge } from "../../edge";
+import { EdgeConfig } from "../../edgeconfig";
 
 export class EvcsComponent extends EdgeConfig.Component {
 
