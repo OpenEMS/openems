@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -84,10 +85,14 @@ public final class AppUtils {
 		var simulator = new Simulator(goc);
 		simulator.setEarliestCallbackDelay(Duration.ZERO);
 
-		var simulationResult = simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, //
-				false /* isCurrentPeriodFixed */, null, //
+		var simulationResult = new AtomicReference<SimulationResult>();
+		simulator.runOptimization(//
+				() -> EMPTY_SIMULATION_RESULT, //
+				false /* optimizeCurrentPeriod */, //
+				null, //
 				stream -> stream //
-						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))));
+						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))), //
+				simulationResult::set);
 
 		final var sr = simulationResult.get();
 		logSimulationResult(simulator, sr);

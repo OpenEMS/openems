@@ -10,6 +10,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.DynamicStateChannelDoc;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -1463,7 +1464,7 @@ public interface GoodWe extends OpenemsComponent {
 		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE)), //
-		EMS_POWER_SET(Doc.of(OpenemsType.LONG) //
+		EMS_POWER_SET(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET)), //
 
@@ -2070,15 +2071,6 @@ public interface GoodWe extends OpenemsComponent {
 	 */
 	public default void setBmsDischargeMinVoltage(Integer value) throws OpenemsNamedException {
 		this.getBmsDischargeMinVoltageChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#EMS_POWER_SET}.
-	 *
-	 * @return the Channel
-	 */
-	public default WriteChannel<Long> getEmsPowerSetChannel() {
-		return this.channel(ChannelId.EMS_POWER_SET);
 	}
 
 	/**

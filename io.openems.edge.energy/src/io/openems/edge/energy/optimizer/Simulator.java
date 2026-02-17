@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.jenetics.engine.EvolutionResult.toBestResult;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
@@ -14,13 +13,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
@@ -28,6 +32,7 @@ import io.jenetics.EliteSelector;
 import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
 import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
@@ -59,10 +64,12 @@ public class Simulator {
 	private final AtomicInteger simulationsCounter = new AtomicInteger(0);
 	private final AtomicLong generationsCounter = new AtomicLong(0);
 
+	private Duration earliestCallbackDelay = Duration.ofSeconds(30);
+
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 
-		// Initialize the EnergyScheduleHandlers.
+		// Initialize the EnergyScheduleHandlers
 		for (var esh : goc.eshs()) {
 			var coc = ((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
 			LOG.info("OPTIMIZER ControllerOptimizationContext '" + esh.getParentId() + "': " + coc);
@@ -217,28 +224,34 @@ public class Simulator {
 	}
 
 	/**
-	 * Runs the optimization and returns the "best" simulation result.
-	 * 
-	 * @param previousResult             the {@link SimulationResult} of the
-	 *                                   previous optimization run
-	 * @param isCurrentPeriodFixed       fixes the {@link Gene} of the current
-	 *                                   period to the previousResult
-	 * @param engineInterceptor          an interceptor for the
+	 * Runs the optimization and reports the "best" simulation result.
+	 *
+	 * @param previousResultSupplier     supplies the previous
+	 *                                   {@link SimulationResult}
+	 * @param optimizeCurrentPeriod      whether the current period should be
+	 *                                   optimized; if {@code false}, the
+	 *                                   {@link Gene} of the current period is fixed
+	 *                                   to the previous result
+	 * @param engineInterceptor          interceptor to customize the
 	 *                                   {@link Engine.Builder}
-	 * @param evolutionStreamInterceptor an interceptor for the
+	 * @param evolutionStreamInterceptor interceptor to customize the
 	 *                                   {@link EvolutionStream}
-	 * @return the best Schedule
+	 * @param onBestResult               consumer that is called to apply a new best
+	 *                                   {@link SimulationResult}
 	 */
-	public SimulationResult getBestSchedule(//
-			SimulationResult previousResult, //
-			boolean isCurrentPeriodFixed,
+	public void runOptimization(//
+			Supplier<SimulationResult> previousResultSupplier, //
+			boolean optimizeCurrentPeriod,
 			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor, //
-			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor) {
-		final var codec = EshCodec.of(this.goc, this.modeCombinations, previousResult, isCurrentPeriodFixed);
+			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor, //
+			Consumer<SimulationResult> onBestResult) {
+		final var isCurrentPeriodFixed = new AtomicBoolean(!optimizeCurrentPeriod);
+		final var codec = EshCodec.of(this.goc, this.modeCombinations, previousResultSupplier,
+				isCurrentPeriodFixed::get);
 		if (codec == null) {
 			// TODO if there are ESHs we should return the fixed Schedule as
 			// SimulationResult
-			return EMPTY_SIMULATION_RESULT;
+			onBestResult.accept(EMPTY_SIMULATION_RESULT);
 		}
 
 		// Decide for single- or multi-threading
@@ -285,18 +298,50 @@ public class Simulator {
 			stream = evolutionStreamInterceptor.apply(stream);
 		}
 
+		final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
+		final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
+
 		// Start the evaluation
-		var bestGt = stream //
-				.peek(er -> this.generationsCounter.set(er.generation()))//
-				.collect(toBestResult(codec));
-		if (bestGt == null) {
-			return EMPTY_SIMULATION_RESULT;
+		stream.forEach(er -> {
+			this.generationsCounter.set(er.generation());
+			var currentBest = er.bestPhenotype();
+
+			// Update best phenotype
+			bestPt.updateAndGet(prev -> {
+				if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
+					return currentBest;
+				}
+				return prev;
+			});
+
+			// Apply current best result
+			if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+				if (bestPt.get() == null) {
+					onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+				} else {
+					onBestResult.accept(SimulationResult.fromQuarters(//
+							this.goc, //
+							codec.decode(bestPt.get().genotype()), //
+							this.getTotalNumberOfSimulations(), //
+							this.getTotalNumberOfGenerations()));
+				}
+				// Fix current period form now on
+				isCurrentPeriodFixed.set(true);
+			}
+		});
+
+		// Apply final best result
+		if (Instant.now().isAfter(earliestCallback)) {
+			if (bestPt.get() == null) {
+				onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+				return;
+			}
+			onBestResult.accept(SimulationResult.fromQuarters(//
+					this.goc, //
+					codec.decode(bestPt.get().genotype()), //
+					this.getTotalNumberOfSimulations(), //
+					this.getTotalNumberOfGenerations()));
 		}
-		return SimulationResult.fromQuarters(//
-				this.goc, //
-				bestGt, //
-				this.getTotalNumberOfSimulations(), //
-				this.getTotalNumberOfGenerations());
 	}
 
 	/**
@@ -401,5 +446,10 @@ public class Simulator {
 		return buildJsonObject() //
 				.add("GlobalOptimizationContext", GlobalOptimizationContext.toJson(this.goc)) //
 				.build();
+	}
+
+	@VisibleForTesting
+	public void setEarliestCallbackDelay(Duration delay) {
+		this.earliestCallbackDelay = delay;
 	}
 }

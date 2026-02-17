@@ -16,6 +16,14 @@ import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import { GeoCodeJsonRpc } from "./json-rpc/geo-code-json-rpc";
 
+export type ComponentData = {
+    label: string;
+    value: any;
+    default?: boolean;
+    imageUrl?: string;
+    docUrl?: string;
+};
+
 export interface LocationModel {
     street: string;
     zip: string;
@@ -98,13 +106,12 @@ export class SystemLocationValidatorComponent implements OnInit {
         }
 
         const metaProperties = config.getComponentProperties("_meta");
-        const location = null;
 
         this.initialModel = {
-            street: location?.street ?? "",
-            zip: location?.zip ?? metaProperties["postcode"] ?? "",
-            city: location?.city ?? metaProperties["placeName"] ?? "",
-            country: location?.country ?? "",
+            street: "",
+            zip: metaProperties["postcode"] ?? "",
+            city: metaProperties["placeName"] ?? "",
+            country: "",
         };
 
         this.id = this.edge.getNameNumber();
@@ -248,7 +255,7 @@ export class SystemLocationValidatorComponent implements OnInit {
     }
 
     private fillGeoCodeFields(results: GeoResult[]) {
-        const options: any[] = [];
+        const options: ComponentData[] = [];
         let defaultIndex = 0;
 
         results.forEach((geoCode, index) => {

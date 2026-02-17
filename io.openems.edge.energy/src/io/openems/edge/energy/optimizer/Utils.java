@@ -70,56 +70,6 @@ public final class Utils {
 	}
 
 	/**
-	 * Creates a {@link Simulator}.
-	 * 
-	 * <p>
-	 * This will possibly run forever and call the callbacks multiple times before
-	 * returning.
-	 * 
-	 * @param gocSupplier a {@link Supplier} for {@link GlobalOptimizationContext}
-	 * @param error       a callback for a error string
-	 * @return the {@link Simulator} or null
-	 * @throws InterruptedException on interrupted sleep
-	 */
-	public static Simulator createSimulator(//
-			Supplier<GlobalOptimizationContext> gocSupplier, //
-			Consumer<Supplier<String>> error) throws InterruptedException {
-		GlobalOptimizationContext goc;
-		try {
-			// Create GlobalOptimizationContext -> this might fail a few times during
-			// initialization of OpenEMS
-			goc = gocSupplier.get();
-
-		} catch (IllegalArgumentException e) {
-			goc = null;
-			e.printStackTrace();
-		}
-
-		if (goc == null) {
-			error.accept(() -> "Unable to create GlobalOptimizationContext");
-			Thread.sleep(60 * 1000);
-			return null;
-		}
-
-		if (goc.eshsWithDifferentModes().isEmpty()) {
-			error.accept(() -> "List of schedulable EnergyScheduleHandlers is empty -> sleep 15 minutes");
-			Thread.sleep(15 * 60 * 1000);
-			return null;
-		}
-
-		return new Simulator(goc);
-	}
-
-	/**
-	 * Calculates the milliseconds to sleep start of next Quarter.
-	 * 
-	 * @return sleep time in [ms]
-	 */
-	public static long calculateSleepMillis() {
-		return calculateSleepMillis(Clock.systemDefaultZone());
-	}
-
-	/**
 	 * Calculates the milliseconds to sleep start of next Quarter.
 	 * 
 	 * @param clock a {@link Clock}
@@ -134,21 +84,40 @@ public final class Utils {
 	/**
 	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
 	 * 
-	 * @return execution limit in [s]
-	 */
-	public static long calculateExecutionLimitSeconds() {
-		return calculateExecutionLimitSeconds(Clock.systemDefaultZone());
-	}
-
-	/**
-	 * Calculates the ExecutionLimitSeconds for the {@link Optimizer}.
-	 * 
 	 * @param clock a {@link Clock}
 	 * @return execution limit in [s]
 	 */
 	public static long calculateExecutionLimitSeconds(Clock clock) {
 		var durationUntilNextQaurter = DateUtils.durationUntilNextQuarter(clock);
 		return max(0, durationUntilNextQaurter.minusSeconds(EXECUTION_LIMIT_SECONDS_BUFFER).getSeconds());
+	}
+
+	/**
+	 * Calculates the appropriate delay before restarting the optimizer, ensuring
+	 * that the restart does not occur too close to the end of the current quarter.
+	 * 
+	 * <p>
+	 * If the requested delay would bring the restart too close to the next quarter,
+	 * the delay is adjusted to start safely after the quarter begins.
+	 *
+	 * @param clock          the clock used to determine the current time
+	 * @param requestedDelay the originally requested delay before restarting
+	 * @return the adjusted delay to use for scheduling the restart
+	 */
+	public static Duration calculateAdjustedDelay(Clock clock, Duration requestedDelay) {
+		// Time remaining until the start of the next quarter
+		var durationUntilNextQuarter = DateUtils.durationUntilNextQuarter(clock);
+
+		// Maximum allowed delay to avoid starting too late
+		var maxAllowedDelay = durationUntilNextQuarter.minus(Optimizer.BUFFER_LATEST_START);
+		if (maxAllowedDelay.isNegative()) {
+			maxAllowedDelay = Duration.ZERO;
+		}
+
+		// Adjust delay if the requested delay is too long
+		return requestedDelay.compareTo(maxAllowedDelay) >= 0 //
+				? durationUntilNextQuarter.plus(Optimizer.BUFFER_START) //
+				: requestedDelay;
 	}
 
 	/**
@@ -198,5 +167,4 @@ public final class Utils {
 				.onResultOf(EnergySchedulable::id) //
 				.immutableSortedCopy(list);
 	}
-
 }

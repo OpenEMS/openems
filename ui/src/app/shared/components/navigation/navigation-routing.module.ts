@@ -12,12 +12,8 @@ import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/s
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
-import { SystemIndustrialLHomeComponent } from "src/app/edge/live/system/industrial/l/new-navigation/new-navigation";
-import { IndustrialLScheduleComponent as SystemIndustrialLScheduleComponent } from "src/app/edge/live/system/industrial/l/schedule/schedule.component";
-import { SystemIndustrialLAddTaskComponent } from "src/app/edge/live/system/industrial/l/schedule/task/add/add";
-import { SystemIndustrialLEditTaskComponent } from "src/app/edge/live/system/industrial/l/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
-import { hasEdgeRole, hasUserSettings } from "src/app/shared/guards/functional-guards";
+import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
 import { CommonAutarchyHistoryComponent } from "../../../edge/live/common/autarchy/history/new-navigation/new-navigation";
 import { CommonAutarchyHomeComponent } from "../../../edge/live/common/autarchy/new-navigation/new-navigation";
@@ -33,7 +29,6 @@ import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Contro
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
 import { ModalComponent as IoHeatingRoomComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
-import { UserSettings } from "../../jsonrpc/shared";
 
 export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
@@ -72,10 +67,6 @@ export const newNavigationRoutes: Routes = [
     { path: "common/production/history", component: CommonAutarchyHistoryComponent },
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
-    { path: ":componentId/industrial-l", component: SystemIndustrialLHomeComponent },
-    { path: ":componentId/industrial-l/schedule", component: SystemIndustrialLScheduleComponent },
-    { path: ":componentId/industrial-l/schedule/add-task", component: SystemIndustrialLAddTaskComponent, canActivate: [hasEdgeRole(Role.ADMIN), hasUserSettings(UserSettings.IS_DEVELOPER)] },
-    { path: ":componentId/industrial-l/schedule/task/:taskId", component: SystemIndustrialLEditTaskComponent, canActivate: [hasEdgeRole(Role.ADMIN), hasUserSettings(UserSettings.IS_DEVELOPER)] },
     ...history(true),
 ];
 

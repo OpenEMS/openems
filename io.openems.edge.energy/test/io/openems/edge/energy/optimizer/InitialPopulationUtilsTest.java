@@ -4,8 +4,8 @@ import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUAR
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.Test;
 
@@ -17,7 +17,7 @@ public class InitialPopulationUtilsTest {
 	public void testGenerateInitialPopulationNotFixed() {
 		final var simulator = DUMMY_SIMULATOR;
 		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
-		final var codec = EshCodec.of(simulator.goc, modeCombinations, DUMMY_PREVIOUS_RESULT, false);
+		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> false);
 		var schedules = generateInitialPopulation(codec).population();
 		assertEquals(6, schedules.size());
 
@@ -37,7 +37,7 @@ public class InitialPopulationUtilsTest {
 	public void testGenerateInitialPopulationFixed() {
 		final var simulator = DUMMY_SIMULATOR;
 		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
-		final var codec = EshCodec.of(simulator.goc, modeCombinations, DUMMY_PREVIOUS_RESULT, true);
+		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> true);
 		var schedules = generateInitialPopulation(codec).population();
 		assertEquals(6, schedules.size());
 

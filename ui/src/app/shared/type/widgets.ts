@@ -3,7 +3,6 @@ import { SharedAutarchy } from "src/app/edge/live/common/autarchy/shared/shared"
 import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/shared";
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
-import { SharedSystemIndustrialL } from "src/app/edge/live/system/industrial/l/shared-system-industrial-l";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { NavigationTree } from "../components/navigation/shared";
@@ -56,8 +55,6 @@ export class Widgets {
 
     public static getControllerNavigationTree(edge: Edge, widget: Widget, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
         switch (widget.name) {
-            case "System.Fenecon.Industrial.L":
-                return SharedSystemIndustrialL.getNavigationTree(translate, widget.componentId);
             default:
                 return null;
         }

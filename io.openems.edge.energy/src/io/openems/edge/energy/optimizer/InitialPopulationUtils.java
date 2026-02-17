@@ -74,7 +74,7 @@ public class InitialPopulationUtils {
 
 	protected static InitialPopulation.Transition getScheduleFromPreviousResult(EshCodec codec) {
 		return new InitialPopulation.Transition(codec.goc.periods().stream() //
-				.map(p -> codec.previousResult.periods().entrySet().stream() //
+				.map(p -> codec.previousResultSupplier.get().periods().entrySet().stream() //
 						.filter(e -> e.getKey().isEqual(p.time())) //
 						.map(e -> e.getValue().modeCombination()) //
 						.map(codec.modeCombinations::getMatchingOrDefault) //
