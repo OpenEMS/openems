@@ -25,6 +25,7 @@ import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonArrayBuilder;
+import io.openems.edge.app.enums.KebaHardwareType;
 import io.openems.edge.app.evse.EvseProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
@@ -50,7 +51,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private static final Set<String> VALID_APPS = Set.of("App.Evcs.Keba", "App.Evcs.HardyBarth");
 	private static final Set<String> FACTORY_IDS = Set.of("Evse.ChargePoint.Keba.Modbus", "Controller.Evcs",
 			"Evcs.Keba.P40", "Evse.Controller.Single", "Evse.Controller.Cluster", "Evcs.Cluster.PeakShaving",
-			"Evse.ElectricVehicle.Generic", "Evse.ChargePoint.HardyBarth", "Evcs.HardyBarth");
+			"Evse.ElectricVehicle.Generic", "Evse.ChargePoint.HardyBarth", "Evcs.HardyBarth",
+			"Evse.ChargePoint.Keba.UDP", "Evcs.Keba.KeContact");
 	private static final Set<String> FALLBACK_APPS = Set.of("App.Evcs.Cluster", "App.Evse.Controller.Cluster",
 			"App.Evcs.Keba", "App.Evse.ElectricVehicle.Generic", "App.Evcs.HardyBarth");
 	private static final Logger log = LoggerFactory.getLogger(SwitchArchitecture.class);
@@ -380,14 +382,13 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private void migrateKebaEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
 			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response, int i, int size)
 			throws OpenemsNamedException {
-		final var modbusId = JsonUtils.getAsString(instance.properties.get("MODBUS_ID"));
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
 		final var singleId = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID"));
 		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))//
 				.orElse("L1_L2_L3");
 		final var alias = instance.alias;//
-		final var modbusUnitId = JsonUtils.getAsOptionalInt(instance.properties.get("MODBUS_UNIT_ID"))//
-				.orElse(255);
+		Integer modbusUnitId = null;
+		String modbusId = null;
 
 		// Delete EVSE controller FIRST (before chargepoint) to avoid factory ID
 		// confusion
@@ -395,18 +396,40 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// THEN delete EVSE chargepoint
 		this.deleteComponentIfPresent(user, evcsId);
+
+		final var ip = JsonUtils.getAsOptionalString(instance.properties.get("IP")).orElse(null);
+		final var hardwareType = JsonUtils.getAsEnum(KebaHardwareType.class, instance.properties.get("HARDWARE_TYPE"));
 		// install evse cp
-		final var evcsProperties = List.of(//
-				new UpdateComponentConfigRequest.Property("id", evcsId), //
-				new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
-				new UpdateComponentConfigRequest.Property("alias", alias), //
-				new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
-				new UpdateComponentConfigRequest.Property("readOnly", false), //
-				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
-		);
-		this.componentManager.handleCreateComponentConfigRequest(user,
-				new CreateComponentConfig.Request("Evcs.Keba.P40", //
-						evcsProperties));
+		switch (hardwareType) {
+		case KebaHardwareType.P40 -> {
+			modbusId = JsonUtils.getAsOptionalString(instance.properties.get("MODBUS_ID")).orElse(null);
+			modbusUnitId = JsonUtils.getAsOptionalInt(instance.properties.get("MODBUS_UNIT_ID"))//
+					.orElse(null);
+			final var evcsProperties = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsId), //
+					new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
+					new UpdateComponentConfigRequest.Property("alias", alias), //
+					new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
+					new UpdateComponentConfigRequest.Property("readOnly", false), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
+			);
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Evcs.Keba.P40", //
+							evcsProperties));
+		}
+		case KebaHardwareType.P30 -> {
+			final var evcsProperties = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsId), //
+					new UpdateComponentConfigRequest.Property("alias", alias), //
+					new UpdateComponentConfigRequest.Property("ip", ip), //
+					new UpdateComponentConfigRequest.Property("readOnly", false), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
+			);
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Evcs.Keba.KeContact", //
+							evcsProperties));
+		}
+		}
 
 		// install single controller
 		final var ctrlEvcsId = this.getNextEvcsControllerId();
@@ -430,19 +453,23 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			);
 		}
 
-		final var ip = JsonUtils.getAsOptionalString(instance.properties.get("IP")).orElse(null);
+		final var instanceBuilder = JsonUtils.buildJsonObject() //
+				.addPropertyIfNotNull("EVCS_ID", evcsId) //
+				.addPropertyIfNotNull("CTRL_EVCS_ID", ctrlEvcsId) //
+				.addPropertyIfNotNull("ARCHITECTURE_TYPE", "EVCS") //
+				.addPropertyIfNotNull("HARDWARE_TYPE", hardwareType) //
+				.addPropertyIfNotNull("IP", ip) //
+				.addPropertyIfNotNull("PHASE_ROTATION", phaseRotation) //
+				.addPropertyIfNotNull("READ_ONLY", false); //
+
+		if (hardwareType == KebaHardwareType.P40) {
+			instanceBuilder//
+					.addPropertyIfNotNull("MODBUS_ID", modbusId) //
+					.addPropertyIfNotNull("MODBUS_UNIT_ID", modbusUnitId); //
+		}
+
 		final var newInstance = new OpenemsAppInstance("App.Evcs.Keba", alias, instance.instanceId, //
-				JsonUtils.buildJsonObject() //
-						.addPropertyIfNotNull("EVCS_ID", evcsId) //
-						.addPropertyIfNotNull("CTRL_EVCS_ID", ctrlEvcsId) //
-						.addPropertyIfNotNull("MODBUS_ID", modbusId) //
-						.addPropertyIfNotNull("ARCHITECTURE_TYPE", "EVCS") //
-						.addPropertyIfNotNull("HARDWARE_TYPE", "P40") //
-						.addPropertyIfNotNull("IP", ip) //
-						.addPropertyIfNotNull("PHASE_ROTATION", phaseRotation) //
-						.addPropertyIfNotNull("MODBUS_UNIT_ID", modbusUnitId) //
-						.addPropertyIfNotNull("READ_ONLY", false) //
-						.build(), //
+				instanceBuilder.build(), //
 				dependencies); //
 
 		response.add(newInstance);
@@ -652,46 +679,71 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private void migrateKebaEvcsToEvse(OpenemsAppInstance instance, ArrayList<OpenemsAppInstance> response, int i,
 			User user, JsonArrayBuilder clusterProperties, UUID clusterInstanceId) throws OpenemsNamedException {
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
-		final var modbusId = JsonUtils.getAsString(instance.properties.get("MODBUS_ID"));
 		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))
 				.orElse("L1_L2_L3");
 		final var alias = instance.alias;//
-		final var modbusUnitId = JsonUtils.getAsOptionalInt(instance.properties.get("MODBUS_UNIT_ID"))//
-				.orElse(null);
 		final var ctrlEvcsId = JsonUtils.getAsString(instance.properties.get("CTRL_EVCS_ID"));
-
 		// DELETE CONTROLLER FIRST (before chargepoint) to avoid factory ID confusion
 		this.deleteComponentIfPresent(user, ctrlEvcsId);
 
 		// THEN delete chargepoint
 		this.deleteComponentIfPresent(user, evcsId);
-
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
+		final var hardwareType = JsonUtils
+				.getAsOptionalEnum(KebaHardwareType.class, instance.properties.get("HARDWARE_TYPE"))//
+				.orElse(KebaHardwareType.P30); // Assume P30 for old apps without hardware_type property
+		final var ip = JsonUtils.getAsOptionalString(instance.properties.get("IP")).orElse(null);
+		Integer modbusUnitId = null;
+		String modbusId = null;
 		// install evse cp
-		final var cpProperties = List.of(//
-				new UpdateComponentConfigRequest.Property("id", evcsId), //
-				new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
-				new UpdateComponentConfigRequest.Property("alias", alias), //
-				new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
-				new UpdateComponentConfigRequest.Property("readOnly", false), //
-				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation), //
-				new UpdateComponentConfigRequest.Property("wiring", EvseProps.DEFAULT_WIRING.name()) //
-		);
+		switch (hardwareType) {
+		case KebaHardwareType.P40 -> {
+			modbusUnitId = JsonUtils.getAsOptionalInt(instance.properties.get("MODBUS_UNIT_ID"))//
+					.orElse(null);
+			modbusId = JsonUtils.getAsString(instance.properties.get("MODBUS_ID"));
+			// install evse cp
+			final var cpProperties = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsId), //
+					new UpdateComponentConfigRequest.Property("modbus_id", modbusId), //
+					new UpdateComponentConfigRequest.Property("alias", alias), //
+					new UpdateComponentConfigRequest.Property("modbusUnitId", modbusUnitId), //
+					new UpdateComponentConfigRequest.Property("readOnly", false), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation), //
+					new UpdateComponentConfigRequest.Property("wiring", EvseProps.DEFAULT_WIRING.name()) //
+			);
 
-		this.componentManager.handleCreateComponentConfigRequest(user,
-				new CreateComponentConfig.Request("Evse.ChargePoint.Keba.Modbus", //
-						cpProperties));
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Evse.ChargePoint.Keba.Modbus", //
+							cpProperties));
+		}
+		case KebaHardwareType.P30 -> {
+			// install evse cp
+			final var cpProperties = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsId), //
+					new UpdateComponentConfigRequest.Property("alias", alias), //
+					new UpdateComponentConfigRequest.Property("readOnly", false), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation), //
+					new UpdateComponentConfigRequest.Property("wiring", EvseProps.DEFAULT_WIRING.name()), //
+					new UpdateComponentConfigRequest.Property("ip", ip) //
+			);
+
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Evse.ChargePoint.Keba.UDP", //
+							cpProperties));
+		}
+		}
+
 		var vehicleInstance = this.evseVehicle(user, response, i);
 		var vehicleId = JsonUtils.getAsString(vehicleInstance.properties.get(VEHICLE_ID));
 		var ctrlSingleId = this.ctrlSingle(ctrlEvcsId, evcsId, vehicleId, alias, i, user, clusterProperties);
 
-		final var ip = JsonUtils.getAsOptionalString(instance.properties.get("IP")).orElse(null);
 		final var newInstance = new OpenemsAppInstance("App.Evcs.Keba", alias, instance.instanceId, //
 				JsonUtils.buildJsonObject() //
 						.addPropertyIfNotNull("EVCS_ID", evcsId) //
 						.addPropertyIfNotNull("CTRL_SINGLE_ID", ctrlSingleId) //
 						.addPropertyIfNotNull("MODBUS_ID", modbusId).addProperty("ALIAS", alias) //
 						.addPropertyIfNotNull("ARCHITECTURE_TYPE", "EVSE") //
-						.addPropertyIfNotNull("HARDWARE_TYPE", "P40") //
+						.addPropertyIfNotNull("HARDWARE_TYPE", hardwareType) //
 						.addPropertyIfNotNull("ELECTRIC_VEHICLE_ID", vehicleInstance.instanceId.toString()) //
 						.addPropertyIfNotNull("IP", ip) //
 						.addPropertyIfNotNull("PHASE_ROTATION", phaseRotation) //
@@ -862,18 +914,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		// Extract FIRST architecture safely
 		final var firstArch = JsonUtils.getAsOptionalString(evcsApps.getFirst().properties.get("ARCHITECTURE_TYPE"))//
 				.orElse("EVCS");
-
-		// KEBA must be P40 only
-		final var notOnlyP40 = evcsApps.stream().anyMatch(t -> {
-			if (!t.appId.equals("App.Evcs.Keba")) {
-				return false;
-			}
-			return JsonUtils.getAsOptionalString(t.properties.get("HARDWARE_TYPE")).orElse("P40").equals("P30");
-		});
-
-		if (notOnlyP40) {
-			return new CanSwitchEvcsEvse.Response(false, null, uiText, uiInfoText, infoLink);
-		}
 
 		// Architecture mismatch check
 		final var mismatch = evcsApps.stream().anyMatch(t -> {
