@@ -43,12 +43,12 @@ import io.openems.edge.energy.api.EnergyScheduler;
 @Component
 public final class SwitchArchitecture implements ComponentJsonApi {
 
-	private static final Set<String> VALID_APPS = Set.of("App.Evcs.Keba");
+	private static final Set<String> VALID_APPS = Set.of("App.Evcs.Keba", "App.Evcs.HardyBarth");
 	private static final Set<String> FACTORY_IDS = Set.of("Evse.ChargePoint.Keba.Modbus", "Controller.Evcs",
 			"Evcs.Keba.P40", "Evse.Controller.Single", "Evse.Controller.Cluster", "Evcs.Cluster.PeakShaving",
-			"Evse.ElectricVehicle.Generic");
+			"Evse.ElectricVehicle.Generic", "Evse.ChargePoint.HardyBarth", "Evcs.HardyBarth");
 	private static final Set<String> FALLBACK_APPS = Set.of("App.Evcs.Cluster", "App.Evse.Controller.Cluster",
-			"App.Keba.Evcs", "App.Evse.ElectricVehicle.Generic");
+			"App.Evcs.Keba", "App.Evse.ElectricVehicle.Generic", "App.Evcs.HardyBarth");
 
 	public static final String ID = "switchArchitecture";
 	private final AppManagerUtil appManagerUtil;
@@ -110,8 +110,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	 * @throws OpenemsNamedException on error
 	 */
 	public Response handleSwitchEmobilityArchitecture(User user) throws OpenemsNamedException {
-		final var appId = "App.Evcs.Keba";
-
 		final var instantiatedApps = new ArrayList<OpenemsAppInstance>(this.appManagerUtil.getInstantiatedApps());
 
 		final var appInstances = instantiatedApps.stream()//
@@ -156,7 +154,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 							new DeleteComponentConfig.Request(id));
 				}
 
-				instantiatedApps.removeIf(t -> (t.appId.equals(appId) //
+				instantiatedApps.removeIf(t -> (VALID_APPS.contains(t.appId) //
 						|| t.appId.equals("App.Evse.Controller.Cluster") //
 						|| t.appId.equals("App.Evse.ElectricVehicle.Generic") //
 						|| t.appId.equals("App.Evcs.Cluster")));
@@ -194,7 +192,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 				final var newApps = new ArrayList<OpenemsAppInstance>(this.appManagerUtil.getInstantiatedApps());
 
-				newApps.removeIf(t -> (t.appId.equals(appId) //
+				newApps.removeIf(t -> (VALID_APPS.contains(t.appId) //
 						|| t.appId.equals("App.Evcs.Cluster") //
 						|| t.appId.equals("App.Evse.Controller.Cluster") //
 				));
@@ -243,7 +241,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private void clusterApp(User user, final ArrayList<OpenemsAppInstance> instantiatedApps,
 			final List<OpenemsAppInstance> appInstances, final ArrayList<OpenemsAppInstance> response,
 			JsonArrayBuilder evcsIds, UUID clusterInstanceId) throws OpenemsNamedException {
-		if (appInstances.size() > 1) {
+		var ids = evcsIds.build();
+		if (ids.size() > 1) {
 			final var clusterAppRaw = this.appManagerUtil.findAppById("App.Evcs.Cluster");
 			var clusterAlias = Stream.of(clusterAppRaw.get().getProperties()).filter(t -> t.name.equals("ALIAS"))
 					.map(t -> t.getDefaultValue(user.getLanguage())).filter(t -> t.isPresent()) //
@@ -265,7 +264,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			final var clusterProps = List.of(//
 					new UpdateComponentConfigRequest.Property("id", clusterId), //
 					new UpdateComponentConfigRequest.Property("alias", clusterAlias), //
-					new UpdateComponentConfigRequest.Property("evcs_ids", evcsIds.build()) //
+					new UpdateComponentConfigRequest.Property("evcs_ids", ids) //
 			);
 
 			this.componentManager.handleCreateComponentConfigRequest(user,
@@ -291,10 +290,112 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		switch (instance.appId) {
 		case "App.Evcs.Keba" ->
 			this.migrateKebaEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, i, size);
+		case "App.Evcs.HardyBarth" ->
+			this.migrateHardyBarthEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, i, size);
 		default -> {
 			// do nothing
 		}
 		}
+	}
+
+	private void migrateHardyBarthEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
+			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response, int index, int size)
+			throws OpenemsNamedException {
+		int i = index;
+		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
+		final var singleId = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID"));
+		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))//
+				.orElse("L1_L2_L3");
+		final var alias = instance.alias;//
+		final var ip = JsonUtils.getAsOptionalString(instance.properties.get("IP")).orElse("");
+
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(singleId));
+
+		final var evcsProperties = List.of(//
+				new UpdateComponentConfigRequest.Property("id", evcsId), //
+				new UpdateComponentConfigRequest.Property("alias", alias), //
+				new UpdateComponentConfigRequest.Property("readOnly", false), //
+				new UpdateComponentConfigRequest.Property("ip", ip), //
+				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
+		);
+
+		this.componentManager.handleCreateComponentConfigRequest(user,
+				new CreateComponentConfig.Request("Evcs.HardyBarth", evcsProperties));
+
+		// install evse cp
+		var ctrlEvcsId = "ctrlEvcs" + i;
+		final var evcsCtrlProperties = List.of(//
+				new UpdateComponentConfigRequest.Property("id", ctrlEvcsId), //
+				new UpdateComponentConfigRequest.Property("alias", alias), //
+				new UpdateComponentConfigRequest.Property("evcs_id", evcsId) //
+		);
+		this.componentManager.handleCreateComponentConfigRequest(user,
+				new CreateComponentConfig.Request("Controller.Evcs", //
+						evcsCtrlProperties));
+		evcsIds.add(evcsId);
+
+		final var instancePropertiesBuilder = JsonUtils.buildJsonObject();
+		instancePropertiesBuilder //
+				.addProperty("EVCS_ID", evcsId) //
+				.addProperty("CTRL_EVCS_ID", ctrlEvcsId) //
+				.addPropertyIfNotNull("IP", ip);//
+		final var numberOfChargePoints = JsonUtils.getAsInt(instance.properties.get("NUMBER_OF_CHARGING_STATIONS"));
+		if (numberOfChargePoints > 1) {
+			i++;
+			final var evcsIdCp2 = JsonUtils.getAsString(instance.properties.get("EVCS_ID_CP_2"));
+			final var singleIdCp2 = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID_CP_2"));
+			final var aliasCp2 = JsonUtils.getAsString(instance.properties.get("ALIAS_CP_2"));
+			final var ipCp2 = JsonUtils.getAsString(instance.properties.get("IP_CP_2"));
+			this.componentManager.handleDeleteComponentConfigRequest(user,
+					new DeleteComponentConfig.Request(evcsIdCp2));
+			this.componentManager.handleDeleteComponentConfigRequest(user,
+					new DeleteComponentConfig.Request(singleIdCp2));
+			final var evcsPropertiesCp2 = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsIdCp2), //
+					new UpdateComponentConfigRequest.Property("alias", aliasCp2), //
+					new UpdateComponentConfigRequest.Property("readOnly", false), //
+					new UpdateComponentConfigRequest.Property("ip", ipCp2), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation)//
+			);
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Evcs.HardyBarth", evcsPropertiesCp2));
+
+			// install evse cp
+			ctrlEvcsId = "ctrlEvcs" + i;
+			final var evcsCtrlPropertiesCp2 = List.of(//
+					new UpdateComponentConfigRequest.Property("id", ctrlEvcsId), //
+					new UpdateComponentConfigRequest.Property("alias", aliasCp2), //
+					new UpdateComponentConfigRequest.Property("evcs_id", evcsIdCp2) //
+			);
+			this.componentManager.handleCreateComponentConfigRequest(user,
+					new CreateComponentConfig.Request("Controller.Evcs", //
+							evcsCtrlPropertiesCp2));
+			evcsIds.add(evcsIdCp2);
+			instancePropertiesBuilder//
+					.addProperty("EVCS_ID_CP_2", evcsIdCp2)//
+					.addProperty("CTRL_EVCS_ID_CP_2", ctrlEvcsId) //
+					.addProperty("IP_CP_2", ipCp2) //
+					.addProperty("ALIAS_CP_2", aliasCp2);
+		}
+
+		instancePropertiesBuilder//
+				.addProperty("ARCHITECTURE_TYPE", "EVCS") //
+				.addProperty("NUMBER_OF_CHARGING_STATIONS", numberOfChargePoints) //
+				.addProperty("PHASE_ROTATION", phaseRotation) //
+				.addProperty("READ_ONLY", false) //
+		;
+
+		List<Dependency> dependencies = List.of();
+		if (size > 1 || numberOfChargePoints > 1) {
+			dependencies = List.of(//
+					new Dependency("CLUSTER", clusterInstanceId) //
+			);
+		}
+
+		final var newInstance = new OpenemsAppInstance("App.Evcs.HardyBarth", instance.alias, instance.instanceId,
+				instancePropertiesBuilder.build(), dependencies);
+		response.add(newInstance);
 	}
 
 	private void migrateKebaEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
@@ -463,10 +564,93 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		switch (instance.appId) {
 		case "App.Evcs.Keba" ->
 			this.migrateKebaEvcsToEvse(instance, response, i, user, clusterProperties, clusterInstanceId);
+		case "App.Evcs.HardyBarth" -> {
+			this.migrateHardyBarthEvcsToEvse(instance, response, i, user, clusterProperties, clusterInstanceId);
+		}
 		default -> {
 			// do nothing
 		}
 		}
+	}
+
+	private void migrateHardyBarthEvcsToEvse(OpenemsAppInstance instance, ArrayList<OpenemsAppInstance> response, int i,
+			User user, JsonArrayBuilder clusterProperties, UUID clusterInstanceId) throws OpenemsNamedException {
+		var vehicleInstance = this.evseVehicle(user, response, i);
+		var vehicleId = JsonUtils.getAsString(vehicleInstance.properties.get("VEHICLE_ID"));
+		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
+		final var ctrlEvcsId = JsonUtils.getAsString(instance.properties.get("CTRL_EVCS_ID"));
+		final var ip = JsonUtils.getAsString(instance.properties.get("IP"));
+		final var alias = instance.alias; //
+		final var numberOfChargePoints = JsonUtils.getAsInt(instance.properties.get("NUMBER_OF_CHARGING_STATIONS"));
+		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
+		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION")).orElse(null);
+
+		final var cpProperties = List.of(//
+				new UpdateComponentConfigRequest.Property("id", evcsId), //
+				new UpdateComponentConfigRequest.Property("alias", alias), //
+				new UpdateComponentConfigRequest.Property("ip", ip), //
+				new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation), //
+				new UpdateComponentConfigRequest.Property("readOnly", false) //
+		);
+
+		this.componentManager.handleCreateComponentConfigRequest(user, //
+				new CreateComponentConfig.Request("Evse.ChargePoint.HardyBarth", cpProperties) //
+		);
+		final var instancePropertiesBuilder = JsonUtils.buildJsonObject();
+		var ctrlSingleId = this.ctrlSingle(ctrlEvcsId, evcsId, vehicleId, alias, i, user, clusterProperties);
+		instancePropertiesBuilder //
+				.addPropertyIfNotNull("EVCS_ID", evcsId) //
+				.addPropertyIfNotNull("IP", ip)//
+				.addPropertyIfNotNull("CTRL_SINGLE_ID", ctrlSingleId) //
+				.addPropertyIfNotNull("ELECTRIC_VEHICLE_ID", vehicleInstance.instanceId.toString());
+
+		final var dependencies = new ArrayList<Dependency>();
+		dependencies.add(new Dependency("VEHICLE", vehicleInstance.instanceId));
+		if (numberOfChargePoints == 2) {
+			i++;
+			var vehicleInstanceCp2 = this.evseVehicle(user, response, i);
+			var vehicleIdCp2 = JsonUtils.getAsString(vehicleInstanceCp2.properties.get("VEHICLE_ID"));
+
+			final var evcsIdCp2 = JsonUtils.getAsString(instance.properties.get("EVCS_ID_CP_2"));
+			final var ctrlEvcsIdCp2 = JsonUtils.getAsString(instance.properties.get("CTRL_EVCS_ID_CP_2"));
+			final var ipCp2 = JsonUtils.getAsString(instance.properties.get("IP_CP_2"));
+			final var aliasCp2 = JsonUtils.getAsString(instance.properties.get("ALIAS_CP_2"));
+			this.componentManager.handleDeleteComponentConfigRequest(user,
+					new DeleteComponentConfig.Request(evcsIdCp2));
+
+			final var cpPropertiesCp2 = List.of(//
+					new UpdateComponentConfigRequest.Property("id", evcsIdCp2), //
+					new UpdateComponentConfigRequest.Property("alias", aliasCp2), //
+					new UpdateComponentConfigRequest.Property("ip", ipCp2), //
+					new UpdateComponentConfigRequest.Property("phaseRotation", phaseRotation), //
+					new UpdateComponentConfigRequest.Property("readOnly", false) //
+			);
+
+			this.componentManager.handleCreateComponentConfigRequest(user, //
+					new CreateComponentConfig.Request("Evse.ChargePoint.HardyBarth", cpPropertiesCp2) //
+			);
+
+			var ctrlSingleIdCp2 = this.ctrlSingle(ctrlEvcsIdCp2, evcsIdCp2, vehicleIdCp2, aliasCp2, i, user,
+					clusterProperties);
+			instancePropertiesBuilder //
+					.addPropertyIfNotNull("EVCS_ID_CP_2", evcsIdCp2)//
+					.addPropertyIfNotNull("CTRL_SINGLE_ID_CP_2", ctrlSingleIdCp2) //
+					.addPropertyIfNotNull("IP_CP_2", ipCp2) //
+					.addPropertyIfNotNull("ELECTRIC_VEHICLE_ID_CP_2", vehicleInstanceCp2.instanceId.toString()) //
+					.addPropertyIfNotNull("ALIAS_CP_2", aliasCp2);
+
+			dependencies.add(new Dependency("VEHICLE_CP_2", vehicleInstanceCp2.instanceId));
+		}
+
+		instancePropertiesBuilder.addProperty("NUMBER_OF_CHARGING_STATIONS", numberOfChargePoints)
+				.addProperty("ARCHITECTURE_TYPE", "EVSE") //
+				.addProperty("PHASE_ROTATION", phaseRotation) //
+				.addProperty("READ_ONLY", false) //
+		;
+		dependencies.add(new Dependency("CLUSTER", clusterInstanceId));
+		final var newInstance = new OpenemsAppInstance("App.Evcs.HardyBarth", instance.alias, instance.instanceId,
+				instancePropertiesBuilder.build(), dependencies);
+		response.add(newInstance);
 	}
 
 	private void migrateKebaEvcsToEvse(OpenemsAppInstance instance, ArrayList<OpenemsAppInstance> response, int i,

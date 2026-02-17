@@ -1,32 +1,29 @@
-package io.openems.edge.evse.chargepoint.hardybarth;
+package io.openems.edge.evse.chargepoint.hardybarth.common;
 
 import static io.openems.common.channel.Level.WARNING;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.channel.Unit.CUMULATED_WATT_HOURS;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.DOUBLE;
-import static io.openems.common.types.OpenemsType.FLOAT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.LONG;
 import static io.openems.common.types.OpenemsType.STRING;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
-import static java.lang.Math.round;
 
 import java.util.function.Function;
 
 import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint, ElectricityMeter {
+public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId, PathProvider {
 		// EVSE
-		RAW_EVSE_GRID_CURRENT_LIMIT(Doc.of(INTEGER) //
+		RAW_EVSE_GRID_CURRENT_LIMIT(Doc.of(INTEGER)//
 				.unit(AMPERE), //
 				"secc", "port0", "ci", "evse", "basic", "grid_current_limit", "actual"), //
 		RAW_PHASE_COUNT(Doc.of(INTEGER), //
@@ -39,6 +36,7 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 				"secc", "port0", "ci", "charge", "contactor", "status"), //
 		RAW_CHARGE_STATUS_PWM(Doc.of(STRING), //
 				"secc", "port0", "ci", "charge", "pwm", "status"), //
+
 		/**
 		 * States of the Hardy Barth.
 		 *
@@ -57,6 +55,8 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 		// SALIA
 		RAW_SALIA_CHARGE_MODE(Doc.of(STRING), //
 				"secc", "port0", "salia", "chargemode"), //
+		RAW_SALIA_CHARGE_PAUSE(Doc.of(INTEGER), //
+				"secc", "port0", "salia", "pausecharging"), //
 		RAW_SALIA_CHANGE_METER(Doc.of(STRING), //
 				"secc", "port0", "salia", "changemeter"), //
 		RAW_SALIA_AUTHMODE(Doc.of(STRING), //
@@ -87,25 +87,24 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 				"secc", "port0", "contactor", "error"), //
 
 		// METERING - METER
-
 		RAW_METER_SERIALNUMBER(Doc.of(STRING), //
 				"secc", "port0", "metering", "meter", "serialnumber"), //
 		RAW_METER_TYPE(Doc.of(STRING), //
 				"secc", "port0", "metering", "meter", "type"), //
-		METER_NOT_AVAILABLE(Doc.of(WARNING) //
-				.translationKey(EvseChargePointHardy.class, "noMeterAvailable")), //
+		METER_NOT_AVAILABLE(Doc.of(WARNING)//
+				.translationKey(HardyBarth.class, "noMeterAvailable")), //
 		RAW_METER_AVAILABLE(new BooleanDoc()//
 				.onChannelSetNextValue((hb, value) -> {
 					var notAvailable = value.get() == null ? null : !value.get();
-					setValue(hb, EvseChargePointHardy.ChannelId.METER_NOT_AVAILABLE, notAvailable);
+					setValue(hb, HardyBarth.ChannelId.METER_NOT_AVAILABLE, notAvailable);
 				}), //
 				"secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - ENERGY
-		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(DOUBLE) //
+		RAW_ACTIVE_ENERGY_TOTAL(Doc.of(DOUBLE)//
 				.unit(CUMULATED_WATT_HOURS), //
 				"secc", "port0", "metering", "energy", "active_total", "actual"), //
-		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(DOUBLE) //
+		RAW_ACTIVE_ENERGY_EXPORT(Doc.of(DOUBLE)//
 				.unit(CUMULATED_WATT_HOURS), //
 				"secc", "port0", "metering", "energy", "active_export", "actual"), //
 
@@ -159,18 +158,6 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 		RAW_RFID_AVAILABLE(Doc.of(BOOLEAN), //
 				"secc", "port0", "rfid", "available"), //
 
-		ENERGY_SESSION(Doc.of(INTEGER)), //
-		RAW_ENERGY_SESSION(Doc.of(STRING) //
-				.onChannelSetNextValue((hb, value) -> {
-					if (value != null) {
-						var chargedata = TypeUtils.<String>getAsType(STRING, value).split("\\|");
-						if (chargedata.length == 3) {
-							setValue(hb, EvseChargePointHardy.ChannelId.ENERGY_SESSION,
-									round(TypeUtils.<Float>getAsType(FLOAT, chargedata[2]) * 1000));
-						}
-					}
-				}), "secc", "port0", "salia", "chargedata"), //
-
 		// GRID CURRENT LIMIT
 		RAW_GRID_CURRENT_LIMIT(Doc.of(STRING), //
 				"secc", "port0", "grid_current_limit"), //
@@ -198,12 +185,10 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 				"device", "serial"), //
 		RAW_DEVICE_UUID(Doc.of(STRING), //
 				"device", "uuid"), //
-		STATUS(Doc.of(ChargePointStatus.values()));
+		;
 
 		private final Doc doc;
-		private final String[] jsonPaths;
-
-		protected final Function<Object, Object> converter;
+		private final Path path;
 
 		private ChannelId(Doc doc, String... jsonPaths) {
 			this(doc, value -> value, jsonPaths);
@@ -211,8 +196,7 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 
 		private ChannelId(Doc doc, Function<Object, Object> converter, String... jsonPaths) {
 			this.doc = doc;
-			this.converter = converter;
-			this.jsonPaths = jsonPaths;
+			this.path = new Path(converter, jsonPaths);
 		}
 
 		@Override
@@ -220,31 +204,58 @@ public interface EvseChargePointHardy extends OpenemsComponent, EvseChargePoint,
 			return this.doc;
 		}
 
-		/**
-		 * Get the whole JSON path.
-		 *
-		 * @return Whole path.
-		 */
-		public String[] getJsonPaths() {
-			return this.jsonPaths;
+		@Override
+		public Path getPath() {
+			return this.path;
 		}
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#STATUS}.
+	 * Gets the Channel for {@link ChannelId#RAW_DEVICE_SOFTWARE_VERSION}.
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<ChargePointStatus> getChargePointStatusChannel() {
-		return this.channel(ChannelId.STATUS);
+	public default StringReadChannel getSoftwareVersionChannel() {
+		return this.channel(ChannelId.RAW_DEVICE_SOFTWARE_VERSION);
+	}
+
+	public default String getSoftwareVersion() {
+		return this.getSoftwareVersionChannel().value().get();
 	}
 
 	/**
-	 * Gets the {@link ChargePointStatus}. See {@link ChannelId#STATUS}.
+	 * Gets the Channel for {@link ChannelId#RAW_PHASE_COUNT}.
 	 *
-	 * @return the Channel value
+	 * @return the Channel
 	 */
-	public default ChargePointStatus getChargePointStatus() {
-		return this.getChargePointStatusChannel().value().asEnum();
+	public default IntegerReadChannel getPhaseCountChannel() {
+		return this.channel(ChannelId.RAW_PHASE_COUNT);
 	}
+
+	public default int getPhaseCount() {
+		return this.getPhaseCountChannel().value().get();
+	}
+
+	public interface PathProvider {
+
+		/**
+		 * Gets the {@link Path}.
+		 * 
+		 * @return Path
+		 */
+		public Path getPath();
+	}
+
+	public static record Path(Function<Object, Object> converter, String... jsonPaths) {
+		public Path(String... jsonPaths) {
+			this(value -> value, jsonPaths);
+		}
+	}
+
+	/**
+	 * Defines if the instance is read only.
+	 *
+	 * @return true if the instance is read-only
+	 */
+	public boolean isReadOnly();
 }

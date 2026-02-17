@@ -1,18 +1,13 @@
 package io.openems.edge.evse.chargepoint.hardybarth;
 
-import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_CONNECT_TIMEOUT;
-import static io.openems.common.bridge.http.api.BridgeHttp.DEFAULT_READ_TIMEOUT;
-import static io.openems.common.bridge.http.api.HttpMethod.GET;
-import static io.openems.common.bridge.http.api.HttpMethod.PUT;
-import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
-import static java.util.Collections.emptyMap;
+import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
-
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,18 +19,17 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
-import io.openems.common.bridge.http.api.HttpMethod;
-import io.openems.common.utils.FunctionUtils;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.Phase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplySetPoint;
+import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
@@ -47,28 +41,30 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		immediate = true, //
 		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implements EvseChargePointHardy,
-		OpenemsComponent, EvseChargePoint, ElectricityMeter, TimedataProvider, EventHandler {
-
-	protected final ReadUtils readUtils = new ReadUtils(this);
-
-	private Config config = null;
-	private BridgeHttp httpBridge;
+public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent implements EvseChargePointHardyBarth,
+		HardyBarth, OpenemsComponent, EvseChargePoint, ElectricityMeter, TimedataProvider, EventHandler {
 
 	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
+	@Reference
+	private OpenemsEdgeOem oem;
+
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	public EvseChargePointHardyImpl() {
+	private Config config = null;
+	private EvseHandler handler;
+
+	public EvseChargePointHardyBarthImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				EvseChargePointHardy.ChannelId.values(), //
+				EvseChargePointHardyBarth.ChannelId.values(), //
+				HardyBarth.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				EvseChargePoint.ChannelId.values());
 
@@ -85,58 +81,20 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 			return;
 		}
 
-		this.httpBridge = this.httpBridgeFactory.get();
-		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-		cycleService.subscribeCycle(1, //
-				this.createEndpoint(GET, "/api", null), //
-				t -> this.readUtils.handleGetApiCallResponse(t), //
-				t -> FunctionUtils.doNothing());
+		this.handler = new EvseHandler(this, config.ip(), this.oem.getHardyBarthApiToken(), config.phaseRotation(),
+				config.logVerbosity(), this::logInfo, this.httpBridgeFactory, this.httpBridgeCycleServiceDefinition, //
+				communicationFailed -> doNothing());
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.httpBridgeFactory.unget(this.httpBridge);
-		this.httpBridge = null;
-	}
-
-	private BridgeHttp.Endpoint createEndpoint(HttpMethod httpMethod, String url, String body) {
-		return createEndpoint(this.config.ip(), httpMethod, url, body);
-	}
-
-	protected static BridgeHttp.Endpoint createEndpoint(String ip, HttpMethod httpMethod, String url, String body) {
-		return new BridgeHttp.Endpoint(//
-				new StringBuilder("http://").append(ip).append(url).toString(), //
-				httpMethod, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, //
-				body, //
-				emptyMap());
-	}
-
-	/**
-	 * Set manual mode.
-	 * 
-	 * <p>
-	 * Sets the chargemode to manual if not set.
-	 */
-	private void setManualMode() {
-		StringReadChannel channelChargeMode = this.channel(EvseChargePointHardy.ChannelId.RAW_SALIA_CHARGE_MODE);
-		Optional<String> valueOpt = channelChargeMode.value().asOptional();
-		if (valueOpt.map(t -> !t.equals("manual")).orElse(true)) {
-			return;
-		}
-		this.httpBridge //
-				.requestJson(this.createEndpoint(PUT, "/api/secc", "{\"salia/chargemode\":\"manual\"}"));
+		this.handler.deactivate();
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-			-> this.setManualMode();
-		}
+		this.handler.handleAfterProcessImageEvent(event);
 	}
 
 	@Override
@@ -155,8 +113,19 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 		case UNDEFINED, A, E, F -> false;
 		case B, C, D -> true;
 		};
+		int calculatedPhaseCount = this.getPhaseCount();
+		evaluatePhaseCountFromCurrent(//
+				this.getCurrentL1().orElse(0), //
+				this.getCurrentL2().orElse(0), //
+				this.getCurrentL3().orElse(0));
+		Phase.SingleOrThreePhase phaseCount;
+		if (calculatedPhaseCount == 1) {
+			phaseCount = Phase.SingleOrThreePhase.SINGLE_PHASE;
+		} else {
+			phaseCount = Phase.SingleOrThreePhase.THREE_PHASE;
+		}
 		return ChargePointAbilities.create() //
-				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 16)) //
+				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phaseCount, 6, 16)) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
 				.build();
@@ -165,12 +134,7 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 	@Override
 	public void apply(ChargePointActions actions) {
 		var current = actions.getApplySetPointInAmpere().value();
-		this.handleApplyCharge(current);
-	}
-
-	private void handleApplyCharge(int current) {
-		this.httpBridge.requestJson(//
-				this.createEndpoint(PUT, "/api/secc", "{\"" + "grid_current_limit" + "\":\"" + current + "\"}"));
+		this.handler.setTarget(current);
 	}
 
 	@Override
@@ -181,5 +145,10 @@ public class EvseChargePointHardyImpl extends AbstractOpenemsComponent implement
 	@Override
 	public boolean isReadOnly() {
 		return this.config.readOnly();
+	}
+
+	@Override
+	public String debugLog() {
+		return this.handler.debugLog();
 	}
 }
