@@ -27,6 +27,13 @@ export const OemMeta: BaseMeta = {
                 SUNSHINE_DURATION: "assets/img/icon/sunshine_duration.svg",
                 HELP: "assets/img/icon/help.svg",
             },
+            OFFLINE: {
+                CLOUD_OFFLINE_OUTLINE: "icons/common/offline/cloud_offline_outline.svg",
+            },
+            TIME_OF_USE: {
+                TIME_OF_USE: "icons/common/time_of_use/time_of_use.svg",
+                TIME_OF_USE_THIN: "icons/common/time_of_use/time_of_use-thin.svg",
+            },
         },
         COMPONENT: {
             HEATPUMP: flame,

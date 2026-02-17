@@ -49,6 +49,13 @@ export interface Environment {
                 readonly "SUNSHINE_DURATION": string,
                 readonly "HELP": string,
             },
+            readonly "OFFLINE": {
+                readonly "CLOUD_OFFLINE_OUTLINE": string,
+            },
+            readonly "TIME_OF_USE": {
+                readonly "TIME_OF_USE": string,
+                readonly "TIME_OF_USE_THIN": string,
+            },
         },
         readonly "COMPONENT": {
             readonly "HEATPUMP": string,
