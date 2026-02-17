@@ -18,7 +18,7 @@ java {
 	}
 }
 
-def isCI = (System.getenv("CI") != null) as Boolean
+def isCI = providers.environmentVariable("CI").isPresent()
 
 if (isCI) {
     println("CI environment detected - suppressing all compiler warnings")
@@ -43,7 +43,7 @@ subprojects {
 		ext.isBackend = true
 	}
 
-	tasks.withType(JavaCompile) {
+	tasks.withType(JavaCompile).configureEach {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
 		options.fork = true
@@ -54,8 +54,8 @@ subprojects {
 			options.deprecation = false
 		}
 	}
-	
-	tasks.withType(Test) {
+
+	tasks.withType(Test).configureEach {
 		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
@@ -77,7 +77,7 @@ subprojects {
 					def icon = switch(result.resultType) {
 						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
 						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
-						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ"
+						case org.gradle.api.tasks.testing.TestResult.ResultType.SKIPPED -> "ℹ️"
 						default -> ""
 					}
 					println "> [${padded}] Test summary: ${result.resultType} ${icon} " +
@@ -120,8 +120,8 @@ subprojects {
 			maxWarnings = 0
 			ignoreFailures = false
 		}
-	
-		tasks.withType(Checkstyle) {
+
+		tasks.withType(Checkstyle).configureEach {
 			reports {
 				xml.required = false
 				html.required = false
@@ -139,46 +139,46 @@ tasks.named('wrapper') {
 	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
-task checkstyleEdge() {
+tasks.register('checkstyleEdge') {
 	group = 'OpenEMS-Test'
 	description = 'Checkstyle Edge bundles'
 
 	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
-		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+		if (proj.tasks.findByName('checkstyleMain')) {
 			dependsOn(proj.checkstyleMain)
 		}
-		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+		if (proj.tasks.findByName('checkstyleTest')) {
 			dependsOn(proj.checkstyleTest)
 		}
 	}
 }
 
-task checkstyleBackend() {
+tasks.register('checkstyleBackend') {
 	group = 'OpenEMS-Test'
 	description = 'Checkstyle Backend bundles'
 
 	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
-		if (proj.tasks.findAll { it.name == 'checkstyleMain' }) {
+		if (proj.tasks.findByName('checkstyleMain')) {
 			dependsOn(proj.checkstyleMain)
 		}
-		if (proj.tasks.findAll { it.name == 'checkstyleTest' }) {
+		if (proj.tasks.findByName('checkstyleTest')) {
 			dependsOn(proj.checkstyleTest)
 		}
 	}
 }
 
-task checkstyleAll() {
+tasks.register('checkstyleAll') {
 	group = 'OpenEMS-Test'
 	description = 'Checkstyle all bundles'
 
-	def edge = tasks.getByPath(':checkstyleEdge')
-	def backend = tasks.getByPath(':checkstyleBackend')
-	
+	def edge = tasks.named('checkstyleEdge')
+	def backend = tasks.named('checkstyleBackend')
+
 	dependsOn edge
 	dependsOn backend
 }
 
-task testEdge() {
+tasks.register('testEdge') {
 	group = 'OpenEMS-Test'
 	description = 'Run JUnit tests for all Edge-Bundles'
 	
@@ -189,7 +189,7 @@ task testEdge() {
 	}
 }
 
-task testBackend() {
+tasks.register('testBackend') {
 	group = 'OpenEMS-Test'
 	description = 'Run JUnit tests for all Backend-Bundles'
 
@@ -200,7 +200,7 @@ task testBackend() {
 	}
 }
 
-task cleanEdge() {
+tasks.register('cleanEdge') {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Edge-Bundles'
 	
@@ -211,7 +211,7 @@ task cleanEdge() {
 	}
 }
 
-task cleanBackend() {
+tasks.register('cleanBackend') {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Backend-Bundles'
 	
@@ -222,7 +222,7 @@ task cleanBackend() {
 	}
 }
 
-task assembleEdge() {
+tasks.register('assembleEdge') {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Edge-Bundles'
 	
@@ -233,7 +233,7 @@ task assembleEdge() {
 	}
 }
 
-task assembleBackend() {
+tasks.register('assembleBackend') {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Backend-Bundles'
 	
@@ -247,7 +247,7 @@ task assembleBackend() {
 /*
  * Build OpenEMS Edge and Backend Components
  */
-task buildComponents() {
+tasks.register('buildComponents') {
 	subprojects.each { proj ->
 		if (proj.tasks.findAll { it.name == 'compileJava' }) {
 			dependsOn(proj.compileJava)
@@ -263,8 +263,8 @@ task buildComponents() {
 task buildEdge() {
 	group = 'OpenEMS-Build'
 	description = 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
-	
-	def assemble = tasks.getByPath(':assembleEdge')
+
+	def assemble = tasks.named('assembleEdge')
 	def export = tasks.getByPath(':io.openems.edge.application:export.EdgeApp')
 	def resolve = tasks.getByPath(':io.openems.edge.application:resolve.EdgeApp')
 	
@@ -281,7 +281,11 @@ task buildEdge() {
 	
 	doLast {
 		def source = file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
-		def output = file(System.getenv('OEMS_EDGE_OUTPUT') ?: "${buildDir}/openems-edge.jar")
+		def output = providers.gradleProperty('oems.edge.output')
+			.orElse(providers.environmentVariable('OEMS_EDGE_OUTPUT'))
+			.orElse(layout.buildDirectory.file("openems-edge.jar").map { it.asFile.path })
+			.map { file(it) }
+			.get()
 
 		output.delete()
 		copy {
@@ -296,8 +300,8 @@ task buildEdge() {
 task buildBackend() {
 	group = 'OpenEMS-Build'
 	description = 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
-	
-	def assemble = tasks.getByPath(':assembleBackend')
+
+	def assemble = tasks.named('assembleBackend')
 	def export = tasks.getByPath(':io.openems.backend.application:export.BackendApp')
 	def resolve = tasks.getByPath(':io.openems.backend.application:resolve.BackendApp')
 	
@@ -314,7 +318,11 @@ task buildBackend() {
 
 	doLast {
 		def source = file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
-		def output = file(System.getenv('OEMS_BACKEND_OUTPUT') ?: "${buildDir}/openems-backend.jar")
+		def output = providers.gradleProperty('oems.backend.output')
+			.orElse(providers.environmentVariable('OEMS_BACKEND_OUTPUT'))
+			.orElse(layout.buildDirectory.file("openems-backend.jar").map { it.asFile.path })
+			.map { file(it) }
+			.get()
 
 		output.delete()
 		copy {
@@ -329,7 +337,9 @@ task buildBackend() {
 /*
  * Javadoc
  */
-task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
+tasks.register('buildAggregatedJavadocs', Javadoc) {
+	description = 'Generate javadocs from all child projects as if it was a single project'
+	group = 'Documentation'
 	destinationDir = file("$buildDir/www/javadoc")
 	title = "OpenEMS Javadoc"
 	subprojects.each { proj ->
@@ -347,7 +357,7 @@ task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from
 /*
  * Copies Bundle readme.adoc files to doc.
  */
-task copyBundleReadmes() {
+tasks.register('copyBundleReadmes') {
 	doLast {
 		// define target files
 		def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
@@ -437,7 +447,7 @@ task copyBundleReadmes() {
 /*
  * Build Antora docs
  */
-task buildAntoraDocs() {
+tasks.register('buildAntoraDocs') {
 	group = 'Documentation'
 	dependsOn ":doc:buildAntoraDocs"
 	dependsOn ":copyBundleReadmes"
