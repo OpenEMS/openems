@@ -328,6 +328,7 @@ export class Websocket implements WebsocketInterface {
                 break;
             }
             default:
+                reject(reason);
                 break;
         }
     }
