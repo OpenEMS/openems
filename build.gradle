@@ -328,6 +328,43 @@ task buildBackend() {
 		copy {
 			from source
 			into output.getParentFile()
+			rename(source.getName(), output.getName())
+		}
+		println("Built ${output}!")
+	}
+}
+
+tasks.register('buildBackendEdge') {
+	group = 'OpenEMS-Build'
+	description = 'Build a Fat-Jar for the OpenEMS-Backend-Edge-App into build/openems-backend-edge.jar'
+
+	def assemble = tasks.named('assembleBackend')
+	def export = tasks.getByPath(':io.openems.backend.edge.application:export.BackendEdgeApp')
+	def resolve = tasks.getByPath(':io.openems.backend.edge.application:resolve.BackendEdgeApp')
+
+	dependsOn assemble
+	dependsOn export
+	dependsOn resolve
+
+	resolve.mustRunAfter assemble
+	export.mustRunAfter resolve
+
+	/* force rebuild */
+	export.outputs.upToDateWhen { false }
+	outputs.upToDateWhen { false }
+
+	doLast {
+		def source = file("io.openems.backend.edge.application/generated/distributions/executable/BackendEdgeApp.jar")
+		def output = providers.gradleProperty('oems.backend.edge.output')
+				.orElse(providers.environmentVariable('OEMS_BACKEND_EDGE_OUTPUT'))
+				.orElse(layout.buildDirectory.file("openems-backend-edge.jar").map { it.asFile.path })
+				.map { file(it) }
+				.get()
+
+		output.delete()
+		copy {
+			from source
+			into output.getParentFile()
 			rename (source.getName(), output.getName())
 		}
 		println("Built ${output}!")
