@@ -640,6 +640,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			final var ipCp2 = JsonUtils.getAsString(instance.properties.get("IP_CP_2"));
 			final var aliasCp2 = JsonUtils.getAsString(instance.properties.get("ALIAS_CP_2"));
 			this.deleteComponentIfPresent(user, ctrlEvcsIdCp2);
+			// THEN delete chargepoint
+			this.deleteComponentIfPresent(user, evcsIdCp2);
 
 			final var cpPropertiesCp2 = List.of(//
 					new UpdateComponentConfigRequest.Property("id", evcsIdCp2), //
