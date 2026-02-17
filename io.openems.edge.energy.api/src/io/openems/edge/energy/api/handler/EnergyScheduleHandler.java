@@ -16,8 +16,8 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentMod
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 
 public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOnlyOneMode {
 

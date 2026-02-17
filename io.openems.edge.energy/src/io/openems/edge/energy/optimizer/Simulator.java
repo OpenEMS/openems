@@ -165,7 +165,7 @@ public class Simulator {
 		}
 
 		if (period instanceof Period.WithPrice periodWithPrice) {
-			final var price = periodWithPrice.price();
+			final var price = periodWithPrice.price().actual();
 
 			// Calculate Grid-Buy Cost
 			if (energyFlow.getGrid() > 0) {

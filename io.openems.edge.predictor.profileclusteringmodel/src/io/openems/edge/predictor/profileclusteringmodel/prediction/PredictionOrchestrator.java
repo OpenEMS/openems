@@ -75,7 +75,8 @@ public class PredictionOrchestrator {
 			var date = today.plusDays(dayOffset);
 			int clusterIndex = baseFeatureMatrix.getValue(date, ColumnNames.LABEL).intValue();
 			var centroid = this.predictionContext.clusterer().getCentroids().get(clusterIndex);
-			predictedProfiles.add(Profile.fromArray(clusterIndex, centroid));
+			var upperQuantileCentroid = this.predictionContext.clusterer().getUpperQuantileCentroids().get(clusterIndex);
+			predictedProfiles.add(Profile.fromArray(clusterIndex, centroid, upperQuantileCentroid));
 		}
 
 		return predictedProfiles;
@@ -146,7 +147,8 @@ public class PredictionOrchestrator {
 
 	private List<Profile> buildAllProfiles() {
 		var centroids = this.predictionContext.clusterer().getCentroids();
-		return IntStream.range(0, centroids.size()).mapToObj(i -> Profile.fromArray(i, centroids.get(i))).toList();
+		var upperQuantileCentroids = this.predictionContext.clusterer().getCentroids();
+		return IntStream.range(0, centroids.size()).mapToObj(i -> Profile.fromArray(i, centroids.get(i), upperQuantileCentroids.get(i))).toList();
 	}
 
 	private static boolean isOutdated(CurrentProfile currentProfile, LocalDate date) {

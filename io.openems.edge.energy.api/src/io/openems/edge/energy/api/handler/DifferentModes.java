@@ -20,8 +20,8 @@ import com.google.common.collect.ImmutableSortedSet;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 
 /**
  * Helper methods and classes for

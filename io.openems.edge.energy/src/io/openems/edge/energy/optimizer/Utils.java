@@ -8,8 +8,6 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.random.RandomGeneratorFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -19,7 +17,6 @@ import io.jenetics.util.RandomRegistry;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.scheduler.api.Scheduler;
 
 public final class Utils {

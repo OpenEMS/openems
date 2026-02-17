@@ -91,7 +91,7 @@ public class SwitchEvcsEvseTest {
 		var response = this.sa.handleCanSwitch(DUMMY_ADMIN);
 		assertFalse(response.canSwitch());
 	}
-	
+
 	@Test
 	public void testCanSwitchOld() throws Exception {
 		this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
@@ -104,10 +104,10 @@ public class SwitchEvcsEvseTest {
 
 		var response = this.sa.handleCanSwitch(DUMMY_ADMIN);
 		assertTrue(response.canSwitch());
-		assertEquals(Version.OLD,response.current());
-		
+		assertEquals(Version.OLD, response.current());
+
 		var responseSwitch = this.sa.handleSwitchEmobilityArchitecture(DUMMY_ADMIN);
-		
+		assertEquals(3, responseSwitch.apps().size());
 	}
 
 	@Test
@@ -238,7 +238,7 @@ public class SwitchEvcsEvseTest {
 		assertEquals(1, switchResponse.apps().stream().filter(t -> t.appId.equals("App.Evcs.Cluster")).toList().size());
 		assertEquals(1, switchResponse.apps().stream().filter(t -> t.appId.equals("App.Evcs.Keba")).toList().size());
 	}
-	
+
 	@Test
 	public void testMixedEvcsToEvse() throws Exception {
 		this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
@@ -251,7 +251,7 @@ public class SwitchEvcsEvseTest {
 						.addProperty("ALIAS_CP_2", "testAppCp2") //
 						.addProperty("READ_ONLY", false) //
 						.build()));
-		
+
 		this.amtb.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new Request(this.kebaApp.getAppId(), null, "testApp", JsonUtils.buildJsonObject()//
 						.addProperty("ARCHITECTURE_TYPE", "EVCS") //

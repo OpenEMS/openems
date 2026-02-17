@@ -36,7 +36,8 @@ public class InitialPopulationUtils {
 			if (ip == null) {
 				return;
 			}
-			applyIsCurrentPeriodFixed(ip, previousSchedule.modeIndexes()[0], codec.isFirstPeriodFixed);
+			applyIsCurrentPeriodFixed(ip, previousSchedule.modeIndexes()[0],
+					codec.isFirstPeriodFixedSupplier.getAsBoolean());
 			result.add(ip);
 		};
 

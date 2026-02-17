@@ -7,7 +7,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHA
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.PEAK_SHAVING;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargePowerInChargeGrid;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -26,7 +26,8 @@ import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Periods;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
@@ -220,50 +221,50 @@ public class UtilsTest {
 				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						ImmutableList.of()), //
+						Periods.empty()),
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(4336, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						ImmutableList.of(//
-								GlobalOptimizationContext.Period.Quarter.from(0, TIME, null, 0, 1000, 0.), //
-								GlobalOptimizationContext.Period.Quarter.from(1, TIME, null, 100, 1100, 0.), //
-								GlobalOptimizationContext.Period.Quarter.from(2, TIME, null, 200, 0, 0.) //
-						)), //
+						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+								.add(TIME, null, 0, 1000, 0.) //
+								.add(TIME.plusMinutes(15), null, 100, 1100, 0.) //
+								.add(TIME.plusMinutes(30), null, 200, 0, 0.) //
+								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3182, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						ImmutableList.of(//
-								GlobalOptimizationContext.Period.Quarter.from(0, TIME, null, 0, 700, 123.), //
-								GlobalOptimizationContext.Period.Quarter.from(1, TIME, null, 100, 600, 123.), //
-								GlobalOptimizationContext.Period.Quarter.from(2, TIME, null, 200, 500, 125.), //
-								GlobalOptimizationContext.Period.Quarter.from(3, TIME, null, 300, 400, 126.), //
-								GlobalOptimizationContext.Period.Quarter.from(4, TIME, null, 400, 300, 123.), //
-								GlobalOptimizationContext.Period.Quarter.from(5, TIME, null, 500, 200, 122.), //
-								GlobalOptimizationContext.Period.Quarter.from(6, TIME, null, 600, 100, 121.), //
-								GlobalOptimizationContext.Period.Quarter.from(7, TIME, null, 700, 0, 121.) //
-						)), //
+						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+								.add(TIME, null, 0, 700, 123.) //
+								.add(TIME.plusMinutes(30), null, 100, 600, 123.) //
+								.add(TIME.plusMinutes(45), null, 200, 500, 125.) //
+								.add(TIME.plusMinutes(60), null, 300, 400, 126.) //
+								.add(TIME.plusMinutes(75), null, 400, 300, 123.) //
+								.add(TIME.plusMinutes(90), null, 500, 200, 122.) //
+								.add(TIME.plusMinutes(105), null, 600, 100, 121.) //
+								.add(TIME.plusMinutes(120), null, 700, 0, 121.) //
+								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3818, calculateChargePowerInChargeGrid(//
 				new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						ImmutableList.of(//
-								GlobalOptimizationContext.Period.Quarter.from(0, TIME, null, 0, 700, 120.), //
-								GlobalOptimizationContext.Period.Quarter.from(1, TIME, null, 100, 600, 121.), //
-								GlobalOptimizationContext.Period.Quarter.from(2, TIME, null, 200, 500, 122.), //
-								GlobalOptimizationContext.Period.Quarter.from(3, TIME, null, 300, 1140, 126.), //
-								GlobalOptimizationContext.Period.Quarter.from(4, TIME, null, 400, 1150, 125.), //
-								GlobalOptimizationContext.Period.Quarter.from(5, TIME, null, 500, 200, 122.), //
-								GlobalOptimizationContext.Period.Quarter.from(6, TIME, null, 600, 100, 121.), //
-								GlobalOptimizationContext.Period.Quarter.from(7, TIME, null, 700, 0, 121.) //
-						)), //
+						GlobalOptimizationContext.Periods.create(RiskLevel.MEDIUM) //
+								.add(TIME, null, 0, 700, 120.) //
+								.add(TIME.plusMinutes(15), null, 100, 600, 121.) //
+								.add(TIME.plusMinutes(30), null, 200, 500, 122.) //
+								.add(TIME.plusMinutes(45), null, 300, 1140, 126.) //
+								.add(TIME.plusMinutes(60), null, 400, 1150, 125.) //
+								.add(TIME.plusMinutes(75), null, 500, 200, 122.) //
+								.add(TIME.plusMinutes(90), null, 600, 100, 121.) //
+								.add(TIME.plusMinutes(105), null, 700, 0, 121.) //
+								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 	}
 }

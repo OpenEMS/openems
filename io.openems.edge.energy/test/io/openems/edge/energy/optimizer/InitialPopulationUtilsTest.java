@@ -1,6 +1,6 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;

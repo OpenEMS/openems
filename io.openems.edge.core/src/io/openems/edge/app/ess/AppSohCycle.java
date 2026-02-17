@@ -78,11 +78,11 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 						(app, property, l, parameter, field) -> field.setOptions(List.of("NONE", "DEBUG_LOG")))//
 				.bidirectional(CTRL_ESS_SOH_CYCLE_ID, "logVerbosity", //
 						ComponentManagerSupplier::getComponentManager))), // , //
-		REFERENCE_CYCLE_ENABLED(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".referenceCycleEnabled.label") //
-				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
-				.setRequired(true) //
+		REFERENCE_CYCLE_ENABLED(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".referenceCycleEnabled.label")//
+				.setDefaultValue(false)//
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
+				.setRequired(true)//
 				.bidirectional(CTRL_ESS_SOH_CYCLE_ID, "referenceCycleEnabled", //
 						ComponentManagerSupplier::getComponentManager))), // , //
 		;
@@ -156,8 +156,8 @@ public class AppSohCycle extends AbstractOpenemsAppWithProps<AppSohCycle, Proper
 							.build());
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(controllerComponent)) //
-					.addTask(Tasks.schedulerByCentralOrder(
-							new SchedulerComponent(ctrlEssSohCycleId, CONTROLLER_ESS_SOH_CYCLE_FACTORY_ID, this.getAppId())))
+					.addTask(Tasks.schedulerByCentralOrder(new SchedulerComponent(ctrlEssSohCycleId,
+							CONTROLLER_ESS_SOH_CYCLE_FACTORY_ID, this.getAppId())))
 					.build();
 		};
 	}

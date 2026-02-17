@@ -34,6 +34,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Price;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public class EnergyScheduler {
@@ -82,7 +83,8 @@ public class EnergyScheduler {
 					// DELAY_DISCHARGE or CHARGE_GRID
 					final var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
 					final var prices = goc.streamPeriodsWithPrice() //
-							.mapToDouble(Period.WithPrice::price) //
+							.map(Period.WithPrice::price) //
+							.mapToDouble(Price::actual) //
 							.toArray();
 
 					generateInitialPopulation(result, goc, prices, DELAY_DISCHARGE);

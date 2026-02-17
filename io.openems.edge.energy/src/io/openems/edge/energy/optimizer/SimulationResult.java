@@ -14,9 +14,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -108,7 +106,7 @@ public record SimulationResult(//
 			int generationsCounter) {
 		final var bsc = new BestScheduleCollector();
 		final var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule, bsc);
-		final var periods = bsc.periods.build();
+		final var periods = bsc.periods.buildOrThrow();
 
 		var schedules = bsc.modesPerEsh.entrySet().stream() //
 				.collect(toImmutableMap(Entry::getKey, // ESH
@@ -121,7 +119,8 @@ public record SimulationResult(//
 												var mode = e2.getValue();
 												var p = periods.get(e2.getKey());
 												var price = switch (p.period) {
-												case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+												case GlobalOptimizationContext.Period.WithPrice wp ->
+													wp.price().actual();
 												default -> null;
 												};
 
@@ -168,14 +167,7 @@ public record SimulationResult(//
 		}
 
 		// Convert to Quarters
-		final var quarterPeriods = goc.periods().stream() //
-				.flatMap(period -> switch (period) {
-				case GlobalOptimizationContext.Period.Hour ph //
-					-> ph.quarterPeriods().stream();
-				case GlobalOptimizationContext.Period.Quarter pq //
-					-> Stream.of(period);
-				}) //
-				.collect(ImmutableList.<GlobalOptimizationContext.Period>toImmutableList());
+		final var quarterPeriods = GlobalOptimizationContext.Periods.copyOfQuarterly(goc.periods());
 		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.riskLevel(), goc.startTime(), goc.eshs(),
 				goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
 		final var quarterSchedule = IntStream.range(0, goc.periods().size()) //
@@ -229,7 +221,7 @@ public record SimulationResult(//
 					limit -> log(b, "%7d ", limit), //
 					() -> log(b, "%7s ", "-"));
 			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
-				log(b, "%5.0f ", wp.price());
+				log(b, "%5.0f ", wp.price().actual());
 			} else {
 				log(b, "     -");
 			}

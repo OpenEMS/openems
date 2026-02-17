@@ -2,7 +2,7 @@ package io.openems.edge.energy.api.simulation;
 
 import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
 import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.calculatePeriodDurationHourFromIndex;
+import static io.openems.edge.energy.api.simulation.GocUtils.calculatePeriodDurationHourFromIndex;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
@@ -92,8 +92,8 @@ public class GlobalOptimizationContextTest {
 		assertEquals(28, goc.periods().size());
 		var p0 = (Period.Quarter.Complete) goc.periods().get(0);
 		assertEquals(1500 /* Wh */, p0.gridBuySoftLimit().intValue());
-		assertEquals(2000 /* Wh */, p0.production());
-		assertEquals(1000 /* Wh */, p0.consumption());
+		assertEquals(2000 /* Wh */, p0.prediction().production());
+		assertEquals(1000 /* Wh */, p0.prediction().consumptionPredicted());
 	}
 
 	@Test

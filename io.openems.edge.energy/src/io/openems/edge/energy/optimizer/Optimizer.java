@@ -269,7 +269,7 @@ public class Optimizer {
 						e -> {
 							var p = e.getValue();
 							var price = switch (p.period()) {
-							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price().actual();
 							default -> null;
 							};
 							return new OneMode.Period.Transition(p.period().duration(), price, p.energyFlow());

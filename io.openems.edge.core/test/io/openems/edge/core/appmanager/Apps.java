@@ -1255,7 +1255,7 @@ public final class Apps {
 	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
 		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
 	}
-	
+
 	/**
 	 * Test method for creating a {@link AppPredictionDefault}.
 	 * 

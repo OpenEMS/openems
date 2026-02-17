@@ -21,8 +21,10 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.RiskLevel;
-import io.openems.edge.energy.api.handler.DifferentModes.Period;
+import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Price;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -68,7 +70,7 @@ public final class Utils {
 	 * @return {@link ApplyMode}
 	 */
 	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer gridSoftLimit,
-			Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
+			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (period == null || gridActivePower == null || essActivePower == null) {
@@ -212,13 +214,13 @@ public final class Utils {
 		// Uses the total excess consumption as reference
 		add(refs, goc.streamPeriodsWithPrediction() //
 				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.consumption() - p.production())) //
+				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
 				.sum());
 
 		add(refs, goc.streamPeriodsWithPrediction() //
-				.takeWhile(p -> p.consumption() >= p.production()) // take only first Periods
+				.takeWhile(p -> p.prediction().excessConsumption() >= 0) // take only first Periods
 				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.consumption() - p.production())) //
+				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
 				.sum());
 
 		// Uses the excess consumption during high price periods as reference
@@ -226,7 +228,8 @@ public final class Utils {
 			var ps = goc.streamCompletePeriods() //
 					.toList();
 			var prices = ps.stream() //
-					.mapToDouble(GlobalOptimizationContext.Period.Complete::price) //
+					.map(Period.Complete::price) //
+					.mapToDouble(Price::actual) //
 					.toArray();
 			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
 			var firstPrices = stream(prices) //
@@ -236,9 +239,9 @@ public final class Utils {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
 				add(refs, ps.stream() //
 						.limit(peakIndex) //
-						.filter(p -> p.price() >= percentilePrice) // takes only prices > percentile
+						.filter(p -> p.price().actual() >= percentilePrice) // takes only prices > percentile
 						// excess Consumption Power per Period
-						.mapToInt(p -> p.duration().convertEnergyToPower(p.consumption() - p.production())) //
+						.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
 						.sum());
 			}
 		}
@@ -269,16 +272,16 @@ public final class Utils {
 	protected static int calculateMaxSocForRiskLvel(RiskLevel riskLevel) {
 		return switch (riskLevel) {
 		case HIGH -> 100;
-		case MEDIUM -> 98;
-		case LOW -> 96;
+		case MEDIUM -> 99;
+		case LOW -> 98;
 		};
 	}
 
 	protected static int calculateMinSocForRiskLvel(RiskLevel riskLevel) {
 		return switch (riskLevel) {
 		case HIGH -> 0;
-		case MEDIUM -> 2;
-		case LOW -> 4;
+		case MEDIUM -> 1;
+		case LOW -> 2;
 		};
 	}
 }
