@@ -111,12 +111,27 @@ export class UpdateAppComponent implements OnInit {
                         payload: new GetAppAssistant.Request({ appId: appId }),
                     })).then(getAppAssistantResponse => {
                     const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
-                    if (this.edge == null || componentId == null) {
+                    const EV_ID_KEY = "electricVehicle.id";
+
+                    if (this.isAppCenter == true) {
+                        this.setInstance(appAssistant, null, recInstances, null);
                         return;
                     }
-                    const component = this.edge.getCurrentConfig()?.getComponent(componentId);
 
-                    if (this.isAppCenter == true || component == null) {
+                    if (this.edge == null || componentId == null) {
+                        this.setInstance(appAssistant, null, recInstances, null);
+                        return;
+                    }
+
+                    const component = this.edge.getCurrentConfig()?.getComponentSafely(componentId);
+
+                    if (component == null) {
+                        this.setInstance(appAssistant, componentId, recInstances, null);
+                        return;
+                    }
+
+                    const electricVehicleId = component.getPropertyFromComponent<string>(EV_ID_KEY);
+                    if (electricVehicleId == null) {
                         this.setInstance(appAssistant, componentId, recInstances, null);
                         return;
                     }
@@ -128,7 +143,7 @@ export class UpdateAppComponent implements OnInit {
                                 filter: {
                                     component: {
                                         componentId: [
-                                            component.getPropertyFromComponent("electricVehicle.id") ?? "",
+                                            electricVehicleId,
                                         ],
                                     },
                                 },
@@ -290,12 +305,17 @@ export class UpdateAppComponent implements OnInit {
             });
     }
 
-    private setInstance(appAssistant: GetAppAssistant.AppAssistant, componentId: any, recInstances: GetAppInstances.AppInstance[], queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null) {
+    private setInstance(appAssistant: GetAppAssistant.AppAssistant, componentId: string | null, recInstances: GetAppInstances.AppInstance[], queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null) {
         this.appName = appAssistant.name;
         this.instances = [];
 
         const first = queryedAppInstance?.[0];
         const instanceId = first?.instanceId ?? first?.["instanceId"];
+
+        if (this.isAppCenter == true) {
+            this.buildUiInstances(recInstances, appAssistant);
+            return;
+        }
 
         if (instanceId == null) {
             this.service.toast(this.translateService.instant("EDGE.INDEX.WIDGETS.EVSE.VEHICLE_ID_ERROR"), "warning");
