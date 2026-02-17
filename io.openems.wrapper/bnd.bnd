@@ -37,6 +37,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.auth0:auth0;version='3.2.0',\
 	com.auth0:java-jwt;version='4.5.0',\
 	com.auth0:jwks-rsa;version='0.23.0',\
+	org.jfree:jfreechart;version='1.5.6',\
 	org.tribuo:tribuo-common-tree;version='4.3.2',\
 	org.tribuo:tribuo-core;version='4.3.2',\
 	org.tribuo:tribuo-data;version='4.3.2',\
