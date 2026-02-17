@@ -70,9 +70,9 @@ public final class AppUtils {
 			throws IllegalArgumentException, OpenemsNamedException, IOException {
 		final var goc = globalOptimizationContextSerializer().deserialize(json);
 		switch (plotSettings) {
-		case DISABLE, SIMULATION_RESULT_ALL -> doNothing();
-		case GLOBAL_OPTIMIZATION_CONTEXT_ALL -> {
-			plotGlobalOptimizationContext(plotSettings, goc);
+		case DISABLE, SIMULATION_RESULT -> doNothing();
+		case GLOBAL_OPTIMIZATION_CONTEXT -> {
+			plotGlobalOptimizationContext(goc);
 			return;
 		}
 		}

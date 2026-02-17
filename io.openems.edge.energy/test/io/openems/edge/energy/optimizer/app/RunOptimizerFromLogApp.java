@@ -22,7 +22,7 @@ public class RunOptimizerFromLogApp {
 
 	private static final long EXECUTION_LIMIT_SECONDS = 30;
 
-	private static final PlotSettings PLOT_SETTINGS = PlotSettings.GLOBAL_OPTIMIZATION_CONTEXT_ALL;
+	private static final PlotSettings PLOT_SETTINGS = PlotSettings.GLOBAL_OPTIMIZATION_CONTEXT;
 
 	/** Insert the full log lines including GlobalOptimizationContext header. */
 	private static final String LOG = """

@@ -2,9 +2,6 @@ package io.openems.edge.energy.optimizer.app;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.HashMap;
@@ -31,10 +28,6 @@ import org.jfree.data.xy.XYBarDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import io.openems.edge.common.test.Plot;
-import io.openems.edge.common.test.Plot.AxisFormat;
-import io.openems.edge.common.test.Plot.Data;
-import io.openems.edge.common.test.Plot.Line;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
@@ -47,13 +40,9 @@ public class PlotUtils {
 
 	public enum PlotSettings {
 		DISABLE, //
-		GLOBAL_OPTIMIZATION_CONTEXT_ALL, //
-		SIMULATION_RESULT_ALL;
+		GLOBAL_OPTIMIZATION_CONTEXT, //
+		SIMULATION_RESULT, //
 	}
-
-	private static final String AXIS_POWER = "W";
-	private static final String AXIS_PERCENTAGE = "%";
-	private static final String AXIS_MONEY = "€";
 
 	private static final Color COLOR_ESS_CHARGE = new Color(14, 190, 84);
 	private static final Color COLOR_ESS_DISCHARGE = new Color(255, 98, 63);
@@ -70,57 +59,62 @@ public class PlotUtils {
 			"PEAK_SHAVING", new Color(218, 120, 8), //
 			"DELAY_DISCHARGE", new Color(0, 0, 0));
 
-	protected static void plotGlobalOptimizationContext(PlotSettings plotSettings, GlobalOptimizationContext goc)
-			throws IOException {
-		switch (plotSettings) {
-		case GLOBAL_OPTIMIZATION_CONTEXT_ALL:
-			break;
-		default:
-			break;
-		}
+	protected static void plotGlobalOptimizationContext(GlobalOptimizationContext goc) {
+		final var domainAxis = new DateAxis("Time");
+		domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 
-		final var periods = goc.periods().stream().toArray(GlobalOptimizationContext.Period[]::new);
-		final var plot = initializePlot(periods.length);
+		final var consumptionSeries = new XYSeries("Consumption");
+		final var consumptionAdjustedSeries = new XYSeries("Consumption (adjusted)");
+		final var priceSeries = new XYSeries("Price");
+		final var priceNormalizedSeries = new XYSeries("Price (normalized)");
 
-		Data consumptionPredicted = Plot.data();
-		Data consumptionRiskAdjusted = Plot.data();
-		Data gridCostActual = Plot.data();
-		Data gridCostNormalized = Plot.data();
-
-		for (var i = 0; i < periods.length; i++) {
-			final var p = periods[i];
+		for (var p : goc.periods().stream().toList()) {
+			final long t = p.time().toInstant().toEpochMilli();
 			final IntFunction<Integer> toPower = p.duration()::convertEnergyToPower;
 
 			if (p instanceof Period.WithPrediction wp) {
-				var pp = wp.prediction();
-				consumptionPredicted.xy(i, toPower.apply(pp.consumptionPredicted()));
-				consumptionRiskAdjusted.xy(i, toPower.apply(pp.consumptionRiskAdjusted()));
+				consumptionSeries.add(t, toPower.apply(wp.prediction().consumptionPredicted()));
+				consumptionAdjustedSeries.add(t, toPower.apply(wp.prediction().consumptionRiskAdjusted()));
 			}
 			if (p instanceof Period.WithPrice wp) {
-				var pp = wp.price();
-				gridCostActual.xy(i, pp.actual());
-				gridCostNormalized.xy(i, pp.normalized() * 100);
+				priceSeries.add(t, wp.price().actual() / 10.);
+				priceNormalizedSeries.add(t, wp.price().normalized());
 			}
 		}
 
-		plot //
-				.series("Cons Predicted", consumptionPredicted, Plot.seriesOpts() //
-						.yAxis(AXIS_POWER) //
-						.color(new Color(255, 206, 0))) //
-				.series("Cons Adjusted", consumptionRiskAdjusted, Plot.seriesOpts() //
-						.yAxis(AXIS_POWER) //
-						.color(new Color(255, 206, 200))) //
-				.series("Cost Actual", gridCostActual, Plot.seriesOpts() //
-						.yAxis(AXIS_MONEY) //
-						.line(Line.DASHED) //
-						.lineDash(new float[] { 1.0f, 10.0f }) //
-						.color(Color.BLACK)) //
-				.series("Cost Normalized", gridCostNormalized, Plot.seriesOpts() //
-						.yAxis(AXIS_PERCENTAGE) //
-						.line(Line.SOLID) //
-						.color(Color.GRAY));
+		final var axisPower = new NumberAxis("Power [W]");
+		final var powerMinMax = getGlobalMinMax(consumptionSeries, consumptionAdjustedSeries);
+		axisPower.setRange(powerMinMax.min(), powerMinMax.max() * 1.05);
 
-		saveAndOpenFile(plot, "GlobalOptimizationContext");
+		final var axisPrice = new NumberAxis("Price [ct/kWh]");
+
+		final var axisPriceNormalized = new NumberAxis("Price (normalized)");
+		axisPriceNormalized.setRange(0., 1.05);
+
+		final var subplots = List.of(
+				// Consumption Plot
+				new XyPlotBuilder()//
+						.addDataset(axisPower, ds -> {
+							ds.addSeries(consumptionSeries, COLOR_CONS);
+							ds.addSeries(consumptionAdjustedSeries, COLOR_CONS, true);
+						})//
+						.build(), //
+
+				// Price Plot
+				new XyPlotBuilder()//
+						.addDataset(axisPrice, ds -> {
+							ds.addSeries(priceSeries, COLOR_PRICE);
+						}, true)//
+						.addDataset(axisPriceNormalized, ds -> {
+							ds.addSeries(priceNormalizedSeries, COLOR_PRICE, true);
+						}, true)//
+						.build());
+
+		final var combinedPlot = combine(domainAxis, subplots);
+
+		final var chart = new JFreeChart("GlobalOptimizationContext", JFreeChart.DEFAULT_TITLE_FONT, combinedPlot,
+				true);
+		showChartInJFrame(new ChartPanel(chart), "GlobalOptimizationContext");
 	}
 
 	protected static void plotSimulationResult(GlobalOptimizationContext goc, SimulationResult sr) {
@@ -220,26 +214,6 @@ public class PlotUtils {
 
 		final var chart = new JFreeChart("Simulation Result", JFreeChart.DEFAULT_TITLE_FONT, combinedPlot, true);
 		showChartInJFrame(new ChartPanel(chart), "Simulation Result");
-	}
-
-	private static Plot initializePlot(int length) {
-		return Plot.plot(//
-				Plot.plotOpts() //
-						.legend(Plot.LegendFormat.BOTTOM) //
-						.gridColor(Color.WHITE)) //
-				.xAxis("t", Plot.axisOpts() //
-						.format(AxisFormat.NUMBER_INT) //
-						.range(0, length - 1)) //
-				.yAxis(AXIS_POWER, Plot.axisOpts() //
-						.format(AxisFormat.NUMBER_INT)) //
-				.yAxis(AXIS_MONEY, Plot.axisOpts()) //
-				.yAxis(AXIS_PERCENTAGE, Plot.axisOpts() //
-						.range(0, 100));
-	}
-
-	private static void saveAndOpenFile(Plot plot, String filename) throws IOException {
-		plot.save(filename, "png");
-		Desktop.getDesktop().open(new File(filename + ".png"));
 	}
 
 	private static class XyPlotBuilder {

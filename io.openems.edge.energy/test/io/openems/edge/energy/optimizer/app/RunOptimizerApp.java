@@ -30,7 +30,7 @@ public class RunOptimizerApp {
 	// TODO log when only one-mode ctrls
 	private static final long EXECUTION_LIMIT_SECONDS = 10;
 
-	private static final PlotSettings PLOT_SETTINGS = PlotSettings.SIMULATION_RESULT_ALL;
+	private static final PlotSettings PLOT_SETTINGS = PlotSettings.SIMULATION_RESULT;
 
 	private static final JsonObject JSON = buildJsonObject() //
 			.addProperty("zone", "Europe/Berlin") //
