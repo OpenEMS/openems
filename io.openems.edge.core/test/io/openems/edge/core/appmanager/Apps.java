@@ -31,6 +31,7 @@ import io.openems.edge.app.api.MqttApi;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
 import io.openems.edge.app.ess.Limiter14a;
@@ -1273,6 +1274,16 @@ public final class Apps {
 	 */
 	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
 		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle appSohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
 	}
 
 	/**
