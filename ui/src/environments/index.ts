@@ -85,6 +85,7 @@ export interface Environment {
             readonly COMMON_GRID: string | null,
             readonly COMMON_PRODUCTION: string | null,
             readonly COMMON_SELFCONSUMPTION: string | null,
+            readonly OFFLINE_INSTRUCTIONS: string | null,
 
             readonly EVCS_KEBA: string | null,
             readonly EVCS_HARDY_BARTH: string | null,
