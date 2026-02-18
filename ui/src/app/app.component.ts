@@ -2,6 +2,7 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
 import { Subject, Subscription } from "rxjs";
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
         public service: Service,
         public toastController: ToastController,
         public websocket: Websocket,
+        private globalRouteChangeHandler: GlobalRouteChangeHandler,
         private meta: Meta,
         private appService: PlatFormService,
         private title: Title,

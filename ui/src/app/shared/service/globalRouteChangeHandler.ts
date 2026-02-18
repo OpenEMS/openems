@@ -25,7 +25,7 @@ export class GlobalRouteChangeHandler {
                 let route = event["state"].root;
 
                 while (route) {
-                    data = route.data || data;
+                    data = (route.data && Object.keys(route.data).length > 0) ? route.data : data;
                     route = route.firstChild;
                 }
 
