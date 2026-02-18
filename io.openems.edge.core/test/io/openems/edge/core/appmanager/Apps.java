@@ -16,6 +16,8 @@ import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
 import io.openems.edge.app.TestComponentDefConfig;
 import io.openems.edge.app.TestFilter;
+import io.openems.edge.app.TestForceUpdatingConfigComponent;
+import io.openems.edge.app.TestForceUpdatingConfigProperties;
 import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.TestPermissions;
@@ -66,10 +68,12 @@ import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
+import io.openems.edge.app.integratedsystem.SystemFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome20;
 import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial100;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial50Gen3;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
 import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
@@ -89,6 +93,7 @@ import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
+import io.openems.edge.app.meter.shelly.AppShellyMeter;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
 import io.openems.edge.app.openemshardware.TechbaseCm3;
@@ -99,6 +104,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
+import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -227,6 +233,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link FeneconCommercial100}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial100 feneconCommercial100(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial100::new, "App.FENECON.Commercial.100");
+	}
+
+	/**
 	 * Test method for creating a {@link FeneconCommercial92ClusterMaster}.
 	 *
 	 * @param t the {@link AppManagerTestBundle}
@@ -300,7 +316,7 @@ public final class Apps {
 
 	/**
 	 * Test method for creating a {@link AncillaryCosts}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
@@ -510,7 +526,7 @@ public final class Apps {
 
 	/**
 	 * Test method for creating a {@link TestFilter}.
-	 * 
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
@@ -538,7 +554,25 @@ public final class Apps {
 		return app(t, TestComponentDefConfig::new, "App.Test.TestComponentDefConfig");
 	}
 
-	// Test
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigComponent}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestForceUpdatingConfigComponent testForceUpdatingConfigComponent(AppManagerTestBundle t) {
+		return app(t, TestForceUpdatingConfigComponent::new, "App.Test.TestForceUpdatingConfigComponent");
+	}
+
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigProperties}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestForceUpdatingConfigProperties testForceUpdatingConfigProperties(AppManagerTestBundle t) {
+		return app(t, TestForceUpdatingConfigProperties::new, "App.Test.TestForceUpdatingConfigProperties");
+	}
 
 	/**
 	 * Test method for creating a {@link TestADependencyToC}.
@@ -931,6 +965,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link SystemFeneconHome}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SystemFeneconHome stateLed(AppManagerTestBundle t) {
+		return app(t, SystemFeneconHome::new, "App.System.Fenecon.Home");
+	}
+
+	/**
 	 * Test method for creating a {@link SelfConsumptionOptimization}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -965,6 +1009,16 @@ public final class Apps {
 	// Meter
 
 	/**
+	 * Test method for creating a {@link AppShellyMeter}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppShellyMeter shellyMeter(AppManagerTestBundle t) {
+		return app(t, AppShellyMeter::new, "App.Meter.Shelly");
+	}
+
+	/**
 	 * Test method for creating a {@link SocomecMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -985,7 +1039,7 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link DiscoveregyMeter}.
+	 * Test method for creating a {@link DiscovergyMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
@@ -1201,6 +1255,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppPredictionUnmanagedConsumption}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
+		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
 	 * Gets the minimum configuration of an app for easily creating instances in
 	 * tests.
 	 * 
@@ -1255,6 +1319,12 @@ public final class Apps {
 				t.componentUtil, t.meta);
 	}
 
+	private static final <T> T app(AppManagerTestBundle t,
+			DefaultAppConstructorWithHostAndMetaAndAppUtil<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil, t.host, t.meta);
+	}
+
 	private static interface DefaultAppConstructor<A> {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
@@ -1292,6 +1362,13 @@ public final class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, Host host, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHostAndMetaAndAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host, Meta meta);
 
 	}
 

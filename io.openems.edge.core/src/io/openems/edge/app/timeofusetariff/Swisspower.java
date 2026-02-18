@@ -89,13 +89,13 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 											return null;
 										}
 										return new JsonPrimitive("xxx");
-									}) //
+									})//
 									.orElse(null);
 						}))),
 		METERING_CODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".meteringCode.label") //
-				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description") //
-				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".meteringCode.label")//
+				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description")//
+				.setRequired(true)//
 				.setField(JsonFormlyUtil::buildInput))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 		;

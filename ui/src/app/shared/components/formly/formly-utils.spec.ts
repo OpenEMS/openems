@@ -7,30 +7,29 @@ describe("formly-utils.ts", () => {
         const control = new FormControl("", Validators.required);
         control.markAsTouched(); // Control is now invalid and touched
 
-        const style = FormlyUtils.getBorderBottomColor(control, false);
+        const style = FormlyUtils.getControlStyle(control, false, "border-bottom-color");
 
-        expect(style["border-bottom-color"]).toBe("var(--highlight-color-invalid)");
+        expect(style["border-bottom-color"]).toBe("var(--ion-color-danger)");
     });
 
     it("should return the VALID color when the control is valid", () => {
         const control = new FormControl("some-value", Validators.required);
         control.markAsTouched();
 
-        const style = FormlyUtils.getBorderBottomColor(control, false);
-
-        expect(style["border-bottom-color"]).toBe("var(--highlight-color-valid)");
+        const style = FormlyUtils.getControlStyle(control, false, "border-bottom-color");
+        expect(style["border-bottom-color"]).toBe("var(--ion-color-success)");
     });
 
     it("should return the FOCUSED color when the control is focused but not invalid/touched or valid", () => {
         const control = new FormControl("", Validators.required); // Pristine and untouched
-        const style = FormlyUtils.getBorderBottomColor(control, true);
+        const style = FormlyUtils.getControlStyle(control, true, "border-bottom-color");
 
-        expect(style["border-bottom-color"]).toBe("var(--highlight-color-focused)");
+        expect(style["border-bottom-color"]).toBe("var(--ion-color-primary)");
     });
 
     it("should return the DEFAULT color for a pristine, untouched, and unfocused control", () => {
         const control = new FormControl("", Validators.required); // Pristine and untouched
-        const style = FormlyUtils.getBorderBottomColor(control, false);
+        const style = FormlyUtils.getControlStyle(control, false, "border-bottom-color");
 
         expect(style["border-bottom-color"]).toBe("var(--ion-color-dark)");
     });
@@ -39,8 +38,7 @@ describe("formly-utils.ts", () => {
         const control = new FormControl("", Validators.required);
         control.markAsTouched(); // Invalid and touched
 
-        const style = FormlyUtils.getBorderBottomColor(control, true);
-
-        expect(style["border-bottom-color"]).toBe("var(--highlight-color-invalid)");
+        const style = FormlyUtils.getControlStyle(control, true, "border-bottom-color");
+        expect(style["border-bottom-color"]).toBe("var(--ion-color-danger)");
     });
 });

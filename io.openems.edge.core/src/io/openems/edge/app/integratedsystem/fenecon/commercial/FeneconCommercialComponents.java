@@ -21,12 +21,14 @@ public final class FeneconCommercialComponents {
 	 * @param bundle            the translation bundle
 	 * @param batteryInverterId the id of the battery inverter
 	 * @param modbusId          the id of the modbus bridge
+	 * @param gridCode          the gridCode
 	 * @return the {@link Component}
 	 */
 	public static EdgeConfig.Component batteryInverter(//
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
-			final String modbusId //
+			final String modbusId, //
+			final String gridCode //
 	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				translate(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
@@ -35,6 +37,7 @@ public final class FeneconCommercialComponents {
 						.addProperty("enabled", true) //
 						.addProperty("modbus.id", modbusId) //
 						.addProperty("startStop", "AUTO") //
+						.addProperty("gridCode", gridCode) //
 						.build());
 	}
 

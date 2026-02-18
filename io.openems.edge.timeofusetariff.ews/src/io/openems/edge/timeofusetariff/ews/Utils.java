@@ -7,6 +7,7 @@ import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.ews.TimeOfUseTariffEwsImpl.CLIENT_ERROR_CODE;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
@@ -25,30 +26,30 @@ public class Utils {
 	private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
 	private static final int RETRY_AFTER_UNABLE_TO_UPDATE_PRICES_MINUTES = 5;
-	
+
 	private Utils() {
 	}
-	
+
 	protected static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		extractPricesFromDay(result, getAsJsonArray(parseToJsonObject(jsonData), "today"));
 		extractPricesFromDay(result, getAsJsonArray(parseToJsonObject(jsonData), "tomorrow"));
 		return TimeOfUsePrices.from(result.build());
 	}
 
-	private static void extractPricesFromDay(Builder<ZonedDateTime, Double> result, JsonArray data)
+	private static void extractPricesFromDay(Builder<Instant, Double> result, JsonArray data)
 			throws OpenemsNamedException {
 		for (var element : data) {
 			// Cent/kWh -> Currency/MWh
 			// Example: 12 Cent/kWh => 0.12 EUR/kWh * 1000 kWh/MWh = 120 EUR/MWh.
 			var marketPrice = getAsDouble(element, "total") * 10;
-			ZonedDateTime startTimeStamp = getAsZonedDateTime(element, "startsAt");
+			var startTimeStamp = getAsZonedDateTime(element, "startsAt").toInstant();
 			result.put(startTimeStamp, marketPrice);
 		}
 	}
-	
+
 	protected static long calculateDelay(int httpStatusCode, boolean unableToUpdatePrices) {
-		
+
 		final var now = ZonedDateTime.now();
 		final ZonedDateTime nextRun;
 

@@ -7,6 +7,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { FormlyLinkComponent } from "./formly/formly-link";
 import { FormlyTextComponent } from "./formly/formly-text";
 import { FormlyInputWithUnitComponent } from "./formly/input-with-unit";
+import { FormlyLazySelectComponent } from "./formly/lazy-option-select/formly-lazy-select.component";
 import { FormlyOptionGroupPickerComponent } from "./formly/option-group-picker/formly-option-group-picker.component";
 import { FormlyReorderArrayComponent } from "./formly/reorder-select/formly-reorder-array.component";
 import { FormlySafeInputModalComponent } from "./formly/safe-input/formly-safe-input-modal.component";
@@ -43,6 +44,7 @@ export function registerTranslateExtension(translate: TranslateService) {
                 { name: "link", component: FormlyLinkComponent },
                 { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent },
                 { name: "reorder-array", component: FormlyReorderArrayComponent },
+                { name: "lazy-select", component: FormlyLazySelectComponent },
             ],
             validators: [
                 { name: "key", validation: KeyValidator },
@@ -65,7 +67,7 @@ export function registerTranslateExtension(translate: TranslateService) {
     exports: [
     ],
     providers: [
-    // Use factory for formly. This allows us to use translations in validationMessages.
+        // Use factory for formly. This allows us to use translations in validationMessages.
         { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     ],
 })

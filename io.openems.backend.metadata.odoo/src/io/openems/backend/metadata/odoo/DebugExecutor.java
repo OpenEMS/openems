@@ -18,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.DebugMode;
@@ -97,7 +98,7 @@ public class DebugExecutor implements ExecutorService {
 		this.activeTasks.computeIfAbsent(id, ATOMIC_INTEGER_PROVIDER).incrementAndGet();
 		this.taskCounter.computeIfAbsent(id, ATOMIC_INTEGER_PROVIDER).incrementAndGet();
 		return CompletableFuture.supplyAsync(() -> {
-			try {
+			try (var timer = PrometheusMetrics.WEBSOCKET_REQUEST.labelValues(MetadataOdoo.ID, id).startTimer()) {
 				return command.get();
 			} catch (Exception e) {
 				throw new CompletionException(e);

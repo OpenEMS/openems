@@ -1,8 +1,10 @@
-@for(child of children; track $index){
-<ion-chip tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);"
-    style="background: var(--ion-background-color-card-header);">
-    <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'"
+@if(isVisible){
+  @for(child of children; track child){
+    <ion-chip tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);"
+      style="background: var(--ion-background-color-card-header);">
+      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'"
         [size]="child.icon?.size ?? 'small'"></ion-icon>
-    <ion-label>{{child.label}}</ion-label>
-</ion-chip>
+      <ion-label>{{child.label}}</ion-label>
+    </ion-chip>
+  }
 }

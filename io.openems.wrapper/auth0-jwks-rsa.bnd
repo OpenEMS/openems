@@ -1,0 +1,20 @@
+Bundle-Name: auth0 jwks-rsa
+Bundle-Description: 
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 0.23.0
+
+Include-Resource: \
+	@jwks-rsa-0.23.0.jar,\
+
+Export-Package: \
+	com.auth0.jwk,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

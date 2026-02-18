@@ -23,15 +23,21 @@ updates:
       guava:
         patterns:
           - "com.google.guava:*"
-      retrofit2:
-        patterns:
-          - "com.squareup.retrofit2:*"
       prometheus:
         patterns:
           - "io.prometheus:*"
       squareup:
         patterns:
           - "com.squareup.*:*"
+      tribuo:
+        patterns:
+          - "org.tribuo:*"
+      olcut:
+        patterns:
+          - "com.oracle.labs.olcut:*"
+      auth0:
+        patterns:
+          - "com.auth0:*"
 
   - package-ecosystem: npm
     directory: "/ui"

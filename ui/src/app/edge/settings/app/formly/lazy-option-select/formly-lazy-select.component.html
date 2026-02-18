@@ -1,0 +1,11 @@
+<ion-item (click)="onClick()" button>
+  <ion-label slot="start">
+    {{props.label}}
+  </ion-label>
+  <ion-label slot="end">
+    {{displayValue()}}
+    <ion-icon class="select-icon" style="color: var(--ion-color-primary)"
+      [name]="selectionOpen() ? 'caret-up-sharp' : 'caret-down-sharp'">
+    </ion-icon>
+  </ion-label>
+</ion-item>

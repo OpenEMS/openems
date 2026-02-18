@@ -23,6 +23,10 @@ import { FormlySelectOptionsWithImageModalComponent } from "./formly-select-with
             --max-width: 100%;
         }
 
+        ion-select{
+            color: inherit !important;
+        }
+
         ion-select::part(label) {
             white-space:  pre-wrap !important;
             font-size: initial !important;
@@ -32,8 +36,8 @@ import { FormlySelectOptionsWithImageModalComponent } from "./formly-select-with
             margin-inline-end: 0 !important;
         }
 
-        .custom-ion-alert .alert-checkbox-label {
-                color: var(--ion-text-color) !important;
+        .custom-ion-alert {
+                color: var(--ion-color-text) !important;
         }
 
         .custom-select-item {

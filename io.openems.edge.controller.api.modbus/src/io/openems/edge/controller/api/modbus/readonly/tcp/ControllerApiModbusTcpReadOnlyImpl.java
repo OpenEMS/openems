@@ -1,5 +1,9 @@
 package io.openems.edge.controller.api.modbus.readonly.tcp;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -8,9 +12,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.ModbusException;
@@ -25,7 +26,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.modbus.AbstractModbusTcpApi;
+import io.openems.edge.controller.api.modbus.AbstractModbusApi;
+import io.openems.edge.controller.api.modbus.CommonConfig;
 import io.openems.edge.controller.api.modbus.ModbusApi;
 
 @Designate(ocd = Config.class, factory = true)
@@ -34,7 +36,7 @@ import io.openems.edge.controller.api.modbus.ModbusApi;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
+public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusApi
 		implements ControllerApiModbusTcpReadOnly, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	@Reference
@@ -46,10 +48,10 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 	@Reference
 	private ComponentManager componentManager;
 
-	private TcpConfig config;
+	private CommonConfig.Tcp config;
 
 	@Override
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
 	protected void addComponent(OpenemsComponent component) {
 		super.addComponent(component);
 	}
@@ -60,7 +62,7 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 	}
 
 	public ControllerApiModbusTcpReadOnlyImpl() {
-		super("Modbus/TCP-Api Read-Only", //
+		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ModbusApi.ChannelId.values(), //
@@ -70,15 +72,13 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
-		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Tcp.from(config, this.metaComponent);
 		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		this.config = new TcpConfig(config.id(), config.alias(), config.enabled(), this.metaComponent,
-				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
+		this.config = CommonConfig.Tcp.from(config, this.metaComponent);
 		super.modified(context, this.cm, this.config, this.componentManager.getClock());
 	}
 
@@ -95,6 +95,11 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusTcpApi
 
 	@Override
 	protected ModbusSlave createSlave() throws ModbusException {
-		return ModbusSlaveFactory.createTCPSlave(this.config.getPort(), this.config.maxConcurrentConnections());
+		return ModbusSlaveFactory.createTCPSlave(//
+				/* listen address */ null, //
+				/* port */ this.config.port(), //
+				/* poolSize */ this.config.maxConcurrentConnections(), //
+				/* useRtuOverTcp */ false, //
+				/* maxIdleSeconds */ MAX_IDLE_SECONDS);
 	}
 }

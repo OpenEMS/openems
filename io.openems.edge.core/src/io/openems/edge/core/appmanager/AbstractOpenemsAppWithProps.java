@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
@@ -70,6 +71,28 @@ public abstract class AbstractOpenemsAppWithProps<//
 					StringUtils.toShortString(map.toString(), 100).replace("%", "%%"));
 		}
 		return def.getDefaultValue().get(this.getApp(), property, l, parameter.get());
+	}
+
+	protected <T> T getObjectOrNull(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final JsonSerializer<T> serializer //
+	) throws OpenemsNamedException {
+		final var value = this.getValueOrDefault(map, l, property, PROPERTY::def, true);
+		if (value == null) {
+			return null;
+		}
+		return serializer.deserialize(value);
+	}
+
+	protected <T> T getObject(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final JsonSerializer<T> serializer //
+	) throws OpenemsNamedException {
+		return serializer.deserialize(this.getValueOrDefault(map, l, property, PROPERTY::def, false));
 	}
 
 	protected String getString(//

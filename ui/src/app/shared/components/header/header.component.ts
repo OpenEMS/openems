@@ -7,10 +7,9 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
-import { Edge, Service, Websocket } from "../../shared";
+import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
-import { StatusSingleComponent } from "../status/single/status.component";
 
 @Component({
     selector: "header",
@@ -110,26 +109,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             return;
         }
 
-
-        // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
-        if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
-            return;
-        }
-
-        // set backUrl for user if no edge had been selected
-        if (url === "/user") {
-            this.backUrl = "/overview";
-            return;
-        }
-
-        if (url === "/changelog" && currentEdge != null) {
-            // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
-            return;
-        }
-
         const urlArray = url.split("/");
         let backUrl: string | boolean = "/";
         const file = urlArray.pop();
@@ -199,13 +178,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();
         }
-    }
-
-    async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
-        });
-        return await modal.present();
     }
 
     ngOnDestroy() {

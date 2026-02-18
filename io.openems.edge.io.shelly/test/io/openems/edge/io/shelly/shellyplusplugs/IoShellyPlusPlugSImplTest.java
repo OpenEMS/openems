@@ -5,15 +5,16 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -72,8 +73,65 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
-						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+
+				.next(new TestCase("Stable update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										      "beta": {
+										        "version": "1.7.4-beta1"
+										      },
+										      "stable": {
+										        "version": "1.7.1"
+										      }
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, true)) //
+
+				.next(new TestCase("No stable update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										      "beta": {
+										        "version": "1.7.4-beta1"
+										      }
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+
+				.next(new TestCase("No update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
@@ -96,8 +154,8 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
-						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
-						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				// Test case for writing to relay
 				.next(new TestCase("Write") //
@@ -169,7 +227,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPlusPlugs.ChannelId.RELAY, null) //
-						.output(IoShellyPlusPlugs.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
+						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }

@@ -29,7 +29,7 @@ public class PvInverterKostalPikoImplTest {
 			</tr>
 			<tr>
 			<td width="100">Tagesenergie</td>
-			<td width="70" align="left">42</td>
+			<td width="70" align="left">42.24</td>
 			<td>&nbsp; kWh</td>
 			</tr>
 			<tr>
@@ -106,9 +106,6 @@ public class PvInverterKostalPikoImplTest {
 		final var httpTestBundle = new DummyBridgeHttpBundle();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
-		// Pre-set the response for the initial request
-		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(SAMPLE_HTML));
-
 		new ComponentTest(new PvInverterKostalPikoImpl()) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("httpBridgeCycleServiceDefinition",
@@ -122,12 +119,12 @@ public class PvInverterKostalPikoImplTest {
 						.setPassword("pvwr") //
 						.build()) //
 				.next(new TestCase() //
-						.onBeforeProcessImage(
-								() -> httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(SAMPLE_HTML))) //
-						.onExecuteWriteCallbacks(() -> dummyCycleSubscriber.triggerNextCycle()) //
-				) //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(SAMPLE_HTML));
+							dummyCycleSubscriber.triggerNextCycle();
+						})) //
 				.next(new TestCase() //
-						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42L) //
+						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, 42240L) //
 						.output(PvInverterKostalPiko.ChannelId.STATUS, "Einspeisen MPP") //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_VOLTAGE, 400) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_CURRENT, 2500) // 2.5A -> 2500mA
@@ -184,10 +181,10 @@ public class PvInverterKostalPikoImplTest {
 						.setPassword("pvwr") //
 						.build()) //
 				.next(new TestCase() //
-						.onBeforeProcessImage(
-								() -> httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(noDataHtml))) //
-						.onExecuteWriteCallbacks(() -> dummyCycleSubscriber.triggerNextCycle()) //
-				) //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(noDataHtml));
+							dummyCycleSubscriber.triggerNextCycle();
+						})) //
 				.next(new TestCase() //
 						.output(PvInverterKostalPiko.ChannelId.DAY_YIELD, null) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING1_VOLTAGE, 0) //

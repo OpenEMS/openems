@@ -10,6 +10,8 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { FlatComponent } from "./flat/flat";
+import { ChargeModeComponent } from "./pages/chargemode/chargemode";
+import { EvseEnergyLimitComponent } from "./pages/energy-limit/energy-limit";
 import { SchedulePowerChartComponent } from "./pages/forecast/chart/power.chart";
 import { ScheduleChartComponent } from "./pages/forecast/chart/schedule.chart";
 import { ModalComponent as EvseForecastPageComponent } from "./pages/forecast/forecast";
@@ -17,7 +19,11 @@ import { ChartComponent } from "./pages/history/chart/power.chart";
 import { ChartComponent as StatusChartComponent } from "./pages/history/chart/status.chart";
 import { ModalComponent as EvseHistoryPageComponent } from "./pages/history/history";
 import { ModalComponent } from "./pages/home";
-import { EvseSettingsComponent } from "./pages/settings/settings";
+import { EvsePhaseSwitchingComponent } from "./pages/phase-switching/phase-switching";
+import { AddTaskComponent } from "./pages/schedule/add/add-task.component";
+import { TaskFormComponent } from "./pages/schedule/form/task-form.component";
+import { ScheduleComponent } from "./pages/schedule/schedule.component";
+import { EditTaskComponent } from "./pages/schedule/task/edit-task.component";
 import { UpdateAppConfigComponent } from "./pages/update-app-config/update-app-config";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
@@ -37,13 +43,19 @@ import en from "./shared/i18n/en.json";
         FlatComponent,
         ModalComponent,
         EvseHistoryPageComponent,
+        ChargeModeComponent,
         EvseForecastPageComponent,
-        EvseSettingsComponent,
+        EvseEnergyLimitComponent,
+        EvsePhaseSwitchingComponent,
+        ScheduleComponent,
+        EditTaskComponent,
+        AddTaskComponent,
         ScheduleChartComponent,
         SchedulePowerChartComponent,
         ChartComponent,
         StatusChartComponent,
         UpdateAppConfigComponent,
+        TaskFormComponent,
     ],
     exports: [
         FlatComponent,

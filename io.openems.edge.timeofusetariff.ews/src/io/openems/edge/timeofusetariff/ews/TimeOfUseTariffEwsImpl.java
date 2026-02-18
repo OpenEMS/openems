@@ -4,7 +4,7 @@ import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.gen
 import static io.openems.edge.timeofusetariff.ews.Utils.calculateDelay;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +42,7 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 
 	private static final String EWS_API_URL = "https://api.ews-schoenau.de/v1/dynamicprices/EWS-OEKO-DYN";
 	protected static final int CLIENT_ERROR_CODE = 401;
-	
+
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffEwsImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
@@ -79,7 +79,7 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 		super.deactivate();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 	}
-	
+
 	protected final Runnable task = () -> {
 		/*
 		 * Update Map of prices
@@ -115,11 +115,11 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 			this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
 		}
 	};
-	
+
 	/**
 	 * Sets the values of specific channels based on the provided parameters.
 	 * 
-	 * @param httpStatusCode   The HTTP status code received from the API.
+	 * @param httpStatusCode The HTTP status code received from the API.
 	 */
 	private void setChannelValues(int httpStatusCode) {
 		var authenticationFailed = false;
@@ -139,7 +139,7 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 				serverError = true;
 				this.logWarn(this.log, "An unexpected error occurred on the server. Please try again later");
 			}
-			break; 
+			break;
 		}
 
 		this.channel(TimeOfUseTariffEws.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
@@ -150,9 +150,9 @@ public class TimeOfUseTariffEwsImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
-	
+
 	@Override
 	public String debugLog() {
 		return generateDebugLog(this, this.meta.getCurrency());

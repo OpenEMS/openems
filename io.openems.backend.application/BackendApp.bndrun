@@ -13,7 +13,7 @@
 	felix.cm.dir=c:/openems-backend/config,\
 	openems.data.dir=c:/openems-backend/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
+	org.ops4j.pax.logging.DefaultServiceLog.level=WARN
 
 -runsystempackages: \
 	sun.misc
@@ -28,7 +28,8 @@
 	org.apache.felix.fileinstall;startlevel=13,\
 	org.ops4j.pax.logging.pax-logging-api;startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=15,\
-	io.openems.backend.application;startlevel=16,\
+	io.openems.core.logger;startlevel=16,\
+	io.openems.backend.application;startlevel=17,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -44,11 +45,12 @@
 	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
+	bnd.identity;id='io.openems.backend.authentication.oauth2',\
 	bnd.identity;id='io.openems.backend.b2brest',\
 	bnd.identity;id='io.openems.backend.b2bwebsocket',\
 	bnd.identity;id='io.openems.backend.common',\
 	bnd.identity;id='io.openems.backend.core',\
-	bnd.identity;id='io.openems.backend.edgewebsocket',\
+	bnd.identity;id='io.openems.backend.edge.manager',\
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
@@ -60,25 +62,30 @@
 	bnd.identity;id='io.openems.backend.timedata.influx',\
 	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
+	bnd.identity;id='io.openems.core.logger',\
 
 -runbundles: \
-	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
+	com.fasterxml.jackson.core.jackson-annotations;version='[2.21.0,2.21.1)',\
+	com.fasterxml.jackson.core.jackson-core;version='[2.18.2,2.18.3)',\
+	com.fasterxml.jackson.core.jackson-databind;version='[2.18.2,2.18.3)',\
 	com.google.gson;version='[2.13.2,2.13.3)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.google.protobuf;version='[4.33.1,4.33.2)',\
-	com.squareup.okhttp3;version='[5.3.1,5.3.2)',\
-	com.squareup.okhttp3.logging;version='[5.3.1,5.3.2)',\
+	com.google.protobuf;version='[4.33.5,4.33.6)',\
+	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
+	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
 	com.squareup.okio;version='[3.16.4,3.16.5)',\
 	com.zaxxer.HikariCP;version='[7.0.2,7.0.3)',\
 	io.openems.backend.alerting;version=snapshot,\
-	io.openems.backend.application;version=snapshot,\
+	io.openems.backend.application;version=snapshot;startlevel=17,\
+	io.openems.backend.authentication.api;version=snapshot,\
+	io.openems.backend.authentication.oauth2;version=snapshot,\
 	io.openems.backend.b2brest;version=snapshot,\
 	io.openems.backend.b2bwebsocket;version=snapshot,\
 	io.openems.backend.common;version=snapshot,\
 	io.openems.backend.core;version=snapshot,\
-	io.openems.backend.edgewebsocket;version=snapshot,\
+	io.openems.backend.edge.manager;version=snapshot,\
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
@@ -92,9 +99,13 @@
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
+	io.openems.core.logger;version=snapshot;startlevel=16,\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.aXMLRPC;version=snapshot,\
+	io.openems.wrapper.auth0-java-jwt;version=snapshot,\
+	io.openems.wrapper.auth0-jwks-rsa;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.gson;version=snapshot,\
 	io.openems.wrapper.influxdb-client-core;version=snapshot,\
@@ -121,30 +132,30 @@
 	io.prometheus.metrics-tracer-otel;version='[1.3.8,1.3.9)',\
 	io.prometheus.metrics-tracer-otel-agent;version='[1.3.8,1.3.9)',\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
-	org.apache.commons.commons-codec;version='[1.17.1,1.17.2)',\
+	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\
 	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
-	org.apache.commons.commons-csv;version='[1.11.0,1.11.1)',\
+	org.apache.commons.commons-csv;version='[1.14.1,1.14.2)',\
 	org.apache.commons.commons-fileupload;version='[1.6.0,1.6.1)',\
-	org.apache.commons.commons-io;version='[2.19.0,2.19.1)',\
-	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
-	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
-	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty12;version='[1.1.4,1.1.5)',\
+	org.apache.commons.commons-io;version='[2.20.0,2.20.1)',\
+	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
+	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
+	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
+	org.apache.felix.http.jetty12;version='[1.1.6,1.1.7)',\
 	org.apache.felix.http.servlet-api;version='[6.1.0,6.1.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
+	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.2.21,2.2.22)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.2,2.3.3)';startlevel=14,\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.2,2.3.3)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.service.jdbc;version='[1.1.0,1.1.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	org.owasp.encoder;version='[1.4.0,1.4.1)',\
-	org.postgresql.jdbc;version='[42.7.8,42.7.9)',\
+	org.postgresql.jdbc;version='[42.7.10,42.7.11)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	stax2-api;version='[4.2.2,4.2.3)'

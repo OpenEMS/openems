@@ -112,6 +112,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					.thenByFactoryId("Controller.Evcs") //
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
 					.thenByFactoryId("Controller.TimeslotPeakshaving") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}
@@ -404,7 +405,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public void validate(//
 			final List<String> errors, //
 			final AppConfiguration appConfiguration, //
-			final SchedulerByCentralOrderConfiguration configuration //
+			final SchedulerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;

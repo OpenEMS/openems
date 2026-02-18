@@ -6,12 +6,15 @@ import static io.openems.common.bridge.http.api.HttpMethod.GET;
 import static io.openems.common.bridge.http.api.HttpMethod.PUT;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static io.openems.edge.evcs.api.ChargingType.AC;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
 import static java.lang.Math.round;
 import static java.util.Collections.emptyMap;
 
+import java.time.Duration;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.osgi.service.component.ComponentContext;
@@ -33,11 +36,16 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
+import io.openems.common.bridge.http.time.HttpBridgeTimeService;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.HttpStatus;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.DeprecatedEvcs;
@@ -56,9 +64,13 @@ import io.openems.edge.meter.api.PhaseRotation;
 )
 @EventTopics({ //
 		TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
 public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, EvcsHardyBarth, Evcs, ManagedEvcs, DeprecatedEvcs, ElectricityMeter {
+
+	// Default Heartbeat timeout is 30 seconds
+	private static final int HEART_BEAT_TIME = 15;
 
 	private final Logger log = LoggerFactory.getLogger(EvcsHardyBarthImpl.class);
 
@@ -75,6 +87,7 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	private BridgeHttp httpBridge;
 	private HttpBridgeCycleService cycleService;
+	private HttpBridgeTimeService timeService;
 
 	private Config config;
 
@@ -116,6 +129,52 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 					this._setChargingstationCommunicationFailed(false);
 				}, //
 				t -> this._setChargingstationCommunicationFailed(true));
+		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		var delay = Delay.of(Duration.ofSeconds(HEART_BEAT_TIME));
+		var heartBeat = this.config.readOnly() ? "off" : "on";
+		this.timeService.subscribeTime(new DefaultDelayTimeProvider(() -> Delay.immediate(), //
+				t -> delay, error -> delay),
+				this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+						.addProperty("salia/heartbeat", heartBeat) //
+						.build()),
+				t -> {
+					switch (this.config.logVerbosity()) {
+					case NONE, DEBUG_LOG -> doNothing();
+					case WRITES, READS -> this.logInfo(this.log, "Set heartbeat=" + heartBeat);
+					}
+				}, //
+				t -> {
+					doNothing();
+				});
+	}
+
+	/**
+	 * Set manual mode.
+	 * 
+	 * <p>
+	 * Sets the chargemode to manual if not set.
+	 */
+	private void setManualMode() {
+		if (this.isReadOnly()) {
+			return;
+		}
+		var chargeMode = "manual";
+		StringReadChannel channelChargeMode = this.channel(EvcsHardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
+		Optional<String> valueOpt = channelChargeMode.value().asOptional();
+		if (valueOpt.map(t -> t.equals(chargeMode)).orElse(false)) {
+			return;
+		}
+		this.httpBridge //
+				.requestJson(this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+						.addProperty("salia/chargemode", chargeMode) //
+						.build())) //
+				.thenAccept(t -> {
+					switch (this.config.logVerbosity()) {
+
+					case NONE, DEBUG_LOG -> doNothing();
+					case WRITES, READS -> this.logInfo(this.log, "Set chargemode=" + chargeMode);
+					}
+				});
 	}
 
 	@Override
@@ -233,19 +292,22 @@ public class EvcsHardyBarthImpl extends AbstractManagedEvcsComponent
 		};
 	}
 
-	/**
-	 * TOPIC_CYCLE_EXECUTE_WRITE is required by
-	 * {@link AbstractManagedEvcsComponent}.
-	 * 
-	 * @param event event
-	 */
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		-> {
+			this.setManualMode();
+		}
+		}
 	}
 
 	@Override
 	public int getWriteInterval() {
-		return 15; // Default Heartbeat timeout is 30 seconds
+		return HEART_BEAT_TIME;
 	}
 }
