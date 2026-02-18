@@ -1,0 +1,4 @@
+= Implements the usage of the evcc API
+
+Implementation to provide evcc integration:
+* loadpoint consumption as readable EVSE
