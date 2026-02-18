@@ -2,7 +2,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
-import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
 import { Subject, Subscription } from "rxjs";
@@ -10,6 +9,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
