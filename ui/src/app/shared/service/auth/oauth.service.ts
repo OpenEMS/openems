@@ -12,7 +12,7 @@ import { Language } from "../../type/language";
 import { StringUtils } from "../../utils/string/string.utils";
 import { Service } from "../service";
 import { UserService } from "../user.service";
-import { AuthenticateWithOAuthResponse, AuthenticateWithOAuthRequest } from "./jsonrpc";
+import { AuthenticateWithOAuthResponse, AuthenticateWithOAuthRequest, OAuthLogoutRequest, OAuthLogoutResponse } from "./jsonrpc";
 
 @Injectable({ providedIn: "root" })
 export class OAuthService {
@@ -48,18 +48,18 @@ export class OAuthService {
 
     /**
      * Gets the OEM to use.
-    *
-    * @returns the oem
-    */
+     *
+     * @returns the oem
+     */
     public static getOem() {
         return { oem: environment.theme.toLowerCase() };
     }
 
     /**
-        * Executes when websocket is 'online'
-        *
-        * @returns
-        */
+     * Executes when websocket is 'online'
+     *
+     * @returns
+     */
     public async startOAuth(): Promise<void> {
 
         const tokenResponse = await this.getTokenByRefreshToken();
@@ -110,7 +110,7 @@ export class OAuthService {
      * Executes after successfull authentication.
      *
      * @param tokenResponse the token response from authentication
-    */
+     */
     public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse) {
         const user = User.from(tokenResponse.result.user);
         if (user == null) {
@@ -152,7 +152,7 @@ export class OAuthService {
      * Gets the refresh token.
      *
      * @returns the refresh token if existing, else null
-    */
+     */
     public getRefreshToken(): string | null {
 
         if (this.cookieService.check("refresh_token") == false) {
@@ -167,7 +167,7 @@ export class OAuthService {
      *
      * @param refreshToken the refresh token
      * @returns a authentication response if valid session, else null
-    */
+     */
     public async getTokenByRefreshToken(): Promise<AuthenticateWithOAuthResponse | null> {
         const refreshToken = this.getRefreshToken();
 
@@ -190,6 +190,33 @@ export class OAuthService {
 
         this.setTokens(response.result);
         return response;
+    }
+
+    /**
+     * Logs out at the OAuth provider by revoking the refresh token.
+     * This ensures the user's session is properly terminated at the OAuth provider.
+     *
+     * @returns a promise that resolves when logout is complete
+     */
+    public async logout(): Promise<void> {
+        const refreshToken = this.getRefreshToken();
+
+        if (refreshToken == null) {
+            // No refresh token, nothing to revoke at OAuth provider
+            return;
+        }
+
+        try {
+            await this.service.websocket.sendRequest<OAuthLogoutResponse>(new AuthenticateWithOAuthRequest({
+                payload: new OAuthLogoutRequest(
+                    OAuthService.getOem().oem,
+                    refreshToken,
+                ),
+            }));
+        } catch (error) {
+            // Log but don't fail - local logout should still proceed
+            console.warn("Failed to logout at OAuth provider:", error);
+        }
     }
 
     /**

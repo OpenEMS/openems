@@ -33,3 +33,24 @@ export class AuthenticateWithOAuth2Response extends JsonrpcResponseSuccess {
         super(id, result);
     }
 }
+
+export class OAuthLogoutRequest extends JsonrpcRequest {
+    public static METHOD: string = "logout";
+    public constructor(
+        public readonly oem: string,
+        public readonly refreshToken: string | null,
+    ) {
+        super(OAuthLogoutRequest.METHOD, { oem, refreshToken });
+    }
+}
+
+export class OAuthLogoutResponse extends JsonrpcResponseSuccess {
+    public constructor(
+        public override readonly id: string,
+        public override readonly result: {
+            success: boolean,
+        },
+    ) {
+        super(id, result);
+    }
+}
