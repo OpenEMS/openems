@@ -118,11 +118,11 @@ public class EnergySchedulerTest {
 		}
 		// ...
 		{
-			// esh0: FORCE (0); esh1: SURPLUS (1166); esh2: SURPLUS (1165)
-			var sp = t.simulatePeriodIndex(40, 0);
-			assertEquals(1166, sp.ef().getManagedConsumption(CTRL_SURPLUS0));
-			assertEquals(1165, sp.ef().getManagedConsumption(CTRL_SURPLUS1));
-			assertEquals(2331, sp.ef().getManagedConsumption());
+			// esh0: FORCE (0); esh1: SURPLUS (5953); esh2: SURPLUS (5953)
+			var sp = t.simulatePeriodIndex(30, 0);
+			assertEquals(5953, sp.ef().getManagedConsumption(CTRL_SURPLUS0));
+			assertEquals(5953, sp.ef().getManagedConsumption(CTRL_SURPLUS1));
+			assertEquals(11906, sp.ef().getManagedConsumption());
 		}
 	}
 

@@ -1,0 +1,65 @@
+<formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+<ion-item lines="none">
+  <ion-button class="ion-float-right" (click)="validateAddress()" [disabled]="isValidating || form.invalid" slot="end">
+    @if (context === 'PROFILE') {
+      <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_PROFILE' | translate }}</ion-label>
+    } @else {
+      <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.BUTTON_LABEL_INSTALLATION' | translate }}</ion-label>
+    }
+    <ion-icon name="sync-outline" slot="start"></ion-icon>
+  </ion-button>
+</ion-item>
+
+@if (!isValidating) {
+  @if (addressesAvailable) {
+    <ion-item>
+      <ion-label class="ion-font-size-larger">
+        {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_TITLE' | translate: { edgeShortName: environment.edgeShortName, id: id } }}
+      </ion-label>
+    </ion-item>
+
+    <ion-card-content>
+      @if (isGeoFormVisible) {
+        <formly-form [form]="geoCodeForm" [fields]="geoCodeFields" [model]="geoCodeModel"></formly-form>
+      }
+
+      <p style="font-size: small; color: var(--ion-color-medium);">
+        @if (context === 'PROFILE') {
+          {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_PROFILE' | translate }}
+        } @else {
+          {{ 'SYSTEM_LOCATION_VALIDATOR.ADDRESS_LIST_NOTE_INSTALLATION' | translate }}
+        }
+      </p>
+    </ion-card-content>
+
+    @if (context === 'PROFILE') {
+      <ion-item lines="none">
+        <ion-button class="ion-float-right" (click)="onSaveClicked()" slot="end"
+          [disabled]="isSaving || geoCodeForm.invalid || !isGeoFormVisible">
+          <ion-label>{{ 'SYSTEM_LOCATION_VALIDATOR.APPLY_BUTTON_LABEL' | translate }}</ion-label>
+          @if (isSaving) {
+            <ion-spinner name="crescent" style="color: white;" slot="start"></ion-spinner>
+          } @else {
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+          }
+        </ion-button>
+      </ion-item>
+    }
+  }
+} @else {
+  <ion-card>
+    <ion-list>
+      <ion-list-header>
+        <ion-skeleton-text [animated]="true" style="width: 30%"></ion-skeleton-text>
+      </ion-list-header>
+      <ion-item>
+        <ion-label>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+}

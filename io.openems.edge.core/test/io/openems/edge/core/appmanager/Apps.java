@@ -31,6 +31,7 @@ import io.openems.edge.app.api.MqttApi;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
 import io.openems.edge.app.ess.Limiter14a;
@@ -104,6 +105,7 @@ import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
 import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
+import io.openems.edge.app.prediction.AppPredictionDefault;
 import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
@@ -1215,6 +1217,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle sohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
+	}
+
+	/**
 	 * Test method for creating a {@link PowerPlantController}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -1255,6 +1267,16 @@ public final class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppPredictionDefault}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionDefault predictionDefault(AppManagerTestBundle t) {
+		return app(t, AppPredictionDefault::new, "App.Prediction.Default");
+	}
+
+	/**
 	 * Test method for creating a {@link AppPredictionUnmanagedConsumption}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -1262,6 +1284,16 @@ public final class Apps {
 	 */
 	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
 		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle appSohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
 	}
 
 	/**

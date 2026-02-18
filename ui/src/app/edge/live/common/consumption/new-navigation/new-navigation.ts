@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -9,6 +9,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { LiveDataService } from "../../../livedataservice";
 
 @Component({
+    selector: "oe-common-consumption-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

@@ -26,4 +26,4 @@ import { ChartComponent } from "../chart/chart";
         { provide: LOCALE_ID, useFactory: () => (Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key },
     ],
 })
-export class OverviewComponent extends AbstractHistoryChartOverview { }
+export class ControllerPeakShavingAsymmetricOverviewComponent extends AbstractHistoryChartOverview { }

@@ -3,7 +3,8 @@
     [period]="service.historyPeriod.value">
     @switch (componentType) {
       @case ('sum') {
-        <sumChart [isOnlyChart]="true"></sumChart>
+        <oe-common-consumption-history-phase-accurate-chart
+          [isOnlyChart]="true"></oe-common-consumption-history-phase-accurate-chart>
       }
       @case ('consumptionMeter') {
         <consumptionMeterChart [isOnlyChart]="true"></consumptionMeterChart>

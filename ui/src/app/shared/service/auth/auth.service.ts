@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { DeviceDetectorService } from "ngx-device-detector";
 import { PlatFormService } from "src/app/platform.service";
+import { environment } from "src/environments";
 import { States } from "../../ngrx-store/states";
 import { RouteService } from "../route.service";
 import { Service } from "../service";
@@ -31,10 +32,14 @@ export class AuthService {
 
         const context = effect(() => {
             const websocketStatus = this.service.websocket.state();
-
-            if (States.isAtLeast(websocketStatus, States.WEBSOCKET_CONNECTED) && OAuthService.isOAuth(this.cookieService)) {
+            const isOAuth = OAuthService.isOAuth(this.cookieService);
+            if (States.isAtLeast(websocketStatus, States.WEBSOCKET_CONNECTED) && isOAuth) {
                 oAuthService.startOAuth();
                 context.destroy();
+            }
+
+            if (!isOAuth && environment.backend === "OpenEMS Edge" && this.cookieService.check(AuthService.TOKEN) === false) {
+                this.router.navigate(["/login"]);
             }
 
             if (websocketStatus === States.NOT_AUTHENTICATED && this.cookieService.check(AuthService.TOKEN) && this.cookieService.check(OAuthService.REFRESH_TOKEN)) {

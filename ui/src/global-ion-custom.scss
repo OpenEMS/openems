@@ -20,6 +20,10 @@
     padding-top: 0;
 }
 
+.ion-no-padding-right {
+    padding-right: 0;
+}
+
 .ion-padding-top-triple {
     padding-top: calc(var(--ion-padding) * 3);
 }
@@ -30,6 +34,10 @@
 
 .ion-padding-left {
     padding-left: var(--ion-padding);
+}
+
+.ion-padding-right {
+    padding-right: var(--ion-padding);
 }
 
 /** Font */
@@ -184,4 +192,8 @@
     ::shadow ion-title::shadow .toolbar-title {
         white-space: initial !important;
     }
+}
+
+.ion-justify-self-end {
+    justify-self: end;
 }

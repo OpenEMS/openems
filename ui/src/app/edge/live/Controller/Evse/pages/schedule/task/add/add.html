@@ -1,0 +1,13 @@
+<oe-components-scheduler-add-task [(payload)]="payload" [(allowedPeriods)]="allowedPeriods">
+  <ion-item content>
+    <ion-select [label]="'EVSE_SINGLE.SCHEDULE.MODE' | translate"
+      [placeholder]="'EVSE_SINGLE.SCHEDULE.MODE_SELECTION_PLACEHOLDER' | translate" [value]="payload()?.value ?? null"
+      (ionChange)="setValue($event)">
+      @for (option of modeOptions; track option) {
+        <ion-select-option [value]="option.value">
+          {{ option.label }}
+        </ion-select-option>
+      }
+    </ion-select>
+  </ion-item>
+</oe-components-scheduler-add-task>
