@@ -5,7 +5,7 @@ import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
-import { EvcsComponent } from "../components/edge/components/evcsComponent";
+import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";

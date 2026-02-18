@@ -65,8 +65,8 @@ public class PredictorProfileClusteringModelImplTest {
 		var oneHotEncoder = mock(OneHotEncoder.class);
 		sut.onTrainingSuccess(new ModelBundle(clusterer, classifier, oneHotEncoder, clock.instant()));
 
-		var todaysProfile = createConstantProfile(0, 10.0);
-		var tomorrowsProfile = createConstantProfile(3, 30.0);
+		var todaysProfile = createConstantProfile(0, 10.0, 110.0);
+		var tomorrowsProfile = createConstantProfile(3, 30.0, 130.0);
 
 		when(orchestrator.predictProfiles(anyInt()))//
 				.thenReturn(List.of(//
@@ -78,8 +78,8 @@ public class PredictorProfileClusteringModelImplTest {
 		int quarterIndex = (int) ChronoUnit.MINUTES.between(baseTime, now) / 15;
 
 		var expectedPredictedValues = Stream.concat(//
-				todaysProfile.values().getValues().stream().skip(quarterIndex), //
-				tomorrowsProfile.values().getValues().stream())//
+				todaysProfile.upperQuantileValues().getValues().stream().skip(quarterIndex), //
+				tomorrowsProfile.upperQuantileValues().getValues().stream())//
 				.map(d -> (int) Math.round(d))//
 				.toArray(Integer[]::new);
 
@@ -161,12 +161,14 @@ public class PredictorProfileClusteringModelImplTest {
 		assertEquals(Prediction.EMPTY_PREDICTION, prediction);
 	}
 
-	private static Profile createConstantProfile(int clusterIndex, double value) {
+	private static Profile createConstantProfile(int clusterIndex, double value, double upperQuantileValue) {
 		double[] values = new double[Profile.LENGTH];
+		double[] upperQuantileValues = new double[Profile.LENGTH];
 		for (int i = 0; i < Profile.LENGTH; i++) {
 			values[i] = value;
+			upperQuantileValues[i] = upperQuantileValue;
 		}
-		return Profile.fromArray(clusterIndex, values);
+		return Profile.fromArray(clusterIndex, values, upperQuantileValues);
 	}
 
 	private static class DummyPredictorConfig extends DefaultPredictorConfig {

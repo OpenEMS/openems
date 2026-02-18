@@ -29,7 +29,7 @@ import en from "./i18n/en.json";
         HistoryDataErrorModule,
     ],
 })
-export class OverviewComponent extends AbstractHistoryChartOverview {
+export class ControllerIoHeatpumpOverviewComponent extends AbstractHistoryChartOverview {
 
     protected readonly STATES: string = `
     1.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK")}

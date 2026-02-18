@@ -8,14 +8,16 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DynamicDocText;
+import io.openems.edge.common.channel.DynamicStateChannelDoc;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
@@ -418,11 +420,14 @@ public interface GoodWe extends OpenemsComponent {
 						+ "Ggf. Luftstrom durch den Kühlkörper für Normalbetrieb unzureichend (Aufstellbedingungen beachten!). "
 						+ "Ggf. Behinderung des Luftstroms, z.B. Kühlkörper wurde abgedeckt")), //
 
-		STATE_14(Doc.of(Level.WARNING) //
-				.textByChannel(GoodWe.class, ChannelId.GOODWE_TYPE,
-						DynamicDocText.fromEnumChannel(GoodWeType.class)
-								.when("GoodWe.State14.Specific", GoodWeType.FENECON_FHI_10_DAH) //
-								.defaultText("GoodWe.State14.Default"))), //
+		STATE_14(DynamicStateChannelDoc.builder(Level.WARNING) //
+				.setDynamicText(//
+						TextProvider.byStatic("{0}"), //
+						ParameterProvider.byEnumChannel(GoodWeType.class, GOODWE_TYPE) //
+								.when(GoodWeType.FENECON_FHI_10_DAH,
+										TextProvider.byTranslation(GoodWe.class, "GoodWe.State14.Specific")) //
+								.defaultText(TextProvider.byTranslation(GoodWe.class, "GoodWe.State14.Default"))) //
+				.build()), //
 
 		STATE_15(Doc.of(Level.WARNING) //
 				.text("PV Over Voltage " //
@@ -1459,7 +1464,7 @@ public interface GoodWe extends OpenemsComponent {
 		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE)), //
-		EMS_POWER_SET(Doc.of(OpenemsType.LONG) //
+		EMS_POWER_SET(new IntegerDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET)), //
 
@@ -2066,15 +2071,6 @@ public interface GoodWe extends OpenemsComponent {
 	 */
 	public default void setBmsDischargeMinVoltage(Integer value) throws OpenemsNamedException {
 		this.getBmsDischargeMinVoltageChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#EMS_POWER_SET}.
-	 *
-	 * @return the Channel
-	 */
-	public default WriteChannel<Long> getEmsPowerSetChannel() {
-		return this.channel(ChannelId.EMS_POWER_SET);
 	}
 
 	/**

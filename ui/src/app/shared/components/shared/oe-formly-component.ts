@@ -7,6 +7,7 @@ import { filter, take, takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Role } from "../../type/role";
+import { Icon } from "../../type/widget";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
@@ -20,7 +21,7 @@ import { DataService } from "./dataservice";
 export abstract class AbstractFormlyComponent implements OnDestroy {
 
     protected readonly translate: TranslateService;
-    protected readonly service: Service;
+    protected readonly service: Service = inject(Service);
     protected readonly navigationService: NavigationService;
     protected SKIP_COUNT: number = 2;
     protected dataService: DataService;
@@ -36,7 +37,6 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
     private subscription: EffectRef | null = null;
 
     constructor() {
-        this.service = SharedModule.injector.get<Service>(Service);
         this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
         this.navigationService = SharedModule.injector.get<NavigationService>(NavigationService);
         this.dataService = inject(DataService);
@@ -51,8 +51,8 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
 
             edge.getConfig(this.service.websocket)
                 .pipe(filter(config => !!config), takeUntil(this.stopOnDestroy))
-                .subscribe((config) => {
-                    const view = this.generateView(config, edge.role, this.translate);
+                .subscribe(async (config) => {
+                    const view = await this.generateView(config, edge.role, this.translate);
                     this.form = this.getFormGroup();
 
                     this.fields = [{
@@ -267,10 +267,12 @@ export type OeFormlyField =
     | OeFormlyField.InfoLine
     | OeFormlyField.Item
     | OeFormlyField.ChildrenLine
+    | OeFormlyField.NameLine
     | OeFormlyField.ChannelLine
     | OeFormlyField.HorizontalLine
     | OeFormlyField.ValueFromChannelsLine
     | OeFormlyField.ValueFromFormControlLine
+    | OeFormlyField.ButtonFromFormControlLine
     | OeFormlyField.ButtonsFromFormControlLine
     | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.RangeButtonFromFormControlLine
@@ -282,6 +284,7 @@ export namespace OeFormlyField {
     export type InfoLine = {
         type: "info-line",
         name: string,
+        icon?: Icon,
         style?: string
     };
 
@@ -313,6 +316,12 @@ export namespace OeFormlyField {
         indentation?: TextIndentation,
     };
 
+    export type NameLine = {
+        type: "name-line",
+        name: /* actual name string */ string | /* name string derived from channel value */ Converter,
+        filter?: (value: number | null) => boolean,
+    };
+
     export type ValueFromChannelsLine = {
         type: "value-from-channels-line",
         name: string,
@@ -327,6 +336,12 @@ export namespace OeFormlyField {
         name: string,
         controlName: string,
         buttons: ButtonLabel[];
+    };
+
+    export type ButtonFromFormControlLine = {
+        type: "button-from-form-control-line",
+        name: string,
+        button: ButtonLabel;
     };
 
     export type RadioButtonsFromFormControlLine = {

@@ -4,6 +4,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.bui
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -145,7 +146,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
-		this.energyScheduleHandler.triggerReschedule("TimeOfUseTariffControllerImpl::modified()");
+		this.energyScheduleHandler.triggerReschedule("TimeOfUseTariffControllerImpl::modified()",
+				OPTIMIZE_CURRENT_PERIOD);
 	}
 
 	private synchronized void applyConfig(Config config) {

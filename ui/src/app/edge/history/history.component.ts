@@ -5,6 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, EdgePermission, Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
@@ -41,6 +42,7 @@ export class HistoryComponent implements OnInit {
         private dataService: DataService,
         private userService: UserService,
         protected navigationService: NavigationService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
 
         effect(() => {
@@ -63,6 +65,10 @@ export class HistoryComponent implements OnInit {
         });
     }
 
+    public ionViewWillEnter() {
+        this.layoutRefresh.request(500);
+    }
+
     updateOnWindowResize() {
         const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
             /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
@@ -74,6 +80,10 @@ export class HistoryComponent implements OnInit {
             /* minimum size */ Math.max(300,
                 /* maximum size */ Math.min(600, ref),
             ) + "px";
+    }
+
+    onDomChange(event: CustomEvent) {
+        this.layoutRefresh.request(500);
     }
 
     protected handleRefresh: (ev: CustomEvent) => void = (ev) => this.dataService.refresh(ev);

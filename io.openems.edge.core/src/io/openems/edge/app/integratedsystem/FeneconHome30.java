@@ -21,12 +21,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isState
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
@@ -336,7 +336,6 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
-					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
@@ -371,6 +370,8 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension(), //
+					sohCycle(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption()//
 			);
 
@@ -404,7 +405,6 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

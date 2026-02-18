@@ -1,0 +1,15 @@
+Bundle-Name: JFreeChart
+Bundle-Description: JFreeChart is a free 100% Java chart library that makes it easy for developers to display professional quality charts in their applications.
+Bundle-DocURL: https://javadoc.io/doc/org.jfree/jfreechart/latest/index.html
+Bundle-License: https://opensource.org/licenses/LGPL
+Bundle-Version: 1.5.6
+
+Include-Resource: \
+    @jfreechart-1.5.6.jar,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+    org.jfree.*,\

@@ -10,7 +10,7 @@ import { ProductionMeterChartDetailsComponent } from "./details/chart/production
 import { SumChartDetailsComponent } from "./details/chart/sum";
 import { DetailsOverviewComponent } from "./details/details.overview";
 import { FlatComponent } from "./flat/flat";
-import { OverviewComponent } from "./overview/overview";
+import { CommonProductionOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -21,7 +21,7 @@ import { OverviewComponent } from "./overview/overview";
     ],
     declarations: [
         FlatComponent,
-        OverviewComponent,
+        CommonProductionOverviewComponent,
         TotalChartComponent,
 
         ChargerChartDetailsComponent,
@@ -31,7 +31,7 @@ import { OverviewComponent } from "./overview/overview";
     ],
     exports: [
         FlatComponent,
-        OverviewComponent,
+        CommonProductionOverviewComponent,
         TotalChartComponent,
 
         ChargerChartDetailsComponent,

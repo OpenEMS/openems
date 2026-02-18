@@ -3,6 +3,7 @@ package io.openems.edge.energy.optimizer.app;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
@@ -12,11 +13,15 @@ import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
+import static io.openems.edge.energy.optimizer.app.PlotUtils.plotGlobalOptimizationContext;
 import static java.time.Duration.ofSeconds;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -35,14 +40,15 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
+import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
@@ -56,25 +62,41 @@ public final class AppUtils {
 	private AppUtils() {
 	}
 
-	protected static void simulateFromLog(String log, long executionLimitSeconds)
-			throws IllegalArgumentException, OpenemsNamedException {
-		simulateFromJson(parseLog(log), executionLimitSeconds);
+	protected static void simulateFromLog(String log, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IllegalArgumentException, OpenemsNamedException, IOException {
+		simulateFromJson(parseLog(log), executionLimitSeconds, plotSettings);
 	}
 
-	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds)
-			throws IllegalArgumentException, OpenemsNamedException {
-		simulate(globalOptimizationContextSerializer().deserialize(json), executionLimitSeconds);
+	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IllegalArgumentException, OpenemsNamedException, IOException {
+		final var goc = globalOptimizationContextSerializer().deserialize(json);
+		switch (plotSettings) {
+		case DISABLE, SIMULATION_RESULT -> doNothing();
+		case GLOBAL_OPTIMIZATION_CONTEXT -> {
+			plotGlobalOptimizationContext(goc);
+			return;
+		}
+		}
+		simulate(goc, executionLimitSeconds, plotSettings);
 	}
 
-	private static void simulate(GlobalOptimizationContext gsc, long executionLimitSeconds) {
-		var simulator = new Simulator(gsc);
+	private static void simulate(GlobalOptimizationContext goc, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IOException {
+		var simulator = new Simulator(goc);
+		simulator.setEarliestCallbackDelay(Duration.ZERO);
 
-		var simulationResult = simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, //
-				false /* isCurrentPeriodFixed */, null, //
+		var simulationResult = new AtomicReference<SimulationResult>();
+		simulator.runOptimization(//
+				() -> EMPTY_SIMULATION_RESULT, //
+				false /* optimizeCurrentPeriod */, //
+				null, //
 				stream -> stream //
-						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))));
+						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))), //
+				simulationResult::set);
 
-		logSimulationResult(simulator, simulationResult);
+		final var sr = simulationResult.get();
+		logSimulationResult(simulator, sr);
+		PlotUtils.plotSimulationResult(goc, sr);
 	}
 
 	/**
@@ -146,7 +168,7 @@ public final class AppUtils {
 			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
 					.setComponentManager(componentManager) //
 					.setMeta(meta) //
-					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
+					.setEnvironment(json.getEnum("environment", Environment.class)) //
 					.setEnergyScheduleHandlers(eshs) //
 					.setSum(sum) //
 					.setPredictorManager(predictorManager) //
