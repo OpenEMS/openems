@@ -513,23 +513,10 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			}
 		}
 
-		if (activePowerTarget < 0) {
-			// CHARGE: AC-Out draws power from battery, subtract from target
-			activePowerTarget -= acOutputActivePowerSum;
-			this.logDebug(this.log, "Symm. PowerWanted ChargeMode after subtraction of AC Out: "
-					+ acOutputActivePowerSum + " ->  " + activePowerTarget);
-		} else if (activePowerTarget > 0) {
-			this.logDebug(this.log, "Symm. PowerWanted DischargeMode Target ->  " + activePowerTarget);
-		}
+		activePowerTarget = calculateAcInSetpoint(activePowerTarget, acOutputActivePowerSum, this.maxChargePower,
+				this.maxDischargePower);
 
-		// Clamp power to hardware limits
-
-		if (activePowerTarget < 0 && Math.abs(activePowerTarget) > this.maxChargePower) {
-			activePowerTarget = this.maxChargePower * -1;
-		}
-		if (activePowerTarget > 0 && activePowerTarget > this.maxDischargePower) {
-			activePowerTarget = this.maxDischargePower;
-		}
+		this.logDebug(this.log, "Symm. PowerWanted after clamp and AC-Out adjustment: " + activePowerTarget);
 
 		this._setAllowedChargePower(this.maxChargePower * -1); // Negative for charging
 		this._setAllowedDischargePower(this.maxDischargePower); // Positive for discharging
@@ -572,6 +559,40 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public Power getPower() {
 		return this.power;
+	}
+
+	/**
+	 * Calculates the AC-in setpoint by first clamping the battery power to hardware
+	 * limits, then adjusting for AC-out load.
+	 *
+	 * <p>
+	 * Clamping is applied before the AC-out adjustment so that the hardware limits
+	 * constrain the battery charge/discharge power, not the total AC-in power which
+	 * must also cover AC-out loads.
+	 *
+	 * @param activePowerTarget      the requested battery power (negative=charge,
+	 *                               positive=discharge)
+	 * @param acOutputActivePowerSum the total AC-out load (always positive)
+	 * @param maxChargePower         the maximum charge power (positive value)
+	 * @param maxDischargePower      the maximum discharge power (positive value)
+	 * @return the adjusted AC-in setpoint
+	 */
+	protected static int calculateAcInSetpoint(int activePowerTarget, int acOutputActivePowerSum, int maxChargePower,
+			int maxDischargePower) {
+		// Clamp power to hardware limits before AC-Out adjustment
+		if (activePowerTarget < 0 && Math.abs(activePowerTarget) > maxChargePower) {
+			activePowerTarget = maxChargePower * -1;
+		}
+		if (activePowerTarget > 0 && activePowerTarget > maxDischargePower) {
+			activePowerTarget = maxDischargePower;
+		}
+
+		// CHARGE: AC-Out draws power from battery, subtract from target
+		if (activePowerTarget < 0) {
+			activePowerTarget -= acOutputActivePowerSum;
+		}
+
+		return activePowerTarget;
 	}
 
 	/**
