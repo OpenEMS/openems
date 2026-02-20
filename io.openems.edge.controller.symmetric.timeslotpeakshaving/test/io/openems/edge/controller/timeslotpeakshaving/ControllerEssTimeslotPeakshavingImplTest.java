@@ -78,7 +78,7 @@ public class ControllerEssTimeslotPeakshavingImplTest {
 						.timeleap(clock, 75, MINUTES)/* current time is 10:47, run in high threshold state */
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 5000) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 120000) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 33000)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 25500)) //
 				.next(new TestCase() //
 						.timeleap(clock, 75, MINUTES)/* current time is 12:02 run in normal state */
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 5000) //
