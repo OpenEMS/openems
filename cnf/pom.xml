@@ -629,10 +629,14 @@
             <version>3.2.0</version>
         </dependency>
         <dependency>
-            <!-- used by io.openems.backend.authentication.oauth -->
+            <!--
+            Java implementation of JSON Web Token (JWT)
+            Changelog: https://github.com/auth0/java-jwt/releases
+            Wrapper: io.openems.wrapper/auth0-java-jwt.bnd
+            -->
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.5.0</version>
+            <version>4.5.1</version>
         </dependency>
         <dependency>
             <!-- used by io.openems.backend.authentication.oauth -->
