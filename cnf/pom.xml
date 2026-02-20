@@ -397,7 +397,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>6.0.2</version>
+            <version>6.0.3</version>
         </dependency>
         <dependency>
             <!-- Used by org.junit.jupiter:junit-jupiter-api -->
@@ -490,7 +490,7 @@
             <!-- Used by io.openems.backend.metadata.odoo -->
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.9</version>
+            <version>42.7.10</version>
         </dependency>
         <dependency>
             <!-- Used by com.influxdb: influxdb -->
