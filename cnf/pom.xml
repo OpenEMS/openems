@@ -395,6 +395,11 @@
             <version>7.5.0</version>
         </dependency>
         <dependency>
+            <!--
+            Kotlin OSGi Bundle
+            Changelog: https://github.com/JetBrains/kotlin/releases
+            Commits: https://github.com/JetBrains/kotlin/commits/master/libraries/tools/kotlin-osgi-bundle
+            -->
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-osgi-bundle</artifactId>
             <version>2.3.10</version>
