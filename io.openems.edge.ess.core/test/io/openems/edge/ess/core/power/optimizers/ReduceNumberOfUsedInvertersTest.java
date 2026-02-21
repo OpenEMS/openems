@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import io.openems.common.function.ThrowingFunction;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.core.power.Solver;
 import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.core.power.data.WeightsUtil;
+import io.openems.edge.ess.core.power.v1.Solver;
 import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.power.api.ThreePhaseInverter;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;

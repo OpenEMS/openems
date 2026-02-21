@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.v1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Streams;
@@ -15,6 +16,7 @@ import com.google.common.collect.Streams;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.data.ConstraintUtil;
 import io.openems.edge.ess.core.power.data.WeightsUtil;
 import io.openems.edge.ess.power.api.Coefficient;
@@ -27,21 +29,26 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class Data {
 
+	private final Supplier<List<ManagedSymmetricEss>> esssSupplier;
+
 	/**
 	 * Holds all Inverters, always roughly sorted by weight.
 	 */
 	private final List<Inverter> inverters = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Holds all Ess.
-	 */
-	private final List<ManagedSymmetricEss> esss = new CopyOnWriteArrayList<>();
 
 	private final List<Constraint> constraints = new CopyOnWriteArrayList<>();
 	private final Coefficients coefficients = new Coefficients();
 
 	private boolean symmetricMode = EssPower.DEFAULT_SYMMETRIC_MODE;
 	private Consumer<Boolean> onStaticConstraintsFailed = null;
+
+	public Data(Supplier<List<ManagedSymmetricEss>> esssSupplier) {
+		this.esssSupplier = esssSupplier;
+
+		// Initialize
+		this.updateInverters();
+		this.initializeCycle();
+	}
 
 	/**
 	 * Adds a callback for onStaticConstraintsFailed event.
@@ -50,26 +57,6 @@ public class Data {
 	 */
 	public void onStaticConstraintsFailed(Consumer<Boolean> onStaticConstraintsFailed) {
 		this.onStaticConstraintsFailed = onStaticConstraintsFailed;
-	}
-
-	/**
-	 * Adds a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
-	 *
-	 * @param ess the {@link ManagedSymmetricEss}
-	 */
-	protected synchronized void addEss(ManagedSymmetricEss ess) {
-		this.esss.add(ess);
-		this.updateInverters();
-	}
-
-	/**
-	 * Removes a {@link ManagedSymmetricEss}. Called by {@link EssPowerImpl}.
-	 *
-	 * @param ess the {@link ManagedSymmetricEss}
-	 */
-	protected synchronized void removeEss(ManagedSymmetricEss ess) {
-		this.esss.remove(ess);
-		this.updateInverters();
 	}
 
 	/**
@@ -85,37 +72,37 @@ public class Data {
 		}
 	}
 
-	private synchronized void updateInverters() {
+	protected synchronized void updateInverters() {
+		final var esss = this.esssSupplier.get();
+
 		this.inverters.clear();
 
 		// Create inverters and add them to list
-		for (ManagedSymmetricEss ess : this.esss) {
+		for (ManagedSymmetricEss ess : esss) {
 			var essType = EssType.getEssType(ess);
 			Collections.addAll(this.inverters, Inverter.of(this.symmetricMode, ess, essType));
 		}
 
 		// Re-Initialize Coefficients
 		Set<String> essIds = new HashSet<>();
-		for (ManagedSymmetricEss ess : this.esss) {
+		for (ManagedSymmetricEss ess : esss) {
 			essIds.add(ess.id());
 		}
 		this.coefficients.initialize(this.symmetricMode, essIds);
 
 		// Initially sort Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
+		WeightsUtil.updateWeightsFromSoc(this.inverters, esss);
 		WeightsUtil.sortByWeights(this.inverters);
 	}
 
 	protected synchronized void initializeCycle() {
+		final var esss = this.esssSupplier.get();
+
 		// Remove Constraints of last Cycle
 		this.constraints.clear();
 		// Update sorting of Inverters
-		WeightsUtil.updateWeightsFromSoc(this.inverters, this.esss);
+		WeightsUtil.updateWeightsFromSoc(this.inverters, esss);
 		WeightsUtil.adjustSortingByWeights(this.inverters);
-	}
-
-	protected List<ManagedSymmetricEss> getEsss() {
-		return this.esss;
 	}
 
 	protected List<Inverter> getInverters() {
@@ -205,26 +192,18 @@ public class Data {
 	 */
 	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters)
 			throws OpenemsException {
+		final var esss = this.esssSupplier.get();
+
 		return Streams.concat(//
 				ConstraintUtil.createDisableConstraintsForInactiveInverters(this.coefficients, disabledInverters)
 						.stream(),
-				ConstraintUtil.createGenericEssConstraints(this.coefficients, this.esss, this.symmetricMode).stream(), //
-				ConstraintUtil.createStaticEssConstraints(this.esss, this.onStaticConstraintsFailed).stream(), //
-				ConstraintUtil.createMetaEssConstraints(this.coefficients, this.esss, this.symmetricMode).stream(), //
-				ConstraintUtil.createSumOfPhasesConstraints(this.coefficients, this.esss, this.symmetricMode).stream(), //
-				ConstraintUtil.createSymmetricEssConstraints(this.coefficients, this.esss, this.symmetricMode).stream(), //
+				ConstraintUtil.createGenericEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
+				ConstraintUtil.createStaticEssConstraints(esss, this.onStaticConstraintsFailed).stream(), //
+				ConstraintUtil.createMetaEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
+				ConstraintUtil.createSumOfPhasesConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
+				ConstraintUtil.createSymmetricEssConstraints(this.coefficients, esss, this.symmetricMode).stream(), //
 				ConstraintUtil.createSinglePhaseEssConstraints(this.coefficients, this.inverters, this.symmetricMode)
 						.stream(), //
 				this.constraints.stream()).collect(Collectors.toList());
 	}
-
-	protected ManagedSymmetricEss getEss(String essId) {
-		for (ManagedSymmetricEss ess : this.esss) {
-			if (essId.equals(ess.id())) {
-				return ess;
-			}
-		}
-		return null;
-	}
-
 }

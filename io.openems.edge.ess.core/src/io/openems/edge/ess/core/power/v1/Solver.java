@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.v1;
 
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
@@ -47,17 +48,20 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 public class Solver {
 
 	private final Logger log = LoggerFactory.getLogger(Solver.class);
+	private final Supplier<List<ManagedSymmetricEss>> esssSupplier;
 	private final Data data;
 	private final Optimizers optimizers = new Optimizers();
+	private final boolean debugMode;
 
-	private boolean debugMode = EssPower.DEFAULT_DEBUG_MODE;
 	private OnSolved onSolvedCallback = (isSolved, duration, strategy) -> {
 	};
 
 	private final ThrowingFunction<List<Inverter>, PointValuePair, Exception> solveWithDisabledInverters;
 
-	public Solver(Data data) {
+	public Solver(Supplier<List<ManagedSymmetricEss>> esssSupplier, Data data, boolean debugMode) {
+		this.esssSupplier = esssSupplier;
 		this.data = data;
+		this.debugMode = debugMode;
 
 		/**
 		 * Solves the problem, while setting all DisabledInverters to EQUALS zero.
@@ -167,7 +171,7 @@ public class Solver {
 					this.solveWithDisabledInverters);
 
 			solution = switch (strategy) {
-			case UNDEFINED, ALL_CONSTRAINTS, NONE //
+			case UNDEFINED, ALL_CONSTRAINTS, NONE, BALANCE //
 				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints);
 
 			case OPTIMIZE_BY_MOVING_TOWARDS_TARGET //
@@ -218,7 +222,7 @@ public class Solver {
 			Map<Inverter, PowerTuple> inverterSolutionMap;
 			try {
 				inverterSolutionMap = InverterPrecision.apply(this.data.getCoefficients(), allInverters,
-						this.data.getEsss(), solution.getPoints(), targetDirection);
+						this.esssSupplier.get(), solution.getPoints(), targetDirection);
 
 			} catch (OpenemsException e) {
 				this.log.warn("Power-Solver: Applying Inverter Precisions failed: " + e.getMessage());
@@ -250,6 +254,7 @@ public class Solver {
 			switch (strategy) {
 			case UNDEFINED:
 			case NONE:
+			case BALANCE:
 				break;
 			case ALL_CONSTRAINTS:
 				solution = ConstraintSolver.solve(this.data.getCoefficients(), allConstraints);
@@ -266,7 +271,7 @@ public class Solver {
 				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
-				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.data.getEsss(), allInverters,
+				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.esssSupplier.get(), allInverters,
 						allConstraints, targetDirection, this.debugMode);
 				break;
 			}
@@ -306,7 +311,7 @@ public class Solver {
 			inv.setLastActivePower(powerTuple.getActivePower());
 		});
 
-		for (ManagedSymmetricEss ess : this.data.getEsss()) {
+		for (ManagedSymmetricEss ess : this.esssSupplier.get()) {
 			if (ess instanceof MetaEss) {
 				// ignore MetaEss
 				continue;
@@ -406,9 +411,5 @@ public class Solver {
 				this.log.error("No Solution for [" + ess.id() + "] available!");
 			}
 		}
-	}
-
-	protected void setDebugMode(boolean debugMode) {
-		this.debugMode = debugMode;
 	}
 }

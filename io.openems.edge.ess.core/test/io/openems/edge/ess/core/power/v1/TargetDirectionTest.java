@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power.data;
+package io.openems.edge.ess.core.power.v1;
 
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
@@ -10,16 +10,14 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.core.power.Data;
+import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.core.power.solver.LinearConstraintsSolver;
-import io.openems.edge.ess.power.api.Inverter;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
 public class TargetDirectionTest {
 
 	private static DummyManagedSymmetricEss ess0;
-	private static MyData data;
+	private static Data data;
 
 	public static final LinearConstraintsSolver linearConstraintsSolver = new LinearConstraintsSolver();
 
@@ -29,9 +27,7 @@ public class TargetDirectionTest {
 				.withAllowedChargePower(-9000) //
 				.withAllowedDischargePower(9000) //
 				.withMaxApparentPower(5000);
-		data = new MyData();
-		data.addEss(ess0);
-		data.initializeCycle();
+		data = new Data(() -> List.of(ess0));
 	}
 
 	@Test
@@ -55,23 +51,5 @@ public class TargetDirectionTest {
 		assertEquals(TargetDirection.DISCHARGE, //
 				TargetDirection.from(data.getInverters(), data.getCoefficients(),
 						data.getConstraintsForAllInverters()));
-	}
-
-	private static class MyData extends Data {
-
-		@Override
-		protected synchronized void addEss(ManagedSymmetricEss ess) {
-			super.addEss(ess);
-		}
-
-		@Override
-		protected List<Inverter> getInverters() {
-			return super.getInverters();
-		}
-
-		@Override
-		protected synchronized void initializeCycle() {
-			super.initializeCycle();
-		}
 	}
 }

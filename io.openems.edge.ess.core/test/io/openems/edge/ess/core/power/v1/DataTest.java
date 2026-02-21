@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.v1;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,6 +10,8 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.core.power.EssPower;
+import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
@@ -37,11 +39,7 @@ public class DataTest {
 				.setPower(powerComponent);
 		esss = Lists.newArrayList(ess0, ess1, ess2);
 
-		data = new Data();
-		for (ManagedSymmetricEss ess : esss) {
-			data.addEss(ess);
-		}
-		data.initializeCycle();
+		data = new Data(() -> esss);
 	}
 
 	@Test

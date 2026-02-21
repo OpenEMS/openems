@@ -1,4 +1,4 @@
-package io.openems.edge.ess.core.power;
+package io.openems.edge.ess.core.power.v1;
 
 import org.apache.commons.math3.optim.PointValuePair;
 
