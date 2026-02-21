@@ -30,16 +30,13 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		IntegerReadChannel bmsMaxChargePowerChannel = parent.channel(SolarEdgeEss.ChannelId.BATTERY1_MAX_CHARGE_CONTINUES_POWER);
 		IntegerReadChannel bmsMaxDischargePowerChannel = parent.channel(SolarEdgeEss.ChannelId.BATTERY1_MAX_DISCHARGE_CONTINUES_POWER);
 		var bmsPseudoVoltage = 1;
-		var bmsChargePseudoImax = bmsMaxChargePowerChannel.getNextValue().orElse(0)/bmsPseudoVoltage;
-		var bmsDischargePseudoImax = bmsMaxDischargePowerChannel.getNextValue().orElse(0)/bmsPseudoVoltage;
+		var bmsChargePseudoImax = bmsMaxChargePowerChannel.getNextValue().orElse(0) / bmsPseudoVoltage;
+		var bmsDischargePseudoImax = bmsMaxDischargePowerChannel.getNextValue().orElse(0) / bmsPseudoVoltage;
 		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargePseudoImax, bmsDischargePseudoImax, bmsPseudoVoltage);
 
 		// Battery limits
 		var batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
 		var batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
-
-		// Inverter limits
-		var maxApparentPower = parent.getMaxApparentPower().orElse(0);
 
 		// PV-Production
 		Integer pvProduction = 0;
@@ -48,12 +45,14 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		}
 		
 		// Block battery charging on battery full
-		if(parent.getSoc().orElse(100) >= 100)
+		if (parent.getSoc().orElse(100) >= 100) {
 			batteryAllowedChargePower = 0;
+		}
 		
 		// Block battery discharging on battery empty
-		if(parent.getSoc().orElse(0) <= 10)
+		if (parent.getSoc().orElse(0) <= 10) {
 			batteryAllowedDischargePower = 0;
+		}
 
 		// Calculates Maximum Allowed AC-Charge Power as positive numbers (or negative when force discharge is active)
 		//   Force discharge: pvProduction>batteryAllowedChargePower requires a minimum discharge
@@ -62,18 +61,25 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		// Calculates Maximum Allowed AC-Discharge Power as positive numbers
 		var acAllowedDischargePower = TypeUtils.min(batteryAllowedDischargePower + pvProduction,parent.getMaxApparentPower().orElse(0));
 
+		// Inverter limits
+		var maxApparentPower = parent.getMaxApparentPower().orElse(0);
+
 		// Force Discharge active?
 		if (acAllowedChargePower < 0) {
 
 			// Limit forced DischargePower to maxApparentPower
-			if(Math.abs(acAllowedChargePower)>maxApparentPower) acAllowedChargePower = maxApparentPower*(-1);
+			if (Math.abs(acAllowedChargePower) > maxApparentPower) {
+				acAllowedChargePower = maxApparentPower * (-1);
+			}
 
 			// Make sure AllowedDischargePower is greater-or-equals absolute AllowedChargePower
 			acAllowedDischargePower = Math.max(Math.abs(acAllowedChargePower), acAllowedDischargePower);
 		} else {
 
 			// Limit acChargerPower to maxApparentPower
-			if(acAllowedChargePower>maxApparentPower) acAllowedChargePower = maxApparentPower;
+			if (acAllowedChargePower > maxApparentPower) {
+				acAllowedChargePower = maxApparentPower;
+			}
 		}
 
 		// Apply AllowedChargePower and AllowedDischargePower

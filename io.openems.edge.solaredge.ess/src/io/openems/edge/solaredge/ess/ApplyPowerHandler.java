@@ -12,7 +12,7 @@ import io.openems.edge.solaredge.ess.enums.AcChargePolicy;
 import io.openems.edge.solaredge.ess.enums.CommandMode;
 import io.openems.edge.solaredge.ess.enums.ControlMode;
 import io.openems.edge.solaredge.ess.enums.MeterCommunicateStatus;
-import io.openems.edge.solaredge.ess.enums.SEControlMode;
+import io.openems.edge.solaredge.ess.enums.SeControlMode;
 
 public class ApplyPowerHandler {
 
@@ -36,7 +36,7 @@ public class ApplyPowerHandler {
 
 		// Update Warn Channels
 		this.checkControlModeRequiresRemoteControl(solarEdge, controlMode);
-		this.checkControlModeRequiresACCharge(solarEdge, controlMode);
+		this.checkControlModeRequiresAcCharge(solarEdge, controlMode);
 		this.checkControlModeWithActivePid(solarEdge, controlMode, isPidEnabled);
 		this.checkControlModeRequiresSmartMeter(solarEdge, controlMode);
 
@@ -109,11 +109,10 @@ public class ApplyPowerHandler {
 		// curtail)
 		if (activePowerSetPoint < 0) {
 			var result = activePowerSetPoint * -1 + pvProduction;
-			if(solarEdge.getSoc().orElse(100)>=100) {
+			if (solarEdge.getSoc().orElse(100) >= 100) {
 				// battery full, limit charge power to zero
 				result = 0;
-			}
-			else if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
+			} else if (result > solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
 				// limit to max charge power
 				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
 			}
@@ -123,18 +122,17 @@ public class ApplyPowerHandler {
 			// Set-Point is positive && less than PV-Production -> feed PV partly to grid +
 			// charge battery
 			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
-			var result = pvProduction-activePowerSetPoint;
-			if(result>0) {
-				var dischargeEfficencyAbsolute = round(activePowerSetPoint*(1-DISCHARGE_EFFICIENCY_FACTOR)); // Decrease battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
-				if(result-dischargeEfficencyAbsolute>0){
-					result = result-dischargeEfficencyAbsolute;
+			var result = pvProduction - activePowerSetPoint;
+			if (result > 0) {
+				var dischargeEfficencyAbsolute = round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Decrease battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
+				if (result - dischargeEfficencyAbsolute > 0) {
+					result = result - dischargeEfficencyAbsolute;
 				}
 			}
-			if(solarEdge.getSoc().orElse(100)>=100) {
+			if (solarEdge.getSoc().orElse(100) >= 100) {
 				// battery full, limit charge power to zero -> required for Set-Point 0
 				result = 0;
-			}
-			else if(result>solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
+			} else if (result > solarEdge.getBattery1MaxChargeContinuesPower().orElse(0)) {
 				// limit to max charge power
 				result = solarEdge.getBattery1MaxChargeContinuesPower().orElse(0);
 			}
@@ -142,13 +140,11 @@ public class ApplyPowerHandler {
 		} else {
 			// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
 			// discharge battery
-			var result = (activePowerSetPoint-pvProduction)+round(activePowerSetPoint*(1-DISCHARGE_EFFICIENCY_FACTOR)); // Increase battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
-			//log.info("[3] activePowerSetPoint: "+activePowerSetPoint+ ", pvProducution: "+pvProduction+", allowed "+solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)+", DISCHARGE_BAT "+result+" ("+(activePowerSetPoint-pvProduction)+")");
-			if(solarEdge.getSoc().orElse(0)<=10) {
+			var result = (activePowerSetPoint - pvProduction) + round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Increase battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
+			if (solarEdge.getSoc().orElse(0) <= 10) {
 				// battery empty (=SOC equals or less than soc_min of 10), limit charge power to zero -> required for Set-Point 0
 				result = 0;
-			}
-			else if(result>solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)) {
+			} else if (result > solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)) {
 				// limit to max discharge power
 				result = solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0);
 			}
@@ -157,7 +153,7 @@ public class ApplyPowerHandler {
 	}
 	
 	/**
-	 * Check if {@link SEControlMode} is set to Remote Control.
+	 * Check if {@link SeControlMode} is set to Remote Control.
 	 * If false warning channel REMOTE_CONTROL_NOT_ENABLED is set to true,
 	 * otherwise to false.
 	 *
@@ -166,7 +162,7 @@ public class ApplyPowerHandler {
 	 */
 	private void checkControlModeRequiresRemoteControl(SolarEdgeEss solarEdge, ControlMode controlMode) {
 		EnumReadChannel seControlModeChannel = solarEdge.channel(SolarEdgeEss.ChannelId.STORAGE_CONTROL_MODE);
-		SEControlMode seControlMode = seControlModeChannel.value().asEnum();
+		SeControlMode seControlMode = seControlModeChannel.value().asEnum();
 		
 		var enableWarning = switch (seControlMode) {
 		case UNDEFINED -> //
@@ -199,7 +195,7 @@ public class ApplyPowerHandler {
 	 * @param solarEdge   the SolarEdge ESS
 	 * @param controlMode  the {@link ControlMode} to check control mode
 	 */
-	private void checkControlModeRequiresACCharge(SolarEdgeEss solarEdge, ControlMode controlMode) {
+	private void checkControlModeRequiresAcCharge(SolarEdgeEss solarEdge, ControlMode controlMode) {
 		EnumReadChannel acChargePolicyChannel = solarEdge.channel(SolarEdgeEss.ChannelId.STORAGE_AC_CHARGE_POLICY);
 		AcChargePolicy acChargePolicy = acChargePolicyChannel.value().asEnum();
 		

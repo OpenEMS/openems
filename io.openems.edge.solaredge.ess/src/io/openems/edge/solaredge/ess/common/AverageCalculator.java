@@ -18,7 +18,9 @@ public class AverageCalculator {
     public void addValue(int value) {
         this.values[this.currentIndex] = value;
         this.currentIndex = (this.currentIndex + 1) % this.values.length;
-        if(valuesCount<this.values.length) valuesCount++;
+        if (this.valuesCount < this.values.length) {
+        	this.valuesCount++;
+        }
     }
 
     /**

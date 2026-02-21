@@ -89,13 +89,7 @@ public class SolarEdgeChargerImpl extends AbstractOpenemsComponent
 	
 	@Override
 	public String debugLog() {
-		/*
-		return "DC Voltage:"+this.getVoltage()+"|Battery Charge Current:"+this.getChargeCurrent()
-				+ "|Inverter Power:"+this.getInverterPower()+"|Battery Charge Power:"+this.getChargePower()+"|Actual Power (PV Generator):" + this.getActualPower().asString();
-		*/
-		
-		return "Production:" + this.getActualPower().asString();
-				//+ "|"+this.essInverter.channel(SolarEdgeEss.ChannelId.INVERTER_ACTIVE_DC_POWER).value().get()+"+"+this.essInverter.getBattery1ActualPower();
+		return "L:" + this.getActualPower().asString();
 	}	
 
 	@Override

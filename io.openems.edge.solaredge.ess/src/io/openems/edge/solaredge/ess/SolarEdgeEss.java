@@ -18,7 +18,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.solaredge.ess.enums.SEControlMode;
+import io.openems.edge.solaredge.ess.enums.SeControlMode;
 import io.openems.edge.solaredge.ess.enums.CommandMode;
 import io.openems.edge.solaredge.ess.enums.MeterCommunicateStatus;
 import io.openems.edge.solaredge.ess.enums.AcChargePolicy;
@@ -67,15 +67,19 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 				})),		
 		
 		/**
-		 * Storage Control Mode is used to set the StorEdge system operating mode: 0 –
-		 * Disabled 1 – Maximize Self Consumption – requires a SolarEdge Electricity
-		 * meter on the grid or load connection point 2 – Time of Use (Profile
-		 * programming) – requires a SolarEdge Electricity meter on the grid or load
-		 * connection point 3 – Backup Only (applicable only for systems support backup
-		 * functionality) 4 – Remote Control – the battery charge/discharge state is
-		 * controlled by an external controller
+		 * Storage Control Mode is used to set the StorEdge system operating mode.
+		 * <ul>
+		 * <li>0 – Disabled
+		 * <li>1 – Maximize Self Consumption – requires a SolarEdge Electricity meter
+		 * on the grid or load connection point
+		 * <li>2 – Time of Use (Profile programming) – requires a SolarEdge Electricity meter
+		 * on the grid or load connection point
+		 * <li>3 – Backup Only (applicable only for systems support backup functionality)
+		 * <li>4 – Remote Control – the battery charge/discharge state is controlled by an
+		 * external controller
+		 * </ul>
 		 */
-		STORAGE_CONTROL_MODE(Doc.of(SEControlMode.values()).accessMode(AccessMode.READ_ONLY)),	
+		STORAGE_CONTROL_MODE(Doc.of(SeControlMode.values()).accessMode(AccessMode.READ_ONLY)),	
 		
 		/**
 		 * Defines the AC charge policy for the storage system.
@@ -151,7 +155,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 
 		/**
 		 * Remote Control Command Timeout sets the operating timeframe for the
-		 * charge/discharge command sets in Remote Control
+		 * charge/discharge command sets in Remote Control.
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)), //
 		REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).unit(Unit.SECONDS) //
@@ -421,7 +425,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		BATTERY1_STATUS(Doc.of(BatteryStatus.values()).accessMode(AccessMode.READ_ONLY)),		
 
 		/**
-		 * Inverter Actual DC Power
+		 * Inverter Actual DC Power.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -435,7 +439,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 				.persistencePriority(PersistencePriority.HIGH)),
 		
 		/**
-		 * Inverter Max Apparent Power
+		 * Inverter Max Apparent Power.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -449,7 +453,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 				.persistencePriority(PersistencePriority.LOW)),	
 
 		/**
-		 * Power Control Fixed Power Limit
+		 * Power Control Fixed Power Limit.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -463,7 +467,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 				.persistencePriority(PersistencePriority.LOW)),	
 
 		/**
-		 * Advanced Power Control Enabled
+		 * Advanced Power Control Enabled.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -474,7 +478,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),		
 		
 		/**
-		 * Export Control Mode
+		 * Export Control Mode.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -485,7 +489,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
 		
 		/**
-		 * Export Control Limit Mode
+		 * Export Control Limit Mode.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -496,7 +500,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),	
 		
 		/**
-		 * Export Control Site Limit
+		 * Export Control Site Limit.
 		 *
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
@@ -603,7 +607,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<SEControlMode> getStorageControlModeChannel() {
+	public default Channel<SeControlMode> getStorageControlModeChannel() {
 		return this.channel(ChannelId.STORAGE_CONTROL_MODE);
 	}	
 
@@ -612,7 +616,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default SEControlMode getStorageControlMode() {
+	public default SeControlMode getStorageControlMode() {
 		return this.getStorageControlModeChannel().value().asEnum();
 	}	
 
@@ -648,7 +652,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default SEControlMode getStorageAcChargeLimit() {
+	public default SeControlMode getStorageAcChargeLimit() {
 		return this.getStorageAcChargeLimitChannel().value().asEnum();
 	}
 
@@ -666,7 +670,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default SEControlMode getStorageBackupReservedSetting() {
+	public default SeControlMode getStorageBackupReservedSetting() {
 		return this.getStorageBackupReservedSettingChannel().value().asEnum();
 	}
 
@@ -684,7 +688,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default SEControlMode getStorageChargeDischargeDefaultMode() {
+	public default SeControlMode getStorageChargeDischargeDefaultMode() {
 		return this.getStorageChargeDischargeDefaultModeChannel().value().asEnum();
 	}
 

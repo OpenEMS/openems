@@ -209,7 +209,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			return;
 		}
 		
-		this.pvProductionAverageCalculator = new AverageCalculator(120*1000/this.getCycleTime()); // 120s average
+		this.pvProductionAverageCalculator = new AverageCalculator(120 * 1000 / this.getCycleTime()); // 120s average
 		
 		this._setGridMode(GridMode.ON_GRID);
 		this.addStaticModbusTasks(this.getModbusProtocol());
@@ -451,8 +451,8 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			 * Therefore, we must add the battery power to the DCW value from 1 second ago to obtain the PV power.
 			 * 
 			 */
-			var cycleTimeSeconds = Math.max(1, this.getCycleTime()/1000); // minimum 1 second
-			var retrievePastSeconds = Math.min(cycleTimeSeconds, 1)*2; // twice the cycle time or 2*1 second
+			var cycleTimeSeconds = Math.max(1, this.getCycleTime() / 1000); // minimum 1 second
+			var retrievePastSeconds = Math.min(cycleTimeSeconds, 1) * 2; // twice the cycle time or 2*1 second
 			var pastActiveDcPowerValues = activeDcPowerChannel.getPastValues()
 					.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(retrievePastSeconds), true); //
   		  	
@@ -460,7 +460,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			int dcPower = this.findCloseRecord(pastActiveDcPowerValues.values(), target).getOrError();
 
 			// Calculate the actual PV power and add it to the average values ​​of the calculator
-			int lastPvPower = dcPower+batteryPowerChannel.getNextValue().getOrError();
+			int lastPvPower = dcPower + batteryPowerChannel.getNextValue().getOrError();
 			this.pvProductionAverageCalculator.addValue(lastPvPower > 0 ? lastPvPower : 0);
 			
 			// Get the actual PV power as an average
@@ -475,11 +475,20 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		}
 	}
 	
-	public Value<Integer> findCloseRecord(Collection<Value<Integer>> list, LocalDateTime tempDate) {
-        if (list == null || list.isEmpty()) return null;
+	/**
+	 * Find record in list closest to dateTime.
+	 * 
+	 * @param list		the list to search in
+	 * @param dateTime	the dateTime to which the searched record should be closest
+	 * @return listEntry
+	 */
+	public Value<Integer> findCloseRecord(Collection<Value<Integer>> list, LocalDateTime dateTime) {
+        if (list == null || list.isEmpty()) {
+        	return null;
+        }
         
         return list.stream()
-                .min(Comparator.comparingLong(d -> Math.abs(MILLIS.between(tempDate, d.getTimestamp()))))
+                .min(Comparator.comparingLong(d -> Math.abs(MILLIS.between(dateTime, d.getTimestamp()))))
                 .orElse(null);
 	}
 	
@@ -489,6 +498,9 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	 * <p>
 	 * Even if there is no real power from PV, the Inverter Power Channel
 	 * could remain on minimum power values. These values are ignored.
+	 * 
+	 * @param pvProduction 		the pvProduction
+	 * @return pvProduction or zero
 	 */
 	protected static Integer ignoreImpossibleMinPower(Integer pvProduction) {
 		if (pvProduction == null) {
@@ -621,7 +633,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		FloatReadChannel inverterMaxApparentPowerChannel = this.channel(SolarEdgeEss.ChannelId.INVERTER_MAX_APPARENT_POWER);
 		var inverterMaxApparentPower = inverterMaxApparentPowerChannel.value();
 		var inverterPowerLimit = this.getInverterPowerLimit();
-		if(inverterMaxApparentPower != null && inverterPowerLimit != null) {
+		if (inverterMaxApparentPower != null && inverterPowerLimit != null) {
 			this._setMaxApparentPower(Math.round(TypeUtils.multiply(inverterMaxApparentPower.get(), inverterPowerLimit.get(), 0.01f)));
 		}
 	}
@@ -641,7 +653,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				pvProduction = TypeUtils.sum(pvProduction, charger.getActualPowerChannel().getNextValue().getOrError());
 			}
 
-			var dcBatteryActualPower = activeDcPowerChannel.getNextValue().getOrError()-pvProduction;
+			var dcBatteryActualPower = activeDcPowerChannel.getNextValue().getOrError() - pvProduction;
 			this._setDcDischargePower(Math.abs(dcBatteryActualPower) > 50 ? dcBatteryActualPower : 0);
 		} catch (Exception e) {
 			return;
@@ -692,16 +704,23 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 	
-	// Sets the correct value for ACTIVE_POWER_L1, ACTIVE_POWER_L2 or ACTIVE_POWER_L3-Channel from ACTIVE_POWER
+	/**
+	 * Sets the correct value for ACTIVE_POWER_L1, ACTIVE_POWER_L2 or ACTIVE_POWER_L3-Channel from ACTIVE_POWER.
+	 * @param solarEdge the SolarEdgeEssImpl instance
+	 * @param phase		the phase to which the inverter is connected
+	 */
 	public static void calculateSinglePhaseFromActivePower(SolarEdgeEssImpl solarEdge, SingleOrAllPhase phase) {
 		solarEdge.getActivePowerChannel().onSetNextValue(value -> {
-			solarEdge.getActivePowerL1Channel().setNextValue(phase == SingleOrAllPhase.L1||phase == SingleOrAllPhase.ALL ? value : null); // Fallback to L1 on wrong configuration
+			solarEdge.getActivePowerL1Channel().setNextValue(phase == SingleOrAllPhase.L1 || phase == SingleOrAllPhase.ALL ? value : null); // Fallback to L1 on wrong configuration
 			solarEdge.getActivePowerL2Channel().setNextValue(phase == SingleOrAllPhase.L2 ? value : null);
 			solarEdge.getActivePowerL3Channel().setNextValue(phase == SingleOrAllPhase.L3 ? value : null);
 		});
 	}	
 	
-	// Calculate the ACTIVE_POWER_L1, ACTIVE_POWER_L2 and ACTIVE_POWER_L3-Channels from ACTIVE_POWER by dividing by three.
+	/**
+	 * Calculate the ACTIVE_POWER_L1, ACTIVE_POWER_L2 and ACTIVE_POWER_L3-Channels from ACTIVE_POWER by dividing by three.
+	 * @param solarEdge	the SolarEdgeEssImpl instance
+	 */
 	public static void calculatePhasesFromActivePower(SolarEdgeEssImpl solarEdge) {
 		solarEdge.getActivePowerChannel().onSetNextValue(value -> {
 			var phase = TypeUtils.divide(value.get(), 3);
@@ -711,7 +730,10 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		});
 	}
 	
-	// Calculate the REACTIVE_POWER_L1, REACTIVE_POWER_L2 and REACTIVE_POWER_L3-Channels from REACTIVE_POWER by dividing by three.
+	/**
+	 *  Calculate the REACTIVE_POWER_L1, REACTIVE_POWER_L2 and REACTIVE_POWER_L3-Channels from REACTIVE_POWER by dividing by three.
+	 * @param solarEdge	the SolarEdgeEssImpl instance
+	 */
 	public static void calculatePhasesFromReactivePower(SolarEdgeEssImpl solarEdge) {
 		solarEdge.getReactivePowerChannel().onSetNextValue(value -> {
 			var phase = TypeUtils.divide(value.get(), 3);

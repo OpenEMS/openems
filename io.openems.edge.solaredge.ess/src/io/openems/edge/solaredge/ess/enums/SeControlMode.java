@@ -2,7 +2,7 @@ package io.openems.edge.solaredge.ess.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public  enum SEControlMode implements OptionsEnum {
+public  enum SeControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DISABLED(0, "Disabled"), //
 	MAX_SELF_CONSUMPTION(1, "Maximize Self Consumption"), // requires a SolarEdge Electricity meter on the grid or load connection point
@@ -13,7 +13,7 @@ public  enum SEControlMode implements OptionsEnum {
 	private final int value;
 	private final String name;
 
-	private SEControlMode(int value, String name) {
+	private SeControlMode(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
