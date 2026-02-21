@@ -487,14 +487,22 @@
             <version>3.3.0</version>
         </dependency>
         <dependency>
+            <!--
+            Pax Logging API Library
+            Commits: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-api
+            -->
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
         </dependency>
         <dependency>
+            <!--
+            Pax Logging backend for Apache Log4J2
+            Commits: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-log4j2
+            -->
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-log4j2</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -604,7 +612,7 @@
         </dependency>
         <dependency>
             <!-- 
-            Runtime code generation for the Java virtual machine.
+            Runtime code generation for the Java virtual machine
             Changelog: https://github.com/raphw/byte-buddy/releases
             -->
             <groupId>net.bytebuddy</groupId>
