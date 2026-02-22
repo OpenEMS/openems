@@ -29,6 +29,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.Filter;
+import io.openems.edge.common.filter.LowPassFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -66,7 +68,7 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	private boolean debugMode = EssPowerImpl.DEFAULT_DEBUG_MODE;
 
 	private Config config;
-	private PidFilter pidFilter;
+	private Filter filter;
 
 	public EssPowerImpl() {
 		super(//
@@ -118,11 +120,16 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 
 		if (config.enablePid()) {
 			// build a PidFilter instance with the configured P, I and D variables
-			this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+			this.filter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+
+		} else if (config.enableLowPass()) {
+			// build a LowPassFilter instance with the configured alpha parameter
+			this.filter = new LowPassFilter(config.alpha());
+
+		} else {
 			// use a DisabledPidFilter instance, that always just returns the unfiltered
 			// target value
-		} else {
-			this.pidFilter = DisabledPidFilter.INSTANCE;
+			this.filter = DisabledPidFilter.INSTANCE;
 		}
 	}
 
@@ -250,8 +257,8 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	@Override
-	public PidFilter getPidFilter() {
-		return this.pidFilter;
+	public Filter getFilter() {
+		return this.filter;
 	}
 
 	/**
@@ -263,8 +270,9 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 		return this.debugMode;
 	}
 
-	public boolean isPidEnabled() {
-		return this.config.enablePid();
+	@Override
+	public boolean isFilterEnabled() {
+		return this.config.enablePid() || this.config.enableLowPass();
 	}
 
 }

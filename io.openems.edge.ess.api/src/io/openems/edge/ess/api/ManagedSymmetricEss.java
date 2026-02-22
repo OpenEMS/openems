@@ -25,6 +25,8 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.Filter;
+import io.openems.edge.common.filter.LowPassFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -402,23 +404,21 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * Sets the {@link ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS} using
 	 * the provided {@link PidFilter}.
 	 * 
-	 * @param ess               the {@link ManagedSymmetricEss}
-	 * @param value             the target value
-	 * @param fallbackPidFilter the fallback PidFilter is used if the
-	 *                          {@link PidFilter} provided by ess is a
-	 *                          {@link DisabledPidFilter}
+	 * @param ess            the {@link ManagedSymmetricEss}
+	 * @param value          the target value
+	 * @param fallbackFilter the fallback {@link Filter} is used if the Filter
+	 *                       provided by ess is a {@link DisabledPidFilter}
 	 * @throws OpenemsNamedException on error
 	 */
-	public static void setActivePowerEqualsWithPid(ManagedSymmetricEss ess, Integer value, PidFilter fallbackPidFilter)
+	public static void setActivePowerEqualsWithPid(ManagedSymmetricEss ess, Integer value, Filter fallbackFilter)
 			throws OpenemsNamedException {
 		if (value == null) {
 			return;
 		}
 		final var power = ess.getPower();
-		var pidFilter = power.getPidFilter();
-		if (pidFilter instanceof DisabledPidFilter && fallbackPidFilter != null) {
-			pidFilter = fallbackPidFilter;
-		}
+		final var filter = !power.isFilterEnabled() && fallbackFilter != null //
+				? fallbackFilter //
+				: power.getFilter();
 
 		// configure PID filter
 		var minPower = power.getMinPower(ess, ALL, ACTIVE);
@@ -437,12 +437,21 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 			return;
 		}
 
-		pidFilter.setLimits(minPower, maxPower);
+		filter.setLimits(minPower, maxPower);
 
-		int currentActivePower = ess.getActivePower().orElse(0);
-		var pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
+		// Call method of activated Filter
+		final var output = switch (filter) {
+		case PidFilter pidFilter -> {
+			int currentActivePower = ess.getActivePower().orElse(0);
+			yield pidFilter.applyPidFilter(currentActivePower, value);
+		}
 
-		ess.setActivePowerEquals(pidOutput);
+		case LowPassFilter lowPassFilter -> {
+			yield lowPassFilter.applyLowPassFilter(value);
+		}
+		};
+
+		ess.setActivePowerEquals(output);
 	}
 
 	/**

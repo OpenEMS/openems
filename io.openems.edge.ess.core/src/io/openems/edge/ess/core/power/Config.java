@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.common.filter.LowPassFilter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.power.api.SolverStrategy;
 
@@ -34,6 +35,12 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 
 	@AttributeDefinition(name = "PID Filter: Derivative gain", description = "The weight of derivative gain in the PID filter. Value between [0;1].")
 	double d() default PidFilter.DEFAULT_D;
+
+	@AttributeDefinition(name = "Enable Low-Pass Filter", description = "Enables the Low-Pass Filter with the alpha parameter below")
+	boolean enableLowPass() default false;
+
+	@AttributeDefinition(name = "Low-Pass Filter: alpha", description = "The filter coefficient. Recommended value: 0.63 (roughly 1-e^-1). Range between [0;1].")
+	double alpha() default LowPassFilter.DEFAULT_ALPHA;
 
 	String webconsole_configurationFactory_nameHint() default "ESS Power";
 }

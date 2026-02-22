@@ -6,7 +6,7 @@ package io.openems.edge.common.filter;
  * @see <a href=
  *      "https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a>
  */
-public class PidFilter {
+public non-sealed class PidFilter extends Filter {
 
 	public static final double DEFAULT_P = 0.3;
 	public static final double DEFAULT_I = 0.3;
@@ -22,8 +22,6 @@ public class PidFilter {
 
 	private double lastInput = 0;
 	private double errorSum = 0;
-	private Integer lowLimit = null;
-	private Integer highLimit = null;
 
 	/**
 	 * Creates a PidFilter.
@@ -43,21 +41,6 @@ public class PidFilter {
 	 */
 	public PidFilter() {
 		this(DEFAULT_P, DEFAULT_I, DEFAULT_D);
-	}
-
-	/**
-	 * Limit the output value.
-	 *
-	 * @param lowLimit  lowest allowed output value
-	 * @param highLimit highest allowed output value
-	 */
-	public void setLimits(Integer lowLimit, Integer highLimit) {
-		if (lowLimit != null && highLimit != null && lowLimit > highLimit) {
-			throw new IllegalArgumentException(
-					"Given LowLimit [" + lowLimit + "] is higher than HighLimit [" + highLimit + "]");
-		}
-		this.lowLimit = lowLimit;
-		this.highLimit = highLimit;
 	}
 
 	/**
@@ -106,34 +89,7 @@ public class PidFilter {
 		this.errorSum = this.applyErrorSumLimit(this.errorSum + error);
 
 		// Post-process the output value: convert to integer and apply value limits
-		return this.applyLowHighLimits(Math.round((float) output));
-	}
-
-	/**
-	 * Reset the PID filter.
-	 *
-	 * <p>
-	 * This method should be called when the filter was not used for a while.
-	 */
-	public void reset() {
-		this.errorSum = 0;
-		this.firstRun = true;
-	}
-
-	/**
-	 * Applies the configured PID low and high limits to a value.
-	 *
-	 * @param value the input value
-	 * @return the value within low and high limit
-	 */
-	protected int applyLowHighLimits(int value) {
-		if (this.lowLimit != null && value < this.lowLimit) {
-			value = this.lowLimit;
-		}
-		if (this.highLimit != null && value > this.highLimit) {
-			value = this.highLimit;
-		}
-		return value;
+		return this.applyLowHighLimits(output);
 	}
 
 	/**
