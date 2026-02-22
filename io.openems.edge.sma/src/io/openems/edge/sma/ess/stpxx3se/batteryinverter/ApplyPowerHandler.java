@@ -31,7 +31,7 @@ public class ApplyPowerHandler {
 			throws OpenemsNamedException {
 
 		this.parent.channel(BatteryInverterSmaStpSe.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER) //
-				.setNextValue(this.parent.power.isPidEnabled() && controlmode.equals(ControlMode.SMART));
+				.setNextValue(this.parent.power.isFilterEnabled() && controlmode.equals(ControlMode.SMART));
 
 		var result = switch (controlmode) {
 		case INTERNAL -> handleInternalMode();

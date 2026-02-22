@@ -14,6 +14,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private double p;
 		private double i;
 		private double d;
+		private boolean enableLowPass;
+		private double alpha;
 
 		private Builder() {
 		}
@@ -38,18 +40,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setP(int p) {
+		public Builder setP(double p) {
 			this.p = p;
 			return this;
 		}
 
-		public Builder setI(int i) {
+		public Builder setI(double i) {
 			this.i = i;
 			return this;
 		}
 
-		public Builder setD(int d) {
+		public Builder setD(double d) {
 			this.d = d;
+			return this;
+		}
+
+		public Builder setEnableLowPass(boolean enableLowPass) {
+			this.enableLowPass = enableLowPass;
+			return this;
+		}
+
+		public Builder setAlpha(double alpha) {
+			this.alpha = alpha;
 			return this;
 		}
 
@@ -107,6 +119,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public double d() {
 		return this.builder.d;
+	}
+
+	@Override
+	public boolean enableLowPass() {
+		return this.builder.enableLowPass;
+	}
+
+	@Override
+	public double alpha() {
+		return this.builder.alpha;
 	}
 
 }

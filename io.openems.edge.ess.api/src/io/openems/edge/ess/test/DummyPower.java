@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.TypeUtils;
@@ -17,7 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
 
 public class DummyPower implements Power {
 
-	private final PidFilter pidFilter;
+	private final Filter filter;
 	private final List<ManagedSymmetricEss> esss = new ArrayList<>();
 
 	private int maxApparentPower;
@@ -40,9 +41,9 @@ public class DummyPower implements Power {
 		this(maxApparentPower, DisabledPidFilter.INSTANCE);
 	}
 
-	public DummyPower(int maxApparentPower, PidFilter pidFilter) {
+	public DummyPower(int maxApparentPower, Filter filter) {
 		this.maxApparentPower = maxApparentPower;
-		this.pidFilter = pidFilter;
+		this.filter = filter;
 	}
 
 	/**
@@ -129,12 +130,12 @@ public class DummyPower implements Power {
 	}
 
 	@Override
-	public PidFilter getPidFilter() {
-		return this.pidFilter;
+	public Filter getFilter() {
+		return this.filter;
 	}
 
 	@Override
-	public boolean isPidEnabled() {
-		return !(this.pidFilter instanceof DisabledPidFilter);
+	public boolean isFilterEnabled() {
+		return !(this.filter instanceof DisabledPidFilter);
 	}
 }
