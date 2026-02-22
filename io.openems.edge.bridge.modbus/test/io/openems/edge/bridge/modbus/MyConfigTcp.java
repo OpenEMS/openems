@@ -12,7 +12,6 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 		private int port;
 		private LogVerbosity logVerbosity;
 		private int invalidateElementsAfterReadErrors;
-		private int cycleTime = 0;
 		private int minSleepTime = 0;
 
 		private Builder() {
@@ -40,11 +39,6 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
 		public Builder setInvalidateElementsAfterReadErrors(int invalidateElementsAfterReadErrors) {
 			this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
-			return this;
-		}
-
-		public Builder setCycleTime(int cycleTime) {
-			this.cycleTime = cycleTime;
 			return this;
 		}
 
@@ -92,11 +86,6 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 	@Override
 	public int invalidateElementsAfterReadErrors() {
 		return this.builder.invalidateElementsAfterReadErrors;
-	}
-
-	@Override
-	public int cycleTime() {
-		return this.builder.cycleTime;
 	}
 
 	@Override

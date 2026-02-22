@@ -41,7 +41,6 @@ public class ModbusWorker extends AbstractWorker {
 	private final TasksSupplierImpl tasksSupplier;
 	private final CycleTasksManager cycleTasksManager;
 
-	private int cycleTime = 0;
 	private int minSleepTime = 0;
 
 	/**
@@ -168,21 +167,17 @@ public class ModbusWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected final int getCycleTime() {
-		return this.cycleTime;
-	}
-
-	public void setCycleTime(int cycleTime) {
-		this.cycleTime = cycleTime;
-	}
-
-	@Override
 	protected final int getMinSleepTime() {
 		return this.minSleepTime;
 	}
 
 	public void setMinSleepTime(int minSleepTime) {
 		this.minSleepTime = minSleepTime;
+	}
+
+	@Override
+	protected final int getCycleTime() {
+		return AbstractWorker.DO_NOT_WAIT;
 	}
 
 }

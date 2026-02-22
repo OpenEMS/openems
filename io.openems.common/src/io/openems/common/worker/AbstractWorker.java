@@ -117,8 +117,7 @@ public abstract class AbstractWorker {
 
 	/**
 	 * Returns the minimum sleep time between two cycles. This avoids tasks
-	 * to run immediately after each other, eg. forces a break between two
-	 * modbus reads.
+	 * to run immediately after each other.
 	 *
 	 * @return sleep time in ms
 	 */
