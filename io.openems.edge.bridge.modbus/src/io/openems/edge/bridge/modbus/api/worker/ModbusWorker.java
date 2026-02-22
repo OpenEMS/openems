@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.openems.common.worker.AbstractWorker;
+import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -31,7 +31,7 @@ import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplierImpl;
  * {@link CycleTasksManager} that internally uses a {@link TasksSupplierImpl}
  * that supplies the tasks for one Cycle ({@link CycleTasks}).
  */
-public class ModbusWorker extends AbstractWorker {
+public class ModbusWorker extends AbstractImmediateWorker {
 
 	// Callbacks
 	private final Function<Task, ExecuteState> execute;
@@ -173,11 +173,6 @@ public class ModbusWorker extends AbstractWorker {
 
 	public void setMinSleepTime(int minSleepTime) {
 		this.minSleepTime = minSleepTime;
-	}
-
-	@Override
-	protected final int getCycleTime() {
-		return AbstractWorker.DO_NOT_WAIT;
 	}
 
 }
