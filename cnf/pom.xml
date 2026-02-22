@@ -47,7 +47,11 @@
             <version>5.3.1</version>
         </dependency>
         <dependency>
-            <!-- Changelog: https://github.com/OpenEMS/j2mod/releases -->
+            <!--
+            OpenEMS fork of j2mod - A Java Modbus implementation
+            Changelog: https://github.com/OpenEMS/j2mod/releases
+            Original: https://github.com/steveohara/j2mod/releases
+            -->
             <groupId>io.openems</groupId>
             <artifactId>j2mod</artifactId>
             <version>3.2.2-openems.2</version>
@@ -128,9 +132,10 @@
         </dependency>
         <!-- de -->
         <dependency>
-            <!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY
-            Protocol.
-            Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md -->
+            <!-- 
+            PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol.
+            Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md
+            -->
             <groupId>de.bytefish</groupId>
             <artifactId>pgbulkinsert</artifactId>
             <version>8.1.8</version>
@@ -201,8 +206,10 @@
             <version>3.1.12</version>
         </dependency>
         <dependency>
-            <!-- Jenetics - Java Genetic Algorithm Library -->
-            <!-- Release notes: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md -->
+            <!--
+            Jenetics - Java Genetic Algorithm Library
+            Changelog: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md
+            -->
             <groupId>io.jenetics</groupId>
             <artifactId>jenetics</artifactId>
             <version>8.3.0</version>
@@ -221,40 +228,46 @@
             <version>3.6.1</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Configuration Admin Service -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
+            <!--
+            Apache Felix Configuration Admin Service
+            Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
             <version>1.9.26</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix EventAdmin -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt -->
+            <!--
+            Apache Felix EventAdmin
+            Changelog: https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.eventadmin</artifactId>
             <version>1.6.4</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix File Install -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/fileinstall/doc/changelog.txt -->
+            <!--
+            Apache Felix File Install
+            Changelog: https://github.com/apache/felix-dev/blob/master/fileinstall/doc/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.fileinstall</artifactId>
             <version>3.7.4</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Framework -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt -->
+            <!--
+            Apache Felix Framework
+            Changelog: https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
             <version>7.0.5</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix HTTP Service -->
-            <!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
+            <!--
+            Apache Felix HTTP Service
+            Changelog: https://github.com/apache/felix-dev/commits/master/http
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.http.jetty12</artifactId>
             <version>1.1.6</version>
@@ -266,38 +279,46 @@
             <version>6.1.0</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Inventory -->
-            <!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
+            <!--
+            Apache Felix Inventory
+            Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.inventory</artifactId>
             <version>2.0.0</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Metatype Service -->
-            <!-- Changelog: https://github.com/apache/felix-dev/blob/master/metatype/changelog.txt -->
+            <!--
+            Apache Felix Metatype Service
+            Changelog: https://github.com/apache/felix-dev/blob/master/metatype/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.metatype</artifactId>
             <version>1.2.4</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Service Component Runtime (SCR) -->
-            <!-- Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt -->
+            <!--
+            Apache Felix Service Component Runtime (SCR)
+            Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr</artifactId>
             <version>2.2.14</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Web Management Console -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases -->
+            <!--
+            Apache Felix Web Management Console
+            Changelog: https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.webconsole</artifactId>
             <version>5.0.18</version>
         </dependency>
         <dependency>
-            <!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
-            <!-- Changelog:
-            https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt -->
+            <!--
+            Apache Felix Web Console Service Component Runtime/Declarative Services Plugin
+            Changelog: https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt
+            -->
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
             <version>2.3.0</version>
@@ -344,8 +365,10 @@
             <version>1.2.5</version>
         </dependency>
         <dependency>
-            <!-- Java mDNS Library -->
-            <!-- Changelog: https://github.com/jmdns/jmdns/releases -->
+            <!--
+            Java mDNS Library
+            Changelog: https://github.com/jmdns/jmdns/releases
+            -->
             <groupId>org.jmdns</groupId>
             <artifactId>jmdns</artifactId>
             <version>3.6.3</version>
@@ -372,9 +395,14 @@
             <version>7.5.0</version>
         </dependency>
         <dependency>
+            <!--
+            Kotlin OSGi Bundle
+            Changelog: https://github.com/JetBrains/kotlin/releases
+            Commits: https://github.com/JetBrains/kotlin/commits/master/libraries/tools/kotlin-osgi-bundle
+            -->
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-osgi-bundle</artifactId>
-            <version>2.3.0</version>
+            <version>2.3.10</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
@@ -382,8 +410,11 @@
             <version>1.10.2</version>
         </dependency>
         <dependency>
-            <!-- Wrapper: io.openems.wrapper.jfreechart -->
-            <!-- Changelog: https://github.com/jfree/jfreechart/releases -->
+            <!--
+            A 2D chart library for Java applications (JavaFX, Swing or server-side). 
+            Changelog: https://github.com/jfree/jfreechart/releases
+            Wrapper: io.openems.wrapper.jfreechart
+            -->
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
             <version>1.5.6</version>
@@ -456,14 +487,22 @@
             <version>3.3.0</version>
         </dependency>
         <dependency>
+            <!--
+            Pax Logging API Library
+            Commits: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-api
+            -->
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
         </dependency>
         <dependency>
+            <!--
+            Pax Logging backend for Apache Log4J2
+            Commits: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-log4j2
+            -->
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-log4j2</artifactId>
-            <version>2.3.1</version>
+            <version>2.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -490,7 +529,7 @@
             <!-- Used by io.openems.backend.metadata.odoo -->
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.9</version>
+            <version>42.7.10</version>
         </dependency>
         <dependency>
             <!-- Used by com.influxdb: influxdb -->
@@ -572,9 +611,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- 
+            Runtime code generation for the Java virtual machine
+            Changelog: https://github.com/raphw/byte-buddy/releases
+            -->
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.18.4</version>
+            <version>1.18.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -585,17 +628,23 @@
         </dependency>
         <dependency>
             <!--
+            Java client library for the Auth0 platform
             Changelog: https://github.com/auth0/auth0-java/releases
-            Wrapper: io.openems.wrapper.auth0-auth0.bnd -->
+            Wrapper: io.openems.wrapper.auth0-auth0.bnd
+            -->
             <groupId>com.auth0</groupId>
             <artifactId>auth0</artifactId>
             <version>3.2.0</version>
         </dependency>
-        <!-- used by io.openems.backend.authentication.oauth -->
         <dependency>
+            <!--
+            Java implementation of JSON Web Token (JWT)
+            Changelog: https://github.com/auth0/java-jwt/releases
+            Wrapper: io.openems.wrapper/auth0-java-jwt.bnd
+            -->
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.5.0</version>
+            <version>4.5.1</version>
         </dependency>
         <dependency>
             <!-- used by io.openems.backend.authentication.oauth -->
