@@ -19,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.filter.LowPassFilter;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
@@ -815,6 +817,112 @@ public class PowerComponentTest {
 		ess1.setActivePowerEquals(-100000); // 100kW charge
 		componentTest.next(new TestCase("#12"));
 
+	}
+
+	@Test
+	public void testPidFilter() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-50000) //
+				.withAllowedDischargePower(50000) //
+				.withMaxApparentPower(12000) //
+				.withSoc(30);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(true) //
+						.setP(PidFilter.DEFAULT_P) //
+						.setI(PidFilter.DEFAULT_I) //
+						.setD(PidFilter.DEFAULT_D) //
+						.build()); //
+
+		expect("#1", ess0, 0, 0);
+		ess0.withActivePower(0);
+		ess0.setActivePowerEqualsWithPid(0);
+		componentTest.next(new TestCase());
+
+		expect("#2", ess0, 230, 0);
+		ess0.withActivePower(333);
+		ess0.setActivePowerEqualsWithPid(1100);
+		componentTest.next(new TestCase());
+
+		expect("#3", ess0, 357, 0);
+		ess0.withActivePower(666);
+		ess0.setActivePowerEqualsWithPid(1200);
+		componentTest.next(new TestCase());
+
+		expect("#4", ess0, 447, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithPid(1300);
+		componentTest.next(new TestCase());
+
+		expect("#5", ess0, 601, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithPid(1400);
+		componentTest.next(new TestCase());
+
+		expect("#6", ess0, 751, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithPid(1500);
+		componentTest.next(new TestCase());
+	}
+
+	@Test
+	public void testLowPassFilter() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-50000) //
+				.withAllowedDischargePower(50000) //
+				.withMaxApparentPower(12000) //
+				.withSoc(30);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnableLowPass(true) //
+						.setAlpha(LowPassFilter.DEFAULT_ALPHA) //
+						.build()); //
+
+		expect("#1", ess0, 0, 0);
+		ess0.setActivePowerEqualsWithPid(0);
+		componentTest.next(new TestCase());
+
+		expect("#2", ess0, 693, 0);
+		ess0.setActivePowerEqualsWithPid(1100);
+		componentTest.next(new TestCase());
+
+		expect("#3", ess0, 1012, 0);
+		ess0.setActivePowerEqualsWithPid(1200);
+		componentTest.next(new TestCase());
+
+		expect("#4", ess0, 1193, 0);
+		ess0.setActivePowerEqualsWithPid(1300);
+		componentTest.next(new TestCase());
+
+		expect("#5", ess0, 1323, 0);
+		ess0.setActivePowerEqualsWithPid(1400);
+		componentTest.next(new TestCase());
+
+		expect("#6", ess0, 1435, 0);
+		ess0.setActivePowerEqualsWithPid(1500);
+		componentTest.next(new TestCase());
 	}
 
 	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
