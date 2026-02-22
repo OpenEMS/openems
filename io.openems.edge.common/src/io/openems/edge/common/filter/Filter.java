@@ -1,6 +1,6 @@
 package io.openems.edge.common.filter;
 
-public sealed abstract class Filter permits PidFilter, LowPassFilter {
+public abstract sealed class Filter permits PidFilter, LowPassFilter {
 
 	protected Integer lowLimit = null;
 	protected Integer highLimit = null;
