@@ -549,7 +549,8 @@ public class DelayCharge {
 		int dailyEndIndex = DelayCharge.getAsZonedDateTime(targetMinute, clock).get(MINUTE_OF_DAY) / 15;
 
 		// Relevant quarter hours
-		int endIndex = dailyEndIndex - dailyStartIndex;
+		int endIndex = Math.min(dailyEndIndex - dailyStartIndex,
+				Math.min(quarterHourlyProduction.length, quarterHourlyConsumption.length));
 
 		float productionEnergyTotal = 0;
 		float consumptionEnergyTotal = 0;
@@ -558,7 +559,7 @@ public class DelayCharge {
 		 * Summarize and calculate every quarterly power, if there is more than one
 		 * quarter hour left
 		 */
-		if (endIndex > 0) {
+		if (endIndex > 1) {
 			List<Integer> productionList = Arrays.asList(quarterHourlyProduction).subList(1, endIndex);
 			List<Integer> consumptionList = Arrays.asList(quarterHourlyConsumption).subList(1, endIndex);
 
@@ -576,8 +577,12 @@ public class DelayCharge {
 		// Add energy of the first index separately to ignore the already passed energy
 		float timeOfQuarterLeft = ChronoUnit.SECONDS.between(now, predictionStartQuarterHour.plusMinutes(15)) / 60.0f
 				/ 60.0f;
-		var currentProduction = quarterHourlyProduction[0] == null ? 0 : quarterHourlyProduction[0];
-		var currentConsumption = quarterHourlyConsumption[0] == null ? 0 : quarterHourlyConsumption[0];
+		var currentProduction = quarterHourlyProduction.length > 0 && quarterHourlyProduction[0] != null
+				? quarterHourlyProduction[0]
+				: 0;
+		var currentConsumption = quarterHourlyConsumption.length > 0 && quarterHourlyConsumption[0] != null
+				? quarterHourlyConsumption[0]
+				: 0;
 		float leftProdEnergy = timeOfQuarterLeft * currentProduction;
 		float leftConsEnergy = timeOfQuarterLeft * currentConsumption;
 
