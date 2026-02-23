@@ -522,7 +522,7 @@ public interface OpenemsComponent {
 	 * Log a debug message including the Component ID.
 	 *
 	 * <p>
-	 * DEPRECATED: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -544,7 +544,7 @@ public interface OpenemsComponent {
 	 * Log a info message including the Component ID.
 	 *
 	 * <p>
-	 * DEPRECATED: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -566,7 +566,7 @@ public interface OpenemsComponent {
 	 * Log a warn message including the Component ID.
 	 *
 	 * <p>
-	 * DEPRECATED: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -588,7 +588,7 @@ public interface OpenemsComponent {
 	 * Log a error message including the Component ID.
 	 *
 	 * <p>
-	 * DEPRECATED: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
