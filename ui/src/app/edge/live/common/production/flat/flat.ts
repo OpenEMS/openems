@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { EdgeConfig, Utils } from "src/app/shared/shared";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
@@ -26,14 +27,16 @@ export class FlatComponent extends AbstractFlatWidget {
 
     protected override getChannelAddresses() {
         // Get Chargers
-        this.chargerComponents =
+        this.chargerComponents = ArrayUtils.sortedAlphabetically(
             this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-                .filter(component => component.isEnabled);
+                .filter(component => component.isEnabled),
+            (c) => c.alias);
 
         // Get productionMeters
-        this.productionMeterComponents =
+        this.productionMeterComponents = ArrayUtils.sortedAlphabetically(
             this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && this.config.isProducer(component));
+                .filter(component => component.isEnabled && this.config.isProducer(component)),
+            (c) => c.alias);
 
         return [];
     }

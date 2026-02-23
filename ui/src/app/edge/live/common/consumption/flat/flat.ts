@@ -4,6 +4,7 @@ import { EvcsComponent } from "src/app/shared/components/edge/config-components/
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
@@ -41,14 +42,16 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         ];
 
         // Get consumptionMeterComponents
-        this.consumptionMeters = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => {
-                const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
-                const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+        this.consumptionMeters = ArrayUtils.sortedAlphabetically(
+            this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+                .filter(component => {
+                    const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
+                    const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
 
-                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-                    isEvcs === false;
-            });
+                    return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+                        isEvcs === false;
+                }),
+            (c) => c.alias);
 
         for (const component of this.consumptionMeters) {
             channelAddresses.push(
@@ -60,7 +63,9 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         }
 
         // Get EVCSs
-        this.evcss = EvcsComponent.getComponents(this.config, this.edge);
+        this.evcss = ArrayUtils.sortedAlphabetically(
+            EvcsComponent.getComponents(this.config, this.edge),
+            (c) => c.alias);
 
         for (const component of this.evcss) {
             channelAddresses.push(
