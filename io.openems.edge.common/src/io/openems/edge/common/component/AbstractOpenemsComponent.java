@@ -478,6 +478,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a debug message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
+	 * automatically includes the component name in all log messages, and then use
+	 * that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -488,6 +494,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an info message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
+	 * automatically includes the component name in all log messages, and then use
+	 * that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -498,6 +510,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a warn message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
+	 * automatically includes the component name in all log messages, and then use
+	 * that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -508,6 +526,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an error message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
+	 * automatically includes the component name in all log messages, and then use
+	 * that Logger for logging instead of this method.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
