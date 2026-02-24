@@ -42,15 +42,16 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         ];
 
         // Get consumptionMeterComponents
-        this.consumptionMeters = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => {
-                const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
-                const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+        this.consumptionMeters =
+            this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+                .filter(component => {
+                    const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
+                    const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
 
-                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-                    isEvcs === false;
-            })
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+                    return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+                        isEvcs === false;
+                })
+                .sort(ArrayUtils.alphabetically(c => c.alias));
 
         for (const component of this.consumptionMeters) {
             channelAddresses.push(
@@ -62,8 +63,9 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         }
 
         // Get EVCSs
-        this.evcss = EvcsComponent.getComponents(this.config, this.edge)
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+        this.evcss =
+            EvcsComponent.getComponents(this.config, this.edge)
+                .sort(ArrayUtils.alphabetically(c => c.alias));
 
         for (const component of this.evcss) {
             channelAddresses.push(
