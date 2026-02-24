@@ -396,7 +396,7 @@ public interface OpenemsComponent {
 				return true;
 			}
 		} catch (IOException | SecurityException e) {
-			_LOGGER.error("updateReferenceFilter ERROR {}", e, e);
+			_LOGGER.error("updateReferenceFilter ERROR {}", e.toString(), e);
 		}
 		return false;
 	}
@@ -479,7 +479,7 @@ public interface OpenemsComponent {
 				return true;
 			}
 		} catch (IOException | SecurityException e) {
-			_LOGGER.error("validateSingletonComponentId ERROR {}", e, e);
+			_LOGGER.error("validateSingletonComponentId ERROR {}", e.toString(), e);
 		}
 		return false;
 	}

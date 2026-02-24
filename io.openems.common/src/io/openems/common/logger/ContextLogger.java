@@ -5,12 +5,12 @@ package io.openems.common.logger;
  */
 public class ContextLogger extends PrefixedLogger {
 	
+	private final String context;
+	
 	@Override
 	protected String prefix(String format) {
 	    return this.context + format;
 	}
-	
-	private final String context;
 	
 	public ContextLogger(Class<?> clazz, String context) {
 		super(clazz);

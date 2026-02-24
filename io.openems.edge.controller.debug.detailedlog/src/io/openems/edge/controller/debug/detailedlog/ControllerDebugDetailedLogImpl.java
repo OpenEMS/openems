@@ -119,7 +119,7 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 									description //
 											.append("UNKNOWN OPTION VALUE [") //
 											.append(channel.value().asString()) //
-											.append("] ERROR :").append(e.getMessage());
+											.append("] ERROR: ").append(e.getMessage());
 								}
 							}
 							if (channel instanceof StateChannel sc && sc.value().orElse(false) == true) {
