@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextAuthConfig;
 
 /**
- * TODO
+ * Fetches the data from PLCnext API
  */
 public interface PlcNextGdsDataProvider {
 

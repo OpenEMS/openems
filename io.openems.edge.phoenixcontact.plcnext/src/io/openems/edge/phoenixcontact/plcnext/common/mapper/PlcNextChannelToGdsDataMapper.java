@@ -6,6 +6,9 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 
+/**
+ * Data mapper used to write data to controller 
+ */
 public interface PlcNextChannelToGdsDataMapper {
 
 	String PLC_NEXT_VARIABLE_PATH = "path";
@@ -18,13 +21,14 @@ public interface PlcNextChannelToGdsDataMapper {
 	 * 
 	 * @param channelValue      represents the channel and value to be mapped
 	 * @param dataInstanceName  the configured instance name
+	 * @param stationId			identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return mapped value
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
 	JsonElement mapSingleValueToGdsData(PlcNextGdsDataMappedValue channelValue, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition)
 					throws PlcNextGdsDataMappingException;
 
@@ -33,13 +37,15 @@ public interface PlcNextChannelToGdsDataMapper {
 	 * 
 	 * @param channelValues     represents a list of channel and values to be mapped
 	 * @param dataInstanceName  the configured instance name
+	 * @param stationId			identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return list of mapped values
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
 	List<JsonElement> mapAllValuesToGdsData(List<PlcNextGdsDataMappedValue> channelValues, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition)
 					throws PlcNextGdsDataMappingException;
+
 }

@@ -33,9 +33,13 @@ keytool -import -alias PxC:PLCnext-SlfSgndCert.pem \
 	-storepass "$OPENEMS_TRUSTSTORE_PASSWD" \
 	-keystore "$PATH_OPENEMS_TRUSTSTORE"
 
-echo "Starting OpenEMS Edge with custom truststore"
-java -Djavax.net.ssl.trustStore="$PATH_OPENEMS_TRUSTSTORE" \
-	-Djavax.net.ssl.trustStorePassword="OPENEMS_TRUSTSTORE_PASSWD" \
-	-Dfelix.cm.dir="$PATH_OPENEMS_EDGE_CONFIG" \
-	$JVM_OPTIONS \
-	-jar "$PATH_OPENEMS_EDGE_JAR"
+if [ $? -ne 0 ]; then
+	echo "Adding PxC PLCnext self-signed certificate to OpenEMS truststore FAILED! Skipping start of OpenEMS-Edge"
+else 
+	echo "Starting OpenEMS Edge with custom truststore"
+	java -Djavax.net.ssl.trustStore="$PATH_OPENEMS_TRUSTSTORE" \
+		-Djavax.net.ssl.trustStorePassword="OPENEMS_TRUSTSTORE_PASSWD" \
+		-Dfelix.cm.dir="$PATH_OPENEMS_EDGE_CONFIG" \
+		$JVM_OPTIONS \
+		-jar "$PATH_OPENEMS_EDGE_JAR"
+fi

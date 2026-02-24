@@ -131,8 +131,9 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsComponent
 		log.info("StationID '{}': Reading LOAD CIRCUIT data from URL '{}'", gdsDataAccessConfig.stationId(), 
 				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(PlcNextLoadCircuitGdsDataReadMappingDefinition.values())//
-				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-
+				.map(PlcNextGdsDataMappingDefinition::getIdentifier) //
+				.distinct() //
+ 				.toList();
 		gdsDataProvider
 				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
 				.thenApply(apiResponseBody -> {
@@ -143,7 +144,8 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsComponent
 						log.info("StationID '{}': Mapping LOAD CIRCUIT data", this.gdsDataAccessConfig.stationId());
 						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-								config.dataInstanceName(), PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), 
+								PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 						
 						if (!mappedValues.isEmpty()) {
 							log.info("StationID '{}': Pushing LOAD CIRCUIT data to channels", this.gdsDataAccessConfig.stationId());

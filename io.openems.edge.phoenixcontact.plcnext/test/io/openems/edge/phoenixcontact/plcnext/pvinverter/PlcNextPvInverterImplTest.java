@@ -2,13 +2,12 @@ package io.openems.edge.phoenixcontact.plcnext.pvinverter;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
@@ -36,7 +34,6 @@ import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManager;
 import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataAccessConfig;
-import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProvider;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataProviderImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataWriteValueType;
@@ -44,9 +41,8 @@ import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsD
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextChannelToGdsDataMapperImpl;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapper;
 import io.openems.edge.phoenixcontact.plcnext.common.mapper.PlcNextGdsDataToChannelMapperImpl;
-import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextMappingDefinitionHelper;
+import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelper;
 import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeter;
-import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public class PlcNextPvInverterImplTest {
@@ -82,9 +78,6 @@ public class PlcNextPvInverterImplTest {
 
 	private String accessToken;
 	
-	private PlcNextGdsDataMappingDefinition[] readDataMappingDefinition;
-
-
 	@Before
 	public void setupBefore() throws Exception {
 		this.myConfig = TestConfig.create() //
@@ -123,28 +116,30 @@ public class PlcNextPvInverterImplTest {
 		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(myConfig.baseUrl(), myConfig.dataInstanceName(),
 				COMPONENT_ID);
 
-		Endpoint createSessionEndpoint = dataProvider.buildCreateSessionEndpoint(accessToken, dataProviderConfig);
+		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS);
 		JsonObject createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
-		when(mockDummyDataBridgeHttp.requestJson(eq(createSessionEndpoint)))//
+		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
+					arg.method() == HttpMethod.POST && //
+					arg.url().startsWith(createSessionEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(
 						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-		Endpoint maintainSessionEndpoint = dataProvider.buildMaintainSessionEndpoint(accessToken, SESSION_ID,
-				dataProviderConfig);
+		String maintainSessionEndpointUrl = new StringBuilder(
+				PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
+				.append("/").append(SESSION_ID).toString();
 		JsonObject maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", SESSION_ID);
-		when(mockDummyDataBridgeHttp.requestJson(eq(maintainSessionEndpoint)))//
+		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
+					arg.method() == HttpMethod.POST && //
+					arg.url().startsWith(maintainSessionEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.test = new ComponentTest(componentUnderTest) //
 				.addReference("gdsDataProvider", this.dataProvider) //
 				.addReference("gdsDataToChannelMapper", this.dataToChannelMapper)
 				.addReference("gdsChannelToGdsDataMapper", this.channelToDataMapper);
-		
-		readDataMappingDefinition = PlcNextMappingDefinitionHelper.joinMappings(null, 
-				PlcNextMeterGdsDataReadMappingDefinition.values(), "electricityMeter"); 
 	}
 
 	@Test
@@ -193,13 +188,11 @@ public class PlcNextPvInverterImplTest {
 
 		readDataResponseBody.add("variables", variables);
 
-		List<String> readVariableIdentifiers = Stream.of(readDataMappingDefinition)//
-				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		String readDataRequestBody = this.dataProvider.buildPostBodyForRead(SESSION_ID, readVariableIdentifiers,
-				dataProviderConfig);
-		Endpoint readDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(this.accessToken, HttpMethod.POST,
-				readDataRequestBody, this.dataProviderConfig);
-		when(mockDummyDataBridgeHttp.requestJson(readDataEndpoint)) //
+		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(
+				dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_VARIABLES);
+		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
+					arg.method() == HttpMethod.POST && //
+					arg.url().equals(dataEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(readDataResponseBody)));
 
 		//// Write
@@ -223,22 +216,20 @@ public class PlcNextPvInverterImplTest {
 
 		writeDataResponseBody.add(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES, writeVariables);
 
-		String writeDataRequestBody = this.dataProvider.buildPutBodyForWrite(SESSION_ID,
-				List.of(requestBodyVarSetActivePowerEquals));
-		Endpoint writeDataEndpoint = this.dataProvider.buildDataEndpointRepresentation(accessToken, HttpMethod.PUT,
-				writeDataRequestBody, dataProviderConfig);
-		when(mockDummyDataBridgeHttp.requestJson(writeDataEndpoint)) //
+		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
+					arg.method() == HttpMethod.PUT && //
+					arg.url().equals(dataEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(writeDataResponseBody)));
 
 		// test + check
 		this.test.activate(myConfig); //
 
 		this.test.next(new TestCase("Trigger value consumption and check write value") //
-				.input(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, setActivePowerEqualsValue)
-				.onBeforeWriteCallbacks(
-						assertIntegerWriteChannelValue(componentUnderTest, 
-								ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, 
-								setActivePowerEqualsValue)))
+					.input(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, setActivePowerEqualsValue)
+					.onBeforeWriteCallbacks(
+							assertIntegerWriteChannelValue(componentUnderTest, 
+									ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, 
+									setActivePowerEqualsValue)))
 				.next(new TestCase("Check requested data dropped in asynchronously")
 					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
 						expectedPhases2Neutral1Value)) //

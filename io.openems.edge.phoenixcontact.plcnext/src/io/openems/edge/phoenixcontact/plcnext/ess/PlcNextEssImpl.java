@@ -161,7 +161,8 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 					log.info("StationID '{}': Mapping ESS data", this.gdsDataAccessConfig.stationId());
 					List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 							apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-							config.dataInstanceName(), readDataMappingDefinition);
+							gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), 
+							readDataMappingDefinition);
 					
 					if (!mappedValues.isEmpty()) {
 						log.info("StationID '{}': Pushing ESS data to channels", this.gdsDataAccessConfig.stationId());
@@ -201,7 +202,8 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 		try {
 			log.info("StationID '{}': Mapping ESS data", this.gdsDataAccessConfig.stationId());
 			List<JsonElement> mappedData = gdsChannelToGdsDataMapper.mapAllValuesToGdsData(valuesInChannelsToWrite,
-					this.gdsDataAccessConfig.dataInstanceName(), PlcNextEssGdsDataWriteMappingDefinition.values());
+					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(), 
+					PlcNextEssGdsDataWriteMappingDefinition.values());
 
 			log.info("StationID '{}': Pushing ESS data to URL '{}'", gdsDataAccessConfig.stationId(),
 					gdsDataAccessConfig.dataUrl());

@@ -7,6 +7,9 @@ import com.google.gson.JsonElement;
 
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 
+/**
+ * Data mapper used to read data from controller 
+ */
 public interface PlcNextGdsDataToChannelMapper {
 
 	String PLC_NEXT_VARIABLE_PATH = "path";
@@ -18,13 +21,14 @@ public interface PlcNextGdsDataToChannelMapper {
 	 * 
 	 * @param variable          JSON element to be parsed and mapped
 	 * @param dataInstanceName  the configured instance name
+	 * @param stationId			identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return mapped value
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
 	PlcNextGdsDataMappedValue mapSingleValueToChannel(JsonElement variable, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition);
 
 	/**
@@ -32,13 +36,14 @@ public interface PlcNextGdsDataToChannelMapper {
 	 * 
 	 * @param variables         JSON array to be parsed and mapped
 	 * @param dataInstanceName  the configured instance name
+	 * @param stationId			identifier of the component instance
 	 * @param mappingDefinition represents the mapping definition
 	 * @return list of mapped values
 	 * @throws PlcNextGdsDataMappingException if anything goes wrong during variable
 	 *                                        mapping
 	 */
 	List<PlcNextGdsDataMappedValue> mapAllValuesToChannels(JsonArray variables, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition);
 
 }

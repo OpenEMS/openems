@@ -30,7 +30,7 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 
 	@Override
 	public PlcNextGdsDataMappedValue mapSingleValueToChannel(JsonElement variable, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition) {
 
 		PlcNextGdsDataMappedValue mappedValue = null;
@@ -53,21 +53,21 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 		if (isValueOfTypeArray(varObject)) {
 			throw new PlcNextGdsDataMappingException("Processing of value arrays isn't supported! Mapping skipped.");
 		} else {
-			mappedValue = mapSingleJsonPrimitiveVariable(varObject, varName, variableToChannelMappingDefinition);
+			mappedValue = mapSingleJsonPrimitiveVariable(varObject, varName, variableToChannelMappingDefinition, stationId);
 		}
 		return mappedValue;
 	}
 
 	@Override
 	public List<PlcNextGdsDataMappedValue> mapAllValuesToChannels(JsonArray variables, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition) {
 
 		List<PlcNextGdsDataMappedValue> mappedValues = new ArrayList<>();
 
 		for (JsonElement variable : variables.asList()) {
-			PlcNextGdsDataMappedValue mappedValue = mapSingleValueToChannel(variable, dataInstanceName,
-					mappingDefinition);
+			PlcNextGdsDataMappedValue mappedValue = mapSingleValueToChannel(variable, 
+					dataInstanceName, stationId, mappingDefinition);
 
 			if (Objects.nonNull(mappedValue)) {
 				mappedValues.add(mappedValue);
@@ -99,7 +99,7 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 	 */
 	Optional<String> getVariableName(JsonObject varObject, String instanceName) {
 		if (!varObject.has(PLC_NEXT_VARIABLE_PATH)) {
-			log.error("Variable path not found in JsonObject! Aborting.");
+			log.warn("Variable path not found in JsonObject! Returning empty value.");
 			return Optional.empty();
 		}
 		String varPath = varObject.get(PLC_NEXT_VARIABLE_PATH).getAsString();
@@ -118,13 +118,14 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 	/**
 	 * Fetches value field from given JSON object and maps it.
 	 * 
-	 * @param varObject            represents the JSON object to be processed
-	 * @param varIdentifier        variable identifier to corresponding JSON object
-	 * @param varMappingDefinition mapping definition
+	 * @param varObject             represents the JSON object to be processed
+	 * @param varIdentifier         variable identifier to corresponding JSON object
+	 * @param varMappingDefinition  mapping definition
+	 * @param stationId				identifier of the component instance
 	 * @return mapped value including channelId
 	 */
 	PlcNextGdsDataMappedValue mapSingleJsonPrimitiveVariable(JsonObject varObject, String varIdentifier,
-			PlcNextGdsDataMappingDefinition varMappingDefinition) {
+			PlcNextGdsDataMappingDefinition varMappingDefinition, String stationId) {
 
 		ChannelId destinationChannelId = varMappingDefinition.getChannelId();
 		JsonPrimitive primitiveValue = null;
@@ -140,8 +141,8 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 					varIdentifier);
 			return null;
 		}
-
-		Object mappedValue = mapValue(primitiveValue, destinationChannelId.doc());
+		Object mappedValue = mapValue(primitiveValue, destinationChannelId.doc(), stationId);
+		
 		log.debug("PLCnext variable named '{}' and value '{}' mapped to value '{}'",
 				varMappingDefinition.getIdentifier(), primitiveValue, mappedValue);
 
@@ -152,20 +153,18 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 	 * Extracts value from JSON object using channel data type.
 	 * 
 	 * @param jsonPrimitive                represents the JSON primitive
-	 * @param dataTypeOfDestinationChannel represents the channelId the value should
-	 *                                     be mapped for
+	 * @param dataTypeOfDestinationChannel represents the channelId the value should be mapped for
+	 * @param stationId			identifier of the component instance
 	 * @return mapped value
 	 * @throws PlcNextGdsDataMappingException
 	 */
-	Object mapValue(JsonPrimitive jsonPrimitive, Doc dataTypeOfDestinationChannel) {
+	Object mapValue(JsonPrimitive jsonPrimitive, Doc dataTypeOfDestinationChannel, String stationId) {
 
 		Object channelValue = PlcNextChannelValueTypeHelper.getChannelValue(jsonPrimitive,
-				dataTypeOfDestinationChannel);
-
+				dataTypeOfDestinationChannel, stationId);
 		if (Objects.isNull(channelValue)) {
 			throw new PlcNextGdsDataMappingException("Mapping from source to destination type failed!");
 		}	
 		return channelValue;
 	}
-
 }

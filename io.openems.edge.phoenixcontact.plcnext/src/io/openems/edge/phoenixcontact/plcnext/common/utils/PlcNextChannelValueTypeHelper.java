@@ -12,8 +12,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.channel.ChannelCategory;
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.Doc;
@@ -40,15 +38,16 @@ public final class PlcNextChannelValueTypeHelper {
 	 * 
 	 * @param jsonElement		represents the JSON object to be interpreted
 	 * @param openEmsChannelDoc	represents the channel definition
+	 * @param stationId			identifier of the component instance
 	 * @return	extracted value
 	 */
-	public static Object getChannelValue(JsonElement jsonElement, Doc openEmsChannelDoc) {
+	public static Object getChannelValue(JsonElement jsonElement, Doc openEmsChannelDoc, String stationId) {
 		Object mappedValue = null;
 
 		if (Objects.isNull(jsonElement)) {
-			log.warn("JSON element is NULL! Skipping.");
+			log.warn("StationID '{}': JSON element is NULL! Skipping.", stationId);
 		} else if (isOpenEmsEnumType(openEmsChannelDoc)) {
-			mappedValue = mapToEnum(jsonElement, openEmsChannelDoc);
+			mappedValue = mapToEnum(jsonElement, openEmsChannelDoc, stationId);
 		} else if (isOpenEmsTypeFloat(openEmsChannelDoc)) {
 			mappedValue = jsonElement.getAsFloat();
 		} else if (isOpenEmsTypeDouble(openEmsChannelDoc)) {
@@ -70,29 +69,31 @@ public final class PlcNextChannelValueTypeHelper {
 		return mappedValue;
 	}
 
-	private static Object mapToEnum(JsonElement jsonElement, Doc openEmsChannelDoc) {
+	private static Object mapToEnum(JsonElement jsonElement, Doc openEmsChannelDoc, String stationId) {
 		Object mappedValue = null;
 		String sourceValue = jsonElement.getAsString();
 		OptionsEnum[] options = ((EnumDoc)openEmsChannelDoc).getOptions();
 		
-		try {
-			List<OptionsEnum> mappedValues = Stream.of(options) //
-				.filter(item -> item.getName().replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, "") //
-						.equalsIgnoreCase(sourceValue.replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, ""))) //
-				.toList();
+		List<OptionsEnum> mappedValues = Stream.of(options) //
+			.filter(item -> item.getName().replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, "") //
+					.equalsIgnoreCase(sourceValue.replaceAll(REGEX_CHARS_FILTERED_OUT_IN_ENUM_NAMES, ""))) //
+			.toList();
 
-			if (mappedValues.isEmpty()) {
-				throw OpenemsError.EDGE_CHANNEL_NO_OPTION.exception(sourceValue, Arrays.toString(options));
-			} else if (mappedValues.size() > 1) {
-				log.warn("Multiple options found for source value '{}', choosing first.");
-				mappedValue = mappedValues.getFirst();
-			} else {
-				mappedValue = mappedValues.getFirst();
-			}
-		} catch (OpenemsNamedException e) {
-			log.warn("Cannot map '{}' to ENUM {}! Trying using value.", sourceValue, ((EnumDoc)openEmsChannelDoc).getOptions(), e);
+		if (mappedValues.isEmpty()) {
+			log.warn("StationID '{}': Channel options {} do not contain option {}, using UNDEFINED value.", 
+					stationId, Arrays.toString(options), sourceValue);
+			mappedValue = ((EnumDoc)openEmsChannelDoc).getUndefinedOption();
+		} else if (mappedValues.size() > 1) {
+			log.warn("StationID '{}': Multiple options found for source value '{}', choosing first.", 
+					stationId, sourceValue);
+			mappedValue = mappedValues.getFirst();
+		} else {
+			mappedValue = mappedValues.getFirst();
 		}
-		if (Objects.isNull(mappedValue)) {
+		
+		if (((EnumDoc)openEmsChannelDoc).getUndefinedOption().equals(mappedValue)) {
+			log.info("StationID '{}': UNDEFINED value detected. Trying to use enum value for mapping.", stationId);
+
 			try {
 				int sourceValueInt = jsonElement.getAsInt();
 				
@@ -113,11 +114,11 @@ public final class PlcNextChannelValueTypeHelper {
 	 * @param openEmsChannelDoc	the channel definition for processing
 	 * @return	JSON object with mapped value or NULL otherwise
 	 */
-	public static JsonElement buildVariableToWrite(String variablePath, Object variableValue, Doc openEmsChannelDoc) {
+	public static JsonElement buildVariableToWrite(String variablePath, Object variableValue, Doc openEmsChannelDoc, String stationId) {
 		JsonObject mappedValue = null;
 
 		if (Objects.isNull(variableValue)) {
-			log.debug("Channel value is NULL! Skipping processing of variable '{}'.", variablePath);
+			log.debug("StationID '{}': Channel value is NULL! Skipping processing of variable '{}'.", stationId, variablePath);
 		} else {
 			mappedValue = new JsonObject();
 			mappedValue.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH, variablePath);

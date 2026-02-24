@@ -26,7 +26,7 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 
 	@Override
 	public JsonElement mapSingleValueToGdsData(PlcNextGdsDataMappedValue channelValue, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition) {
 
 		PlcNextGdsDataMappingDefinition channelToVariableMappingDefinition = getMappingByChannelId(
@@ -38,18 +38,18 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 				.append(channelToVariableMappingDefinition.getIdentifier()).toString();
 
 		return PlcNextChannelValueTypeHelper.buildVariableToWrite(variablePath, channelValue.getValue(),
-				channelValue.getChannelId().doc());
+				channelValue.getChannelId().doc(), stationId);
 	}
 
 	@Override
 	public List<JsonElement> mapAllValuesToGdsData(List<PlcNextGdsDataMappedValue> channelValues, //
-			String dataInstanceName, //
+			String dataInstanceName, String stationId, //
 			PlcNextGdsDataMappingDefinition[] mappingDefinition) {
 
 		List<JsonElement> mappedValues = new ArrayList<>();
 
 		for (PlcNextGdsDataMappedValue channelValue : channelValues) {
-			JsonElement mappedValue = mapSingleValueToGdsData(channelValue, dataInstanceName, mappingDefinition);
+			JsonElement mappedValue = mapSingleValueToGdsData(channelValue, dataInstanceName, stationId, mappingDefinition);
 
 			if (Objects.nonNull(mappedValue)) {
 				mappedValues.add(mappedValue);
