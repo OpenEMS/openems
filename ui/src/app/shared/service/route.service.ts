@@ -52,7 +52,9 @@ export class RouteService {
     }
 
     /**
-     * Gets the route params
+     * Gets the route params, defined in routing modules
+     *
+     * @example retrieve :componentId by "componentId"
      *
      * @param key the key
      * @returns the value for this key if found, else null
@@ -60,12 +62,29 @@ export class RouteService {
     public getRouteParam<T>(key: string): T | null {
         const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
         const routeParams = Object.entries(route.params)
-            .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }, {});
+            .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }
+                , {});
         if (key in routeParams) {
             return routeParams[key] as T;
         }
         return null;
     }
+
+    /**
+     * Gets a query param.
+     *
+     * @param key the key
+     * @returns the value for this key if found, else null
+     */
+    public getQueryParam<T>(key: string): T | null {
+        const queryParams = this.router.routerState.snapshot.root.queryParams;
+
+        if (key in queryParams) {
+            return queryParams[key] as T;
+        }
+        return null;
+    }
+
 
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {

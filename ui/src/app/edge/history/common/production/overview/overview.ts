@@ -10,7 +10,7 @@ import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/share
     templateUrl: "./overview.html",
     standalone: false,
 })
-export class OverviewComponent extends AbstractHistoryChartOverview {
+export class CommonProductionOverviewComponent extends AbstractHistoryChartOverview {
     protected chargerComponents: EdgeConfig.Component[] = [];
     protected productionMeterComponents: EdgeConfig.Component[] = [];
     protected navigationButtons: NavigationOption[] = [];

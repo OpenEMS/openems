@@ -14,6 +14,7 @@ import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
+    selector: "oe-controller-evse-pages-phase-switching",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

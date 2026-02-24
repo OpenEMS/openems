@@ -198,26 +198,25 @@ public class EnergyFlow {
 
 		/**
 		 * Creates an {@link EnergyFlow.Model} based on the provided
-		 * {@link GlobalScheduleContext} and {@link GlobalOptimizationContext.Period}.
+		 * {@link GlobalScheduleContext} and {@link Period}.
 		 * 
 		 * @param gsc    the {@link GlobalScheduleContext}
-		 * @param period the {@link GlobalOptimizationContext.Period}
+		 * @param period the {@link Period}
 		 * @return a new {@link EnergyFlow.Model}
 		 * @throws OpenemsException if initial setup not solvable
 		 */
-		public static EnergyFlow.Model from(GlobalScheduleContext gsc, GlobalOptimizationContext.Period period)
-				throws OpenemsException {
+		public static EnergyFlow.Model from(GlobalScheduleContext gsc, Period period) throws OpenemsException {
 			final var essGlobal = gsc.goc.ess();
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
 
 			return new EnergyFlow.Model(//
 					/* production */ switch (period) {
-					case Period.WithPrediction p -> p.production();
+					case Period.WithPrediction p -> p.prediction().production();
 					default -> 0;
 					}, //
 					/* unmanagedConsumption */ switch (period) {
-					case Period.WithPrediction p -> p.consumption();
+					case Period.WithPrediction p -> p.prediction().consumptionRiskAdjusted();
 					default -> 0;
 					}, //
 					/* essMaxCharge */ min(//

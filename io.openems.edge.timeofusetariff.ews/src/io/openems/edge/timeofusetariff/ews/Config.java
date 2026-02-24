@@ -15,11 +15,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
 
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+
 	@AttributeDefinition(name = "Access Token", description = "Access token for the EWS API (ask api@ews-schoenau.de for a key)", type = AttributeType.PASSWORD)
 	String accessToken() default "";
 
-	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
-	boolean enabled() default true;
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Ews [{id}]";
 }

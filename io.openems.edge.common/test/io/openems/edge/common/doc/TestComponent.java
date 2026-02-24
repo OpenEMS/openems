@@ -5,9 +5,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.test.DummyOptionsEnum;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DynamicDocText;
+import io.openems.edge.common.channel.DynamicStateChannelDoc;
+import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
+import io.openems.edge.common.type.TextProvider;
 
 public class TestComponent extends AbstractDummyOpenemsComponent<TestComponent> implements OpenemsComponent {
 
@@ -21,24 +23,40 @@ public class TestComponent extends AbstractDummyOpenemsComponent<TestComponent> 
 
 		TEST_STRING_CHANNEL(Doc.of(OpenemsType.STRING)),
 
-		TEST_ERROR_CHANNEL_FOR_ENUM(Doc.of(Level.values()).textByChannel(TestComponent.class, TEST_ENUM_CHANNEL,
-				DynamicDocText.fromEnumChannel(DummyOptionsEnum.class) //
-						.when("value is 1", DummyOptionsEnum.VALUE_1) //
-						.defaultText("undefined"))),
+		TEST_ERROR_CHANNEL_FOR_ENUM(DynamicStateChannelDoc.builder(Level.WARNING) //
+				.setDynamicText(//
+						TextProvider.byStatic("{0}"), //
+						ParameterProvider.byEnumChannel(DummyOptionsEnum.class, TEST_ENUM_CHANNEL) //
+								.when(DummyOptionsEnum.VALUE_1, TextProvider.byStatic("value is 1")) //
+								.defaultText(TextProvider.byStatic("undefined"))) //
+				.build()),
 
-		TEST_ERROR_CHANNEL_FOR_INTEGER(Doc.of(Level.values()).textByChannel(TestComponent.class, TEST_INTEGER_CHANNEL,
-				DynamicDocText.fromNumberChannel(Integer.class) //
-						.whenIsAtLeast("power is too high", 5000) //
-						.whenIsNegative("power is negative") //
-						.whenIsInRange("power has a consistent power range", 2000, 3000) //
-						.defaultText("power is fine"))),
+		TEST_ERROR_CHANNEL_FOR_INTEGER(DynamicStateChannelDoc.builder(Level.WARNING) //
+				.setDynamicText(//
+						TextProvider.byStatic("{0}"), //
+						ParameterProvider.byNumberChannel(TEST_INTEGER_CHANNEL) //
+								.whenIsAtLeast(5000, TextProvider.byStatic("power is too high")) //
+								.whenIsNegative(TextProvider.byStatic("power is negative")) //
+								.whenIsInRange(2000, 3000, TextProvider.byStatic("power has a consistent power range")) //
+								.defaultText(TextProvider.byStatic("power is fine"))) //
+				.build()),
 
-		TEST_ERROR_CHANNEL_FOR_STRING(Doc.of(Level.values()).textByChannel(TestComponent.class, TEST_STRING_CHANNEL,
-				DynamicDocText.fromStringChannel() //
-						.when(":)", "Deadpool") //
-						.when("<3", "Interstellar") //
-						.whenStringContains(":(", "Jedi Knight") //
-						.defaultText(":|")));
+		TEST_ERROR_CHANNEL_FOR_STRING(DynamicStateChannelDoc.builder(Level.WARNING) //
+				.setDynamicText(//
+						TextProvider.byStatic("{0}"), //
+						ParameterProvider.byStringChannel(TEST_STRING_CHANNEL) //
+								.when("Deadpool", TextProvider.byStatic(":)")) //
+								.when("Interstellar", TextProvider.byStatic("<3")) //
+								.whenStringContains("Jedi Knight", TextProvider.byStatic(":(")) //
+								.defaultText(TextProvider.byStatic(":|")) //
+				).build()),
+
+		TEST_COMBINED(DynamicStateChannelDoc.builder(Level.WARNING) //
+				.setDynamicText(//
+						TextProvider.byStatic("{0} {1}"), //
+						ParameterProvider.byChannel(TEST_INTEGER_CHANNEL), //
+						ParameterProvider.byChannel(TEST_STRING_CHANNEL) //
+				).build());
 
 		private final Doc doc;
 

@@ -53,8 +53,8 @@ export class Widgets {
         }
     }
 
-    public static getControllerNavigationTree(edge: Edge, clazz: TEnumKeys<typeof WidgetFactory> | string, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
-        switch (clazz) {
+    public static getControllerNavigationTree(edge: Edge, widget: Widget, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+        switch (widget.name) {
             default:
                 return null;
         }

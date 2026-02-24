@@ -29,6 +29,11 @@ public class DateUtils {
 	 */
 	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+	/**
+	 * Total number of 15-minute intervals (quarter-hours) in a day (96).
+	 */
+	public static final int QUARTERS_PER_DAY = 96;
+
 	private DateUtils() {
 	}
 
@@ -366,6 +371,18 @@ public class DateUtils {
 		return Duration.between(now, nextQuarter);
 	}
 
+	// TODO: Unit-Tests
+	/**
+	 * Returns the index of the quarter-hour slot in which the given
+	 * {@link LocalTime} falls within a day.
+	 *
+	 * @param time the {@link LocalTime} to convert
+	 * @return the quarter-hour index (0-95)
+	 */
+	public static int toQuarterIndex(LocalTime time) {
+		return time.getHour() * 4 + Math.floorDiv(time.getMinute(), 15);
+	}
+
 	/**
 	 * Determines the ordinal position (1-based) of the given date's weekday within
 	 * its month.
@@ -436,5 +453,4 @@ public class DateUtils {
 					+ " [" + value + "] " + e.getMessage());
 		}
 	}
-
 }

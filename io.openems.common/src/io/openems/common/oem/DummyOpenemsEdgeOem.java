@@ -186,7 +186,9 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.put("App.Ess.Limiter14a", "") //
+			.put("App.Prediction.Default", "") //
 			.put("App.Prediction.UnmanagedConsumption", "") //
+			.put("App.Ess.SohCycle", "") //
 			.build();
 
 	@Override
