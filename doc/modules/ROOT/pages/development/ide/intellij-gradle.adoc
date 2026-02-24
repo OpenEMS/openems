@@ -11,7 +11,7 @@ endif::[]
 
 toc::[]
 
-This page describes how to import the OpenEMS *fems* repository into IntelliJ IDEA as a Gradle project and how to create useful run/debug configurations.
+This page describes how to import the OpenEMS *openems* repository into IntelliJ IDEA as a Gradle project and how to create useful run/debug configurations.
 
 == Prerequisites
 
@@ -24,7 +24,7 @@ This page describes how to import the OpenEMS *fems* repository into IntelliJ ID
 
 . Start IntelliJ IDEA (open any project or use the Welcome screen).
 . Select *File -> New -> Project from Existing Sources…*
-. Choose the repository folder (commonly named `fems`) and import it as a *Gradle* project.
+. Choose the repository folder (commonly named `openems`) and import it as a *Gradle* project.
 . If IntelliJ asks which window to use, select *This Window*.
 
 [NOTE]
@@ -77,7 +77,7 @@ To ensure the JAR is up-to-date on every run:
 . In the same Run configuration, find the *Before launch* section.
 . Add a *Gradle* task.
 . Set:
-** *Gradle project*: `fems` (sometimes listed under a parent like `openems`)
+** *Gradle project*: `openems`
 ** *Tasks*: `buildEdge`
 
 Now, running `Run Edge` will build the Edge jar first and then launch it.
@@ -99,7 +99,7 @@ Path: *Settings/Preferences -> Plugins*.
 
 . Open *Settings/Preferences -> Tools -> Checkstyle*.
 . Add a new configuration:
-** *Description*: `FEMS` (example)
+** *Description*: `OpenEMS` (example)
 ** *File*: point to the repository checkstyle configuration (commonly `cnf/checkstyle.xml`)
 . Click *Next -> Finish* and activate the created configuration.
 
