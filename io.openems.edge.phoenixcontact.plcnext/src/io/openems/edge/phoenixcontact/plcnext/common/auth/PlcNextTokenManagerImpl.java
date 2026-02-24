@@ -47,40 +47,47 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	public synchronized CompletableFuture<Void> fetchToken(PlcNextAuthConfig authClientConfig) {
 		if (!hasValidToken()) {
 			log.info("Start fetching authentication");
-			try {
-				return fetchAuthToken(authClientConfig)
-						.thenCompose(code -> fetchAccessToken(code, authClientConfig))
-						.thenApply(combinedToken -> {
-							if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
-								log.debug("Fetching access token has been successful.");
-								token = combinedToken.getAccessToken();
-								tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
-										.plusSeconds(combinedToken.getExpiresIn());
-							} else if (Objects.isNull(combinedToken)) {
-								log.error("No token information returned!");
-								resetTokenAndExpiery();
-							} else {
-								log.error("No access token or expiery information returned!");
-								resetTokenAndExpiery();
-							}
-							log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
-							return null;
-						});
-			} catch (CompletionException e) {
-				log.error("Error while fetching access token!", e);
+			CompletableFuture<PlcNextAuthAndAccessTokenDTO> authTokenFuture = fetchAuthToken(authClientConfig);
+			if (Objects.isNull(authTokenFuture) || authTokenFuture.isCompletedExceptionally()) {
+				log.error("Fetching auth token failed! Cannot continue fetching the access token!");
 				resetTokenAndExpiery();
-				return CompletableFuture.completedFuture(null);
+				return CompletableFuture.failedFuture(new NullPointerException());
 			}
+
+			CompletableFuture<PlcNextAuthAndAccessTokenDTO> accessTokenFuture = authTokenFuture
+					.thenCompose(code -> fetchAccessToken(code, authClientConfig));
+			if (Objects.isNull(accessTokenFuture) || accessTokenFuture.isCompletedExceptionally()) {
+				log.error("Fetching access token failed! Cannot continue processing response.");
+				resetTokenAndExpiery();
+				return CompletableFuture.failedFuture(new NullPointerException());
+			}
+
+			return accessTokenFuture.thenApply(combinedToken -> {
+				if (Objects.nonNull(combinedToken) && Objects.nonNull(combinedToken.getAccessToken())) {
+					log.debug("Fetching access token has been successful.");
+					token = combinedToken.getAccessToken();
+					tokenExpiery = ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+							.plusSeconds(combinedToken.getExpiresIn());
+				} else if (Objects.isNull(combinedToken)) {
+					log.error("No token information returned!");
+					resetTokenAndExpiery();
+				} else {
+					log.error("No access token or expiery information returned!");
+					resetTokenAndExpiery();
+				}
+				log.info("Fetching authentication finished. Got access token? {}", Objects.nonNull(this.token));
+				return null;
+			});
 		} else {
 			log.info("Token still valid, skipping token refresh.");
 			return CompletableFuture.completedFuture(null);
 		}
 	}
-	
+
 	private void resetTokenAndExpiery() {
 		log.info("Resetting token and token expiery");
 		token = null;
-		tokenExpiery = null;		
+		tokenExpiery = null;
 	}
 
 	@Override
@@ -92,8 +99,8 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	/**
 	 * Creates endpoint configuration to fetch an auth token from REST-API
 	 * 
-	 * @param config	represents the authentication configuration
-	 * @return	configured endpoint to be called
+	 * @param config represents the authentication configuration
+	 * @return configured endpoint to be called
 	 */
 	Endpoint buildAuthTokenEndpointRepresentation(PlcNextAuthConfig config) {
 		String requestBody = "{\"scope\":\"variables\" }";
@@ -108,34 +115,42 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	/**
 	 * Fetches new valid auth token for REST-API, required to fetch an access token
 	 * 
-	 * @param config	represents the authentication configuration
+	 * @param config represents the authentication configuration
 	 * @return @link{CompletableFuture} covering the auth token and timeout
 	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDTO> fetchAuthToken(PlcNextAuthConfig config) {
 		Endpoint authTokenEndpoint = buildAuthTokenEndpointRepresentation(config);
-		log.info("Fetching auth token from endpoint: '{}'", authTokenEndpoint.url());
+		log.info("Fetching bearer token from endpoint URL: '{}'", authTokenEndpoint.url());
 
-		return http.requestJson(authTokenEndpoint).thenApply(authTokenResponse -> {
-			
-			if (HttpStatus.OK == authTokenResponse.status()) {
-				JsonObject responseBody = authTokenResponse.data().getAsJsonObject();
+		try {
+			return http.requestJson(authTokenEndpoint) //
+					.thenApply(authTokenResponse -> {
 
-				return new PlcNextAuthAndAccessTokenDTO(responseBody.getAsJsonPrimitive("code").getAsString(), //
-						responseBody.getAsJsonPrimitive("expires_in").getAsInt());
-			} else {
-				log.error("Auth token endpoint responds with status: '{}' and body: '{}'", authTokenResponse.status(),
-						authTokenResponse.data());
+						if (HttpStatus.OK == authTokenResponse.status()) {
+							JsonObject responseBody = authTokenResponse.data().getAsJsonObject();
 
-				return null;
-			}
-		});
+							return new PlcNextAuthAndAccessTokenDTO(
+									responseBody.getAsJsonPrimitive("code").getAsString(), //
+									responseBody.getAsJsonPrimitive("expires_in").getAsInt());
+						} else {
+							log.error("Auth token endpoint responds with status: '{}' and body: '{}'",
+									authTokenResponse.status(), authTokenResponse.data());
+
+							return null;
+						}
+					});
+		} catch (CompletionException e) {
+			log.error("Error while fetching auth token!", e);
+			resetTokenAndExpiery();
+			return CompletableFuture.completedFuture(null);
+		}
 	}
 
 	/**
 	 * Creates endpoint configuration to fetch an access token from REST-API
 	 * 
-	 * @param config	represents the authentication configuration
-	 * @return	configured endpoint to be called
+	 * @param config represents the authentication configuration
+	 * @return configured endpoint to be called
 	 */
 	Endpoint buildAccessTokenEndpointRepresentation(PlcNextAuthAndAccessTokenDTO authAndAccessToken,
 			PlcNextAuthConfig config) {
@@ -153,30 +168,46 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	/**
 	 * Fetches new valid access token for REST-API
 	 * 
-	 * @param config	represents the authentication configuration
+	 * @param config represents the authentication configuration
 	 * @return @link{CompletableFuture} covering the authorization data
 	 */
 	CompletableFuture<PlcNextAuthAndAccessTokenDTO> fetchAccessToken(PlcNextAuthAndAccessTokenDTO authToken,
 			PlcNextAuthConfig config) {
+
+		if (Objects.isNull(authToken)) {
+			log.error("Cannot fetch access token while auth token is not available! Skipping to fetch access token.");
+			resetTokenAndExpiery();
+			return CompletableFuture.completedFuture(null);
+		}
+
 		Endpoint accessTokenEndpoint = buildAccessTokenEndpointRepresentation(authToken, config);
-		log.debug("Fetching access token from endpoint: '{}', with body: '{}'", accessTokenEndpoint.url(),
-				accessTokenEndpoint.body());
+		log.info("Fetching access token from endpoint URL: '{}'", accessTokenEndpoint.url());
 
-		return http.requestJson(accessTokenEndpoint).thenApply(accessTokenResponse -> {
-			if (HttpStatus.OK == accessTokenResponse.status()) {
-				PlcNextAuthAndAccessTokenDTO extendedAccessToken = new PlcNextAuthAndAccessTokenDTO(authToken.getCode(),
-						authToken.getExpiresIn());
-				JsonObject responseBody = accessTokenResponse.data().getAsJsonObject();
+		try {
+			return http.requestJson(accessTokenEndpoint).thenApply(accessTokenResponse -> {
+				if (HttpStatus.OK == accessTokenResponse.status()) {
+					PlcNextAuthAndAccessTokenDTO extendedAccessToken = new PlcNextAuthAndAccessTokenDTO(
+							authToken.getCode(), //
+							authToken.getExpiresIn());
+					JsonObject responseBody = accessTokenResponse.data().getAsJsonObject();
 
-				extendedAccessToken.setAccessToken(responseBody.getAsJsonPrimitive("access_token").getAsString());
+					if (responseBody.has("access_token")) {
+						extendedAccessToken.setAccessToken(responseBody //
+								.getAsJsonPrimitive("access_token") //
+								.getAsString());
+					}
+					return extendedAccessToken;
+				} else {
+					log.error("Access token endpoint responds with status: '{}' and body: '{}'",
+							accessTokenResponse.status(), accessTokenResponse.data());
 
-				return extendedAccessToken;
-			} else {
-				log.error("Access token endpoint responds with status: '{}' and body: '{}'",
-						accessTokenResponse.status(), accessTokenResponse.data());
-
-				return new PlcNextAuthAndAccessTokenDTO("", -1);
-			}
-		});
+					return null;
+				}
+			});
+		} catch (CompletionException e) {
+			log.error("Error while fetching access token!", e);
+			resetTokenAndExpiery();
+			return CompletableFuture.completedFuture(null);
+		}
 	}
 }

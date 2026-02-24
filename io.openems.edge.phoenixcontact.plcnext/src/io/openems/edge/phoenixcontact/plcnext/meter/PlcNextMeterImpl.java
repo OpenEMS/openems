@@ -153,7 +153,7 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 						log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
 						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-								config.dataInstanceName(), this.readDataMappingDefinition);
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), this.readDataMappingDefinition);
 						
 						if (!mappedValues.isEmpty()) {
 							log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());

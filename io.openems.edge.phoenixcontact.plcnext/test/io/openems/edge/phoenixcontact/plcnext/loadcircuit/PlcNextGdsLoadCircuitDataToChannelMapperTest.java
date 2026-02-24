@@ -33,8 +33,8 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
-		PlcNextGdsDataMappedValue mappedValue = dataMapper.mapSingleValueToChannel(primitiveVariable, instanceName,
-				PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		PlcNextGdsDataMappedValue mappedValue = dataMapper.mapSingleValueToChannel(primitiveVariable, 
+				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
 		Assert.assertNotNull(mappedValue);
@@ -61,8 +61,8 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		apiResponse.add("variables", variables);
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName,
-				PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, 
+				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
 		Assert.assertNotNull(mappedValues);
@@ -94,8 +94,8 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		int mappedVariableCount = 2;
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName,
-				PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, 
+				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
 		Assert.assertNotNull(mappedValues);

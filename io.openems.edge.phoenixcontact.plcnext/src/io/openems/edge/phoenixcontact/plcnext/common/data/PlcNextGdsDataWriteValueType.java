@@ -1,5 +1,8 @@
 package io.openems.edge.phoenixcontact.plcnext.common.data;
 
+/**
+ * Defines available variable types of variables to be written to controller
+ */
 public enum PlcNextGdsDataWriteValueType {
 	VARIABLE("Variable"), //
 	CONSTANT("Constant");

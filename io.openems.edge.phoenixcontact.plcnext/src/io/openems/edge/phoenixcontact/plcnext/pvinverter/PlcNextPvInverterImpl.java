@@ -150,7 +150,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 						log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
 						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-								config.dataInstanceName(), readDataMappingDefinition);
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), readDataMappingDefinition);
 						
 						if (!mappedValues.isEmpty()) {
 							log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
@@ -190,7 +190,8 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 		try {
 			log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
 			List<JsonElement> mappedData = gdsChannelToGdsDataMapper.mapAllValuesToGdsData(valuesInChannelsToWrite,
-					this.gdsDataAccessConfig.dataInstanceName(), PlcNextPvInverterGdsDataWriteMappingDefinition.values());
+					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(), 
+					PlcNextPvInverterGdsDataWriteMappingDefinition.values());
 
 			log.info("StationID '{}': Pushing PV-Inverter data to URL '{}'", gdsDataAccessConfig.stationId(),
 					gdsDataAccessConfig.dataUrl());

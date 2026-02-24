@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
@@ -186,7 +187,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	private CompletableFuture<PlcNextCreateSessionResponse> createSession(PlcNextGdsDataAccessConfig config) {
 		// create session
 		Endpoint createSessionEndpoint = buildCreateSessionEndpoint(tokenManager.getToken(), config);
-		log.info("StationID '{}': Create session using endpoint: {}", config.stationId(), createSessionEndpoint);
+		log.info("StationID '{}': Create session using endpoint URL: {}", config.stationId(), createSessionEndpoint.url());
 		
 		return sendRequestToApi(createSessionEndpoint, HttpStatus.CREATED, config.stationId()) //
 				.thenApply(createSessionBody -> {
@@ -207,7 +208,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	private CompletableFuture<PlcNextCreateSessionResponse> fetchSession(PlcNextGdsDataAccessConfig config) {
 		// fetch session
 		Endpoint fetchSessionsEndpoint = buildFetchSessionsEndpoint(tokenManager.getToken(), config);
-		log.info("StationID '{}': Fetch sessions using endpoint: {}", config.stationId(), fetchSessionsEndpoint);
+		log.info("StationID '{}': Fetch sessions using endpoint URL: {}", config.stationId(), fetchSessionsEndpoint.url());
 		
 		return sendRequestToApi(fetchSessionsEndpoint, HttpStatus.OK, config.stationId()) //
 				.thenApply(fetchSessionsResponseBody -> {
@@ -258,7 +259,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 				(error) -> Delay.infinite(), //
 				(result) -> sessionTimeout);
 		Endpoint maintainSessionEndpoint = buildMaintainSessionEndpoint(tokenManager.getToken(), sessionId, config);
-		log.info("SessionID '{}': Maintaining session using endpoint: {}", this.sessionId, maintainSessionEndpoint);
+		log.info("SessionID '{}': Maintaining session using endpoint URL: {}", this.sessionId, maintainSessionEndpoint.url());
 
 		return this.timeService.subscribeJsonTime(delayTimeProvider,
 				maintainSessionEndpoint, (httpResponse, httpError) -> {
@@ -313,9 +314,14 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 			String stationId) {
 		
 		try {
-			log.debug("StationID '{}': Sending request to API endpoint: '{}'", stationId, endpoint.url());
-			CompletableFuture<JsonObject> requestFuture =  http.requestJson(endpoint) //
-					.thenApply(apiResponse -> {
+			log.debug("StationID '{}': Sending request to API endpoint URL: '{}'", stationId, endpoint.url());
+			CompletableFuture<HttpResponse<JsonElement>> requestFuture = http.requestJson(endpoint); //
+			
+			if (Objects.isNull(requestFuture)) {
+				log.error("Cannot process response due to NULL!");
+				return CompletableFuture.failedFuture(new NullPointerException());
+			}
+			return requestFuture.thenApply(apiResponse -> {
 						if (expectedStatus == apiResponse.status()) {
 							log.debug("StationID '{}': Request successful", stationId);
 							return apiResponse.data().getAsJsonObject();
@@ -324,7 +330,6 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 							+ "' and body: '" + apiResponse.data() + "'");
 						}
 					});
-			return requestFuture;
 		} catch (CompletionException e) {
 			log.error("StationID '{}': Error while sending API request! Request body: {}", stationId,
 					endpoint.body(), e);
@@ -339,7 +344,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param config    config of base URL and instance name
 	 * @return @link{Endpoint} object
 	 */
-	public Endpoint buildCreateSessionEndpoint(String authToken, PlcNextGdsDataAccessConfig config) {
+	Endpoint buildCreateSessionEndpoint(String authToken, PlcNextGdsDataAccessConfig config) {
 		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_SESSIONS);
 		Map<String, String> headers = Map.of("Accept", "application/json", //
 				"Content-Type", "text/plain", //
@@ -361,7 +366,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param config    config of base URL and instance name
 	 * @return @link{Endpoint} object
 	 */
-	public Endpoint buildFetchSessionsEndpoint(String authToken, PlcNextGdsDataAccessConfig config) {
+	Endpoint buildFetchSessionsEndpoint(String authToken, PlcNextGdsDataAccessConfig config) {
 		String fetchSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_SESSIONS);
 		Map<String, String> headers = Map.of("Accept", "application/json", //
 				"Authorization", "Bearer " + authToken);
@@ -378,7 +383,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param config    config of base URL and instance name
 	 * @return @link{Endpoint} object
 	 */
-	public Endpoint buildMaintainSessionEndpoint(String authToken, String sessionId,
+	Endpoint buildMaintainSessionEndpoint(String authToken, String sessionId,
 			PlcNextGdsDataAccessConfig config) {
 		String maintainSessionEndpointUrl = new StringBuilder(
 				PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_SESSIONS))//
@@ -399,7 +404,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param config      config of base URL and instance name
 	 * @return @link{Endpoint} object
 	 */
-	public Endpoint buildDataEndpointRepresentation(String authToken, HttpMethod method, String requestBody,
+	Endpoint buildDataEndpointRepresentation(String authToken, HttpMethod method, String requestBody,
 			PlcNextGdsDataAccessConfig config) {
 		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(config.dataUrl(), PATH_VARIABLES);
 		Map<String, String> headers = Map.of("Accept", "application/json", //
@@ -422,7 +427,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param config              config of base URL and instance name
 	 * @return request body
 	 */
-	public String buildPostBodyForRead(String sessionId, List<String> variableIdentifiers,
+	String buildPostBodyForRead(String sessionId, List<String> variableIdentifiers,
 			PlcNextGdsDataAccessConfig config) {
 		String postRequestBody = "";
 		if (Objects.nonNull(variableIdentifiers) && !variableIdentifiers.isEmpty()) {
@@ -455,7 +460,7 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 	 * @param mappedVariables represents the mapped variables
 	 * @return request body
 	 */
-	public String buildPutBodyForWrite(String sessionId, List<JsonElement> mappedVariables) {
+	String buildPutBodyForWrite(String sessionId, List<JsonElement> mappedVariables) {
 		JsonObject requestBodyObject = new JsonObject();
 
 		requestBodyObject.addProperty(PLC_NEXT_SESSION_ID, sessionId);
