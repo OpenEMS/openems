@@ -8,6 +8,8 @@ import io.openems.common.logger.LazyContextLogger;
 
 // TODO merge with OpenemsComponent of Edge
 public class AbstractOpenemsBackendComponent {
+	
+	private static final String LOG_FORMAT = "[{}] {}";
 
 	private final String name;
 
@@ -44,7 +46,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logInfo(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.info("[{}] {}", component.getName(), message);
+			log.info(LOG_FORMAT, component.getName(), message);
 		} else {
 			log.info(message);
 		}
@@ -79,7 +81,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logWarn(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.warn("[{}] {}", component.getName(), message);
+			log.warn(LOG_FORMAT, component.getName(), message);
 		} else {
 			log.warn(message);
 		}
@@ -114,7 +116,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logError(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.error("[{}] {}", component.getName(), message);
+			log.error(LOG_FORMAT, component.getName(), message);
 		} else {
 			log.error(message);
 		}
@@ -149,7 +151,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logDebug(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.debug("[{}] {}", component.getName(), message);
+			log.debug(LOG_FORMAT, component.getName(), message);
 		} else {
 			log.debug(message);
 		}
@@ -179,7 +181,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static Logger getComponentLogger(AbstractOpenemsBackendComponent component) {
 		Objects.requireNonNull(component, "component is null");
-		return new LazyContextLogger(component.getClass(), () -> "[" + component.getName() + "]");
+		return new LazyContextLogger(component.getClass(), component::getName);
 	}
 
 }

@@ -52,10 +52,12 @@ import io.openems.edge.common.modbusslave.ModbusType;
 public interface OpenemsComponent {
 
 	/**
-	 * NOTE: do not use this Logger for logging in OpenEMS Components. Use the
-	 * {@link #getComponentLogger(OpenemsComponent)} method instead to get a Logger.
+	 * <strong>NOTE</strong>: do not use this Logger for logging in OpenEMS
+	 * Components. Use the {@link #getComponentLogger(OpenemsComponent)} method
+	 * instead to get a Logger.
 	 */
 	static final Logger _LOGGER = LoggerFactory.getLogger(OpenemsComponent.class);
+	static final String _LOG_FORMAT = "[{}] {}";
 
 	/**
 	 * Returns a unique ID for this OpenEMS component.
@@ -514,7 +516,7 @@ public interface OpenemsComponent {
 			properties.put(property, value);
 			c.update(properties);
 		} catch (IOException | SecurityException e) {
-			_LOGGER.error("ERROR: {}", e);
+			_LOGGER.error("ERROR: {}", e.getMessage());
 		}
 	}
 
@@ -522,7 +524,8 @@ public interface OpenemsComponent {
 	 * Log a debug message including the Component ID.
 	 *
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -534,7 +537,7 @@ public interface OpenemsComponent {
 	public static void logDebug(OpenemsComponent component, Logger log, String message) {
 		var id = getComponentIdentifier(component);
 		if (id != null) {
-			log.debug("[{}] {}", id, message);
+			log.debug(_LOG_FORMAT, id, message);
 		} else {
 			log.debug(message);
 		}
@@ -544,7 +547,8 @@ public interface OpenemsComponent {
 	 * Log a info message including the Component ID.
 	 *
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -556,7 +560,7 @@ public interface OpenemsComponent {
 	public static void logInfo(OpenemsComponent component, Logger log, String message) {
 		var id = getComponentIdentifier(component);
 		if (id != null) {
-			log.info("[{}] {}", id, message);
+			log.info(_LOG_FORMAT, id, message);
 		} else {
 			log.info(message);
 		}
@@ -566,7 +570,8 @@ public interface OpenemsComponent {
 	 * Log a warn message including the Component ID.
 	 *
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -578,7 +583,7 @@ public interface OpenemsComponent {
 	public static void logWarn(OpenemsComponent component, Logger log, String message) {
 		var id = getComponentIdentifier(component);
 		if (id != null) {
-			log.warn("[{}] {}", id, message);
+			log.warn(_LOG_FORMAT, id, message);
 		} else {
 			log.warn(message);
 		}
@@ -588,7 +593,8 @@ public interface OpenemsComponent {
 	 * Log a error message including the Component ID.
 	 *
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link #getComponentLogger(OpenemsComponent)} or
 	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
 	 * automatically includes the component name in all log messages, and then use
 	 * that Logger for logging instead of this method.
@@ -600,7 +606,7 @@ public interface OpenemsComponent {
 	public static void logError(OpenemsComponent component, Logger log, String message) {
 		var id = getComponentIdentifier(component);
 		if (id != null) {
-			log.error("[{}] {}", id, message);
+			log.error(_LOG_FORMAT, id, message);
 		} else {
 			log.error(message);
 		}

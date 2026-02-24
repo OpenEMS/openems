@@ -14,7 +14,6 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
@@ -40,7 +39,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	private static final String PROPERTY_CHANNEL_ID_PREFIX = "_PROPERTY_";
 
-	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
+	private final Logger log = OpenemsComponent.getComponentLogger(this);
 
 	/**
 	 * Holds all Channels by their Channel-ID String representation (in
@@ -194,7 +193,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public ComponentContext getComponentContext() {
 		if (this.componentContext == null) {
-			this.logWarn(this.log,
+			this.log.warn(
 					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
 		}
 		return this.componentContext;
@@ -331,8 +330,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 				try {
 					value = JsonUtils.getAsType(channelType, property.getDefaultValue());
 				} catch (OpenemsNamedException | IllegalArgumentException e) {
-					this.logError(this.log, "Unable to parse Property [" + property.getId() + "] value ["
-							+ property.getDefaultValue() + "] to [" + property.getType() + "]: " + e.getMessage());
+					this.log.error("Unable to parse Property [{}] value [{}] to [{}]: {}", property.getId(),
+							property.getDefaultValue(), property.getType(), e.getMessage());
 				}
 			}
 			channel.setNextValue(value);
@@ -435,7 +434,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 				}
 			}
 		}
-		this.logInfo(this.log, message + " " + name);
+		this.log.info("{} {}", message, name);
 	}
 
 	@Override
@@ -480,10 +479,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Log a debug message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
-	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
-	 * automatically includes the component name in all log messages, and then use
-	 * that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -496,10 +496,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Log an info message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
-	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
-	 * automatically includes the component name in all log messages, and then use
-	 * that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -512,10 +513,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Log a warn message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
-	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
-	 * automatically includes the component name in all log messages, and then use
-	 * that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -528,10 +530,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * Log an error message including the Component ID.
 	 * 
 	 * <p>
-	 * <strong>DEPRECATED</strong>: Use {@link #getComponentLogger(OpenemsComponent)} or
-	 * {@link #getComponentLogger(Class, OpenemsComponent)} to create a Logger that
-	 * automatically includes the component name in all log messages, and then use
-	 * that Logger for logging instead of this method.
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message

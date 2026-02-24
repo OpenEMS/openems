@@ -82,16 +82,17 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 				 * Print on first run
 				 */
 				this.log.info("=======================================");
-				this.logFormateted("ID", component.id());
-				this.logFormateted("Service-PID", component.servicePid());
-				this.logFormateted("Implementation", reducePackageName(component.getClass()));
+				this.logFormatted("ID", component.id());
+				this.logFormatted("Service-PID", component.servicePid());
+				this.logFormatted("Implementation", reducePackageName(component.getClass()));
 				getInheritanceViaReflection(component.getClass(), null).asMap().forEach((inheritance, names) -> {
 					var first = true;
 					for (String name : names) {
 						if (first) {
-							this.logFormateted(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
+							this.logFormatted(
+									CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
 						} else {
-							this.logFormateted("", name);
+							this.logFormatted("", name);
 						}
 						first = false;
 					}
@@ -158,7 +159,7 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 					 * Print header (this is not the first run)
 					 */
 					this.log.info("=======================================");
-					this.logFormateted("ID", component.id());
+					this.logFormatted("ID", component.id());
 				}
 
 				this.log.info("---------------------------------------");
@@ -189,8 +190,10 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 		return map;
 	}
 
-	private void logFormateted(String topic, String message) {
-		this.log.info(this.format(topic, message));
+	private void logFormatted(String topic, String message) {
+		this.log.atInfo() //
+				.setMessage(() -> this.format(topic, message)) //
+				.log();
 	}
 
 	private String format(String topic, String message) {

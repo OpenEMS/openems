@@ -24,7 +24,7 @@ public class LazyContextLogger extends PrefixedLogger {
 	@Override
 	protected String prefix(String format) {
 		String contextValue = this.context.get();
-		if (contextValue == null || contextValue.isEmpty()) {
+		if (contextValue == null || contextValue.isBlank()) {
 			return format;
 		}
 		return "[" + contextValue + "] " + format;
