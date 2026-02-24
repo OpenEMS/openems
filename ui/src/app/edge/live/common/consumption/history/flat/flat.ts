@@ -20,33 +20,30 @@ export class FlatComponent extends AbstractFlatWidget {
     protected override getChannelAddresses(): ChannelAddress[] {
         const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
 
-        this.evcsComponents = ArrayUtils.sortedAlphabetically(
-            EvcsComponent.getComponents(this.config, this.edge),
-            (c) => c.alias);
+        this.evcsComponents = EvcsComponent.getComponents(this.config, this.edge)
+            .sort(ArrayUtils.alphabetically(c => c.alias));
 
-        this.heatComponents = ArrayUtils.sortedAlphabetically(
-            this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-                .filter(component =>
-                    !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                    !component.isEnabled === false),
-            (c) => c.alias);
+        this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(component =>
+                !(component.factoryId === "Controller.Heat.Heatingelement") &&
+                !component.isEnabled === false)
+            .sort(ArrayUtils.alphabetically(c => c.alias));
         channels.push(
             ...this.heatComponents.map(
                 (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
             )
         );
 
-        this.consumptionMeterComponents = ArrayUtils.sortedAlphabetically(
-            this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => {
-                    const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
-                    const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
-                    const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
+        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter(component => {
+                const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
+                const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
+                const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
-                    return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-                        isEvcs === false && isHeat === false;
-                }),
-            (c) => c.alias);
+                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
+                    isEvcs === false && isHeat === false;
+            })
+            .sort(ArrayUtils.alphabetically(c => c.alias));
 
         return channels;
     }
