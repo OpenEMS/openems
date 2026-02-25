@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.onewire.impl;
+package io.openems.edge.bridge.eebus.impl;
 
 import org.openmuc.jeebus.ship.api.ConnectionHandler;
 import org.openmuc.jeebus.ship.api.DisconnectReason;

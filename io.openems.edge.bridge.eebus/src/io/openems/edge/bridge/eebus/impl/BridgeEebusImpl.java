@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.onewire.impl;
+package io.openems.edge.bridge.eebus.impl;
 
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 
