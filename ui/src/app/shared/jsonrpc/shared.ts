@@ -24,6 +24,8 @@ export enum UserSettings {
     THEME = "theme",
     CAPACITOR_TEST = "capacitorTest",
     USE_NEW_UI = "useNewUI",
+    ANNUAL_REVIEW = "annualReview",
+    IS_DEVELOPER = "isDeveloper",
 }
 
 export class User {
@@ -34,7 +36,7 @@ export class User {
         public globalRole: "admin" | "installer" | "owner" | "guest",
         public language: string,
         public hasMultipleEdges: boolean,
-        public settings: Partial<{ [k in UserSettings]: number | boolean | string }>,
+        public settings: Partial<{ [k in UserSettings]: number | boolean | string | string[] }>,
     ) { }
 
     /**
@@ -78,9 +80,9 @@ export class User {
     }
 
     /**
-     * Gets the current theme from user settings
+     * Checks if new ui is activated from user settings
      *
-     * @returns the theme if existing, else null
+     * @returns true if new ui is activated, else false
      */
     public getUseNewUIFromSettings(): boolean {
 
@@ -89,6 +91,20 @@ export class User {
         }
 
         return false;
+    }
+
+    /**
+     * Checks if new ui is activated from user settings
+     *
+     * @returns true if new ui is activated, else false
+     */
+    public getAnnualReviewFromSettings(): string[] {
+
+        if (UserSettings.ANNUAL_REVIEW in this.settings) {
+            return this.settings[UserSettings.ANNUAL_REVIEW] as string[];
+        }
+
+        return [];
     }
 
     public isAtLeast(role: Role) {

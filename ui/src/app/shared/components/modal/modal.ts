@@ -29,6 +29,7 @@ export class ModalComponent {
 
     /** Title in Header */
     @Input({ required: true }) public title!: string | null;
+    @Input() public isCommonWidget: boolean = false;
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup = new FormGroup({});

@@ -35,7 +35,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logInfo(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.info("[" + component.getName() + "] " + message);
+			log.info("[{}] {}", component.getName(), message);
 		} else {
 			log.info(message);
 		}
@@ -60,7 +60,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logWarn(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.warn("[" + component.getName() + "] " + message);
+			log.warn("[{}] {}", component.getName(), message);
 		} else {
 			log.warn(message);
 		}
@@ -85,7 +85,7 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logError(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.error("[" + component.getName() + "] " + message);
+			log.error("[{}] {}", component.getName(), message);
 		} else {
 			log.error(message);
 		}
@@ -110,9 +110,9 @@ public class AbstractOpenemsBackendComponent {
 	 */
 	public static void logDebug(AbstractOpenemsBackendComponent component, Logger log, String message) {
 		if (component != null) {
-			log.error("[" + component.getName() + "] " + message);
+			log.debug("[{}] {}", component.getName(), message);
 		} else {
-			log.error(message);
+			log.debug(message);
 		}
 	}
 

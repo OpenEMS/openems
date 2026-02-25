@@ -1,6 +1,7 @@
 <ion-header>
   <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-    <ion-title translate style="color: var(--ion-title-color);">{{title}}</ion-title>
+    <ion-title translate style="color: var(--ion-title-color);"
+      [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }">{{title}}</ion-title>
     <ion-buttons slot="end">
       <!-- Additional Toolbarbuttons -->
       @if (toolbarButtons !== null) {
@@ -64,7 +65,7 @@
     <ion-fab vertical="bottom" style="position: fixed"
       [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="checkmark-circle-outline">
+        <ion-icon size="large" name="oe-checkmark">
         </ion-icon>
       </ion-fab-button>
     </ion-fab>

@@ -8,6 +8,7 @@ import { Language } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
+    selector: "oe-controller-ess-grid-optimized-charge-modal",
     templateUrl: "./modal.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: false,

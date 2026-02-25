@@ -9,7 +9,7 @@
                 @if ((user.globalRole === 'installer' || user.globalRole === 'admin')) {
                   <!-- No access to Edges -->
                   <ion-item color="warning" lines="full">
-                    <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                    <ion-icon slot="start" name="oe-error"></ion-icon>
                     <ion-label
                       class="ion-text-wrap ion-text-center">{{"INDEX.NO_EDGE_AVAILABLE" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
                   </ion-item>
@@ -20,8 +20,8 @@
                 } @else {
                   <ion-item color="warning" lines="full">
                     <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                    <ion-label class="ion-text-wrap ion-text-center"
-                      [translateParams]="{edgeShortName: environment.edgeShortName}">{{"INDEX.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                    <ion-label
+                      class="ion-text-wrap ion-text-center">{{"INDEX.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
                     <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
@@ -43,14 +43,14 @@
               </ion-row>
               <!-- Filter -->
               @if ((service.metadata | async)?.user; as user) {
-                @if (isAtLeastInstaller) {
+                @if (isAtLeastOwner) {
                   <oe-filter [filters]="filters" (setSearchParams)="searchOnChange($event)"></oe-filter>
                 }
               }
               <ion-row class="ion-justify-content-center">
                 <ion-col>
                   <ion-list lines="full">
-                    @if (loading) {
+                    @if (loading()) {
                       <ion-item lines="none">
                         <ion-spinner [name]="'crescent'"></ion-spinner>
                       </ion-item>

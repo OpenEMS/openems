@@ -1,6 +1,20 @@
 package io.openems.common.utils;
 
+import java.util.OptionalDouble;
+
 public class DoubleUtils {
+
+	private static final double EPSILON = 1e-10;
+
+	/**
+	 * Checks if a value is close to zero within a small epsilon threshold.
+	 *
+	 * @param value the value to check
+	 * @return true if the absolute value is less than epsilon, false otherwise
+	 */
+	public static boolean isCloseToZero(double value) {
+		return Math.abs(value) < EPSILON;
+	}
 
 	/**
 	 * Normalize a value to a range - normalize values between [100, 1000] to range
@@ -31,4 +45,27 @@ public class DoubleUtils {
 		return result;
 	}
 
+	/**
+	 * Convert {@link OptionalDouble} to nullable {@link Double}.
+	 * 
+	 * @param valueOpt the input value
+	 * @return the output value; possibly null
+	 */
+	public static Double getOrNull(OptionalDouble valueOpt) {
+		if (valueOpt.isEmpty()) {
+			return null;
+		}
+		return valueOpt.getAsDouble();
+	}
+
+	@FunctionalInterface
+	public static interface DoubleToDoubleFunction {
+		/**
+		 * Applies this function to the given argument.
+		 *
+		 * @param value the function argument
+		 * @return the function result
+		 */
+		double apply(double value);
+	}
 }

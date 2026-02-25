@@ -1,0 +1,93 @@
+@if (isInitialized) {
+  <oe-navigation-view [title]="Schedule" [component]="component" [formGroup]="formGroup">
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    <ion-grid>
+      <ion-row>
+        @for (task of schedule(); track task.uid; let last = $last) {
+          <ion-col size-sm="12" size-md="12" size-lg="4">
+            <ion-card>
+              <ion-item lines="full" color="light">
+                <ion-label>
+                  <ng-container *ngTemplateOutlet="content; context: { task: task }">
+                  </ng-container>
+                </ion-label>
+              </ion-item>
+              <ion-card-content>
+                <ion-grid>
+                  <ion-row class="header-row">
+                    <ion-col class="align-self-end ion-text-bold" translate>
+                      JS_SCHEDULE.START
+                    </ion-col>
+                    <ion-col class="ion-text-align-end" translate>
+                      {{ task.start | date: 'HH:mm' }}
+                    </ion-col>
+                  </ion-row>
+                  <ion-row class="header-row">
+                    <ion-col class="align-self-end ion-text-bold" translate>
+                      JS_SCHEDULE.END
+                    </ion-col>
+                    <ion-col class="ion-text-align-end" translate>
+                      {{ task.end | date: 'HH:mm' }}
+                    </ion-col>
+                  </ion-row>
+                  <ion-row class="header-row">
+                    <ion-col class="align-self-end ion-text-bold" translate>
+                      JS_SCHEDULE.FREQUENCY
+                    </ion-col>
+                    <ion-col class="ion-text-align-end">
+                      {{ task.recurrenceText }}
+                    </ion-col>
+                  </ion-row>
+                  @for(rule of task.recurrenceRules; track rule){
+                    @if(rule.frequency === "monthly"){
+                      <ion-row>
+                        <ion-col size="auto" class="align-self-end ion-text-bold" translate>
+                          JS_SCHEDULE.ROTATION
+                        </ion-col>
+                        <ion-col class="ion-no-padding-top align-self-end" translate>
+                          @for(byDay of rule.byDay; track byDay){
+                            <ion-row class="ion-justify-content-end">
+                              <ion-col size="6" class="ion-text-align-end ion-no-padding-right">
+                                {{byDay.nthOfPeriod}}. {{byDay.day | weekDay }}
+                              </ion-col>
+                            </ion-row>
+                          }
+                        </ion-col>
+                      </ion-row>
+                    }
+                  }
+                  <ion-row>
+                    <ion-col class="ion-align-items-start">
+                      <oe-flat-button [disabled]="!canWrite" size="small" expand="block" [fill]="'outline'"
+                        [link]="{routeRelative: route, text: './task/' + task.uid, }">
+                        <ion-icon slot="start" name="pencil-outline"></ion-icon>
+                        {{("JS_SCHEDULE.EDIT" |
+                                        translate ) |
+                                        uppercase }}
+                      </oe-flat-button>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+            @if(last){
+              <oe-flat-button [disabled]="!canWrite" size="small" [link]="{routeRelative: route, text: './add-task' }">
+                <ion-icon slot="start" name="add-outline"></ion-icon>
+                {{("JS_SCHEDULE.ADD" | translate ) | uppercase }}
+              </oe-flat-button>
+            }
+          </ion-col>
+        }
+
+        @if(schedule().length === 0){
+          <ion-col size="auto">
+            <oe-flat-button [disabled]="!canWrite" size="small" [link]="{routeRelative: route, text: './add-task', }">
+              <ion-icon slot="start" name="add-outline"></ion-icon>
+              {{("JS_SCHEDULE.ADD" | translate ) | uppercase }}
+            </oe-flat-button>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </oe-navigation-view>
+}

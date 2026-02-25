@@ -17,6 +17,7 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.energy.api.EnergyScheduler;
@@ -95,9 +96,10 @@ public class TimeOfUseTariffControllerImplTest {
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
 				.addReference("sum", sum) //
 				.addReference("ess", ess) //
+				.addReference("meta", new DummyMeta())//
 				.activate(MyConfig.create() //
 						.setId("ctrl0") //
-						.setEnabled(false) //
+						.setEnabled(true) //
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //
 						.setControlMode(CHARGE_CONSUMPTION) //

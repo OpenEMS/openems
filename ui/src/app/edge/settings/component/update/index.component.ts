@@ -43,12 +43,12 @@ export class IndexComponent implements OnInit {
     }
 
     updateFilter(completeFilter: string) {
-    // take each space-separated string as an individual and-combined filter
+        // take each space-separated string as an individual and-combined filter
         const filters = completeFilter.toLowerCase().split(" ");
         let countFilteredEntries = 0;
         for (const entry of this.list) {
             entry.filteredComponents = entry.components.filter(entry =>
-            // Search for filter strings in Component-ID, -Alias and Factory-ID
+                // Search for filter strings in Component-ID, -Alias and Factory-ID
                 Utils.matchAll(filters, [
                     entry.id.toLowerCase(),
                     entry.alias.toLowerCase(),

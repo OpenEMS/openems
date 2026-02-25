@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.timeofusetariff.jsonrpc;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.UuidUtils.getNilUuid;
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
 import static io.openems.edge.controller.ess.timeofusetariff.UtilsTest.CLOCK;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
@@ -10,24 +11,22 @@ import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PA
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PRODUCTION_PREDICTION_QUARTERLY;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
@@ -49,8 +48,7 @@ public class GetScheduleResponseTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = model.finalizeConsumption();
-		applyBalancing(model, consumption);
+		applyBalancing(model);
 		final var energyFlow = model.solve();
 
 		// Simulate historic data
@@ -70,15 +68,15 @@ public class GetScheduleResponseTest {
 		// Simulate future Schedule
 		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, Version.V2_ENERGY_SCHEDULABLE, ess, timedata);
 		var esh = ctrl.getEnergyScheduleHandler();
-		esh.initialize(new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, null, null, null, null, //
-				new GlobalOptimizationContext.Ess(0, 0, 0, 0), ImmutableList.of()));
+		esh.initialize(new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, null, null, null, null, //
+				new GlobalOptimizationContext.Ess(0, 0, 0, 0), GlobalOptimizationContext.Periods.empty()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
 				.put(now.plusMinutes(0), new Period.Transition(QUARTER, 1, 0.1, energyFlow, 5000)) //
 				.put(now.plusMinutes(15), new Period.Transition(QUARTER, 0, 0.2, energyFlow, 6000)) //
 				.put(now.plusMinutes(30), new Period.Transition(QUARTER, 0, 0.3, energyFlow, 7000)) //
 				.build());
 
-		final var gsr = GetScheduleResponse.from(UuidUtils.getNilUuid(), "ctrl0", CLOCK, ess, timedata, esh);
+		final var gsr = GetScheduleResponse.from(getNilUuid(), "ctrl0", CLOCK, ess, timedata, esh);
 
 		var schedule = getAsJsonArray(gsr.getResult(), "schedule");
 
@@ -207,7 +205,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "2000-01-01T00:00:00Z",
 				    "price": 0.1,
-				    "state": 1,
+				    "state": 0,
 				    "grid": 0,
 				    "production": 10000,
 				    "consumption": 2000,

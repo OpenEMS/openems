@@ -122,7 +122,14 @@ public class PredictionOrchestratorTest {
 			Arrays.fill(arr, i);
 			return arr;
 		}).toList();
+		var upperQuantileCentroids = IntStream.rangeClosed(1, 3).mapToObj(i -> {
+			double[] arr = new double[96];
+			Arrays.fill(arr, 1000 + i);
+			return arr;
+		}).toList();
+
 		when(this.clusterer.getCentroids()).thenReturn(centroids);
+		when(this.clusterer.getUpperQuantileCentroids()).thenReturn(upperQuantileCentroids);
 
 		when(this.classifier.predict(anyList())).thenReturn(1);
 
@@ -148,6 +155,8 @@ public class PredictionOrchestratorTest {
 		var predictedCurrentProfile = predictedProfiles.getFirst();
 		assertEquals(1, predictedCurrentProfile.clusterIndex());
 		assertEquals(Arrays.stream(centroids.get(1)).boxed().toList(), predictedCurrentProfile.values().getValues());
+		assertEquals(Arrays.stream(upperQuantileCentroids.get(1)).boxed().toList(),
+				predictedCurrentProfile.upperQuantileValues().getValues());
 		assertEquals(predictedCurrentProfile, predictedProfiles.getFirst());
 	}
 
@@ -166,13 +175,20 @@ public class PredictionOrchestratorTest {
 			Arrays.fill(arr, i);
 			return arr;
 		}).toList();
+		var upperQuantileCentroids = IntStream.rangeClosed(1, 3).mapToObj(i -> {
+			double[] arr = new double[96];
+			Arrays.fill(arr, 1000 + i);
+			return arr;
+		}).toList();
+
 		when(this.clusterer.getCentroids()).thenReturn(centroids);
+		when(this.clusterer.getUpperQuantileCentroids()).thenReturn(upperQuantileCentroids);
 
 		when(this.classifier.predict(anyList())).thenReturn(1);
 
 		var currentProfile = new CurrentProfile(//
 				LocalDate.now(this.clock).minusDays(1), //
-				Profile.fromArray(2, centroids.get(2)));
+				Profile.fromArray(2, centroids.get(2), upperQuantileCentroids.get(2)));
 
 		var predictionContext = new PredictionContext(//
 				() -> this.clock, //
@@ -194,6 +210,8 @@ public class PredictionOrchestratorTest {
 		var predictedCurrentProfile = predictedProfiles.getFirst();
 		assertEquals(1, predictedCurrentProfile.clusterIndex());
 		assertEquals(Arrays.stream(centroids.get(1)).boxed().toList(), predictedCurrentProfile.values().getValues());
+		assertEquals(Arrays.stream(upperQuantileCentroids.get(1)).boxed().toList(),
+				predictedCurrentProfile.upperQuantileValues().getValues());
 		assertEquals(predictedCurrentProfile, predictedProfiles.getFirst());
 	}
 
@@ -212,14 +230,21 @@ public class PredictionOrchestratorTest {
 			Arrays.fill(arr, i);
 			return arr;
 		}).toList();
+		var upperQuantileCentroids = IntStream.rangeClosed(1, 3).mapToObj(i -> {
+			double[] arr = new double[96];
+			Arrays.fill(arr, 1000 + i);
+			return arr;
+		}).toList();
+
 		when(this.clusterer.getCentroids()).thenReturn(centroids);
+		when(this.clusterer.getUpperQuantileCentroids()).thenReturn(upperQuantileCentroids);
 
 		when(this.profileSwitcher.findBetterProfile()).thenReturn(//
-				Optional.of(Profile.fromArray(1, centroids.get(1))));
+				Optional.of(Profile.fromArray(1, centroids.get(1), upperQuantileCentroids.get(1))));
 
 		var currentProfile = new CurrentProfile(//
 				LocalDate.now(this.clock), //
-				Profile.fromArray(2, centroids.get(2)));
+				Profile.fromArray(2, centroids.get(2), upperQuantileCentroids.get(2)));
 
 		var predictionContext = new PredictionContext(//
 				() -> this.clock, //
@@ -241,6 +266,8 @@ public class PredictionOrchestratorTest {
 		var predictedCurrentProfile = predictedProfiles.getFirst();
 		assertEquals(1, predictedCurrentProfile.clusterIndex());
 		assertEquals(Arrays.stream(centroids.get(1)).boxed().toList(), predictedCurrentProfile.values().getValues());
+		assertEquals(Arrays.stream(upperQuantileCentroids.get(1)).boxed().toList(),
+				predictedCurrentProfile.upperQuantileValues().getValues());
 		assertEquals(predictedCurrentProfile, predictedProfiles.getFirst());
 	}
 
@@ -259,14 +286,20 @@ public class PredictionOrchestratorTest {
 			Arrays.fill(arr, i);
 			return arr;
 		}).toList();
+		var upperQuantileCentroids = IntStream.rangeClosed(1, 3).mapToObj(i -> {
+			double[] arr = new double[96];
+			Arrays.fill(arr, 1000 + i);
+			return arr;
+		}).toList();
 
 		when(this.clusterer.getCentroids()).thenReturn(centroids);
+		when(this.clusterer.getUpperQuantileCentroids()).thenReturn(upperQuantileCentroids);
 
 		when(this.profileSwitcher.findBetterProfile()).thenReturn(Optional.empty());
 
 		var currentProfile = new CurrentProfile(//
 				LocalDate.now(this.clock), //
-				Profile.fromArray(2, centroids.get(2)));
+				Profile.fromArray(2, centroids.get(2), upperQuantileCentroids.get(2)));
 
 		var predictionContext = new PredictionContext(//
 				() -> this.clock, //
@@ -305,8 +338,14 @@ public class PredictionOrchestratorTest {
 			Arrays.fill(arr, i);
 			return arr;
 		}).toList();
+		var upperQuantileCentroids = IntStream.rangeClosed(1, 3).mapToObj(i -> {
+			double[] arr = new double[96];
+			Arrays.fill(arr, 1000 + i);
+			return arr;
+		}).toList();
 
 		when(this.clusterer.getCentroids()).thenReturn(centroids);
+		when(this.clusterer.getUpperQuantileCentroids()).thenReturn(upperQuantileCentroids);
 
 		when(this.classifier.predict(anyList()))//
 				.thenReturn(1)//
@@ -316,7 +355,7 @@ public class PredictionOrchestratorTest {
 
 		var currentProfile = new CurrentProfile(//
 				LocalDate.now(this.clock), //
-				Profile.fromArray(2, centroids.get(2)));
+				Profile.fromArray(2, centroids.get(2), upperQuantileCentroids.get(2)));
 
 		var predictionContext = new PredictionContext(//
 				() -> this.clock, //
@@ -338,7 +377,11 @@ public class PredictionOrchestratorTest {
 		assertEquals(3, predictedProfiles.size());
 		assertEquals(1, predictedProfiles.get(1).clusterIndex());
 		assertEquals(Arrays.stream(centroids.get(1)).boxed().toList(), predictedProfiles.get(1).values().getValues());
+		assertEquals(Arrays.stream(upperQuantileCentroids.get(1)).boxed().toList(),
+				predictedProfiles.get(1).upperQuantileValues().getValues());
 		assertEquals(2, predictedProfiles.get(2).clusterIndex());
 		assertEquals(Arrays.stream(centroids.get(2)).boxed().toList(), predictedProfiles.get(2).values().getValues());
+		assertEquals(Arrays.stream(upperQuantileCentroids.get(2)).boxed().toList(),
+				predictedProfiles.get(2).upperQuantileValues().getValues());
 	}
 }

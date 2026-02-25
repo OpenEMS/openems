@@ -5,6 +5,7 @@ export const theme: Omit<Environment, "url" | "backend" | "production" | "debugM
     theme: "OpenEMS" as Theme,
 
     uiTitle: "OpenEMS UI",
+    uiTitleShort: "OpenEMS",
     edgeShortName: "OpenEMS",
     edgeLongName: "Open Energy Management System",
     defaultLanguage: "de",

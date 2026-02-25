@@ -68,7 +68,7 @@ public class PrepareBatteryExtension
 
 	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParameter>, Nameable {
 		// Components
-		CTRL_PREPARE_BATTERY_EXTENSION_ID(AppDef.of(PrepareBatteryExtension.class) //
+		CTRL_PREPARE_BATTERY_EXTENSION_ID(AppDef.of(PrepareBatteryExtension.class)//
 				.setDefaultValue("ctrlPrepareBatteryExtension0")), //
 
 		// Properties
@@ -78,7 +78,7 @@ public class PrepareBatteryExtension
 				.setDefaultValue(30) //
 				.setRequired(true) //
 				.setField(JsonFormlyUtil::buildRange, (app, prop, l, param, field) -> {
-					field.setMin(0) //
+					field.setMin(0)//
 							.setMax(100);
 				}));
 

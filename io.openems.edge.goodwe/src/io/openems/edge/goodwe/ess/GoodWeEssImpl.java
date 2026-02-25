@@ -119,7 +119,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), this.getWbmsChargeMaxCurrent().get(), this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get());
 
 		// Apply Power Set-Point
 		ApplyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),

@@ -1,4 +1,4 @@
-= Controller
+= Device and Service
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
@@ -9,7 +9,7 @@
 :imagesdir: ../../assets/images
 
 
-For the following devices driver implementations are available in OpenEMS Edge.
+For the following devices and services driver implementations are available in OpenEMS Edge.
 
 include::device_service.adoc.d/_include.adoc[leveloffset=+0]
 

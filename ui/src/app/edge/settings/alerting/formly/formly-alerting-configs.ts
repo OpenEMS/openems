@@ -4,7 +4,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { AlertingSettingResponse } from "src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse";
 import { Role } from "src/app/shared/type/role";
 import { Icon } from "src/app/shared/type/widget";
-import { AlertingType, DefaultValues, Delay } from "../alerting.component";
+import { AlertingType, DefaultValues, Delay } from "../component/alerting.component";
 
 export const currentUserRows = (defaultValues: DefaultValues, translate: TranslateService, edgeRole: Role): FormlyFieldConfig[] => {
     return [
@@ -14,7 +14,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                 icon: {
                     color: "danger",
                     size: "large",
-                    name: "cloud-offline-outline",
+                    name: "oe-offline",
                     position: "end",
                 },
                 title: translate.instant("ALERTING.ONLINE_STATUS"),
@@ -56,7 +56,7 @@ export const currentUserRows = (defaultValues: DefaultValues, translate: Transla
                     icon: {
                         color: "danger",
                         size: "large",
-                        name: "alert-circle-outline",
+                        name: "oe-error",
                         position: "end",
                     },
                     title: translate.instant("ALERTING.FAULT"),
@@ -101,8 +101,8 @@ export const otherUserRows = (otherUsers: AlertingSettingResponse[], defaultValu
         return {
             key: el.userLogin,
             fieldGroup: [
-                ...otherUserRow("offline", translate.instant("ALERTING.ONLINE_STATUS"), defaultValues[AlertingType.OFFLINE], { color: "danger", name: "cloud-offline-outline" }, translate),
-                ...otherUserRow("fault", translate.instant("ALERTING.FAULT"), defaultValues[AlertingType.FAULT], { color: "danger", name: "alert-circle-outline" }, translate),
+                ...otherUserRow("offline", translate.instant("ALERTING.ONLINE_STATUS"), defaultValues[AlertingType.OFFLINE], { color: "danger", name: "oe-offline" }, translate),
+                ...otherUserRow("fault", translate.instant("ALERTING.FAULT"), defaultValues[AlertingType.FAULT], { color: "danger", name: "oe-error" }, translate),
             ],
         };
     };

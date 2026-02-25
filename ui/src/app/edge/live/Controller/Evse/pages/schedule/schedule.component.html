@@ -1,0 +1,7 @@
+@if(isInitialized){
+  <oe-components-scheduler (schedule)="schedule" [(payload)]="payload">
+    <ng-template let-task="task">
+      {{ ("EVSE_SINGLE.SCHEDULE.MODE" | translate) + " " + task.payloadText }}
+    </ng-template>
+  </oe-components-scheduler>
+}

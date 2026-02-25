@@ -11,6 +11,7 @@ exec \
                 -Dorg.apache.felix.http.port=8079 \
                 -Dfelix.cm.dir=/var/opt/openems/config \
                 -Dopenems.data.dir=/var/opt/openems/data \
+                -Djava.net.preferIPv4Stack=true \
                 -XX:+ExitOnOutOfMemoryError \
                 -XX:+UseZGC -XX:+ZGenerational \
                 -jar /opt/openems/openems-backend.jar

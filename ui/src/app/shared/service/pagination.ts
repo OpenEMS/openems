@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { SubscribeEdgesRequest } from "../jsonrpc/request/subscribeEdgesRequest";
 import { States } from "../ngrx-store/states";
-import { ChannelAddress, Edge } from "../shared";
+import { Edge } from "../shared";
 import { Service } from "./service";
 
 @Directive()
@@ -26,9 +26,6 @@ export class Pagination {
                 this.subscribeEdge(edge);
             }).then(() => {
                 this.service.websocket.state.set(States.EDGE_SELECTED);
-                this.edge.subscribeChannels(this.service.websocket, "", [
-                    new ChannelAddress("_sum", "State"),
-                ]);
             })
                 .finally(resolve)
                 .catch(() => {

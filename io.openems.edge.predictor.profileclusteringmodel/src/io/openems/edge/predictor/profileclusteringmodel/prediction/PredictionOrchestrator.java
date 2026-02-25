@@ -18,12 +18,11 @@ import io.openems.edge.predictor.profileclusteringmodel.Profile;
 import io.openems.edge.predictor.profileclusteringmodel.services.FeatureEngineeringService;
 import io.openems.edge.predictor.profileclusteringmodel.services.PredictionDataService;
 import io.openems.edge.predictor.profileclusteringmodel.services.ProfileClusteringPredictionService;
-import io.openems.edge.predictor.profileclusteringmodel.services.QueryWindow;
 import io.openems.edge.predictor.profileclusteringmodel.services.TimeSeriesPreprocessingService;
 
 public class PredictionOrchestrator {
 
-	private static final QueryWindow WINDOW_ONE_DAY = new QueryWindow(1);
+	private static final int WINDOW_ONE_DAY = 1;
 
 	private final PredictionContext predictionContext;
 
@@ -76,7 +75,8 @@ public class PredictionOrchestrator {
 			var date = today.plusDays(dayOffset);
 			int clusterIndex = baseFeatureMatrix.getValue(date, ColumnNames.LABEL).intValue();
 			var centroid = this.predictionContext.clusterer().getCentroids().get(clusterIndex);
-			predictedProfiles.add(Profile.fromArray(clusterIndex, centroid));
+			var upperQuantileCentroid = this.predictionContext.clusterer().getUpperQuantileCentroids().get(clusterIndex);
+			predictedProfiles.add(Profile.fromArray(clusterIndex, centroid, upperQuantileCentroid));
 		}
 
 		return predictedProfiles;
@@ -147,7 +147,8 @@ public class PredictionOrchestrator {
 
 	private List<Profile> buildAllProfiles() {
 		var centroids = this.predictionContext.clusterer().getCentroids();
-		return IntStream.range(0, centroids.size()).mapToObj(i -> Profile.fromArray(i, centroids.get(i))).toList();
+		var upperQuantileCentroids = this.predictionContext.clusterer().getUpperQuantileCentroids();
+		return IntStream.range(0, centroids.size()).mapToObj(i -> Profile.fromArray(i, centroids.get(i), upperQuantileCentroids.get(i))).toList();
 	}
 
 	private static boolean isOutdated(CurrentProfile currentProfile, LocalDate date) {

@@ -23,7 +23,6 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
@@ -31,6 +30,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.Call;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -64,13 +64,29 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	private ConfigurationAdmin cm;
 
 	@Reference
+	private Meta meta;
+
+	@Reference
 	private ComponentManager componentManager;
 
 	@Reference
 	private PredictorManager predictorManager;
 
-	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile TimeOfUseTariff timeOfUseTariff;
+
+	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
+	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		this.timeOfUseTariff = tariff;
+		this.optimizer.restartOptimization("EnergySchedulerImpl::bindTimeOfUseTariff()", false);
+	}
+
+	@SuppressWarnings("unused")
+	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
+		if (this.timeOfUseTariff == tariff) {
+			this.timeOfUseTariff = null;
+			this.optimizer.restartOptimization("EnergySchedulerImpl::unbindTimeOfUseTariff()", false);
+		}
+	}
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
@@ -85,9 +101,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.schedulables.add(schedulable);
 		var esh = (AbstractEnergyScheduleHandler<?, ?>) schedulable.getEnergyScheduleHandler(); // this is safe
 		if (esh != null) {
-			esh.setOnRescheduleCallback(reason -> this.triggerReschedule(reason));
+			esh.setOnRescheduleCallback(//
+					(reason, rescheduleMode) -> this.optimizer.restartOptimization(//
+							reason, //
+							rescheduleMode.optimizeCurrentPeriod()));
 		}
-		this.triggerReschedule("EnergySchedulerImpl::addSchedulable() " + schedulable.id());
+		this.optimizer.restartOptimization("EnergySchedulerImpl::addSchedulable() " + schedulable.id(), false);
 	}
 
 	@SuppressWarnings("unused")
@@ -143,41 +162,63 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.collect(toImmutableList());
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
-							.setRiskLevel(this.config.riskLevel()) //
+							.setMeta(this.meta) //
+							.setEnvironment(this.config.environment()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //
 							.setTimeOfUseTariff(this.timeOfUseTariff) //
 							.build();
 				}, //
-				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER));
+				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
+				this.channel(EnergyScheduler.ChannelId.GENERATIONS_PER_QUARTER));
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-
-		if (this.applyConfig(config, "activate")) {
-			switch (config.version()) {
-			case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-			case V2_ENERGY_SCHEDULABLE -> this.optimizer.activate();
-			}
-		}
+		this.applyConfig(config, "EnergySchedulerImpl::activate()");
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config, "modified");
+		this.applyConfig(config, "EnergySchedulerImpl::modified()");
 	}
 
-	private void triggerReschedule(String reason) {
-		if (this.config == null) {
-			return; // Wait for @Activate
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		this.optimizerV1.deactivate();
+		this.optimizer.deactivate();
+		super.deactivate();
+	}
+
+	private synchronized void applyConfig(Config config, String reason) {
+		this.config = config;
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
 		}
+
+		if (!config.enabled()) {
+			this.optimizerV1.deactivate();
+			this.optimizer.deactivate();
+			return;
+		}
+
 		switch (this.config.version()) {
-		case V1_ESS_ONLY -> this.optimizerV1.activate(this.id());
-		case V2_ENERGY_SCHEDULABLE -> this.optimizer.triggerReschedule(reason);
+		case V1_ESS_ONLY -> {
+			this.optimizer.deactivate();
+			this.optimizerV1.activate(this.id());
+		}
+		case V2_ENERGY_SCHEDULABLE -> {
+			this.optimizerV1.deactivate();
+			if (this.optimizer.isActivated()) {
+				this.optimizer.restartOptimization(reason, false);
+			} else {
+				this.optimizer.activate(); // Starts optimization immediately
+			}
+		}
 		}
 	}
 
@@ -187,31 +228,6 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 			return this.optimizer.debugLog();
 		}
 		return null;
-	}
-
-	private synchronized boolean applyConfig(Config config, String reason) {
-		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return false;
-		}
-
-		if (config.enabled()) {
-			this.triggerReschedule("EnergySchedulerImpl::applyConfig() " + reason);
-		} else {
-			this.optimizerV1.deactivate();
-			this.optimizer.interruptTask();
-			return false;
-		}
-
-		return true;
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		this.optimizerV1.deactivate();
-		this.optimizer.deactivate();
-		super.deactivate();
 	}
 
 	@Override

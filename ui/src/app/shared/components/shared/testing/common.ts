@@ -40,9 +40,15 @@ export namespace OeTester {
                 "plugins": {
                     "colors": { "enabled": false },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true,
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
                             "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     },
                     "tooltip": { "usePointStyle": true, "intersect": false, "mode": "index", "callbacks": {}, "enabled": true, "caretSize": 0 },
@@ -63,8 +69,13 @@ export namespace OeTester {
                     "left": {
                         "stacked": false,
                         "beginAtZero": false,
+                        "display": true,
                         ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}),
-                        "title": { "text": options["left"]?.title ?? "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": options["left"]?.title ?? "kW", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left",
                         "grid": { "display": true },
                         "ticks": {
@@ -97,9 +108,15 @@ export namespace OeTester {
                 "plugins": {
                     "colors": { "enabled": false },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true,
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
                             "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     },
                     "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 },
@@ -121,9 +138,14 @@ export namespace OeTester {
                     "left": {
                         "stacked": true,
                         "beginAtZero": true,
+                        "display": true,
                         ...options["left"]?.scale,
                         ...(chartType === "line" ? { stacked: false } : {}),
-                        "title": { "text": title ?? "kWh", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": title ?? "kWh", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left",
                         "grid": { "display": true },
                         "ticks": {
@@ -149,8 +171,15 @@ export namespace OeTester {
                         "enabled": false,
                     },
                     "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true, "textAlign": "center",
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
+                            "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     }, "tooltip": {
                         "intersect": false, "mode": "index", "callbacks": {},
@@ -168,8 +197,13 @@ export namespace OeTester {
                     "x": { "stacked": true, "offset": false, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
                     "left": {
                         "stacked": false,
+                        "display": true,
                         ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-                        "title": { "text": "kW", "display": false, "padding": 5, "font": { "size": 11 } },
+                        "title": {
+                            "text": "kW", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            },
+                        },
                         "position": "left", "grid": { "display": true },
                         "ticks": {
                             ...options["left"]?.ticks,
@@ -180,9 +214,14 @@ export namespace OeTester {
                     },
                     "right": {
                         "stacked": false,
+                        "display": true,
                         ...options["right"]?.scale as any,
                         ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
-                        "title": { "text": "Zustand", "display": false, "padding": 5, "font": { "size": 11 }, ...options["right"]?.scale.title },
+                        "title": {
+                            "text": "Zustand", "display": false, "padding": 5, "font": {
+                                "size": 11,
+                            }, ...options["right"]?.scale.title,
+                        },
                         "position": "right",
                         "grid": { "display": false, ...options["right"]?.scale.grid },
                         "ticks": {
@@ -195,7 +234,7 @@ export namespace OeTester {
                 },
             },
         });
-        export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number; }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
+        export const MULTI_BAR_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: { min?: number, max?: number, display?: boolean }, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
             type: "option",
             options: {
                 "interaction": {
@@ -203,9 +242,17 @@ export namespace OeTester {
                     "intersect": false,  // Allow hovering over line, not just points
                 },
                 "responsive": true, "maintainAspectRatio": false, "elements": { "point": { "radius": 0, "hitRadius": 0, "hoverRadius": 0 }, "line": { "stepped": false, "fill": true } }, "datasets": { "bar": { "barPercentage": 1 }, "line": {} }, "plugins": {
-                    "colors": { "enabled": false }, "legend": {
-                        "display": true, "position": "bottom", "labels": {
-                            "color": "", "usePointStyle": true, "textAlign": "center",
+                    "colors": { "enabled": false },
+                    "legend": {
+                        "display": true,
+                        "position": "bottom",
+                        "labels": {
+                            "color": "",
+                            "usePointStyle": true,
+                            "textAlign": "center",
+                            "font": {
+                                "family": getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                            },
                         },
                     }, "tooltip": { "intersect": false, "mode": "x", "callbacks": {}, "enabled": true, "usePointStyle": true, "caretSize": 0 }, "annotation": { "annotations": {} }, "datalabels": {
                         display: false,
@@ -214,6 +261,7 @@ export namespace OeTester {
                     "x": { "stacked": true, "offset": true, "type": "time", "ticks": { "source": "auto", "maxTicksLimit": 31 }, "bounds": "ticks", "adapters": { "date": { "locale": { "code": "de", "formatLong": {}, "localize": {}, "match": {}, "options": { "weekStartsOn": 1, "firstWeekContainsDate": 4 } } } }, "time": { "unit": period as TimeUnit, "displayFormats": { "datetime": "yyyy-MM-dd HH:mm:ss", "millisecond": "SSS [ms]", "second": "HH:mm:ss a", "minute": "HH:mm", "hour": "HH:00", "day": "dd", "week": "ll", "month": "MM", "quarter": "[Q]Q - YYYY", "year": "yyyy" } } },
                     "left": {
                         "stacked": true,
+                        "display": true,
                         ...options["left"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true, "title": { "text": "kWh", "display": false, "padding": 5, "font": { "size": 11 } }, "position": "left", "grid": { "display": true },
                         "ticks": {
                             ...options["left"]?.ticks,
@@ -224,6 +272,7 @@ export namespace OeTester {
                     },
                     "right": {
                         "stacked": true,
+                        "display": true,
                         ...options["right"]?.scale, ...(chartType === "line" ? { stacked: false } : {}), "beginAtZero": true,
                         "title": { "text": "Aktive Zeit", "display": false, "padding": 5, "font": { "size": 11 } },
                         "position": "right", "grid": { "display": false },

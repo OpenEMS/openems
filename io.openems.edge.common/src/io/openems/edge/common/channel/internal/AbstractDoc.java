@@ -1,8 +1,6 @@
 package io.openems.edge.common.channel.internal;
 
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -19,10 +17,10 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DynamicDocText;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TextProvider;
 
 /**
  * Provides static meta information for a {@link Channel} using Builder pattern.
@@ -31,7 +29,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	private final OpenemsType type;
 
-	private Function<Language, String> getTextFunction;
+	protected Function<Language, String> getTextFunction;
 
 	protected AbstractDoc(OpenemsType type) {
 		this.type = type;
@@ -148,33 +146,9 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	@Override
 	public AbstractDoc<T> translationKey(Class<?> clazz, String channelKey) {
-		this.getTextFunction = lang -> {
-			var bundle = AbstractDoc.getResourceBundle(lang, clazz);
-			if (bundle != null && bundle.containsKey(channelKey)) {
-				var textTranslated = bundle.getString(channelKey);
-				return textTranslated;
-			}
-			if (lang != Language.EN) {
-				// TODO: Use Language.DEFAULT for default language
-				bundle = AbstractDoc.getResourceBundle(Language.EN, clazz);
-				if (bundle != null && bundle.containsKey(channelKey)) {
-					var textTranslated = bundle.getString(channelKey);
-					return textTranslated;
-				}
-			}
-
-			return channelKey;
-		};
+		var textProvider = TextProvider.byTranslation(clazz, channelKey);
+		this.getTextFunction = textProvider::getText;
 		return this;
-	}
-
-	private static ResourceBundle getResourceBundle(Language lang, Class<?> clazz) {
-		try {
-			return ResourceBundle.getBundle(clazz.getPackageName() + ".translation", lang.getLocal(),
-					clazz.getModule());
-		} catch (MissingResourceException e) {
-			return null;
-		}
 	}
 
 	@Override
@@ -348,40 +322,6 @@ public abstract class AbstractDoc<T> implements Doc {
 	public AbstractDoc<T> onChannelSetNextWriteMirrorToDebugChannel(ChannelId targetChannelId) {
 		this.onChannelSetNextWrite((component, value) -> {
 			component.channel(targetChannelId).setNextValue(value);
-		});
-		return this.self();
-	}
-
-	/**
-	 * Sets up a callback that adds a listener to a specific channel, that maps an
-	 * enum value to a text and updates the channel.
-	 *
-	 * @param clazz     the class of the channel parent
-	 * @param channelId the channelId if the channel parent
-	 * @param builder   mapping the enum values to text
-	 * @param <E>       the converted type of channel value to subscribe
-	 * @param <V>       the type of channel value to subscribe
-	 * @return myself
-	 */
-	public <E, V> AbstractDoc<T> textByChannel(Class<?> clazz, ChannelId channelId,
-			DynamicDocText.Builder<E, V> builder) {
-
-		this.onInitCallback.add(channel -> {
-			var component = channel.getComponent();
-			Channel<V> channelForListener = component.channel(channelId);
-
-			BiConsumer<Value<V>, Value<V>> listener = (oldValue, newValue) -> {
-				this.translationKey(clazz, builder.build().apply(newValue.get()));
-			};
-
-			channelForListener.onChange(listener);
-
-			channel.addOnDeactivateCallback(() -> channelForListener.removeOnChangeCallback(listener));
-
-			Value<V> currentValue = channelForListener.getNextValue();
-			if (currentValue.isDefined()) {
-				listener.accept(null, currentValue);
-			}
 		});
 		return this.self();
 	}

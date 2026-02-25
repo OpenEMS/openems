@@ -44,6 +44,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 
 	private ParamsV1 params = null;
 
+	@Deprecated
 	public OptimizerV1(Supplier<LogVerbosity> logVerbosity, //
 			ThrowingSupplier<GlobalContextV1, OpenemsException> globalContext) {
 		this.logVerbosity = logVerbosity;
@@ -54,6 +55,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 		this.setPriority(Thread.MIN_PRIORITY);
 	}
 
+	@Deprecated
 	@Override
 	public void forever() throws InterruptedException, OpenemsException {
 		this.traceLog(() -> "Start next run of Optimizer");
@@ -127,6 +129,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 	 * 
 	 * @return the {@link ParamsV1} or null
 	 */
+	@Deprecated
 	public ParamsV1 getParams() {
 		return this.params;
 	}
@@ -136,6 +139,7 @@ public class OptimizerV1 extends AbstractImmediateWorker {
 	 * 
 	 * @return {@link ImmutableSortedMap}
 	 */
+	@Deprecated
 	public ImmutableSortedMap<ZonedDateTime, Period> getSchedule() {
 		synchronized (this.schedule) {
 			return ImmutableSortedMap.copyOf(this.schedule);

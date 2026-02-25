@@ -1,8 +1,6 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import static io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.buildEnergyScheduleHandler;
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalTime;
@@ -20,8 +18,7 @@ public class EnergySchedulerTest {
 	public void testNull() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
-		assertEquals(-3894 /* no charge limitation */,
-				(int) t.simulatePeriod().ef().getExtremeCoefficientValue(ESS, MINIMIZE));
+		assertEquals(-3894 /* no charge limitation */, t.simulatePeriod().ef().setEss(-4000));
 	}
 
 	@Test
@@ -36,11 +33,11 @@ public class EnergySchedulerTest {
 		var limits = csc.limits().values().toArray(OptionalInt[]::new);
 		assertEquals(3, limits.length);
 		assertEquals(OptionalInt.empty(), limits[0]);
-		assertEquals(OptionalInt.of(1214), limits[1]);
+		assertEquals(OptionalInt.of(1416), limits[1]);
 		assertEquals(OptionalInt.empty(), limits[2]);
 
-		assertEquals(-3894, (int) t.simulatePeriod().ef().getExtremeCoefficientValue(ESS, MINIMIZE));
-		assertEquals(-1214, (int) t.simulatePeriodIndex(26).ef().getExtremeCoefficientValue(ESS, MINIMIZE));
-		assertEquals(-4000, (int) t.simulatePeriodIndex(40).ef().getExtremeCoefficientValue(ESS, MINIMIZE));
+		assertEquals(-3894, t.simulatePeriod().ef().setEss(-4000));
+		assertEquals(-1416, t.simulatePeriodIndex(26).ef().setEss(-4000));
+		assertEquals(-4000, t.simulatePeriodIndex(30).ef().setEss(-4000));
 	}
 }

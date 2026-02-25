@@ -1,275 +1,343 @@
 package io.openems.edge.energy.optimizer;
 
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
-import static io.jenetics.engine.Limits.byExecutionTime;
-import static io.jenetics.engine.Limits.byFixedGeneration;
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
-import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
-import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
-import static io.openems.edge.energy.optimizer.Utils.createSimulator;
 import static io.openems.edge.energy.optimizer.Utils.initializeRandomRegistryForProduction;
-import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
-import static java.lang.Thread.sleep;
-import static java.time.Duration.ofSeconds;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.jenetics.IntegerGene;
-import io.jenetics.engine.EvolutionResult;
+import com.google.common.annotations.VisibleForTesting;
+
+import io.openems.common.utils.DateUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 
-/**
- * This task is executed once in the beginning and afterwards every full 15
- * minutes.
- */
-public class Optimizer implements Runnable {
+public class Optimizer {
+
+	/**
+	 * Buffer time before the end of the quarter to allow the latest possible start.
+	 */
+	protected static final Duration BUFFER_LATEST_START = Duration.ofSeconds(60);
+
+	/**
+	 * Buffer time before the end of the quarter to stop safely.
+	 */
+	protected static final Duration BUFFER_STOP = Duration.ofSeconds(5);
+
+	/**
+	 * Buffer time after the beginning of the quarter to allow a safe start.
+	 */
+	protected static final Duration BUFFER_START = Duration.ofSeconds(5);
+
+	/**
+	 * Buffer time on error before attempting a restart.
+	 */
+	protected static final Duration BUFFER_ON_ERROR = Duration.ofSeconds(30);
 
 	private final Logger log = LoggerFactory.getLogger(Optimizer.class);
-	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private final Supplier<LogVerbosity> logVerbosity;
 	private final Supplier<GlobalOptimizationContext> gocSupplier;
 	private final Channel<Integer> simulationsPerQuarterChannel;
-	private final AtomicBoolean rescheduleCurrentPeriod = new AtomicBoolean(false);
+	private final Channel<Integer> generationsPerQuarterChannel;
 
-	private Simulator simulator = null;
-	private SimulationResult simulationResult = EMPTY_SIMULATION_RESULT;
-	private ScheduledFuture<?> future;
+	private final Clock clock;
+	private final Supplier<ExecutorService> executorFactory;
+	private final Supplier<ScheduledExecutorService> schedulerFactory;
+	private final Function<GlobalOptimizationContext, Simulator> simulatorFactory;
 
-	public Optimizer(Supplier<LogVerbosity> logVerbosity, Supplier<GlobalOptimizationContext> gocSupplier, //
-			Channel<Integer> simulationsPerQuarterChannel) {
+	private final AtomicReference<CancellationToken> currentToken = new AtomicReference<>(null);
+
+	private volatile Simulator simulator;
+	private volatile SimulationResult latestSimulationResult = EMPTY_SIMULATION_RESULT;
+	private volatile boolean activated = false;
+
+	private ExecutorService executor;
+	private ScheduledExecutorService scheduler;
+	private ScheduledFuture<?> scheduledFuture;
+
+	public Optimizer(//
+			Supplier<LogVerbosity> logVerbosity, //
+			Supplier<GlobalOptimizationContext> gocSupplier, //
+			Channel<Integer> simulationsPerQuarterChannel, //
+			Channel<Integer> generationsPerQuarterChannel) {
+		this(//
+				logVerbosity, //
+				gocSupplier, //
+				simulationsPerQuarterChannel, //
+				generationsPerQuarterChannel, //
+				Clock.systemDefaultZone(), //
+				Executors::newSingleThreadExecutor, //
+				Executors::newSingleThreadScheduledExecutor, //
+				Simulator::new);
+	}
+
+	@VisibleForTesting
+	Optimizer(//
+			Supplier<LogVerbosity> logVerbosity, //
+			Supplier<GlobalOptimizationContext> gocSupplier, //
+			Channel<Integer> simulationsPerQuarterChannel, //
+			Channel<Integer> generationsPerQuarterChannel, //
+			Clock clock, //
+			Supplier<ExecutorService> executorFactory, //
+			Supplier<ScheduledExecutorService> schedulerFactory, //
+			Function<GlobalOptimizationContext, Simulator> simulatorFactory) {
 		this.logVerbosity = logVerbosity;
 		this.gocSupplier = gocSupplier;
 		this.simulationsPerQuarterChannel = simulationsPerQuarterChannel;
-		initializeRandomRegistryForProduction();
-	}
+		this.generationsPerQuarterChannel = generationsPerQuarterChannel;
+		this.clock = clock;
+		this.executorFactory = executorFactory;
+		this.schedulerFactory = schedulerFactory;
+		this.simulatorFactory = simulatorFactory;
 
-	/**
-	 * Interrupts the {@link Optimizer} Task.
-	 */
-	public synchronized void interruptTask() {
-		if (this.future != null) {
-			this.future.cancel(true);
-		}
+		initializeRandomRegistryForProduction();
 	}
 
 	/**
 	 * Activate and start the {@link Optimizer}.
 	 */
 	public synchronized void activate() {
-		this.interruptTask();
-		this.future = this.executor.scheduleAtFixedRate(this, 0, 1, TimeUnit.SECONDS);
+		if (this.activated) {
+			return;
+		}
+		this.traceLog(() -> "Activating optimizer...");
+		this.activated = true;
+
+		if (this.executor == null || this.executor.isShutdown() || this.executor.isTerminated()) {
+			this.executor = this.executorFactory.get();
+		}
+
+		if (this.scheduler == null || this.scheduler.isShutdown() || this.scheduler.isTerminated()) {
+			this.scheduler = this.schedulerFactory.get();
+		}
+
+		this.restartOptimization("Optimizer activated", true);
 	}
 
 	/**
 	 * Deactivate the {@link Optimizer}.
 	 */
 	public synchronized void deactivate() {
-		this.interruptTask();
-		shutdownAndAwaitTermination(this.executor, 0);
-	}
+		if (!this.activated) {
+			return;
+		}
+		this.traceLog(() -> "Deactivating optimizer...");
+		this.activated = false;
 
-	/**
-	 * Triggers Rescheduling.
-	 * 
-	 * @param reason a reason
-	 */
-	public void triggerReschedule(String reason) {
-		// NOTE: This is what happens here:
-		// [_cycle ] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Trigger Reschedule.
-		// Reason: ControllerEvcsImpl::onEvcsStatusChange from 6:The charging limit
-		// reached to 1:Not ready for Charging
-		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Optimizer::run()
-		// InterruptedException: null
-		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Simulation gave no
-		// result!
-		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER Run Quick
-		// Optimization...
-		// [thread-1] INFO [dge.energy.optimizer.Optimizer] OPTIMIZER
-		// updateSimulator()...
-
-		// TODO On interrupt: keep best "regularOptimization" up till now as input for
-		// next InitialPopulation
-		this.traceLog(() -> "Trigger Reschedule. Reason: " + reason);
-		this.rescheduleCurrentPeriod.set(true);
-		this.activate(); // interrupt + reschedule
-	}
-
-	@Override
-	public void run() {
-		var simulationResult = EMPTY_SIMULATION_RESULT;
-		try {
-			if (this.rescheduleCurrentPeriod.getAndSet(false) || this.simulationResult == EMPTY_SIMULATION_RESULT) {
-				this.traceLog(() -> "Run Quick Optimization...");
-				simulationResult = this.runQuickOptimization();
-			} else {
-				this.traceLog(() -> "Run Regular Optimization...");
-				simulationResult = this.runRegularOptimization();
-			}
-
-		} catch (InterruptedException e) {
-			this.traceLog(() -> "Optimizer::run() " + e.getClass().getSimpleName() + ": " + e.getMessage());
-			Thread.currentThread().interrupt(); // reset interrupt status
-		} catch (ExecutionException | IllegalArgumentException e) {
-			this.traceLog(() -> "Optimizer::run() " + e.getClass().getSimpleName() + ": " + e.getMessage());
+		var currentToken = this.currentToken.get();
+		if (currentToken != null) {
+			currentToken.cancel();
+			this.currentToken.set(null);
 		}
 
-		this.applySimulationResult(simulationResult);
-	}
+		if (this.scheduledFuture != null && !this.scheduledFuture.isDone()) {
+			this.scheduledFuture.cancel(false);
+			this.scheduledFuture = null;
+		}
 
-	/**
-	 * Creates a new {@link Simulator} using the `gscSupplier` and updates
-	 * `this.simulator`.
-	 * 
-	 * @return a {@link Simulator} or null
-	 * @throws InterruptedException on interrupted sleep
-	 */
-	private Simulator updateSimulator() throws InterruptedException {
-		try {
-			// Create the Simulator with GlobalOptimizationContext
-			this.traceLog(() -> "updateSimulator()...");
-			createSimulator(this.gocSupplier, //
-					simulator -> this.simulator = simulator, //
-					error -> {
-						this.traceLog(error);
-						this.applySimulationResult(EMPTY_SIMULATION_RESULT);
-					});
-			final var simulator = this.simulator;
-			if (simulator == null) {
-				this.traceLog(() -> "Simulator is null");
-			} else {
-				this.traceLog(() -> "Simulator is " + simulator.toJson().toString());
-			}
-			return simulator;
-		} catch (Exception e) {
-			e.printStackTrace(); // TODO remove
-			throw e;
+		if (this.scheduler != null) {
+			ThreadPoolUtils.shutdownAndAwaitTermination(this.scheduler, 5);
+			this.scheduler = null;
+		}
+
+		if (this.executor != null) {
+			ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
+			this.executor = null;
 		}
 	}
 
 	/**
-	 * Runs a quick optimization with only one generation.
-	 * 
-	 * @return a {@link SimulationResult} or null
-	 * @throws InterruptedException on interrupted sleep
-	 * @throws ExecutionException   on simulation error
-	 */
-	protected SimulationResult runQuickOptimization() throws InterruptedException, ExecutionException {
-		var simulator = this.updateSimulator();
-		if (simulator == null) {
-			return EMPTY_SIMULATION_RESULT;
-		}
-
-		if (this.simulationResult == EMPTY_SIMULATION_RESULT) {
-			this.traceLog(() -> "reschedule because previous simulationresult is EMPTY");
-		} else {
-			this.traceLog(() -> "triggerReschedule() had been called -> reschedule");
-		}
-		return this.runSimulation(simulator, //
-				false, // current period can get adjusted
-				byFixedGeneration(1)) // simulate only one generation
-				.get();
-	}
-
-	/**
-	 * Runs a regular optimization for upcoming periods.
-	 * 
-	 * @return a {@link SimulationResult} or null
-	 * @throws InterruptedException on interrupted sleep
-	 * @throws ExecutionException   on simulation error
-	 */
-	protected SimulationResult runRegularOptimization() throws InterruptedException, ExecutionException {
-		// Run regular optimization for upcoming periods
-		var millisTillNextQuarter = calculateSleepMillis();
-		if (millisTillNextQuarter < 60_000 /* 60s */) {
-			this.traceLog(() -> "Run Simulation in " + millisTillNextQuarter + "ms...");
-			sleep(millisTillNextQuarter);
-		}
-		var simulator = this.updateSimulator();
-		if (simulator == null) {
-			return EMPTY_SIMULATION_RESULT;
-		}
-
-		return this.runSimulation(simulator, //
-				true, // current period should not get adjusted
-				byExecutionTime(ofSeconds(calculateExecutionLimitSeconds()))) // Limit by execution time
-				.get();
-	}
-
-	protected CompletableFuture<SimulationResult> runSimulation(Simulator simulator, boolean isCurrentPeriodFixed,
-			Predicate<? super EvolutionResult<IntegerGene, Fitness>> executionLimit) {
-		this.traceLog(() -> "Run next Simulation");
-		return CompletableFuture.supplyAsync(() -> {
-			this.traceLog(() -> "Executing async Simulation");
-
-			var bestSchedule = simulator.getBestSchedule(this.simulationResult, isCurrentPeriodFixed, null, //
-					stream -> stream //
-							// Stop till next quarter
-							.limit(executionLimit));
-
-			return bestSchedule;
-		});
-	}
-
-	/**
-	 * Applies the Schedule to all {@link EnergyScheduleHandler}s and stores the
-	 * {@link SimulationResult} in `this.simulationResult`.
+	 * Returns whether the optimizer is currently activated.
 	 *
-	 * @param simulationResult the {@link SimulationResult}
+	 * @return {@code true} if the optimizer is activated, {@code false} otherwise
 	 */
-	protected void applySimulationResult(SimulationResult simulationResult) {
-		if (simulationResult == EMPTY_SIMULATION_RESULT /* no result */) {
-			this.traceLog(() -> "Simulation gave no result!");
+	public boolean isActivated() {
+		return this.activated;
+	}
+
+	/**
+	 * Restarts the currently running optimization immediately.
+	 *
+	 * @param reason                the reason for restarting the optimization
+	 * @param optimizeCurrentPeriod if {@code true}, the current period will be
+	 *                              optimized; if {@code false}, the first period
+	 *                              will remain fixed and the last available
+	 *                              schedule is used for it
+	 */
+	public void restartOptimization(String reason, boolean optimizeCurrentPeriod) {
+		this.restartOptimization(reason, Duration.ZERO, optimizeCurrentPeriod);
+	}
+
+	/**
+	 * Cancels the currently running optimization immediately and schedules a
+	 * restart after the given delay.
+	 *
+	 * @param reason                the reason for restarting the optimization
+	 * @param delay                 the delay before the optimization is restarted
+	 * @param optimizeCurrentPeriod if {@code true}, the current period will be
+	 *                              optimized; if {@code false}, the first period
+	 *                              will remain fixed and the last available
+	 *                              schedule is used for it
+	 */
+	public synchronized void restartOptimization(String reason, Duration delay, boolean optimizeCurrentPeriod) {
+		if (!this.activated) {
+			return;
+		}
+		this.traceLog(() -> "Cancelling current optimization... Reason: " + reason);
+
+		var token = this.currentToken.get();
+		if (token != null) {
+			token.cancel();
 		}
 
-		final var simulator = this.simulator;
-		if (simulator != null) {
-			// Debug Log best Schedule
-			logSimulationResult(simulator, simulationResult);
-
-			// Calculate metrics
-			var stats = simulator.cache.stats();
-			this.simulationsPerQuarterChannel.setNextValue(stats.loadCount());
+		if (this.scheduledFuture != null && !this.scheduledFuture.isDone()) {
+			this.scheduledFuture.cancel(false);
 		}
 
-		// Store result
-		this.simulationResult = simulationResult;
+		var adjustedDelay = Utils.calculateAdjustedDelay(this.clock, delay);
+		this.traceLog(() -> "Restarting optimization in " + adjustedDelay.toSeconds() + "s...");
 
-		// Send Schedule to EnergyScheduleHandlers.WithDifferentModes
-		simulationResult.schedules().forEach((esh, schedule) -> {
-			esh.applySchedule(schedule);
+		this.scheduledFuture = this.scheduler.schedule(//
+				() -> this.startOptimization(optimizeCurrentPeriod), //
+				adjustedDelay.toMillis(), //
+				TimeUnit.MILLISECONDS);
+	}
+
+	@VisibleForTesting
+	void startOptimization(boolean optimizeCurrentPeriod) {
+		var token = new CancellationToken();
+		this.currentToken.set(token);
+
+		this.executor.submit(() -> this.runOptimization(optimizeCurrentPeriod, token));
+
+		// Schedule restart when new period begins
+		var delay = DateUtils.durationUntilNextQuarter(this.clock).minus(BUFFER_STOP);
+		this.scheduledFuture = this.scheduler.schedule(//
+				() -> this.restartOptimization(//
+						"Start of new period", //
+						false), //
+				delay.toMillis(), //
+				TimeUnit.MILLISECONDS);
+	}
+
+	@VisibleForTesting
+	void runOptimization(//
+			boolean optimizeCurrentPeriod, //
+			CancellationToken token) {
+		try {
+			var simulator = this.validateAndBuildSimulator();
+			if (simulator == null) {
+				return;
+			}
+			this.simulator = simulator;
+			this.traceLog(() -> "Simulator is " + simulator.toJson().toString());
+
+			this.traceLog(() -> "Running optimization...");
+			simulator.runOptimization(//
+					() -> this.latestSimulationResult, //
+					optimizeCurrentPeriod, //
+					null, //
+					stream -> stream//
+							.limit(result -> !token.isCancelled()), //
+					simResult -> this.applySimulationResult(simResult, simulator));
+		} catch (Exception e) {
+			this.traceLog(() -> "Error during optimization: " + e.getMessage());
+			this.restartOptimization("Error during optimization", Duration.ofSeconds(30), optimizeCurrentPeriod);
+		}
+	}
+
+	private Simulator validateAndBuildSimulator() {
+		this.traceLog(() -> "Creating simulator...");
+
+		GlobalOptimizationContext goc;
+		try {
+			goc = this.gocSupplier.get();
+		} catch (Exception e) {
+			this.traceLog(() -> "Error while creating GlobalOptimizationContext: " + e.getMessage());
+			goc = null;
+		}
+
+		if (goc == null) {
+			this.restartOptimization(//
+					"Unable to create GlobalOptimizationContext", //
+					BUFFER_ON_ERROR, //
+					true);
+			return null;
+		}
+
+		if (goc.eshsWithDifferentModes().isEmpty()) {
+			this.restartOptimization(//
+					"No optimizable EnergyScheduleHandlers, waiting until next period", //
+					DateUtils.durationUntilNextQuarter(this.clock), //
+					true);
+			return null;
+		}
+
+		var simulator = this.simulatorFactory.apply(goc);
+		if (simulator == null) {
+			this.restartOptimization(//
+					"Simulator is null", //
+					BUFFER_ON_ERROR, //
+					true);
+			return null;
+		}
+
+		return simulator;
+	}
+
+	private void applySimulationResult(SimulationResult simulationResult, Simulator simulator) {
+		if (simulationResult == EMPTY_SIMULATION_RESULT) {
+			this.restartOptimization("Simulation result is empty", BUFFER_ON_ERROR, true);
+			return;
+		}
+		this.traceLog(() -> "Applying simulation result...");
+
+		Optional.ofNullable(simulator).ifPresent(s -> {
+			Utils.logSimulationResult(s, simulationResult);
+			this.simulationsPerQuarterChannel.setNextValue(s.getTotalNumberOfSimulations());
+			this.generationsPerQuarterChannel.setNextValue(s.getTotalNumberOfGenerations());
 		});
-		// Send Schedule to EnergyScheduleHandlers.WithOnlyOneMode
+
+		this.latestSimulationResult = simulationResult;
+
+		// Apply schedule to EnergyScheduleHandlers.WithDifferentModes
+		simulationResult.schedules().forEach((esh, schedule) -> esh.applySchedule(schedule));
+
+		// Apply schedule to EnergyScheduleHandlers.WithOnlyOneMode
 		var schedule = simulationResult.periods().entrySet().stream() //
-				.collect(toImmutableSortedMap(ZonedDateTime::compareTo, //
+				.collect(toImmutableSortedMap(//
+						ZonedDateTime::compareTo, //
 						Entry::getKey, //
-						e -> new OneMode.Period.Transition(//
-								e.getValue().period().duration(), //
-								e.getValue().period().price(), //
-								e.getValue().energyFlow())));
-		simulationResult.eshsWithOnlyOneMode().forEach(esh -> {
-			esh.applySchedule(schedule);
-		});
+						e -> {
+							var p = e.getValue();
+							var price = switch (p.period()) {
+							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price().actual();
+							default -> null;
+							};
+							return new OneMode.Period.Transition(p.period().duration(), price, p.energyFlow());
+						}));
+
+		simulationResult.eshsWithOnlyOneMode().forEach(esh -> esh.applySchedule(schedule));
 	}
 
 	private void traceLog(Supplier<String> message) {
@@ -280,12 +348,12 @@ public class Optimizer implements Runnable {
 	}
 
 	/**
-	 * Gets the {@link SimulationResult}.
+	 * Gets the latest {@link SimulationResult}.
 	 * 
 	 * @return {@link SimulationResult}
 	 */
-	public SimulationResult getSimulationResult() {
-		return this.simulationResult;
+	public SimulationResult getLatestSimulationResult() {
+		return this.latestSimulationResult;
 	}
 
 	/**
@@ -295,17 +363,60 @@ public class Optimizer implements Runnable {
 	 */
 	public String debugLog() {
 		var b = new StringBuilder();
-		if (this.simulationResult.periods().isEmpty()) {
+		if (this.latestSimulationResult.periods().isEmpty()) {
 			b.append("No Schedule available");
 		} else {
-			b.append("ScheduledPeriods:" + this.simulationResult.periods().size());
+			b.append("ScheduledPeriods:").append(this.latestSimulationResult.periods().size());
 		}
-		var simulator = this.simulator;
-		if (simulator != null) {
-			var stats = simulator.cache.stats();
-			b.append("|SimulationCounter:" + stats.loadCount());
-		}
-		b.append("|PerQuarter:" + this.simulationsPerQuarterChannel.value());
+		b.append("|SimulationsPerQuarter:").append(this.simulationsPerQuarterChannel.value());
+		b.append("|GenerationsPerQuarter:").append(this.generationsPerQuarterChannel.value());
+		Optional.ofNullable(this.simulator).ifPresent(simulator -> {
+			b.append("|Current:").append(simulator.getTotalNumberOfSimulations());
+		});
 		return b.toString();
+	}
+
+	@VisibleForTesting
+	AtomicReference<CancellationToken> getCurrentToken() {
+		return this.currentToken;
+	}
+
+	@VisibleForTesting
+	ScheduledFuture<?> getScheduledFuture() {
+		return this.scheduledFuture;
+	}
+
+	@VisibleForTesting
+	void setActivated(boolean activated) {
+		this.activated = activated;
+	}
+
+	@VisibleForTesting
+	void setScheduledFuture(ScheduledFuture<?> scheduledFuture) {
+		this.scheduledFuture = scheduledFuture;
+	}
+
+	/**
+	 * Simple cancellation token to signal a running process that it should stop.
+	 */
+	public static class CancellationToken {
+
+		private volatile boolean cancelled = false;
+
+		/**
+		 * Marks this token as cancelled.
+		 */
+		public void cancel() {
+			this.cancelled = true;
+		}
+
+		/**
+		 * Returns {@code true} if this token has been cancelled.
+		 *
+		 * @return {@code true} if cancelled, {@code false} otherwise
+		 */
+		public boolean isCancelled() {
+			return this.cancelled;
+		}
 	}
 }

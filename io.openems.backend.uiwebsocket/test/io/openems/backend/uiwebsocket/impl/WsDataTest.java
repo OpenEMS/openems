@@ -7,11 +7,11 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import io.openems.backend.common.test.DummyUser;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsDataTest {
 
-	private static final String USER_ID = "user0";
 	private static final String TOKEN = "token";
 
 	@Test
@@ -21,13 +21,13 @@ public class WsDataTest {
 		assertThrows(OpenemsNamedException.class, () -> sut.assertToken());
 		assertEquals("UiWebsocket.WsData [userId=UNKNOWN, token=UNKNOWN]", sut.toLogString());
 
-		sut.setUserId(USER_ID);
 		sut.setToken(TOKEN);
+		sut.setUser(DummyUser.DUMMY_GUEST);
 
-		assertEquals(Optional.of(USER_ID), sut.getUserId());
+		assertEquals(Optional.of("guest"), sut.getUserId());
 		assertEquals(Optional.of(TOKEN), sut.getToken());
 		assertEquals(TOKEN, sut.assertToken());
-		assertEquals("UiWebsocket.WsData [userId=user0, token=token]", sut.toLogString());
+		assertEquals("UiWebsocket.WsData [userId=guest, token=token]", sut.toLogString());
 
 		sut.logout();
 	}

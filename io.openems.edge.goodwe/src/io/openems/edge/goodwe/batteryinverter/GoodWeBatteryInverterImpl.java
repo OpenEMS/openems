@@ -599,7 +599,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
-				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setChargeMaxCurrent));
+				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setDischargeMaxCurrent));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
 
@@ -737,7 +737,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// Calculate ActivePower, Energy and Max-AC-Power.
 		this.updatePowerAndEnergyChannels(battery.getSoc().get(), battery.getCurrent().get());
-		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), battery);
 
 		this.handleGridFeed(this.config, this.meta.getGridFeedInLimitationType());
 
@@ -759,6 +759,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		return new BatteryInverterConstraint[] { //
 				new BatteryInverterConstraint("Max AC Import", ALL, ACTIVE, GREATER_OR_EQUALS,
 						this.getMaxAcImport().orElse(0)), //
+
 				new BatteryInverterConstraint("Max AC Export", ALL, ACTIVE, LESS_OR_EQUALS,
 						this.getMaxAcExport().orElse(0)) //
 		};

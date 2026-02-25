@@ -1,46 +1,29 @@
 package io.openems.edge.energy.api.simulation;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
-import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
-import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
-import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
-import static io.openems.edge.energy.api.EnergyUtils.filterEshsWithDifferentModes;
-import static io.openems.edge.energy.api.EnergyUtils.socToEnergy;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.HOUR;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
-import static java.lang.Math.abs;
-import static java.util.Arrays.stream;
+import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.HOUR;
+import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.Objects;
-import java.util.function.IntFunction;
-import java.util.stream.IntStream;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.common.utils.DateUtils;
-import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
-import io.openems.edge.energy.api.RiskLevel;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
-import io.openems.edge.predictor.api.manager.PredictorManager;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.energy.api.simulation.GocUtils.GocBuilder;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodsBuilder;
 
 /**
  * Holds the context that is used globally for an entire optimization run.
@@ -50,18 +33,47 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
  */
 public record GlobalOptimizationContext(//
 		Clock clock, //
-		RiskLevel riskLevel,
+		Environment environment,
 		/** Start-Timestamp */
 		ZonedDateTime startTime, //
 		ImmutableList<EnergyScheduleHandler> eshs, //
 		ImmutableList<EnergyScheduleHandler.WithDifferentModes> eshsWithDifferentModes, //
 		Grid grid, //
 		Ess ess, //
-		/**
-		 * Period is either mixed, with {@link Hour}s and {@link Quarter}s, or
-		 * {@link Quarter}s only.
-		 */
-		ImmutableList<Period> periods) {
+		Periods periods) {
+
+	/**
+	 * Streams the {@link GlobalOptimizationContext.Period.WithPrice}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.WithPrice> streamPeriodsWithPrice() {
+		return this.periods().stream() //
+				.filter(Period.WithPrice.class::isInstance) //
+				.map(Period.WithPrice.class::cast);
+	}
+
+	/**
+	 * Streams the {@link GlobalOptimizationContext.Period.WithPrediction}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.WithPrediction> streamPeriodsWithPrediction() {
+		return this.periods().stream() //
+				.filter(Period.WithPrediction.class::isInstance) //
+				.map(Period.WithPrediction.class::cast);
+	}
+
+	/**
+	 * Streams the {@link GlobalOptimizationContext.Period.Complete}.
+	 * 
+	 * @return a {@link Stream}
+	 */
+	public Stream<Period.Complete> streamCompletePeriods() {
+		return this.periods().stream() //
+				.filter(Period.Complete.class::isInstance) //
+				.map(Period.Complete.class::cast);
+	}
 
 	/**
 	 * Serialize.
@@ -70,14 +82,44 @@ public record GlobalOptimizationContext(//
 	 */
 	public static JsonElement toJson(GlobalOptimizationContext goc) {
 		return buildJsonObject() //
-				.addProperty("riskLevel", goc.riskLevel) //
+				.addProperty("zone", goc.clock.getZone().getId()) //
+				.addProperty("environment", goc.environment) //
 				.addProperty("startTime", goc.startTime) //
-				.add("grid", Grid.serializer().serialize(goc.grid)) //
-				.add("ess", Ess.serializer().serialize(goc.ess)) //
+				.add("grid", goc.grid, Grid.serializer()) //
+				.add("ess", goc.ess, Ess.serializer()) //
 				.add("eshs", goc.eshs.stream() //
 						.map(EnergyScheduleHandler::toJson) //
 						.collect(toJsonArray())) //
 				.build();
+	}
+
+	public static record Grid(//
+			/** Max Buy-From-Grid Power [W] */
+			int maxBuyPower, //
+			/** Max Sell-To-Grid Power [W] */
+			int maxSellPower,
+			/** The Grid-Buy Soft-Limit [W] */
+			JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit) {
+
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Grid}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Grid> serializer() {
+			return jsonObjectSerializer(Grid.class, json -> {
+				return new Grid(//
+						json.getInt("maxBuyPower"), //
+						json.getInt("maxSellPower"), //
+						json.getObject("gridBuySoftLimit", GridBuySoftLimit.tasksSerializer()));
+			}, obj -> {
+				return buildJsonObject() //
+						.addProperty("maxBuyPower", obj.maxBuyPower) //
+						.addProperty("maxSellPower", obj.maxSellPower) //
+						.add("gridBuySoftLimit", obj.gridBuySoftLimit, GridBuySoftLimit.tasksSerializer()) //
+						.build();
+			});
+		}
 	}
 
 	public static record Ess(//
@@ -113,70 +155,137 @@ public record GlobalOptimizationContext(//
 		}
 	}
 
-	public static record Grid(//
-			/** Max Buy-From-Grid Power [W] */
-			int maxBuyPower, //
-			/** Max Sell-To-Grid Power [W] */
-			int maxSellPower) {
+	/**
+	 * Create a builder for {@link GlobalOptimizationContext}.
+	 * 
+	 * @return a {@link GocBuilder}
+	 */
+	public static GocBuilder create() {
+		return new GocBuilder(LogVerbosity.NONE);
+	}
+
+	/**
+	 * Create a builder for {@link GlobalOptimizationContext}.
+	 * 
+	 * @param logVerbosity the {@link LogVerbosity}
+	 * @return a {@link GocBuilder}
+	 */
+	public static GocBuilder create(LogVerbosity logVerbosity) {
+		return new GocBuilder(logVerbosity);
+	}
+
+	/**
+	 * Multiple Periods within {@link GlobalOptimizationContext}.
+	 */
+	public static class Periods {
+
+		private final ImmutableList<Period> periods;
+
+		protected Periods(ImmutableList<Period> periods) {
+			this.periods = periods;
+		}
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link Grid}.
+		 * Gets the number of {@link Period Periods}.
 		 * 
-		 * @return the created {@link JsonSerializer}
+		 * @return size
 		 */
-		public static JsonSerializer<Grid> serializer() {
-			return jsonObjectSerializer(Grid.class, json -> {
-				return new Grid(//
-						json.getInt("maxBuyPower"), //
-						json.getInt("maxSellPower"));
-			}, obj -> {
-				return buildJsonObject() //
-						.addProperty("maxBuyPower", obj.maxBuyPower) //
-						.addProperty("maxSellPower", obj.maxSellPower) //
-						.build();
-			});
+		public int size() {
+			return this.periods.size();
+		}
+
+		/**
+		 * Are there any {@link Period Periods}?.
+		 * 
+		 * @return true if none
+		 */
+		public boolean isEmpty() {
+			return this.periods.isEmpty();
+		}
+
+		/**
+		 * Gets a Stream of {@link Period Periods}.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public Stream<Period> stream() {
+			return this.periods.stream();
+		}
+
+		/**
+		 * Gets the {@link Period} with given index.
+		 * 
+		 * @param index the index
+		 * @return the {@link Period}
+		 */
+		public Period get(int index) {
+			return this.periods.get(index);
+		}
+
+		/**
+		 * Gets the first {@link Period}.
+		 * 
+		 * @return the {@link Period}
+		 */
+		public Period getFirst() throws NoSuchElementException {
+			return this.periods.getFirst();
+		}
+
+		/**
+		 * Gets the last {@link Period}.
+		 * 
+		 * @return the {@link Period}
+		 */
+		public Period getLast() throws NoSuchElementException {
+			return this.periods.getLast();
+		}
+
+		/**
+		 * Create a builder for {@link Periods}.
+		 * 
+		 * @param environment the {@link Environment}
+		 * @return a {@link PeriodsBuilder}
+		 */
+		public static PeriodsBuilder create(Environment environment) {
+			return new PeriodsBuilder(environment);
+		}
+
+		/**
+		 * Gets object with no {@link Period Periods}.
+		 * 
+		 * @return empty {@link Periods}
+		 */
+		public static Periods empty() {
+			return new Periods(ImmutableList.of());
+		}
+
+		/**
+		 * Copies the Quarterly Periods of the given {@link Periods} to a new Periods.
+		 * 
+		 * @param o the given Periods
+		 * @return copy
+		 */
+		public static Periods copyOfQuarterly(Periods o) {
+			return new Periods(o.stream() //
+					.flatMap(period -> switch (period) {
+					case GlobalOptimizationContext.Period.Hour ph //
+						-> ph.quarterPeriods().stream();
+					case GlobalOptimizationContext.Period.Quarter pq //
+						-> Stream.of(pq);
+					}) //
+					.collect(ImmutableList.<Period>toImmutableList()));
 		}
 	}
 
-	public static enum PeriodDuration {
-		/** Period of duration 15 minutes. */
-		QUARTER,
-		/** Period of duration 1 hour. */
-		HOUR;
+	/**
+	 * One single Period of {@link Periods}.
+	 */
+	public sealed interface Period {
 
 		/**
-		 * Converts power [W] to energy [Wh], considering the duration of the Period.
+		 * The Duration of a Period.
 		 * 
-		 * @param power the power value
-		 * @return the energy value
-		 */
-		public int convertPowerToEnergy(int power) {
-			return switch (this) {
-			case QUARTER -> power / 4;
-			case HOUR -> power;
-			};
-		}
-
-		/**
-		 * Converts energy [Wh] to power [W], considering the duration of the Period.
-		 * 
-		 * @param energy the energy value
-		 * @return the power value
-		 */
-		public int convertEnergyToPower(int energy) {
-			return switch (this) {
-			case QUARTER -> energy * 4;
-			case HOUR -> energy;
-			};
-		}
-	}
-
-	public static sealed interface Period {
-
-		/**
-		 * The Duration of the Period.
-		 * 
-		 * @return the PeriodDuration
+		 * @return the {@link PeriodDuration}
 		 */
 		public PeriodDuration duration();
 
@@ -195,319 +304,186 @@ public record GlobalOptimizationContext(//
 		public ZonedDateTime time();
 
 		/**
-		 * Production prediction for the Period in [Wh].
+		 * The Grid-Buy Soft-Limit in [Wh].
 		 * 
-		 * @return the production prediction
+		 * @return {@link GridBuySoftLimit}; or null
 		 */
-		public int production();
+		public Integer gridBuySoftLimit();
 
-		/**
-		 * Consumption prediction for the Period in [Wh].
-		 * 
-		 * @return the consumption prediction
-		 */
-		public int consumption();
+		public static sealed interface Empty extends Period {
+		}
 
-		/**
-		 * (Average) Grid-Buy-Price for the Period in [1/MWh].
-		 * 
-		 * @return the price
-		 */
-		public double price();
+		public static record Prediction(//
+				/**
+				 * Production prediction for the Period in [Wh].
+				 * 
+				 * @return the production prediction
+				 */
+				int production,
 
-		public static record Quarter(//
-				int index, //
-				ZonedDateTime time, //
-				int production, //
-				int consumption, //
-				double price //
-		) implements Period {
+				/**
+				 * Consumption prediction for the Period in [Wh].
+				 * 
+				 * @return the consumption prediction
+				 */
+				int consumptionPredicted,
+
+				/**
+				 * Consumption prediction for the Period adjusted by {@link Environment} in [Wh].
+				 * 
+				 * @return the consumption prediction
+				 */
+				int consumptionRiskAdjusted) {
+
+			/**
+			 * Gets the excess Consumption, i.e. Consumption minus Production.
+			 * 
+			 * @return value
+			 */
+			public int excessConsumption() {
+				return this.consumptionPredicted - this.production;
+			}
+
+			/**
+			 * Gets the excess Production, i.e. Production minus Consumption.
+			 * 
+			 * @return value
+			 */
+			public int excessProduction() {
+				return this.production - this.consumptionPredicted;
+			}
+		}
+
+		public static sealed interface WithPrediction extends Period {
+			/**
+			 * Prediction for the Period in [Wh].
+			 * 
+			 * @return the {@link Price}
+			 */
+			public Prediction prediction();
+		}
+
+		public static record Price(//
+				/**
+				 * Actual (Average) Grid-Buy-Price for the Period in [1/MWh].
+				 * 
+				 * @return the actual price
+				 */
+				double actual,
+
+				/**
+				 * Normalized Grid-Buy-Price for the Period in range [0; 1].
+				 * 
+				 * @return the normalized price
+				 */
+				double normalized) {
+		}
+
+		public static sealed interface WithPrice extends Period {
+			/**
+			 * Grid-Buy-Price for the Period in [1/MWh].
+			 * 
+			 * @return the {@link Price}
+			 */
+			public Price price();
+		}
+
+		public static sealed interface Complete extends Period.WithPrediction, Period.WithPrice {
+		}
+
+		public static sealed interface Quarter extends Period {
 
 			@Override
-			public PeriodDuration duration() {
+			public default PeriodDuration duration() {
 				return QUARTER;
 			}
+
+			public static record Empty(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit //
+			) implements Period.Quarter, Period.Empty {
+			}
+
+			public static record WithPrediction(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrediction
+					Prediction prediction //
+			) implements Period.Quarter, Period.WithPrediction {
+			}
+
+			public static record WithPrice(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrice
+					Price price //
+			) implements Period.Quarter, Period.WithPrice {
+			}
+
+			public static record Complete(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrediction
+					Prediction prediction, //
+					// From Period.WithPrice
+					Price price //
+			) implements Period.Quarter, Period.Complete {
+			}
 		}
 
-		public static record Hour(//
-				int index, //
-				ZonedDateTime time, //
-				int production, //
-				int consumption, //
-				double price, //
-				/** Raw Periods, representing one QUARTER. */
-				ImmutableList<Period.Quarter> quarterPeriods //
-		) implements Period {
+		public static sealed interface Hour extends Period {
 
 			@Override
-			public PeriodDuration duration() {
+			public default PeriodDuration duration() {
 				return HOUR;
 			}
-		}
-	}
 
-	public static class Builder {
-		private final Logger log = LoggerFactory.getLogger(Builder.class);
-		private final LogVerbosity logVerbosity;
+			/**
+			 * Raw Periods, representing one QUARTER.
+			 * 
+			 * @return the Quarter Periods
+			 */
+			public ImmutableList<Period.Quarter> quarterPeriods();
 
-		private ComponentManager componentManager;
-		private RiskLevel riskLevel;
-		private ImmutableList<EnergyScheduleHandler> eshs;
-		private Sum sum;
-		private PredictorManager predictorManager;
-		private TimeOfUseTariff timeOfUseTariff;
-
-		protected Builder(LogVerbosity logVerbosity) {
-			this.logVerbosity = logVerbosity;
-		}
-
-		private void logWarn(String message) {
-			switch (this.logVerbosity) {
-			case NONE, DEBUG_LOG -> doNothing();
-			case TRACE -> this.log.warn("OPTIMIZER " + message);
-			}
-		}
-
-		/**
-		 * The {@link ComponentManager}.
-		 * 
-		 * @param componentManager the {@link ComponentManager}
-		 * @return myself
-		 */
-		public Builder setComponentManager(ComponentManager componentManager) {
-			this.componentManager = componentManager;
-			return this;
-		}
-
-		/**
-		 * The {@link RiskLevel}.
-		 * 
-		 * @param riskLevel the {@link RiskLevel}
-		 * @return myself
-		 */
-		public Builder setRiskLevel(RiskLevel riskLevel) {
-			this.riskLevel = riskLevel;
-			return this;
-		}
-
-		/**
-		 * The {@link EnergyScheduleHandler}s of the {@link EnergySchedulable}s.
-		 * 
-		 * <p>
-		 * The list is sorted by Scheduler.
-		 * 
-		 * @param eshs the list of {@link EnergyScheduleHandler}s
-		 * @return myself
-		 */
-		public Builder setEnergyScheduleHandlers(ImmutableList<EnergyScheduleHandler> eshs) {
-			this.eshs = eshs;
-			return this;
-		}
-
-		/**
-		 * The {@link Sum}.
-		 * 
-		 * @param sum the {@link Sum}
-		 * @return myself
-		 */
-		public Builder setSum(Sum sum) {
-			this.sum = sum;
-			return this;
-		}
-
-		/**
-		 * The {@link PredictorManager}.
-		 * 
-		 * @param predictorManager the {@link PredictorManager}
-		 * @return myself
-		 */
-		public Builder setPredictorManager(PredictorManager predictorManager) {
-			this.predictorManager = predictorManager;
-			return this;
-		}
-
-		/**
-		 * The {@link TimeOfUseTariff}.
-		 * 
-		 * @param timeOfUseTariff the {@link TimeOfUseTariff}
-		 * @return myself
-		 */
-		public Builder setTimeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
-			this.timeOfUseTariff = timeOfUseTariff;
-			return this;
-		}
-
-		/**
-		 * Builds the {@link GlobalOptimizationContext}.
-		 * 
-		 * @return the {@link GlobalOptimizationContext} record
-		 */
-		public GlobalOptimizationContext build() throws IllegalArgumentException {
-			if (this.componentManager == null) {
-				this.logWarn("ComponentManager is not available");
-				return null;
-			}
-			if (this.eshs == null) {
-				this.logWarn("EnergyScheduleHandlers are not available");
-				return null;
-			}
-			if (this.sum == null) {
-				this.logWarn("Sum is not available");
-				return null;
-			}
-			final var essCapacity = this.sum.getEssCapacity().get();
-			if (essCapacity == null) {
-				this.logWarn("Sum ESS Capacity is not available");
-				return null;
-			}
-			final var essSoc = this.sum.getEssSoc().get();
-			if (essSoc == null) {
-				this.logWarn("Sum ESS SoC is not available");
-				return null;
-			}
-			if (this.predictorManager == null) {
-				this.logWarn("Predictor-Manager is not available");
-				return null;
-			}
-			if (this.timeOfUseTariff == null) {
-				this.logWarn("TimeOfUseTariff is not available");
-				return null;
-			}
-			final var clock = this.componentManager.getClock();
-			final var startTime = DateUtils.roundDownToQuarter(ZonedDateTime.now(clock));
-			final var periodLengthHourFromIndex = calculatePeriodDurationHourFromIndex(startTime);
-
-			// Prediction values
-			final var consumptions = this.predictorManager.getPrediction(SUM_UNMANAGED_CONSUMPTION);
-			final var productions = this.predictorManager.getPrediction(SUM_PRODUCTION);
-
-			// Prices contains the price values and the time it is retrieved.
-			final var prices = this.timeOfUseTariff.getPrices();
-
-			// Helpers
-			final IntFunction<Period.Quarter> toQuarterPeriod = (i) -> {
-				final var time = startTime.plusMinutes(i * 15);
-				final var consumption = consumptions.getAt(time);
-				final var price = prices.getAt(time);
-				if (consumption == null || price == null) {
-					return null;
-				}
-				final var production = productions.getAtOrElse(time, 0);
-				return new Period.Quarter(i, time, //
-						QUARTER.convertPowerToEnergy(production), QUARTER.convertPowerToEnergy(consumption), price);
-			};
-			final IntFunction<Period.Hour> toHourPeriod = (j) -> {
-				final var i = periodLengthHourFromIndex + j * 4;
-				final var rangeStart = startTime.plusMinutes(i * 15);
-				final var rangeEnd = rangeStart.plusMinutes(60);
-
-				final var consumption = consumptions //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToInt(Integer::intValue) //
-						.toArray();
-				final var priceRange = prices //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToDouble(Double::doubleValue) //
-						.toArray();
-				if (consumption.length == 0 || priceRange.length == 0) {
-					return null;
-				}
-				final var price = stream(priceRange).average().getAsDouble();
-				final var production = productions //
-						.getBetween(rangeStart, rangeEnd) //
-						.mapToInt(Integer::intValue) //
-						.sum();
-				final var quarterPeriods = IntStream.range(i, i + 4) //
-						.mapToObj(toQuarterPeriod) //
-						.filter(Objects::nonNull) //
-						.collect(toImmutableList());
-				return new Period.Hour(periodLengthHourFromIndex + j, rangeStart, //
-						QUARTER.convertPowerToEnergy(production), // ok, because 'sum'
-						QUARTER.convertPowerToEnergy(stream(consumption).sum()), //
-						price, quarterPeriods);
-			};
-
-			var periods = Stream.concat(//
-					IntStream.range(0, periodLengthHourFromIndex) //
-							.<Period>mapToObj(toQuarterPeriod), //
-					IntStream.iterate(0, i -> i + 1) //
-							.<Period>mapToObj(toHourPeriod) //
-							.takeWhile(Objects::nonNull)) //
-					.filter(Objects::nonNull) //
-					.collect(toImmutableList());
-
-			if (periods.isEmpty()) {
-				this.logWarn("No forecast periods available. " //
-						+ "Consumptions[" + consumptions.asArray().length + "] " //
-						+ "Productions[" + productions.asArray().length + "] " //
-						+ "Prices[" + prices.asArray().length + "]");
-				return null;
+			public static record Empty(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Period.Hour, Period.Empty {
 			}
 
-			final Ess ess;
-			{
-				var essInitialEnergy = socToEnergy(essCapacity, essSoc);
-
-				// Power Values for scheduling battery for individual periods.
-				var maxDischargePower = TypeUtils.max(1000 /* at least 1000 W */, //
-						this.sum.getEssMaxDischargePower().get());
-				var maxChargePower = TypeUtils.min(-1000 /* at least 1000 W */, //
-						this.sum.getEssMinDischargePower().get());
-
-				ess = new Ess(essInitialEnergy, essCapacity, abs(maxChargePower), maxDischargePower);
+			public static record WithPrediction(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrediction
+					Prediction prediction, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Period.Hour, Period.WithPrediction {
 			}
-			final var grid = new Grid(40000 /* TODO */, 20000 /* TODO */);
 
-			this.log.info("OPTIMIZER GlobalOptimizationContext: " //
-					+ "startTime=" + startTime + "; " //
-					+ "consumptions=" + consumptions.asArray().length + "; " //
-					+ "productions=" + productions.asArray().length + "; " //
-					+ "prices=" + prices.asArray().length + "; " //
-					+ "periods=" + periods.size());
+			public static record WithPrice(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrice
+					Price price, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Period.Hour, Period.WithPrice {
+			}
 
-			return new GlobalOptimizationContext(clock, this.riskLevel, startTime, //
-					this.eshs, filterEshsWithDifferentModes(this.eshs).collect(toImmutableList()), //
-					grid, ess, periods);
+			public static record Complete(
+					// From Period
+					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
+					// From Period.WithPrediction
+					Prediction prediction, //
+					// From Period.WithPrice
+					Price price, //
+					// From Period.Hour
+					ImmutableList<Period.Quarter> quarterPeriods //
+			) implements Period.Hour, Period.Complete {
+			}
 		}
-	}
-
-	/**
-	 * Create a {@link GlobalOptimizationContext} {@link Builder}.
-	 * 
-	 * @return a {@link Builder}
-	 */
-	public static Builder create() {
-		return new GlobalOptimizationContext.Builder(LogVerbosity.NONE);
-	}
-
-	/**
-	 * Create a {@link GlobalOptimizationContext} {@link Builder}.
-	 * 
-	 * @param logVerbosity the {@link LogVerbosity}
-	 * @return a {@link Builder}
-	 */
-	public static Builder create(LogVerbosity logVerbosity) {
-		return new GlobalOptimizationContext.Builder(logVerbosity);
-	}
-
-	/**
-	 * Calculates the index when Period duration switches from {@link Hour} to
-	 * {@link Quarter}.
-	 * 
-	 * <p>
-	 * The index is calculated as "6 hours" plus remaining quarters of the current
-	 * hour.
-	 * 
-	 * @param time Start-Timestamp of the Schedule
-	 * @return the index
-	 */
-	// TODO this should be set depending on the actual calculation time and
-	// quality of the best schedule result
-	protected static int calculatePeriodDurationHourFromIndex(ZonedDateTime time) {
-		var minute = time.getMinute();
-		if (minute == 0) {
-			minute = 60;
-		}
-		return 6 * 4 + (60 - minute) / 15;
 	}
 }

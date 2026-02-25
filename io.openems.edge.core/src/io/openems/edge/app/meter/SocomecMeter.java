@@ -72,12 +72,12 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
-				.setRequired(true) //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def//
+				.setRequired(true)//
 				.setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.setDefaultValue(6))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//

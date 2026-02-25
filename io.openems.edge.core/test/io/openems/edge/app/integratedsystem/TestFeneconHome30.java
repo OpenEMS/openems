@@ -1,5 +1,6 @@
 package io.openems.edge.app.integratedsystem;
 
+import static io.openems.edge.app.ess.AppSohCycle.CTRL_ESS_SOH_CYCLE_0;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +20,7 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -47,10 +49,13 @@ public class TestFeneconHome30 {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
+					Apps.sohCycle(t), //
 					Apps.techbaseCm3(t), //
 					Apps.techbaseCm4sGen2(t), //
 					Apps.ioGpio(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					Apps.predictionDefault(t), //
+					Apps.predictionUnmanagedConsumption(t), //
+					this.meterApp = Apps.socomecMeter(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -72,16 +77,19 @@ public class TestFeneconHome30 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(8, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.30" -> 4;
+			case "App.FENECON.Home.30" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -132,14 +140,16 @@ public class TestFeneconHome30 {
 		assertNotNull(homeInstance);
 
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Initial Home 30 scheduler order",
-				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
+				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlGridOptimizedCharge0",
+				"ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, homeInstance.alias, fullSettings()));
 
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
-				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
+				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlEmergencyCapacityReserve0",
+				"ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
@@ -147,7 +157,8 @@ public class TestFeneconHome30 {
 
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder(
 				"Update Home 30 to remove EmergencyReserve Controller", //
-				"ctrlPrepareBatteryExtension0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0",
+				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlGridOptimizedCharge0",
+				"ctrlEssSurplusFeedToGrid0",
 				"ctrlBalancing0");
 	}
 
@@ -294,19 +305,22 @@ public class TestFeneconHome30 {
 		final var response = appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
 				new AddAppInstance.Request("App.FENECON.Home.30", "key", "alias", fullConfig));
 
-		assertEquals(4, response.instance().dependencies.size());
+		assertEquals(7, response.instance().dependencies.size());
 
 		// make sure every dependency got installed
-		assertEquals(5, appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(8, appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : appManagerTestBundle.sut.getInstantiatedApps()) {
 			final var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.30" -> 4;
+			case "App.FENECON.Home.30" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -323,7 +337,8 @@ public class TestFeneconHome30 {
 
 		appManagerTestBundle.scheduler.assertExactSchedulerOrder(
 				"Failed setting initial Home 30 Scheduler configuration", //
-				"ctrlPrepareBatteryExtension0", "ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0",
+				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlEmergencyCapacityReserve0",
+				"ctrlGridOptimizedCharge0",
 				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;
 	}

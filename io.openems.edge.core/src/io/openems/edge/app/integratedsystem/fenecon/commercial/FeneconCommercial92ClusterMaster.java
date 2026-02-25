@@ -3,7 +3,6 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
@@ -173,7 +172,6 @@ public class FeneconCommercial92ClusterMaster
 											.collect(JsonUtils.toJsonArray())) //
 									.addProperty("startStop", "START") //
 									.build()), //
-					FeneconHomeComponents.predictor(bundle, t), //
 					FeneconHomeComponents.modbusInternal(bundle, t, "modbus0"), //
 					FeneconCommercialComponents.modbusToGridMeterAndExternal(bundle, t, modbusToGridMeterAndExternalId) //
 			);
@@ -215,7 +213,9 @@ public class FeneconCommercial92ClusterMaster
 					FeneconHomeComponents.selfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
-					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterAndExternalId) //
+					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterAndExternalId), //
+					FeneconHomeComponents.predictionDefault(), //
+					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
 
 			if (hasEssLimiter14a) {
@@ -230,7 +230,6 @@ public class FeneconCommercial92ClusterMaster
 							new InterfaceConfiguration("eth1") //
 									.addIp("Slave com", "10.5.0.1/24") //
 									.setIpMasquerade(IpMasqueradeSetting.IP_V4)))
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

@@ -14,7 +14,7 @@ public class EshCodecTest {
 		final var simulator = DUMMY_SIMULATOR;
 		final var goc = simulator.goc;
 		final var mc = simulator.modeCombinations;
-		final var codec = EshCodec.of(goc, mc, DUMMY_PREVIOUS_RESULT, true);
+		final var codec = EshCodec.of(goc, mc, () -> DUMMY_PREVIOUS_RESULT, () -> true);
 		assertNull(codec.encode(new int[0]));
 		var one = codec.encode(new int[1]);
 		assertEquals("[[[0]]]", one.toString());
@@ -29,9 +29,9 @@ public class EshCodecTest {
 		final var simulator = DUMMY_SIMULATOR;
 		final var goc = simulator.goc;
 		final var mc = simulator.modeCombinations;
-		final var previousResult = SimulationResult.fromQuarters(goc, new int[] { 3, 1, 1, 1 });
+		final var previousResult = SimulationResult.fromQuarters(goc, new int[] { 3, 1, 1, 1 }, 0, 0);
 
-		final var codec = EshCodec.of(goc, mc, previousResult, true);
+		final var codec = EshCodec.of(goc, mc, () -> previousResult, () -> true);
 
 		var gt = codec.encoding().newInstance();
 		var decoded = codec.decode(gt);

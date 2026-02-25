@@ -19,11 +19,11 @@ import { EdgeModule } from "./edge/edge.module";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
-import { NavigationComponent } from "./shared/components/navigation/navigation.component";
+import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
-import { StatusSingleComponent } from "./shared/components/status/single/status.component";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/states";
+import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
 import { UserService } from "./shared/service/user.service";
@@ -37,7 +37,6 @@ provideTranslateLoader(MyTranslateLoader);
     declarations: [
         AppComponent,
         ChartOptionsPopoverComponent,
-        StatusSingleComponent,
         NavigationComponent,
     ],
     imports: [
@@ -68,6 +67,7 @@ provideTranslateLoader(MyTranslateLoader);
         AppStateTracker,
         UserService,
         NavigationService,
+        AuthService,
         {
             provide: APP_INITIALIZER,
             useFactory: initializeService,

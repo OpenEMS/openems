@@ -60,6 +60,8 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Property, Parameter.BundleParameter>
 		implements OpenemsApp, HostSupplier, AppManagerUtilSupplier {
 
+	public static final String VEHICLE = "VEHICLE";
+
 	public enum Property implements Type<Property, AppKebaEvse, Parameter.BundleParameter> {
 		EVSE_SINGLE_ID(AppDef.componentId("ctrlEvseSingle0")), //
 		CHARGEPOINT_ID(AppDef.componentId("evcs0")), //
@@ -67,35 +69,35 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 
 		ALIAS(AppDef.copyOfGeneric(alias())), //
 		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
-				.setRequired(true) //
+				.setRequired(true)//
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")),
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef())//
 				.setTranslatedLabelWithAppPrefix(".hardwareType.label")
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(KebaHardwareType.values()) //
-							.map(Enum::name) //
+					field.setOptions(Arrays.stream(KebaHardwareType.values())//
+							.map(Enum::name)//
 							.toList());
 				})//
 				.setRequired(true)//
 				.setDefaultValue(KebaHardwareType.P40)),
 
 		// Configurations
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.11") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)),
-		PHASE_ROTATION(AppDef.copyOfGeneric(phaseRotation() //
+		PHASE_ROTATION(AppDef.copyOfGeneric(phaseRotation()//
 				.setTranslatedDescription("App.Evse.phaseRotation.description"))), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
 		PHASE_SWITCHING(AppDef.copyOfGeneric(EvseProps.p30hasPhaseSwitch())//
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P30.name())));
 				})), //
 		READ_ONLY(EvseProps.readOnly()),
 
 		// only for modbus
 		MODBUS_UNIT_ID(EvseProps.unitId().wrapField((app, property, l, parameter, field) -> {
-			field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+			field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 					.equal(Exp.staticValue(KebaHardwareType.P40.name())));
 		})), //
 		;
@@ -218,10 +220,10 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 							.addProperty("chargePoint.id", cpId)//
 							.build()));
 
-			final var dependencies = Lists.newArrayList(new DependencyDeclaration("VEHICLE", //
+			final var dependencies = Lists.newArrayList(new DependencyDeclaration(VEHICLE, //
 					DependencyDeclaration.CreatePolicy.NEVER, //
 					DependencyDeclaration.UpdatePolicy.NEVER, //
-					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.IF_MINE, //
 					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					DependencyDeclaration.AppDependencyConfig.create() //

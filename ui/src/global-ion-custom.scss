@@ -20,12 +20,24 @@
     padding-top: 0;
 }
 
+.ion-no-padding-right {
+    padding-right: 0;
+}
+
 .ion-padding-top-triple {
     padding-top: calc(var(--ion-padding) * 3);
 }
 
 .ion-padding-bottom-triple {
     padding-bottom: calc(var(--ion-padding) * 3);
+}
+
+.ion-padding-left {
+    padding-left: var(--ion-padding);
+}
+
+.ion-padding-right {
+    padding-right: var(--ion-padding);
 }
 
 /** Font */
@@ -174,4 +186,14 @@
 
 .ion-text-bold {
     font-weight: bold !important;
+}
+
+.ion-toolbar-title-whitespace-initial {
+    ::shadow ion-title::shadow .toolbar-title {
+        white-space: initial !important;
+    }
+}
+
+.ion-justify-self-end {
+    justify-self: end;
 }

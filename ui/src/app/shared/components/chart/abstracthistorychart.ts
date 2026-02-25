@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { DecimalPipe, formatNumber } from "@angular/common";
-import { AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from "@angular/core";
+import { AfterContentInit, AfterViewInit, ChangeDetectorRef, Directive, EventEmitter, HostListener, inject, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -20,14 +20,17 @@ import { QueryHistoricTimeseriesEnergyRequest } from "../../jsonrpc/request/quer
 import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
+import { LayoutRefreshService } from "../../service/layoutRefreshService";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
+import { ObjectUtils } from "../../utils/object/object.utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
+import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { ViewUtils } from "../navigation/view/shared/shared";
 import { Converter } from "../shared/converter";
@@ -40,7 +43,7 @@ Chart.Chart.register(ChartDataLabels);
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 
 @Directive()
-export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit {
+export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterViewInit, AfterContentInit {
 
     protected static readonly phaseColors: string[] = ["rgb(255,127,80)", "rgb(91, 92, 214)", "rgb(128,128,0)"];
 
@@ -54,6 +57,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     @Input() public isOnlyChart: boolean = false;
     @Input() public xAxisScalingType: XAxisType = XAxisType.TIMESERIES;
     @Output() public setChartConfig: EventEmitter<ChartTypes.ChartConfig> = new EventEmitter();
+    @ViewChild(FooterNavigationComponent, { static: true })
+    public footerNavigation: FooterNavigationComponent;
 
     public edge: Edge | null = null;
     public loading: boolean = true;
@@ -62,7 +67,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     public options: Chart.ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS();
     public colors: any[] = [];
     public chartObject: HistoryUtils.ChartData | null = null;
-
     protected spinnerId: string = uuidv4();
     protected chartType: "line" | "bar" = "line";
     protected chartTypeSignal: WritableSignal<"line" | "bar"> = signal("line");
@@ -72,6 +76,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     protected channelData: { data: { [name: string]: number[] } } = { data: {} };
     protected viewHeight: number | null = null;
+    private layoutRefresh = inject(LayoutRefreshService);
 
     constructor(
         public service: Service,
@@ -84,6 +89,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         this.service.historyPeriod.subscribe(() => {
             this.updateChart();
         });
+
     }
 
     /**
@@ -584,6 +590,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
             });
 
+            function showOrHideYAxis(datasets: Chart.ChartDataset[], chart: Chart.Chart) {
+                for (const key of Object.keys(ObjectUtils.excludeProperties(chart.options.scales, ["x"]))) {
+                    const axisDatasets = datasets.filter(d => d["yAxisID"] === key);
+                    // It is important to update the options in the outer scope!
+                    options.scales[key].display = axisDatasets.some(d => !d.hidden);
+                }
+            }
+
             /** needs to be set, cause property async set */
             const _dataSets: Chart.ChartDataset[] = datasets.map((v, k) => {
                 if (k === legendItem.datasetIndex) {
@@ -593,6 +607,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             });
 
             rebuildScales(chart);
+            showOrHideYAxis(_dataSets, chart);
             chart.update();
         };
 
@@ -601,6 +616,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         options.scales.x.ticks.maxTicksLimit = 31;
         options.scales.x["bounds"] = "ticks";
         options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+        Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family");
 
         return options;
     }
@@ -650,6 +666,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                         ...baseConfig.ticks,
                         padding: 5,
                         stepSize: 20,
+                        callback: function (value) {
+                            if (Number.isInteger(value)) {
+                                return value;
+                            }
+                            return "";
+                        },
                     },
                 };
                 break;
@@ -698,8 +720,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 options.scales[element.yAxisId] = {
                     ...baseConfig,
                     min: 1,
-                    // set to 3 for next release
-                    max: 2,
+                    max: 3,
                     beginAtZero: true,
                     ticks: {
                         ...rest,
@@ -989,6 +1010,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         return options;
     }
 
+    @HostListener("window:resize", ["$event.target.innerHeight"])
+    private onResize(height: number) {
+        this.ngAfterViewInit();
+    }
+
     /**
     * Start NGX-Spinner
     *
@@ -1008,6 +1034,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      */
     public stopSpinner() {
         this.service.stopSpinner(this.spinnerId);
+        this.layoutRefresh.request(300);
     }
 
     ngOnInit() {
@@ -1029,20 +1056,29 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         this.options = AbstractHistoryChart.removePlugins(this.options);
     }
 
-    ionViewWillLeave() {
-        this.ngOnDestroy();
-    }
-
     ngAfterViewInit() {
         this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
         this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
-    protected getChartHeight(): number {
-        if (this.isOnlyChart) {
-            return window.innerHeight / 1.3;
-        }
-        return window.innerHeight / 21 * 9;
+    ngAfterContentInit() {
+        setTimeout(() => {
+
+            // TODO: rm after new navigation refactoring complete
+            let counter = 0;
+            const interval = setInterval(() => {
+                this.ngAfterViewInit();
+
+                if (counter > 10) {
+                    clearInterval(interval);
+                }
+                counter++;
+            });
+        });
+    }
+
+    protected getChartHeight(): number | null {
+        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
     }
 
     protected updateChart() {

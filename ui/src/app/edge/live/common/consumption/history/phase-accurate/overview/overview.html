@@ -3,7 +3,8 @@
     [period]="service.historyPeriod.value">
     @switch (componentType) {
       @case ('sum') {
-        <sumChart [isOnlyChart]="true"></sumChart>
+        <oe-common-consumption-history-phase-accurate-chart
+          [isOnlyChart]="true"></oe-common-consumption-history-phase-accurate-chart>
       }
       @case ('consumptionMeter') {
         <consumptionMeterChart [isOnlyChart]="true"></consumptionMeterChart>
@@ -15,9 +16,6 @@
         <heatChart [isOnlyChart]="true"></heatChart>
       }
     }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
   </oe-chart>
-}
-@if (isInitialized) {
-  <oe-footer-subnavigation [backButton]="true"
-  [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
 }
