@@ -60,6 +60,8 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Property, Parameter.BundleParameter>
 		implements OpenemsApp, HostSupplier, AppManagerUtilSupplier {
 
+	public static final String VEHICLE = "VEHICLE";
+
 	public enum Property implements Type<Property, AppKebaEvse, Parameter.BundleParameter> {
 		EVSE_SINGLE_ID(AppDef.componentId("ctrlEvseSingle0")), //
 		CHARGEPOINT_ID(AppDef.componentId("evcs0")), //
@@ -218,10 +220,10 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 							.addProperty("chargePoint.id", cpId)//
 							.build()));
 
-			final var dependencies = Lists.newArrayList(new DependencyDeclaration("VEHICLE", //
+			final var dependencies = Lists.newArrayList(new DependencyDeclaration(VEHICLE, //
 					DependencyDeclaration.CreatePolicy.NEVER, //
 					DependencyDeclaration.UpdatePolicy.NEVER, //
-					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.IF_MINE, //
 					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					DependencyDeclaration.AppDependencyConfig.create() //

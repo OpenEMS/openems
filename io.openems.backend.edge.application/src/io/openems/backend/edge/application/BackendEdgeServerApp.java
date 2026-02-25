@@ -1,8 +1,5 @@
 package io.openems.backend.edge.application;
 
-import static io.openems.backend.edge.application.Utils.configureLogger;
-import static io.openems.backend.edge.application.Utils.logWelcomeMessage;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
@@ -17,8 +14,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import io.openems.backend.edge.client.WebsocketClient;
 import io.openems.backend.edge.server.WebsocketServer;
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -44,12 +44,12 @@ public class BackendEdgeServerApp {
 	public BackendEdgeServerApp(@Reference ConfigurationAdmin cm, Config config) throws URISyntaxException {
 		this.config = config;
 		this.cache = new Cache(this::evaluateServerStart);
-		try {
-			configureLogger(cm);
-		} catch (Exception e) {
-			this.log.warn("Could not configure logger: {}", e.getMessage(), e);
-		}
-		logWelcomeMessage(this.log);
+		
+		final var message = "OpenEMS Backend Edge Application version [" + OpenemsConstants.VERSION + "] started";
+		final var line = Strings.repeat("=", message.length());
+		this.log.info(line);
+		this.log.info(message);
+		this.log.info(line);
 
 		// Prepare Client
 		this.client = new WebsocketClient("Backend.Edge.Client", new URI(config.uri()), config.id(),
@@ -66,6 +66,7 @@ public class BackendEdgeServerApp {
 
 	@Deactivate
 	private void deactivate() {
+		this.log.debug("Deactivate BackendApp");
 		this.cyclicTask.deactivate();
 		this.client.deactivate();
 	}

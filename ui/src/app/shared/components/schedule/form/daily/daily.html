@@ -1,0 +1,55 @@
+<ion-item>
+    <ion-label>
+        {{"JS_SCHEDULE.START" | translate}}
+    </ion-label>
+    <ion-datetime-button slot="end" [datetime]="spinnerId + 'start-time'" color="primary" class="datetime-button"
+        displayFormat="HH:mm" color="medium">
+        <span slot="time-target" [style.opacity]="startTime() === null ? 'var(--ion-placeholder-opacity)' : 'inherit'">
+            {{startTime() === null ? ("JS_SCHEDULE.PLEASE_CHOOSE" |translate): (startTime() | date:'HH:mm')}}
+        </span>
+    </ion-datetime-button>
+
+    <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+            <ion-datetime #startTimePicker [showDefaultButtons]="true" preferWheel="true" class="picker-opts"
+                minuteValues="0,15,30,45" [id]="spinnerId + 'start-time'" presentation="time" [value]="startTime()"
+                (ionChange)="setTime($event, startTime)"
+                [formatOptions]="{ time: { hour: '2-digit', minute: '2-digit', }}">
+                <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="startTimePicker.cancel()" translate>GENERAL.CANCEL</ion-button>
+                    <ion-button fill="solid" color="primary"
+                        (click)="startTimePicker.confirm(); startTimePicker.cancel(true);"
+                        translate>GENERAL.OK</ion-button>
+                </ion-buttons>
+            </ion-datetime>
+        </ng-template>
+    </ion-modal>
+</ion-item>
+<ion-item>
+    <ion-label>
+        {{"JS_SCHEDULE.END" | translate}}
+    </ion-label>
+    <ion-datetime-button slot="end" [datetime]="spinnerId + 'end-time'" color="primary" class="datetime-button"
+        displayFormat="HH:mm">
+        <span slot="time-target" [style.opacity]="endTime() === null ? 'var(--ion-placeholder-opacity)' : 'inherit'">
+            {{endTime() === null ? ("JS_SCHEDULE.PLEASE_CHOOSE" |
+            translate): (endTime() | date:'HH:mm')}}
+        </span>
+    </ion-datetime-button>
+
+    <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+            <ion-datetime #endTimePicker [showDefaultButtons]="true" class="picker-opts" minuteValues="0,15,30,45"
+                [id]="spinnerId + 'end-time'" presentation="time" [value]="endTime()"
+                (ionChange)="setTime($event, endTime)"
+                [formatOptions]="{ time: { hour: '2-digit', minute: '2-digit', }}">
+                <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="endTimePicker.cancel(true)"
+                        translate>GENERAL.CANCEL</ion-button>
+                    <ion-button fill="solid" color="primary"
+                        (click)="endTimePicker.confirm(); endTimePicker.cancel(true);" translate>GENERAL.OK</ion-button>
+                </ion-buttons>
+            </ion-datetime>
+        </ng-template>
+    </ion-modal>
+</ion-item>

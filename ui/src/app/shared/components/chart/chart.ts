@@ -5,6 +5,7 @@ import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 
 import { ChartOptionsPopoverComponent } from "../../legacy/chartoptions/popover/popover.component";
+import { LayoutRefreshService } from "../../service/layoutRefreshService";
 import { UserService } from "../../service/user.service";
 import { Edge, Service } from "../../shared";
 import { DefaultTypes } from "../../type/defaulttypes";
@@ -41,6 +42,7 @@ export class ChartComponent implements OnInit, OnChanges {
         private ref: ChangeDetectorRef,
         private navigationService: NavigationService,
         private el: ElementRef, private renderer: Renderer2,
+        private layoutRefresh: LayoutRefreshService,
     ) {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
         const hostElement = el.nativeElement;
@@ -61,6 +63,10 @@ export class ChartComponent implements OnInit, OnChanges {
     ngOnChanges() {
         this.ref.detectChanges();
         this.checkIfPopoverNeeded();
+    }
+
+    triggerResize() {
+        this.layoutRefresh.request(500);
     }
 
     async presentPopover(ev: any) {

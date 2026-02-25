@@ -521,9 +521,6 @@
           "TOTAL_DC": "Total DC"
         },
         "SYSTEM": {
-          "INDUSTRIAL": {
-            "NOTE": "Starts or stops the entire system, including battery inverter and batteries."
-          },
           "OVERALL_SYSTEM": "Overall system"
         },
         "TIME_OF_USE_TARIFF": {
@@ -547,7 +544,8 @@
             "SCHEDULE": "Schedule",
             "ADD_TASK": "Add task"
           },
-          "CHARGE_MODE": "Charging mode"
+          "CHARGE_MODE": "Charging mode",
+          "VEHICLE_ID_ERROR": "The vehicle ID could not be found. Please check the configuration. All registered vehicles are displayed."
         }
       }
     },

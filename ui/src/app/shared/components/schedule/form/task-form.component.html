@@ -1,0 +1,33 @@
+<ion-list>
+  <ng-content (payload)="payload"></ng-content>
+
+  @if(allowedPeriods().length > 0){
+    <ion-item>
+      <ion-select interface="popover" #selectedPeriod [label]="'JS_SCHEDULE.FREQUENCY' | translate"
+        [value]="recurrenceRuleByDay()?.frequency" [interfaceOptions]="{cssClass: 'custom-ion-popover'}"
+        (ionChange)="setRecurrenceRuleByDay($event)">
+        @for(period of allowedPeriods(); track period){
+          <ion-select-option [value]="period">
+            @switch(period){
+              @case("daily"){
+                {{"JS_SCHEDULE.FREQ.DAILY" | translate}}
+              }
+              @case("weekly"){
+                {{"JS_SCHEDULE.FREQ.WEEKLY" | translate}}
+              }
+              @case("monthly"){
+                {{"JS_SCHEDULE.FREQ.MONTHLY" | translate}}
+              }
+            }
+          </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  }
+  <oe-schedule-task-form-daily [(startTime)]="startTime" [(endTime)]="endTime"></oe-schedule-task-form-daily>
+
+  @if(recurrenceRuleByDay()?.frequency === "monthly"){
+    <oe-schedule-task-form-monthly [(recurrenceRuleByDay)]="recurrenceRuleByDay"></oe-schedule-task-form-monthly>
+  }
+
+</ion-list>

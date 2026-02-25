@@ -1,0 +1,47 @@
+ARG JAVA_VERSION=21
+
+### Build backend binary
+FROM --platform=$BUILDPLATFORM eclipse-temurin:${JAVA_VERSION}-alpine AS build_backend
+
+RUN apk add --no-cache dos2unix bash
+
+COPY tools/docker/backend-edge/root/ /opt/root/
+
+RUN find /opt/ -type f -print0 | xargs -0 dos2unix
+RUN find /opt/ -type f -name 'run' -o -name '*.sh' -exec chmod +x {} \;
+
+WORKDIR /src
+
+ENV OEMS_BACKEND_EDGE_OUTPUT=/opt/openems-backend-edge.jar
+RUN --mount=type=bind,target=.,readwrite \
+    --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon --no-build-cache buildBackendEdge
+
+### Build jar container base
+FROM ghcr.io/linuxserver/baseimage-alpine:edge AS base_container
+
+ARG JAVA_VERSION
+
+RUN mkdir -p /etc/apk/keys && \
+    wget -O /etc/apk/keys/adoptium.rsa.pub https://packages.adoptium.net/artifactory/api/security/keypair/public/repositories/apk && \
+    touch /etc/apk/repositories && \
+    printf '%s\n' 'https://packages.adoptium.net/artifactory/apk/alpine/main' >> /etc/apk/repositories
+
+RUN apk add --update --no-cache \
+    temurin-${JAVA_VERSION}-jre rsync dos2unix
+
+### Build backend container
+FROM base_container
+
+COPY --from=build_backend /opt/root/ /
+COPY --from=build_backend /opt/openems-backend-edge.jar /opt/openems/openems-backend-edge.jar
+
+RUN find /etc/s6-overlay/ -type f -name 'run' -exec chmod +x {} \;
+
+RUN find /etc/s6-overlay -type f -print0 | xargs -0 dos2unix && \
+    find /var/opt/openems -type f -print0 | xargs -0 dos2unix
+
+VOLUME /var/opt/openems/config
+VOLUME /var/opt/openems/data
+
+EXPOSE 8082
