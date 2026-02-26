@@ -9,10 +9,14 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public interface Pro380modct extends ElectricityMeter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		APPARENT_POWER_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE)), //
-		APPARENT_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE));
+		APPARENT_POWER_L1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER_L2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER_L3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE)), //
+		APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE));
 
 		private final Doc doc;
 

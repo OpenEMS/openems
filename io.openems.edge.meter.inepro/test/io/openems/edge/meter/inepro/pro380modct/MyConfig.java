@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		private int modbusUnitId;
 		private MeterType type;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -26,25 +27,29 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-        public Builder setType(MeterType type) {
-            this.type = type;
-            return this;
-        }
+		public Builder setType(MeterType type) {
+			this.type = type;
+			return this;
+		}
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
-	
 	}
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -72,10 +77,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
-	
+
 	@Override
 	public MeterType type() {
 		return this.builder.type;
 	}
 
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
+	}
 }
