@@ -37,7 +37,10 @@ import org.osgi.service.metatype.annotations.Designate;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements Pro380modct, ElectricityMeter, ModbusComponent, OpenemsComponent {
+
+
+public class Pro380modctImpl extends AbstractOpenemsModbusComponent
+		implements Pro380modct, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -65,8 +68,8 @@ public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements P
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		this.invert = config.invert();
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 	}
