@@ -15,7 +15,6 @@ import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -38,7 +37,7 @@ import org.osgi.service.metatype.annotations.Designate;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements Pro380modct, ElectricityMeter, ModbusComponent, ModbusSlave, OpenemsComponent {
+public class Pro380modctImpl extends AbstractOpenemsModbusComponent implements Pro380modct, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
