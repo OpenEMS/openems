@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { SharedModule } from "../../shared/shared.module";
 import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
@@ -22,6 +23,7 @@ import { HistoryParentComponent } from "./historyparent.component";
         Controller,
         HistoryDataErrorModule,
         SharedModule,
+        DomChangeDirective,
     ],
     declarations: [
         ChpSocChartComponent,

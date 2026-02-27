@@ -28,7 +28,8 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		}
 
 		/**
-		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate value.
+		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate
+		 * value.
 		 *
 		 * @param forceUpdateOrCreate new value
 		 * @return copied {@link Configuration}

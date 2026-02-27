@@ -362,6 +362,21 @@ export class EdgeConfig {
         }
     }
 
+    /**
+     * Gets the first component of components filtered by factory id.
+     *
+     * @param factoryId the factory id
+     * @returns the first element with this factory id, if none found null
+     */
+    public getFirstComponentByFactoryId(factoryId: string): EdgeConfig.Component | null {
+        const result = this.getComponentsByFactory(factoryId);
+
+        if (result.length >= 1) {
+            return result[0];
+        }
+        return null;
+    }
+
     public getFactoriesByNature(natureId: string): EdgeConfig.Factory[] {
         return EdgeConfig.getFactoriesByNature(this.factories, natureId);
     }
@@ -720,9 +735,32 @@ export class EdgeConfig {
      * Get the Component.
      *
      * @param componentId the Component-ID
+     * @deprecated use {@link getComponentSafely}, not entirely refactored cause too many files would have been touched
      */
     public getComponent(componentId: string): EdgeConfig.Component {
         return this.components[componentId];
+    }
+    /**
+     * Gets the Component safely.
+     *
+     * @param componentId the Component-ID
+     * @returns a component
+     */
+    public getComponentSafely(componentId: string | null): EdgeConfig.Component | null {
+        if (componentId !== null && componentId in this.components) {
+            return this.components[componentId];
+        }
+        return null;
+    }
+
+    /**
+     * Gets the Component safely.
+     *
+     * @param componentId the Component-ID
+     * @returns a component, or if not found, a dummy edge config component
+     */
+    public getComponentSafelyOrDefault(componentId: string): EdgeConfig.Component {
+        return this.getComponentSafely(componentId) ?? new EdgeConfig.Component();
     }
 
     /**
@@ -761,6 +799,18 @@ export class EdgeConfig {
      * @returns The property value if it exists, otherwise null.
      */
     public getPropertyFromComponent<T>(component: EdgeConfig.Component | null, property: string): T | null {
+        return component?.properties[property] ?? null;
+    }
+
+    /**
+     * Safely gets a property from a component id, if it exists, else returns null.
+     *
+     * @param component The component id from the respective component.
+     * @param property The property name to retrieve.
+     * @returns The property value if it exists, otherwise null.
+     */
+    public getPropertyFromComponentId<T>(id: EdgeConfig.Component["id"], property: string): T | null {
+        const component = this.getComponent(id);
         return component?.properties[property] ?? null;
     }
 }

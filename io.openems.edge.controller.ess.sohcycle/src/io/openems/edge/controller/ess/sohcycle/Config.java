@@ -25,8 +25,8 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
-	Mode mode() default Mode.MANUAL_OFF;
+	@AttributeDefinition(name = "Is running?", description = "Is the SoH cycle currently running?")
+	boolean isRunning() default false;
 
 	@AttributeDefinition(name = "Log Verbosity", description = "Sets the logging verbosity level.")
 	LogVerbosity logVerbosity() default LogVerbosity.NONE;

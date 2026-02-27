@@ -1,0 +1,41 @@
+{
+    "JS_SCHEDULE": {
+        "PLEASE_CHOOSE": "Choose time",
+        "ROTATION": "Rotation",
+        "REPEAT_EACH": "Repeat each",
+        "WEEK_DAY": "Week day",
+        "NEXT_TASKS": "Next tasks",
+        "EDIT": "Edit",
+        "ACCEPT": "Accept",
+        "DELETE": "Delete",
+        "EDIT_TASK": "Edit task",
+        "START": "Start",
+        "END": "End",
+        "DURATION": "Duration",
+        "MODE": "Charging mode",
+        "FREQUENCY": "Repeat",
+        "ADD": "Add",
+        "FREQ": {
+            "DAILY": "Daily",
+            "WEEKLY": "Weekly",
+            "MONTHLY": "Monthly",
+            "YEARLY": "Yearly"
+        },
+        "MODE_SELECTION_PLACEHOLDER": "Select",
+        "VALIDATION_ERROR_1": "Please specify start time",
+        "VALIDATION_ERROR_2": "Please specify end time",
+        "VALIDATION_ERROR_3": "Please select charging mode",
+        "VALIDATION_ERROR_4": "Please specify the start time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
+        "VALIDATION_ERROR_5": "Please specify the end time in HH:mm format and only in quarter hours (00, 15, 30, or 45 minutes)",
+        "VALIDATION_ERROR_6": "End time must be after start time",
+        "VALIDATION_ERROR_7": "Start time or duration is missing",
+        "VALIDATION_ERROR_8": "Please specify repetition",
+        "VALIDATION_ERROR_9": "Set at least one rotation",
+        "ADD_SUCCESS": "Task successfully added",
+        "ADD_ERROR": "Task could not be added",
+        "EDIT_SUCCESS": "Task successfully adjusted",
+        "EDIT_ERROR": "Task could not be customized",
+        "DELETE_SUCCESS": "Task successfully deleted",
+        "DELETE_ERROR": "Task could not be deleted"
+    }
+}

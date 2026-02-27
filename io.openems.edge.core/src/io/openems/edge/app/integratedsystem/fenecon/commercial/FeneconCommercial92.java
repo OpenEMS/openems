@@ -2,7 +2,6 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
@@ -166,7 +165,6 @@ public class FeneconCommercial92
 					FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId), //
 					FeneconHomeComponents.io(bundle, modbusToBatteryId), //
 					FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId), //
-					FeneconHomeComponents.predictor(bundle, t), //
 					FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId), //
 					FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId), //
 					FeneconHomeComponents.modbusForExternalMeters(bundle, t, modbusToExternalDevicesId, deviceHardware) //
@@ -177,6 +175,7 @@ public class FeneconCommercial92
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
 					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId), //
+					FeneconHomeComponents.predictionDefault(), //
 					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
 
@@ -188,7 +187,6 @@ public class FeneconCommercial92
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.staticIp(new InterfaceConfiguration("eth1") //
 							.addIp("BatteryInverter", "172.16.0.99/24")))
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};

@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";

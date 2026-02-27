@@ -16,7 +16,7 @@ public class MeasurementCycleDischargingWaitHandler extends AbstractWaitHandler 
 
     @Override
     protected StateMachine.State runAndGetNextState(Context context) throws OpenemsError.OpenemsNamedException {
-        context.refreshMeasurementChargingMinVoltageFromEss();
+        context.refreshMeasurementChargingVoltageRange();
         return super.runAndGetNextState(context);
     }
 }

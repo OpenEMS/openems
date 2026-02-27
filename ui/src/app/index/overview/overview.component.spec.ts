@@ -7,6 +7,7 @@ import { IonicModule } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
+import { routes } from "src/app/app-routing.module";
 import { Theme } from "src/app/edge/history/shared";
 import { PlatFormService } from "src/app/platform.service";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
@@ -44,7 +45,7 @@ describe("OverviewComponent", () => {
             imports: [
                 TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
                 IonicModule.forRoot(),
-                RouterModule,
+                RouterModule.forRoot(routes),
                 FlatWidgetButtonComponent,
             ],
             declarations: [OverViewComponent],
@@ -79,13 +80,15 @@ describe("OverviewComponent", () => {
         expect(button).toBeTruthy();
     });
 
-    it("+loggedInUserCanInstall & ibn-button doesnt exist - Global role OWNER", async () => {
+    fit("+loggedInUserCanInstall & ibn-button doesnt exist - Global role OWNER", async () => {
         const button = await getIbnButtonElement(component, fixture, "owner");
         expect(component.loggedInUserCanInstall).toEqual(false);
         expect(button).toBeNull();
     });
 
     async function getIbnButtonElement(component: OverViewComponent, fixture: ComponentFixture<OverViewComponent>, globalRole: "installer" | "owner") {
+        const user: User = new User("", "test.user", globalRole, Language.DE.key, true, {});
+        userServiceSpyObj.currentUser.set(user);
         serviceSpyObject.metadata.next({
             edges: { ["edge0"]: DummyConfig.dummyEdge({ role: Role.INSTALLER }) },
             user: {

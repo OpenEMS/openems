@@ -1,0 +1,12 @@
+{
+  "SYSTEM_LOCATION_VALIDATOR": {
+    "ADDRESS_LIST_NOTE_INSTALLATION": "Is the correct address not listed? Edit your information above and perform the validation again.",
+    "ADDRESS_LIST_NOTE_PROFILE": "Is the correct address not listed? If necessary, change your details above and perform the validation again.",
+    "ADDRESS_LIST_TITLE": "Which address applies to the location of {{ edgeShortName }}{{ id }}?",
+    "APPLY_BUTTON_LABEL": "Apply",
+    "BUTTON_LABEL_INSTALLATION": "Perform validation",
+    "BUTTON_LABEL_PROFILE": "Validate Address",
+    "GEO_CODE_RESULT_LABEL": "Please select the matching address:",
+    "UNKNOWN_ADDRESS": "The coordinates are manually entered afterwards for the complete range of functions under system settings."
+  }
+}
