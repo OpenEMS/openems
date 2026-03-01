@@ -436,7 +436,7 @@ public class Utils {
 		return switch (biddingZone) {
 		case GERMANY //
 			-> parseForGermany(clock, ancillaryCosts);
-		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4 -> {
+		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4, LITHUANIA -> {
 			logWarn.accept("Parser for " + biddingZone.name() + "-Scheduler is not implemented");
 			throw new OpenemsException("Parser for bidding zone " + biddingZone.name() + " is not implemented");
 		}

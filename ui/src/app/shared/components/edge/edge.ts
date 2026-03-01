@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { Signal, signal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
@@ -55,6 +56,7 @@ export class Edge {
 
     // holds config
     private config: BehaviorSubject<EdgeConfig> = new BehaviorSubject<EdgeConfig>(null);
+    private _config = signal<EdgeConfig>(null);
 
     // holds currently subscribed channels, identified by source id
     private subscribedChannels: { [sourceId: string]: ChannelAddress[] } = {};
@@ -95,12 +97,22 @@ export class Edge {
      * Gets the Config. If not available yet, it requests it via Websocket.
      *
      * @param websocket the Websocket connection
+     * @deprecated use {@link getConfigSignal}
      */
     public getConfig(websocket: Websocket): BehaviorSubject<EdgeConfig> {
         if (this.config.value == null || !this.config.value.isValid()) {
             this.refreshConfig(websocket);
         }
         return this.config;
+    }
+
+    /**
+     * Gets the Config. If not available yet, it requests it via Websocket.
+     *
+     * @param websocket the Websocket connection
+     */
+    public getConfigSignal(): Signal<EdgeConfig> {
+        return this._config.asReadonly();
     }
 
     /**
@@ -328,6 +340,7 @@ export class Edge {
      */
     public handleEdgeConfigNotification(message: EdgeConfigNotification): void {
         this.config.next(new EdgeConfig(this, message.params));
+        this._config.update(() => new EdgeConfig(this, message.params));
     }
 
     /**
@@ -517,12 +530,12 @@ export class Edge {
 
                                 new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
                                 new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
+                                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null),
                                 new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.ADD_TASK"), baseMode, [], null),
                                 ], null),
                                 new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
                                 ...(this.roleIsAtLeast(Role.OWNER)
-                                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic", queryParams: { componentId: component.getPropertyFromComponent<string>("electricVehicle.id") } }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
                                     : []),
                             ], navigationTree));
                     break;
@@ -535,7 +548,6 @@ export class Edge {
             }
         }
         navigationTree.setChild(NavigationId.LIVE, new NavigationTree("navigation-info", { baseString: "navigation-info" }, { name: "information-outline" }, translate.instant("GENERAL.HELP"), "label", [], null));
-
         return navigationTree;
     }
 
@@ -571,7 +583,7 @@ export class Edge {
         const list = Widgets.parseWidgets(edge, conf).list;
 
         for (const item of list) {
-            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getControllerNavigationTree(edge, item.name, translate, conf);
+            const navigationTree: ConstructorParameters<typeof NavigationTree> | null = Widgets.getControllerNavigationTree(edge, item, translate, conf);
 
             if (navigationTree == null) {
                 continue;
@@ -600,6 +612,7 @@ export class Edge {
         this.sendRequest(websocket, request).then(response => {
             const edgeConfigResponse = response as GetEdgeConfigResponse;
             this.config.next(new EdgeConfig(this, edgeConfigResponse.result));
+            this._config.set(new EdgeConfig(this, edgeConfigResponse.result));
         }).catch(reason => {
             console.warn("Unable to refresh config", reason);
             this.config.next(new EdgeConfig(this));

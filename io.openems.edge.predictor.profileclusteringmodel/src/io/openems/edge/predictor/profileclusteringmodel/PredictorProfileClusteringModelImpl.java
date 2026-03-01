@@ -144,11 +144,11 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 		}
 
 		var predictionContext = this.createPredictionContext();
-		var predictionOchestrator = this.predictorConfig.predictionOrchestratorFactory().create(predictionContext);
+		var predictionOrchestrator = this.predictorConfig.predictionOrchestratorFactory().create(predictionContext);
 
 		List<Profile> predictedProfiles;
 		try {
-			predictedProfiles = predictionOchestrator.predictProfiles(this.predictorConfig.forecastDays());
+			predictedProfiles = predictionOrchestrator.predictProfiles(this.predictorConfig.forecastDays());
 		} catch (PredictionException e) {
 			this._setPredictionState(e.getError().getFailedState());
 			this.logPredictionError(e.getError().getFailedState(), e.getError().getSeverity(), e.getMessage());
@@ -204,11 +204,11 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 		var values = IntStream.range(0, profiles.size())//
 				.flatMap(i -> {
-					var profileValues = profiles.get(i).values().getValues().stream();
+					var profileQValues = profiles.get(i).upperQuantileValues().getValues().stream();
 					if (i == 0) {
-						profileValues = profileValues.skip(quarterHourIndex);
+						profileQValues = profileQValues.skip(quarterHourIndex);
 					}
-					return profileValues.mapToInt(v -> (int) Math.round(v));
+					return profileQValues.mapToInt(v -> (int) Math.round(v));
 				})//
 				.boxed()//
 				.toArray(Integer[]::new);

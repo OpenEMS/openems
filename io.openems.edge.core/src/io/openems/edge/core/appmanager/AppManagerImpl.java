@@ -1181,14 +1181,14 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	// TODO: find a way to make private again
 	public void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
 		this.waitingForModified = true;
-		AppManagerImpl.sortApps(apps);
-		var p = new Property("apps", this.getJsonAppsString(apps));
+		var sortedApps = AppManagerImpl.sortApps(apps);
+		var p = new Property("apps", this.getJsonAppsString(sortedApps));
 		// user can be null using internal method
 		this.componentManager.handleUpdateComponentConfigRequest(user,
 				new UpdateComponentConfig.Request(SINGLETON_COMPONENT_ID, Arrays.asList(p)));
 	}
 
-	private static void sortApps(List<OpenemsAppInstance> apps) {
+	private static List<OpenemsAppInstance> sortApps(List<OpenemsAppInstance> apps) {
 		var compareTransformer = new BiFunction<Integer, Integer, Integer>() {
 			@Override
 			public Integer apply(Integer t, Integer u) {
@@ -1198,13 +1198,16 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 				return (int) (t / Math.abs(t) * Math.pow(10, u));
 			}
 		};
-		apps.sort((o1, o2) -> {
+		// use stream to sort apps by appId, alias and instanceId
+		// do not use apps.sort() it could lead to unsupported operation exception by
+		// unmodifiable lists
+		return apps.stream().sorted((o1, o2) -> {
 			var value = compareTransformer.apply(o1.appId.compareTo(o2.appId), 3);
 			var aliasValue = compareTransformer.apply(
 					Optional.ofNullable(o1.alias).orElse("").compareTo(Optional.ofNullable(o2.alias).orElse("")), 2);
 			var instanceValue = compareTransformer.apply(o1.instanceId.compareTo(o2.instanceId), 1);
 			return value + aliasValue + instanceValue;
-		});
+		}).toList();
 	}
 
 	private <T> T useAppManagerAppHelper(ThrowingFunction<AppManagerAppHelper, T, OpenemsNamedException> consumer)

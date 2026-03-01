@@ -100,7 +100,8 @@ public class PersistencePredictorAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class), emptyMap());
+		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class),
+				emptyMap());
 		assertTrue("Validation has error but all channels got added.", errors.isEmpty());
 	}
 
@@ -113,7 +114,8 @@ public class PersistencePredictorAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class), emptyMap());
+		this.task.validate(errors, config, config.getConfiguration(PersistencePredictorAggregateTask.class),
+				emptyMap());
 		assertFalse("Validation has no error but channels are missing.", errors.isEmpty());
 	}
 

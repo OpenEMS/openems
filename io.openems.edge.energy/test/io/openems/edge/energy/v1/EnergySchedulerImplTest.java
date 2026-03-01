@@ -2,8 +2,8 @@ package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.LogVerbosity.DEBUG_LOG;
-import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V1_ESS_ONLY;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
@@ -84,7 +84,7 @@ public class EnergySchedulerImplTest {
 						.setEnabled(false) //
 						.setLogVerbosity(DEBUG_LOG) //
 						.setVersion(V1_ESS_ONLY) //
-						.setRiskLevel(MEDIUM) //
+						.setEnvironment(PRODUCTION) //
 						.build()) //
 				.next(new TestCase());
 		return sut;

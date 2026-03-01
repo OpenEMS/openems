@@ -73,7 +73,7 @@
   }
 
   <!-- Show Sub-Views -->
-  <ion-router-outlet id="content"></ion-router-outlet>
+  <ion-router-outlet (activate)="onActivate($event)" id="content"></ion-router-outlet>
 </ng-template>
 
 <ng-template #sidemenu>
