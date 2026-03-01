@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.common.logger.ContextLogger;
 import io.openems.common.utils.DictionaryUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -27,7 +27,7 @@ import io.openems.common.utils.DictionaryUtils;
 		})
 public class LoggerConfigurator {
 
-	private final Logger log = LoggerFactory.getLogger(LoggerConfigurator.class);
+	private final Logger log = new ContextLogger(LoggerConfigurator.class, "LoggerConfigurator");
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -38,21 +38,21 @@ public class LoggerConfigurator {
 		try {
 			config = this.cm.getConfiguration("org.ops4j.pax.logging", null);
 		} catch (IOException e) {
-			this.log.error("[LoggerConfigurator] Failed to get logging configuration", e);
+			this.log.error("Failed to get logging configuration", e);
 			return;
 		}
 
 		final var log4j = getCurrentConfiguration(config, logConfig);
 
 		if (log4j.isEmpty()) {
-			this.log.debug("[LoggerConfigurator] Logging configuration is up to date, no changes applied.");
+			this.log.debug("Logging configuration is up to date, no changes applied.");
 			return;
 		}
 
 		try {
 			config.update(log4j.get());
 		} catch (IOException e) {
-			this.log.error("[LoggerConfigurator] Failed to update logging configuration", e);
+			this.log.error("Failed to update logging configuration", e);
 		}
 	}
 
