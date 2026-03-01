@@ -58,7 +58,10 @@ export class Language {
     }
 
     public static get SYSTEM(): Language | null {
-        return Language.getByBrowserLang(navigator.language || navigator["userLanguage"]);
+        // navigator.userLanguage is a non-standard property (IE) and not defined
+        // in the TypeScript DOM lib. Cast to any to silence the compiler.
+        const browserLang = navigator.language || (navigator as any).userLanguage;
+        return Language.getByBrowserLang(browserLang);
     }
 
     public static get LOCAL_STORAGE(): Language | null {
