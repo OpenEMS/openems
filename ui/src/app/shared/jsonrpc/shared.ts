@@ -34,7 +34,7 @@ export class User {
         public id: string,
         public name: string,
         public globalRole: "admin" | "installer" | "owner" | "guest",
-        public language: string,
+        public language: string | null,
         public hasMultipleEdges: boolean,
         public settings: Partial<{ [k in UserSettings]: number | boolean | string | string[] }>,
     ) { }
