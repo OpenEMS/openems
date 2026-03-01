@@ -122,4 +122,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.title.setTitle(environment.edgeShortName);
     }
+
+    /**
+     * Called by the router-outlet (activate) event on every route change.
+     * Triggers a delayed window resize so chart components recalculate their
+     * dimensions (WCAG 1.4.4 compliance).
+     */
+    public onActivate(_event: any): void {
+        this.layoutRefresh.request(200);
+    }
 }
