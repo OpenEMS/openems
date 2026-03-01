@@ -19,7 +19,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
@@ -65,7 +64,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		return (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE, threadFactory);
 	}
 
-	private final Logger log = LoggerFactory.getLogger(Alerting.class);
+	private final Logger log = AbstractOpenemsBackendComponent.getComponentLogger(this);
 	private final ThreadPoolExecutor executor;
 
 	@Reference
@@ -90,7 +89,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Activate
 	protected void activate(Config config) {
-		this.logInfo(this.log, "Activate");
+		this.log.info("Activate");
 		this.scheduler.start();
 
 		if (config.notifyOnOffline()) {
@@ -105,7 +104,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Deactivate
 	protected void deactivate() {
-		this.logInfo(this.log, "Deactivate");
+		this.log.info("Deactivate");
 		this.handler.forEach(Handler::stop);
 		this.handler.clear();
 		this.scheduler.stop();
