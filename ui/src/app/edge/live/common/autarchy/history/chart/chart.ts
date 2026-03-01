@@ -1,6 +1,7 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, AfterViewChecked } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Utils } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
@@ -10,23 +11,27 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
-export class ChartComponent extends AbstractHistoryChart {
+export class ChartComponent extends AbstractHistoryChart implements AfterViewChecked {
+
+    ngAfterViewChecked() {
+        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+    }
 
     protected override getChartData(): HistoryUtils.ChartData {
         this.spinnerId = "autarchy-chart";
         return {
             input:
-        [{
-            name: "Consumption",
-            powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
-            energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
-        },
-        {
-            name: "GridBuy",
-            powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
-            energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
-            converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
-        }],
+                [{
+                    name: "Consumption",
+                    powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
+                    energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
+                },
+                {
+                    name: "GridBuy",
+                    powerChannel: ChannelAddress.fromString("_sum/GridActivePower"),
+                    energyChannel: ChannelAddress.fromString("_sum/GridBuyActiveEnergy"),
+                    converter: HistoryUtils.ValueConverter.NON_NULL_OR_NEGATIVE,
+                }],
             output: (data: HistoryUtils.ChannelData) => {
                 return [{
                     name: this.translate.instant("GENERAL.AUTARCHY"),

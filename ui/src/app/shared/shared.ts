@@ -37,6 +37,9 @@ addIcons({
     "oe-error": environment.icons.STATUS.ERROR,
     "oe-warning": environment.icons.STATUS.WARNING,
     "oe-info": environment.icons.STATUS.INFO,
+    "oe-offline": environment.icons.COMMON.OFFLINE.CLOUD_OFFLINE_OUTLINE,
+    "oe-time-of-use": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE,
+    "oe-time-of-use-thin": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
 });
 
 export class Permission {

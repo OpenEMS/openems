@@ -49,6 +49,13 @@ export interface Environment {
                 readonly "SUNSHINE_DURATION": string,
                 readonly "HELP": string,
             },
+            readonly "OFFLINE": {
+                readonly "CLOUD_OFFLINE_OUTLINE": string,
+            },
+            readonly "TIME_OF_USE": {
+                readonly "TIME_OF_USE": string,
+                readonly "TIME_OF_USE_THIN": string,
+            },
         },
         readonly "COMPONENT": {
             readonly "HEATPUMP": string,
@@ -78,6 +85,7 @@ export interface Environment {
             readonly COMMON_GRID: string | null,
             readonly COMMON_PRODUCTION: string | null,
             readonly COMMON_SELFCONSUMPTION: string | null,
+            readonly OFFLINE_INSTRUCTIONS: string | null,
 
             readonly EVCS_KEBA: string | null,
             readonly EVCS_HARDY_BARTH: string | null,
@@ -85,6 +93,10 @@ export interface Environment {
             readonly EVCS_GO_E: string | null,
             readonly EVCS_IES: string | null,
             readonly EVCS_ALPITRONIC_HYPER: string | null,
+
+            readonly SETTINGS_ALERTING: string | null,
+            readonly SETTINGS_NETWORK_CONFIGURATION: string | null,
+            readonly WEATHER_WIDGET: string | null,
         }
 
 
@@ -106,8 +118,6 @@ export interface Environment {
         readonly CONTROLLER_API_REST_READ: string,
         readonly CONTROLLER_API_REST_READWRITE: string,
 
-        readonly SETTINGS_ALERTING: string | null,
-        readonly SETTINGS_NETWORK_CONFIGURATION: string | null,
         readonly EVCS_CLUSTER: string,
 
         readonly WARRANTY: {

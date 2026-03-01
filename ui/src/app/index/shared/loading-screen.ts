@@ -24,7 +24,7 @@ export class LoadingScreenComponent {
     ) {
 
         effect(() => {
-            this.backendState = this.appStateTracker.loadingState();
+            this.backendState = appStateTracker.loadingState();
             switch (this.backendState) {
                 case "loading":
                     this.service.startSpinner(this.spinnerId);

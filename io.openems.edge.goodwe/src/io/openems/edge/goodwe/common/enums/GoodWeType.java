@@ -32,10 +32,7 @@ public enum GoodWeType implements OptionsEnum {
 	FENECON_GEN2_15K(160, "FENECON ET Gen2 15K", Series.EUB, //
 			authorisedLimit(40, 25, 40), serialNrFilter("015K", "EUB"), notHomeBattery52Or64Ah(), 24_000, 16_500), //
 	FENECON_50K(170, "FENECON 50K", Series.ETF, //
-			authorisedLimit(100, 0, 100), serialNrFilter("050K", "ETF"), notHomeBattery64Ah(), 55_000, 55_000), //
-	FENECON_100K(180, "FENECON 100K", Series.NBC, //
-			authorisedLimit(100, 0, 100), serialNrFilter("100K", "NBC"), notHomeBattery64Ah(), 55_000, 55_000), //
-	;
+			authorisedLimit(100, 0, 100), serialNrFilter("050K", "ETF"), notHomeBattery64Ah(), 55_000, 55_000); //
 
 	public static enum Series {
 		UNDEFINED("Undefined"), //
@@ -43,9 +40,7 @@ public enum GoodWeType implements OptionsEnum {
 		ET("GoodWe Series BT also used for home"), //
 		ETT("Home Series 20 & 30 kW"), //
 		EUB("Home Gen2 Series 6, 10 & 15 kW"), //
-		ETF("Commercial Series 50+ kW"), //
-		NBC("Commercial Series 100+ kW"), //
-		;
+		ETF("Commercial Series 50+ kW");
 
 		public final String description;
 
@@ -66,8 +61,7 @@ public enum GoodWeType implements OptionsEnum {
 	private GoodWeType(int value, String option, Series series,
 			Function<BatteryFeneconHomeHardwareType, Integer> maxDcCurrent,
 			ThrowingFunction<String, Boolean, Exception> serialNrFilter,
-			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery, Integer maxBatChargeP,
-			Integer maxBatDischargeP) {
+			Predicate<BatteryFeneconHomeHardwareType> isInvalidBattery, Integer maxBatChargeP, Integer maxBatDischargeP) {
 		this.value = value;
 		this.option = option;
 		this.series = series;

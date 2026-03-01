@@ -14,14 +14,6 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
-    public override getChartHeight(): number {
-        if (this.showTotal) {
-            return window.innerHeight / 1.3;
-        } else {
-            return window.innerHeight / 2.3;
-        }
-    }
-
     protected override getChartData(): HistoryUtils.ChartData {
         const productionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(component => this.config.isProducer(component));

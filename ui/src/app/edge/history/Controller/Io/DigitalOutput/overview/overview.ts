@@ -11,7 +11,7 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
     templateUrl: "./overview.html",
     standalone: false,
 })
-export class OverviewComponent extends AbstractHistoryChartOverview {
+export class ControllerIoDigitalOutputOverviewComponent extends AbstractHistoryChartOverview {
 
     protected navigationButtons: NavigationOption[] = [];
 

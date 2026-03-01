@@ -1,5 +1,6 @@
 package io.openems.edge.energy.api;
 
+import static io.openems.edge.energy.api.EnergyUtils.energyToSoc;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findValleyIndexes;
@@ -9,6 +10,17 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class EnergyUtilsTest {
+
+	@Test
+	public void testEnergyToSoc() {
+		assertEquals(0, energyToSoc(0, 1000));
+		assertEquals(100, energyToSoc(1000, 1000));
+		assertEquals(50, energyToSoc(500, 1000));
+		assertEquals(25, energyToSoc(250, 1000));
+		assertEquals(75, energyToSoc(750, 1000));
+		assertEquals(33, energyToSoc(333, 1000));
+		assertEquals(67, energyToSoc(666, 1000));
+	}
 
 	@Test
 	public void testFindFirstPeakIndex() {

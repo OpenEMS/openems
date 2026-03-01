@@ -246,7 +246,7 @@ public class TestStatic {
 
 		var dcPower = 200_000; // W
 		var powerMode = EmsPowerMode.AUTO;
-		var powerSet = 0L;
+		var powerSet = 0;
 
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 50 /* SoC */,
 				25 /* batteryCurrent */, powerMode, powerSet));
@@ -258,7 +258,7 @@ public class TestStatic {
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 2, powerMode, powerSet));
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 2, 0, powerMode, powerSet));
 		assertEquals(dcPower,
-				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, 1000L));
+				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, 1000));
 
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, null, 0, powerMode, powerSet));
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, null, powerMode, powerSet));

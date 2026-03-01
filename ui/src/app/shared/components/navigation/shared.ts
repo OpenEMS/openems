@@ -1,5 +1,6 @@
 import { TEnumKeys, TPartialBy } from "../../type/utility";
-import { Icon, WidgetClass } from "../../type/widget";
+import { Icon, Widget, WidgetClass } from "../../type/widget";
+import { ArrayUtils } from "../../utils/array/array.utils";
 
 export enum NavigationId {
     LIVE = "live",
@@ -42,11 +43,124 @@ export class NavigationTree {
         return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
     }
 
+    public findParentByUrl(currentUrl: string | null): NavigationTree | null {
+
+        /**
+         * Converts a relative routerLink to absolute from root node.
+         *
+         * @param tree the current navigation node
+            * @returns a navigationTree
+         */
+        function convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
+
+            /**
+             * Builds the absolute link from root node to current node.
+             *
+             * @param node the current node
+             * @returns a update navigation tree
+             */
+            function buildAbsoluteLink(node: NavigationTree): NavigationTree {
+                const segments: (string | null)[] = [];
+                const current: NavigationTree | null = node;
+
+                segments.unshift(current.routerLink.baseString);
+                segments.unshift(current?.parent?.routerLink.baseString ?? null);
+
+                const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
+                node.routerLink.baseString = routerLink;
+                return node;
+            }
+
+            /**
+             * Traverses through the navigation tree.
+             *
+             * @param node the current node
+             */
+            function traverse(node: NavigationTree | null): void {
+
+                if (node == null) {
+                    return;
+                }
+                const _node = structuredClone(node);
+                node.routerLink = buildAbsoluteLink(_node).routerLink;
+
+                if (node.children) {
+                    for (const child of node.children) {
+                        traverse(child);
+                    }
+                }
+            }
+
+            traverse(tree);
+            return tree;
+        }
+
+        /**
+         * Gets the navigation id from a navigation tree and current router url
+         *
+         * @param tree the navigation tree
+         * @param url the current router url
+         * @returns the navigationId if found, else null
+         */
+
+        function findParentNode(tree: NavigationTree | null, url: string | null): NavigationTree | null {
+
+            if (tree == null || url == null) {
+                return null;
+            }
+
+            function buildRoutes(segments: string[]): string[] {
+                const routes: string[] = [];
+
+                for (let i = 1; i < segments.length; i++) {
+                    const path = segments.slice(1, i + 1).join("/");
+                    routes.push(path);
+                }
+
+                return routes;
+            }
+
+            const upperMostParent = tree.routerLink.baseString;
+            const allRoutes = buildRoutes(url.split("/")).reverse().map(el => el.includes(upperMostParent) ? el.slice(el.indexOf(upperMostParent)) : el); // ["device", "device/fems888", "device/fems888/live"...]
+            let resultTree: NavigationTree | null = null;
+            for (const entry of allRoutes) {
+
+                if (resultTree != null) {
+                    continue;
+                }
+
+                function traverse(navigationTree: NavigationTree, segments: string): NavigationTree | null {
+                    const urlSegments = navigationTree.routerLink.baseString.split("/");
+                    const foundNode = ArrayUtils.containsAll({ strings: urlSegments, arr: segments.split("/") });
+                    if (foundNode) {
+                        return navigationTree;
+                    }
+
+                    for (const child of navigationTree.children) {
+                        const result = traverse(child, segments);
+
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                    return null;
+                }
+                const result = traverse(tree, entry);
+                resultTree = result;
+            }
+            return resultTree;
+        }
+
+        if (currentUrl == null) {
+            return null;
+        }
+
+        const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(this);
+        return findParentNode(flattenedNavigationTree, currentUrl);
+    }
+
     public updateNavigationTreeByAbsolutePath(
-        root: NavigationTree | null,
-        absolutePath: string,                         // e.g. "/home/settings/profile"
-        updateFn: (node: NavigationTree) => void | NavigationTree,
-        currentPath: string = ""                      // internal tracker
+        root: NavigationTree | null, absolutePath: string, updateFn: (node: NavigationTree) => void | NavigationTree, currentPath: string = ""
     ): boolean {
         if (root == null) {
             return false;
@@ -124,6 +238,19 @@ export class NavigationTree {
         return this.children?.filter(el => el != null) ?? null;
     }
 
+    public getAllNavigationNodes(tree: NavigationTree[]): NavigationTree[] {
+        const result: NavigationTree[] = [];
+
+        const recursion = (node: NavigationTree) => {
+            result.push(node);
+            node.children?.forEach(recursion);
+        };
+
+        tree.map(recursion);
+
+        return result;
+    }
+
     public getParents(): NavigationTree[] | null {
 
         let root: NavigationTree | null = this.parent;
@@ -155,7 +282,8 @@ export class NavigationTree {
         }
         this.children = [...this.children, childNavigationTree];
         this.setChild(this.id, childNavigationTree);
-        return this;
+
+        return this.setParentRecursively();
     }
 
     /**
@@ -168,20 +296,7 @@ export class NavigationTree {
      */
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
-
-        function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
-            node.parent = parent;
-
-            if (!node.children) {
-                return;
-            }
-            for (const child of node.children) {
-                setParentRecursive(child, node);
-            }
-        }
-
-        setParentRecursive(this, null);
-        return this;
+        return this.setParentRecursively();
     }
 
     public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
@@ -218,6 +333,25 @@ export class NavigationTree {
     public updateIconColor(color: IconColor) {
         this.icon.color = color;
     }
+
+    private setParentRecursively() {
+        function traverse(node: NavigationTree, parent: NavigationTree | null): void {
+
+            if (node.parent == null) {
+                node.parent = parent;
+            }
+
+            if (node.children == null) {
+                return;
+            }
+            for (const child of node.children) {
+                traverse(child, node);
+            }
+        }
+
+        traverse(this, null);
+        return this;
+    }
 }
 
 export type NavigationNode = {
@@ -231,14 +365,17 @@ export type NavigationNode = {
 export namespace NavigationConstants {
 
     /**
-     * The widgets to show in new navigation
+     * The widgets classes to show in new navigation
      */
-    export const newWidgets: TEnumKeys<typeof WidgetClass>[] = [
+    export const newClasses: TEnumKeys<typeof WidgetClass>[] = [
         "Common_Autarchy",
-        // "Common_Production",
         "Common_Selfconsumption",
         "Consumption",
         "Grid",
-        // "Storage",
     ];
+
+    /**
+     * The widget factories to show in new navigation
+     */
+    export const newWidgets: Widget["name"][] = ["System.Fenecon.Industrial.L"];
 }

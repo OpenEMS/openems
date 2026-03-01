@@ -12,7 +12,7 @@ import { Language } from "../../type/language";
 import { StringUtils } from "../../utils/string/string.utils";
 import { Service } from "../service";
 import { UserService } from "../user.service";
-import { AuthenticateWithOAuthResponse, AuthenticateWithOAuthRequest } from "./jsonrpc";
+import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
 
 @Injectable({ providedIn: "root" })
 export class OAuthService {
@@ -35,7 +35,7 @@ export class OAuthService {
     }
 
     public static isOAuth(cookieService: CookieService) {
-        return cookieService.check(OAuthService.REFRESH_TOKEN);
+        return cookieService.check(OAuthService.REFRESH_TOKEN) && environment.backend === "OpenEMS Backend";
     }
 
     public static getRedirectUri(plaformService: PlatFormService) {
