@@ -189,14 +189,29 @@ public class ModbusRecordChannel extends ModbusRecord {
 		// clear buffer
 		Arrays.fill(this.writeValueBuffer, null);
 
-		// Get Value-Object from ByteBuffer
+		// Get Value-Object from ByteBuffer, interpreting UNDEFINED_VALUE as null
 		var value = switch (this.getType()) {
-		case FLOAT64 -> buff.getDouble();
-		case FLOAT32 -> buff.getFloat();
+		case FLOAT64 -> {
+			var v = buff.getDouble();
+			yield Double.isNaN(v) ? null : v;
+		}
+		case FLOAT32 -> {
+			var v = buff.getFloat();
+			yield Float.isNaN(v) ? null : v;
+		}
 		case STRING16 -> ""; // TODO implement String conversion
-		case ENUM16, UINT16 -> buff.getShort();
-		case UINT32 -> buff.getInt();
-		case UINT64 -> buff.getLong();
+		case ENUM16, UINT16 -> {
+			var v = buff.getShort();
+			yield v == (short) ModbusRecordUint16.UNDEFINED_VALUE ? null : v;
+		}
+		case UINT32 -> {
+			var v = buff.getInt();
+			yield v == (int) ModbusRecordUint32.UNDEFINED_VALUE ? null : v;
+		}
+		case UINT64 -> {
+			var v = buff.getLong();
+			yield v == ModbusRecordUint64.UNDEFINED_VALUE ? null : v;
+		}
 		};
 
 		// Forward Value to ApiWorker
