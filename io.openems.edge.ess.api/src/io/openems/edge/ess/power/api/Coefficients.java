@@ -26,25 +26,32 @@ public class Coefficients {
 	 * @param essIds        Set of ESS-Ids
 	 */
 	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
-		this.coefficients.clear();
-		this.symmetricMode = symmetricMode;
+		// Build the new coefficients in a temporary list first, then swap atomically.
+		// This avoids a window where the list is cleared but not yet rebuilt, which
+		// would cause concurrent readers in of() to throw "Coefficient was not found".
+		var newCoefficients = new java.util.ArrayList<Coefficient>();
 		var index = 0;
 		for (String essId : essIds) {
 			if (symmetricMode) {
 				// Symmetric Mode
 				for (Pwr pwr : Pwr.values()) {
-					this.coefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
+					newCoefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
 				}
 			} else {
 				// Asymmetric Mode
 				for (var phase : SingleOrAllPhase.values()) {
 					for (Pwr pwr : Pwr.values()) {
-						this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
+						newCoefficients.add(new Coefficient(index++, essId, phase, pwr));
 					}
 				}
 			}
 		}
+		this.symmetricMode = symmetricMode;
 		this.noOfCoefficients = index;
+		// Atomic swap: clear and addAll in immediate succession on CopyOnWriteArrayList.
+		// Because of() is also synchronized on 'this', no reader can see the empty state.
+		this.coefficients.clear();
+		this.coefficients.addAll(newCoefficients);
 	}
 
 	/**
@@ -57,7 +64,7 @@ public class Coefficients {
 	 * @return the {@link Coefficient}
 	 * @throws OpenemsException on error
 	 */
-	public Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
+	public synchronized Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
 		if (this.symmetricMode && phase != SingleOrAllPhase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","
 					+ pwr + "] is not available!");
