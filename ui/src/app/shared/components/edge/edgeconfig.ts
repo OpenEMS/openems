@@ -1,6 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress } from "../../shared";
 import { Widgets } from "../../type/widgets";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -410,7 +411,7 @@ export class EdgeConfig {
         for (const componentId of componentIds) {
             result.push(this.components[componentId]);
         }
-        return result;
+        return result.sort(ArrayUtils.alphabetically(c => c.alias));
     }
 
     /**
@@ -475,7 +476,7 @@ export class EdgeConfig {
                 result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
-        return result;
+        return result.sort(ArrayUtils.alphabetically(c => c.alias));
     }
 
     /**

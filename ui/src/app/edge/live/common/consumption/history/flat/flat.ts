@@ -3,7 +3,6 @@ import { Component } from "@angular/core";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../../shared/shared";
-import { ArrayUtils } from "../../../../../../shared/utils/array/array.utils";
 
 @Component({
     selector: "consumptionWidget",
@@ -20,14 +19,12 @@ export class FlatComponent extends AbstractFlatWidget {
     protected override getChannelAddresses(): ChannelAddress[] {
         const channels: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActiveEnergy")];
 
-        this.evcsComponents = EvcsComponent.getComponents(this.config, this.edge)
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+        this.evcsComponents = EvcsComponent.getComponents(this.config, this.edge);
 
         this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(component =>
                 !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false)
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+                !component.isEnabled === false);
         channels.push(
             ...this.heatComponents.map(
                 (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
@@ -42,8 +39,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
                 return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
                     isEvcs === false && isHeat === false;
-            })
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+            });
 
         return channels;
     }

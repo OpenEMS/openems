@@ -4,7 +4,6 @@ import { EvcsComponent } from "src/app/shared/components/edge/config-components/
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
-import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
@@ -49,8 +48,7 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
 
                 return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
                     isEvcs === false;
-            })
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+            });
 
         for (const component of this.consumptionMeters) {
             channelAddresses.push(
@@ -62,8 +60,7 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         }
 
         // Get EVCSs
-        this.evcss = EvcsComponent.getComponents(this.config, this.edge)
-            .sort(ArrayUtils.alphabetically(c => c.alias));
+        this.evcss = EvcsComponent.getComponents(this.config, this.edge);
 
         for (const component of this.evcss) {
             channelAddresses.push(
