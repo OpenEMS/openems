@@ -179,40 +179,15 @@ public class ModbusRecordChannel extends ModbusRecord {
 			}
 		}
 
-		// yes, it is full -> Prepare ByteBuffer
-		var buff = ByteBuffer.allocate(this.writeValueBuffer.length);
-		for (Byte element : this.writeValueBuffer) {
-			buff.put(element);
+		// Copy buffer to byte array and clear buffer
+		var raw = new byte[this.writeValueBuffer.length];
+		for (var i = 0; i < raw.length; i++) {
+			raw[i] = this.writeValueBuffer[i];
 		}
-		buff.rewind();
-
-		// clear buffer
 		Arrays.fill(this.writeValueBuffer, null);
 
-		// Get Value-Object from ByteBuffer, interpreting UNDEFINED_VALUE as null
-		var value = switch (this.getType()) {
-		case FLOAT64 -> {
-			var v = buff.getDouble();
-			yield Double.isNaN(v) ? null : v;
-		}
-		case FLOAT32 -> {
-			var v = buff.getFloat();
-			yield Float.isNaN(v) ? null : v;
-		}
-		case STRING16 -> ""; // TODO implement String conversion
-		case ENUM16, UINT16 -> {
-			var v = buff.getShort();
-			yield v == (short) ModbusRecordUint16.UNDEFINED_VALUE ? null : v;
-		}
-		case UINT32 -> {
-			var v = buff.getInt();
-			yield v == (int) ModbusRecordUint32.UNDEFINED_VALUE ? null : v;
-		}
-		case UINT64 -> {
-			var v = buff.getLong();
-			yield v == ModbusRecordUint64.UNDEFINED_VALUE ? null : v;
-		}
-		};
+		// Get Value-Object from byte array, interpreting UNDEFINED_VALUE as null
+		var value = parseValue(this.getType(), raw);
 
 		// Forward Value to ApiWorker
 		if (this.onWriteValueCallback != null) {
@@ -220,6 +195,41 @@ public class ModbusRecordChannel extends ModbusRecord {
 		} else {
 			this.log.error("No onWriteValueCallback registered. What should I do with [" + value + "]?");
 		}
+	}
+
+	/**
+	 * Parses a value from the given raw byte array according to the
+	 * {@link ModbusType}. Returns null if the bytes match the type's
+	 * UNDEFINED_BYTE_ARRAY.
+	 *
+	 * @param type the {@link ModbusType}
+	 * @param raw  the raw byte array
+	 * @return the parsed value, or null for UNDEFINED
+	 */
+	protected static Object parseValue(ModbusType type, byte[] raw) {
+		// Check for UNDEFINED_VALUE by comparing the raw bytes
+		var undefinedBytes = switch (type) {
+		case FLOAT32 -> ModbusRecordFloat32.UNDEFINED_BYTE_ARRAY;
+		case FLOAT64 -> ModbusRecordFloat64.UNDEFINED_BYTE_ARRAY;
+		case STRING16 -> ModbusRecordString16.UNDEFINED_BYTE_ARRAY;
+		case ENUM16, UINT16 -> ModbusRecordUint16.UNDEFINED_BYTE_ARRAY;
+		case UINT32 -> ModbusRecordUint32.UNDEFINED_BYTE_ARRAY;
+		case UINT64 -> ModbusRecordUint64.UNDEFINED_BYTE_ARRAY;
+		};
+		if (Arrays.equals(raw, undefinedBytes)) {
+			return null;
+		}
+
+		// Parse the value from the byte array
+		var buff = ByteBuffer.wrap(raw);
+		return switch (type) {
+		case FLOAT64 -> buff.getDouble();
+		case FLOAT32 -> buff.getFloat();
+		case STRING16 -> new String(raw, java.nio.charset.StandardCharsets.US_ASCII).trim();
+		case ENUM16, UINT16 -> buff.getShort();
+		case UINT32 -> buff.getInt();
+		case UINT64 -> buff.getLong();
+		};
 	}
 
 	@Override
