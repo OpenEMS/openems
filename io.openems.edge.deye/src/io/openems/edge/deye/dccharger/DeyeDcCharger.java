@@ -2,6 +2,7 @@ package io.openems.edge.deye.dccharger;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -16,10 +17,15 @@ public interface DeyeDcCharger extends EssDcCharger, ModbusComponent, OpenemsCom
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		DC_POWER_STRING_1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		DC_POWER_STRING_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		DC_POWER_STRING_3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
-		DC_POWER_STRING_4(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)),
+		DC_POWER_STRING_1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)
+		.persistencePriority(PersistencePriority.HIGH)),
+		DC_POWER_STRING_2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)
+		.persistencePriority(PersistencePriority.HIGH)),
+		DC_POWER_STRING_3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)
+		.persistencePriority(PersistencePriority.HIGH)),
+		DC_POWER_STRING_4(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)
+		.persistencePriority(PersistencePriority.HIGH)),
+
 
 		DC_VOLTAGE_STRING_1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)),		
 		DC_CURRENT_STRING_1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)),

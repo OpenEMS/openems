@@ -161,7 +161,7 @@ export class StorageComponent extends AbstractFlatWidget {
             channelAddresses.push(
                 new ChannelAddress(component.id, "_PropertyMinSoc"),
                 new ChannelAddress(component.id, "_PropertyMaxSoc"),
-                new ChannelAddress(component.id, "_PropertyForceChargeSoc"),
+                new ChannelAddress(component.id, "BalancingSoc"),
                 new ChannelAddress(component.id, "_PropertyEnergyBetweenBalancingCycles"),
                 new ChannelAddress(component.id, "StateMachine"),
                 new ChannelAddress(component.id, "BalancingRemainingSeconds"),
@@ -248,7 +248,7 @@ export class StorageComponent extends AbstractFlatWidget {
             controller["debugMode"] = currentData.allComponents[controller.id + "/_PropertyDebugMode"];
             controller["minSoc"] = currentData.allComponents[controller.id + "/_PropertyMinSoc"];
             controller["maxSoc"] = currentData.allComponents[controller.id + "/_PropertyMaxSoc"];
-            controller["forceSoc"] = currentData.allComponents[controller.id + "/_PropertyForceChargeSoc"];
+            controller["balancingSoc"] = currentData.allComponents[controller.id + "/BalancingSoc"];
             controller["state"] = currentData.allComponents[controller.id + "/StateMachine"]; // State 6 is Balancing active
             controller["chargedEnergy"] = currentData.allComponents[controller.id + "/ChargedEnergy"];
         }

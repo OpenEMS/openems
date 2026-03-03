@@ -44,6 +44,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 // ToDo import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -53,7 +54,9 @@ import io.openems.edge.timedata.api.TimedataProvider;
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE,		
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS
 })
 public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements EssDcCharger, DeyeDcCharger,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
@@ -61,10 +64,7 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
-	// ToDo
-	// private final CalculateEnergyFromPower calculateProductionEnergy = new
-	// CalculateEnergyFromPower(this,
-	// EssDcCharger.ChannelId.ACTUAL_ENERGY);
+	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this, EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -165,11 +165,13 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 				this.channel(DeyeDcCharger.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
 			} catch (OpenemsError.OpenemsNamedException e) {
 				this.channel(DeyeDcCharger.ChannelId.PV_LIMIT_FAILED).setNextValue(true);
+				this.logError(this.log,"Error setting PV Limit ");
 			}
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			// this.calculateProductionEnergy.update(this.getActivePower().get());
 			this.calculateAndSetActualValues();
+			this.calculateEnergy();
 			break;
 			
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
@@ -234,6 +236,21 @@ public class DeyeDcChargerImpl extends AbstractOpenemsModbusComponent implements
 		return this.getActualPower().get();
 	}
 
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		var actualPower = this.getActualPower().get();
+		if (actualPower == null) {
+			// Not available
+			this.calculateActualEnergy.update(null);
+		} else if (actualPower > 0) {
+			this.calculateActualEnergy.update(actualPower);
+		} else {
+			this.calculateActualEnergy.update(0);
+		}
+	}
+	
 	private void calculateAndSetActualValues() {
 
 		// power sum DC Strings

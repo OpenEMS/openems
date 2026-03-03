@@ -114,8 +114,9 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                 channelAddresses.push(
                     new ChannelAddress(ctrl.id, "_PropertyMinSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyMaxSoc"),
-                    new ChannelAddress(ctrl.id, "_PropertyForceChargeSoc"),
+                    //new ChannelAddress(ctrl.id, "_PropertyForceChargeSoc"),
                     new ChannelAddress(ctrl.id, "_PropertyEnergyBetweenBalancingCycles"),
+                    new ChannelAddress(ctrl.id, "BalancingSoc"),
                     new ChannelAddress(ctrl.id, "StateMachine"),
                     new ChannelAddress(ctrl.id, "BalancingRemainingSeconds"),
                     new ChannelAddress(ctrl.id, "ChargedEnergy"),
@@ -167,7 +168,8 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                 }
                                 const minSoc = currentData.channel[controller.id + "/_PropertyMinSoc"];
                                 const maxSoc = currentData.channel[controller.id + "/_PropertyMaxSoc"];
-                                const forceChargeSoc = currentData.channel[controller.id + "/_PropertyForceChargeSoc"];
+                                //const forceChargeSoc = currentData.channel[controller.id + "/_PropertyForceChargeSoc"];
+                                const balancingSoc = currentData.channel[controller.id + "/BalancingSoc"];
                                 const energyBetweenBalancingCycles = currentData.channel[controller.id + "/_PropertyEnergyBetweenBalancingCycles"];
                                 const stateNumber = currentData.channel[controller.id + "/StateMachine"];
                                 const balancingRemainingSeconds = currentData.channel[controller.id + "/BalancingRemainingSeconds"];
@@ -180,7 +182,7 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                                         controllerId: new FormControl(controller["id"]),
                                         minSoc: new FormControl(minSoc),
                                         maxSoc: new FormControl(maxSoc),
-                                        forceChargeSoc: new FormControl(forceChargeSoc),
+                                        balancingSoc: new FormControl(balancingSoc),
                                         energyBetweenBalancingCycles: new FormControl(energyBetweenBalancingCycles),
                                         //state: new FormControl(state),
                                         stateKey: new FormControl(stateKey),

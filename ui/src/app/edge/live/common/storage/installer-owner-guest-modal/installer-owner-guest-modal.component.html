@@ -282,11 +282,11 @@
                 <div style="width: 25%;">
                   <oe-modal-line
                     [name]="'INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE' | translate"
-                    [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.forceChargeSoc + ' %'">
+                    [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.balancingSoc + ' %'">
                   </oe-modal-line>
                 </div>
                 <div style="width: 75%;">
-                  <ion-range formControlName="forceChargeSoc" pin color="primary" min="85" max="100">
+                  <ion-range formControlName="balancingSoc" pin color="primary" min="85" max="100">
                     <ion-label slot="start">
                       {{ 85 | unitvalue:'%' }}
                     </ion-label>
@@ -786,11 +786,11 @@
                     <div style="width: 25%;">
                       <oe-modal-line
                         [name]="'INSTALLATION.CONFIGURATION_CHARGE_DISCHARGE_LIMITER.FORCE_SOC_VALUE' | translate"
-                        [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.forceChargeSoc + ' %'">
+                        [value]="formGroup.value[component.id]?.['chargeDischargeLimiterController']?.balancingSoc + ' %'">
                       </oe-modal-line>
                     </div>
                     <div style="width: 75%;">
-                      <ion-range formControlName="forceChargeSoc" pin color="primary" min="85" max="100">
+                      <ion-range formControlName="balancingSoc" pin color="primary" min="85" max="100">
                         <ion-label slot="start">
                           {{ 85 | unitvalue:'%' }}
                         </ion-label>

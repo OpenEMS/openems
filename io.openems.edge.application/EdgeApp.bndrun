@@ -220,7 +220,8 @@
 	bnd.identity;id='io.openems.edge.predictor.pv.weather.forecast',\
 	bnd.identity;id='io.openems.edge.controller.chp.costoptimization',\
 	bnd.identity;id='io.openems.edge.chp.ecpower',\
-	bnd.identity;id='io.openems.edge.deye'
+	bnd.identity;id='io.openems.edge.deye',\
+	bnd.identity;id='io.openems.edge.pytes'
 -runbundles: \
 	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
@@ -505,4 +506,5 @@
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
 	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)'
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)',\
+	io.openems.edge.pytes;version=snapshot

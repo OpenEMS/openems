@@ -7,6 +7,13 @@
       @if (essComponents.length > 1) {
         <oe-flat-widget-line [name]="component.alias"></oe-flat-widget-line>
       }
+      <!--
+      @if (this.chargeDischargeLimiterComponents?.[component.id]; as limiter) {
+        <oe-flat-widget-line [name]="'DEBUG limiter[' + component.id + ']'"
+          [value]="'state=' + limiter['state'] + ', balancingSoc=' + limiter['balancingSoc'] + ', maxSoc=' + limiter['maxSoc']">
+        </oe-flat-widget-line>
+      }
+      / -->
 
       <!-- SoC-Balken mit Markern: EmergencyReserve + ChargeDischargeLimiter -->
       @if (this.emergencyReserveComponents[component.id] || this.chargeDischargeLimiterComponents?.[component.id]) {
@@ -32,9 +39,9 @@
 
               <!-- Force SOC nur bei ForceCharge/Balancing/PriceLimit (state 6..9), sonst Max SOC -->
               @if (limiter['state'] >= 6 && limiter['state'] <= 9) {
-                @if (limiter['forceSoc'] !== undefined) {
+                @if (limiter['balancingSoc'] !== undefined) {
                   <rect y="2" rx="0" ry="0" width="1%" height="18"
-                    [style]="'x: calc(' + ((limiter['forceSoc'] > 98 ? 98 : limiter['forceSoc'])) + '% + 2px); fill:#88000088;'" />
+                    [style]="'x: calc(' + ((limiter['balancingSoc'] > 98 ? 98 : limiter['balancingSoc'])) + '% + 2px); fill:#88000088;'" />
                 }
               } @else {
                 @if (limiter['maxSoc'] !== undefined) {
