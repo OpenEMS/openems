@@ -921,3 +921,111 @@
 						m(PytesDcCharger.ChannelId.SPEC_SHEET_VERSION, new UnsignedWordElement(33600)),
 						
 						m(PytesDcCharger.ChannelId.ENERGY_READING_PROGRESS_PERCENT, new UnsignedWordElement(33601)),
+						
+						m(PytesDcCharger.ChannelId.ENERGY_READING_METHOD, new UnsignedWordElement(33602))
+						
+						m(PytesDcCharger.ChannelId.ENERGY_DETAILS_TYPE, new UnsignedWordElement(33603))
+						
+						// 33604–33634  (Day 1–31, 0.1kWh)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_1, new UnsignedWordElement(33604), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_2, new UnsignedWordElement(33605), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_3, new UnsignedWordElement(33606), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_4, new UnsignedWordElement(33607), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_5, new UnsignedWordElement(33608), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_6, new UnsignedWordElement(33609), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_7, new UnsignedWordElement(33610), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_8, new UnsignedWordElement(33611), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_9, new UnsignedWordElement(33612), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_10, new UnsignedWordElement(33613), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_11, new UnsignedWordElement(33614), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_12, new UnsignedWordElement(33615), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_13, new UnsignedWordElement(33616), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_14, new UnsignedWordElement(33617), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_15, new UnsignedWordElement(33618), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_16, new UnsignedWordElement(33619), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_17, new UnsignedWordElement(33620), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_18, new UnsignedWordElement(33621), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_19, new UnsignedWordElement(33622), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_20, new UnsignedWordElement(33623), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_21, new UnsignedWordElement(33624), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_22, new UnsignedWordElement(33625), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_23, new UnsignedWordElement(33626), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_24, new UnsignedWordElement(33627), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_25, new UnsignedWordElement(33628), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_26, new UnsignedWordElement(33629), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_27, new UnsignedWordElement(33630), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_28, new UnsignedWordElement(33631), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_29, new UnsignedWordElement(33632), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_30, new UnsignedWordElement(33633), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_DAY_31, new UnsignedWordElement(33634), ElementToChannelConverter.SCALE_FACTOR_2)
+						
+						// Yearly months (0.1kWh, U32 pairs)
+						m(PytesDcCharger.ChannelId.ENERGY_MONTH_1, new UnsignedDoubleWordElement(33635), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.ENERGY_MONTH_12, new UnsignedDoubleWordElement(33657), ElementToChannelConverter.SCALE_FACTOR_2)
+						
+						// 10-year annual totals (1kWh)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_0, new UnsignedDoubleWordElement(33659), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_1, new UnsignedDoubleWordElement(33661), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_2, new UnsignedDoubleWordElement(33663), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_3, new UnsignedDoubleWordElement(33665), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_4, new UnsignedDoubleWordElement(33667), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_5, new UnsignedDoubleWordElement(33669), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_6, new UnsignedDoubleWordElement(33671), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_7, new UnsignedDoubleWordElement(33673), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_8, new UnsignedDoubleWordElement(33675), ElementToChannelConverter.SCALE_FACTOR_3)
+						m(PytesDcCharger.ChannelId.ENERGY_YEAR_9, new UnsignedDoubleWordElement(33677), ElementToChannelConverter.SCALE_FACTOR_3)
+						
+						m(PytesDcCharger.ChannelId.HISTORICAL_FAULT_READ_PROGRESS, new UnsignedWordElement(33679)),
+						m(PytesDcCharger.ChannelId.HISTORICAL_FAULT_BATCH_INDEX, new UnsignedWordElement(33680)),
+						
+						// Fault 1
+						m(PytesDcCharger.ChannelId.FAULT1_YEAR, new UnsignedWordElement(33681)),
+						m(PytesDcCharger.ChannelId.FAULT1_MONTH_DAY, new UnsignedWordElement(33682)),
+						m(PytesDcCharger.ChannelId.FAULT1_TIME, new UnsignedWordElement(33683)),
+						m(PytesDcCharger.ChannelId.FAULT1_STATUS, new UnsignedWordElement(33684)),
+						m(PytesDcCharger.ChannelId.FAULT1_DATA, new UnsignedWordElement(33685)),
+						
+						// Fault 2
+						m(PytesDcCharger.ChannelId.FAULT2_YEAR, new UnsignedWordElement(33686)),
+						m(PytesDcCharger.ChannelId.FAULT2_MONTH_DAY, new UnsignedWordElement(33687)),
+						m(PytesDcCharger.ChannelId.FAULT2_TIME, new UnsignedWordElement(33688)),
+						m(PytesDcCharger.ChannelId.FAULT2_STATUS, new UnsignedWordElement(33689)),
+						m(PytesDcCharger.ChannelId.FAULT2_DATA, new UnsignedWordElement(33690)),
+						
+						// Fault 3
+						m(PytesDcCharger.ChannelId.FAULT3_YEAR, new UnsignedWordElement(33691)),
+						m(PytesDcCharger.ChannelId.FAULT3_MONTH_DAY, new UnsignedWordElement(33692)),
+						m(PytesDcCharger.ChannelId.FAULT3_TIME, new UnsignedWordElement(33693)),
+						m(PytesDcCharger.ChannelId.FAULT3_STATUS, new UnsignedWordElement(33694)),
+						m(PytesDcCharger.ChannelId.FAULT3_DATA, new UnsignedWordElement(33695)),
+						
+						// Fault 4
+						m(PytesDcCharger.ChannelId.FAULT4_YEAR, new UnsignedWordElement(33696)),
+						m(PytesDcCharger.ChannelId.FAULT4_MONTH_DAY, new UnsignedWordElement(33697)),
+						m(PytesDcCharger.ChannelId.FAULT4_TIME, new UnsignedWordElement(33698)),
+						m(PytesDcCharger.ChannelId.FAULT4_STATUS, new UnsignedWordElement(33699)),
+						m(PytesDcCharger.ChannelId.FAULT4_DATA, new UnsignedWordElement(33700)),
+						
+						// Fault 5
+						m(PytesDcCharger.ChannelId.FAULT5_YEAR, new UnsignedWordElement(33701)),
+						m(PytesDcCharger.ChannelId.FAULT5_MONTH_DAY, new UnsignedWordElement(33702)),
+						m(PytesDcCharger.ChannelId.FAULT5_TIME, new UnsignedWordElement(33703)),
+						m(PytesDcCharger.ChannelId.FAULT5_STATUS, new UnsignedWordElement(33704)),
+						m(PytesDcCharger.ChannelId.FAULT5_DATA, new UnsignedWordElement(33705)),
+						
+						m(PytesDcCharger.ChannelId.FULL_LOAD_ACTIVE_POWER_PF_POS_08, new UnsignedDoubleWordElement(33710)),
+						m(PytesDcCharger.ChannelId.LEADING_POWER_FACTOR_POS_08, new SignedWordElement(33712), ElementToChannelConverter.SCALE_FACTOR_2)
+						
+						m(PytesDcCharger.ChannelId.FULL_LOAD_ACTIVE_POWER_PF_NEG_08, new UnsignedDoubleWordElement(33713)),
+						m(PytesDcCharger.ChannelId.LAGGING_POWER_FACTOR_NEG_08, new SignedWordElement(33715), ElementToChannelConverter.SCALE_FACTOR_2)
+						
+						m(PytesDcCharger.ChannelId.NORMAL_OPERATION_CATEGORY, new UnsignedWordElement(33716)),
+						m(PytesDcCharger.ChannelId.ABNORMAL_OPERATION_CATEGORY, new UnsignedWordElement(33717)),
+						
+						m(PytesDcCharger.ChannelId.AC_RATED_VOLTAGE, new UnsignedWordElement(33718)),
+						m(PytesDcCharger.ChannelId.AC_OVERVOLTAGE_LIMIT_1, new UnsignedWordElement(33719), ElementToChannelConverter.SCALE_FACTOR_2)
+						m(PytesDcCharger.ChannelId.AC_UNDERVOLTAGE_LIMIT_1, new UnsignedWordElement(33720), ElementToChannelConverter.SCALE_FACTOR_2)
+						
+						m(PytesDcCharger.ChannelId.CONTROL_MODEL_BITMAP, new UnsignedWordElement(33721)),
+						m(PytesDcCharger.ChannelId.ELECTRICAL_ADMITTANCE_PARAMETER, new UnsignedWordElement(33722)),
+						m(PytesDcCharger.ChannelId.MANUFACTURER_ID, new UnsignedWordElement(33723)),
