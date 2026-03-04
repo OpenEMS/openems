@@ -26,32 +26,25 @@ public class Coefficients {
 	 * @param essIds        Set of ESS-Ids
 	 */
 	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
-		// Build the new coefficients in a temporary list first, then swap atomically.
-		// This avoids a window where the list is cleared but not yet rebuilt, which
-		// would cause concurrent readers in of() to throw "Coefficient was not found".
-		var newCoefficients = new java.util.ArrayList<Coefficient>();
+		this.coefficients.clear();
+		this.symmetricMode = symmetricMode;
 		var index = 0;
 		for (String essId : essIds) {
 			if (symmetricMode) {
 				// Symmetric Mode
 				for (Pwr pwr : Pwr.values()) {
-					newCoefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
+					this.coefficients.add(new Coefficient(index++, essId, SingleOrAllPhase.ALL, pwr));
 				}
 			} else {
 				// Asymmetric Mode
 				for (var phase : SingleOrAllPhase.values()) {
 					for (Pwr pwr : Pwr.values()) {
-						newCoefficients.add(new Coefficient(index++, essId, phase, pwr));
+						this.coefficients.add(new Coefficient(index++, essId, phase, pwr));
 					}
 				}
 			}
 		}
-		this.symmetricMode = symmetricMode;
 		this.noOfCoefficients = index;
-		// Atomic swap: clear and addAll in immediate succession on CopyOnWriteArrayList.
-		// Because of() is also synchronized on 'this', no reader can see the empty state.
-		this.coefficients.clear();
-		this.coefficients.addAll(newCoefficients);
 	}
 
 	/**
