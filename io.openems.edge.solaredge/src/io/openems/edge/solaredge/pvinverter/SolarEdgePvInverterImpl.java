@@ -24,6 +24,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.FilteredSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
@@ -51,25 +52,46 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 		implements SolarEdgePvInverter, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
+	private static final SunSpecModel S_101_WITHOUT_EVENTS =
+			FilteredSunSpecModel.withoutPoints(
+					DefaultSunSpecModel.S_101,
+					DefaultSunSpecModel.S101.EVT1,
+					DefaultSunSpecModel.S101.EVT2,
+					DefaultSunSpecModel.S101.EVT_VND1,
+					DefaultSunSpecModel.S101.EVT_VND2,
+					DefaultSunSpecModel.S101.EVT_VND3,
+					DefaultSunSpecModel.S101.EVT_VND4
+			);
+
+	private static final SunSpecModel S_102_WITHOUT_EVENTS =
+			FilteredSunSpecModel.withoutPoints(
+					DefaultSunSpecModel.S_102,
+					DefaultSunSpecModel.S102.EVT1,
+					DefaultSunSpecModel.S102.EVT2,
+					DefaultSunSpecModel.S102.EVT_VND1,
+					DefaultSunSpecModel.S102.EVT_VND2,
+					DefaultSunSpecModel.S102.EVT_VND3,
+					DefaultSunSpecModel.S102.EVT_VND4
+			);
+
+	private static final SunSpecModel S_103_WITHOUT_EVENTS =
+			FilteredSunSpecModel.withoutPoints(
+					DefaultSunSpecModel.S_103,
+					DefaultSunSpecModel.S103.EVT1,
+					DefaultSunSpecModel.S103.EVT2,
+					DefaultSunSpecModel.S103.EVT_VND1,
+					DefaultSunSpecModel.S103.EVT_VND2,
+					DefaultSunSpecModel.S103.EVT_VND3,
+					DefaultSunSpecModel.S103.EVT_VND4
+			);
+
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_145, Priority.LOW) //
+			.put(S_101_WITHOUT_EVENTS, Priority.LOW) //
+			.put(S_102_WITHOUT_EVENTS, Priority.LOW) //
+			.put(S_103_WITHOUT_EVENTS, Priority.LOW) //
 			.build();
 
 	@Reference
