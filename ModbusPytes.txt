@@ -1029,3 +1029,148 @@
 						m(PytesDcCharger.ChannelId.CONTROL_MODEL_BITMAP, new UnsignedWordElement(33721)),
 						m(PytesDcCharger.ChannelId.ELECTRICAL_ADMITTANCE_PARAMETER, new UnsignedWordElement(33722)),
 						m(PytesDcCharger.ChannelId.MANUFACTURER_ID, new UnsignedWordElement(33723)),
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+						m(PytesDcCharger.ChannelId.CAPACITIVE_MAX_REACTIVE_POWER, new UnsignedDoubleWordElement(33725)),
+
+						m(PytesDcCharger.ChannelId.INDUCTIVE_MAX_REACTIVE_POWER, new UnsignedDoubleWordElement(33727)),
+
+						m(PytesDcCharger.ChannelId.BATTERY_RATED_OUTPUT_POWER, new UnsignedDoubleWordElement(33729)),
+
+						m(PytesDcCharger.ChannelId.MAX_CHARGE_ACTIVE_POWER, new UnsignedDoubleWordElement(33731))),
+						
+						// 0x03 Mode Grid Code for VDE4105
+						m(PytesDcCharger.ChannelId.FREQ_DERATE_MODE_OV_F_START, new UnsignedWordElement(33891),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.UNF_RAMPING_UP_FDSTART, new UnsignedWordElement(33904),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.UNF_RAMPING_UP_FDDROOP, new UnsignedWordElement(33905),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.AFCI_BOARD_SOFTWARE_VERSION, new UnsignedWordElement(34240)),
+
+						m(PytesDcCharger.ChannelId.AFCI_CT_HARDWARE_FAULT_RESULT, new UnsignedWordElement(34241)),
+
+						m(PytesDcCharger.ChannelId.AFCI_ARC_FAULT_DETECT_RESULT, new UnsignedWordElement(34242)),
+
+						m(PytesDcCharger.ChannelId.SPH_LOAD_TOTAL_POWER, new UnsignedWordElement(34246),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.SPH_WORKING_MODE, new UnsignedWordElement(34252)),
+
+						m(PytesDcCharger.ChannelId.SPH_AC_BUS_VOLTAGE, new UnsignedWordElement(34254),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_1, new UnsignedWordElement(34255),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_2, new UnsignedWordElement(34256),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_3, new UnsignedWordElement(34257),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_4, new UnsignedWordElement(34258),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.SPH_FAULT_WORD_01, new UnsignedWordElement(34260))
+
+						m(PytesDcCharger.ChannelId.SPH_FAULT_WORD_02, new UnsignedWordElement(34261))
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_VOLTAGE_A, new UnsignedWordElement(34292),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_CURRENT_A, new UnsignedWordElement(34293),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_VOLTAGE_B, new UnsignedWordElement(34294),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_CURRENT_B, new UnsignedWordElement(34295),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_VOLTAGE_C, new UnsignedWordElement(34296),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_AC_CURRENT_C, new UnsignedWordElement(34297),
+                                ElementToChannelConverter.SCALE_FACTOR_3)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_ACTIVE_POWER_A, new SignedDoubleWordElement(34298)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_ACTIVE_POWER_B, new SignedDoubleWordElement(34300)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_ACTIVE_POWER_C, new SignedDoubleWordElement(34302)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_TOTAL_ACTIVE_POWER, new SignedDoubleWordElement(34304)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_REACTIVE_POWER_A, new SignedDoubleWordElement(34306)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_REACTIVE_POWER_B, new SignedDoubleWordElement(34308)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_REACTIVE_POWER_C, new SignedDoubleWordElement(34310)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_TOTAL_REACTIVE_POWER, new SignedDoubleWordElement(34312)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_APPARENT_POWER_A, new SignedDoubleWordElement(34314)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_APPARENT_POWER_B, new SignedDoubleWordElement(34316)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_APPARENT_POWER_C, new SignedDoubleWordElement(34318)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_TOTAL_APPARENT_POWER, new SignedDoubleWordElement(34320)),
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_POWER_FACTOR, new SignedWordElement(34322),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_GRID_FREQUENCY, new UnsignedWordElement(34323),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_GRID_IMPORT_TOTAL_ENERGY, new UnsignedDoubleWordElement(34324),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.BUILTIN_METER_GRID_EXPORT_TOTAL_ENERGY, new UnsignedDoubleWordElement(34326),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+		
+						m(PytesDcCharger.ChannelId.GRID_SIDE_LOAD_POWER_HIGH_WORD, new UnsignedWordElement(34343)),
+
+						m(PytesDcCharger.ChannelId.BACKUP_LOAD_POWER_HIGH_WORD, new SignedWordElement(34344)),
+
+						m(PytesDcCharger.ChannelId.BMS_DISCHARGE_VOLTAGE_LIMIT_VALUE, new UnsignedWordElement(34346),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.BMS_STATUS, new UnsignedWordElement(34347)),
+
+						m(PytesDcCharger.ChannelId.BATTERY_CYCLES, new UnsignedWordElement(34362)),
+
+						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_A_ACTIVE_POWER, new SignedWordElement(34391),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_B_ACTIVE_POWER, new SignedWordElement(34392),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_C_ACTIVE_POWER, new SignedWordElement(34393),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_1, new UnsignedWordElement(34394)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_2, new UnsignedWordElement(34395)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_3, new UnsignedWordElement(34396)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_4, new UnsignedWordElement(34397)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_5, new UnsignedWordElement(34398)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_6, new UnsignedWordElement(34399)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_7, new UnsignedWordElement(34400)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_8, new UnsignedWordElement(34401)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_9, new UnsignedWordElement(34402)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_10, new UnsignedWordElement(34403)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_20, new UnsignedWordElement(34404)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_21, new UnsignedWordElement(34405)),
+						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_22, new UnsignedWordElement(34406)),
+
+						m(PytesDcCharger.ChannelId.GENERATOR_FREQUENCY, new UnsignedWordElement(34410),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
+
+						m(PytesDcCharger.ChannelId.SMART_LOAD_TOTAL_POWER_CONSUMPTION, new UnsignedDoubleWordElement(34411),
+                                ElementToChannelConverter.SCALE_FACTOR_1)
+
+						m(PytesDcCharger.ChannelId.SMART_LOAD_DAILY_ENERGY_CONSUMPTION, new UnsignedWordElement(34413),
+                                ElementToChannelConverter.SCALE_FACTOR_2)
