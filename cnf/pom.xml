@@ -35,18 +35,6 @@
             <version>2.11.4</version>
         </dependency>
         <dependency>
-            <!-- Used by org.tribuo -->
-            <groupId>com.oracle.labs.olcut</groupId>
-            <artifactId>olcut-core</artifactId>
-            <version>5.3.1</version>
-        </dependency>
-        <dependency>
-            <!-- Used by org.tribuo -->
-            <groupId>com.oracle.labs.olcut</groupId>
-            <artifactId>olcut-config-protobuf</artifactId>
-            <version>5.3.1</version>
-        </dependency>
-        <dependency>
             <!--
             Aalto XML: Ultra-high performance non-blocking XML processor (Stax/Stax2, SAX/SAX2)
             Changelog: https://github.com/FasterXML/aalto-xml/wiki#releases
@@ -83,6 +71,27 @@
             <groupId>com.google.guava</groupId>
             <artifactId>failureaccess</artifactId>
             <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <!--
+            Core Protocol Buffers library
+            Changelog: https://github.com/protocolbuffers/protobuf/releases
+            -->
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>4.34.0</version>
+        </dependency>
+        <dependency>
+            <!-- Used by org.tribuo -->
+            <groupId>com.oracle.labs.olcut</groupId>
+            <artifactId>olcut-core</artifactId>
+            <version>5.3.1</version>
+        </dependency>
+        <dependency>
+            <!-- Used by org.tribuo -->
+            <groupId>com.oracle.labs.olcut</groupId>
+            <artifactId>olcut-config-protobuf</artifactId>
+            <version>5.3.1</version>
         </dependency>
         <dependency>
             <!-- Used by com.influxdb: influxdb -->
@@ -653,12 +662,6 @@
             <groupId>io.prometheus</groupId>
             <artifactId>prometheus-metrics-exporter-httpserver</artifactId>
             <version>1.3.2</version>
-        </dependency>
-        <dependency>
-            <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>4.34.0</version>
         </dependency>
         <dependency>
             <!-- 
