@@ -65,7 +65,7 @@
 	bnd.identity;id='io.openems.core.logger',\
 
 -runbundles: \
-	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
+	com.fasterxml.aalto-xml;version='[1.3.4,1.3.5)',\
 	com.fasterxml.jackson.core.jackson-annotations;version='[2.21.0,2.21.1)',\
 	com.fasterxml.jackson.core.jackson-core;version='[2.21.0,2.21.1)',\
 	com.fasterxml.jackson.core.jackson-databind;version='[2.21.0,2.21.1)',\
@@ -133,7 +133,7 @@
 	io.prometheus.metrics-tracer-otel-agent;version='[1.3.8,1.3.9)',\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
 	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\
-	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
+	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
 	org.apache.commons.commons-csv;version='[1.14.1,1.14.2)',\
 	org.apache.commons.commons-fileupload;version='[1.6.0,1.6.1)',\
 	org.apache.commons.commons-io;version='[2.20.0,2.20.1)',\
