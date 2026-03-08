@@ -48,13 +48,21 @@
         </dependency>
         <dependency>
             <!--
-            OpenEMS fork of j2mod - A Java Modbus implementation
-            Changelog: https://github.com/OpenEMS/j2mod/releases
-            Original: https://github.com/steveohara/j2mod/releases
+            Aalto XML: Ultra-high performance non-blocking XML processor (Stax/Stax2, SAX/SAX2)
+            Changelog: https://github.com/FasterXML/aalto-xml/wiki#releases
             -->
-            <groupId>io.openems</groupId>
-            <artifactId>j2mod</artifactId>
-            <version>3.2.2-openems.2</version>
+            <groupId>com.fasterxml</groupId>
+            <artifactId>aalto-xml</artifactId>
+            <version>1.3.4</version>
+        </dependency>
+        <dependency>
+            <!--
+            Jackson Annotations: Core annotations used for value types, used by Jackson data binding package
+            Changelog: https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
+            -->
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.21</version>
         </dependency>
         <dependency>
             <groupId>com.github.rzymek</groupId>
@@ -201,6 +209,16 @@
             <version>1.0.2</version>
         </dependency>
         <dependency>
+            <!--
+            OpenEMS fork of j2mod - A Java Modbus implementation
+            Changelog: https://github.com/OpenEMS/j2mod/releases
+            Original: https://github.com/steveohara/j2mod/releases
+            -->
+            <groupId>io.openems</groupId>
+            <artifactId>j2mod</artifactId>
+            <version>3.2.2-openems.2</version>
+        </dependency>
+        <dependency>
             <groupId>io.reactivex.rxjava3</groupId>
             <artifactId>rxjava</artifactId>
             <version>3.1.12</version>
@@ -222,6 +240,24 @@
             <version>5.18.1</version>
         </dependency>
         <!-- org -->
+        <dependency>
+            <!--
+            Apache Commons Compress
+            Changelog: https://commons.apache.org/proper/commons-compress/changes.html
+            -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.28.0</version>
+        </dependency>
+        <dependency>
+            <!--
+            Apache Commons Lang
+            Changelog: https://commons.apache.org/proper/commons-lang/changes.html
+            -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.20.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
@@ -343,14 +379,24 @@
             <version>1.83</version>
         </dependency>
         <dependency>
+            <!--
+            Fastexcel Writer
+            Changelog: https://github.com/dhatim/fastexcel/releases
+            Wrapper: io.openems.wrapper/fastexcel.bnd
+            -->
             <groupId>org.dhatim</groupId>
             <artifactId>fastexcel</artifactId>
-            <version>0.19.0</version>
+            <version>0.20.0</version>
         </dependency>
         <dependency>
+            <!--
+            Fastexcel Reader
+            Changelog: https://github.com/dhatim/fastexcel/releases
+            Wrapper: io.openems.wrapper/fastexcel.bnd
+            -->
             <groupId>org.dhatim</groupId>
             <artifactId>fastexcel-reader</artifactId>
-            <version>0.19.0</version>
+            <version>0.20.0</version>
         </dependency>
         <dependency>
             <!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
@@ -372,6 +418,16 @@
             <groupId>org.jmdns</groupId>
             <artifactId>jmdns</artifactId>
             <version>3.6.3</version>
+        </dependency>
+        <dependency>
+            <!--
+            Mockito mock objects library core API and implementation
+            Changelog: https://github.com/mockito/mockito/releases
+            -->
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.22.0</version>
+            <scope>test</scope>
         </dependency>
         <!-- com -->
         <dependency>
@@ -605,19 +661,13 @@
             <version>4.34.0</version>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.21.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <!-- 
             Runtime code generation for the Java virtual machine
             Changelog: https://github.com/raphw/byte-buddy/releases
             -->
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.18.5</version>
+            <version>1.18.7</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -651,12 +701,6 @@
             <groupId>com.auth0</groupId>
             <artifactId>jwks-rsa</artifactId>
             <version>0.23.0</version>
-        </dependency>
-        <dependency>
-            <!-- used by io.openems.backend.authentication.oauth -->
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.21</version>
         </dependency>
     </dependencies>
 </project>
