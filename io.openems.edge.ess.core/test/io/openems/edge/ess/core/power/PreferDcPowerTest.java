@@ -149,12 +149,9 @@ public class PreferDcPowerTest {
 		componentTest.next(new TestCase("#4"));
 
 		// Test discharge with different limits and SOCs & reactive power request
-		expect("#5.1", ess1, 4000, 4000); // gets 4000/9000 -> 44% of 9000 -> 3960W reactive power
-										  //  + 44% of remaining 90W (rounding difference) -> 40W = 4000W reactive power
-		expect("#5.2", ess2, 2000, 2000); // gets 2000/9000 -> 22% of 9000 -> 1980W reactive power
-										  //  + 22% of remaining 90W (rounding difference) -> 20W = 2000W reactive power
-		expect("#5.3", ess3, 3000, 3000); // gets 3000/9000 -> 33% of 9000 -> 2970W reactive power
-										  //  + 33% of remaining 90W (rounding difference) -> 30W = 3000W reactive power
+		expect("#5.1", ess1, 4000, 4000); // gets 4000/9000 -> 44% of 9000 -> 3960W reactive power + 44% of remaining 90W (rounding difference) -> 40W = 4000W reactive power
+		expect("#5.2", ess2, 2000, 2000); // gets 2000/9000 -> 22% of 9000 -> 1980W reactive power + 22% of remaining 90W (rounding difference) -> 20W = 2000W reactive power
+		expect("#5.3", ess3, 3000, 3000); // gets 3000/9000 -> 33% of 9000 -> 2970W reactive power + 33% of remaining 90W (rounding difference) -> 30W = 3000W reactive power
 		expect("#5.4", ess4, 10000, 0); // running on full active power, no reactive power possible
 		expect("#5.5", ess5, 0, 0); // idle inverter should not be used
 		expect("#5.5", ess6, 0, 0); // idle inverter should not be used
@@ -224,34 +221,24 @@ public class PreferDcPowerTest {
 		componentTest.next(new TestCase("#10"));
 
 		// Test charge & reactive power request -> Test USE_IDLE_ESS + USE_ALL_ESS WeightStrategy
-		expect("#11.1", ess1, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W
-										  //  -> limited by maxApparentPower of 10000 -> -10000W
-		expect("#11.2", ess2, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W
-										  //  -> limited by maxApparentPower of 10000 -> -10000W
+		expect("#11.1", ess1, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W limited by maxApparentPower of 10000 -> -10000W
+		expect("#11.2", ess2, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W limited by maxApparentPower of 10000 -> -10000W
 		expect("#11.3", ess3, -5000, -2000); // charging inverter should not be used -> gets only remaining power
-		expect("#11.4", ess4, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W
-										  //  -> limited by maxApparentPower of 10000 -> -10000W
-		expect("#11.5", ess5, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W
-										  //  -> limited by maxApparentPower of 10000 -> -10000W
-		expect("#11.6", ess6, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W
-										  //  -> limited by maxApparentPower of 10000 -> -10000W
+		expect("#11.4", ess4, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W limited by maxApparentPower of 10000 -> -10000W
+		expect("#11.5", ess5, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W limited by maxApparentPower of 10000 -> -10000W
+		expect("#11.6", ess6, 0, -10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of -52000W -> -10400W limited by maxApparentPower of 10000 -> -10000W
 
 		ess0.setActivePowerEquals(-5000); // Charging with 5000 W
 		ess0.setReactivePowerEquals(-52000); // -52kW reactive power request
 		componentTest.next(new TestCase("#11"));
 
 		// Test charge & reactive power request -> Test USE_IDLE_ESS + USE_ALL_ESS WeightStrategy
-		expect("#12.1", ess1, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W
-										 //  -> limited by maxApparentPower of 10000 -> 10000W
-		expect("#12.2", ess2, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W
-										 //  -> limited by maxApparentPower of 10000 -> 10000W
+		expect("#12.1", ess1, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W limited by maxApparentPower of 10000 -> 10000W
+		expect("#12.2", ess2, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W limited by maxApparentPower of 10000 -> 10000W
 		expect("#12.3", ess3, -5000, 2000); // charging inverter should not be used -> gets only remaining power
-		expect("#12.4", ess4, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W
-										 //  -> limited by maxApparentPower of 10000 -> 10000W
-		expect("#12.5", ess5, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W
-										 //  -> limited by maxApparentPower of 10000 -> 10000W
-		expect("#12.6", ess6, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W
-										 //  -> limited by maxApparentPower of 10000 -> 10000W
+		expect("#12.4", ess4, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W limited by maxApparentPower of 10000 -> 10000W
+		expect("#12.5", ess5, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W limited by maxApparentPower of 10000 -> 10000W
+		expect("#12.6", ess6, 0, 10000); // MaxApparentPower/MaxApparentPowerTotal -> 10000/50000 -> 20% of 52000W -> 10400W limited by maxApparentPower of 10000 -> 10000W
 
 		ess0.setActivePowerEquals(-5000); // Charging with 5000 W
 		ess0.setReactivePowerEquals(52000); // 52kW reactive power request
@@ -323,8 +310,7 @@ public class PreferDcPowerTest {
 		expect("#18.3", ess3, 1000, 0);
 		expect("#18.4", ess4, 1000, 0);
 		expect("#18.5", ess5, 1000, 0);
-		expect("#18.6", ess6, 1000, 2); // reactive power too small to distribute with weights, will be solved using order over discharging ess
-										//  -> Order during discharge -> highest SOC ESS first
+		expect("#18.6", ess6, 1000, 2); // reactive power too small to distribute with weights, will be solved using order over discharging ess (highest SOC ESS first)
 
 		ess1.withPvProduction(1000);
 		ess2.withPvProduction(1000);
@@ -342,8 +328,7 @@ public class PreferDcPowerTest {
 		expect("#19.3", ess3, 1000, 0);
 		expect("#19.4", ess4, 1000, 0);
 		expect("#19.5", ess5, 1000, 0);
-		expect("#19.6", ess6, 1000, -2); // reactive power too small to distribute with weights, will be solved using order over discharging ess
-										 //  -> Order during discharge -> highest SOC ESS first
+		expect("#19.6", ess6, 1000, -2); // reactive power too small to distribute with weights, will be solved using order over discharging ess (highest SOC ESS first)
 
 		ess0.setActivePowerEquals(6000);
 		ess0.setReactivePowerEquals(-2); // -2W reactive power request
@@ -354,10 +339,8 @@ public class PreferDcPowerTest {
 		expect("#20.2", ess2, 1000, 0);
 		expect("#20.3", ess3, 1000, 0);
 		expect("#20.4", ess4, 1000, 0);
-		expect("#20.5", ess5, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-										//  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#20.6", ess6, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-										//  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#20.5", ess5, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#20.6", ess6, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 
 		ess6.setReactivePowerGreaterOrEquals(-1); // Check that lowerLimit will be respected
 		ess0.setActivePowerEquals(6000);
@@ -369,10 +352,8 @@ public class PreferDcPowerTest {
 		expect("#21.2", ess2, 1000, 0);
 		expect("#21.3", ess3, 1000, 0);
 		expect("#21.4", ess4, 1000, 0);
-		expect("#21.5", ess5, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-										//  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#21.6", ess6, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-										//  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#21.5", ess5, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#21.6", ess6, 1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 
 		ess6.setReactivePowerLessOrEquals(1); // Check that upperLimit will be respected
 		ess0.setActivePowerEquals(6000);
@@ -381,8 +362,7 @@ public class PreferDcPowerTest {
 
 		// Test charge & reactive power request -> Test solving using idle ess; distributed using order
 		expect("#22.1", ess1, 0, 0);
-		expect("#22.2", ess2, 0, -2); // reactive power too small to distribute with weights, will be solved using order over idle ess
-									  //  -> Order during charge -> lowest SOC ESS first
+		expect("#22.2", ess2, 0, -2); // reactive power too small to distribute with weights, will be solved using order over idle ess (order during charge -> lowest SOC ESS first)
 		expect("#22.3", ess3, -4000, 0); // lowest soc ess will be skipped as not idle
 		expect("#22.4", ess4, 0, 0);
 		expect("#22.5", ess5, 0, 0);
@@ -393,10 +373,8 @@ public class PreferDcPowerTest {
 		componentTest.next(new TestCase("#22"));
 
 		// Test charge & reactive power request -> Test solving using idle ess; distributed using order -> Test respect of lowerLimit
-		expect("#23.1", ess1, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-									 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#23.2", ess2, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-									 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#23.1", ess1, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#23.2", ess2, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 		expect("#23.3", ess3, -4000, 0); // lowest soc ess will be skipped as not idle
 		expect("#23.4", ess4, 0, 0);
 		expect("#23.5", ess5, 0, 0);
@@ -409,10 +387,8 @@ public class PreferDcPowerTest {
 
 		// Test charge & reactive power request -> Test solving using idle ess; distributed using order -> Test respect of upperLimit
 		expect("#24.1", ess1, 0, 0);
-		expect("#24.2", ess2, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-									 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#24.3", ess3, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-									 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#24.2", ess2, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#24.3", ess3, 0, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 		expect("#24.4", ess4, 0, 0);
 		expect("#24.5", ess5, 0, 0);
 		expect("#24.6", ess6, 0, 0);
@@ -430,8 +406,7 @@ public class PreferDcPowerTest {
 		// Test charge & reactive power request -> Test solving using all ess; distributed using order
 		expect("#25.1", ess1, -1000, 0);
 		expect("#25.2", ess2, -1000, 0);
-		expect("#25.3", ess3, -1000, -2); // reactive power too small to distribute with weights, will be solved using order over all ess
-										  //  -> Order during charge -> lowest SOC ESS first
+		expect("#25.3", ess3, -1000, -2); // reactive power too small to distribute with weights, will be solved using order over all ess (order during charge -> lowest SOC ESS first)
 		expect("#25.4", ess4, -1000, 0);
 		expect("#25.5", ess5, -1000, 0);
 		expect("#25.6", ess6, 0, 0); // FAULT state
@@ -448,10 +423,8 @@ public class PreferDcPowerTest {
 
 		// Test charge & reactive power request -> Test solving using all ess; distributed using order -> Test respect of lowerLimit
 		expect("#26.1", ess1, -1000, 0);
-		expect("#26.2", ess2, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-										 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#26.3", ess3, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0
-										 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#26.2", ess2, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#26.3", ess3, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change -1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 		expect("#26.4", ess4, -1000, 0);
 		expect("#26.5", ess5, -1000, 0);
 		expect("#26.6", ess6, 0, 0); // FAULT state
@@ -468,10 +441,8 @@ public class PreferDcPowerTest {
 
 		// Test charge & reactive power request -> Test solving using all ess; distributed using order -> Test respect of upperLimit
 		expect("#27.1", ess1, -1000, 0);
-		expect("#27.2", ess2, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-										 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
-		expect("#27.3", ess3, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0
-										 //  (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#27.2", ess2, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
+		expect("#27.3", ess3, -1000, 0); // io.openems.edge.ess.core.power.data.InverterPrecision will change 1 to 0 (avoid unnecessary power settings on rounding 0.xxx to 1)
 		expect("#27.4", ess4, -1000, 0);
 		expect("#27.5", ess5, -1000, 0);
 		expect("#27.6", ess6, -1000, 0);
@@ -499,8 +470,7 @@ public class PreferDcPowerTest {
 		expect("#28.3", ess3, -5000, 0); // charging inverter should not be used
 		expect("#28.4", ess4, 0, -250); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
 		expect("#28.5", ess5, 0, -250); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
-		expect("#28.6", ess6, 0, -240); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W
-										//  limited to maximum remaining required reactive power of -240W
+		expect("#28.6", ess6, 0, -240); // MaxApparentPower/MaxApparentPowerTotal -> 10000/40000 -> 25% of -1000W -> -250W limited to maximum remaining required reactive power of -240W
 
 		ess1.withMaxApparentPower(5000);
 		ess2.withMaxApparentPower(5000);
@@ -1368,10 +1338,8 @@ public class PreferDcPowerTest {
 
 		// Test charge & negative reactive power request & negative reactive ess constraint on ess planned to deliver reactive power
 		expect("#24.1", ess1, -3000, 0);
-		expect("#24.2", ess2, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of -2000W -> -1200W
-										 //  -> limited to -1000W
-		expect("#24.3", ess3, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of -2000W -> -800W
-										 //  -> increased to remaining reactive power of -1000W
+		expect("#24.2", ess2, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of -2000W -> -1200W limited to max reactive power of -1000W
+		expect("#24.3", ess3, 0, -1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of -2000W -> -800W increased to remaining reactive power of -1000W
 
 		ess3.setReactivePowerGreaterOrEquals(-1000); // maximum reactive power of -1kW allowed -> minimum constraint -1000.0
 		ess0.setActivePowerEquals(-3000); // 3kW charge
@@ -1400,10 +1368,8 @@ public class PreferDcPowerTest {
 
 		// Test charge & positive reactive power request & positive reactive ess constraint on ess planned to deliver reactive power
 		expect("#27.1", ess1, -3000, 0); // charging ess should not be used for reactive power
-		expect("#27.2", ess2, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 2000W -> 1200W
-									    //  -> limited to maximum of 1000W
-		expect("#27.3", ess3, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 2000W -> 800W
-									    //  -> increased to remaining required reactive power of 1000W
+		expect("#27.2", ess2, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 60000/100000 -> 60% of 2000W -> 1200W limited to maximum of 1000W
+		expect("#27.3", ess3, 0, 1000); // MaxApparentPower/MaxApparentPowerTotal -> 40000/100000 -> 40% of 2000W -> 800W increased to remaining required reactive power of 1000W
 
 		ess2.setReactivePowerLessOrEquals(1000); // maximum reactive power of 1kW allowed
 		ess0.setActivePowerEquals(-3000); // 3kW charge
