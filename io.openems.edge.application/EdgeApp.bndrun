@@ -507,4 +507,4 @@
 	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)',\
-	io.openems.edge.pytes;version=snapshot
+	io.openems.edge.pytes;version=latest

@@ -59,59 +59,59 @@ public interface PytesDcCharger extends OpenemsComponent, EventHandler {
         // ---------------------------------------------------------------------
 
         DC_VOLTAGE_1(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_1(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_2(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_2(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_3(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_3(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_4(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_4(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_5(Doc.of(OpenemsType.INTEGER)
                 .unit(Unit.VOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_5(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_6(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_6(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_7(Doc.of(OpenemsType.INTEGER)
                 .unit(Unit.VOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_7(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY)),
 
         DC_VOLTAGE_8(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.VOLT)
+                .unit(Unit.MILLIVOLT)
                 .accessMode(AccessMode.READ_ONLY)),
         DC_CURRENT_8(Doc.of(OpenemsType.INTEGER)
-                .unit(Unit.AMPERE)
+                .unit(Unit.MILLIAMPERE)
                 .accessMode(AccessMode.READ_ONLY));
 
 		private final Doc doc;

@@ -1,5 +1,9 @@
 package io.openems.edge.pytes.dccharger;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -87,6 +92,12 @@ public class PytesDcChargerImpl extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;	
 	
+	@Override
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}	
+	
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
@@ -133,7 +144,7 @@ public class PytesDcChargerImpl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, //
 
-				new FC4ReadInputRegistersTask(33029, Priority.LOW, //
+				new FC4ReadInputRegistersTask(33029, Priority.HIGH, //
 
 						m(PytesDcCharger.ChannelId.PV_ENERGY_TOTAL_KWH, new UnsignedDoublewordElement(33029)),
 						m(PytesDcCharger.ChannelId.PV_ENERGY_MONTH_KWH, new UnsignedDoublewordElement(33031)),
@@ -142,7 +153,7 @@ public class PytesDcChargerImpl extends AbstractOpenemsModbusComponent
 						m(PytesDcCharger.ChannelId.PV_ENERGY_YESTERDAY_0_1KWH, new UnsignedWordElement(33036)),
 						m(PytesDcCharger.ChannelId.PV_ENERGY_YEAR_KWH, new UnsignedDoublewordElement(33037)),
 						m(PytesDcCharger.ChannelId.PV_ENERGY_LAST_YEAR_KWH, new UnsignedDoublewordElement(33039)),
-						new DummyRegisterElement(33040, 33047),
+						new DummyRegisterElement(33041, 33047),
 
 						m(PytesDcCharger.ChannelId.DC_INPUT_TYPE, new UnsignedWordElement(33048)),
 
@@ -197,7 +208,7 @@ public class PytesDcChargerImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "Hello World";
+		return "L:" + this.getActualPower().asString();
 	}
 
 	@Override

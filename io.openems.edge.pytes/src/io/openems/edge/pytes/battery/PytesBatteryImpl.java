@@ -21,6 +21,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +33,15 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -44,14 +50,12 @@ import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.controller.ess.emergencycapacityreserve.ControllerEssEmergencyCapacityReserve;
-import io.openems.edge.controller.ess.limittotaldischarge.ControllerEssLimitTotalDischarge;
-import io.openems.edge.victron.batteryinverter.VictronBatteryInverterImpl;
-import io.openems.edge.victron.ess.VictronEss;
+import io.openems.edge.pytes.ess.PytesJs3;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Victron.Battery", //
+		name = "Pytes.Battery", //
 		immediate = true, //
 		configurationPolicy = REQUIRE //
 ) //
@@ -66,7 +70,7 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
+	private final Logger log = LoggerFactory.getLogger(PytesBatteryImpl.class);
 
 	protected Config config;
 
@@ -85,15 +89,16 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
+	
+	@Reference(
+		    name = "ess",
+		    policy = ReferencePolicy.STATIC,
+		    policyOption = ReferencePolicyOption.GREEDY,
+		    cardinality = ReferenceCardinality.MANDATORY
+		)
+		private volatile PytesJs3 ess;
+	
 
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
-	private volatile VictronEss ess;
-
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
-	private volatile List<ControllerEssEmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
-
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
-	private volatile List<ControllerEssLimitTotalDischarge> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
 	private int maxSocPercentage;
 
@@ -101,15 +106,20 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id())
-				|| OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
-			return;
-		}
+	    if (super.activate(context, config.id(), config.alias(), config.enabled(),
+	            this.ess.getUnitId(), this.cm, "Modbus",
+	            this.ess.getModbusBridgeId())) {
+	        return;
+	    }	   
+	    
+	    if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(),
+	            "ess", config.ess_id())) {
+	        return;
+	    }	    
+	    
+	    this.ess.addBattery(this);
 
-		if (this.ess != null) {
-			this.ess.setBattery(this);
-		}
+
 
 		this.installListener();
 	}
@@ -142,15 +152,7 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void checkSocControllers() {
-		if (this.ess == null) {
-			this.logDebug(this.log, "No Controller active on ESS, exiting.");
-			this.minSocPercentage = 0;
-			this.maxSocPercentage = 100;
-			return;
-		}
 
-		this.minSocPercentage = Utils.getEssMinSocPercentage(this.ctrlLimitTotalDischarges,
-				this.ctrlEmergencyCapacityReserves);
 		this.maxSocPercentage = 100; // Default max SoC
 
 		this.logDebug(this.log, "checkSocControllers: MinSoC set to " + this.minSocPercentage + ", MaxSoC set to "
@@ -158,75 +160,8 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void installListener() {
-		this.getCapacityInAmphoursChannel().onUpdate(value -> {
-
-			if (this.ess == null) {
-				this.logError(this.log, "No ESS reference available.");
-				return;
-			}
-
-			// Check if value is null or invalid
-			if (value == null) {
-				this.logError(this.log, "Invalid capacity value received.");
-				return;
-			}
-
-			this.logDebug(this.log, "Listener triggered with incoming capacity: " + value);
-
-			// Safely get SoC, checking for null
-			Integer soc = this.getSoc().orElse(null);
-			if (soc == null || soc <= 0) {
-				this.logDebug(this.log, "installListener: Invalid SoC (" + soc + "), exiting.");
-				return;
-			}
-
-			this.logDebug(this.log, "Current State of Charge (SoC): " + soc);
-
-			// Update SoC limits
-			this.checkSocControllers();
-			this.logDebug(this.log,
-					"SoC limits updated - MinSoC: " + this.minSocPercentage + ", MaxSoC: " + this.maxSocPercentage);
-
-			// Calculate total capacity Ah, handling division by zero
-			double socPercentage = soc / 100.0;
-			if (socPercentage == 0) {
-				this.logError(this.log, "Cannot calculate total capacity because SoC is 0.");
-				return;
-			}
-			int totalCapacityAh = (int) (value.get() / socPercentage);
-			this.logDebug(this.log, "Calculated total capacity (Ah): " + totalCapacityAh);
-
-			// Calculate total capacity in watt-hours
-			int totalCapacityWh = totalCapacityAh * BATTERY_VOLTAGE;
-
-			// Calculate the usable SoC within the MinSoC and MaxSoC limits
-			int useableSoc = soc > this.maxSocPercentage ? 100
-					: soc < this.minSocPercentage ? 0
-							: (int) (((double) (soc - this.minSocPercentage)
-									/ (this.maxSocPercentage - this.minSocPercentage)) * 100);
-			this.logDebug(this.log, "Normalized usable SoC: " + useableSoc + "% based on current SoC: " + soc);
-
-			// Calculate the usable capacity based on MinSoC and MaxSoC limits
-			// First, calculate the percentage of capacity that can be used between MinSoC
-			// and MaxSoC
-			double usableCapacityRange = (this.maxSocPercentage - this.minSocPercentage) / 100.0;
-			// Usable capacity within min and max SoC range
-			int totalUsableCapacityWh = (int) (totalCapacityWh * usableCapacityRange);
-
-			// Now calculate the current usable capacity based on the usable SoC
-			int useableCapacityWh = (int) (totalUsableCapacityWh * (useableSoc / 100.0));
-
-			// Ensure useableCapacityWh is within valid bounds (0 to totalUsableCapacityWh)
-			useableCapacityWh = Math.max(Math.min(useableCapacityWh, totalUsableCapacityWh), 0);
-
-			// Set the capacities in ESS
-			this._setCapacity(totalCapacityWh);
-			this.ess._setUseableSoc(useableSoc);
-			this.ess._setUseableCapacity(useableCapacityWh);
-
-			this.logDebug(this.log, "installListener: SoC: real|usable " + soc + "|" + useableSoc
-					+ "[%] Capacity real|usable " + totalCapacityWh + "|" + useableCapacityWh + " [Wh]");
-		});
+		
+		
 	}
 
 	@Override
@@ -234,123 +169,52 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 		this.minSocPercentage = minSocPercentage;
 
 	}
+	
+
+	@Override
+	public int getConfiguredMaxChargeCurrent() {
+		return this.config.max_current(); // ToDo: different values for charge/discharge useful?
+	}
+
+	@Override
+	public int getConfiguredMaxDischargeCurrent() {
+		return this.config.max_current();
+	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(259, Priority.HIGH,
-						this.m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(259), SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.STARTER_BATTERY_VOLTAGE, new UnsignedWordElement(260),
-								SCALE_FACTOR_MINUS_2),
-						this.m(Battery.ChannelId.CURRENT, new SignedWordElement(261), SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.TEMPERATURE, new SignedWordElement(262), SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.MID_VOLTAGE, new UnsignedWordElement(263),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.MID_VOLTAGE_DEVIATION, new UnsignedWordElement(264),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.CONSUMED_AMPHOURS, new UnsignedWordElement(265),
-								SCALE_FACTOR_MINUS_1_AND_INVERT),
-						this.m(Battery.ChannelId.SOC, new UnsignedWordElement(266), SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.ALARM, new UnsignedWordElement(267)),
-						this.m(PytesBattery.ChannelId.LOW_VOLTAGE_ALARM, new UnsignedWordElement(268)),
-						this.m(PytesBattery.ChannelId.HIGH_VOLTAGE_ALARM, new UnsignedWordElement(269)),
-						this.m(PytesBattery.ChannelId.LOW_STARTER_VOLTAGE_ALARM, new UnsignedWordElement(270)),
-						this.m(PytesBattery.ChannelId.HIGH_STARTER_VOLTAGE_ALARM, new UnsignedWordElement(271)),
-						this.m(PytesBattery.ChannelId.LOW_STATE_OF_CHARGE_ALARM, new UnsignedWordElement(272)),
-						this.m(PytesBattery.ChannelId.LOW_TEMPERATURE_ALARM, new UnsignedWordElement(273)),
-						this.m(PytesBattery.ChannelId.HIGH_TEMPERATURE_ALARM, new UnsignedWordElement(274)),
-						this.m(PytesBattery.ChannelId.MID_VOLTAGE_ALARM, new UnsignedWordElement(275)),
-						this.m(PytesBattery.ChannelId.LOW_FUSED_VOLTAGE_ALARM, new UnsignedWordElement(276)),
-						this.m(PytesBattery.ChannelId.HIGH_FUSED_VOLTAGE_ALARM, new UnsignedWordElement(277)),
-						this.m(PytesBattery.ChannelId.FUSE_BLOWN_ALARM, new UnsignedWordElement(278)),
-						this.m(PytesBattery.ChannelId.HIGH_INTERNAL_TEMPERATURE_ALARM, new UnsignedWordElement(279)),
-						this.m(PytesBattery.ChannelId.RELAY_STATUS, new UnsignedWordElement(280)),
-						this.m(PytesBattery.ChannelId.DEEPEST_DISCHARGE, new UnsignedWordElement(281),
-								SCALE_FACTOR_MINUS_1_AND_INVERT),
-						this.m(PytesBattery.ChannelId.LAST_DISCHARGE, new UnsignedWordElement(282),
-								SCALE_FACTOR_MINUS_1_AND_INVERT),
-						this.m(PytesBattery.ChannelId.AVERAGE_DISCHARGE, new UnsignedWordElement(283),
-								SCALE_FACTOR_MINUS_1_AND_INVERT),
-						this.m(PytesBattery.ChannelId.CHARGE_CYCLES, new UnsignedWordElement(284)),
-						this.m(PytesBattery.ChannelId.FULL_DISCHARGES, new UnsignedWordElement(285)),
-						this.m(PytesBattery.ChannelId.TOTAL_AMPHOURS_DRAWN, new UnsignedWordElement(286),
-								SCALE_FACTOR_MINUS_1_AND_INVERT),
-						this.m(PytesBattery.ChannelId.HISTORY_MIN_VOLTAGE, new UnsignedWordElement(287),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.HISTORY_MAX_VOLTAGE, new UnsignedWordElement(288),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.TIME_SINCE_LAST_FULL_CHARGE, new UnsignedWordElement(289),
-								SCALE_FACTOR_2),
-						this.m(PytesBattery.ChannelId.AUTOMATIC_SYNCS, new UnsignedWordElement(290)),
-						this.m(PytesBattery.ChannelId.LOW_VOLTAGE_ALARMS, new UnsignedWordElement(291)),
-						this.m(PytesBattery.ChannelId.HIGH_VOLTAGE_ALARMS, new UnsignedWordElement(292)),
-						this.m(PytesBattery.ChannelId.LOW_STARTER_VOLTAGE_ALARMS, new UnsignedWordElement(293)),
-						this.m(PytesBattery.ChannelId.HIGH_STARTER_VOLTAGE_ALARMS, new UnsignedWordElement(294)),
-						this.m(PytesBattery.ChannelId.MIN_STARTER_VOLTAGE, new UnsignedWordElement(295),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.MAX_STARTER_VOLTAGE, new UnsignedWordElement(296),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.LOW_FUSED_VOLTAGE_ALARMS, new UnsignedWordElement(297)),
-						this.m(PytesBattery.ChannelId.HIGH_FUSED_VOLTAGE_ALARMS, new UnsignedWordElement(298)),
-						this.m(PytesBattery.ChannelId.MIN_FUSED_VOLTAGE, new UnsignedWordElement(299),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.MAX_FUSED_VOLTAGE, new UnsignedWordElement(300),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.DC_DISCHARGED_ENERGY, new UnsignedWordElement(301),
-								SCALE_FACTOR_2),
-						this.m(PytesBattery.ChannelId.DC_CHARGED_ENERGY, new UnsignedWordElement(302),
-								SCALE_FACTOR_2),
-						this.m(PytesBattery.ChannelId.TIME_TO_GO, new UnsignedWordElement(303), SCALE_FACTOR_2),
-						this.m(Battery.ChannelId.SOH, new UnsignedWordElement(304), SCALE_FACTOR_MINUS_1),
-						this.m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(305),
-								SCALE_FACTOR_MINUS_1),
-						this.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(306),
-								SCALE_FACTOR_MINUS_1),
-						this.m(Battery.ChannelId.CHARGE_MAX_CURRENT, new UnsignedWordElement(307),
-								SCALE_FACTOR_MINUS_1),
-						this.m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new UnsignedWordElement(308),
-								SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.CAPACITY_IN_AMPHOURS, new UnsignedWordElement(309),
-								SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.TIMESTAMP_1ST_LAST_ERROR, new SignedDoublewordElement(310)),
-						this.m(PytesBattery.ChannelId.TIMESTAMP_2ND_LAST_ERROR, new SignedDoublewordElement(312)),
-						this.m(PytesBattery.ChannelId.TIMESTAMP_3RD_LAST_ERROR, new SignedDoublewordElement(314)),
-						this.m(PytesBattery.ChannelId.TIMESTAMP_4TH_LAST_ERROR, new SignedDoublewordElement(316)),
-						this.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, new SignedWordElement(318),
-								SCALE_FACTOR_MINUS_1),
-						this.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, new SignedWordElement(319),
-								SCALE_FACTOR_MINUS_1),
-						this.m(PytesBattery.ChannelId.HIGH_CHARGE_CURRENT_ALARM, new UnsignedWordElement(320)),
-						this.m(PytesBattery.ChannelId.HIGH_DISCHARGE_CURRENT_ALARM, new UnsignedWordElement(321)),
-						this.m(PytesBattery.ChannelId.CELL_IMBALANCE_ALARM, new UnsignedWordElement(322)),
-						this.m(PytesBattery.ChannelId.INTERNAL_FAILURE_ALARM, new UnsignedWordElement(323)),
-						this.m(PytesBattery.ChannelId.HIGH_CHARGE_TEMPERATURE_ALARM, new UnsignedWordElement(324)),
-						this.m(PytesBattery.ChannelId.LOW_CHARGE_TEMPERATURE_ALARM, new UnsignedWordElement(325)),
-						this.m(PytesBattery.ChannelId.LOW_CELL_VOLTAGE_ALARM, new UnsignedWordElement(326))),
+		return new ModbusProtocol(this,
+				
+				new FC4ReadInputRegistersTask(33139, Priority.HIGH, //
+						
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(33139)),
+								
+						m(Battery.ChannelId.SOH, new UnsignedWordElement(33140)),
+								
+						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(33141),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								
+						m(Battery.ChannelId.CURRENT, new SignedWordElement(33142),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+								
+						m(PytesBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(33143),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+								
+						m(PytesBattery.ChannelId.BMS_DISCHARGE_CURRENT_LIMIT, new UnsignedWordElement(33144),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+								
+						m(PytesBattery.ChannelId.BMS_BATTERY_FAULT_STATUS01, new UnsignedWordElement(33145),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+								
+						m(PytesBattery.ChannelId.BMS_BATTERY_FAULT_STATUS02, new UnsignedWordElement(33146),
+								ElementToChannelConverter.SCALE_FACTOR_2),
+						
+						new DummyRegisterElement(33147, 33148), // Reserved						
+						
+						m(PytesBattery.ChannelId.DC_DISCHARGE_POWER, new SignedDoublewordElement(33149))								
+				
+				));
 
-				new FC3ReadRegistersTask(1282, Priority.HIGH,
-						this.m(PytesBattery.ChannelId.VICTRON_STATE, new UnsignedWordElement(1282)),
-						this.m(PytesBattery.ChannelId.ERROR, new UnsignedWordElement(1283)),
-						this.m(PytesBattery.ChannelId.SYSTEM_SWITCH, new UnsignedWordElement(1284)),
-						this.m(PytesBattery.ChannelId.BALANCING, new UnsignedWordElement(1285)),
-						this.m(PytesBattery.ChannelId.NUMBER_OF_BATTERIES, new UnsignedWordElement(1286)),
-						this.m(PytesBattery.ChannelId.BATTERIES_PARALLEL, new UnsignedWordElement(1287)),
-						this.m(PytesBattery.ChannelId.BATTERIES_SERIES, new UnsignedWordElement(1288)),
-						this.m(PytesBattery.ChannelId.NUMBER_OF_CELLS_PER_BATTERY, new UnsignedWordElement(1289)),
-						this.m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1290), SCALE_FACTOR_MINUS_2),
-						this.m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1291), SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.SHUTDOWNS_DUE_ERROR, new UnsignedWordElement(1292)),
-						this.m(PytesBattery.ChannelId.DIAGNOSTICS_1ST_LAST_ERROR, new UnsignedWordElement(1293)),
-						this.m(PytesBattery.ChannelId.DIAGNOSTICS_2ND_LAST_ERROR, new UnsignedWordElement(1294)),
-						this.m(PytesBattery.ChannelId.DIAGNOSTICS_3RD_LAST_ERROR, new UnsignedWordElement(1295)),
-						this.m(PytesBattery.ChannelId.DIAGNOSTICS_4TH_LAST_ERROR, new UnsignedWordElement(1296)),
-						this.m(PytesBattery.ChannelId.ALLOW_TO_CHARGE, new UnsignedWordElement(1297)),
-						this.m(PytesBattery.ChannelId.ALLOW_TO_DISCHARGE, new UnsignedWordElement(1298)),
-						this.m(PytesBattery.ChannelId.EXTERNAL_RELAY, new UnsignedWordElement(1299)),
-						this.m(PytesBattery.ChannelId.HISTORY_MIN_CELL_VOLTAGE, new UnsignedWordElement(1300),
-								SCALE_FACTOR_MINUS_2),
-						this.m(PytesBattery.ChannelId.HISTORY_MAX_CELL_VOLTAGE, new UnsignedWordElement(1301),
-								SCALE_FACTOR_MINUS_2))); //
 	}
 
 	@Override
@@ -359,17 +223,10 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Battery.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(PytesBattery.class, accessMode, 100) //
-						.channel(0, PytesBattery.ChannelId.CHARGE_CYCLES, ModbusType.UINT16) //
-						.channel(1, PytesBattery.ChannelId.DC_CHARGED_ENERGY, ModbusType.UINT16) //
-						.channel(2, PytesBattery.ChannelId.DC_DISCHARGED_ENERGY, ModbusType.UINT16) //
-						.channel(3, PytesBattery.ChannelId.INTERNAL_FAILURE_ALARM, ModbusType.UINT16) //
-						.channel(4, PytesBattery.ChannelId.ERROR, ModbusType.UINT16) //
-						.channel(5, PytesBattery.ChannelId.BALANCING, ModbusType.UINT16) //
-						.channel(6, PytesBattery.ChannelId.ALARM, ModbusType.UINT16) //
-						.channel(7, PytesBattery.ChannelId.CELL_IMBALANCE_ALARM, ModbusType.UINT16) //
-						.channel(8, PytesBattery.ChannelId.CAPACITY_IN_AMPHOURS, ModbusType.UINT16) //
-						.channel(9, PytesBattery.ChannelId.HIGH_CHARGE_CURRENT_ALARM, ModbusType.UINT16) //
-						.channel(10, PytesBattery.ChannelId.HIGH_DISCHARGE_CURRENT_ALARM, ModbusType.UINT16) //
+						//.channel(0, PytesBattery.ChannelId.CHARGE_CYCLES, ModbusType.UINT16) //
+						//.channel(1, PytesBattery.ChannelId.DC_CHARGED_ENERGY, ModbusType.UINT16) //
+						//.channel(2, PytesBattery.ChannelId.DC_DISCHARGED_ENERGY, ModbusType.UINT16) //
+
 						.build());
 	}
 }

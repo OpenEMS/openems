@@ -407,6 +407,8 @@ public class ControllerEssChargeDischargeLimiterImpl extends AbstractOpenemsComp
 
 			if (this.slowDischargePower != null && this.autoDischarge) {
 				calculatedPower = this.slowDischargePower; // discharge slowly if autoDischarge is configured
+			} else {
+				calculatedPower = 0; // do not charge any further
 			}
 
 			if (this.currentSoc == this.maxSoc) {

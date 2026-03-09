@@ -151,7 +151,7 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 		
 			modbusProtocol.addTask(new FC4ReadInputRegistersTask(33300, Priority.LOW, 
 			    m(PytesMeterGrid.ChannelId.METER1_TYPE_LOCATION_RAW, new UnsignedWordElement(33300))));
-			
+/*			
 		if (this.config.meterDeviceType() == MeterDeviceType.INTERNAL) {
 			// Inverter Grid Electrical (33073..33094)
 			modbusProtocol.addTask(new FC4ReadInputRegistersTask(33073, Priority.LOW, // total: 22 registers
@@ -174,8 +174,9 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 					new DummyRegisterElement(33085, 33093),
 					m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(33094))));
 		} else {
+*/		
 			// External meter / EPM Grid Electrical (33250..33282 / 33286)
-			modbusProtocol.addTask(new FC4ReadInputRegistersTask(33250, Priority.LOW,
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(33251, Priority.LOW,
 
 					m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(33251),
 							ElementToChannelConverter.SCALE_FACTOR_2),
@@ -190,10 +191,14 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 					m(ElectricityMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(33256),
 							ElementToChannelConverter.SCALE_FACTOR_1),
 
-					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(33257)),
-					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(33259)),
-					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(33261)),
-					m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(33263)),
+					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(33257),
+							ElementToChannelConverter.INVERT),
+					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(33259),
+							ElementToChannelConverter.INVERT),
+					m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(33261),
+							ElementToChannelConverter.INVERT),
+					m(ElectricityMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(33263),
+							ElementToChannelConverter.INVERT),
 
 					m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(33265)),
 					m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(33267)),
@@ -206,8 +211,10 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 					m(PytesMeterGrid.ChannelId.APPARENT_POWER, new SignedDoublewordElement(33279)),
 					m(PytesMeterGrid.ChannelId.METER_PF, new SignedWordElement(33281),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-					m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(33282))));
-		}		
+					m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(33282),ElementToChannelConverter.SCALE_FACTOR_1)
+					
+					));
+		//}		
 
 		return modbusProtocol;
 

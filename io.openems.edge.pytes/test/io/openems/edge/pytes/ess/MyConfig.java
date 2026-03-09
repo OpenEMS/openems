@@ -62,5 +62,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return 0;
 	}
 
+	@Override
+	public int maxApparentPower() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean readOnlyMode() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 
 }
