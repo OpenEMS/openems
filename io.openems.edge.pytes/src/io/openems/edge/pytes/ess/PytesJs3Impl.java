@@ -46,6 +46,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.CycleProvider;
+import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;

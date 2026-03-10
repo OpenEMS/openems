@@ -1060,19 +1060,19 @@
 						m(PytesDcCharger.ChannelId.SPH_WORKING_MODE, new UnsignedWordElement(34252)),
 
 						m(PytesDcCharger.ChannelId.SPH_AC_BUS_VOLTAGE, new UnsignedWordElement(34254),
-                                ElementToChannelConverter.SCALE_FACTOR_3)
+                                ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_1, new UnsignedWordElement(34255),
-                                ElementToChannelConverter.SCALE_FACTOR_3)
+                                ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_2, new UnsignedWordElement(34256),
-                                ElementToChannelConverter.SCALE_FACTOR_3)
+                                ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_3, new UnsignedWordElement(34257),
-                                ElementToChannelConverter.SCALE_FACTOR_3)
+                                ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SPH_LOAD_VOLTAGE_4, new UnsignedWordElement(34258),
-                                ElementToChannelConverter.SCALE_FACTOR_3)
+                                ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SPH_FAULT_WORD_01, new UnsignedWordElement(34260))
 
@@ -1144,13 +1144,13 @@
 						m(PytesDcCharger.ChannelId.BATTERY_CYCLES, new UnsignedWordElement(34362)),
 
 						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_A_ACTIVE_POWER, new SignedWordElement(34391),
-                                ElementToChannelConverter.SCALE_FACTOR_1)
+                                ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
 
 						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_B_ACTIVE_POWER, new SignedWordElement(34392),
-                                ElementToChannelConverter.SCALE_FACTOR_1)
+                                ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
 
 						m(PytesDcCharger.ChannelId.SECOND_BACKUP_LOAD_PHASE_C_ACTIVE_POWER, new SignedWordElement(34393),
-                                ElementToChannelConverter.SCALE_FACTOR_1)
+                                ElementToChannelConverter.SCALE_FACTOR_MINUS_1)
 
 						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_1, new UnsignedWordElement(34394)),
 						m(PytesDcCharger.ChannelId.INVERTER_FAULT_CODE_2, new UnsignedWordElement(34395)),
@@ -1170,7 +1170,34 @@
                                 ElementToChannelConverter.SCALE_FACTOR_2)
 
 						m(PytesDcCharger.ChannelId.SMART_LOAD_TOTAL_POWER_CONSUMPTION, new UnsignedDoubleWordElement(34411),
-                                ElementToChannelConverter.SCALE_FACTOR_1)
+                                ElementToChannelConverter.SCALE_FACTOR_3)
 
 						m(PytesDcCharger.ChannelId.SMART_LOAD_DAILY_ENERGY_CONSUMPTION, new UnsignedWordElement(34413),
                                 ElementToChannelConverter.SCALE_FACTOR_2)
+								
+// --------------------------------------------------------------------------------------------------------------------------------------------------
+						
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SWITCH, new UnsignedWordElement(44100))
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_FAILSAFE_SETTING, new UnsignedWordElement(44101))
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SYSTEM_LIMIT_SWITCH, new UnsignedWordElement(44102))
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SYSTEM_IMPORT_LIMIT, new UnsignedWordElement(44103),
+								ElementToChannelConverter.SCALE_FACTOR_2);
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SYSTEM_EXPORT_LIMIT, new UnsignedWordElement(44104),
+								ElementToChannelConverter.SCALE_FACTOR_2);
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_SWITCH, new UnsignedWordElement(44105));
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_REALTIME_POWER_VALUE, new SignedDoubleWordElement(44106),
+								ElementToChannelConverter.SCALE_FACTOR_1);
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_REALTIME_FUNCTION_SWITCH, new UnsignedWordElement(44108));
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SOC_LOWER_RANGE, new UnsignedWordElement(44109));
+
+						m(HybridInverter.ChannelId.REMOTE_DISPATCH_SOC_UPPER_RANGE, new UnsignedWordElement(44110));
+								
+						
