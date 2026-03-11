@@ -16,6 +16,7 @@ import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
 import io.openems.edge.pytes.enums.Appendix2;
 import io.openems.edge.pytes.enums.StandardWorkingMode;
+import io.openems.common.channel.Level;
 
 public interface PytesJs3 extends OpenemsComponent, EventHandler {
 
@@ -158,7 +159,7 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		FAULT_REG1_GRID_FREQ_FLUCTUATION(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid frequency fluctuation")),
 		FAULT_REG1_GRID_REVERSE_CURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid reverse current")),
 		FAULT_REG1_GRID_CURRENT_TRACKING_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid current tracking error")),
-		FAULT_REG1_METER_COM_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("METER COM fail")),
+		FAULT_REG1_METER_COM_FAIL(Doc.of(Level.FAULT).accessMode(READ_ONLY).text("METER COM fail")),
 		FAULT_REG1_FAILSAFE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("FailSafe")),
 		FAULT_REG1_METER_SELECT_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Meter Select Fail")),
 		FAULT_REG1_EPM_HARD_LIMIT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("EPM Hard Limit Protection")),
