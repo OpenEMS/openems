@@ -15,6 +15,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
 import io.openems.edge.pytes.enums.Appendix2;
+import io.openems.edge.pytes.enums.Appendix8;
 import io.openems.edge.pytes.enums.StandardWorkingMode;
 
 public interface PytesJs3 extends OpenemsComponent, EventHandler {
@@ -394,6 +395,8 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.WRITE_ONLY)),
 
 		STANDARD_WORKING_MODE(Doc.of(StandardWorkingMode.values()).accessMode(AccessMode.READ_ONLY)),
+		
+		OPERATION_MODE_DECODE(Doc.of(Appendix8.values()).accessMode(AccessMode.READ_ONLY)),
 
 		;
 

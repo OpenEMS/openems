@@ -469,6 +469,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nSettingFlag_ResetDatalogger=" + this.channel(PytesJs3.ChannelId.SETTING_FLAG_RESET_DATALOGGER).value().asString()
 					+ "\nSettingFlag_FactoryRecover=" + this.channel(PytesJs3.ChannelId.SETTING_FLAG_FACTORY_RECOVER).value().asString()
 					
+					+ "\nOperatingModeDecoded=" + this.channel(PytesJs3.ChannelId.OPERATION_MODE_DECODE).value().asString()
 					;			
 			
 		}
@@ -670,6 +671,21 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 		    PytesJs3.ChannelId.SETTING_FLAG_RESERVED_14,
 		    PytesJs3.ChannelId.SETTING_FLAG_RESERVED_15
 		});
+		
+		// Appendix 8 — Operating Mode register 33122 (only one bit valid at a time)
+		var rawMode = this.channel(PytesJs3.ChannelId.OPERATION_MODE_DECODE).value();
+		if (rawMode.isDefined()) {
+		    int raw = (Integer) rawMode.get();
+		    // Find which bit is set (bit position = enum value)
+		    int bitPos = -1;
+		    for (int i = 0; i <= 8; i++) {
+		        if ((raw & (1 << i)) != 0) {
+		            bitPos = i;
+		            break;
+		        }
+		    }
+		    this.channel(PytesJs3.ChannelId.OPERATION_MODE_DECODE).setNextValue(bitPos);
+		};
 	}
 
 	/**
