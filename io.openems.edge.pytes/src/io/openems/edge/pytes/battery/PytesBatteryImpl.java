@@ -132,7 +132,8 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC: " + this.getSoc();
+		return "SoC: " + this.getSoc()
+		+ " DcPower: " + this.getDcDischargePower().asString();
 	}
 
 	/**
