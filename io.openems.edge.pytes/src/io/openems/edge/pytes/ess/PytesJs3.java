@@ -119,41 +119,180 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		// .accessMode(READ_ONLY)
 		),
 
-		SETTING_FLAG_BIT(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		SETTING_FLAG_BIT(Doc.of(INTEGER).accessMode(READ_ONLY)),
+		
+		// ── Appendix 7 ── Register 33115 decoded bits ──
+		SETTING_FLAG_FLASH_TIMEOUT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("FLASH read/write timeout")),
+		SETTING_FLAG_CLEAR_ENERGY(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Clear energy flag")),
+		SETTING_FLAG_RESERVED_02(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT02)")),
+		SETTING_FLAG_RESERVED_03(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT03)")),
+		SETTING_FLAG_RESERVED_04(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT04)")),
+		SETTING_FLAG_RESERVED_05(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT05)")),
+		SETTING_FLAG_RESERVED_06(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT06)")),
+		SETTING_FLAG_RESERVED_07(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT07)")),
+		SETTING_FLAG_RESET_DATALOGGER(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reset datalogger flag")),
+		SETTING_FLAG_FACTORY_RECOVER(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Return factory setting of datalogger")),
+		SETTING_FLAG_RESERVED_10(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT10)")),
+		SETTING_FLAG_RESERVED_11(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT11)")),
+		SETTING_FLAG_RESERVED_12(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT12)")),
+		SETTING_FLAG_RESERVED_13(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT13)")),
+		SETTING_FLAG_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT14)")),
+		SETTING_FLAG_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (SETFLAG BIT15)")),
 
-		FAULT_CODE_01(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── raw bitmask registers (read as INTEGER, decoded in handleEvent) ──
+		FAULT_CODE_01(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33116
+		FAULT_CODE_02(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33117
+		FAULT_CODE_03(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33118
+		FAULT_CODE_04(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33119
+		FAULT_CODE_05(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33120
+		FAULT_CODE_06(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33124
+		FAULT_CODE_07(Doc.of(INTEGER).accessMode(READ_ONLY)), // Register 33125
 
-		FAULT_CODE_02(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33116 decoded bits ──
+		FAULT_REG1_NO_GRID(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("No grid")),
+		FAULT_REG1_GRID_OVERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid overvoltage")),
+		FAULT_REG1_GRID_UNDERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid undervoltage")),
+		FAULT_REG1_GRID_OVERFREQ(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid overfrequency")),
+		FAULT_REG1_GRID_UNDERFREQ(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid underfrequency")),
+		FAULT_REG1_UNBALANCED_GRID(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Unbalanced grid")),
+		FAULT_REG1_GRID_FREQ_FLUCTUATION(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid frequency fluctuation")),
+		FAULT_REG1_GRID_REVERSE_CURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid reverse current")),
+		FAULT_REG1_GRID_CURRENT_TRACKING_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid current tracking error")),
+		FAULT_REG1_METER_COM_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("METER COM fail")),
+		FAULT_REG1_FAILSAFE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("FailSafe")),
+		FAULT_REG1_METER_SELECT_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Meter Select Fail")),
+		FAULT_REG1_EPM_HARD_LIMIT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("EPM Hard Limit Protection")),
+		FAULT_REG1_G100_CURRENT_OVER_LIMIT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("G100 Current Over Limit")),
+		FAULT_REG1_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG1 BIT14)")),
+		FAULT_REG1_ABNORMAL_GRID_PHASE_POLARITY(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Abnormal grid phase polarity")),
 
-		FAULT_CODE_03(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33117 decoded bits ──
+		FAULT_REG2_BACKUP_OVERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Backup overvoltage fault")),
+		FAULT_REG2_BACKUP_OVERLOAD(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Backup overload fault")),
+		FAULT_REG2_GRID_BACKUP_OVERLOAD(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid Backup overload")),
+		FAULT_REG2_OFFGRID_BACKUP_UNDERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Off-grid Backup undervoltage")),
+		FAULT_REG2_HUB_PANEL_OV_CURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Hub Panel Over-Current")),
+		FAULT_REG2_RESERVED_05(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT05)")),
+		FAULT_REG2_RESERVED_06(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT06)")),
+		FAULT_REG2_RESERVED_07(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT07)")),
+		FAULT_REG2_RESERVED_08(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT08)")),
+		FAULT_REG2_RESERVED_09(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT09)")),
+		FAULT_REG2_RESERVED_10(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT10)")),
+		FAULT_REG2_RESERVED_11(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT11)")),
+		FAULT_REG2_RESERVED_12(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT12)")),
+		FAULT_REG2_RESERVED_13(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT13)")),
+		FAULT_REG2_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT14)")),
+		FAULT_REG2_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG2 BIT15)")),
 
-		FAULT_CODE_04(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33118 decoded bits ──
+		FAULT_REG3_BATTERY_NOT_CONNECTED(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery not connected")),
+		FAULT_REG3_BATTERY_OVERVOLTAGE_CHECK(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery overvoltage check")),
+		FAULT_REG3_BATTERY_UNDERVOLTAGE_CHECK(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery undervoltage check")),
+		FAULT_REG3_BATTERY_BMS_ALARM(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery BMS Alarm")),
+		FAULT_REG3_INCONSISTENT_BATTERY_SELECTION(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Inconsistent battery selection")),
+		FAULT_REG3_LEAD_ACID_TEMP_TOO_LOW(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Lead-acid battery temperature too low")),
+		FAULT_REG3_LEAD_ACID_TEMP_TOO_HIGH(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Lead-acid battery temperature too high")),
+		FAULT_REG3_SECOND_BATTERY_NOT_CONNECTED(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Second battery not connected")),
+		FAULT_REG3_SECOND_BATTERY_SW_OVERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Second battery software overvoltage")),
+		FAULT_REG3_SECOND_BATTERY_SW_UNDERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Second battery software undervoltage")),
+		FAULT_REG3_PARALLEL_BATTERY_COM_ABNORMAL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Parallel battery communication abnormal")),
+		FAULT_REG3_LOW_BATTERY_OFFGRID(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Low battery (off-grid)")),
+		FAULT_REG3_RESERVED_12(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG3 BIT12)")),
+		FAULT_REG3_RESERVED_13(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG3 BIT13)")),
+		FAULT_REG3_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG3 BIT14)")),
+		FAULT_REG3_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG3 BIT15)")),
 
-		FAULT_CODE_05(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33119 decoded bits ──
+		FAULT_REG4_DC_OVERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC overvoltage")),
+		FAULT_REG4_DC_BUS_OVERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC Bus overvoltage")),
+		FAULT_REG4_DC_BUS_UNBALANCED_VOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC Bus unbalanced voltage")),
+		FAULT_REG4_DC_BUS_UNDERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC Bus undervoltage")),
+		FAULT_REG4_DC_BUS_UNBALANCED_VOLTAGE_2(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC Bus unbalanced voltage 2")),
+		FAULT_REG4_DC_OVERCURRENT_A(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC overcurrent on A circuit")),
+		FAULT_REG4_DC_OVERCURRENT_B(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC overcurrent on B circuit")),
+		FAULT_REG4_DC_INPUT_INTERFERENCE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC input interference")),
+		FAULT_REG4_GRID_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid overcurrent")),
+		FAULT_REG4_IGBT_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("IGBT overcurrent")),
+		FAULT_REG4_GRID_INTERFERENCE_02(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid interference 02")),
+		FAULT_REG4_AFCI_SELF_CHECK(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("AFCI self-check")),
+		FAULT_REG4_ARC_FAULT_RESERVED(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Arc fault reserved")),
+		FAULT_REG4_GRID_CURRENT_SAMPLING_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid current sampling fault")),
+		FAULT_REG4_DSP_SELF_CHECK_ERROR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DSP self-check error")),
+		FAULT_REG4_BATTERY_DISCHARGE_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery Discharge Overcurrent")),
 
-		FAULT_CODE_06(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33120 decoded bits ──
+		FAULT_REG5_GRID_INTERFERENCE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid interference")),
+		FAULT_REG5_OVER_DC_COMPONENTS(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Over DC components")),
+		FAULT_REG5_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Over temperature protection")),
+		FAULT_REG5_RELAY_CHECK(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Relay check protection")),
+		FAULT_REG5_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Under temperature protection")),
+		FAULT_REG5_PV_INSULATION_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("PV insulation fault")),
+		FAULT_REG5_12V_UNDERVOLTAGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("12V undervoltage protection")),
+		FAULT_REG5_LEAK_CURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Leak current protection")),
+		FAULT_REG5_LEAK_CURRENT_SELF_CHECK(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Leak current self-check protection")),
+		FAULT_REG5_DSP_INITIAL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DSP initial protection")),
+		FAULT_REG5_DSP_B(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DSP B protection")),
+		FAULT_REG5_BATTERY_OVERVOLTAGE_HW(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery overvoltage hardware fault")),
+		FAULT_REG5_LLC_HW_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("LLC hardware overcurrent")),
+		FAULT_REG5_GRID_TRANSIENT_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid transient overcurrent")),
+		FAULT_REG5_BATTERY_COM_FAILURE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery communication failure")),
+		FAULT_REG5_DSP_COM_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DSP COM FAIL")),
 
-		FAULT_CODE_07(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		// ── Appendix 4 ── Register 33124 decoded bits ──
+		FAULT_REG6_SLAVE_LOSE_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("SlaveLoseErr")),
+		FAULT_REG6_MASTER_LOSE_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("MasterLoseErr")),
+		FAULT_REG6_SLAVE_PRD_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("SlavePrd-Err")),
+		FAULT_REG6_MASTER_PRD_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("MasterPrd-Err")),
+		FAULT_REG6_ADDR_CONFLICT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Addr-Conflict")),
+		FAULT_REG6_HEARTBEAT_LOSE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("HeartbeatLose")),
+		FAULT_REG6_DCAN_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DCanErr")),
+		FAULT_REG6_MUL_MASTER_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("MulMasterErr")),
+		FAULT_REG6_MODE_CONFLICT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("ModeConflict")),
+		FAULT_REG6_S_PLUG_VOLT_ERR(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("S-PlugVoltErr")),
+		FAULT_REG6_OTHERS_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Others' Fault")),
+		FAULT_REG6_CAN_BUS_LOSE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("CAN-BUS-LOSE")),
+		FAULT_REG6_MODEL_MISMATCH(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("ModelMismatch")),
+		FAULT_REG6_3P_CREATE_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("3P_CreateFail")),
+		FAULT_REG6_ACBK_OPEN(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("ACBK-Open")),
+		FAULT_REG6_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG6 BIT15)")),
+		
+		// ── Appendix 4 ── Register 33125 decoded bits ──
+		FAULT_REG7_REVE_DC(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reve-DC")),
+		FAULT_REG7_BATTERY_HW_OVERVOLTAGE_02(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery hardware overvoltage 02")),
+		FAULT_REG7_BATTERY_HW_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery hardware overcurrent")),
+		FAULT_REG7_BUS_MIDPOINT_HW_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Bus midpoint hardware overcurrent")),
+		FAULT_REG7_BATTERY_STARTUP_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery startup fail")),
+		FAULT_REG7_DC3_AVG_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC 3 average overcurrent")),
+		FAULT_REG7_DC4_AVG_OVERCURRENT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DC 4 average overcurrent")),
+		FAULT_REG7_SOFTRUN_TIMEOUT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Softrun timeout")),
+		FAULT_REG7_OFFGRID_TO_GRID_TIMEOUT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Off-grid to Grid timeout")),
+		FAULT_REG7_DRM_NOT_CONNECT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("DRM Not Connect")),
+		FAULT_REG7_RESERVED_10(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT10)")),
+		FAULT_REG7_RESERVED_11(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT11)")),
+		FAULT_REG7_RESERVED_12(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT12)")),
+		FAULT_REG7_RESERVED_13(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT13)")),
+		FAULT_REG7_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT14)")),
+		FAULT_REG7_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (REG7 BIT15)")),
 
-		OPERATING_STATUS(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		OPERATING_STATUS(Doc.of(INTEGER).accessMode(READ_ONLY)),
+		
+		// ── Appendix 5 ── Register 33121 / 36026 decoded bits ──
+		OPERATING_STAT_NORMAL_OPERATION(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Normal Operation")),
+		OPERATING_STAT_INITIALIZING(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Initializing")),
+		OPERATING_STAT_CONTROLLED_OFF(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Controlled turning OFF")),
+		OPERATING_STAT_FAULT_OFF(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Fault leads to turning OFF")),
+		OPERATING_STAT_STANDBY(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Stand-by")),
+		OPERATING_STAT_LIMITED_TEMP_FREQ(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Limited Operation (temperature/frequency)")),
+		OPERATING_STAT_LIMITED_EXTERNAL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Limited Operation (external reason)")),
+		OPERATING_STAT_BACKUP_OVERLOAD(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Backup overload")),
+		OPERATING_STAT_LOAD_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Load fault")),
+		OPERATING_STAT_GRID_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid fault")),
+		OPERATING_STAT_BATTERY_FAULT(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery fault")),
+		OPERATING_STAT_RESERVED_11(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (OPSTAT BIT11)")),
+		OPERATING_STAT_GRID_SURGE_WARN(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Grid Surge (Warn)")),
+		OPERATING_STAT_FAN_FAULT_WARN(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Fan fault (Warn)")),
+		OPERATING_STAT_EXTERNAL_FAN_FAIL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("External fan failure")),
+		OPERATING_STAT_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (OPSTAT BIT15)")),
 
 		OPERATING_MODE(Doc.of(INTEGER)
 		// .accessMode(READ_ONLY)
@@ -163,9 +302,25 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		// .accessMode(READ_ONLY)
 		),
 
-		STORAGE_CONTROL_SWITCHING_VALUE(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
-		),
+		STORAGE_CONTROL_SWITCHING_VALUE(Doc.of(INTEGER).accessMode(READ_ONLY)),
+		
+		// ── Appendix 6 ── Register 33132 decoded bits ──
+		STORAGE_CTRL_SELF_USE_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Self-Use Mode")),
+		STORAGE_CTRL_TIME_OF_USE_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Time of Use mode")),
+		STORAGE_CTRL_OFFGRID_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("OFF-grid mode")),
+		STORAGE_CTRL_BATT_WAKEUP(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery wakeup switch")),
+		STORAGE_CTRL_RESERVE_BATT_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserve battery mode")),
+		STORAGE_CTRL_ALLOW_GRID_CHARGE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Allow grid to charge battery")),
+		STORAGE_CTRL_FEED_IN_PRIORITY(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Feed in priority mode")),
+		STORAGE_CTRL_BATT_OVC(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Batt OVC Function")),
+		STORAGE_CTRL_FORCE_CHARGE_PEAKSHAVING(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery force charge / peak shaving")),
+		STORAGE_CTRL_BATT_CURRENT_CORRECTION(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery current correction enable")),
+		STORAGE_CTRL_BATT_HEALING_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Battery healing mode")),
+		STORAGE_CTRL_PEAK_SHAVING_MODE(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Peak-shaving mode")),
+		STORAGE_CTRL_RESERVED_12(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (STORAGE BIT12)")),
+		STORAGE_CTRL_RESERVED_13(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (STORAGE BIT13)")),
+		STORAGE_CTRL_RESERVED_14(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (STORAGE BIT14)")),
+		STORAGE_CTRL_RESERVED_15(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_ONLY).text("Reserved (STORAGE BIT15)")),
 
 		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(READ_ONLY)//

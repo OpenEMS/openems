@@ -9,7 +9,6 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
 import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
-import io.openems.edge.pytes.ess.PytesJs3Impl;
 
 public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<PytesJs3Impl> {
 
