@@ -9,8 +9,8 @@ services:
       - openems-backend-data:/var/opt/openems/data:rw
     ports:
       - 8079:8079 # Apache-Felix
-      - 8081:8081 # Edge-Websocket
       - 8082:8082 # UI-Websocket
+      - 8083:8083 # Edge-Manager
 
   openems-ui:
     image: openems/ui-backend:latest
