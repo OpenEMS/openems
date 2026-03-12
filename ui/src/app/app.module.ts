@@ -26,7 +26,6 @@ import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
 import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
-import { UserService } from "./shared/service/user.service";
 import { SharedModule } from "./shared/shared.module";
 import { registerTranslateExtension } from "./shared/translate.extension";
 import { Language, MyTranslateLoader } from "./shared/type/language";
@@ -65,13 +64,12 @@ provideTranslateLoader(MyTranslateLoader);
         CheckForUpdateService,
         PlatFormService,
         AppStateTracker,
-        UserService,
         NavigationService,
         AuthService,
         {
             provide: APP_INITIALIZER,
             useFactory: initializeService,
-            deps: [UserService, NavigationService], // Dependencies for the factory function
+            deps: [NavigationService], // Dependencies for the factory function
             multi: true, // Allows multiple initializers
         },
         provideCharts(withDefaultRegisterables()),

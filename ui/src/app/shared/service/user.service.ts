@@ -1,4 +1,4 @@
-import { Directive, effect, signal, WritableSignal } from "@angular/core";
+import { effect, Injectable, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
 import { ThemePopoverComponent } from "src/app/user/theme-selection-popup/theme-selection-popover";
@@ -12,7 +12,7 @@ import { User } from "../jsonrpc/shared";
 import { AssertionUtils } from "../utils/assertions/assertions.utils";
 import { Service } from "./service";
 
-@Directive()
+@Injectable({ providedIn: "root" })
 export class UserService {
 
     public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
