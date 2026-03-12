@@ -691,7 +691,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// THEN delete chargepoint
 		this.deleteComponentIfPresent(user, evcsId);
-		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
 		final var hardwareType = JsonUtils
 				.getAsOptionalEnum(KebaHardwareType.class, instance.properties.get("HARDWARE_TYPE"))//
 				.orElse(KebaHardwareType.P30); // Assume P30 for old apps without hardware_type property
